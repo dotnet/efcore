@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -335,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             else
             {
                 var modelSnapshotNamespace = modelSnapshot.GetType().Namespace;
-                Debug.Assert(!string.IsNullOrEmpty(modelSnapshotNamespace));
+                Check.DebugAssert(!string.IsNullOrEmpty(modelSnapshotNamespace), "modelSnapshotNamespace is null or empty");
                 var modelSnapshotCode = codeGenerator.GenerateSnapshot(
                     modelSnapshotNamespace,
                     _contextType,

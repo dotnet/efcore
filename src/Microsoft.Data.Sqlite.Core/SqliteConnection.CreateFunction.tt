@@ -96,6 +96,8 @@ namespace Microsoft.Data.Sqlite
 <# } #>
         /// <param name="function">The function to be invoked.</param>
         /// <param name="isDeterministic">Flag indicating whether the function is deterministic.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/user-defined-functions">User-Defined Functions</seealso>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
         public virtual void CreateFunction<<#= typeArguments #>>(string name, <#= stateParameter #>Func<<#= typeArguments #>> function, bool isDeterministic = false)
             => CreateFunctionCore(name, <#= arity #>, <#= stateArgument #>, IfNotNull<<#= stateParameterType #>, TResult>(function, (s, r) => function(<#= lambdaArguments #>)), isDeterministic);
 <#
@@ -116,6 +118,8 @@ namespace Microsoft.Data.Sqlite
 <# } #>
         /// <param name="function">The function to be invoked.</param>
         /// <param name="isDeterministic">Flag indicating whether the function is deterministic.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/user-defined-functions">User-Defined Functions</seealso>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
         public virtual void CreateFunction<<#= stateTypeArgument #>TResult>(string name, <#= stateParameter #>Func<<#= stateTypeArgument #>object[], TResult> function, bool isDeterministic = false)
             => CreateFunctionCore(name, -1, <#= stateArgument #>, IfNotNull<<#= stateParameterType #>, TResult>(function, (s, r) => function(<#= lambdaStateArgument #>GetValues(r))), isDeterministic);
 <#

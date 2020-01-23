@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using System.Linq;
 
 namespace System.Reflection
@@ -30,17 +29,6 @@ namespace System.Reflection
             var name = member.Name;
             var index = name.LastIndexOf('.');
             return index >= 0 ? name.Substring(index + 1) : name;
-        }
-
-        private class MemberInfoComparer : IEqualityComparer<MemberInfo>
-        {
-            public static readonly MemberInfoComparer Instance = new MemberInfoComparer();
-
-            public bool Equals(MemberInfo x, MemberInfo y)
-                => x.IsSameAs(y);
-
-            public int GetHashCode(MemberInfo obj)
-                => obj.GetHashCode();
         }
     }
 }

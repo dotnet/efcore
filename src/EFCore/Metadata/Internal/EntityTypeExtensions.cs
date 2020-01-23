@@ -338,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     index: navigationIndex++,
                     originalValueIndex: -1,
                     shadowIndex: navigation.IsShadowProperty() ? shadowIndex++ : -1,
-                    relationshipIndex: navigation.IsCollection() && isNotifying ? -1 : relationshipIndex++,
+                    relationshipIndex: ((INavigation)navigation).IsCollection && isNotifying ? -1 : relationshipIndex++,
                     storeGenerationIndex: -1);
 
                 navigation.PropertyIndexes = indexes;
@@ -481,7 +481,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string ToDebugString([NotNull] this IEntityType entityType, bool singleLine = true, [NotNull] string indent = "")
+        public static string ToDebugString(
+            [NotNull] this IEntityType entityType,
+            MetadataDebugStringOptions options,
+            [NotNull] string indent = "")
         {
             var builder = new StringBuilder();
 
@@ -510,7 +513,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append(" ChangeTrackingStrategy.").Append(entityType.GetChangeTrackingStrategy());
             }
 
-            if (!singleLine)
+            if ((options & MetadataDebugStringOptions.SingleLine) == 0)
             {
                 var properties = entityType.GetDeclaredProperties().ToList();
                 if (properties.Count != 0)
@@ -518,7 +521,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     builder.AppendLine().Append(indent).Append("  Properties: ");
                     foreach (var property in properties)
                     {
-                        builder.AppendLine().Append(property.ToDebugString(singleLine: false, indent: indent + "    "));
+                        builder.AppendLine().Append(property.ToDebugString(options, indent + "    "));
                     }
                 }
 
@@ -528,7 +531,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     builder.AppendLine().Append(indent).Append("  Navigations: ");
                     foreach (var navigation in navigations)
                     {
-                        builder.AppendLine().Append(navigation.ToDebugString(singleLine: false, indent: indent + "    "));
+                        builder.AppendLine().Append(navigation.ToDebugString(options, indent + "    "));
                     }
                 }
 
@@ -538,7 +541,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     builder.AppendLine().Append(indent).Append("  Service properties: ");
                     foreach (var serviceProperty in serviceProperties)
                     {
-                        builder.AppendLine().Append(serviceProperty.ToDebugString(singleLine: false, indent: indent + "    "));
+                        builder.AppendLine().Append(serviceProperty.ToDebugString(options, indent + "    "));
                     }
                 }
 
@@ -548,7 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     builder.AppendLine().Append(indent).Append("  Keys: ");
                     foreach (var key in keys)
                     {
-                        builder.AppendLine().Append(key.ToDebugString(singleLine: false, indent: indent + "    "));
+                        builder.AppendLine().Append(key.ToDebugString(options, indent + "    "));
                     }
                 }
 
@@ -558,11 +561,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     builder.AppendLine().Append(indent).Append("  Foreign keys: ");
                     foreach (var fk in fks)
                     {
-                        builder.AppendLine().Append(fk.ToDebugString(singleLine: false, indent: indent + "    "));
+                        builder.AppendLine().Append(fk.ToDebugString(options, indent + "    "));
                     }
                 }
 
-                builder.Append(entityType.AnnotationsToDebugString(indent: indent + "  "));
+                var indexes = entityType.GetDeclaredIndexes().ToList();
+                if (indexes.Count != 0)
+                {
+                    builder.AppendLine().Append(indent).Append("  Indexes: ");
+                    foreach (var index in indexes)
+                    {
+                        builder.AppendLine().Append(index.ToDebugString(options, indent + "    "));
+                    }
+                }
+
+                if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+                {
+                    builder.Append(entityType.AnnotationsToDebugString(indent: indent + "  "));
+                }
             }
 
             return builder.ToString();

@@ -5,8 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -19,10 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     public class SqlFunctionExpression : SqlExpression
     {
         public SqlFunctionExpression(
-            string name,
-            IEnumerable<SqlExpression> arguments,
-            Type type,
-            CoreTypeMapping typeMapping)
+            [NotNull] string name,
+            [CanBeNull] IEnumerable<SqlExpression> arguments,
+            [NotNull] Type type,
+            [CanBeNull] CoreTypeMapping typeMapping)
             : base(type, typeMapping)
         {
             Name = name;
@@ -53,6 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
+            Check.NotNull(visitor, nameof(visitor));
+
             var changed = false;
             var arguments = new SqlExpression[Arguments.Count];
             for (var i = 0; i < arguments.Length; i++)
@@ -76,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlFunctionExpression ApplyTypeMapping(CoreTypeMapping typeMapping)
+        public virtual SqlFunctionExpression ApplyTypeMapping([CanBeNull] CoreTypeMapping typeMapping)
             => new SqlFunctionExpression(
                 Name,
                 Arguments,
@@ -89,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlFunctionExpression Update(IReadOnlyList<SqlExpression> arguments)
+        public virtual SqlFunctionExpression Update([NotNull] IReadOnlyList<SqlExpression> arguments)
             => !arguments.SequenceEqual(Arguments)
                 ? new SqlFunctionExpression(Name, arguments, Type, TypeMapping)
                 : this;
@@ -102,6 +106,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public override void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.Append(Name);
             expressionPrinter.Append("(");
             expressionPrinter.VisitList(Arguments);

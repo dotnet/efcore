@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -41,28 +42,29 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             .GetDeclaredMethods(nameof(Enumerable.Contains))
             .Single(mi => mi.GetParameters().Length == 2);
 
-        public EntityEqualityRewritingExpressionVisitor(QueryCompilationContext queryCompilationContext)
+        public EntityEqualityRewritingExpressionVisitor([NotNull] QueryCompilationContext queryCompilationContext)
         {
             _queryCompilationContext = queryCompilationContext;
             _logger = queryCompilationContext.Logger;
         }
 
-        public virtual Expression Rewrite(Expression expression) => Unwrap(Visit(expression));
+        public virtual Expression Rewrite([NotNull] Expression expression)
+            => Unwrap(Visit(expression));
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
-            => constantExpression.IsEntityQueryable()
+        {
+            Check.NotNull(constantExpression, nameof(constantExpression));
+
+            return constantExpression.IsEntityQueryable()
                 ? new EntityReferenceExpression(
                     constantExpression,
                     _queryCompilationContext.Model.FindEntityType(((IQueryable)constantExpression.Value).ElementType))
                 : (Expression)constantExpression;
+        }
 
         protected override Expression VisitNew(NewExpression newExpression)
         {
-            // For .NET Framework only. If ctor is null that means the type is struct and has no ctor args.
-            if (newExpression.Constructor == null)
-            {
-                return newExpression;
-            }
+            Check.NotNull(newExpression, nameof(newExpression));
 
             var visitedArgs = Visit(newExpression.Arguments);
             var visitedExpression = newExpression.Update(visitedArgs.Select(Unwrap));
@@ -89,6 +91,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
         {
+            Check.NotNull(memberInitExpression, nameof(memberInitExpression));
+
             var visitedNew = Visit(memberInitExpression.NewExpression);
             var (visitedBindings, entityReferenceInfo) = VisitMemberBindings(memberInitExpression.Bindings);
             var visitedMemberInit = memberInitExpression.Update((NewExpression)Unwrap(visitedNew), visitedBindings);
@@ -136,20 +140,34 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         // Note that we could bubble up entity type information from the expressions initializing the array. However, EF Core doesn't
         // actually support doing much further with this array, so it's not worth the complexity (right now). So we simply unwrap.
         protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
-            => newArrayExpression.Update(Visit(newArrayExpression.Expressions).Select(Unwrap));
+        {
+            Check.NotNull(newArrayExpression, nameof(newArrayExpression));
+
+            return newArrayExpression.Update(Visit(newArrayExpression.Expressions).Select(Unwrap));
+        }
 
         // Note that we could bubble up entity type information from the expressions initializing the list. However, EF Core doesn't
         // actually support doing much further with this list, so it's not worth the complexity (right now). So we simply unwrap.
         protected override Expression VisitListInit(ListInitExpression listInitExpression)
-            => listInitExpression.Update(
+        {
+            Check.NotNull(listInitExpression, nameof(listInitExpression));
+
+            return listInitExpression.Update(
                 (NewExpression)Unwrap(listInitExpression.NewExpression),
                 listInitExpression.Initializers.Select(VisitElementInit));
+        }
 
         protected override ElementInit VisitElementInit(ElementInit elementInit)
-            => Expression.ElementInit(elementInit.AddMethod, Visit(elementInit.Arguments).Select(Unwrap));
+        {
+            Check.NotNull(elementInit, nameof(elementInit));
+
+            return Expression.ElementInit(elementInit.AddMethod, Visit(elementInit.Arguments).Select(Unwrap));
+        }
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
+            Check.NotNull(memberExpression, nameof(memberExpression));
+
             var visitedExpression = base.Visit(memberExpression.Expression);
             var visitedMemberExpression = memberExpression.Update(Unwrap(visitedExpression));
             return visitedExpression is EntityReferenceExpression entityWrapper
@@ -159,6 +177,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
+            Check.NotNull(binaryExpression, nameof(binaryExpression));
+
             var (newLeft, newRight) = (Visit(binaryExpression.Left), Visit(binaryExpression.Right));
             if (binaryExpression.NodeType == ExpressionType.Equal
                 || binaryExpression.NodeType == ExpressionType.NotEqual)
@@ -174,6 +194,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
+            Check.NotNull(unaryExpression, nameof(unaryExpression));
+
             var newOperand = Visit(unaryExpression.Operand);
             var newUnary = unaryExpression.Update(Unwrap(newOperand));
 
@@ -202,6 +224,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
         {
+            Check.NotNull(typeBinaryExpression, nameof(typeBinaryExpression));
+
             // This is for "x is y"
             var visitedExpression = Visit(typeBinaryExpression.Expression);
             var visitedTypeBinary = typeBinaryExpression.Update(Unwrap(visitedExpression));
@@ -212,6 +236,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
         {
+            Check.NotNull(conditionalExpression, nameof(conditionalExpression));
+
             var newTest = Visit(conditionalExpression.Test);
             var newIfTrue = Visit(conditionalExpression.IfTrue);
             var newIfFalse = Visit(conditionalExpression.IfFalse);
@@ -227,6 +253,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
             var method = methodCallExpression.Method;
             var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
             var arguments = methodCallExpression.Arguments;
@@ -249,12 +277,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     ?? methodCallExpression.Update(null, new[] { Unwrap(newLeft), Unwrap(newRight) });
             }
 
-            // Navigation via EF.Property() or via an indexer property
-            if (methodCallExpression.TryGetEFPropertyArguments(out _, out var propertyName)
-                || methodCallExpression.TryGetEFIndexerArguments(out _, out propertyName))
+            // Navigation via EF.Property()
+            if (methodCallExpression.TryGetEFPropertyArguments(out _, out var propertyName))
             {
                 newSource = Visit(arguments[0]);
                 var newMethodCall = methodCallExpression.Update(null, new[] { Unwrap(newSource), arguments[1] });
+                return newSource is EntityReferenceExpression entityWrapper
+                    ? entityWrapper.TraverseProperty(propertyName, newMethodCall)
+                    : newMethodCall;
+            }
+
+            // Navigation via an indexer property
+            if (methodCallExpression.TryGetIndexerArguments(_queryCompilationContext.Model, out _, out propertyName))
+            {
+                newSource = Visit(methodCallExpression.Object);
+                var newMethodCall = methodCallExpression.Update(Unwrap(newSource), new[] { arguments[0] });
                 return newSource is EntityReferenceExpression entityWrapper
                     ? entityWrapper.TraverseProperty(propertyName, newMethodCall)
                     : newMethodCall;
@@ -273,7 +310,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     when genericMethod == QueryableMethods.OrderByDescending:
                 case nameof(Queryable.ThenBy)
                     when genericMethod == QueryableMethods.ThenBy:
-                case nameof(Queryable.ThenByDescending) when genericMethod == QueryableMethods.ThenByDescending:
+                case nameof(Queryable.ThenByDescending)
+                    when genericMethod == QueryableMethods.ThenByDescending:
                     return VisitOrderingMethodCall(methodCallExpression);
 
                 // The following are projecting methods, which flow the entity type from *within* the lambda outside.
@@ -828,7 +866,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] Expression nonNullExpression,
             [CanBeNull] INavigation lastNavigation)
         {
-            if (lastNavigation?.IsCollection() == true)
+            if (lastNavigation?.IsCollection == true)
             {
                 // collection navigation is only null if its parent entity is null (null propagation thru navigation)
                 // it is probable that user wanted to see if the collection is (not) empty
@@ -860,8 +898,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] Expression right, [CanBeNull] INavigation rightNavigation,
             bool subqueryTraversed)
         {
-            if (leftNavigation?.IsCollection() == true
-                || rightNavigation?.IsCollection() == true)
+            if (leftNavigation?.IsCollection == true
+                || rightNavigation?.IsCollection == true)
             {
                 if (leftNavigation?.Equals(rightNavigation) == true)
                 {
@@ -899,6 +937,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitExtension(Expression extensionExpression)
         {
+            Check.NotNull(extensionExpression, nameof(extensionExpression));
+
             // If the expression is an EntityReferenceExpression, simply returns it as all rewriting has already occurred.
             // This is necessary when traversing wrapping expressions that have been injected into the lambda for parameters.
             return extensionExpression is EntityReferenceExpression
@@ -1011,14 +1051,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo()
                 .GetDeclaredMethod(nameof(ParameterListValueExtractor));
 
-        protected static Expression UnwrapLastNavigation(Expression expression)
-            => (expression as MemberExpression)?.Expression
+        protected static Expression UnwrapLastNavigation([NotNull] Expression expression)
+        {
+            Check.NotNull(expression, nameof(expression));
+
+            return (expression as MemberExpression)?.Expression
                 ?? (expression is MethodCallExpression methodCallExpression
                     && methodCallExpression.Method.IsEFPropertyMethod()
                         ? methodCallExpression.Arguments[0]
                         : null);
+        }
 
-        protected static Expression Unwrap(Expression expression)
+        protected static Expression Unwrap([NotNull] Expression expression)
             => expression switch
             {
                 EntityReferenceExpression wrapper => wrapper.Underlying,
@@ -1036,7 +1080,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public static EntityOrDtoType FromEntityReferenceExpression(EntityReferenceExpression ere)
                 => new EntityOrDtoType
                 {
-                    EntityType = ere.IsEntityType ? ere.EntityType : null, DtoType = ere.IsDtoType ? ere.DtoType : null
+                    EntityType = ere.IsEntityType ? ere.EntityType : null,
+                    DtoType = ere.IsDtoType ? ere.DtoType : null
                 };
 
             public static EntityOrDtoType FromDtoType(Dictionary<string, EntityOrDtoType> dtoType)
@@ -1123,7 +1168,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return EntityType.FindNavigation(propertyName) is INavigation navigation
                         ? new EntityReferenceExpression(
                             destinationExpression,
-                            navigation.GetTargetType(),
+                            navigation.TargetEntityType,
                             navigation,
                             null,
                             SubqueryTraversed)
@@ -1149,10 +1194,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 => new EntityReferenceExpression(newUnderlying, EntityType, null, DtoType, SubqueryTraversed);
 
             protected override Expression VisitChildren(ExpressionVisitor visitor)
-                => Update(visitor.Visit(Underlying));
+            {
+                Check.NotNull(visitor, nameof(visitor));
+
+                return Update(visitor.Visit(Underlying));
+            }
 
             public virtual void Print(ExpressionPrinter expressionPrinter)
             {
+                Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
                 expressionPrinter.Visit(Underlying);
 
                 if (IsEntityType)

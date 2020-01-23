@@ -3,23 +3,36 @@
 
 using System;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     public class SqlFragmentExpression : SqlExpression
     {
-        public SqlFragmentExpression(string sql)
+        public SqlFragmentExpression([NotNull] string sql)
             : base(typeof(string), null)
         {
+            Check.NotEmpty(sql, nameof(sql));
+
             Sql = sql;
         }
 
         public virtual string Sql { get; }
 
-        protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+        {
+            Check.NotNull(visitor, nameof(visitor));
+
+            return this;
+        }
 
         public override void Print(ExpressionPrinter expressionPrinter)
-            => expressionPrinter.Append(Sql);
+        {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
+            expressionPrinter.Append(Sql);
+        }
 
         public override bool Equals(object obj)
             => obj != null

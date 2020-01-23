@@ -7,11 +7,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
@@ -21,15 +23,18 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         private readonly QueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
         private readonly EntityProjectionFindingExpressionVisitor _entityProjectionFindingExpressionVisitor;
+        private readonly IModel _model;
 
         public InMemoryExpressionTranslatingExpressionVisitor(
-            QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
+            [NotNull] QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor,
+            [NotNull] IModel model)
         {
             _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
             _entityProjectionFindingExpressionVisitor = new EntityProjectionFindingExpressionVisitor();
+            _model = model;
         }
 
-        private class EntityProjectionFindingExpressionVisitor : ExpressionVisitor
+        private sealed class EntityProjectionFindingExpressionVisitor : ExpressionVisitor
         {
             private bool _found;
 
@@ -59,7 +64,75 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
         }
 
-        public virtual Expression Translate(Expression expression)
+        private sealed class PropertyFindingExpressionVisitor : ExpressionVisitor
+        {
+            private readonly IModel _model;
+            private IProperty _property;
+
+            public PropertyFindingExpressionVisitor(IModel model)
+            {
+                _model = model;
+            }
+
+            public IProperty Find(Expression expression)
+            {
+                Visit(expression);
+
+                return _property;
+            }
+
+            protected override Expression VisitMember(MemberExpression memberExpression)
+            {
+                var entityType = FindEntityType(memberExpression.Expression);
+                if (entityType != null)
+                {
+                    _property = GetProperty(entityType, MemberIdentity.Create(memberExpression.Member));
+                }
+
+                return memberExpression;
+            }
+
+            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+            {
+                if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName)
+                    || methodCallExpression.TryGetIndexerArguments(_model, out source, out propertyName))
+                {
+                    var entityType = FindEntityType(source);
+                    if (entityType != null)
+                    {
+                        _property = GetProperty(entityType, MemberIdentity.Create(propertyName));
+                    }
+                }
+
+                return methodCallExpression;
+            }
+
+            private static IProperty GetProperty(IEntityType entityType, MemberIdentity memberIdentity)
+                => memberIdentity.MemberInfo != null
+                    ? entityType.FindProperty(memberIdentity.MemberInfo)
+                    : entityType.FindProperty(memberIdentity.Name);
+
+            private static IEntityType FindEntityType(Expression source)
+            {
+                source = source.UnwrapTypeConversion(out var convertedType);
+
+                if (source is EntityShaperExpression entityShaperExpression)
+                {
+                    var entityType = entityShaperExpression.EntityType;
+                    if (convertedType != null)
+                    {
+                        entityType = entityType.GetRootType().GetDerivedTypesInclusive()
+                            .FirstOrDefault(et => et.ClrType == convertedType);
+                    }
+
+                    return entityType;
+                }
+
+                return null;
+            }
+        }
+
+        public virtual Expression Translate([NotNull] Expression expression)
         {
             var result = Visit(expression);
 
@@ -70,6 +143,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
+            Check.NotNull(binaryExpression, nameof(binaryExpression));
+
             var newLeft = Visit(binaryExpression.Left);
             var newRight = Visit(binaryExpression.Right);
 
@@ -86,6 +161,31 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 newRight = ConvertToNullable(newRight);
             }
 
+            var propertyFindingExpressionVisitor = new PropertyFindingExpressionVisitor(_model);
+            var property = propertyFindingExpressionVisitor.Find(binaryExpression.Left)
+                ?? propertyFindingExpressionVisitor.Find(binaryExpression.Right);
+
+            if (property != null)
+            {
+                var comparer = property.GetValueComparer()
+                    ?? property.FindTypeMapping()?.Comparer;
+
+                if (comparer != null
+                    && comparer.Type.IsAssignableFrom(newLeft.Type)
+                    && comparer.Type.IsAssignableFrom(newRight.Type))
+                {
+                    if (binaryExpression.NodeType == ExpressionType.Equal)
+                    {
+                        return comparer.ExtractEqualsBody(newLeft, newRight);
+                    }
+
+                    if (binaryExpression.NodeType == ExpressionType.NotEqual)
+                    {
+                        return Expression.IsFalse(comparer.ExtractEqualsBody(newLeft, newRight));
+                    }
+                }
+            }
+
             return Expression.MakeBinary(
                 binaryExpression.NodeType,
                 newLeft,
@@ -97,6 +197,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
         {
+            Check.NotNull(conditionalExpression, nameof(conditionalExpression));
+
             var test = Visit(conditionalExpression.Test);
             var ifTrue = Visit(conditionalExpression.IfTrue);
             var ifFalse = Visit(conditionalExpression.IfFalse);
@@ -125,6 +227,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
+            Check.NotNull(memberExpression, nameof(memberExpression));
+
             if (TryBindMember(
                 memberExpression.Expression,
                 MemberIdentity.Create(memberExpression.Member),
@@ -264,6 +368,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
             if (methodCallExpression.Method.IsGenericMethod
                 && methodCallExpression.Method.GetGenericMethodDefinition() == EntityMaterializerSource.TryReadValueMethod)
             {
@@ -279,6 +385,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 }
 
                 throw new InvalidOperationException("EF.Property called with wrong property name.");
+            }
+
+            // EF Indexer property
+            if (methodCallExpression.TryGetIndexerArguments(_model, out source, out propertyName))
+            {
+                return TryBindMember(source, MemberIdentity.Create(propertyName), methodCallExpression.Type, out var result) ? result : null;
             }
 
             // GroupBy Aggregate case
@@ -478,6 +590,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
         {
+            Check.NotNull(typeBinaryExpression, nameof(typeBinaryExpression));
+
             if (typeBinaryExpression.NodeType == ExpressionType.TypeIs
                 && Visit(typeBinaryExpression.Expression) is EntityProjectionExpression entityProjectionExpression)
             {
@@ -516,11 +630,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         protected override Expression VisitNew(NewExpression newExpression)
         {
-            // For .NET Framework only. If ctor is null that means the type is struct and has no ctor args.
-            if (newExpression.Constructor == null)
-            {
-                return newExpression;
-            }
+            Check.NotNull(newExpression, nameof(newExpression));
 
             var newArguments = new List<Expression>();
             foreach (var argument in newExpression.Arguments)
@@ -544,6 +654,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
         {
+            Check.NotNull(newArrayExpression, nameof(newArrayExpression));
+
             var newExpressions = new List<Expression>();
             foreach (var expression in newArrayExpression.Expressions)
             {
@@ -582,6 +694,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         protected override Expression VisitExtension(Expression extensionExpression)
         {
+            Check.NotNull(extensionExpression, nameof(extensionExpression));
+
             switch (extensionExpression)
             {
                 case EntityProjectionExpression _:
@@ -601,14 +715,31 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
         }
 
-        protected override Expression VisitListInit(ListInitExpression node) => null;
+        protected override Expression VisitListInit(ListInitExpression node)
+        {
+            Check.NotNull(node, nameof(node));
 
-        protected override Expression VisitInvocation(InvocationExpression node) => null;
+            return null;
+        }
 
-        protected override Expression VisitLambda<T>(Expression<T> node) => null;
+        protected override Expression VisitInvocation(InvocationExpression node)
+        {
+            Check.NotNull(node, nameof(node));
+
+            return null;
+        }
+
+        protected override Expression VisitLambda<T>(Expression<T> node)
+        {
+            Check.NotNull(node, nameof(node));
+
+            return null;
+        }
 
         protected override Expression VisitParameter(ParameterExpression parameterExpression)
         {
+            Check.NotNull(parameterExpression, nameof(parameterExpression));
+
             if (parameterExpression.Name.StartsWith(CompiledQueryParameterPrefix, StringComparison.Ordinal))
             {
                 return Expression.Call(
@@ -624,13 +755,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             = typeof(InMemoryExpressionTranslatingExpressionVisitor)
                 .GetTypeInfo().GetDeclaredMethod(nameof(GetParameterValue));
 
-#pragma warning disable IDE0052 // Remove unread private members
+        [UsedImplicitly]
         private static T GetParameterValue<T>(QueryContext queryContext, string parameterName)
-#pragma warning restore IDE0052 // Remove unread private members
             => (T)queryContext.ParameterValues[parameterName];
 
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
+            Check.NotNull(unaryExpression, nameof(unaryExpression));
+
             var newOperand = Visit(unaryExpression.Operand);
             if (newOperand == null)
             {

@@ -235,16 +235,14 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             try
             {
-                using (var dataReader = storeCommand.RelationalCommand.ExecuteReader(
+                using var dataReader = storeCommand.RelationalCommand.ExecuteReader(
                     new RelationalCommandParameterObject(
                         connection,
                         storeCommand.ParameterValues,
                         null,
                         Dependencies.CurrentContext.Context,
-                        Dependencies.Logger)))
-                {
-                    Consume(dataReader);
-                }
+                        Dependencies.Logger));
+                Consume(dataReader);
             }
             catch (DbUpdateException)
             {
@@ -273,17 +271,15 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             try
             {
-                await using (var dataReader = await storeCommand.RelationalCommand.ExecuteReaderAsync(
+                await using var dataReader = await storeCommand.RelationalCommand.ExecuteReaderAsync(
                     new RelationalCommandParameterObject(
                         connection,
                         storeCommand.ParameterValues,
                         null,
                         Dependencies.CurrentContext.Context,
                         Dependencies.Logger),
-                    cancellationToken))
-                {
-                    await ConsumeAsync(dataReader, cancellationToken);
-                }
+                    cancellationToken);
+                await ConsumeAsync(dataReader, cancellationToken);
             }
             catch (DbUpdateException)
             {

@@ -50,15 +50,6 @@ namespace Microsoft.EntityFrameworkCore
             => (CoreTypeMapping)property[CoreAnnotationNames.TypeMapping];
 
         /// <summary>
-        ///     Returns the <see cref="CoreTypeMapping" /> for the given property.
-        /// </summary>
-        /// <param name="property"> The property. </param>
-        /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
-        [Obsolete("Use FindTypeMapping instead")]
-        public static CoreTypeMapping FindMapping([NotNull] this IProperty property)
-            => property.FindTypeMapping();
-
-        /// <summary>
         ///     Finds the first principal property that the given property is constrained by
         ///     if the given property is part of a foreign key.
         /// </summary>
@@ -107,6 +98,16 @@ namespace Microsoft.EntityFrameworkCore
             => Check.NotNull(property, nameof(property)).AsProperty().Indexes != null;
 
         /// <summary>
+        ///     Gets a value indicating whether this property is used as a unique index (or part of a unique composite index).
+        /// </summary>
+        /// <param name="property"> The property to check. </param>
+        /// <returns>
+        ///     <c>true</c> if the property is used as an uniqueindex, otherwise <c>false</c>.
+        /// </returns>
+        public static bool IsUniqueIndex([NotNull] this IProperty property)
+            => Check.NotNull(property, nameof(property)).AsProperty().Indexes?.Any(e => e.IsUnique) == true;
+
+        /// <summary>
         ///     Gets a value indicating whether this property is used as the primary key (or part of a composite primary key).
         /// </summary>
         /// <param name="property"> The property to check. </param>
@@ -148,18 +149,6 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static IEnumerable<IIndex> GetContainingIndexes([NotNull] this IProperty property)
             => Check.NotNull(property, nameof(property)).AsProperty().GetContainingIndexes();
-
-        /// <summary>
-        ///     Gets the primary key that uses this property (including a composite primary key in which this property
-        ///     is included).
-        /// </summary>
-        /// <param name="property"> The property to get primary key for. </param>
-        /// <returns>
-        ///     The primary that use this property, or <c>null</c> if it is not part of the primary key.
-        /// </returns>
-        [Obsolete("Use FindContainingPrimaryKey()")]
-        public static IKey GetContainingPrimaryKey([NotNull] this IProperty property)
-            => property.FindContainingPrimaryKey();
 
         /// <summary>
         ///     Gets the primary key that uses this property (including a composite primary key in which this property
@@ -300,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The comparer, or <c>null</c> if none has been set. </returns>
         public static ValueComparer GetStructuralValueComparer([NotNull] this IProperty property)
-            => (ValueComparer)Check.NotNull(property, nameof(property))[CoreAnnotationNames.KeyValueComparer];
+            => (ValueComparer)Check.NotNull(property, nameof(property))[CoreAnnotationNames.StructuralValueComparer];
 
         /// <summary>
         ///     Creates a formatted string representation of the given properties such as is useful

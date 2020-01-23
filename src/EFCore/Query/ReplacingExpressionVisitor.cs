@@ -4,8 +4,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -13,14 +16,20 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         private readonly IDictionary<Expression, Expression> _replacements;
 
-        public static Expression Replace(Expression original, Expression replacement, Expression tree)
+        public static Expression Replace([NotNull] Expression original, [NotNull] Expression replacement, [NotNull] Expression tree)
         {
+            Check.NotNull(original, nameof(original));
+            Check.NotNull(replacement, nameof(replacement));
+            Check.NotNull(tree, nameof(tree));
+
             return new ReplacingExpressionVisitor(
                 new Dictionary<Expression, Expression> { { original, replacement } }).Visit(tree);
         }
 
-        public ReplacingExpressionVisitor(IDictionary<Expression, Expression> replacements)
+        public ReplacingExpressionVisitor([NotNull] IDictionary<Expression, Expression> replacements)
         {
+            Check.NotNull(replacements, nameof(replacements));
+
             _replacements = replacements;
         }
 
@@ -41,6 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
+            Check.NotNull(memberExpression, nameof(memberExpression));
+
             var innerExpression = Visit(memberExpression.Expression);
 
             if (innerExpression is GroupByShaperExpression groupByShaperExpression
@@ -60,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (innerExpression is MemberInitExpression memberInitExpression
                 && memberInitExpression.Bindings.SingleOrDefault(
-                    mb => mb.Member == memberExpression.Member) is MemberAssignment memberAssignment)
+                    mb => mb.Member.IsSameAs(memberExpression.Member)) is MemberAssignment memberAssignment)
             {
                 return memberAssignment.Expression;
             }
@@ -70,6 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
             if (methodCallExpression.TryGetEFPropertyArguments(out var entityExpression, out var propertyName))
             {
                 var newEntityExpression = Visit(entityExpression);

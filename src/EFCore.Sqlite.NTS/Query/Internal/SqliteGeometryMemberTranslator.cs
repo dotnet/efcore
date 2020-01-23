@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
@@ -34,30 +36,38 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         private static readonly MemberInfo _ogcGeometryType = typeof(Geometry).GetRuntimeProperty(nameof(Geometry.OgcGeometryType));
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public SqliteGeometryMemberTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        public SqliteGeometryMemberTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
         public virtual SqlExpression Translate(SqlExpression instance, MemberInfo member, Type returnType)
         {
+            Check.NotNull(member, nameof(member));
+            Check.NotNull(returnType, nameof(returnType));
+
             if (_memberToFunctionName.TryGetValue(member, out var functionName))
             {
-                SqlExpression translation = _sqlExpressionFactory.Function(functionName, new[] { instance }, returnType);
-
-                if (returnType == typeof(bool))
-                {
-                    translation = _sqlExpressionFactory.Case(
+                return returnType == typeof(bool)
+                    ? _sqlExpressionFactory.Case(
                         new[]
                         {
                             new CaseWhenClause(
                                 _sqlExpressionFactory.IsNotNull(instance),
-                                translation)
+                                _sqlExpressionFactory.Function(
+                                    functionName,
+                                    new[] { instance },
+                                    nullResultAllowed: false,
+                                    argumentsPropagateNullability: new[] { false },
+                                    returnType))
                         },
-                        null);
-                }
-
-                return translation;
+                        null)
+                    : (SqlExpression)_sqlExpressionFactory.Function(
+                        functionName,
+                        new[] { instance },
+                        nullResultAllowed: true,
+                        argumentsPropagateNullability: new[] { true },
+                        returnType);
             }
 
             if (Equals(member, _geometryType))
@@ -70,9 +80,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                             _sqlExpressionFactory.Function(
                                 "GeometryType",
                                 new[] { instance },
+                                nullResultAllowed: true,
+                                argumentsPropagateNullability: new[] { true },
                                 returnType),
                             _sqlExpressionFactory.Constant(" ZM")
                         },
+                        nullResultAllowed: true,
+                        argumentsPropagateNullability: new[] { true },
                         returnType),
                     new CaseWhenClause(_sqlExpressionFactory.Constant("POINT"), _sqlExpressionFactory.Constant("Point")),
                     new CaseWhenClause(_sqlExpressionFactory.Constant("LINESTRING"), _sqlExpressionFactory.Constant("LineString")),
@@ -95,9 +109,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                             _sqlExpressionFactory.Function(
                                 "GeometryType",
                                 new[] { instance },
+                                nullResultAllowed: true,
+                                argumentsPropagateNullability: new[] { true },
                                 typeof(string)),
                             _sqlExpressionFactory.Constant(" ZM")
                         },
+                        nullResultAllowed: true,
+                        argumentsPropagateNullability: new[] { true },
                         typeof(string)),
                     new CaseWhenClause(_sqlExpressionFactory.Constant("POINT"), _sqlExpressionFactory.Constant(OgcGeometryType.Point)),
                     new CaseWhenClause(

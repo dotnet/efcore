@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return false;
             }
 
-            foreach (var navigation in entityType.GetNavigations().Where(n => n.IsCollection()))
+            foreach (var navigation in entityType.GetNavigations().Where(n => n.IsCollection))
             {
                 AsINotifyCollectionChanged(entry, navigation, entityType, changeTrackingStrategy).CollectionChanged
                     += entry.HandleINotifyCollectionChanged;
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (changeTrackingStrategy != ChangeTrackingStrategy.Snapshot)
             {
-                foreach (var navigation in entityType.GetNavigations().Where(n => n.IsCollection()))
+                foreach (var navigation in entityType.GetNavigations().Where(n => n.IsCollection))
                 {
                     AsINotifyCollectionChanged(entry, navigation, entityType, changeTrackingStrategy).CollectionChanged
                         -= entry.HandleINotifyCollectionChanged;

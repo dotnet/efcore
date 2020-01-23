@@ -67,9 +67,9 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Initialization
             builder.Build(new SqlConnection(AdventureWorksFixture.ConnectionString));
         }
 
-        private class ColdStartEnabledTests : MarshalByRefObject
+        private sealed class ColdStartEnabledTests : MarshalByRefObject
         {
-            public virtual void CreateAndDisposeUnusedContext(int count)
+            public void CreateAndDisposeUnusedContext(int count)
             {
                 for (var i = 0; i < count; i++)
                 {
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Initialization
                 }
             }
 
-            public virtual void InitializeAndQuery_AdventureWorks(int count)
+            public void InitializeAndQuery_AdventureWorks(int count)
             {
                 for (var i = 0; i < count; i++)
                 {
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Initialization
                 }
             }
 
-            public virtual void InitializeAndSaveChanges_AdventureWorks(int count)
+            public void InitializeAndSaveChanges_AdventureWorks(int count)
             {
                 for (var i = 0; i < count; i++)
                 {

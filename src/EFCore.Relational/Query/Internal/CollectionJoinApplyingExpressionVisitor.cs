@@ -3,6 +3,7 @@
 
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -12,6 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitExtension(Expression extensionExpression)
         {
+            Check.NotNull(extensionExpression, nameof(extensionExpression));
+
             if (extensionExpression is CollectionShaperExpression collectionShaperExpression)
             {
                 var collectionId = _collectionId++;
@@ -36,14 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     collectionShaperExpression.ElementType);
             }
 
-            if (extensionExpression is ShapedQueryExpression shapedQueryExpression)
-            {
-                shapedQueryExpression.ShaperExpression = Visit(shapedQueryExpression.ShaperExpression);
-
-                return shapedQueryExpression;
-            }
-
-            return base.VisitExtension(extensionExpression);
+            return extensionExpression is ShapedQueryExpression shapedQueryExpression
+                ? shapedQueryExpression.UpdateShaperExpression(Visit(shapedQueryExpression.ShaperExpression))
+                : base.VisitExtension(extensionExpression);
         }
     }
 }

@@ -584,7 +584,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return File.ReadLines(fileName);
         }
 
-        private class CommandArgumentEnumerator : IEnumerator<CommandArgument>
+        private sealed class CommandArgumentEnumerator : IEnumerator<CommandArgument>
         {
             private readonly IEnumerator<CommandArgument> _enumerator;
 

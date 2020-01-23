@@ -5,8 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
@@ -50,28 +52,51 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public SqliteGeometryMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        public SqliteGeometryMethodTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
         public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
+            Check.NotNull(method, nameof(method));
+            Check.NotNull(arguments, nameof(arguments));
+
             if (_methodToFunctionName.TryGetValue(method, out var functionName))
             {
-                SqlExpression translation = _sqlExpressionFactory.Function(
-                    functionName,
-                    new[] { instance }.Concat(arguments),
-                    method.ReturnType);
+                var finalArguments = new[] { instance }.Concat(arguments);
 
                 if (method.ReturnType == typeof(bool))
                 {
-                    translation = _sqlExpressionFactory.Case(
-                        new[] { new CaseWhenClause(_sqlExpressionFactory.IsNotNull(instance), translation) },
-                        null);
+                    var nullCheck = (SqlExpression)_sqlExpressionFactory.IsNotNull(instance);
+                    foreach (var argument in arguments)
+                    {
+                        nullCheck = _sqlExpressionFactory.AndAlso(
+                            nullCheck,
+                            _sqlExpressionFactory.IsNotNull(argument));
+                    }
+
+                    return _sqlExpressionFactory.Case(
+                            new[]
+                            {
+                            new CaseWhenClause(
+                                nullCheck,
+                                _sqlExpressionFactory.Function(
+                                    functionName,
+                                    finalArguments,
+                                    nullResultAllowed: false,
+                                    finalArguments.Select(a => false),
+                                    method.ReturnType))
+                            },
+                            null);
                 }
 
-                return translation;
+                return _sqlExpressionFactory.Function(
+                        functionName,
+                        finalArguments,
+                        nullResultAllowed: true,
+                        finalArguments.Select(a => true),
+                        method.ReturnType);
             }
 
             if (Equals(method, _getGeometryN))
@@ -85,6 +110,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                             arguments[0],
                             _sqlExpressionFactory.Constant(1))
                     },
+                    nullResultAllowed: true,
+                    argumentsPropagateNullability: new[] { true, true },
                     method.ReturnType);
             }
 
@@ -94,6 +121,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     _sqlExpressionFactory.Function(
                         "Distance",
                         new[] { instance, arguments[0] },
+                        nullResultAllowed: true,
+                        argumentsPropagateNullability: new[] { true, true },
                         typeof(double)),
                     arguments[1]);
             }

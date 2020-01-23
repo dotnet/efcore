@@ -38,9 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
 
             Expression readExpression;
-            if (memberInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity).GetTypeInfo()))
+            if (memberInfo.DeclaringType.IsAssignableFrom(typeof(TEntity)))
             {
-                readExpression = Expression.MakeMemberAccess(entityParameter, memberInfo);
+                readExpression = CreateMemberAccess(entityParameter);
             }
             else
             {
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         Expression.Condition(
                             Expression.ReferenceEqual(converted, Expression.Constant(null)),
                             Expression.Default(memberInfo.GetMemberType()),
-                            Expression.MakeMemberAccess(converted, memberInfo))
+                            CreateMemberAccess(converted))
                     });
             }
 
@@ -89,9 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var property = propertyBase as IProperty;
                 var comparer = property?.GetValueComparer()
                     ?? property?.FindTypeMapping()?.Comparer
-                    ?? (ValueComparer)Activator.CreateInstance(
-                        typeof(ValueComparer<>).MakeGenericType(typeof(TValue)),
-                        new object[] { false });
+                    ?? ValueComparer.CreateDefault(typeof(TValue), favorStructuralComparisons: false);
 
                 hasDefaultValueExpression = comparer.ExtractEqualsBody(
                     comparer.Type != typeof(TValue)
@@ -103,6 +101,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return new ClrPropertyGetter<TEntity, TValue>(
                 Expression.Lambda<Func<TEntity, TValue>>(readExpression, entityParameter).Compile(),
                 Expression.Lambda<Func<TEntity, bool>>(hasDefaultValueExpression, entityParameter).Compile());
+
+            Expression CreateMemberAccess(Expression parameter)
+            {
+                return propertyBase?.IsIndexerProperty() == true
+                    ? Expression.MakeIndex(
+                        parameter, (PropertyInfo)memberInfo, new List<Expression>() { Expression.Constant(propertyBase.Name) })
+                    : (Expression)Expression.MakeMemberAccess(parameter, memberInfo);
+            }
         }
     }
 }

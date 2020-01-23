@@ -3,10 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
@@ -27,13 +28,16 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public SqliteDateTimeMemberTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        public SqliteDateTimeMemberTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
         public virtual SqlExpression Translate(SqlExpression instance, MemberInfo member, Type returnType)
         {
+            Check.NotNull(member, nameof(member));
+            Check.NotNull(returnType, nameof(returnType));
+
             if (member.DeclaringType == typeof(DateTime))
             {
                 var memberName = member.Name;
@@ -57,6 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                                 _sqlExpressionFactory.Function(
                                     "julianday",
                                     new[] { instance },
+                                    nullResultAllowed: true,
+                                    argumentsPropagateNullability: new[] { true },
                                     typeof(double)),
                                 _sqlExpressionFactory.Constant(1721425.5)), // NB: Result of julianday('0001-01-01 00:00:00')
                             _sqlExpressionFactory.Constant(TimeSpan.TicksPerDay)),
@@ -113,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                         return null;
                 }
 
-                Debug.Assert(timestring != null);
+                Check.DebugAssert(timestring != null, "timestring is null");
 
                 return _sqlExpressionFactory.Function(
                     "rtrim",
@@ -131,9 +137,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                                     modifiers),
                                 _sqlExpressionFactory.Constant("0")
                             },
+                            nullResultAllowed: true,
+                            argumentsPropagateNullability: new[] { true, false },
                             returnType),
                         _sqlExpressionFactory.Constant(".")
                     },
+                    nullResultAllowed: true,
+                    argumentsPropagateNullability: new[] { true, false },
                     returnType);
             }
 

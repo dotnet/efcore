@@ -12,12 +12,13 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public partial class RelationalShapedQueryCompilingExpressionVisitor
     {
-        private class RelationalProjectionBindingRemovingExpressionVisitor : ExpressionVisitor
+        private sealed class RelationalProjectionBindingRemovingExpressionVisitor : ExpressionVisitor
         {
             private static readonly MethodInfo _isDbNullMethod =
                 typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.IsDBNull), new[] { typeof(int) });
@@ -46,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             private ReaderColumn[] ProjectionColumns { get; }
 
-            public virtual Expression Visit(Expression node, out IReadOnlyList<ReaderColumn> projectionColumns)
+            public Expression Visit(Expression node, out IReadOnlyList<ReaderColumn> projectionColumns)
             {
                 var result = Visit(node);
                 projectionColumns = ProjectionColumns;
@@ -55,6 +56,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override Expression VisitBinary(BinaryExpression binaryExpression)
             {
+                Check.NotNull(binaryExpression, nameof(binaryExpression));
+
                 if (binaryExpression.NodeType == ExpressionType.Assign
                     && binaryExpression.Left is ParameterExpression parameterExpression
                     && parameterExpression.Type == typeof(MaterializationContext))
@@ -86,6 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
+                Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
                 if (methodCallExpression.Method.IsGenericMethod
                     && methodCallExpression.Method.GetGenericMethodDefinition() == EntityMaterializerSource.TryReadValueMethod)
                 {
@@ -111,6 +116,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override Expression VisitExtension(Expression extensionExpression)
             {
+                Check.NotNull(extensionExpression, nameof(extensionExpression));
+
                 if (extensionExpression is ProjectionBindingExpression projectionBindingExpression)
                 {
                     var projectionIndex = (int)GetProjectionIndex(projectionBindingExpression);

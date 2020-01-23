@@ -5,8 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
@@ -46,17 +48,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public SqlServerConvertTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        public SqlServerConvertTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
         public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
+            Check.NotNull(method, nameof(method));
+            Check.NotNull(arguments, nameof(arguments));
+
             return _supportedMethods.Contains(method)
                 ? _sqlExpressionFactory.Function(
                     "CONVERT",
                     new[] { _sqlExpressionFactory.Fragment(_typeMapping[method.Name]), arguments[0] },
+                    nullResultAllowed: true,
+                    argumentsPropagateNullability: new[] { false, true },
                     method.ReturnType)
                 : null;
         }

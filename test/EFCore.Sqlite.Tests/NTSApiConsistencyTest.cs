@@ -25,6 +25,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected override Assembly TargetAssembly
-            => typeof(SqliteNetTopologySuiteServiceCollectionExtensions).GetTypeInfo().Assembly;
+            => typeof(SqliteNetTopologySuiteServiceCollectionExtensions).Assembly;
     }
 }

@@ -171,10 +171,8 @@ WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();");
         // Sqlite does not support length
         public override void MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(10, context.Model.FindEntityType(typeof(One)).FindProperty("MaxLengthProperty").GetMaxLength());
-            }
+            using var context = CreateContext();
+            Assert.Equal(10, context.Model.FindEntityType(typeof(One)).FindProperty("MaxLengthProperty").GetMaxLength());
         }
 
         public override void RequiredAttribute_for_navigation_throws_while_inserting_null_value()
@@ -234,19 +232,15 @@ WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();");
         // Sqlite does not support length
         public override void StringLengthAttribute_throws_while_inserting_value_longer_than_max_length()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(16, context.Model.FindEntityType(typeof(Two)).FindProperty("Data").GetMaxLength());
-            }
+            using var context = CreateContext();
+            Assert.Equal(16, context.Model.FindEntityType(typeof(Two)).FindProperty("Data").GetMaxLength());
         }
 
         // Sqlite does not support rowversion. See issue #2195
         public override void TimestampAttribute_throws_if_value_in_database_changed()
         {
-            using (var context = CreateContext())
-            {
-                Assert.True(context.Model.FindEntityType(typeof(Two)).FindProperty("Timestamp").IsConcurrencyToken);
-            }
+            using var context = CreateContext();
+            Assert.True(context.Model.FindEntityType(typeof(Two)).FindProperty("Timestamp").IsConcurrencyToken);
         }
 
         private static readonly string _eol = Environment.NewLine;

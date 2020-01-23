@@ -2,31 +2,42 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     public class InnerJoinExpression : PredicateJoinExpressionBase
     {
-        public InnerJoinExpression(TableExpressionBase table, SqlExpression joinPredicate)
+        public InnerJoinExpression([NotNull] TableExpressionBase table, [NotNull] SqlExpression joinPredicate)
             : base(table, joinPredicate)
         {
         }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
+            Check.NotNull(visitor, nameof(visitor));
+
             var table = (TableExpressionBase)visitor.Visit(Table);
             var joinPredicate = (SqlExpression)visitor.Visit(JoinPredicate);
 
             return Update(table, joinPredicate);
         }
 
-        public virtual InnerJoinExpression Update(TableExpressionBase table, SqlExpression joinPredicate)
-            => table != Table || joinPredicate != JoinPredicate
+        public virtual InnerJoinExpression Update([NotNull] TableExpressionBase table, [NotNull] SqlExpression joinPredicate)
+        {
+            Check.NotNull(table, nameof(table));
+            Check.NotNull(joinPredicate, nameof(joinPredicate));
+
+            return table != Table || joinPredicate != JoinPredicate
                 ? new InnerJoinExpression(table, joinPredicate)
                 : this;
+        }
 
         public override void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.Append("INNER JOIN ");
             expressionPrinter.Visit(Table);
             expressionPrinter.Append(" ON ");

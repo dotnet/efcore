@@ -650,10 +650,8 @@ CREATE INDEX [IX_Person_FullName] ON [Person] ([FullName]);
 ");
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public virtual void AlterColumnOperation_memoryOptimized_with_index(bool obsolete)
+        [ConditionalFact]
+        public virtual void AlterColumnOperation_memoryOptimized_with_index()
         {
             Generate(
                 modelBuilder => modelBuilder
@@ -661,17 +659,7 @@ CREATE INDEX [IX_Person_FullName] ON [Person] ([FullName]);
                     .Entity(
                         "Person", x =>
                         {
-                            if (obsolete)
-                            {
-#pragma warning disable 618
-                                x.ForSqlServerIsMemoryOptimized();
-#pragma warning restore 618
-                            }
-                            else
-                            {
-                                x.IsMemoryOptimized();
-                            }
-
+                            x.IsMemoryOptimized();
                             x.Property<string>("Name");
                             x.HasKey("Name");
                             x.HasIndex("Name");
@@ -767,10 +755,8 @@ CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);
 ");
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public virtual void AlterColumnOperation_with_index_included_column(bool obsolete)
+        [ConditionalFact]
+        public virtual void AlterColumnOperation_with_index_included_column()
         {
             Generate(
                 modelBuilder => modelBuilder
@@ -782,17 +768,7 @@ CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);
                             x.Property<string>("FirstName");
                             x.Property<string>("LastName");
                             x.HasKey("Name");
-
-                            if (obsolete)
-                            {
-#pragma warning disable 618
-                                x.HasIndex("FirstName", "LastName").ForSqlServerInclude("Name");
-#pragma warning restore 618
-                            }
-                            else
-                            {
-                                x.HasIndex("FirstName", "LastName").IncludeProperties("Name");
-                            }
+                            x.HasIndex("FirstName", "LastName").IncludeProperties("Name");
                         }),
                 new AlterColumnOperation
                 {
@@ -963,10 +939,8 @@ CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);
 ");
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public virtual void AlterColumnOperation_with_added_online_index(bool obsolete)
+        [ConditionalFact]
+        public virtual void AlterColumnOperation_with_added_online_index()
         {
             Generate(
                 modelBuilder => modelBuilder
@@ -975,17 +949,7 @@ CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);
                         "Person", x =>
                         {
                             x.Property<string>("Name").HasMaxLength(30);
-
-                            if (obsolete)
-                            {
-#pragma warning disable 618
-                                x.HasIndex("Name").ForSqlServerIsCreatedOnline();
-#pragma warning restore 618
-                            }
-                            else
-                            {
-                                x.HasIndex("Name").IsCreatedOnline();
-                            }
+                            x.HasIndex("Name").IsCreatedOnline();
                         }),
                 new AlterColumnOperation
                 {
@@ -1577,26 +1541,14 @@ END;
 ");
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public virtual void CreateIndexOperation_memoryOptimized_unique_nullable(bool obsolete)
+        [ConditionalFact]
+        public virtual void CreateIndexOperation_memoryOptimized_unique_nullable()
         {
             Generate(
                 modelBuilder => modelBuilder.Entity(
                     "People", x =>
                     {
-                        if (obsolete)
-                        {
-#pragma warning disable 618
-                            x.ToTable("People", "dbo").ForSqlServerIsMemoryOptimized().Property<string>("Name");
-#pragma warning restore 618
-                        }
-                        else
-                        {
-                            x.ToTable("People", "dbo").IsMemoryOptimized().Property<string>("Name");
-                        }
-
+                        x.ToTable("People", "dbo").IsMemoryOptimized().Property<string>("Name");
                         x.Property<int>("Id");
                         x.HasKey("Id");
                     }),
@@ -1614,26 +1566,14 @@ END;
 ");
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public virtual void CreateIndexOperation_memoryOptimized_unique_nullable_with_filter(bool obsolete)
+        [ConditionalFact]
+        public virtual void CreateIndexOperation_memoryOptimized_unique_nullable_with_filter()
         {
             Generate(
                 modelBuilder => modelBuilder.Entity(
                     "People", x =>
                     {
-                        if (obsolete)
-                        {
-#pragma warning disable 618
-                            x.ForSqlServerIsMemoryOptimized().Property<string>("Name");
-#pragma warning restore 618
-                        }
-                        else
-                        {
-                            x.IsMemoryOptimized().Property<string>("Name");
-                        }
-
+                        x.IsMemoryOptimized().Property<string>("Name");
                         x.Property<int>("Id");
                         x.HasKey("Id");
                     }),
@@ -1651,26 +1591,14 @@ END;
 ");
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public virtual void CreateIndexOperation_memoryOptimized_unique_nonclustered_not_nullable(bool obsolete)
+        [ConditionalFact]
+        public virtual void CreateIndexOperation_memoryOptimized_unique_nonclustered_not_nullable()
         {
             Generate(
                 modelBuilder => modelBuilder.Entity(
                     "People", x =>
                     {
-                        if (obsolete)
-                        {
-#pragma warning disable 618
-                            x.ForSqlServerIsMemoryOptimized().Property<string>("Name").IsRequired();
-#pragma warning restore 618
-                        }
-                        else
-                        {
-                            x.IsMemoryOptimized().Property<string>("Name").IsRequired();
-                        }
-
+                        x.IsMemoryOptimized().Property<string>("Name").IsRequired();
                         x.HasKey("Name");
                     }),
                 new CreateIndexOperation
@@ -1748,26 +1676,14 @@ DROP DATABASE [Northwind];
 ");
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public virtual void DropIndexOperation_memoryOptimized(bool obsolete)
+        [ConditionalFact]
+        public virtual void DropIndexOperation_memoryOptimized()
         {
             Generate(
                 modelBuilder => modelBuilder.Entity(
                     "People", x =>
                     {
-                        if (obsolete)
-                        {
-#pragma warning disable 618
-                            x.ForSqlServerIsMemoryOptimized();
-#pragma warning restore 618
-                        }
-                        else
-                        {
-                            x.IsMemoryOptimized();
-                        }
-
+                        x.IsMemoryOptimized();
                         x.Property<int>("Id");
                         x.HasKey("Id");
                     }),

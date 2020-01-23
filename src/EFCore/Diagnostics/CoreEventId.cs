@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
@@ -58,12 +57,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             // Query events
             QueryIterationFailed = CoreBaseId + 100,
-            QueryModelCompiling,
-            RowLimitingOperationWithoutOrderByWarning,
-            FirstWithoutOrderByAndFilterWarning,
-            QueryModelOptimized,
-            NavigationIncluded,
-            IncludeIgnoredWarning,
+            Obsolete_QueryModelCompiling,
+            Obsolete_RowLimitingOperationWithoutOrderByWarning,
+            Obsolete_FirstWithoutOrderByAndFilterWarning,
+            Obsolete_QueryModelOptimized,
+            Obsolete_NavigationIncluded,
+            Obsolete_IncludeIgnoredWarning,
             QueryExecutionPlanned,
             PossibleUnintendedCollectionNavigationNullComparisonWarning,
             PossibleUnintendedReferenceComparisonWarning,
@@ -154,73 +153,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId QueryIterationFailed = MakeQueryId(Id.QueryIterationFailed);
-
-        /// <summary>
-        ///     <para>
-        ///         A query model is being compiled.
-        ///     </para>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
-        ///     </para>
-        /// </summary>
-        [Obsolete]
-        public static readonly EventId QueryModelCompiling = MakeQueryId(Id.QueryModelCompiling);
-
-        /// <summary>
-        ///     <para>
-        ///         A query uses a row limiting operation (Skip/Take) without OrderBy which may lead to unpredictable results.
-        ///     </para>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
-        ///     </para>
-        /// </summary>
-        [Obsolete]
-        public static readonly EventId RowLimitingOperationWithoutOrderByWarning =
-            MakeQueryId(Id.RowLimitingOperationWithoutOrderByWarning);
-
-        /// <summary>
-        ///     <para>
-        ///         A query uses First/FirstOrDefault operation without OrderBy and filter which may lead to unpredictable results.
-        ///     </para>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
-        ///     </para>
-        /// </summary>
-        [Obsolete]
-        public static readonly EventId FirstWithoutOrderByAndFilterWarning = MakeQueryId(Id.FirstWithoutOrderByAndFilterWarning);
-
-        /// <summary>
-        ///     <para>
-        ///         A query model was optimized.
-        ///     </para>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
-        ///     </para>
-        /// </summary>
-        [Obsolete]
-        public static readonly EventId QueryModelOptimized = MakeQueryId(Id.QueryModelOptimized);
-
-        /// <summary>
-        ///     <para>
-        ///         A navigation was included in the query.
-        ///     </para>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
-        ///     </para>
-        /// </summary>
-        [Obsolete]
-        public static readonly EventId NavigationIncluded = MakeQueryId(Id.NavigationIncluded);
-
-        /// <summary>
-        ///     <para>
-        ///         A navigation was ignored while compiling a query.
-        ///     </para>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
-        ///     </para>
-        /// </summary>
-        [Obsolete]
-        public static readonly EventId IncludeIgnoredWarning = MakeQueryId(Id.IncludeIgnoredWarning);
 
         /// <summary>
         ///     <para>

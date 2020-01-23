@@ -7,6 +7,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -27,17 +29,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
         /// </returns>
         public static IConventionEntityType GetRootType([NotNull] this IConventionEntityType entityType)
-            => (IConventionEntityType)((IEntityType)entityType).GetRootType();
-
-        /// <summary>
-        ///     Gets the root base type for a given entity type.
-        /// </summary>
-        /// <param name="entityType"> The type to find the root of. </param>
-        /// <returns>
-        ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
-        /// </returns>
-        [Obsolete("Use GetRootType")]
-        public static IConventionEntityType RootType([NotNull] this IConventionEntityType entityType)
             => (IConventionEntityType)((IEntityType)entityType).GetRootType();
 
         /// <summary>
@@ -444,7 +435,9 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(memberInfo, nameof(memberInfo));
 
-            return entityType.FindProperty(memberInfo.GetSimpleMemberName());
+            return (memberInfo as PropertyInfo)?.IsIndexerProperty() == true
+                ? null
+                : entityType.FindProperty(memberInfo.GetSimpleMemberName());
         }
 
         /// <summary>
@@ -514,6 +507,31 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IConventionEntityType entityType, [NotNull] string name, [NotNull] Type propertyType,
             bool setTypeConfigurationSource = true, bool fromDataAnnotation = false)
             => entityType.AddProperty(name, propertyType, null, setTypeConfigurationSource, fromDataAnnotation);
+
+        /// <summary>
+        ///     Adds an indexed property to this entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to add the property to. </param>
+        /// <param name="name"> The name of the property to add. </param>
+        /// <param name="propertyType"> The type of value the property will hold. </param>
+        /// <param name="setTypeConfigurationSource"> Indicates whether the type configuration source should be set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The newly created property. </returns>
+        public static IConventionProperty AddIndexedProperty(
+            [NotNull] this IConventionEntityType entityType, [NotNull] string name, [NotNull] Type propertyType,
+            bool setTypeConfigurationSource = true, bool fromDataAnnotation = false)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            var indexerPropertyInfo = entityType.FindIndexerPropertyInfo();
+            if (indexerPropertyInfo == null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.NonIndexerEntityType(name, entityType.DisplayName(), typeof(string).ShortDisplayName()));
+            }
+
+            return entityType.AddProperty(name, propertyType, indexerPropertyInfo, setTypeConfigurationSource, fromDataAnnotation);
+        }
 
         /// <summary>
         ///     Gets the index defined on the given property. Returns null if no index is defined.

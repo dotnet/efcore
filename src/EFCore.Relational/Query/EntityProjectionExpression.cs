@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -20,21 +22,29 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly TableExpressionBase _innerTable;
         private readonly bool _nullable;
 
-        public EntityProjectionExpression(IEntityType entityType, TableExpressionBase innerTable, bool nullable)
+        public EntityProjectionExpression([NotNull] IEntityType entityType, [NotNull] TableExpressionBase innerTable, bool nullable)
         {
+            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(innerTable, nameof(innerTable));
+
             EntityType = entityType;
             _innerTable = innerTable;
             _nullable = nullable;
         }
 
-        public EntityProjectionExpression(IEntityType entityType, IDictionary<IProperty, ColumnExpression> propertyExpressions)
+        public EntityProjectionExpression([NotNull] IEntityType entityType, [NotNull] IDictionary<IProperty, ColumnExpression> propertyExpressions)
         {
+            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(propertyExpressions, nameof(propertyExpressions));
+
             EntityType = entityType;
             _propertyExpressionsCache = propertyExpressions;
         }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
+            Check.NotNull(visitor, nameof(visitor));
+
             if (_innerTable != null)
             {
                 var table = (TableExpressionBase)visitor.Visit(_innerTable);
@@ -75,8 +85,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             return new EntityProjectionExpression(EntityType, newCache);
         }
 
-        public virtual EntityProjectionExpression UpdateEntityType(IEntityType derivedType)
+        public virtual EntityProjectionExpression UpdateEntityType([NotNull] IEntityType derivedType)
         {
+            Check.NotNull(derivedType, nameof(derivedType));
+
             if (_innerTable != null)
             {
                 return new EntityProjectionExpression(derivedType, _innerTable, _nullable);
@@ -100,8 +112,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         public sealed override ExpressionType NodeType => ExpressionType.Extension;
         public override Type Type => EntityType.ClrType;
 
-        public virtual ColumnExpression BindProperty(IProperty property)
+        public virtual ColumnExpression BindProperty([NotNull] IProperty property)
         {
+            Check.NotNull(property, nameof(property));
+
             if (!EntityType.IsAssignableFrom(property.DeclaringEntityType)
                 && !property.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
@@ -118,8 +132,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return expression;
         }
 
-        public virtual void AddNavigationBinding(INavigation navigation, EntityShaperExpression entityShaper)
+        public virtual void AddNavigationBinding([NotNull] INavigation navigation, [NotNull] EntityShaperExpression entityShaper)
         {
+            Check.NotNull(navigation, nameof(navigation));
+            Check.NotNull(entityShaper, nameof(entityShaper));
+
             if (!EntityType.IsAssignableFrom(navigation.DeclaringEntityType)
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
@@ -131,8 +148,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             _navigationExpressionsCache[navigation] = entityShaper;
         }
 
-        public virtual EntityShaperExpression BindNavigation(INavigation navigation)
+        public virtual EntityShaperExpression BindNavigation([NotNull] INavigation navigation)
         {
+            Check.NotNull(navigation, nameof(navigation));
+
             if (!EntityType.IsAssignableFrom(navigation.DeclaringEntityType)
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {

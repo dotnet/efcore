@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -207,5 +208,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> The configuration source for <see cref="IForeignKey.PrincipalToDependent" />. </returns>
         ConfigurationSource? GetPrincipalToDependentConfigurationSource();
+
+        /// <summary>
+        ///     Gets all skip navigations using this foreign key.
+        /// </summary>
+        /// <returns> The skip navigations using this foreign key. </returns>
+        new IEnumerable<IConventionSkipNavigation> GetReferencingSkipNavigations()
+            => ((IForeignKey)this).GetReferencingSkipNavigations().Cast<IConventionSkipNavigation>();
     }
 }

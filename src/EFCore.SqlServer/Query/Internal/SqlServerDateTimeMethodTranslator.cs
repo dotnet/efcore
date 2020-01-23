@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
@@ -31,16 +33,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public SqlServerDateTimeMethodTranslator(
-            ISqlExpressionFactory sqlExpressionFactory)
+        public SqlServerDateTimeMethodTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
         public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
+            Check.NotNull(method, nameof(method));
+            Check.NotNull(arguments, nameof(arguments));
+
             if (_methodInfoDatePartMapping.TryGetValue(method, out var datePart))
             {
+                // DateAdd does not accept number argument outside of int range
+                // AddYears/AddMonths take int argument so no need to check for range
                 return !datePart.Equals("year")
                     && !datePart.Equals("month")
                     && arguments[0] is SqlConstantExpression sqlConstant
@@ -55,6 +61,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                                 _sqlExpressionFactory.Convert(arguments[0], typeof(int)),
                                 instance
                             },
+                            nullResultAllowed: true,
+                            argumentsPropagateNullability: new[] { false, true, true },
                             instance.Type,
                             instance.TypeMapping);
             }

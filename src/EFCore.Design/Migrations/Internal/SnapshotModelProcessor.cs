@@ -36,7 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             _operationReporter = operationReporter;
             _relationalNames = new HashSet<string>(
                 typeof(RelationalAnnotationNames)
-                    .GetTypeInfo()
                     .GetRuntimeFields()
                     .Where(p => p.Name != nameof(RelationalAnnotationNames.Prefix))
                     .Select(p => ((string)p.GetValue(null)).Substring(RelationalAnnotationNames.Prefix.Length - 1)));

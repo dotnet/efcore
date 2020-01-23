@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -26,9 +28,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
     public class InMemoryTable<TKey> : IInMemoryTable
     {
         // WARNING: The in-memory provider is using EF internal code here. This should not be copied by other providers. See #15096
+        private readonly IEntityType _entityType;
         private readonly IPrincipalKeyValueFactory<TKey> _keyValueFactory;
         private readonly bool _sensitiveLoggingEnabled;
         private readonly Dictionary<TKey, object[]> _rows;
+        private readonly IList<(int, ValueConverter)> _valueConverters;
+        private readonly IList<(int, ValueComparer)> _valueComparers;
 
         private Dictionary<int, IInMemoryIntegerValueGenerator> _integerGenerators;
 
@@ -38,14 +43,38 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public InMemoryTable(
-            // WARNING: The in-memory provider is using EF internal code here. This should not be copied by other providers. See #15096
-            [NotNull] IPrincipalKeyValueFactory<TKey> keyValueFactory,
-            bool sensitiveLoggingEnabled)
+        public InMemoryTable([NotNull] IEntityType entityType, bool sensitiveLoggingEnabled)
         {
-            _keyValueFactory = keyValueFactory;
+            _entityType = entityType;
+            // WARNING: The in-memory provider is using EF internal code here. This should not be copied by other providers. See #15096
+            _keyValueFactory = entityType.FindPrimaryKey().GetPrincipalKeyValueFactory<TKey>();
             _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
-            _rows = new Dictionary<TKey, object[]>(keyValueFactory.EqualityComparer);
+            _rows = new Dictionary<TKey, object[]>(_keyValueFactory.EqualityComparer);
+
+            foreach (var property in entityType.GetProperties())
+            {
+                var converter = property.FindTypeMapping()?.Converter
+                    ?? property.GetValueConverter();
+
+                if (converter != null)
+                {
+                    if (_valueConverters == null)
+                    {
+                        _valueConverters = new List<(int, ValueConverter)>();
+                    }
+                    _valueConverters.Add((property.GetIndex(), converter));
+                }
+
+                var comparer = GetStructuralComparer(property);
+                if (!comparer.HasDefaultBehavior)
+                {
+                    if (_valueComparers == null)
+                    {
+                        _valueComparers = new List<(int, ValueComparer)>();
+                    }
+                    _valueComparers.Add((property.GetIndex(), comparer));
+                }
+            }
         }
 
         /// <summary>
@@ -84,13 +113,47 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IReadOnlyList<object[]> SnapshotRows()
-            => _rows.Values.ToList();
+        {
+            var rows = _rows.Values.ToList();
+            var rowCount = rows.Count;
+            var properties = _entityType.GetProperties().ToList();
+            var propertyCount = properties.Count;
+
+            for (var rowIndex = 0; rowIndex < rowCount; rowIndex++)
+            {
+                var snapshotRow = new object[propertyCount];
+                Array.Copy(rows[rowIndex], snapshotRow, propertyCount);
+
+                if (_valueConverters != null)
+                {
+                    foreach (var (index, converter) in _valueConverters)
+                    {
+                        snapshotRow[index] = converter.ConvertFromProvider(snapshotRow[index]);
+                    }
+                }
+
+                if (_valueComparers != null)
+                {
+                    foreach (var (index, comparer) in _valueComparers)
+                    {
+                        snapshotRow[index] = comparer.Snapshot(snapshotRow[index]);
+                    }
+                }
+
+                rows[rowIndex] = snapshotRow;
+            }
+
+            return rows;
+        }
 
         private static List<ValueComparer> GetStructuralComparers(IEnumerable<IProperty> properties)
             => properties.Select(GetStructuralComparer).ToList();
 
         private static ValueComparer GetStructuralComparer(IProperty p)
-            => p.GetStructuralValueComparer() ?? p.FindTypeMapping()?.StructuralComparer;
+            => p.GetStructuralValueComparer()
+                ?? p.GetKeyValueComparer()
+                ?? p.GetValueComparer()
+                ?? p.FindTypeMapping()?.StructuralComparer;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -221,7 +284,19 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             => _keyValueFactory.CreateFromCurrentValues((InternalEntityEntry)entry);
 
         private static object SnapshotValue(IProperty property, ValueComparer comparer, IUpdateEntry entry)
-            => SnapshotValue(comparer, entry.GetCurrentValue(property));
+        {
+            var value = SnapshotValue(comparer, entry.GetCurrentValue(property));
+
+            var converter = property.FindTypeMapping()?.Converter
+                ?? property.GetValueConverter();
+
+            if (converter != null)
+            {
+                value = converter.ConvertToProvider(value);
+            }
+
+            return value;
+        }
 
         private static object SnapshotValue(ValueComparer comparer, object value)
             => comparer == null ? value : comparer.Snapshot(value);

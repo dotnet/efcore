@@ -215,18 +215,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 var command = Dependencies.RawSqlCommandBuilder.Build(GetAppliedMigrationsSql);
 
-                using (var reader = command.ExecuteReader(
+                using var reader = command.ExecuteReader(
                     new RelationalCommandParameterObject(
                         Dependencies.Connection,
                         null,
                         null,
                         Dependencies.CurrentContext.Context,
-                        Dependencies.CommandLogger)))
+                        Dependencies.CommandLogger));
+                while (reader.Read())
                 {
-                    while (reader.Read())
-                    {
-                        rows.Add(new HistoryRow(reader.DbDataReader.GetString(0), reader.DbDataReader.GetString(1)));
-                    }
+                    rows.Add(new HistoryRow(reader.DbDataReader.GetString(0), reader.DbDataReader.GetString(1)));
                 }
             }
 
@@ -250,19 +248,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 var command = Dependencies.RawSqlCommandBuilder.Build(GetAppliedMigrationsSql);
 
-                await using (var reader = await command.ExecuteReaderAsync(
+                await using var reader = await command.ExecuteReaderAsync(
                     new RelationalCommandParameterObject(
                         Dependencies.Connection,
                         null,
                         null,
                         Dependencies.CurrentContext.Context,
                         Dependencies.CommandLogger),
-                    cancellationToken))
+                    cancellationToken);
+                while (await reader.ReadAsync(cancellationToken))
                 {
-                    while (await reader.ReadAsync(cancellationToken))
-                    {
-                        rows.Add(new HistoryRow(reader.DbDataReader.GetString(0), reader.DbDataReader.GetString(1)));
-                    }
+                    rows.Add(new HistoryRow(reader.DbDataReader.GetString(0), reader.DbDataReader.GetString(1)));
                 }
             }
 

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -27,12 +28,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public SqlUnaryExpression(
             ExpressionType operatorType,
-            SqlExpression operand,
-            Type type,
-            RelationalTypeMapping typeMapping)
+            [NotNull] SqlExpression operand,
+            [NotNull] Type type,
+            [CanBeNull] RelationalTypeMapping typeMapping)
             : base(type, typeMapping)
         {
             Check.NotNull(operand, nameof(operand));
+            Check.NotNull(type, nameof(type));
+
             OperatorType = VerifyOperator(operatorType);
             Operand = operand;
         }
@@ -41,15 +44,25 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public virtual SqlExpression Operand { get; }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-            => Update((SqlExpression)visitor.Visit(Operand));
+        {
+            Check.NotNull(visitor, nameof(visitor));
 
-        public virtual SqlUnaryExpression Update(SqlExpression operand)
-            => operand != Operand
+            return Update((SqlExpression)visitor.Visit(Operand));
+        }
+
+        public virtual SqlUnaryExpression Update([NotNull] SqlExpression operand)
+        {
+            Check.NotNull(operand, nameof(operand));
+
+            return operand != Operand
                 ? new SqlUnaryExpression(OperatorType, operand, Type, TypeMapping)
                 : this;
+        }
 
         public override void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             if (OperatorType == ExpressionType.Convert)
             {
                 expressionPrinter.Append("CAST(");

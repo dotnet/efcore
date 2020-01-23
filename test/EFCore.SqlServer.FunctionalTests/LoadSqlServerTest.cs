@@ -538,7 +538,7 @@ WHERE [s].[Id] = @__p_0");
             AssertSql(
                 @"SELECT TOP(2) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
         }
 
         public override async Task Load_one_to_one_reference_to_principal_using_Query_null_FK(EntityState state, bool async)
@@ -548,7 +548,7 @@ WHERE CAST(0 AS bit) = CAST(1 AS bit)");
             AssertSql(
                 @"SELECT TOP(2) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
         }
 
         public override async Task Load_collection_not_found(EntityState state, bool async)
@@ -1153,7 +1153,7 @@ WHERE [s].[ParentId] = @__p_0");
             AssertSql(
                 @"SELECT TOP(2) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
         }
 
         public override async Task Load_one_to_one_reference_to_principal_using_Query_null_FK_alternate_key(EntityState state, bool async)
@@ -1163,7 +1163,7 @@ WHERE CAST(0 AS bit) = CAST(1 AS bit)");
             AssertSql(
                 @"SELECT TOP(2) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
         }
 
         public override async Task Load_collection_shadow_fk(EntityState state, bool async)
@@ -1283,7 +1283,7 @@ WHERE [s].[ParentId] = @__p_0");
             AssertSql(
                 @"SELECT TOP(2) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
         }
 
         public override async Task Load_one_to_one_reference_to_principal_using_Query_null_FK_shadow_fk(EntityState state, bool async)
@@ -1293,7 +1293,7 @@ WHERE CAST(0 AS bit) = CAST(1 AS bit)");
             AssertSql(
                 @"SELECT TOP(2) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
         }
 
         public override async Task Load_collection_composite_key(EntityState state, bool async)
@@ -1421,7 +1421,7 @@ WHERE ([s].[ParentAlternateId] = @__p_0) AND ([s].[ParentId] = @__p_1)");
             AssertSql(
                 @"SELECT TOP(2) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
         }
 
         public override async Task Load_one_to_one_reference_to_principal_using_Query_null_FK_composite_key(EntityState state, bool async)
@@ -1431,7 +1431,7 @@ WHERE CAST(0 AS bit) = CAST(1 AS bit)");
             AssertSql(
                 @"SELECT TOP(2) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
         }
 
         protected override void ClearLog() => Fixture.TestSqlLoggerFactory.Clear();

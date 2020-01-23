@@ -3,15 +3,19 @@
 
 using System;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class MaterializeCollectionNavigationExpression : Expression, IPrintableExpression
     {
-        public MaterializeCollectionNavigationExpression(Expression subquery, INavigation navigation)
+        public MaterializeCollectionNavigationExpression([NotNull] Expression subquery, [NotNull] INavigation navigation)
         {
+            Check.NotNull(subquery, nameof(subquery));
+            Check.NotNull(navigation, nameof(navigation));
+
             Subquery = subquery;
             Navigation = navigation;
         }
@@ -23,19 +27,29 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override Type Type => Navigation.ClrType;
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-            => Update(visitor.Visit(Subquery));
+        {
+            Check.NotNull(visitor, nameof(visitor));
 
-        public virtual MaterializeCollectionNavigationExpression Update(Expression subquery)
-            => subquery != Subquery
+            return Update(visitor.Visit(Subquery));
+        }
+
+        public virtual MaterializeCollectionNavigationExpression Update([NotNull] Expression subquery)
+        {
+            Check.NotNull(subquery, nameof(subquery));
+
+            return subquery != Subquery
                 ? new MaterializeCollectionNavigationExpression(subquery, Navigation)
                 : this;
+        }
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.AppendLine("MaterializeCollectionNavigation(");
             using (expressionPrinter.Indent())
             {
-                expressionPrinter.AppendLine($"navigation: {Navigation.ToDebugString(detailed: false)},");
+                expressionPrinter.AppendLine($"navigation: Navigation: {Navigation.DeclaringEntityType.DisplayName()}.{Navigation.Name},");
                 expressionPrinter.Append("subquery: ");
                 expressionPrinter.Visit(Subquery);
             }

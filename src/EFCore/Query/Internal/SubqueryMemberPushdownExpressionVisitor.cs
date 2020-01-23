@@ -3,10 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -40,8 +42,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             { QueryableMethods.LastOrDefaultWithPredicate, QueryableMethods.LastOrDefaultWithoutPredicate }
         };
 
+        private readonly IModel _model;
+
+        public SubqueryMemberPushdownExpressionVisitor([NotNull] IModel model)
+        {
+            _model = model;
+        }
+
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
+            Check.NotNull(memberExpression, nameof(memberExpression));
+
             var innerExpression = Visit(memberExpression.Expression);
             if (innerExpression is MethodCallExpression methodCallExpression
                 && methodCallExpression.Method.IsGenericMethod
@@ -65,6 +76,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
             if (methodCallExpression.TryGetEFPropertyArguments(out var source, out _))
             {
                 source = Visit(source);
@@ -87,6 +100,37 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 EF.PropertyMethod.MakeGenericMethod(propertyType),
                                 target,
                                 methodCallExpression.Arguments[1]);
+                        },
+                        methodCallExpression.Type);
+                }
+            }
+
+            if (methodCallExpression.TryGetIndexerArguments(_model, out source, out _))
+            {
+                source = Visit(source);
+
+                if (source is MethodCallExpression innerMethodCall
+                    && innerMethodCall.Method.IsGenericMethod
+                    && _supportedMethods.Contains(innerMethodCall.Method.GetGenericMethodDefinition()))
+                {
+                    return PushdownMember(
+                        innerMethodCall,
+                        (target, nullable) =>
+                        {
+                            var propertyType = methodCallExpression.Type;
+                            if (nullable && !propertyType.IsNullableType())
+                            {
+                                propertyType = propertyType.MakeNullable();
+                            }
+
+                            var indexerExpression = Expression.Call(
+                                target,
+                                methodCallExpression.Method,
+                                new[] { methodCallExpression.Arguments[0] });
+
+                            return nullable && !indexerExpression.Type.IsNullableType()
+                                ? Expression.Convert(indexerExpression, indexerExpression.Type.MakeNullable())
+                                : (Expression)indexerExpression;
                         },
                         methodCallExpression.Type);
                 }
@@ -130,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 var selector = sourceMethodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
                 var selectorBody = selector.Body;
-                var memberAccessExpression = createSelector(selectorBody, methodCallExpression.Method.Name.EndsWith("OrDefault"));
+                var memberAccessExpression = createSelector(selectorBody, methodCallExpression.Method.Name.EndsWith("OrDefault", StringComparison.Ordinal));
 
                 source = Expression.Call(
                     QueryableMethods.Select.MakeGenericMethod(
@@ -143,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             else
             {
                 var parameter = Expression.Parameter(queryableType, "s");
-                var memberAccessExpression = createSelector(parameter, methodCallExpression.Method.Name.EndsWith("OrDefault"));
+                var memberAccessExpression = createSelector(parameter, methodCallExpression.Method.Name.EndsWith("OrDefault", StringComparison.Ordinal));
 
                 source = Expression.Call(
                     QueryableMethods.Select.MakeGenericMethod(queryableType, memberAccessExpression.Type),

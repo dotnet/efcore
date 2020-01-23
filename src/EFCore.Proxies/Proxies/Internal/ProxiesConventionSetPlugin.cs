@@ -58,11 +58,18 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         /// </summary>
         public virtual ConventionSet ModifyConventions(ConventionSet conventionSet)
         {
+            var extension = _options.FindExtension<ProxiesOptionsExtension>();
+
+            ConventionSet.AddAfter(
+                conventionSet.ModelInitializedConventions,
+                new ProxyChangeTrackingConvention(extension),
+                typeof(DbSetFindingConvention));
+
             ConventionSet.AddBefore(
                 conventionSet.ModelFinalizedConventions,
                 new ProxyBindingRewriter(
                     _proxyFactory,
-                    _options.FindExtension<ProxiesOptionsExtension>(),
+                    extension,
                     _lazyLoaderParameterBindingFactoryDependencies,
                     _conventionSetBuilderDependencies),
                 typeof(ValidatingConvention));

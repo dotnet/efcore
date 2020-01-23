@@ -9,11 +9,16 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public partial class NavigationExpandingExpressionVisitor
     {
+        /// <summary>
+        ///     Expands navigations in the given tree for given source.
+        ///     Optionally also expands navigations for includes.
+        /// </summary>
         private class ExpandingExpressionVisitor : ExpressionVisitor
         {
             private readonly NavigationExpandingExpressionVisitor _navigationExpandingExpressionVisitor;
@@ -25,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 _navigationExpandingExpressionVisitor = navigationExpandingExpressionVisitor;
                 _source = source;
+                Model = navigationExpandingExpressionVisitor._queryCompilationContext.Model;
             }
 
             public Expression Expand(Expression expression, bool applyIncludes = false)
@@ -39,8 +45,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return expression;
             }
 
+            protected IModel Model { get; }
+
             protected override Expression VisitExtension(Expression expression)
             {
+                Check.NotNull(expression, nameof(expression));
+
                 switch (expression)
                 {
                     case NavigationExpansionExpression _:
@@ -54,6 +64,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitMember(MemberExpression memberExpression)
             {
+                Check.NotNull(memberExpression, nameof(memberExpression));
+
                 var innerExpression = Visit(memberExpression.Expression);
                 return TryExpandNavigation(innerExpression, MemberIdentity.Create(memberExpression.Member))
                     ?? memberExpression.Update(innerExpression);
@@ -61,11 +73,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
+                Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
                 if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var navigationName))
                 {
                     source = Visit(source);
                     return TryExpandNavigation(source, MemberIdentity.Create(navigationName))
                         ?? methodCallExpression.Update(null, new[] { source, methodCallExpression.Arguments[1] });
+                }
+
+                if (methodCallExpression.TryGetIndexerArguments(Model, out source, out navigationName))
+                {
+                    source = Visit(source);
+                    return TryExpandNavigation(source, MemberIdentity.Create(navigationName))
+                        ?? methodCallExpression.Update(source, new[] { methodCallExpression.Arguments[0] });
                 }
 
                 return base.VisitMethodCall(methodCallExpression);
@@ -129,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return expansion;
                 }
 
-                var targetType = navigation.GetTargetType();
+                var targetType = navigation.TargetEntityType;
                 if (targetType.HasDefiningNavigation()
                     || targetType.IsOwned())
                 {
@@ -141,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
 
                     var ownedExpansion = new OwnedNavigationReference(root, navigation, ownedEntityReference);
-                    if (navigation.IsCollection())
+                    if (navigation.IsCollection)
                     {
                         var elementType = ownedExpansion.Type.TryGetSequenceType();
                         var subquery = Expression.Call(
@@ -174,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     // This is FirstOrDefault ending so we need to push down properties.
                     var temporaryParameter = Expression.Parameter(root.Type);
                     var temporaryKey = temporaryParameter.CreateKeyAccessExpression(
-                        navigation.IsDependentToPrincipal()
+                        navigation.IsOnDependent
                             ? navigation.ForeignKey.Properties
                             : navigation.ForeignKey.PrincipalKey.Properties,
                         makeNullable: true);
@@ -188,14 +209,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 else
                 {
                     outerKey = root.CreateKeyAccessExpression(
-                        navigation.IsDependentToPrincipal()
+                        navigation.IsOnDependent
                             ? navigation.ForeignKey.Properties
                             : navigation.ForeignKey.PrincipalKey.Properties,
                         makeNullable: true);
                 }
 
                 var innerKey = innerParameter.CreateKeyAccessExpression(
-                    navigation.IsDependentToPrincipal()
+                    navigation.IsOnDependent
                         ? navigation.ForeignKey.PrincipalKey.Properties
                         : navigation.ForeignKey.Properties,
                     makeNullable: true);
@@ -213,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
                 }
 
-                if (navigation.IsCollection())
+                if (navigation.IsCollection)
                 {
                     var outerKeyFirstProperty = outerKey is NewExpression newExpression
                         ? ((UnaryExpression)((NewArrayExpression)newExpression.Arguments[0]).Expressions[0]).Operand
@@ -239,11 +260,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var outerKeySelector = _navigationExpandingExpressionVisitor.GenerateLambda(
                     outerKey, _source.CurrentParameter);
-                var innerKeySelector = _navigationExpandingExpressionVisitor.GenerateLambda(
-                    _navigationExpandingExpressionVisitor.ExpandNavigationsInLambdaExpression(
-                        innerSource,
-                        Expression.Lambda(innerKey, innerParameter)),
-                    innerSource.CurrentParameter);
+                var innerKeySelector = _navigationExpandingExpressionVisitor.ProcessLambdaExpression(
+                    innerSource, Expression.Lambda(innerKey, innerParameter));
 
                 var resultSelectorOuterParameter = Expression.Parameter(_source.SourceElementType, "o");
                 var resultSelectorInnerParameter = Expression.Parameter(innerSource.SourceElementType, "i");
@@ -254,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var resultSelector = Expression.Lambda(
                     Expression.New(
-                        resultType.GetTypeInfo().GetConstructors().Single(),
+                        resultType.GetConstructors().Single(),
                         new[] { resultSelectorOuterParameter, resultSelectorInnerParameter }, transparentIdentifierOuterMemberInfo,
                         transparentIdentifierInnerMemberInfo),
                     resultSelectorOuterParameter,
@@ -262,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var innerJoin = !entityReference.IsOptional
                     && !derivedTypeConversion
-                    && navigation.IsDependentToPrincipal()
+                    && navigation.IsOnDependent
                     && navigation.ForeignKey.IsRequired;
 
                 if (!innerJoin)
@@ -294,7 +312,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private class IncludeExpandingExpressionVisitor : ExpandingExpressionVisitor
+        /// <summary>
+        ///     Expands an include tree. This is separate and needed because we may need to reconstruct parts of
+        ///     <see cref="NewExpression"/> to apply includes.
+        /// </summary>
+        private sealed class IncludeExpandingExpressionVisitor : ExpandingExpressionVisitor
         {
             private readonly bool _isTracking;
 
@@ -308,6 +330,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitExtension(Expression extensionExpression)
             {
+                Check.NotNull(extensionExpression, nameof(extensionExpression));
+
                 switch (extensionExpression)
                 {
                     case NavigationTreeExpression navigationTreeExpression:
@@ -338,10 +362,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitMember(MemberExpression memberExpression)
             {
-                if (UnwrapEntityReference(memberExpression.Expression) is EntityReference entityReferece)
+                Check.NotNull(memberExpression, nameof(memberExpression));
+
+                var innerExpression = memberExpression.Expression.UnwrapTypeConversion(out var convertedType);
+                if (UnwrapEntityReference(innerExpression) is EntityReference entityReference)
                 {
                     // If it is mapped property then, it would get converted to a column so we don't need to expand includes.
-                    var property = entityReferece.EntityType.FindProperty(memberExpression.Member);
+                    var entityType = entityReference.EntityType;
+                    if (convertedType != null)
+                    {
+                        entityType = entityType.GetTypesInHierarchy()
+                            .FirstOrDefault(et => et.ClrType == convertedType);
+                        if (entityType == null)
+                        {
+                            return base.VisitMember(memberExpression);
+                        }
+                    }
+
+                    var property = entityType.FindProperty(memberExpression.Member);
                     if (property != null)
                     {
                         return memberExpression;
@@ -353,11 +391,26 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
-                if (methodCallExpression.TryGetEFPropertyArguments(out var _, out var __))
+                Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
+                if (methodCallExpression.TryGetEFPropertyArguments(out _, out _))
                 {
                     // If it is EF.Property then, it would get converted to a column or throw
                     // so we don't need to expand includes.
                     return methodCallExpression;
+                }
+
+                if (methodCallExpression.TryGetIndexerArguments(Model, out var source, out var propertyName))
+                {
+                    if (UnwrapEntityReference(source) is EntityReference entityReferece)
+                    {
+                        // If it is mapped property then, it would get converted to a column so we don't need to expand includes.
+                        var property = entityReferece.EntityType.FindProperty(propertyName);
+                        if (property != null)
+                        {
+                            return methodCallExpression;
+                        }
+                    }
                 }
 
                 return base.VisitMethodCall(methodCallExpression);
@@ -365,11 +418,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitNew(NewExpression newExpression)
             {
-                // For .NET Framework only. If ctor is null that means the type is struct and has no ctor args.
-                if (newExpression.Constructor == null)
-                {
-                    return newExpression;
-                }
+                Check.NotNull(newExpression, nameof(newExpression));
 
                 var arguments = new Expression[newExpression.Arguments.Count];
                 for (var i = 0; i < newExpression.Arguments.Count; i++)
@@ -387,13 +436,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 replacement = null;
                 var changed = false;
-
-                // For .NET Framework only. If ctor is null that means the type is struct and has no ctor args.
-                if (newExpression.Constructor == null)
-                {
-                    return false;
-                }
-
                 if (newExpression.Arguments.Count > 0
                     && newExpression.Members == null)
                 {
@@ -452,7 +494,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     var navigation = keyValuePair.Key;
                     var referenceIncludeTreeNode = keyValuePair.Value;
-                    var inverseNavigation = navigation.FindInverse();
+                    var inverseNavigation = navigation.Inverse;
                     if (inverseNavigation != null
                         && referenceIncludeTreeNode.ContainsKey(inverseNavigation))
                     {
@@ -483,10 +525,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     var included = ExpandNavigation(convertedRoot, entityReference, navigation, converted);
                     // Collection will expand it's includes when reducing the navigationExpansionExpression
-                    if (!navigation.IsCollection())
+                    if (!navigation.IsCollection)
                     {
-                        var innerEntityReference = navigation.GetTargetType().HasDefiningNavigation()
-                            || navigation.GetTargetType().IsOwned()
+                        var innerEntityReference = navigation.TargetEntityType.HasDefiningNavigation()
+                            || navigation.TargetEntityType.IsOwned()
                                 ? ((OwnedNavigationReference)included).EntityReference
                                 : (EntityReference)((NavigationTreeExpression)included).Value;
 
@@ -500,7 +542,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private class PendingSelectorExpandingExpressionVisitor : ExpressionVisitor
+        /// <summary>
+        ///     <see cref="NavigationExpansionExpression"/> remembers the pending selector so we don't expand
+        ///     navigations unless we need to. This visitor applies them when we need to.
+        /// </summary>
+        private sealed class PendingSelectorExpandingExpressionVisitor : ExpressionVisitor
         {
             private readonly NavigationExpandingExpressionVisitor _visitor;
             private readonly bool _applyIncludes;
@@ -532,7 +578,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private class ReducingExpressionVisitor : ExpressionVisitor
+        /// <summary>
+        ///     Removes custom expressions from tree and converts it to LINQ again.
+        /// </summary>
+        private sealed class ReducingExpressionVisitor : ExpressionVisitor
         {
             public override Expression Visit(Expression expression)
             {
@@ -594,7 +643,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private class EntityReferenceOptionalMarkingExpressionVisitor : ExpressionVisitor
+        /// <summary>
+        ///     Marks <see cref="EntityReference"/> as nullable when coming from a left join.
+        ///     Nullability is required to figure out if the navigation from this entity should be a left join or
+        ///     an inner join.
+        /// </summary>
+        private sealed class EntityReferenceOptionalMarkingExpressionVisitor : ExpressionVisitor
         {
             public override Expression Visit(Expression expression)
             {
@@ -609,7 +663,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private class SelfReferenceEntityQueryableRewritingExpressionVisitor : ExpressionVisitor
+        /// <summary>
+        ///     Allows self reference of query root inside query filters/defining queries.
+        /// </summary>
+        private sealed class SelfReferenceEntityQueryableRewritingExpressionVisitor : ExpressionVisitor
         {
             private readonly NavigationExpandingExpressionVisitor _navigationExpandingExpressionVisitor;
             private readonly IEntityType _entityType;
@@ -624,6 +681,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitConstant(ConstantExpression constantExpression)
             {
+                Check.NotNull(constantExpression, nameof(constantExpression));
+
                 if (constantExpression.IsEntityQueryable())
                 {
                     var entityType =

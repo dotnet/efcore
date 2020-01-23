@@ -120,7 +120,8 @@ namespace Microsoft.EntityFrameworkCore
                 var principal = context.Add(
                         new NullablePrincipal
                         {
-                            Id = 1, Dependents = new List<NonNullableDependent> { new NonNullableDependent { Id = 1 } }
+                            Id = 1,
+                            Dependents = new List<NonNullableDependent> { new NonNullableDependent { Id = 1 } }
                         })
                     .Entity;
 
@@ -368,7 +369,7 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
-        public virtual async Task Can_query_custom_type_not_mapped_by_default_equality(bool isAsync)
+        public virtual async Task Can_query_custom_type_not_mapped_by_default_equality(bool async)
         {
             using (var context = CreateContext())
             {
@@ -384,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore
                             && c.IsTest == false
                             && c.Discriminator == new Dictionary<string, string>());
 
-                var result = isAsync ? await query.SingleAsync() : query.Single();
+                var result = async ? await query.SingleAsync() : query.Single();
                 Assert.NotNull(result);
                 context.Remove(result);
                 context.SaveChanges();
@@ -402,90 +403,82 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void Field_on_derived_type_retrieved_via_cast_applies_value_converter()
         {
-            using (var context = CreateContext())
-            {
-                var query = context.Set<Blog>()
-                    .Where(b => b.BlogId == 2)
-                    .Select(
-                        x => new
-                        {
-                            x.BlogId,
-                            x.Url,
-                            RssUrl = x is RssBlog ? ((RssBlog)x).RssUrl : null
-                        }).ToList();
+            using var context = CreateContext();
+            var query = context.Set<Blog>()
+                .Where(b => b.BlogId == 2)
+                .Select(
+                    x => new
+                    {
+                        x.BlogId,
+                        x.Url,
+                        RssUrl = x is RssBlog ? ((RssBlog)x).RssUrl : null
+                    }).ToList();
 
-                var result = Assert.Single(query);
-                Assert.Equal("http://rssblog.com/rss", result.RssUrl);
-            }
+            var result = Assert.Single(query);
+            Assert.Equal("http://rssblog.com/rss", result.RssUrl);
         }
 
         [ConditionalFact]
         public virtual void Value_conversion_is_appropriately_used_for_join_condition()
         {
-            using (var context = CreateContext())
-            {
-                var blogId = 1;
-                var query = (from b in context.Set<Blog>()
-                             join p in context.Set<Post>()
-                                 on new
-                                 {
-                                     BlogId = (int?)b.BlogId,
-                                     b.IsVisible,
-                                     AnotherId = b.BlogId
-                                 }
-                                 equals new
-                                 {
-                                     p.BlogId,
-                                     IsVisible = true,
-                                     AnotherId = blogId
-                                 }
-                             where b.IsVisible
-                             select b.Url).ToList();
+            using var context = CreateContext();
+            var blogId = 1;
+            var query = (from b in context.Set<Blog>()
+                         join p in context.Set<Post>()
+                             on new
+                             {
+                                 BlogId = (int?)b.BlogId,
+                                 b.IsVisible,
+                                 AnotherId = b.BlogId
+                             }
+                             equals new
+                             {
+                                 p.BlogId,
+                                 IsVisible = true,
+                                 AnotherId = blogId
+                             }
+                         where b.IsVisible
+                         select b.Url).ToList();
 
-                var result = Assert.Single(query);
-                Assert.Equal("http://blog.com", result);
-            }
+            var result = Assert.Single(query);
+            Assert.Equal("http://blog.com", result);
         }
 
         [ConditionalFact]
         public virtual void Value_conversion_is_appropriately_used_for_left_join_condition()
         {
-            using (var context = CreateContext())
-            {
-                var blogId = 1;
-                var query = (from b in context.Set<Blog>()
-                             join p in context.Set<Post>()
-                                 on new
-                                 {
-                                     BlogId = (int?)b.BlogId,
-                                     b.IsVisible,
-                                     AnotherId = b.BlogId
-                                 }
-                                 equals new
-                                 {
-                                     p.BlogId,
-                                     IsVisible = true,
-                                     AnotherId = blogId
-                                 } into g
-                             from p in g.DefaultIfEmpty()
-                             where b.IsVisible
-                             select b.Url).ToList();
+            using var context = CreateContext();
+            var blogId = 1;
+            var query = (from b in context.Set<Blog>()
+                         join p in context.Set<Post>()
+                             on new
+                             {
+                                 BlogId = (int?)b.BlogId,
+                                 b.IsVisible,
+                                 AnotherId = b.BlogId
+                             }
+                             equals new
+                             {
+                                 p.BlogId,
+                                 IsVisible = true,
+                                 AnotherId = blogId
+                             } into g
+                         from p in g.DefaultIfEmpty()
+                         where b.IsVisible
+                         select b.Url).ToList();
 
-                var result = Assert.Single(query);
-                Assert.Equal("http://blog.com", result);
-            }
+            var result = Assert.Single(query);
+            Assert.Equal("http://blog.com", result);
         }
 
         [ConditionalFact]
         public virtual void Where_bool_gets_converted_to_equality_when_value_conversion_is_used()
         {
-            using (var context = CreateContext())
-            {
-                var query = context.Set<Blog>().Where(b => b.IsVisible).ToList();
+            using var context = CreateContext();
+            var query = context.Set<Blog>().Where(b => b.IsVisible).ToList();
 
-                var result = Assert.Single(query);
-                Assert.Equal("http://blog.com", result.Url);
-            }
+            var result = Assert.Single(query);
+            Assert.Equal("http://blog.com", result.Url);
         }
 
         [ConditionalFact]
@@ -528,20 +521,45 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void Collection_property_as_scalar()
+        public virtual void Collection_property_as_scalar_Any()
         {
             using var context = CreateContext();
             Assert.Equal(
                 @"The LINQ expression 'DbSet<CollectionScalar>    .Where(c => c.Tags        .Any())' could not be translated. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
                 Assert.Throws<InvalidOperationException>(
                     () => context.Set<CollectionScalar>().Where(e => e.Tags.Any()).ToList())
-                    .Message.Replace("\r","").Replace("\n",""));
+                    .Message.Replace("\r", "").Replace("\n", ""));
         }
 
         protected class CollectionScalar
         {
             public int Id { get; set; }
             public List<string> Tags { get; set; }
+        }
+
+        [ConditionalFact]
+        public virtual void Collection_enum_as_string_Contains()
+        {
+            using var context = CreateContext();
+            var sameRole = Roles.Seller;
+            Assert.Equal(
+                @"The LINQ expression 'DbSet<CollectionEnum>    .Where(c => c.Roles.Contains(__sameRole_0))' could not be translated. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Set<CollectionEnum>().Where(e => e.Roles.Contains(sameRole)).ToList())
+                    .Message.Replace("\r", "").Replace("\n", ""));
+
+        }
+
+        protected class CollectionEnum
+        {
+            public int Id { get; set; }
+            public ICollection<Roles> Roles { get; set; }
+        }
+
+        protected enum Roles
+        {
+            Customer,
+            Seller
         }
 
         public abstract class CustomConvertersFixtureBase : BuiltInDataTypesFixtureBase
@@ -922,7 +940,8 @@ namespace Microsoft.EntityFrameworkCore
 
                         var comparer = new ValueComparer<IDictionary<string, string>>(
                             (v1, v2) => v1.SequenceEqual(v2),
-                            v => v.GetHashCode());
+                            v => v.GetHashCode(),
+                            v => (IDictionary<string, string>)new Dictionary<string, string>(v));
 
                         b.Property(e => e.Discriminator).Metadata.SetValueComparer(comparer);
                     });
@@ -978,7 +997,7 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.Tags).HasConversion(
                             c => string.Join(",", c),
                             s => s.Split(',', StringSplitOptions.None).ToList()).Metadata
-                            .SetValueComparer(new ListOfStringComparer());
+                            .SetValueComparer(new ValueComparer<List<string>>(favorStructuralComparisons: true));
 
                         b.HasData(new CollectionScalar
                         {
@@ -986,14 +1005,19 @@ namespace Microsoft.EntityFrameworkCore
                             Tags = new List<string> { "A", "B", "C" }
                         });
                     });
-            }
 
-            private class ListOfStringComparer : ValueComparer<List<string>>
-            {
-                public ListOfStringComparer()
-                    : base(favorStructuralComparisons: true)
-                {
-                }
+                modelBuilder.Entity<CollectionEnum>(
+                    b =>
+                    {
+                        b.Property(e => e.Roles).HasConversion(new RolesToStringConveter()).Metadata
+                        .SetValueComparer(new ValueComparer<ICollection<Roles>>(favorStructuralComparisons: true));
+
+                        b.HasData(new CollectionEnum
+                        {
+                            Id = 1,
+                            Roles = new List<Roles> { Roles.Seller }
+                        });
+                    });
             }
 
             private static class StringToDictionarySerializer
@@ -1040,6 +1064,16 @@ namespace Microsoft.EntityFrameworkCore
                     : base(x => x.Remove(0, 7), x => "http://" + x)
                 {
                 }
+            }
+
+            private class RolesToStringConveter : ValueConverter<ICollection<Roles>, string>
+            {
+                public RolesToStringConveter()
+                    : base(v => string.Join(";", v.Select(f => f.ToString())),
+                          v => v.Length > 0
+                            ? v.Split(new[] { ';' }).Select(f => (Roles)Enum.Parse(typeof(Roles), f)).ToList()
+                          : new List<Roles>())
+                { }
             }
         }
     }

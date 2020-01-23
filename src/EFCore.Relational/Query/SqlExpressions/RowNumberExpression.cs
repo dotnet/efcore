@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -13,12 +14,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     public class RowNumberExpression : SqlExpression
     {
         public RowNumberExpression(
-            IReadOnlyList<SqlExpression> partitions, IReadOnlyList<OrderingExpression> orderings, RelationalTypeMapping typeMapping)
+            [CanBeNull] IReadOnlyList<SqlExpression> partitions,
+            [NotNull] IReadOnlyList<OrderingExpression> orderings,
+            [CanBeNull] RelationalTypeMapping typeMapping)
             : base(typeof(long), typeMapping)
         {
             Check.NotEmpty(orderings, nameof(orderings));
 
-            Partitions = partitions;
+            Partitions = partitions ?? Array.Empty<SqlExpression>();
             Orderings = orderings;
         }
 
@@ -27,6 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
+            Check.NotNull(visitor, nameof(visitor));
+
             var changed = false;
             var partitions = new List<SqlExpression>();
             foreach (var partition in Partitions)
@@ -49,8 +54,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 : this;
         }
 
-        public virtual RowNumberExpression Update(IReadOnlyList<SqlExpression> partitions, IReadOnlyList<OrderingExpression> orderings)
+        public virtual RowNumberExpression Update(
+            [CanBeNull] IReadOnlyList<SqlExpression> partitions, [NotNull] IReadOnlyList<OrderingExpression> orderings)
         {
+            Check.NotNull(orderings, nameof(orderings));
+
             return (Partitions == null ? partitions == null : Partitions.SequenceEqual(partitions))
                 && Orderings.SequenceEqual(orderings)
                     ? this
@@ -59,6 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.Append("ROW_NUMBER() OVER(");
             if (Partitions.Any())
             {

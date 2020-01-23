@@ -252,6 +252,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var currentValue = entry[property];
 
                 var comparer = property.GetKeyValueComparer()
+                    ?? property.GetValueComparer()
                     ?? property.FindTypeMapping()?.KeyComparer;
 
                 // Note that mutation of a byte[] key is not supported or detected, but two different instances
@@ -284,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var currentValue = entry[navigation];
             var stateManager = entry.StateManager;
 
-            if (navigation.IsCollection())
+            if (navigation.IsCollection)
             {
                 var snapshotCollection = (IEnumerable)snapshotValue;
                 var currentCollection = (IEnumerable)currentValue;
@@ -327,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
             else if (!ReferenceEquals(currentValue, snapshotValue)
                 && (!navigation.ForeignKey.IsOwnership
-                    || !navigation.IsDependentToPrincipal()))
+                    || !navigation.IsOnDependent))
             {
                 if (_loggingOptions.IsSensitiveDataLoggingEnabled)
                 {

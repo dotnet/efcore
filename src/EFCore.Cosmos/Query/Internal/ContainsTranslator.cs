@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -24,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public ContainsTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        public ContainsTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
@@ -38,20 +39,27 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
             if (method.IsGenericMethod
-                && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains))
+                && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains)
+                && ValidateValues(arguments[0]))
             {
                 return _sqlExpressionFactory.In(arguments[1], arguments[0], false);
             }
 
-            if ((method.DeclaringType.GetInterfaces().Contains(typeof(IList))
-                 || method.DeclaringType.IsGenericType
-                 && method.DeclaringType.GetGenericTypeDefinition() == typeof(ICollection<>))
-                && string.Equals(method.Name, nameof(IList.Contains)))
+            if (method.Name == nameof(IList.Contains)
+                && arguments.Count == 1
+                && method.DeclaringType.GetInterfaces().Append(method.DeclaringType).Any(
+                    t => t == typeof(IList)
+                        || (t.IsGenericType
+                            && t.GetGenericTypeDefinition() == typeof(ICollection<>)))
+                && ValidateValues(instance))
             {
                 return _sqlExpressionFactory.In(arguments[0], instance, false);
             }
 
             return null;
         }
+
+        private bool ValidateValues(SqlExpression values)
+            => values is SqlConstantExpression || values is SqlParameterExpression;
     }
 }

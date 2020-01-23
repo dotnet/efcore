@@ -5,19 +5,19 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public partial class RelationalShapedQueryCompilingExpressionVisitor
     {
-        private class CustomShaperCompilingExpressionVisitor : ExpressionVisitor
+        private sealed class CustomShaperCompilingExpressionVisitor : ExpressionVisitor
         {
             private readonly ParameterExpression _dbDataReaderParameter;
             private readonly ParameterExpression _resultCoordinatorParameter;
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         {
                             fixup(includingEntity, relatedEntity);
                             if (inverseNavigation != null
-                                && !inverseNavigation.IsCollection())
+                                && !inverseNavigation.IsCollection)
                             {
                                 SetIsLoadedNoTracking(relatedEntity, inverseNavigation);
                             }
@@ -377,15 +377,17 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override Expression VisitExtension(Expression extensionExpression)
             {
+                Check.NotNull(extensionExpression, nameof(extensionExpression));
+
                 if (extensionExpression is IncludeExpression includeExpression)
                 {
-                    Debug.Assert(
-                        !includeExpression.Navigation.IsCollection(),
+                    Check.DebugAssert(
+                        !includeExpression.Navigation.IsCollection,
                         "Only reference include should be present in tree");
                     var entityClrType = includeExpression.EntityExpression.Type;
                     var includingClrType = includeExpression.Navigation.DeclaringEntityType.ClrType;
-                    var inverseNavigation = includeExpression.Navigation.FindInverse();
-                    var relatedEntityClrType = includeExpression.Navigation.GetTargetType().ClrType;
+                    var inverseNavigation = includeExpression.Navigation.Inverse;
+                    var relatedEntityClrType = includeExpression.Navigation.TargetEntityType.ClrType;
                     if (includingClrType != entityClrType
                         && includingClrType.IsAssignableFrom(entityClrType))
                     {
@@ -473,7 +475,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     if (collectionPopulatingExpression.IsInclude)
                     {
                         var entityClrType = collectionShaper.Navigation.DeclaringEntityType.ClrType;
-                        var inverseNavigation = collectionShaper.Navigation.FindInverse();
+                        var inverseNavigation = collectionShaper.Navigation.Inverse;
 
                         return Expression.Call(
                             _populateIncludeCollectionMethodInfo.MakeGenericMethod(entityClrType, relatedEntityClrType),
@@ -549,7 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var relatedEntityParameter = Expression.Parameter(relatedEntityType);
                 var expressions = new List<Expression>
                 {
-                    navigation.IsCollection()
+                    navigation.IsCollection
                         ? AddToCollectionNavigation(entityParameter, relatedEntityParameter, navigation)
                         : AssignReferenceNavigation(entityParameter, relatedEntityParameter, navigation)
                 };
@@ -557,7 +559,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (inverseNavigation != null)
                 {
                     expressions.Add(
-                        inverseNavigation.IsCollection()
+                        inverseNavigation.IsCollection
                             ? AddToCollectionNavigation(relatedEntityParameter, entityParameter, inverseNavigation)
                             : AssignReferenceNavigation(relatedEntityParameter, entityParameter, inverseNavigation));
                 }

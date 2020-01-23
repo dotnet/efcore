@@ -3,12 +3,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
@@ -53,8 +54,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         public SqlServerGeometryMethodTranslator(
-            IRelationalTypeMappingSource typeMappingSource,
-            ISqlExpressionFactory sqlExpressionFactory)
+            [NotNull] IRelationalTypeMappingSource typeMappingSource,
+            [NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _typeMappingSource = typeMappingSource;
             _sqlExpressionFactory = sqlExpressionFactory;
@@ -62,13 +63,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
         public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
+            Check.NotNull(method, nameof(method));
+            Check.NotNull(arguments, nameof(arguments));
+
             if (typeof(Geometry).IsAssignableFrom(method.DeclaringType))
             {
                 var geometryExpressions = new[] { instance }.Concat(
                     arguments.Where(e => typeof(Geometry).IsAssignableFrom(e.Type)));
                 var typeMapping = ExpressionExtensions.InferTypeMapping(geometryExpressions.ToArray());
 
-                Debug.Assert(typeMapping != null, "At least one argument must have typeMapping.");
+                Check.DebugAssert(typeMapping != null, "At least one argument must have typeMapping.");
                 var storeType = typeMapping.StoreType;
                 var isGeography = string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);
 
@@ -93,10 +97,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         ? _typeMappingSource.FindMapping(method.ReturnType, storeType)
                         : _typeMappingSource.FindMapping(method.ReturnType);
 
+                    var finalArguments = Simplify(typeMappedArguments, isGeography);
+
+                    var argumentsPropagateNullability = functionName == "STBuffer"
+                        ? new[] { false }
+                        : functionName == "STRelate"
+                            ? new[] { true, false }
+                            : finalArguments.Select(a => true).ToArray();
+
                     return _sqlExpressionFactory.Function(
                         instance,
                         functionName,
-                        Simplify(typeMappedArguments, isGeography),
+                        finalArguments,
+                        nullResultAllowed: true,
+                        instancePropagatesNullability: true,
+                        argumentsPropagateNullability,
                         method.ReturnType,
                         resultTypeMapping);
                 }
@@ -112,6 +127,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                                 arguments[0],
                                 _sqlExpressionFactory.Constant(1))
                         },
+                        nullResultAllowed: true,
+                        instancePropagatesNullability: true,
+                        argumentsPropagateNullability: new[] { false },
                         method.ReturnType,
                         _typeMappingSource.FindMapping(method.ReturnType, storeType));
                 }
@@ -132,11 +150,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                                     : _typeMappingSource.FindMapping(argument.Type)));
                     }
 
+                    var finalArguments = Simplify(new[] { typeMappedArguments[0] }, isGeography);
+
                     return _sqlExpressionFactory.LessThanOrEqual(
                         _sqlExpressionFactory.Function(
                             instance,
                             "STDistance",
-                            Simplify(new[] { typeMappedArguments[0] }, isGeography),
+                            finalArguments,
+                            nullResultAllowed: true,
+                            instancePropagatesNullability: true,
+                            argumentsPropagateNullability: finalArguments.Select(a => true),
                             typeof(double)),
                         typeMappedArguments[1]);
                 }

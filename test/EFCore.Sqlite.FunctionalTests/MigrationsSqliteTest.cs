@@ -277,26 +277,24 @@ sqlite_sequence
                         .IncrementIndent();
 
                     command.CommandText = "PRAGMA table_info(" + table + ");";
-                    using (var reader = command.ExecuteReader())
+                    using var reader = command.ExecuteReader();
+                    while (reader.Read())
                     {
-                        while (reader.Read())
+                        builder
+                            .Append(reader[1]) // Name
+                            .Append(" ")
+                            .Append(reader[2]) // Type
+                            .Append(" ")
+                            .Append(reader.GetBoolean(3) ? "NOT NULL" : "NULL");
+
+                        if (!reader.IsDBNull(4))
                         {
                             builder
-                                .Append(reader[1]) // Name
-                                .Append(" ")
-                                .Append(reader[2]) // Type
-                                .Append(" ")
-                                .Append(reader.GetBoolean(3) ? "NOT NULL" : "NULL");
-
-                            if (!reader.IsDBNull(4))
-                            {
-                                builder
-                                    .Append(" DEFAULT ")
-                                    .Append(reader[4]);
-                            }
-
-                            builder.AppendLine();
+                                .Append(" DEFAULT ")
+                                .Append(reader[4]);
                         }
+
+                        builder.AppendLine();
                     }
                 }
             }
@@ -306,10 +304,8 @@ sqlite_sequence
 
         public override void Can_diff_against_2_2_model()
         {
-            using (var context = new BloggingContext())
-            {
-                DiffSnapshot(new BloggingContextModelSnapshot22(), context);
-            }
+            using var context = new BloggingContext();
+            DiffSnapshot(new BloggingContextModelSnapshot22(), context);
         }
 
         public class BloggingContextModelSnapshot22 : ModelSnapshot
@@ -596,10 +592,8 @@ sqlite_sequence
 
         public override void Can_diff_against_2_1_ASP_NET_Identity_model()
         {
-            using (var context = new ApplicationDbContext())
-            {
-                DiffSnapshot(new AspNetIdentity21ModelSnapshot(), context);
-            }
+            using var context = new ApplicationDbContext();
+            DiffSnapshot(new AspNetIdentity21ModelSnapshot(), context);
         }
 
         public class AspNetIdentity22ModelSnapshot : ModelSnapshot
@@ -833,10 +827,8 @@ sqlite_sequence
 
         public override void Can_diff_against_2_2_ASP_NET_Identity_model()
         {
-            using (var context = new ApplicationDbContext())
-            {
-                DiffSnapshot(new AspNetIdentity22ModelSnapshot(), context);
-            }
+            using var context = new ApplicationDbContext();
+            DiffSnapshot(new AspNetIdentity22ModelSnapshot(), context);
         }
 
         public class AspNetIdentity30ModelSnapshot : ModelSnapshot
@@ -1111,10 +1103,8 @@ sqlite_sequence
 
         public override void Can_diff_against_3_0_ASP_NET_Identity_model()
         {
-            using (var context = new ApplicationDbContext())
-            {
-                DiffSnapshot(new AspNetIdentity30ModelSnapshot(), context);
-            }
+            using var context = new ApplicationDbContext();
+            DiffSnapshot(new AspNetIdentity30ModelSnapshot(), context);
         }
     }
 }

@@ -44,8 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected RelationshipBuilderBase(
-            InternalRelationshipBuilder builder,
-            RelationshipBuilderBase oldBuilder,
+            [NotNull] InternalRelationshipBuilder builder,
+            [CanBeNull] RelationshipBuilderBase oldBuilder,
             bool foreignKeySet = false,
             bool principalKeySet = false,
             bool requiredSet = false)

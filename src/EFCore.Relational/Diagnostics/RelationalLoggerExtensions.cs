@@ -62,11 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogCommandCreating(diagnostics, definition, commandMethod);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbCommandInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastCommandCreating(
                     diagnostics,
@@ -78,7 +75,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     false,
                     startTime,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -99,7 +97,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             bool async,
             DateTimeOffset startTime,
             EventDefinition<string> definition,
-            bool diagnosticSourceEnabled)
+            bool diagnosticSourceEnabled,
+            bool simpleLogEnabled)
         {
             var eventData = new CommandCorrelatedEventData(
                 definition,
@@ -112,10 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 async,
                 startTime);
 
-            if (diagnosticSourceEnabled)
-            {
-                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
-            }
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
             return eventData;
         }
@@ -125,10 +121,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             EventDefinition<string> definition,
             DbCommandMethod commandMethod)
         {
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, warningBehavior, commandMethod.ToString());
+                definition.Log(diagnostics, commandMethod.ToString());
             }
         }
 
@@ -167,11 +162,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogCommandCreated(diagnostics, definition, commandMethod, duration);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbCommandInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastCommandCreated(
                     diagnostics,
@@ -185,7 +177,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     startTime,
                     duration,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -208,7 +201,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DateTimeOffset startTime,
             TimeSpan duration,
             EventDefinition<string, int> definition,
-            bool diagnosticSourceEnabled)
+            bool diagnosticSourceEnabled,
+            bool simpleLogEnabled)
         {
             var eventData = new CommandEndEventData(
                 definition,
@@ -224,10 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 startTime,
                 duration);
 
-            if (diagnosticSourceEnabled)
-            {
-                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
-            }
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
             return eventData;
         }
@@ -238,10 +229,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DbCommandMethod commandMethod,
             TimeSpan duration)
         {
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, warningBehavior, commandMethod.ToString(), (int)duration.TotalMilliseconds);
+                definition.Log(diagnostics, commandMethod.ToString(), (int)duration.TotalMilliseconds);
             }
         }
 
@@ -276,11 +266,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogCommandExecuting(diagnostics, command, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbCommandInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastCommandExecuting(
                     diagnostics,
@@ -293,7 +280,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     false,
                     startTime,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -328,11 +316,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogCommandExecuting(diagnostics, command, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbCommandInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastCommandExecuting(
                     diagnostics,
@@ -345,7 +330,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     false,
                     startTime,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -380,11 +366,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogCommandExecuting(diagnostics, command, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbCommandInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastCommandExecuting(
                     diagnostics,
@@ -397,7 +380,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     false,
                     startTime,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -434,11 +418,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogCommandExecuting(diagnostics, command, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbCommandInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastCommandExecuting(
                     diagnostics,
@@ -451,7 +432,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     true,
                     startTime,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -488,11 +470,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogCommandExecuting(diagnostics, command, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbCommandInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastCommandExecuting(
                     diagnostics,
@@ -505,7 +484,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     true,
                     startTime,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -542,11 +522,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogCommandExecuting(diagnostics, command, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbCommandInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastCommandExecuting(
                     diagnostics,
@@ -559,7 +536,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     true,
                     startTime,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -581,7 +559,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             bool async,
             DateTimeOffset startTime,
             EventDefinition<string, CommandType, int, string, string> definition,
-            bool diagnosticSourceEnabled)
+            bool diagnosticSourceEnabled,
+            bool simpleLogEnabled)
         {
             var eventData = new CommandEventData(
                 definition,
@@ -596,12 +575,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 ShouldLogParameterValues(diagnostics, command),
                 startTime);
 
-            if (diagnosticSourceEnabled)
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    eventData);
-            }
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
             return eventData;
         }
@@ -611,12 +585,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DbCommand command,
             EventDefinition<string, CommandType, int, string, string> definition)
         {
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
                 definition.Log(
                     diagnostics,
-                    warningBehavior,
                     command.Parameters.FormatParameters(ShouldLogParameterValues(diagnostics, command)),
                     command.CommandType,
                     command.CommandTimeout,
@@ -671,11 +643,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogCommandExecuted(diagnostics, command, duration, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbCommandInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastCommandExecuted(
                     diagnostics,
@@ -690,7 +659,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     startTime,
                     duration,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -729,11 +699,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogCommandExecuted(diagnostics, command, duration, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbCommandInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastCommandExecuted(
                     diagnostics,
@@ -748,7 +715,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     startTime,
                     duration,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -787,11 +755,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogCommandExecuted(diagnostics, command, duration, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbCommandInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastCommandExecuted(
                     diagnostics,
@@ -806,7 +771,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     startTime,
                     duration,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -847,11 +813,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogCommandExecuted(diagnostics, command, duration, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbCommandInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastCommandExecuted(
                     diagnostics,
@@ -866,7 +829,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     startTime,
                     duration,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -907,11 +871,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogCommandExecuted(diagnostics, command, duration, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbCommandInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastCommandExecuted(
                     diagnostics,
@@ -926,7 +887,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     startTime,
                     duration,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -967,11 +929,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogCommandExecuted(diagnostics, command, duration, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbCommandInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastCommandExecuted(
                     diagnostics,
@@ -986,7 +945,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     startTime,
                     duration,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -1010,7 +970,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DateTimeOffset startTime,
             TimeSpan duration,
             EventDefinition<string, string, CommandType, int, string, string> definition,
-            bool diagnosticSourceEnabled)
+            bool diagnosticSourceEnabled,
+            bool simpleLogEnabled)
         {
             var eventData = new CommandExecutedEventData(
                 definition,
@@ -1027,12 +988,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 startTime,
                 duration);
 
-            if (diagnosticSourceEnabled)
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    eventData);
-            }
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
             return eventData;
         }
@@ -1043,12 +999,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             TimeSpan duration,
             EventDefinition<string, string, CommandType, int, string, string> definition)
         {
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
                 definition.Log(
                     diagnostics,
-                    warningBehavior,
                     string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.TotalMilliseconds),
                     command.Parameters.FormatParameters(ShouldLogParameterValues(diagnostics, command)),
                     command.CommandType,
@@ -1100,11 +1054,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogCommandError(diagnostics, command, duration, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbCommandInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastCommandError(
                     diagnostics,
@@ -1119,7 +1070,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     startTime,
                     duration,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 interceptor?.CommandFailed(command, eventData);
             }
@@ -1131,12 +1083,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             TimeSpan duration,
             EventDefinition<string, string, CommandType, int, string, string> definition)
         {
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
                 definition.Log(
                     diagnostics,
-                    warningBehavior,
                     string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.TotalMilliseconds),
                     command.Parameters.FormatParameters(ShouldLogParameterValues(diagnostics, command)),
                     command.CommandType,
@@ -1178,11 +1128,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogCommandError(diagnostics, command, duration, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbCommandInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastCommandError(
                     diagnostics,
@@ -1197,7 +1144,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     startTime,
                     duration,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -1221,7 +1169,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DateTimeOffset startTime,
             TimeSpan duration,
             EventDefinition<string, string, CommandType, int, string, string> definition,
-            bool diagnosticSourceEnabled)
+            bool diagnosticSourceEnabled,
+            bool simpleLogEnabled)
         {
             var eventData = new CommandErrorEventData(
                 definition,
@@ -1238,12 +1187,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 startTime,
                 duration);
 
-            if (diagnosticSourceEnabled)
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    eventData);
-            }
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
             return eventData;
         }
@@ -1277,11 +1221,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogConnectionOpening(diagnostics, connection, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbConnectionInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbConnectionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastConnectionOpening(
                     diagnostics,
@@ -1289,7 +1230,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     startTime,
                     definition,
                     false,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -1318,11 +1260,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogConnectionOpening(diagnostics, connection, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbConnectionInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbConnectionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastConnectionOpening(
                     diagnostics,
@@ -1330,7 +1269,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     startTime,
                     definition,
                     true,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -1346,12 +1286,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IRelationalConnection connection,
             EventDefinition<string, string> definition)
         {
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
                 definition.Log(
                     diagnostics,
-                    warningBehavior,
                     connection.DbConnection.Database, connection.DbConnection.DataSource);
             }
         }
@@ -1362,7 +1300,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DateTimeOffset startTime,
             EventDefinition<string, string> definition,
             bool async,
-            bool diagnosticSourceEnabled)
+            bool diagnosticSourceEnabled,
+            bool simpleLogEnabled)
         {
             var eventData = new ConnectionEventData(
                 definition,
@@ -1373,10 +1312,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 async,
                 startTime);
 
-            if (diagnosticSourceEnabled)
-            {
-                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
-            }
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
             return eventData;
         }
@@ -1407,11 +1343,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogConnectionOpened(diagnostics, connection, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbConnectionInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbConnectionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastConnectionOpened(
                     diagnostics,
@@ -1420,7 +1353,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     startTime,
                     duration,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 interceptor?.ConnectionOpened(connection.DbConnection, eventData);
             }
@@ -1446,11 +1380,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogConnectionOpened(diagnostics, connection, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbConnectionInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbConnectionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastConnectionOpened(
                     diagnostics,
@@ -1459,7 +1390,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     startTime,
                     duration,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -1477,7 +1409,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DateTimeOffset startTime,
             TimeSpan duration,
             EventDefinition<string, string> definition,
-            bool diagnosticSourceEnabled)
+            bool diagnosticSourceEnabled,
+            bool simpleLogEnabled)
         {
             var eventData = new ConnectionEndEventData(
                 definition,
@@ -1489,10 +1422,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 startTime,
                 duration);
 
-            if (diagnosticSourceEnabled)
-            {
-                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
-            }
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
             return eventData;
         }
@@ -1502,12 +1432,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IRelationalConnection connection,
             EventDefinition<string, string> definition)
         {
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
                 definition.Log(
                     diagnostics,
-                    warningBehavior,
                     connection.DbConnection.Database, connection.DbConnection.DataSource);
             }
         }
@@ -1537,11 +1465,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogConnectionClosing(diagnostics, connection, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbConnectionInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbConnectionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastConnectionClosing(
                     diagnostics,
@@ -1549,7 +1474,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     startTime,
                     false,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -1576,11 +1502,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogConnectionClosing(diagnostics, connection, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbConnectionInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbConnectionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastConnectionClosing(
                     diagnostics,
@@ -1588,7 +1511,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     startTime,
                     true,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -1605,7 +1529,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DateTimeOffset startTime,
             bool async,
             EventDefinition<string, string> definition,
-            bool diagnosticSourceEnabled)
+            bool diagnosticSourceEnabled,
+            bool simpleLogEnabled)
         {
             var eventData = new ConnectionEventData(
                 definition,
@@ -1616,10 +1541,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 async,
                 startTime);
 
-            if (diagnosticSourceEnabled)
-            {
-                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
-            }
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
             return eventData;
         }
@@ -1629,12 +1551,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IRelationalConnection connection,
             EventDefinition<string, string> definition)
         {
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
                 definition.Log(
                     diagnostics,
-                    warningBehavior,
                     connection.DbConnection.Database, connection.DbConnection.DataSource);
             }
         }
@@ -1665,11 +1585,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogConnectionClosed(diagnostics, connection, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbConnectionInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbConnectionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastCollectionClosed(
                     diagnostics,
@@ -1678,7 +1595,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     duration,
                     false,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 interceptor?.ConnectionClosed(connection.DbConnection, eventData);
             }
@@ -1702,11 +1620,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogConnectionClosed(diagnostics, connection, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbConnectionInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbConnectionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastCollectionClosed(
                     diagnostics,
@@ -1715,7 +1630,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     duration,
                     true,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -1733,7 +1649,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             TimeSpan duration,
             bool async,
             EventDefinition<string, string> definition,
-            bool diagnosticSourceEnabled)
+            bool diagnosticSourceEnabled,
+            bool simpleLogEnabled)
         {
             var eventData = new ConnectionEndEventData(
                 definition,
@@ -1745,10 +1662,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 startTime,
                 duration);
 
-            if (diagnosticSourceEnabled)
-            {
-                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
-            }
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
             return eventData;
         }
@@ -1758,12 +1672,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IRelationalConnection connection,
             EventDefinition<string, string> definition)
         {
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
                 definition.Log(
                     diagnostics,
-                    warningBehavior,
                     connection.DbConnection.Database, connection.DbConnection.DataSource);
             }
         }
@@ -1800,11 +1712,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogConnectionError(diagnostics, connection, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbConnectionInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbConnectionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastConnectionError(
                     diagnostics,
@@ -1814,7 +1723,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     duration,
                     false,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 interceptor?.ConnectionFailed(connection.DbConnection, eventData);
             }
@@ -1846,11 +1756,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogConnectionError(diagnostics, connection, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbConnectionInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbConnectionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastConnectionError(
                     diagnostics,
@@ -1860,7 +1767,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     duration,
                     true,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -1879,7 +1787,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             TimeSpan duration,
             bool async,
             EventDefinition<string, string> definition,
-            bool diagnosticSourceEnabled)
+            bool diagnosticSourceEnabled,
+            bool simpleLogEnabled)
         {
             var eventData = new ConnectionErrorEventData(
                 definition,
@@ -1892,10 +1801,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 startTime,
                 duration);
 
-            if (diagnosticSourceEnabled)
-            {
-                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
-            }
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
             return eventData;
         }
@@ -1905,12 +1811,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IRelationalConnection connection,
             EventDefinition<string, string> definition)
         {
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
                 definition.Log(
                     diagnostics,
-                    warningBehavior,
                     connection.DbConnection.Database, connection.DbConnection.DataSource);
             }
         }
@@ -1944,11 +1848,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogTransactionStarting(diagnostics, isolationLevel, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionStarting(
                     diagnostics,
@@ -1958,7 +1859,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     false,
                     startTime,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -1991,11 +1893,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogTransactionStarting(diagnostics, isolationLevel, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionStarting(
                     diagnostics,
@@ -2005,7 +1904,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     true,
                     startTime,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -2024,7 +1924,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             bool async,
             DateTimeOffset startTime,
             EventDefinition<string> definition,
-            bool diagnosticSourceEnabled)
+            bool diagnosticSourceEnabled,
+            bool simpleLogEnabled)
         {
             var eventData = new TransactionStartingEventData(
                 definition,
@@ -2036,10 +1937,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 async,
                 startTime);
 
-            if (diagnosticSourceEnabled)
-            {
-                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
-            }
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
             return eventData;
         }
@@ -2049,13 +1947,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IsolationLevel isolationLevel,
             EventDefinition<string> definition)
         {
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    isolationLevel.ToString("G"));
+                definition.Log(diagnostics, isolationLevel.ToString("G"));
             }
         }
 
@@ -2089,11 +1983,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogTransactionStarted(diagnostics, transaction, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionStarted(
                     diagnostics,
@@ -2104,7 +1995,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     startTime,
                     duration,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -2139,11 +2031,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogTransactionStarted(diagnostics, transaction, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionStarted(
                     diagnostics,
@@ -2154,7 +2043,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     startTime,
                     duration,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -2174,7 +2064,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DateTimeOffset startTime,
             TimeSpan duration,
             EventDefinition<string> definition,
-            bool diagnosticSourceEnabled)
+            bool diagnosticSourceEnabled,
+            bool simpleLogEnabled)
         {
             var eventData = new TransactionEndEventData(
                 definition,
@@ -2187,10 +2078,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 startTime,
                 duration);
 
-            if (diagnosticSourceEnabled)
-            {
-                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
-            }
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
             return eventData;
         }
@@ -2200,13 +2088,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DbTransaction transaction,
             EventDefinition<string> definition)
         {
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    transaction.IsolationLevel.ToString("G"));
+                definition.Log(diagnostics, transaction.IsolationLevel.ToString("G"));
             }
         }
 
@@ -2237,11 +2121,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogTransactionUsed(diagnostics, transaction, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcasstTransactionUsed(
                     diagnostics,
@@ -2251,7 +2132,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     false,
                     startTime,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -2284,11 +2166,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogTransactionUsed(diagnostics, transaction, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcasstTransactionUsed(
                     diagnostics,
@@ -2298,7 +2177,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     true,
                     startTime,
                     definition,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -2317,7 +2197,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             bool async,
             DateTimeOffset startTime,
             EventDefinition<string> definition,
-            bool diagnosticSourceEnabled)
+            bool diagnosticSourceEnabled,
+            bool simpleLogEnabled)
         {
             var eventData = new TransactionEventData(
                 definition,
@@ -2334,6 +2215,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
             }
 
+            if (simpleLogEnabled)
+            {
+                diagnostics.DbContextLogger.Log(eventData);
+            }
+
             return eventData;
         }
 
@@ -2342,13 +2228,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DbTransaction transaction,
             EventDefinition<string> definition)
         {
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    transaction.IsolationLevel.ToString("G"));
+                definition.Log(diagnostics, transaction.IsolationLevel.ToString("G"));
             }
         }
 
@@ -2380,11 +2262,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogTransactionCommitting(diagnostics, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionCommitting(
                     diagnostics,
@@ -2394,7 +2273,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     startTime,
                     definition,
                     false,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -2427,11 +2307,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogTransactionCommitting(diagnostics, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionCommitting(
                     diagnostics,
@@ -2441,7 +2318,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     startTime,
                     definition,
                     true,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -2460,7 +2338,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DateTimeOffset startTime,
             EventDefinition definition,
             bool async,
-            bool diagnosticSourceEnabled)
+            bool diagnosticSourceEnabled,
+            bool simpleLogEnabled)
         {
             var eventData = new TransactionEventData(
                 definition,
@@ -2472,10 +2351,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 async,
                 startTime);
 
-            if (diagnosticSourceEnabled)
-            {
-                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
-            }
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
             return eventData;
         }
@@ -2484,10 +2360,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             EventDefinition definition)
         {
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, warningBehavior);
+                definition.Log(diagnostics);
             }
         }
 
@@ -2512,11 +2387,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogTransactionCommitted(diagnostics, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionCommitted(
                     diagnostics,
@@ -2527,7 +2399,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     duration,
                     definition,
                     false,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 interceptor?.TransactionCommitted(transaction, eventData);
             }
@@ -2557,11 +2430,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogTransactionCommitted(diagnostics, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionCommitted(
                     diagnostics,
@@ -2572,7 +2442,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     duration,
                     definition,
                     true,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -2592,7 +2463,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             TimeSpan duration,
             EventDefinition definition,
             bool async,
-            bool diagnosticSourceEnabled)
+            bool diagnosticSourceEnabled,
+            bool simpleLogEnabled)
         {
             var eventData = new TransactionEndEventData(
                 definition,
@@ -2605,10 +2477,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 startTime,
                 duration);
 
-            if (diagnosticSourceEnabled)
-            {
-                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
-            }
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
             return eventData;
         }
@@ -2617,10 +2486,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             EventDefinition definition)
         {
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, warningBehavior);
+                definition.Log(diagnostics);
             }
         }
 
@@ -2645,11 +2513,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogTransactionRolledBack(diagnostics, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionRolledBack(
                     diagnostics,
@@ -2660,7 +2525,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     duration,
                     definition,
                     false,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 interceptor?.TransactionRolledBack(transaction, eventData);
             }
@@ -2690,11 +2556,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogTransactionRolledBack(diagnostics, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionRolledBack(
                     diagnostics,
@@ -2705,7 +2568,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     duration,
                     definition,
                     true,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -2725,7 +2589,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             TimeSpan duration,
             EventDefinition definition,
             bool async,
-            bool diagnosticSourceEnabled)
+            bool diagnosticSourceEnabled,
+            bool simpleLogEnabled)
         {
             var eventData = new TransactionEndEventData(
                 definition,
@@ -2738,10 +2603,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 startTime,
                 duration);
 
-            if (diagnosticSourceEnabled)
-            {
-                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
-            }
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
             return eventData;
         }
@@ -2750,10 +2612,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             EventDefinition definition)
         {
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, warningBehavior);
+                definition.Log(diagnostics);
             }
         }
 
@@ -2777,11 +2638,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogTransactionRollingBack(diagnostics, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionRollingBack(
                     diagnostics,
@@ -2791,7 +2649,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     startTime,
                     definition,
                     false,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -2824,11 +2683,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogTransactionRollingBack(diagnostics, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionRollingBack(
                     diagnostics,
@@ -2838,7 +2694,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     startTime,
                     definition,
                     true,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -2857,7 +2714,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DateTimeOffset startTime,
             EventDefinition definition,
             bool async,
-            bool diagnosticSourceEnabled)
+            bool diagnosticSourceEnabled,
+            bool simpleLogEnabled)
         {
             var eventData = new TransactionEventData(
                 definition,
@@ -2869,10 +2727,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 async,
                 startTime);
 
-            if (diagnosticSourceEnabled)
-            {
-                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
-            }
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
             return eventData;
         }
@@ -2881,10 +2736,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             EventDefinition definition)
         {
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, warningBehavior);
+                definition.Log(diagnostics);
             }
         }
 
@@ -2905,25 +2759,24 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var definition = RelationalResources.LogDisposingTransaction(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, warningBehavior);
+                definition.Log(diagnostics);
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new TransactionEventData(
-                        definition,
-                        (d, p) => ((EventDefinition)d).GenerateMessage(),
-                        transaction,
-                        connection.Context,
-                        transactionId,
-                        connection.ConnectionId,
-                        false,
-                        startTime));
+                var eventData = new TransactionEventData(
+                    definition,
+                    (d, p) => ((EventDefinition)d).GenerateMessage(),
+                    transaction,
+                    connection.Context,
+                    transactionId,
+                    connection.ConnectionId,
+                    false,
+                    startTime);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
 
@@ -2952,11 +2805,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogTransactionError(diagnostics, exception, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionError(
                     diagnostics,
@@ -2969,7 +2819,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     duration,
                     definition,
                     false,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 interceptor?.TransactionFailed(transaction, eventData);
             }
@@ -3003,11 +2854,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             LogTransactionError(diagnostics, exception, definition);
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionError(
                     diagnostics,
@@ -3020,7 +2868,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     duration,
                     definition,
                     true,
-                    diagnosticSourceEnabled);
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -3042,7 +2891,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             TimeSpan duration,
             EventDefinition definition,
             bool async,
-            bool diagnosticSourceEnabled)
+            bool diagnosticSourceEnabled,
+            bool simpleLogEnabled)
         {
             var eventData = new TransactionErrorEventData(
                 definition,
@@ -3057,10 +2907,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 startTime,
                 duration);
 
-            if (diagnosticSourceEnabled)
-            {
-                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
-            }
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
             return eventData;
         }
@@ -3070,10 +2917,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Exception exception,
             EventDefinition definition)
         {
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, warningBehavior, exception);
+                definition.Log(diagnostics);
             }
         }
 
@@ -3090,24 +2936,23 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var definition = RelationalResources.LogAmbientTransaction(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, warningBehavior);
+                definition.Log(diagnostics);
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new ConnectionEventData(
-                        definition,
-                        (d, p) => ((EventDefinition)d).GenerateMessage(),
-                        connection.DbConnection,
-                        connection.Context,
-                        connection.ConnectionId,
-                        false,
-                        startTime));
+                var eventData = new ConnectionEventData(
+                    definition,
+                    (d, p) => ((EventDefinition)d).GenerateMessage(),
+                    connection.DbConnection,
+                    connection.Context,
+                    connection.ConnectionId,
+                    false,
+                    startTime);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
 
@@ -3124,25 +2969,21 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var definition = RelationalResources.LogAmbientTransactionEnlisted(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    transaction.IsolationLevel.ToString("G"));
+                definition.Log(diagnostics, transaction.IsolationLevel.ToString("G"));
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new TransactionEnlistedEventData(
-                        definition,
-                        AmbientTransactionEnlisted,
-                        transaction,
-                        connection.DbConnection,
-                        connection.ConnectionId));
+                var eventData = new TransactionEnlistedEventData(
+                    definition,
+                    AmbientTransactionEnlisted,
+                    transaction,
+                    connection.DbConnection,
+                    connection.ConnectionId);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
 
@@ -3166,25 +3007,21 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var definition = RelationalResources.LogExplicitTransactionEnlisted(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    transaction.IsolationLevel.ToString("G"));
+                definition.Log(diagnostics, transaction.IsolationLevel.ToString("G"));
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new TransactionEnlistedEventData(
-                        definition,
-                        ExplicitTransactionEnlisted,
-                        transaction,
-                        connection.DbConnection,
-                        connection.ConnectionId));
+                var eventData = new TransactionEnlistedEventData(
+                    definition,
+                    ExplicitTransactionEnlisted,
+                    transaction,
+                    connection.DbConnection,
+                    connection.ConnectionId);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
 
@@ -3221,17 +3058,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var definition = RelationalResources.LogDisposingDataReader(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, warningBehavior);
+                definition.Log(diagnostics);
             }
 
-            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
-
-            if (interceptor != null
-                || diagnosticSourceEnabled)
+            if (diagnostics.NeedsEventData<IDbCommandInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = new DataReaderDisposingEventData(
                     definition,
@@ -3246,12 +3079,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     startTime,
                     duration);
 
-                if (diagnosticSourceEnabled)
-                {
-                    diagnostics.DiagnosticSource.Write(
-                        definition.EventId.Name,
-                        eventData);
-                }
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
                 if (interceptor != null)
                 {
@@ -3275,27 +3103,23 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var definition = RelationalResources.LogMigrating(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
                 var dbConnection = connection.DbConnection;
 
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    dbConnection.Database, dbConnection.DataSource);
+                definition.Log(diagnostics, dbConnection.Database, dbConnection.DataSource);
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new MigratorConnectionEventData(
-                        definition,
-                        MigrateUsingConnection,
-                        migrator,
-                        connection.DbConnection,
-                        connection.ConnectionId));
+                var eventData = new MigratorConnectionEventData(
+                    definition,
+                    MigrateUsingConnection,
+                    migrator,
+                    connection.DbConnection,
+                    connection.ConnectionId);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
 
@@ -3321,24 +3145,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var definition = RelationalResources.LogRevertingMigration(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    migration.GetId());
+                definition.Log(diagnostics, migration.GetId());
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new MigrationEventData(
-                        definition,
-                        MigrationReverting,
-                        migrator,
-                        migration));
+                var eventData = new MigrationEventData(
+                    definition,
+                    MigrationReverting,
+                    migrator,
+                    migration);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
 
@@ -3362,24 +3182,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var definition = RelationalResources.LogApplyingMigration(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    migration.GetId());
+                definition.Log(diagnostics, migration.GetId());
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new MigrationEventData(
-                        definition,
-                        MigrationApplying,
-                        migrator,
-                        migration));
+                var eventData = new MigrationEventData(
+                    definition,
+                    MigrationApplying,
+                    migrator,
+                    migration);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
 
@@ -3409,27 +3225,23 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var definition = RelationalResources.LogGeneratingDown(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    migration.GetId());
+                definition.Log(diagnostics, migration.GetId());
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new MigrationScriptingEventData(
-                        definition,
-                        MigrationGeneratingDownScript,
-                        migrator,
-                        migration,
-                        fromMigration,
-                        toMigration,
-                        idempotent));
+                var eventData = new MigrationScriptingEventData(
+                    definition,
+                    MigrationGeneratingDownScript,
+                    migrator,
+                    migration,
+                    fromMigration,
+                    toMigration,
+                    idempotent);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
 
@@ -3459,27 +3271,23 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var definition = RelationalResources.LogGeneratingUp(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    migration.GetId());
+                definition.Log(diagnostics, migration.GetId());
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new MigrationScriptingEventData(
-                        definition,
-                        MigrationGeneratingUpScript,
-                        migrator,
-                        migration,
-                        fromMigration,
-                        toMigration,
-                        idempotent));
+                var eventData = new MigrationScriptingEventData(
+                    definition,
+                    MigrationGeneratingUpScript,
+                    migrator,
+                    migration,
+                    fromMigration,
+                    toMigration,
+                    idempotent);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
 
@@ -3501,20 +3309,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var definition = RelationalResources.LogNoMigrationsApplied(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, warningBehavior);
+                definition.Log(diagnostics);
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new MigratorEventData(
-                        definition,
-                        (d, p) => ((EventDefinition)d).GenerateMessage(),
-                        migrator));
+                var eventData = new MigratorEventData(
+                    definition,
+                    (d, p) => ((EventDefinition)d).GenerateMessage(),
+                    migrator);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
 
@@ -3531,24 +3338,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var definition = RelationalResources.LogNoMigrationsFound(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    migrationsAssembly.Assembly.GetName().Name);
+                definition.Log(diagnostics, migrationsAssembly.Assembly.GetName().Name);
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new MigrationAssemblyEventData(
-                        definition,
-                        MigrationsNotFound,
-                        migrator,
-                        migrationsAssembly));
+                var eventData = new MigrationAssemblyEventData(
+                    definition,
+                    MigrationsNotFound,
+                    migrator,
+                    migrationsAssembly);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
 
@@ -3570,23 +3373,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var definition = RelationalResources.LogMigrationAttributeMissingWarning(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    migrationType.Name);
+                definition.Log(diagnostics, migrationType.Name);
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new MigrationTypeEventData(
-                        definition,
-                        MigrationAttributeMissingWarning,
-                        migrationType));
+                var eventData = new MigrationTypeEventData(
+                    definition,
+                    MigrationAttributeMissingWarning,
+                    migrationType);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
 
@@ -3608,23 +3407,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var definition = RelationalResources.LogPossibleUnintendedUseOfEquals(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    methodCallExpression);
+                definition.Log(diagnostics, methodCallExpression);
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new ExpressionEventData(
-                        definition,
-                        QueryPossibleUnintendedUseOfEqualsWarning,
-                        methodCallExpression));
+                var eventData = new ExpressionEventData(
+                    definition,
+                    QueryPossibleUnintendedUseOfEqualsWarning,
+                    methodCallExpression);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
 
@@ -3644,19 +3439,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var definition = RelationalResources.LogQueryPossibleExceptionWithAggregateOperatorWarning(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, warningBehavior);
+                definition.Log(diagnostics);
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new EventData(
-                        definition,
-                        (d, p) => ((EventDefinition)d).GenerateMessage()));
+                var eventData = new EventData(
+                    definition,
+                    (d, p) => ((EventDefinition)d).GenerateMessage());
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
 
@@ -3671,24 +3465,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var definition = RelationalResources.LogKeyHasDefaultValue(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    property.Name,
-                    property.DeclaringEntityType.DisplayName());
+                definition.Log(diagnostics, property.Name, property.DeclaringEntityType.DisplayName());
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new PropertyEventData(
-                        definition,
-                        ModelValidationKeyDefaultValueWarning,
-                        property));
+                var eventData = new PropertyEventData(
+                    definition,
+                    ModelValidationKeyDefaultValueWarning,
+                    property);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
 
@@ -3712,24 +3501,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var definition = RelationalResources.LogBoolWithDefaultWarning(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    property.Name,
-                    property.DeclaringEntityType.DisplayName());
+                definition.Log(diagnostics, property.Name, property.DeclaringEntityType.DisplayName());
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new PropertyEventData(
-                        definition,
-                        BoolWithDefaultWarning,
-                        property));
+                var eventData = new PropertyEventData(
+                    definition,
+                    BoolWithDefaultWarning,
+                    property);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
 
@@ -3753,24 +3537,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var definition = RelationalResources.LogBatchReadyForExecution(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    commandCount);
+                definition.Log(diagnostics, commandCount);
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new BatchEventData(
-                        definition,
-                        BatchReadyForExecution,
-                        entries,
-                        commandCount));
+                var eventData = new BatchEventData(
+                    definition,
+                    BatchReadyForExecution,
+                    entries,
+                    commandCount);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
 
@@ -3796,25 +3576,21 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var definition = RelationalResources.LogBatchSmallerThanMinBatchSize(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    commandCount, minBatchSize);
+                definition.Log(diagnostics, commandCount, minBatchSize);
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new MinBatchSizeEventData(
-                        definition,
-                        BatchSmallerThanMinBatchSize,
-                        entries,
-                        commandCount,
-                        minBatchSize));
+                var eventData = new MinBatchSizeEventData(
+                    definition,
+                    BatchSmallerThanMinBatchSize,
+                    entries,
+                    commandCount,
+                    minBatchSize);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
 

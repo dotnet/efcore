@@ -75,29 +75,27 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [ConditionalFact]
         public virtual void Temporary_values_are_not_reset_when_entity_is_detached()
         {
-            using (var context = new KClrContext())
-            {
-                var entity = new SomeEntity();
-                var entry = context.Add(entity).GetInfrastructure();
-                var keyProperty = entry.EntityType.FindProperty("Id");
+            using var context = new KClrContext();
+            var entity = new SomeEntity();
+            var entry = context.Add(entity).GetInfrastructure();
+            var keyProperty = entry.EntityType.FindProperty("Id");
 
-                entry.SetEntityState(EntityState.Added);
-                entry.SetTemporaryValue(keyProperty, -1);
+            entry.SetEntityState(EntityState.Added);
+            entry.SetTemporaryValue(keyProperty, -1);
 
-                Assert.NotNull(entry[keyProperty]);
-                Assert.Equal(0, entity.Id);
-                Assert.Equal(-1, entry[keyProperty]);
+            Assert.NotNull(entry[keyProperty]);
+            Assert.Equal(0, entity.Id);
+            Assert.Equal(-1, entry[keyProperty]);
 
-                entry.SetEntityState(EntityState.Detached);
+            entry.SetEntityState(EntityState.Detached);
 
-                Assert.Equal(0, entity.Id);
-                Assert.Equal(-1, entry[keyProperty]);
+            Assert.Equal(0, entity.Id);
+            Assert.Equal(-1, entry[keyProperty]);
 
-                entry.SetEntityState(EntityState.Added);
+            entry.SetEntityState(EntityState.Added);
 
-                Assert.Equal(0, entity.Id);
-                Assert.Equal(-1, entry[keyProperty]);
-            }
+            Assert.Equal(0, entity.Id);
+            Assert.Equal(-1, entry[keyProperty]);
         }
 
         [ConditionalTheory]
@@ -108,75 +106,71 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [InlineData(EntityState.Deleted)]
         public void AcceptChanges_handles_different_entity_states_for_owned_types(EntityState entityState)
         {
-            using (var context = new KClrContext())
+            using var context = new KClrContext();
+            var ownerEntry = context.Entry(
+                new OwnerClass { Id = 1, Owned = new OwnedClass { Value = "Kool" } }).GetInfrastructure();
+
+            var entry = context.Entry(((OwnerClass)ownerEntry.Entity).Owned).GetInfrastructure();
+            var valueProperty = entry.EntityType.FindProperty(nameof(OwnedClass.Value));
+
+            entry.SetEntityState(entityState);
+
+            if (entityState != EntityState.Unchanged)
             {
-                var ownerEntry = context.Entry(
-                    new OwnerClass { Id = 1, Owned = new OwnedClass { Value = "Kool" } }).GetInfrastructure();
+                entry[valueProperty] = "Pickle";
+            }
 
-                var entry = context.Entry(((OwnerClass)ownerEntry.Entity).Owned).GetInfrastructure();
-                var valueProperty = entry.EntityType.FindProperty(nameof(OwnedClass.Value));
+            entry.SetOriginalValue(valueProperty, "Cheese");
 
-                entry.SetEntityState(entityState);
+            entry.AcceptChanges();
 
-                if (entityState != EntityState.Unchanged)
-                {
-                    entry[valueProperty] = "Pickle";
-                }
-
-                entry.SetOriginalValue(valueProperty, "Cheese");
-
-                entry.AcceptChanges();
-
+            Assert.Equal(
+                entityState == EntityState.Deleted || entityState == EntityState.Detached
+                    ? EntityState.Detached
+                    : EntityState.Unchanged,
+                entry.EntityState);
+            if (entityState == EntityState.Unchanged)
+            {
+                Assert.Equal("Kool", entry[valueProperty]);
+                Assert.Equal("Kool", entry.GetOriginalValue(valueProperty));
+            }
+            else
+            {
+                Assert.Equal("Pickle", entry[valueProperty]);
                 Assert.Equal(
-                    entityState == EntityState.Deleted || entityState == EntityState.Detached
-                        ? EntityState.Detached
-                        : EntityState.Unchanged,
-                    entry.EntityState);
-                if (entityState == EntityState.Unchanged)
-                {
-                    Assert.Equal("Kool", entry[valueProperty]);
-                    Assert.Equal("Kool", entry.GetOriginalValue(valueProperty));
-                }
-                else
-                {
-                    Assert.Equal("Pickle", entry[valueProperty]);
-                    Assert.Equal(
-                        entityState == EntityState.Detached || entityState == EntityState.Deleted ? "Cheese" : "Pickle",
-                        entry.GetOriginalValue(valueProperty));
-                }
+                    entityState == EntityState.Detached || entityState == EntityState.Deleted ? "Cheese" : "Pickle",
+                    entry.GetOriginalValue(valueProperty));
             }
         }
 
         [ConditionalFact]
         public void Setting_an_explicit_value_on_the_entity_marks_property_as_not_temporary()
         {
-            using (var context = new KClrContext())
-            {
-                var entry = context.Entry(new SomeEntity()).GetInfrastructure();
-                var keyProperty = entry.EntityType.FindProperty("Id");
+            using var context = new KClrContext();
+            var entry = context.Entry(new SomeEntity()).GetInfrastructure();
+            var keyProperty = entry.EntityType.FindProperty("Id");
 
-                var entity = (SomeEntity)entry.Entity;
+            var entity = (SomeEntity)entry.Entity;
 
-                entry.SetEntityState(EntityState.Added);
-                entry.SetTemporaryValue(keyProperty, -1);
+            entry.SetEntityState(EntityState.Added);
+            entry.SetTemporaryValue(keyProperty, -1);
 
-                Assert.True(entry.HasTemporaryValue(keyProperty));
+            Assert.True(entry.HasTemporaryValue(keyProperty));
 
-                entity.Id = 77;
+            entity.Id = 77;
 
-                context.GetService<IChangeDetector>().DetectChanges(entry);
+            context.GetService<IChangeDetector>().DetectChanges(entry);
 
-                Assert.False(entry.HasTemporaryValue(keyProperty));
+            Assert.False(entry.HasTemporaryValue(keyProperty));
 
-                entry.SetEntityState(EntityState.Unchanged); // Does not throw
+            entry.SetEntityState(EntityState.Unchanged); // Does not throw
 
-                var nameProperty = entry.EntityType.FindProperty(nameof(SomeEntity.Name));
-                Assert.True(entry.HasDefaultValue(nameProperty));
+            var nameProperty = entry.EntityType.FindProperty(nameof(SomeEntity.Name));
+            Assert.True(entry.HasDefaultValue(nameProperty));
 
-                entity.Name = "Name";
+            entity.Name = "Name";
 
-                Assert.False(entry.HasDefaultValue(nameProperty));
-            }
+            Assert.False(entry.HasDefaultValue(nameProperty));
         }
 
         [ConditionalFact]
@@ -197,32 +191,30 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private void SetPropertyClrTest<TEntity>(TEntity entity, bool needsDetectChanges)
             where TEntity : class, ISomeEntity
         {
-            using (var context = new KClrContext())
+            using var context = new KClrContext();
+            var entry = context.Attach(entity).GetInfrastructure();
+            var nameProperty = entry.EntityType.FindProperty("Name");
+
+            Assert.False(entry.IsModified(nameProperty));
+            Assert.Equal(EntityState.Unchanged, entry.EntityState);
+
+            entity.Name = "Kool";
+
+            Assert.False(entry.IsModified(nameProperty));
+            Assert.Equal(EntityState.Unchanged, entry.EntityState);
+
+            entity.Name = "Beans";
+
+            if (needsDetectChanges)
             {
-                var entry = context.Attach(entity).GetInfrastructure();
-                var nameProperty = entry.EntityType.FindProperty("Name");
-
                 Assert.False(entry.IsModified(nameProperty));
                 Assert.Equal(EntityState.Unchanged, entry.EntityState);
 
-                entity.Name = "Kool";
-
-                Assert.False(entry.IsModified(nameProperty));
-                Assert.Equal(EntityState.Unchanged, entry.EntityState);
-
-                entity.Name = "Beans";
-
-                if (needsDetectChanges)
-                {
-                    Assert.False(entry.IsModified(nameProperty));
-                    Assert.Equal(EntityState.Unchanged, entry.EntityState);
-
-                    context.GetService<IChangeDetector>().DetectChanges(entry);
-                }
-
-                Assert.True(entry.IsModified(nameProperty));
-                Assert.Equal(EntityState.Modified, entry.EntityState);
+                context.GetService<IChangeDetector>().DetectChanges(entry);
             }
+
+            Assert.True(entry.IsModified(nameProperty));
+            Assert.Equal(EntityState.Modified, entry.EntityState);
         }
 
         public class SomeCompositeEntityBase

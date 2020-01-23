@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Data.Common;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -499,17 +498,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static readonly string _queryPrefix = DbLoggerCategory.Query.Name + ".";
         private static EventId MakeQueryId(Id id) => new EventId((int)id, _queryPrefix + id);
-
-        /// <summary>
-        ///     <para>
-        ///         Part of a query is being evaluated on the client instead of on the database server.
-        ///     </para>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
-        ///     </para>
-        /// </summary>
-        [Obsolete("Automatic client evaluation is no longer supported. This event is no longer generated.")]
-        public static readonly EventId QueryClientEvaluationWarning = MakeQueryId(Id.QueryClientEvaluationWarning);
 
         /// <summary>
         ///     <para>

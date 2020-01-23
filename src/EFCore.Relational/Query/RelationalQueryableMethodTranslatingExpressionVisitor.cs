@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -27,11 +28,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly bool _subquery;
 
         public RelationalQueryableMethodTranslatingExpressionVisitor(
-            QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
-            RelationalQueryableMethodTranslatingExpressionVisitorDependencies relationalDependencies,
-            IModel model)
+            [NotNull] QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
+            [NotNull] RelationalQueryableMethodTranslatingExpressionVisitorDependencies relationalDependencies,
+            [NotNull] IModel model)
             : base(dependencies, subquery: false)
         {
+            Check.NotNull(dependencies, nameof(dependencies));
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+            Check.NotNull(model, nameof(model));
+
             RelationalDependencies = relationalDependencies;
 
             var sqlExpressionFactory = relationalDependencies.SqlExpressionFactory;
@@ -46,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual RelationalQueryableMethodTranslatingExpressionVisitorDependencies RelationalDependencies { get; }
 
         protected RelationalQueryableMethodTranslatingExpressionVisitor(
-            RelationalQueryableMethodTranslatingExpressionVisitor parentVisitor)
+            [NotNull] RelationalQueryableMethodTranslatingExpressionVisitor parentVisitor)
             : base(parentVisitor.Dependencies, subquery: true)
         {
             RelationalDependencies = parentVisitor.RelationalDependencies;
@@ -60,6 +65,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
             if (methodCallExpression.Method.DeclaringType == typeof(RelationalQueryableExtensions)
                 && methodCallExpression.Method.Name == nameof(RelationalQueryableExtensions.FromSqlOnQueryable))
             {
@@ -76,6 +83,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override ShapedQueryExpression CreateShapedQueryExpression(Type elementType)
         {
+            Check.NotNull(elementType, nameof(elementType));
+
             var entityType = _model.FindEntityType(elementType);
             var queryExpression = _sqlExpressionFactory.Select(entityType);
 
@@ -103,6 +112,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override ShapedQueryExpression TranslateAll(ShapedQueryExpression source, LambdaExpression predicate)
         {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(predicate, nameof(predicate));
+
             var translation = TranslateLambdaExpression(source, predicate);
             if (translation == null)
             {
@@ -119,10 +131,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             translation = _sqlExpressionFactory.Exists(selectExpression, true);
-            source.QueryExpression = _sqlExpressionFactory.Select(translation);
-            source.ShaperExpression = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool));
-
-            return source;
+            return source.Update(_sqlExpressionFactory.Select(translation),
+                new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool)));
         }
 
         protected override ShapedQueryExpression TranslateAny(ShapedQueryExpression source, LambdaExpression predicate)
@@ -145,14 +155,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             var translation = _sqlExpressionFactory.Exists(selectExpression, false);
-            source.QueryExpression = _sqlExpressionFactory.Select(translation);
-            source.ShaperExpression = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool));
-
-            return source;
+            return source.Update(_sqlExpressionFactory.Select(translation),
+                new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool)));
         }
 
         protected override ShapedQueryExpression TranslateAverage(ShapedQueryExpression source, LambdaExpression selector, Type resultType)
         {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(resultType, nameof(resultType));
+
             var selectExpression = (SelectExpression)source.QueryExpression;
             selectExpression.PrepareForAggregate();
 
@@ -169,16 +180,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override ShapedQueryExpression TranslateCast(ShapedQueryExpression source, Type resultType)
         {
-            if (source.ShaperExpression.Type != resultType)
-            {
-                source.ShaperExpression = Expression.Convert(source.ShaperExpression, resultType);
-            }
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(resultType, nameof(resultType));
 
-            return source;
+            return source.ShaperExpression.Type != resultType
+                ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, resultType))
+                : source;
         }
 
         protected override ShapedQueryExpression TranslateConcat(ShapedQueryExpression source1, ShapedQueryExpression source2)
         {
+            Check.NotNull(source1, nameof(source1));
+            Check.NotNull(source2, nameof(source2));
+
             ((SelectExpression)source1.QueryExpression).ApplyUnion((SelectExpression)source2.QueryExpression, distinct: false);
 
             return source1;
@@ -186,6 +200,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override ShapedQueryExpression TranslateContains(ShapedQueryExpression source, Expression item)
         {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(item, nameof(item));
+
             var selectExpression = (SelectExpression)source.QueryExpression;
             var translation = TranslateExpression(item);
             if (translation == null)
@@ -201,14 +218,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             selectExpression.ApplyProjection();
             translation = _sqlExpressionFactory.In(translation, selectExpression, false);
-            source.QueryExpression = _sqlExpressionFactory.Select(translation);
-            source.ShaperExpression = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool));
-
-            return source;
+            return source.Update(_sqlExpressionFactory.Select(translation),
+                new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool)));
         }
 
         protected override ShapedQueryExpression TranslateCount(ShapedQueryExpression source, LambdaExpression predicate)
         {
+            Check.NotNull(source, nameof(source));
+
             var selectExpression = (SelectExpression)source.QueryExpression;
             selectExpression.PrepareForAggregate();
 
@@ -231,19 +248,17 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             selectExpression.ClearOrdering();
             selectExpression.ReplaceProjectionMapping(projectionMapping);
-            source.ShaperExpression = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(int));
-
-            return source;
+            return source.UpdateShaperExpression(new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(int)));
         }
 
         protected override ShapedQueryExpression TranslateDefaultIfEmpty(ShapedQueryExpression source, Expression defaultValue)
         {
+            Check.NotNull(source, nameof(source));
+
             if (defaultValue == null)
             {
                 ((SelectExpression)source.QueryExpression).ApplyDefaultIfEmpty(_sqlExpressionFactory);
-                source.ShaperExpression = MarkShaperNullable(source.ShaperExpression);
-
-                return source;
+                return source.UpdateShaperExpression(MarkShaperNullable(source.ShaperExpression));
             }
 
             return null;
@@ -251,6 +266,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override ShapedQueryExpression TranslateDistinct(ShapedQueryExpression source)
         {
+            Check.NotNull(source, nameof(source));
+
             ((SelectExpression)source.QueryExpression).ApplyDistinct();
 
             return source;
@@ -258,10 +275,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override ShapedQueryExpression TranslateElementAtOrDefault(
             ShapedQueryExpression source, Expression index, bool returnDefault)
-            => null;
+        {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(index, nameof(index));
+
+            return null;
+        }
 
         protected override ShapedQueryExpression TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2)
         {
+            Check.NotNull(source1, nameof(source1));
+            Check.NotNull(source2, nameof(source2));
+
             ((SelectExpression)source1.QueryExpression).ApplyExcept((SelectExpression)source2.QueryExpression, distinct: true);
             return source1;
         }
@@ -269,6 +294,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override ShapedQueryExpression TranslateFirstOrDefault(
             ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
         {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(returnType, nameof(returnType));
+
             if (predicate != null)
             {
                 source = TranslateWhere(source, predicate);
@@ -281,12 +309,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             var selectExpression = (SelectExpression)source.QueryExpression;
             selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(1)));
 
-            if (source.ShaperExpression.Type != returnType)
-            {
-                source.ShaperExpression = Expression.Convert(source.ShaperExpression, returnType);
-            }
-
-            return source;
+            return source.ShaperExpression.Type != returnType
+                ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType))
+                : source;
         }
 
         protected override ShapedQueryExpression TranslateGroupBy(
@@ -295,6 +320,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             LambdaExpression elementSelector,
             LambdaExpression resultSelector)
         {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(keySelector, nameof(keySelector));
+
             var selectExpression = (SelectExpression)source.QueryExpression;
             selectExpression.PrepareForAggregate();
 
@@ -309,25 +337,23 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
 
                 selectExpression.ApplyGrouping(translatedKey);
-                source.ShaperExpression = new GroupByShaperExpression(translatedKey, source.ShaperExpression);
+                var groupByShaper = new GroupByShaperExpression(translatedKey, source.ShaperExpression);
 
                 if (resultSelector == null)
                 {
-                    return source;
+                    return source.UpdateShaperExpression(groupByShaper);
                 }
 
                 var original1 = resultSelector.Parameters[0];
                 var original2 = resultSelector.Parameters[1];
 
                 var newResultSelectorBody = new ReplacingExpressionVisitor(
-                        new Dictionary<Expression, Expression> { { original1, translatedKey }, { original2, source.ShaperExpression } })
+                        new Dictionary<Expression, Expression> { { original1, translatedKey }, { original2, groupByShaper } })
                     .Visit(resultSelector.Body);
 
                 newResultSelectorBody = ExpandWeakEntities(selectExpression, newResultSelectorBody);
 
-                source.ShaperExpression = _projectionBindingExpressionVisitor.Translate(selectExpression, newResultSelectorBody);
-
-                return source;
+                return source.UpdateShaperExpression(_projectionBindingExpressionVisitor.Translate(selectExpression, newResultSelectorBody));
             }
 
             return null;
@@ -338,12 +364,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             switch (expression)
             {
                 case NewExpression newExpression:
-                    // For .NET Framework only. If ctor is null that means the type is struct and has no ctor args.
-                    if (newExpression.Constructor == null)
-                    {
-                        return newExpression;
-                    }
-
                     if (newExpression.Arguments.Count == 0)
                     {
                         return newExpression;
@@ -397,55 +417,28 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         protected override ShapedQueryExpression TranslateGroupJoin(
-            ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector,
+            ShapedQueryExpression outer,
+            ShapedQueryExpression inner,
+            LambdaExpression outerKeySelector,
+            LambdaExpression innerKeySelector,
             LambdaExpression resultSelector)
         {
-            //var outerSelectExpression = (SelectExpression)outer.QueryExpression;
-            //if (outerSelectExpression.Limit != null
-            //    || outerSelectExpression.Offset != null
-            //    || outerSelectExpression.IsDistinct)
-            //{
-            //    outerSelectExpression.PushdownIntoSubQuery();
-            //}
-
-            //var innerSelectExpression = (SelectExpression)inner.QueryExpression;
-            //if (innerSelectExpression.Orderings.Any()
-            //    || innerSelectExpression.Limit != null
-            //    || innerSelectExpression.Offset != null
-            //    || innerSelectExpression.IsDistinct
-            //    || innerSelectExpression.Predicate != null
-            //    || innerSelectExpression.Tables.Count > 1)
-            //{
-            //    innerSelectExpression.PushdownIntoSubQuery();
-            //}
-
-            //var joinPredicate = CreateJoinPredicate(outer, outerKeySelector, inner, innerKeySelector);
-            //if (joinPredicate != null)
-            //{
-            //    outer = TranslateThenBy(outer, outerKeySelector, true);
-
-            //    var innerTransparentIdentifierType = CreateTransparentIdentifierType(
-            //        resultSelector.Parameters[0].Type,
-            //        resultSelector.Parameters[1].Type.TryGetSequenceType());
-
-            //    outerSelectExpression.AddLeftJoin(
-            //        innerSelectExpression, joinPredicate, innerTransparentIdentifierType);
-
-            //    return TranslateResultSelectorForGroupJoin(
-            //        outer,
-            //        inner.ShaperExpression,
-            //        outerKeySelector,
-            //        innerKeySelector,
-            //        resultSelector,
-            //        innerTransparentIdentifierType);
-            //}
+            Check.NotNull(outer, nameof(outer));
+            Check.NotNull(inner, nameof(inner));
+            Check.NotNull(outerKeySelector, nameof(outerKeySelector));
+            Check.NotNull(innerKeySelector, nameof(innerKeySelector));
+            Check.NotNull(resultSelector, nameof(resultSelector));
 
             return null;
         }
 
         protected override ShapedQueryExpression TranslateIntersect(ShapedQueryExpression source1, ShapedQueryExpression source2)
         {
+            Check.NotNull(source1, nameof(source1));
+            Check.NotNull(source2, nameof(source2));
+
             ((SelectExpression)source1.QueryExpression).ApplyIntersect((SelectExpression)source2.QueryExpression, distinct: true);
+
             return source1;
         }
 
@@ -456,6 +449,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             LambdaExpression innerKeySelector,
             LambdaExpression resultSelector)
         {
+            Check.NotNull(outer, nameof(outer));
+            Check.NotNull(inner, nameof(inner));
+            Check.NotNull(resultSelector, nameof(resultSelector));
+
             var joinPredicate = CreateJoinPredicate(outer, outerKeySelector, inner, innerKeySelector);
             if (joinPredicate != null)
             {
@@ -483,6 +480,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             LambdaExpression innerKeySelector,
             LambdaExpression resultSelector)
         {
+            Check.NotNull(outer, nameof(outer));
+            Check.NotNull(inner, nameof(inner));
+            Check.NotNull(resultSelector, nameof(resultSelector));
+
             var joinPredicate = CreateJoinPredicate(outer, outerKeySelector, inner, innerKeySelector);
             if (joinPredicate != null)
             {
@@ -526,6 +527,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                         : _sqlExpressionFactory.AndAlso(result, joinPredicate);
                 }
 
+                if (outerNew.Arguments.Count == 1)
+                {
+                    result = _sqlExpressionFactory.AndAlso(
+                        result,
+                        CreateJoinPredicate(Expression.Constant(true), Expression.Constant(true)));
+                }
+
                 return result;
             }
 
@@ -538,6 +546,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override ShapedQueryExpression TranslateLastOrDefault(
             ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
         {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(returnType, nameof(returnType));
+
             var selectExpression = (SelectExpression)source.QueryExpression;
             if (selectExpression.Orderings.Count == 0)
             {
@@ -556,16 +567,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             selectExpression.ReverseOrderings();
             selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(1)));
 
-            if (source.ShaperExpression.Type != returnType)
-            {
-                source.ShaperExpression = Expression.Convert(source.ShaperExpression, returnType);
-            }
-
-            return source;
+            return source.ShaperExpression.Type != returnType
+                ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType))
+                : source;
         }
 
         protected override ShapedQueryExpression TranslateLongCount(ShapedQueryExpression source, LambdaExpression predicate)
         {
+            Check.NotNull(source, nameof(source));
+
             var selectExpression = (SelectExpression)source.QueryExpression;
             selectExpression.PrepareForAggregate();
 
@@ -588,13 +598,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             selectExpression.ClearOrdering();
             selectExpression.ReplaceProjectionMapping(projectionMapping);
-            source.ShaperExpression = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(long));
-
-            return source;
+            return source.UpdateShaperExpression(new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(long)));
         }
 
         protected override ShapedQueryExpression TranslateMax(ShapedQueryExpression source, LambdaExpression selector, Type resultType)
         {
+            Check.NotNull(source, nameof(source));
+
             var selectExpression = (SelectExpression)source.QueryExpression;
             selectExpression.PrepareForAggregate();
 
@@ -610,6 +620,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override ShapedQueryExpression TranslateMin(ShapedQueryExpression source, LambdaExpression selector, Type resultType)
         {
+            Check.NotNull(source, nameof(source));
+
             var selectExpression = (SelectExpression)source.QueryExpression;
             selectExpression.PrepareForAggregate();
 
@@ -625,6 +637,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override ShapedQueryExpression TranslateOfType(ShapedQueryExpression source, Type resultType)
         {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(resultType, nameof(resultType));
+
             if (source.ShaperExpression is EntityShaperExpression entityShaperExpression)
             {
                 var entityType = entityShaperExpression.EntityType;
@@ -636,9 +651,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var baseType = entityType.GetAllBaseTypes().SingleOrDefault(et => et.ClrType == resultType);
                 if (baseType != null)
                 {
-                    source.ShaperExpression = entityShaperExpression.WithEntityType(baseType);
-
-                    return source;
+                    return source.UpdateShaperExpression(entityShaperExpression.WithEntityType(baseType));
                 }
 
                 var derivedType = entityType.GetDerivedTypes().SingleOrDefault(et => et.ClrType == resultType);
@@ -664,7 +677,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     var projectionMember = projectionBindingExpression.ProjectionMember;
 
-                    Debug.Assert(
+                    Check.DebugAssert(
                         new ProjectionMember().Equals(projectionMember),
                         "Invalid ProjectionMember when processing OfType");
 
@@ -676,9 +689,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             { projectionMember, entityProjection.UpdateEntityType(derivedType) }
                         });
 
-                    source.ShaperExpression = entityShaperExpression.WithEntityType(derivedType);
-
-                    return source;
+                    return source.UpdateShaperExpression(entityShaperExpression.WithEntityType(derivedType));
                 }
 
                 // If the resultType is not part of hierarchy then we don't know how to materialize.
@@ -690,6 +701,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override ShapedQueryExpression TranslateOrderBy(
             ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
         {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(keySelector, nameof(keySelector));
+
             var translation = TranslateLambdaExpression(source, keySelector);
             if (translation == null)
             {
@@ -702,10 +716,25 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         protected override ShapedQueryExpression TranslateReverse(ShapedQueryExpression source)
-            => null;
+        {
+            Check.NotNull(source, nameof(source));
+
+            var selectExpression = (SelectExpression)source.QueryExpression;
+            if (selectExpression.Orderings.Count == 0)
+            {
+                return null;
+            }
+
+            selectExpression.ReverseOrderings();
+
+            return source;
+        }
 
         protected override ShapedQueryExpression TranslateSelect(ShapedQueryExpression source, LambdaExpression selector)
         {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(selector, nameof(selector));
+
             if (selector.Body == selector.Parameters[0])
             {
                 return source;
@@ -719,14 +748,17 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var newSelectorBody = ReplacingExpressionVisitor.Replace(
                 selector.Parameters.Single(), source.ShaperExpression, selector.Body);
-            source.ShaperExpression = _projectionBindingExpressionVisitor.Translate(selectExpression, newSelectorBody);
 
-            return source;
+            return source.UpdateShaperExpression(_projectionBindingExpressionVisitor.Translate(selectExpression, newSelectorBody));
         }
 
         protected override ShapedQueryExpression TranslateSelectMany(
             ShapedQueryExpression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
         {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(collectionSelector, nameof(collectionSelector));
+            Check.NotNull(resultSelector, nameof(resultSelector));
+
             var (newCollectionSelector, correlated, defaultIfEmpty)
                 = new CorrelationFindingExpressionVisitor().IsCorrelated(collectionSelector);
             if (correlated)
@@ -789,7 +821,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return null;
         }
 
-        private class CorrelationFindingExpressionVisitor : ExpressionVisitor
+        private sealed class CorrelationFindingExpressionVisitor : ExpressionVisitor
         {
             private ParameterExpression _outerParameter;
             private bool _correlated;
@@ -797,7 +829,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             public (LambdaExpression, bool, bool) IsCorrelated(LambdaExpression lambdaExpression)
             {
-                Debug.Assert(lambdaExpression.Parameters.Count == 1, "Multiparameter lambda passed to CorrelationFindingExpressionVisitor");
+                Check.DebugAssert(lambdaExpression.Parameters.Count == 1, "Multiparameter lambda passed to CorrelationFindingExpressionVisitor");
 
                 _correlated = false;
                 _defaultIfEmpty = false;
@@ -810,6 +842,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override Expression VisitParameter(ParameterExpression parameterExpression)
             {
+                Check.NotNull(parameterExpression, nameof(parameterExpression));
+
                 if (parameterExpression == _outerParameter)
                 {
                     _correlated = true;
@@ -820,6 +854,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
+                Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
                 if (methodCallExpression.Method.IsGenericMethod
                     && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.DefaultIfEmptyWithoutArgument)
                 {
@@ -833,6 +869,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override ShapedQueryExpression TranslateSelectMany(ShapedQueryExpression source, LambdaExpression selector)
         {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(selector, nameof(selector));
+
             var innerParameter = Expression.Parameter(selector.ReturnType.TryGetSequenceType(), "i");
             var resultSelector = Expression.Lambda(
                 innerParameter, Expression.Parameter(source.Type.TryGetSequenceType()), innerParameter);
@@ -843,6 +882,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override ShapedQueryExpression TranslateSingleOrDefault(
             ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
         {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(returnType, nameof(returnType));
+
             if (predicate != null)
             {
                 source = TranslateWhere(source, predicate);
@@ -855,16 +897,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             var selectExpression = (SelectExpression)source.QueryExpression;
             selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(_subquery ? 1 : 2)));
 
-            if (source.ShaperExpression.Type != returnType)
-            {
-                source.ShaperExpression = Expression.Convert(source.ShaperExpression, returnType);
-            }
-
-            return source;
+            return source.ShaperExpression.Type != returnType
+                ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType))
+                : source;
         }
 
         protected override ShapedQueryExpression TranslateSkip(ShapedQueryExpression source, Expression count)
         {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(count, nameof(count));
+
             var selectExpression = (SelectExpression)source.QueryExpression;
             var translation = TranslateExpression(count);
             if (translation == null)
@@ -878,10 +920,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         protected override ShapedQueryExpression TranslateSkipWhile(ShapedQueryExpression source, LambdaExpression predicate)
-            => null;
+        {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(predicate, nameof(predicate));
+
+            return null;
+        }
 
         protected override ShapedQueryExpression TranslateSum(ShapedQueryExpression source, LambdaExpression selector, Type resultType)
         {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(resultType, nameof(resultType));
+
             var selectExpression = (SelectExpression)source.QueryExpression;
             selectExpression.PrepareForAggregate();
             var newSelector = selector == null
@@ -897,6 +947,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override ShapedQueryExpression TranslateTake(ShapedQueryExpression source, Expression count)
         {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(count, nameof(count));
+
             var selectExpression = (SelectExpression)source.QueryExpression;
             var translation = TranslateExpression(count);
             if (translation == null)
@@ -910,10 +963,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         protected override ShapedQueryExpression TranslateTakeWhile(ShapedQueryExpression source, LambdaExpression predicate)
-            => null;
+        {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(predicate, nameof(predicate));
+
+            return null;
+        }
 
         protected override ShapedQueryExpression TranslateThenBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
         {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(keySelector, nameof(keySelector));
+
             var translation = TranslateLambdaExpression(source, keySelector);
             if (translation == null)
             {
@@ -927,12 +988,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override ShapedQueryExpression TranslateUnion(ShapedQueryExpression source1, ShapedQueryExpression source2)
         {
+            Check.NotNull(source1, nameof(source1));
+            Check.NotNull(source2, nameof(source2));
+
             ((SelectExpression)source1.QueryExpression).ApplyUnion((SelectExpression)source2.QueryExpression, distinct: true);
             return source1;
         }
 
         protected override ShapedQueryExpression TranslateWhere(ShapedQueryExpression source, LambdaExpression predicate)
         {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(predicate, nameof(predicate));
+
             var translation = TranslateLambdaExpression(source, predicate);
             if (translation == null)
             {
@@ -961,7 +1028,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         internal Expression ExpandWeakEntities(SelectExpression selectExpression, Expression lambdaBody)
             => _weakEntityExpandingExpressionVisitor.Expand(selectExpression, lambdaBody);
 
-        private class WeakEntityExpandingExpressionVisitor : ExpressionVisitor
+        private sealed class WeakEntityExpandingExpressionVisitor : ExpressionVisitor
         {
             private SelectExpression _selectExpression;
             private readonly RelationalSqlTranslatingExpressionVisitor _sqlTranslator;
@@ -975,7 +1042,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _sqlExpressionFactory = sqlExpressionFactory;
             }
 
-            public virtual Expression Expand(SelectExpression selectExpression, Expression lambdaBody)
+            public Expression Expand(SelectExpression selectExpression, Expression lambdaBody)
             {
                 _selectExpression = selectExpression;
 
@@ -984,6 +1051,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override Expression VisitMember(MemberExpression memberExpression)
             {
+                Check.NotNull(memberExpression, nameof(memberExpression));
+
                 var innerExpression = Visit(memberExpression.Expression);
 
                 return TryExpand(innerExpression, MemberIdentity.Create(memberExpression.Member))
@@ -992,6 +1061,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
+                Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
                 if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var navigationName))
                 {
                     source = Visit(source);
@@ -1000,13 +1071,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                         ?? methodCallExpression.Update(null, new[] { source, methodCallExpression.Arguments[1] });
                 }
 
+                if (methodCallExpression.TryGetEFPropertyArguments(out source, out navigationName))
+                {
+                    source = Visit(source);
+
+                    return TryExpand(source, MemberIdentity.Create(navigationName))
+                        ?? methodCallExpression.Update(source, new[] { methodCallExpression.Arguments[1] });
+                }
+
                 return base.VisitMethodCall(methodCallExpression);
             }
 
             protected override Expression VisitExtension(Expression extensionExpression)
-                => extensionExpression is EntityShaperExpression
+            {
+                Check.NotNull(extensionExpression, nameof(extensionExpression));
+
+                return extensionExpression is EntityShaperExpression
                     ? extensionExpression
                     : base.VisitExtension(extensionExpression);
+            }
 
             private Expression TryExpand(Expression source, MemberIdentity member)
             {
@@ -1037,7 +1120,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return null;
                 }
 
-                var targetEntityType = navigation.GetTargetType();
+                var targetEntityType = navigation.TargetEntityType;
                 if (targetEntityType == null
                     || (!targetEntityType.HasDefiningNavigation()
                         && !targetEntityType.IsOwned()))
@@ -1046,7 +1129,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
 
                 var foreignKey = navigation.ForeignKey;
-                if (navigation.IsCollection())
+                if (navigation.IsCollection)
                 {
                     var innerShapedQuery = CreateShapedQueryExpression(
                         targetEntityType, _sqlExpressionFactory.Select(targetEntityType));
@@ -1060,12 +1143,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                     var correlationPredicateParameter = Expression.Parameter(innerSequenceType);
 
                     var outerKey = entityShaperExpression.CreateKeyAccessExpression(
-                        navigation.IsDependentToPrincipal()
+                        navigation.IsOnDependent
                             ? foreignKey.Properties
                             : foreignKey.PrincipalKey.Properties,
                         makeNullable);
                     var innerKey = correlationPredicateParameter.CreateKeyAccessExpression(
-                        navigation.IsDependentToPrincipal()
+                        navigation.IsOnDependent
                             ? foreignKey.PrincipalKey.Properties
                             : foreignKey.Properties,
                         makeNullable);
@@ -1105,12 +1188,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Any(t => t.IsNullableType());
 
                     var outerKey = entityShaperExpression.CreateKeyAccessExpression(
-                        navigation.IsDependentToPrincipal()
+                        navigation.IsOnDependent
                             ? foreignKey.Properties
                             : foreignKey.PrincipalKey.Properties,
                         makeNullable);
                     var innerKey = innerShapedQuery.ShaperExpression.CreateKeyAccessExpression(
-                        navigation.IsDependentToPrincipal()
+                        navigation.IsOnDependent
                             ? foreignKey.PrincipalKey.Properties
                             : foreignKey.Properties,
                         makeNullable);
@@ -1174,9 +1257,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 shaper = Expression.Convert(shaper, resultType);
             }
 
-            source.ShaperExpression = shaper;
-
-            return source;
+            return source.UpdateShaperExpression(shaper);
         }
     }
 }

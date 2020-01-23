@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
@@ -56,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             if (dataFilePath != null)
             {
                 _dataFilePath = Path.Combine(
-                    Path.GetDirectoryName(typeof(CosmosTestStore).GetTypeInfo().Assembly.Location),
+                    Path.GetDirectoryName(typeof(CosmosTestStore).Assembly.Location),
                     dataFilePath);
             }
         }
@@ -86,10 +85,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             }
             else
             {
-                using (var context = createContext())
-                {
-                    CreateFromFile(context).GetAwaiter().GetResult();
-                }
+                using var context = createContext();
+                CreateFromFile(context).GetAwaiter().GetResult();
             }
         }
 
@@ -99,50 +96,48 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             {
                 var cosmosClient = context.GetService<CosmosClientWrapper>();
                 var serializer = new JsonSerializer();
-                using (var fs = new FileStream(_dataFilePath, FileMode.Open, FileAccess.Read))
-                using (var sr = new StreamReader(fs))
-                using (var reader = new JsonTextReader(sr))
+                using var fs = new FileStream(_dataFilePath, FileMode.Open, FileAccess.Read);
+                using var sr = new StreamReader(fs);
+                using var reader = new JsonTextReader(sr);
+                while (reader.Read())
                 {
-                    while (reader.Read())
+                    if (reader.TokenType == JsonToken.StartArray)
                     {
-                        if (reader.TokenType == JsonToken.StartArray)
+                        NextEntityType:
+                        while (reader.Read())
                         {
-                            NextEntityType:
-                            while (reader.Read())
+                            if (reader.TokenType == JsonToken.StartObject)
                             {
-                                if (reader.TokenType == JsonToken.StartObject)
+                                string entityName = null;
+                                while (reader.Read())
                                 {
-                                    string entityName = null;
-                                    while (reader.Read())
+                                    if (reader.TokenType == JsonToken.PropertyName)
                                     {
-                                        if (reader.TokenType == JsonToken.PropertyName)
+                                        switch (reader.Value)
                                         {
-                                            switch (reader.Value)
-                                            {
-                                                case "Name":
-                                                    reader.Read();
-                                                    entityName = (string)reader.Value;
-                                                    break;
-                                                case "Data":
-                                                    while (reader.Read())
+                                            case "Name":
+                                                reader.Read();
+                                                entityName = (string)reader.Value;
+                                                break;
+                                            case "Data":
+                                                while (reader.Read())
+                                                {
+                                                    if (reader.TokenType == JsonToken.StartObject)
                                                     {
-                                                        if (reader.TokenType == JsonToken.StartObject)
-                                                        {
-                                                            var document = serializer.Deserialize<JObject>(reader);
+                                                        var document = serializer.Deserialize<JObject>(reader);
 
-                                                            document["id"] = $"{entityName}|{document["id"]}";
-                                                            document["Discriminator"] = entityName;
+                                                        document["id"] = $"{entityName}|{document["id"]}";
+                                                        document["Discriminator"] = entityName;
 
-                                                            await cosmosClient.CreateItemAsync("NorthwindContext", document, null);
-                                                        }
-                                                        else if (reader.TokenType == JsonToken.EndObject)
-                                                        {
-                                                            goto NextEntityType;
-                                                        }
+                                                        await cosmosClient.CreateItemAsync("NorthwindContext", document, null);
                                                     }
+                                                    else if (reader.TokenType == JsonToken.EndObject)
+                                                    {
+                                                        goto NextEntityType;
+                                                    }
+                                                }
 
-                                                    break;
-                                            }
+                                                break;
                                         }
                                     }
                                 }

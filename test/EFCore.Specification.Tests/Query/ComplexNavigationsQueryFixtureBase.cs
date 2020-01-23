@@ -17,21 +17,21 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected ComplexNavigationsQueryFixtureBase()
         {
-            var entitySorters = new Dictionary<Type, Func<dynamic, object>>
+            var entitySorters = new Dictionary<Type, Func<object, object>>
             {
-                { typeof(Level1), e => e?.Id },
-                { typeof(Level2), e => e?.Id },
-                { typeof(Level3), e => e?.Id },
-                { typeof(Level4), e => e?.Id },
-                { typeof(InheritanceBase1), e => e?.Id },
-                { typeof(InheritanceBase2), e => e?.Id },
-                { typeof(InheritanceDerived1), e => e?.Id },
-                { typeof(InheritanceDerived2), e => e?.Id },
-                { typeof(InheritanceLeaf1), e => e?.Id },
-                { typeof(InheritanceLeaf2), e => e?.Id }
+                { typeof(Level1), e => ((Level1)e)?.Id },
+                { typeof(Level2), e => ((Level2)e)?.Id },
+                { typeof(Level3), e => ((Level3)e)?.Id },
+                { typeof(Level4), e => ((Level4)e)?.Id },
+                { typeof(InheritanceBase1), e => ((InheritanceBase1)e)?.Id },
+                { typeof(InheritanceBase2), e => ((InheritanceBase2)e)?.Id },
+                { typeof(InheritanceDerived1), e => ((InheritanceDerived1)e)?.Id },
+                { typeof(InheritanceDerived2), e => ((InheritanceDerived2)e)?.Id },
+                { typeof(InheritanceLeaf1), e => ((InheritanceLeaf1)e)?.Id },
+                { typeof(InheritanceLeaf2), e => ((InheritanceLeaf2)e)?.Id }
             }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-            var entityAsserters = new Dictionary<Type, Action<dynamic, dynamic>>
+            var entityAsserters = new Dictionary<Type, Action<object, object>>
             {
                 {
                     typeof(Level1), (e, a) =>
@@ -40,9 +40,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         if (a != null)
                         {
-                            Assert.Equal(e.Id, a.Id);
-                            Assert.Equal(e.Name, a.Name);
-                            Assert.Equal(e.Date, a.Date);
+                            var ee = (Level1)e;
+                            var aa = (Level1)a;
+
+                            Assert.Equal(ee.Id, aa.Id);
+                            Assert.Equal(ee.Name, aa.Name);
+                            Assert.Equal(ee.Date, aa.Date);
                         }
                     }
                 },
@@ -53,11 +56,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         if (a != null)
                         {
-                            Assert.Equal(e.Id, a.Id);
-                            Assert.Equal(e.Name, a.Name);
-                            Assert.Equal(e.Date, a.Date);
-                            Assert.Equal(e.Level1_Optional_Id, a.Level1_Optional_Id);
-                            Assert.Equal(e.Level1_Required_Id, a.Level1_Required_Id);
+                            var ee = (Level2)e;
+                            var aa = (Level2)a;
+
+                            Assert.Equal(ee.Id, aa.Id);
+                            Assert.Equal(ee.Name, aa.Name);
+                            Assert.Equal(ee.Date, aa.Date);
+                            Assert.Equal(ee.Level1_Optional_Id, aa.Level1_Optional_Id);
+                            Assert.Equal(ee.Level1_Required_Id, aa.Level1_Required_Id);
                         }
                     }
                 },
@@ -68,10 +74,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         if (a != null)
                         {
-                            Assert.Equal(e.Id, a.Id);
-                            Assert.Equal(e.Name, a.Name);
-                            Assert.Equal(e.Level2_Optional_Id, a.Level2_Optional_Id);
-                            Assert.Equal(e.Level2_Required_Id, a.Level2_Required_Id);
+                            var ee = (Level3)e;
+                            var aa = (Level3)a;
+
+                            Assert.Equal(ee.Id, aa.Id);
+                            Assert.Equal(ee.Name, aa.Name);
+                            Assert.Equal(ee.Level2_Optional_Id, aa.Level2_Optional_Id);
+                            Assert.Equal(ee.Level2_Required_Id, aa.Level2_Required_Id);
                         }
                     }
                 },
@@ -82,10 +91,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         if (a != null)
                         {
-                            Assert.Equal(e.Id, a.Id);
-                            Assert.Equal(e.Name, a.Name);
-                            Assert.Equal(e.Level3_Optional_Id, a.Level3_Optional_Id);
-                            Assert.Equal(e.Level3_Required_Id, a.Level3_Required_Id);
+                            var ee = (Level4)e;
+                            var aa = (Level4)a;
+
+                            Assert.Equal(ee.Id, aa.Id);
+                            Assert.Equal(ee.Name, aa.Name);
+                            Assert.Equal(ee.Level3_Optional_Id, aa.Level3_Optional_Id);
+                            Assert.Equal(ee.Level3_Required_Id, aa.Level3_Required_Id);
                         }
                     }
                 },
@@ -96,8 +108,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         if (a != null)
                         {
-                            Assert.Equal(e.Id, a.Id);
-                            Assert.Equal(e.Name, a.Name);
+                            var ee = (InheritanceBase1)e;
+                            var aa = (InheritanceBase1)a;
+
+                            Assert.Equal(ee.Id, aa.Id);
+                            Assert.Equal(ee.Name, aa.Name);
                         }
                     }
                 },
@@ -108,8 +123,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         if (a != null)
                         {
-                            Assert.Equal(e.Id, a.Id);
-                            Assert.Equal(e.Name, a.Name);
+                            var ee = (InheritanceBase2)e;
+                            var aa = (InheritanceBase2)a;
+
+                            Assert.Equal(ee.Id, aa.Id);
+                            Assert.Equal(ee.Name, aa.Name);
                         }
                     }
                 },
@@ -120,8 +138,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         if (a != null)
                         {
-                            Assert.Equal(e.Id, a.Id);
-                            Assert.Equal(e.Name, a.Name);
+                            var ee = (InheritanceDerived1)e;
+                            var aa = (InheritanceDerived1)a;
+
+                            Assert.Equal(ee.Id, aa.Id);
+                            Assert.Equal(ee.Name, aa.Name);
                         }
                     }
                 },
@@ -132,8 +153,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         if (a != null)
                         {
-                            Assert.Equal(e.Id, a.Id);
-                            Assert.Equal(e.Name, a.Name);
+                            var ee = (InheritanceDerived2)e;
+                            var aa = (InheritanceDerived2)a;
+
+                            Assert.Equal(ee.Id, aa.Id);
+                            Assert.Equal(ee.Name, aa.Name);
                         }
                     }
                 },
@@ -144,8 +168,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         if (a != null)
                         {
-                            Assert.Equal(e.Id, a.Id);
-                            Assert.Equal(e.Name, a.Name);
+                            var ee = (InheritanceLeaf1)e;
+                            var aa = (InheritanceLeaf1)a;
+
+                            Assert.Equal(ee.Id, aa.Id);
+                            Assert.Equal(ee.Name, aa.Name);
                         }
                     }
                 },
@@ -156,19 +183,27 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         if (a != null)
                         {
-                            Assert.Equal(e.Id, a.Id);
-                            Assert.Equal(e.Name, a.Name);
+                            var ee = (InheritanceLeaf2)e;
+                            var aa = (InheritanceLeaf2)a;
+
+                            Assert.Equal(ee.Id, aa.Id);
+                            Assert.Equal(ee.Name, aa.Name);
                         }
                     }
                 }
             }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-            QueryAsserter = new QueryAsserter<ComplexNavigationsContext>(
+            QueryAsserter = CreateQueryAsserter(entitySorters, entityAsserters);
+        }
+
+        protected virtual QueryAsserter<ComplexNavigationsContext> CreateQueryAsserter(
+            Dictionary<Type, object> entitySorters,
+            Dictionary<Type, object> entityAsserters)
+            => new QueryAsserter<ComplexNavigationsContext>(
                 CreateContext,
                 new ComplexNavigationsDefaultData(),
                 entitySorters,
                 entityAsserters);
-        }
 
         public QueryAsserterBase QueryAsserter { get; set; }
 
@@ -293,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return context;
         }
 
-        private class ComplexNavigationsDefaultData : ComplexNavigationsData
+        protected class ComplexNavigationsDefaultData : ComplexNavigationsData
         {
             public override IQueryable<TEntity> Set<TEntity>()
             {

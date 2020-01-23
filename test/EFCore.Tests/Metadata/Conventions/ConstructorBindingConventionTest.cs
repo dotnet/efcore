@@ -732,12 +732,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         [ConditionalFact]
         public void Throws_in_validation_if_field_not_found()
         {
-            using (var context = new NoFieldContext())
-            {
-                Assert.Equal(
-                    CoreStrings.NoBackingFieldLazyLoading("NoFieldRelated", "NoField"),
-                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
-            }
+            using var context = new NoFieldContext();
+            Assert.Equal(
+                CoreStrings.NoBackingFieldLazyLoading("NoFieldRelated", "NoField"),
+                Assert.Throws<InvalidOperationException>(() => context.Model).Message);
         }
 
         private class NoFieldContext : DbContext

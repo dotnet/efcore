@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
         }
 
         private bool ContainsCollectionNavigation(Type type)
-            => Context.Model.FindEntityType(type)?.GetNavigations().Any(n => n.IsCollection()) ?? false;
+            => Context.Model.FindEntityType(type)?.GetNavigations().Any(n => n.IsCollection) ?? false;
 
         public override bool IsValid(Expression expression)
             => IsQueryableResult(expression)
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
         public override Expression Apply(Expression expression, Random random)
         {
             var typeArgument = expression.Type.GetGenericArguments()[0];
-            var navigations = Context.Model.FindEntityType(typeArgument).GetNavigations().Where(n => n.IsCollection()).ToList();
+            var navigations = Context.Model.FindEntityType(typeArgument).GetNavigations().Where(n => n.IsCollection).ToList();
 
             var i = random.Next(navigations.Count);
             var navigation = navigations[i];

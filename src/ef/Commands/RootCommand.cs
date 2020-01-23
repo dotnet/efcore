@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         }
 
         private static string GetVersion()
-            => typeof(RootCommand).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+            => typeof(RootCommand).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
                 .InformationalVersion;
     }
 }

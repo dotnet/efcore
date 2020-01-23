@@ -63,13 +63,18 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Null(entity.RootId);
                     Assert.Null(entity.Root);
 
+                    Assert.True(context.ChangeTracker.HasChanges());
+
                     context.SaveChanges();
+
+                    Assert.False(context.ChangeTracker.HasChanges());
 
                     id = entity.Id;
                 },
                 context =>
                 {
                     var entity = context.Set<OptionalSingle1>().Include(e => e.Root).Single(e => e.Id == id);
+
                     Assert.Null(entity.Root);
                     Assert.Null(entity.RootId);
                 });
@@ -111,6 +116,8 @@ namespace Microsoft.EntityFrameworkCore
 
                     context.Remove(removed);
 
+                    Assert.True(context.ChangeTracker.HasChanges());
+
                     if (Fixture.ForceClientNoAction)
                     {
                         Assert.Throws<DbUpdateException>(() => context.SaveChanges());
@@ -118,6 +125,8 @@ namespace Microsoft.EntityFrameworkCore
                     else
                     {
                         context.SaveChanges();
+
+                        Assert.False(context.ChangeTracker.HasChanges());
 
                         Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                         Assert.Equal(newFk, child.ParentId);
@@ -154,6 +163,8 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             Assert.Null((child.Parent));
                         }
+
+                        Assert.False(context.ChangeTracker.HasChanges());
                     }
                 });
         }
@@ -173,7 +184,11 @@ namespace Microsoft.EntityFrameworkCore
 
                     var root = context.Set<Root>().Single(IsTheRoot);
 
+                    Assert.False(context.ChangeTracker.HasChanges());
+
                     root.OptionalSingle = new OptionalSingle1();
+
+                    Assert.True(context.ChangeTracker.HasChanges());
 
                     Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                 });
@@ -194,7 +209,11 @@ namespace Microsoft.EntityFrameworkCore
 
                     var root = context.Set<Root>().Single(IsTheRoot);
 
+                    Assert.False(context.ChangeTracker.HasChanges());
+
                     root.RequiredSingle = new RequiredSingle1();
+
+                    Assert.True(context.ChangeTracker.HasChanges());
 
                     Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                 });
@@ -215,7 +234,11 @@ namespace Microsoft.EntityFrameworkCore
 
                     var root = context.Set<Root>().Single(IsTheRoot);
 
+                    Assert.False(context.ChangeTracker.HasChanges());
+
                     root.OptionalSingleAk = new OptionalSingleAk1();
+
+                    Assert.True(context.ChangeTracker.HasChanges());
 
                     Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                 });
@@ -236,7 +259,11 @@ namespace Microsoft.EntityFrameworkCore
 
                     var root = context.Set<Root>().Single(IsTheRoot);
 
+                    Assert.False(context.ChangeTracker.HasChanges());
+
                     root.RequiredSingleAk = new RequiredSingleAk1();
+
+                    Assert.True(context.ChangeTracker.HasChanges());
 
                     Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                 });
@@ -250,29 +277,31 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void No_fixup_to_Deleted_entities(
             CascadeTiming? deleteOrphansTiming)
         {
-            using (var context = CreateContext())
-            {
-                context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming ?? CascadeTiming.Never;
+            using var context = CreateContext();
+            context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming ?? CascadeTiming.Never;
 
-                var root = LoadOptionalGraph(context);
-                var existing = root.OptionalChildren.OrderBy(e => e.Id).First();
+            var root = LoadOptionalGraph(context);
+            var existing = root.OptionalChildren.OrderBy(e => e.Id).First();
 
-                existing.Parent = null;
-                existing.ParentId = null;
-                ((ICollection<Optional1>)root.OptionalChildren).Remove(existing);
+            Assert.False(context.ChangeTracker.HasChanges());
 
-                context.Entry(existing).State = EntityState.Deleted;
+            existing.Parent = null;
+            existing.ParentId = null;
+            ((ICollection<Optional1>)root.OptionalChildren).Remove(existing);
 
-                var queried = context.Set<Optional1>().ToList();
+            context.Entry(existing).State = EntityState.Deleted;
 
-                Assert.Null(existing.Parent);
-                Assert.Null(existing.ParentId);
-                Assert.Single(root.OptionalChildren);
-                Assert.DoesNotContain(existing, root.OptionalChildren);
+            Assert.True(context.ChangeTracker.HasChanges());
 
-                Assert.Equal(2, queried.Count);
-                Assert.Contains(existing, queried);
-            }
+            var queried = context.Set<Optional1>().ToList();
+
+            Assert.Null(existing.Parent);
+            Assert.Null(existing.ParentId);
+            Assert.Single(root.OptionalChildren);
+            Assert.DoesNotContain(existing, root.OptionalChildren);
+
+            Assert.Equal(2, queried.Count);
+            Assert.Contains(existing, queried);
         }
 
         [ConditionalTheory]
@@ -729,6 +758,42 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public virtual void Notification_entities_can_have_indexes()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var produce = new Produce { Name = "Apple", BarCode = 77 };
+                    context.Add(produce);
+
+                    Assert.Equal(EntityState.Added, context.Entry(produce).State);
+
+                    Assert.True(context.ChangeTracker.HasChanges());
+
+                    context.SaveChanges();
+
+                    Assert.False(context.ChangeTracker.HasChanges());
+
+                    Assert.Equal(EntityState.Unchanged, context.Entry(produce).State);
+                    Assert.NotEqual(Guid.Empty, context.Entry(produce).Property(e => e.ProduceId).OriginalValue);
+                    Assert.Equal(77, context.Entry(produce).Property(e => e.BarCode).OriginalValue);
+
+                    context.Remove(produce);
+                    Assert.Equal(EntityState.Deleted, context.Entry(produce).State);
+                    Assert.NotEqual(Guid.Empty, context.Entry(produce).Property(e => e.ProduceId).OriginalValue);
+                    Assert.Equal(77, context.Entry(produce).Property(e => e.BarCode).OriginalValue);
+
+                    Assert.True(context.ChangeTracker.HasChanges());
+
+                    context.SaveChanges();
+
+                    Assert.False(context.ChangeTracker.HasChanges());
+
+                    Assert.Equal(EntityState.Detached, context.Entry(produce).State);
+                });
+        }
+
+        [ConditionalFact]
         public virtual void Resetting_a_deleted_reference_fixes_up_again()
         {
             ExecuteWithStrategyInTransaction(
@@ -743,6 +808,8 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Same(bloog, poost2.Bloog);
 
                     context.Remove(bloog);
+
+                    Assert.True(context.ChangeTracker.HasChanges());
 
                     Assert.Equal(2, bloog.Poosts.Count());
 
@@ -789,7 +856,11 @@ namespace Microsoft.EntityFrameworkCore
 
                     if (!Fixture.ForceClientNoAction)
                     {
+                        Assert.True(context.ChangeTracker.HasChanges());
+
                         context.SaveChanges();
+
+                        Assert.False(context.ChangeTracker.HasChanges());
 
                         Assert.Equal(2, bloog.Poosts.Count());
                         Assert.Null(poost1.Bloog);
@@ -849,6 +920,8 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.True(root.RequiredChildrenAk.All(e => e.Parent == root));
                     Assert.True(root.RequiredCompositeChildren.All(e => e.Parent == root));
 
+                    Assert.False(context.ChangeTracker.HasChanges());
+
                     context.Entry(optionalSingle).State = EntityState.Detached;
                     context.Entry(requiredSingle).State = EntityState.Detached;
                     context.Entry(optionalSingleAk).State = EntityState.Detached;
@@ -863,6 +936,8 @@ namespace Microsoft.EntityFrameworkCore
                     context.Entry(requiredNonPkSingleAkDerived).State = EntityState.Detached;
                     context.Entry(requiredNonPkSingleMoreDerived).State = EntityState.Detached;
                     context.Entry(requiredNonPkSingleAkMoreDerived).State = EntityState.Detached;
+
+                    Assert.False(context.ChangeTracker.HasChanges());
 
                     Assert.NotNull(optionalSingle.Root);
                     Assert.NotNull(requiredSingle.Root);
@@ -949,6 +1024,8 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.True(requiredChildrenAk.All(e => e.Parent == root));
                     Assert.True(requiredCompositeChildren.All(e => e.Parent == root));
 
+                    Assert.False(context.ChangeTracker.HasChanges());
+
                     context.Entry(optionalSingle).State = EntityState.Detached;
                     context.Entry(requiredSingle).State = EntityState.Detached;
                     context.Entry(optionalSingleAk).State = EntityState.Detached;
@@ -974,6 +1051,8 @@ namespace Microsoft.EntityFrameworkCore
                     }
 
                     context.Entry(requiredCompositeChild).State = EntityState.Detached;
+
+                    Assert.False(context.ChangeTracker.HasChanges());
 
                     Assert.Same(root, optionalSingle.Root);
                     Assert.Same(root, requiredSingle.Root);
@@ -2206,6 +2285,8 @@ namespace Microsoft.EntityFrameworkCore
 
                     var root = LoadRequiredGraph(context);
 
+                    Assert.False(context.ChangeTracker.HasChanges());
+
                     context.Entry(newRoot).State = useExistingRoot ? EntityState.Unchanged : EntityState.Added;
 
                     Assert.Equal(
@@ -2520,6 +2601,8 @@ namespace Microsoft.EntityFrameworkCore
                     if ((changeMechanism & ChangeMechanism.Fk) == 0)
                     {
                         var loadedRoot = LoadOptionalOneToManyGraph(context);
+
+                        Assert.False(context.ChangeTracker.HasChanges());
 
                         AssertKeys(root, loadedRoot);
                         AssertNavigations(loadedRoot);
@@ -3682,7 +3765,11 @@ namespace Microsoft.EntityFrameworkCore
                         root2.OptionalSingleAkDerived = new1d;
                         root2.OptionalSingleAkMoreDerived = new1dd;
 
+                        Assert.True(context2.ChangeTracker.HasChanges());
+
                         context2.SaveChanges();
+
+                        Assert.False(context2.ChangeTracker.HasChanges());
                     }
 
                     new1 = context.Set<OptionalSingleAk1>().Single(e => e.Id == new1.Id);
@@ -3725,7 +3812,11 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(old1d.AlternateId, old2d.BackId);
                     Assert.Equal(old1dd.AlternateId, old2dd.BackId);
 
+                    Assert.True(context.ChangeTracker.HasChanges());
+
                     context.SaveChanges();
+
+                    Assert.False(context.ChangeTracker.HasChanges());
 
                     Assert.Equal(root.AlternateId, new1.RootId);
                     Assert.Equal(root.AlternateId, new1d.DerivedRootId);
@@ -8647,7 +8738,11 @@ namespace Microsoft.EntityFrameworkCore
                     var newChild = new ChildAsAParent();
                     parent.ChildAsAParent = newChild;
 
+                    Assert.True(context.ChangeTracker.HasChanges());
+
                     context.SaveChanges();
+
+                    Assert.False(context.ChangeTracker.HasChanges());
 
                     if (cascadeDeleteTiming == null)
                     {
@@ -8667,6 +8762,7 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var parent = context.Set<ParentAsAChild>().Include(p => p.ChildAsAParent).Single();
+
                     Assert.Equal(newId, parent.ChildAsAParentId);
                     Assert.Equal(newId, parent.ChildAsAParent.Id);
                     Assert.Null(context.Set<ChildAsAParent>().Find(oldId));
@@ -8691,7 +8787,11 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Null(dependent.BadCustomer);
                     Assert.Empty(principal.BadOrders);
 
+                    Assert.True(context.ChangeTracker.HasChanges());
+
                     context.SaveChanges();
+
+                    Assert.False(context.ChangeTracker.HasChanges());
 
                     Assert.Null(dependent.BadCustomerId);
                     Assert.Null(dependent.BadCustomer);
@@ -8719,7 +8819,11 @@ namespace Microsoft.EntityFrameworkCore
 
                     context.Add(quizTask);
 
+                    Assert.True(context.ChangeTracker.HasChanges());
+
                     context.SaveChanges();
+
+                    Assert.False(context.ChangeTracker.HasChanges());
                 },
                 context =>
                 {
@@ -8744,7 +8848,11 @@ namespace Microsoft.EntityFrameworkCore
 
                     context.Add(hiddenAreaTask);
 
+                    Assert.True(context.ChangeTracker.HasChanges());
+
                     context.SaveChanges();
+
+                    Assert.False(context.ChangeTracker.HasChanges());
                 },
                 context =>
                 {
@@ -8776,7 +8884,11 @@ namespace Microsoft.EntityFrameworkCore
 
                     context.Add(hiddenAreaTask);
 
+                    Assert.True(context.ChangeTracker.HasChanges());
+
                     context.SaveChanges();
+
+                    Assert.False(context.ChangeTracker.HasChanges());
                 },
                 context =>
                 {

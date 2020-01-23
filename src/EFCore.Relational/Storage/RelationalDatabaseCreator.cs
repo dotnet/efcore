@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Create();
 
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Delete();
 
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -314,7 +314,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <returns> <c>True</c> if the database is available; <c>false</c> otherwise. </returns>
         public virtual bool CanConnect()
-            => Exists();
+        {
+            try
+            {
+                return Exists();
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
         /// <summary>
         ///     <para>
@@ -327,7 +336,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> <c>True</c> if the database is available; <c>false</c> otherwise. </returns>
-        public virtual Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
-            => ExistsAsync(cancellationToken);
+        public virtual async Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                return await ExistsAsync(cancellationToken);
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

@@ -36,199 +36,197 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Sql_translation_uses_type_mapper_when_constant()
         {
-            using (var context = CreateContext())
-            {
-                var results
-                    = context.Set<MappedNullableDataTypes>()
-                        .Where(e => e.TimeSpanAsTime == new TimeSpan(0, 1, 2))
-                        .Select(e => e.Int)
-                        .ToList();
+            using var context = CreateContext();
+            var results
+                = context.Set<MappedNullableDataTypes>()
+                    .Where(e => e.TimeSpanAsTime == new TimeSpan(0, 1, 2))
+                    .Select(e => e.Int)
+                    .ToList();
 
-                Assert.Empty(results);
+            Assert.Empty(results);
 
-                AssertSql(
-                    @"SELECT [m].[Int]
+            AssertSql(
+                @"SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
 WHERE [m].[TimeSpanAsTime] = '00:01:02'");
-            }
-        }
-
-        [ConditionalFact(Skip = "Issue#13487")]
-        public void Translate_array_length()
-        {
-            using (var db = CreateContext())
-            {
-                db.Set<MappedDataTypesWithIdentity>()
-                    .Where(p => p.BytesAsImage.Length == 0)
-                    .Select(p => p.BytesAsImage.Length)
-                    .FirstOrDefault();
-
-                AssertSql(
-                    @"SELECT TOP(1) CAST(DATALENGTH([p].[BytesAsImage]) AS int)
-FROM [MappedDataTypesWithIdentity] AS [p]
-WHERE CAST(DATALENGTH([p].[BytesAsImage]) AS int) = 0");
-            }
         }
 
         [ConditionalFact]
         public void Sql_translation_uses_type_mapper_when_parameter()
         {
-            using (var context = CreateContext())
-            {
-                var timeSpan = new TimeSpan(2, 1, 0);
+            using var context = CreateContext();
+            var timeSpan = new TimeSpan(2, 1, 0);
 
-                var results
-                    = context.Set<MappedNullableDataTypes>()
-                        .Where(e => e.TimeSpanAsTime == timeSpan)
-                        .Select(e => e.Int)
-                        .ToList();
+            var results
+                = context.Set<MappedNullableDataTypes>()
+                    .Where(e => e.TimeSpanAsTime == timeSpan)
+                    .Select(e => e.Int)
+                    .ToList();
 
-                Assert.Empty(results);
-                AssertSql(
-                    @"@__timeSpan_0='02:01:00' (Nullable = true)
+            Assert.Empty(results);
+            AssertSql(
+                @"@__timeSpan_0='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
 WHERE [m].[TimeSpanAsTime] = @__timeSpan_0");
+        }
+
+        [ConditionalFact]
+        public void String_indexOf_over_varchar_max()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedNullableDataTypes>().Add(
+                    new MappedNullableDataTypes { Int = 81, StringAsVarcharMax = string.Concat(Enumerable.Repeat("C", 8001)) });
+
+                Assert.Equal(1, context.SaveChanges());
+            }
+
+            Fixture.TestSqlLoggerFactory.Clear();
+
+            using (var context = CreateContext())
+            {
+                var results = context.Set<MappedNullableDataTypes>()
+                    .Where(e => e.Int == 81)
+                    .Select(m => m.StringAsVarcharMax.IndexOf("a"))
+                    .ToList();
+
+                Assert.Equal(-1, Assert.Single(results));
+                AssertSql(
+                    @"SELECT CASE
+    WHEN 'a' = '' THEN 0
+    ELSE CAST(CHARINDEX('a', [m].[StringAsVarcharMax]) AS int) - 1
+END
+FROM [MappedNullableDataTypes] AS [m]
+WHERE [m].[Int] = 81");
             }
         }
 
         [ConditionalFact]
         public virtual void Can_query_using_DateDiffHour_using_TimeSpan()
         {
-            using (var context = CreateContext())
-            {
-                var timeSpan = new TimeSpan(2, 1, 0);
+            using var context = CreateContext();
+            var timeSpan = new TimeSpan(2, 1, 0);
 
-                var results
-                    = context.Set<MappedNullableDataTypes>()
-                        .Where(e => EF.Functions.DateDiffHour(e.TimeSpanAsTime, timeSpan) == 0)
-                        .Select(e => e.Int)
-                        .ToList();
+            var results
+                = context.Set<MappedNullableDataTypes>()
+                    .Where(e => EF.Functions.DateDiffHour(e.TimeSpanAsTime, timeSpan) == 0)
+                    .Select(e => e.Int)
+                    .ToList();
 
-                Assert.Empty(results);
-                AssertSql(
-                    @"@__timeSpan_1='02:01:00' (Nullable = true)
+            Assert.Empty(results);
+            AssertSql(
+                @"@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
 WHERE DATEDIFF(HOUR, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
-            }
         }
 
         [ConditionalFact]
         public virtual void Can_query_using_DateDiffMinute_using_TimeSpan()
         {
-            using (var context = CreateContext())
-            {
-                var timeSpan = new TimeSpan(2, 1, 0);
+            using var context = CreateContext();
+            var timeSpan = new TimeSpan(2, 1, 0);
 
-                var results
-                    = context.Set<MappedNullableDataTypes>()
-                        .Where(e => EF.Functions.DateDiffMinute(e.TimeSpanAsTime, timeSpan) == 0)
-                        .Select(e => e.Int)
-                        .ToList();
+            var results
+                = context.Set<MappedNullableDataTypes>()
+                    .Where(e => EF.Functions.DateDiffMinute(e.TimeSpanAsTime, timeSpan) == 0)
+                    .Select(e => e.Int)
+                    .ToList();
 
-                Assert.Empty(results);
-                AssertSql(
-                    @"@__timeSpan_1='02:01:00' (Nullable = true)
+            Assert.Empty(results);
+            AssertSql(
+                @"@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
 WHERE DATEDIFF(MINUTE, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
-            }
         }
 
         [ConditionalFact]
         public virtual void Can_query_using_DateDiffSecond_using_TimeSpan()
         {
-            using (var context = CreateContext())
-            {
-                var timeSpan = new TimeSpan(2, 1, 0);
+            using var context = CreateContext();
+            var timeSpan = new TimeSpan(2, 1, 0);
 
-                var results
-                    = context.Set<MappedNullableDataTypes>()
-                        .Where(e => EF.Functions.DateDiffSecond(e.TimeSpanAsTime, timeSpan) == 0)
-                        .Select(e => e.Int)
-                        .ToList();
+            var results
+                = context.Set<MappedNullableDataTypes>()
+                    .Where(e => EF.Functions.DateDiffSecond(e.TimeSpanAsTime, timeSpan) == 0)
+                    .Select(e => e.Int)
+                    .ToList();
 
-                Assert.Empty(results);
-                AssertSql(
-                    @"@__timeSpan_1='02:01:00' (Nullable = true)
+            Assert.Empty(results);
+            AssertSql(
+                @"@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
 WHERE DATEDIFF(SECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
-            }
         }
 
         [ConditionalFact]
         public virtual void Can_query_using_DateDiffMillisecond_using_TimeSpan()
         {
-            using (var context = CreateContext())
-            {
-                var timeSpan = new TimeSpan(2, 1, 0);
+            using var context = CreateContext();
+            var timeSpan = new TimeSpan(2, 1, 0);
 
-                var results
-                    = context.Set<MappedNullableDataTypes>()
-                        .Where(e => EF.Functions.DateDiffMillisecond(e.TimeSpanAsTime, timeSpan) == 0)
-                        .Select(e => e.Int)
-                        .ToList();
+            var results
+                = context.Set<MappedNullableDataTypes>()
+                    .Where(e => EF.Functions.DateDiffMillisecond(e.TimeSpanAsTime, timeSpan) == 0)
+                    .Select(e => e.Int)
+                    .ToList();
 
-                Assert.Empty(results);
-                AssertSql(
-                    @"@__timeSpan_1='02:01:00' (Nullable = true)
+            Assert.Empty(results);
+            AssertSql(
+                @"@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
 WHERE DATEDIFF(MILLISECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
-            }
         }
 
         [ConditionalFact]
         public virtual void Can_query_using_DateDiffMicrosecond_using_TimeSpan()
         {
-            using (var context = CreateContext())
-            {
-                var timeSpan = new TimeSpan(2, 1, 0);
+            using var context = CreateContext();
+            var timeSpan = new TimeSpan(2, 1, 0);
 
-                var results
-                    = context.Set<MappedNullableDataTypes>()
-                        .Where(e => EF.Functions.DateDiffMicrosecond(e.TimeSpanAsTime, timeSpan) == 0)
-                        .Select(e => e.Int)
-                        .ToList();
+            var results
+                = context.Set<MappedNullableDataTypes>()
+                    .Where(e => EF.Functions.DateDiffMicrosecond(e.TimeSpanAsTime, timeSpan) == 0)
+                    .Select(e => e.Int)
+                    .ToList();
 
-                Assert.Empty(results);
-                AssertSql(
-                    @"@__timeSpan_1='02:01:00' (Nullable = true)
+            Assert.Empty(results);
+            AssertSql(
+                @"@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
 WHERE DATEDIFF(MICROSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
-            }
         }
 
         [ConditionalFact]
         public virtual void Can_query_using_DateDiffNanosecond_using_TimeSpan()
         {
-            using (var context = CreateContext())
-            {
-                var timeSpan = new TimeSpan(2, 1, 0);
+            using var context = CreateContext();
+            var timeSpan = new TimeSpan(2, 1, 0);
 
-                var results
-                    = context.Set<MappedNullableDataTypes>()
-                        .Where(e => EF.Functions.DateDiffNanosecond(e.TimeSpanAsTime, timeSpan) == 0)
-                        .Select(e => e.Int)
-                        .ToList();
+            var results
+                = context.Set<MappedNullableDataTypes>()
+                    .Where(e => EF.Functions.DateDiffNanosecond(e.TimeSpanAsTime, timeSpan) == 0)
+                    .Select(e => e.Int)
+                    .ToList();
 
-                Assert.Empty(results);
-                AssertSql(
-                    @"@__timeSpan_1='02:01:00' (Nullable = true)
+            Assert.Empty(results);
+            AssertSql(
+                @"@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
 WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
-            }
         }
 
         [ConditionalFact]
@@ -1182,14 +1180,14 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p7='F' (Size = 3)
 @p8='D' (Size = 3)
 @p9='A' (Size = 3) (DbType = AnsiString)
-@p10='Wor' (Size = 3) (DbType = AnsiString)
+@p10='Wor' (Size = 3) (DbType = AnsiStringFixedLength)
 @p11='Thr' (Size = 3) (DbType = AnsiString)
-@p12='Lon' (Size = 3) (DbType = AnsiString)
+@p12='Lon' (Size = 3) (DbType = AnsiStringFixedLength)
 @p13='Let' (Size = 3) (DbType = AnsiString)
 @p14='The' (Size = 3)
-@p15='Squ' (Size = 3)
+@p15='Squ' (Size = 3) (DbType = StringFixedLength)
 @p16='Col' (Size = 3)
-@p17='Won' (Size = 3)
+@p17='Won' (Size = 3) (DbType = StringFixedLength)
 @p18='Int' (Size = 3)
 @p19='Tha' (Size = 3) (DbType = AnsiString)",
                 parameters,
@@ -1272,14 +1270,14 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p7=NULL (Size = 3)
 @p8=NULL (Size = 3)
 @p9=NULL (Size = 3) (DbType = AnsiString)
-@p10=NULL (Size = 3) (DbType = AnsiString)
+@p10=NULL (Size = 3) (DbType = AnsiStringFixedLength)
 @p11=NULL (Size = 3) (DbType = AnsiString)
-@p12=NULL (Size = 3) (DbType = AnsiString)
+@p12=NULL (Size = 3) (DbType = AnsiStringFixedLength)
 @p13=NULL (Size = 3) (DbType = AnsiString)
 @p14=NULL (Size = 3)
-@p15=NULL (Size = 3)
+@p15=NULL (Size = 3) (DbType = StringFixedLength)
 @p16=NULL (Size = 3)
-@p17=NULL (Size = 3)
+@p17=NULL (Size = 3) (DbType = StringFixedLength)
 @p18=NULL (Size = 3)
 @p19=NULL (Size = 3) (DbType = AnsiString)",
                 parameters,
@@ -1942,14 +1940,14 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p7='D' (Size = 3)
 @p8='A' (Size = 3) (DbType = AnsiString)
 @p9='77'
-@p10='Wor' (Size = 3) (DbType = AnsiString)
+@p10='Wor' (Size = 3) (DbType = AnsiStringFixedLength)
 @p11='Thr' (Size = 3) (DbType = AnsiString)
-@p12='Lon' (Size = 3) (DbType = AnsiString)
+@p12='Lon' (Size = 3) (DbType = AnsiStringFixedLength)
 @p13='Let' (Size = 3) (DbType = AnsiString)
 @p14='The' (Size = 3)
-@p15='Squ' (Size = 3)
+@p15='Squ' (Size = 3) (DbType = StringFixedLength)
 @p16='Col' (Size = 3)
-@p17='Won' (Size = 3)
+@p17='Won' (Size = 3) (DbType = StringFixedLength)
 @p18='Int' (Size = 3)
 @p19='Tha' (Size = 3) (DbType = AnsiString)",
                 parameters,
@@ -2032,14 +2030,14 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p7=NULL (Size = 3)
 @p8=NULL (Size = 3) (DbType = AnsiString)
 @p9='78'
-@p10=NULL (Size = 3) (DbType = AnsiString)
+@p10=NULL (Size = 3) (DbType = AnsiStringFixedLength)
 @p11=NULL (Size = 3) (DbType = AnsiString)
-@p12=NULL (Size = 3) (DbType = AnsiString)
+@p12=NULL (Size = 3) (DbType = AnsiStringFixedLength)
 @p13=NULL (Size = 3) (DbType = AnsiString)
 @p14=NULL (Size = 3)
-@p15=NULL (Size = 3)
+@p15=NULL (Size = 3) (DbType = StringFixedLength)
 @p16=NULL (Size = 3)
-@p17=NULL (Size = 3)
+@p17=NULL (Size = 3) (DbType = StringFixedLength)
 @p18=NULL (Size = 3)
 @p19=NULL (Size = 3) (DbType = AnsiString)",
                 parameters,
@@ -2900,21 +2898,19 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
         [ConditionalFact]
         public void Can_get_column_types_from_built_model()
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            var typeMapper = context.GetService<IRelationalTypeMappingSource>();
+
+            foreach (var property in context.Model.GetEntityTypes().SelectMany(e => e.GetDeclaredProperties()))
             {
-                var typeMapper = context.GetService<IRelationalTypeMappingSource>();
+                var columnType = property.GetColumnType();
+                Assert.NotNull(columnType);
 
-                foreach (var property in context.Model.GetEntityTypes().SelectMany(e => e.GetDeclaredProperties()))
+                if (property[RelationalAnnotationNames.ColumnType] == null)
                 {
-                    var columnType = property.GetColumnType();
-                    Assert.NotNull(columnType);
-
-                    if (property[RelationalAnnotationNames.ColumnType] == null)
-                    {
-                        Assert.Equal(
-                            columnType.ToLowerInvariant(),
-                            typeMapper.FindMapping(property).StoreType.ToLowerInvariant());
-                    }
+                    Assert.Equal(
+                        columnType.ToLowerInvariant(),
+                        typeMapper.FindMapping(property).StoreType.ToLowerInvariant());
                 }
             }
         }
@@ -2942,26 +2938,24 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                 var command = connection.CreateCommand();
                 command.CommandText = query;
 
-                using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    while (reader.Read())
+                    var columnInfo = new ColumnInfo
                     {
-                        var columnInfo = new ColumnInfo
-                        {
-                            TableName = reader.GetString(0),
-                            ColumnName = reader.GetString(1),
-                            DataType = reader.GetString(2),
-                            IsNullable = reader.IsDBNull(3) ? null : (bool?)(reader.GetString(3) == "YES"),
-                            MaxLength = reader.IsDBNull(4) ? null : (int?)reader.GetInt32(4),
-                            NumericPrecision = reader.IsDBNull(5) ? null : (int?)reader.GetByte(5),
-                            NumericScale = reader.IsDBNull(6) ? null : (int?)reader.GetInt32(6),
-                            DateTimePrecision = reader.IsDBNull(7) ? null : (int?)reader.GetInt16(7)
-                        };
+                        TableName = reader.GetString(0),
+                        ColumnName = reader.GetString(1),
+                        DataType = reader.GetString(2),
+                        IsNullable = reader.IsDBNull(3) ? null : (bool?)(reader.GetString(3) == "YES"),
+                        MaxLength = reader.IsDBNull(4) ? null : (int?)reader.GetInt32(4),
+                        NumericPrecision = reader.IsDBNull(5) ? null : (int?)reader.GetByte(5),
+                        NumericScale = reader.IsDBNull(6) ? null : (int?)reader.GetInt32(6),
+                        DateTimePrecision = reader.IsDBNull(7) ? null : (int?)reader.GetInt16(7)
+                    };
 
-                        if (!tablesToIgnore.Contains(columnInfo.TableName))
-                        {
-                            columns.Add(columnInfo);
-                        }
+                    if (!tablesToIgnore.Contains(columnInfo.TableName))
+                    {
+                        columns.Add(columnInfo);
                     }
                 }
             }

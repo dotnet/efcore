@@ -15,6 +15,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     /// <summary>
@@ -31,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private readonly ICSharpHelper _code;
         private readonly IProviderConfigurationCodeGenerator _providerConfigurationCodeGenerator;
         private readonly IAnnotationCodeGenerator _annotationCodeGenerator;
-        private IndentedStringBuilder _sb;
+        private IndentedStringBuilder _sb = null!;
         private bool _entityTypeBuilderInitialized;
 
         /// <summary>
@@ -64,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             IModel model,
             string contextName,
             string connectionString,
-            string contextNamespace,
+            string? contextNamespace,
             string modelNamespace,
             bool useDataAnnotations,
             bool suppressConnectionStringWarning)
@@ -664,7 +666,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     $"({(property.IsUnicode() == false ? "false" : "")})");
             }
 
-            if (property.IsFixedLength())
+            if (property.IsFixedLength() != null)
             {
                 lines.Add(
                     $".{nameof(RelationalPropertyBuilderExtensions.IsFixedLength)}()");

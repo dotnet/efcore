@@ -105,7 +105,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
         }
 
         public static IReadOnlyList<Squad> CreateSquads()
-            => new List<Squad> { new Squad { Id = 1, Name = "Delta" }, new Squad { Id = 2, Name = "Kilo" } };
+            => new List<Squad>
+            {
+                new Squad { Id = 1, Name = "Delta", Banner = new byte[] { 0x00, 0x01 }, Banner5 = new byte[] { 0x04, 0x05, 0x06, 0x07, 0x08 } },
+                new Squad { Id = 2, Name = "Kilo", Banner = new byte[] { 0x02, 0x03 }, Banner5 = new byte[] { 0x04, 0x05, 0x06, 0x07, 0x08 } }
+            };
 
         public static IReadOnlyList<Mission> CreateMissions()
             => new List<Mission>
@@ -147,15 +151,15 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
             {
                 Location = "Jacinto's location",
                 Name = "Jacinto",
-                Nation = "Tyrus"
             };
+            jacinto["Nation"] = "Tyrus";
 
             var ephyra = new City
             {
                 Location = "Ephyra's location",
                 Name = "Ephyra",
-                Nation = "Tyrus"
             };
+            ephyra["Nation"] = "Tyrus";
 
             var hanover = new City { Location = "Hanover's location", Name = "Hanover" };
 

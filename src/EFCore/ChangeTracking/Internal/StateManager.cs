@@ -959,6 +959,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void CascadeDelete(InternalEntityEntry entry, bool force, IEnumerable<IForeignKey> foreignKeys = null)
         {
             var doCascadeDelete = force || CascadeDeleteTiming != CascadeTiming.Never;
+            var principalIsDetached = entry.EntityState == EntityState.Detached;
 
             foreignKeys ??= entry.EntityType.GetReferencingForeignKeys();
             foreach (var fk in foreignKeys)
@@ -980,9 +981,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 || fk.DeleteBehavior == DeleteBehavior.ClientCascade)
                             && doCascadeDelete)
                         {
-                            var cascadeState = dependent.EntityState == EntityState.Added
-                                ? EntityState.Detached
-                                : EntityState.Deleted;
+                            var cascadeState = principalIsDetached
+                                || dependent.EntityState == EntityState.Added
+                                    ? EntityState.Detached
+                                    : EntityState.Deleted;
 
                             if (SensitiveLoggingEnabled)
                             {
@@ -997,7 +999,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                             CascadeDelete(dependent, force);
                         }
-                        else
+                        else if (!principalIsDetached)
                         {
                             foreach (var dependentProperty in fk.Properties)
                             {
@@ -1036,6 +1038,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private static bool KeyValuesEqual(IProperty property, object value, object currentValue)
             => (property.GetKeyValueComparer()
+                    ?? property.GetValueComparer()
                     ?? property.FindTypeMapping()?.KeyComparer)
                 ?.Equals(currentValue, value)
                 ?? Equals(currentValue, value);
@@ -1254,5 +1257,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             @event?.Invoke(Context.ChangeTracker, new EntityStateChangedEventArgs(internalEntityEntry, oldState, newState));
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual DebugView DebugView
+            => new DebugView(
+                () => this.ToDebugString(StateManagerDebugStringOptions.ShortDefault),
+                () => this.ToDebugString(StateManagerDebugStringOptions.LongDefault));
     }
 }

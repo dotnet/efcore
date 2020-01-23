@@ -188,9 +188,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     }
 
                     var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)900 : null);
+                    var isFixedLength = mappingInfo.IsFixedLength == true;
 
                     return new ByteArrayTypeMapping(
-                        storeTypeName ?? "just_binary(" + (size == null ? "max" : size.ToString()) + ")",
+                        storeTypeName ?? (isFixedLength ? "just_binary_fixed(" : "just_binary(") + (size == null ? "max" : size.ToString()) + ")",
                         DbType.Binary,
                         size);
                 }

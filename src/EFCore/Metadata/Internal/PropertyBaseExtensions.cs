@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var setterProperty = propertyInfo?.FindSetterProperty();
             var getterProperty = propertyInfo?.FindGetterProperty();
 
-            var isCollectionNav = (propertyBase as INavigation)?.IsCollection() == true;
+            var isCollectionNav = (propertyBase as INavigation)?.IsCollection == true;
             var hasField = fieldInfo != null;
             var hasSetter = setterProperty != null;
             var hasGetter = getterProperty != null;

@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
@@ -1201,7 +1200,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 if (operation.IsUnicode == property.IsUnicode()
                     && operation.MaxLength == property.GetMaxLength()
-                    && (operation.IsFixedLength ?? false) == property.IsFixedLength()
+                    && operation.IsFixedLength == property.IsFixedLength()
                     && operation.IsRowVersion == (property.IsConcurrencyToken && property.ValueGenerated == ValueGenerated.OnAddOrUpdate))
                 {
                     return Dependencies.TypeMappingSource.FindMapping(property).StoreType;
@@ -1565,7 +1564,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Append("SET DEFAULT");
                     break;
                 default:
-                    Debug.Assert(
+                    Check.DebugAssert(
                         referentialAction == ReferentialAction.NoAction,
                         "Unexpected value: " + referentialAction);
                     break;

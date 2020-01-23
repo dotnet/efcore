@@ -3,6 +3,7 @@
 
 using System;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,6 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public interface IMemberTranslatorProvider
     {
-        SqlExpression Translate(SqlExpression instance, MemberInfo member, Type returnType);
+        SqlExpression Translate([CanBeNull] SqlExpression instance, [NotNull] MemberInfo member, [NotNull] Type returnType);
     }
 }

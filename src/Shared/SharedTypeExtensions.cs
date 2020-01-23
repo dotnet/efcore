@@ -22,7 +22,7 @@ namespace System
             => !type.IsValueType || type.IsNullableValueType();
 
         public static bool IsValidEntityType(this Type type)
-            => type.GetTypeInfo().IsClass;
+            => type.IsClass;
 
         public static Type MakeNullable(this Type type, bool nullable = true)
             => type.IsNullableType() == nullable
@@ -105,9 +105,7 @@ namespace System
             return props.SingleOrDefault();
         }
 
-        public static bool IsInstantiable(this Type type) => IsInstantiable(type.GetTypeInfo());
-
-        private static bool IsInstantiable(TypeInfo type)
+        public static bool IsInstantiable(this Type type)
             => !type.IsAbstract
                 && !type.IsInterface
                 && (!type.IsGenericType || !type.IsGenericTypeDefinition);
@@ -116,7 +114,7 @@ namespace System
         {
             var isNullable = type.IsNullableType();
             var underlyingNonNullableType = isNullable ? type.UnwrapNullableType() : type;
-            if (!underlyingNonNullableType.GetTypeInfo().IsEnum)
+            if (!underlyingNonNullableType.IsEnum)
             {
                 return type;
             }
@@ -143,7 +141,7 @@ namespace System
 
         public static Type TryGetElementType(this Type type, Type interfaceOrBaseType)
         {
-            if (type.GetTypeInfo().IsGenericTypeDefinition)
+            if (type.IsGenericTypeDefinition)
             {
                 return null;
             }
@@ -164,7 +162,23 @@ namespace System
                 }
             }
 
-            return singleImplementation?.GetTypeInfo().GenericTypeArguments.FirstOrDefault();
+            return singleImplementation?.GenericTypeArguments.FirstOrDefault();
+        }
+
+        public static bool IsCompatibleWith(this Type propertyType, Type fieldType)
+        {
+            if (propertyType.IsAssignableFrom(fieldType)
+                || fieldType.IsAssignableFrom(propertyType))
+            {
+                return true;
+            }
+
+            var propertyElementType = propertyType.TryGetSequenceType();
+            var fieldElementType = fieldType.TryGetSequenceType();
+
+            return propertyElementType != null
+                && fieldElementType != null
+                && IsCompatibleWith(propertyElementType, fieldElementType);
         }
 
         public static IEnumerable<Type> GetGenericTypeImplementations(this Type type, Type interfaceOrBaseType)
@@ -177,14 +191,14 @@ namespace System
                     : type.GetBaseTypes();
                 foreach (var baseType in baseTypes)
                 {
-                    if (baseType.GetTypeInfo().IsGenericType
+                    if (baseType.IsGenericType
                         && baseType.GetGenericTypeDefinition() == interfaceOrBaseType)
                     {
                         yield return baseType;
                     }
                 }
 
-                if (type.GetTypeInfo().IsGenericType
+                if (type.IsGenericType
                     && type.GetGenericTypeDefinition() == interfaceOrBaseType)
                 {
                     yield return type;
@@ -194,13 +208,13 @@ namespace System
 
         public static IEnumerable<Type> GetBaseTypes(this Type type)
         {
-            type = type.GetTypeInfo().BaseType;
+            type = type.BaseType;
 
             while (type != null)
             {
                 yield return type;
 
-                type = type.GetTypeInfo().BaseType;
+                type = type.BaseType;
             }
         }
 
@@ -210,7 +224,7 @@ namespace System
             {
                 yield return type;
 
-                type = type.GetTypeInfo().BaseType;
+                type = type.BaseType;
             }
         }
 
@@ -290,7 +304,7 @@ namespace System
 
         public static object GetDefaultValue(this Type type)
         {
-            if (!type.GetTypeInfo().IsValueType)
+            if (!type.IsValueType)
             {
                 return null;
             }

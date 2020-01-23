@@ -25,117 +25,117 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task String_contains_on_argument_with_wildcard_constant(bool isAsync)
+        public virtual async Task String_contains_on_argument_with_wildcard_constant(bool async)
         {
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.Contains("%B")).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains("%B")) == true)
                     .Select(c => c.FirstName));
 
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.Contains("a_")).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains("a_")) == true)
                     .Select(c => c.FirstName));
 
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.Contains(null)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => false).Select(c => c.FirstName));
 
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.Contains("")).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName));
 
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.Contains("_Ba_")).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains("_Ba_")) == true)
                     .Select(c => c.FirstName));
 
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.Contains("%B%a%r")).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains("%B%a%r")) == true)
                     .Select(c => c.FirstName));
 
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.Contains("")).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains("")) == true)
                     .Select(c => c.FirstName));
 
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.Contains(null)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => false).Select(c => c.FirstName));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task String_contains_on_argument_with_wildcard_parameter(bool isAsync)
+        public virtual async Task String_contains_on_argument_with_wildcard_parameter(bool async)
         {
             var prm1 = "%B";
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.Contains(prm1)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains(prm1)) == true)
                     .Select(c => c.FirstName));
 
             var prm2 = "a_";
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.Contains(prm2)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains(prm2)) == true)
                     .Select(c => c.FirstName));
 
             var prm3 = (string)null;
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.Contains(prm3)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => false).Select(c => c.FirstName));
 
             var prm4 = "";
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.Contains(prm4)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName));
 
             var prm5 = "_Ba_";
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.Contains(prm5)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains(prm5)) == true)
                     .Select(c => c.FirstName));
 
             var prm6 = "%B%a%r";
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.Contains(prm6)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains(prm6)) == true)
                     .Select(c => c.FirstName));
 
             var prm7 = "";
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.Contains(prm7)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => false).Select(c => c.FirstName));
 
             var prm8 = (string)null;
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.Contains(prm8)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => false).Select(c => c.FirstName));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task String_contains_on_argument_with_wildcard_column(bool isAsync)
+        public virtual Task String_contains_on_argument_with_wildcard_column(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                     .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
                     .Where(r => r.fn.Contains(r.ln)),
@@ -152,10 +152,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task String_contains_on_argument_with_wildcard_column_negated(bool isAsync)
+        public virtual Task String_contains_on_argument_with_wildcard_column_negated(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                     .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
                     .Where(r => !r.fn.Contains(r.ln)),
@@ -166,150 +166,150 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task String_starts_with_on_argument_with_wildcard_constant(bool isAsync)
+        public virtual async Task String_starts_with_on_argument_with_wildcard_constant(bool async)
         {
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.StartsWith("%B")).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith("%B")) == true)
                     .Select(c => c.FirstName));
 
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.StartsWith("a_")).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith("a_")) == true)
                     .Select(c => c.FirstName));
 
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.StartsWith(null)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => false).Select(c => c.FirstName));
 
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.StartsWith("")).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName));
 
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.StartsWith("_Ba_")).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith("_Ba_")) == true)
                     .Select(c => c.FirstName));
 
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.StartsWith("%B%a%r")).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith("%B%a%r")) == true)
                     .Select(c => c.FirstName));
 
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.StartsWith("")).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith("")) == true)
                     .Select(c => c.FirstName));
 
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.StartsWith(null)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => false).Select(c => c.FirstName));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task String_starts_with_on_argument_with_wildcard_parameter(bool isAsync)
+        public virtual async Task String_starts_with_on_argument_with_wildcard_parameter(bool async)
         {
             var prm1 = "%B";
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.StartsWith(prm1)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith(prm1)) == true)
                     .Select(c => c.FirstName));
 
             var prm2 = "a_";
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.StartsWith(prm2)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith(prm2)) == true)
                     .Select(c => c.FirstName));
 
             var prm3 = (string)null;
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.StartsWith(prm3)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => false).Select(c => c.FirstName));
 
             var prm4 = "";
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.StartsWith(prm4)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName));
 
             var prm5 = "_Ba_";
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.StartsWith(prm5)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith(prm5)) == true)
                     .Select(c => c.FirstName));
 
             var prm6 = "%B%a%r";
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.StartsWith(prm6)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith(prm6)) == true)
                     .Select(c => c.FirstName));
 
             var prm7 = "";
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.StartsWith(prm7)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => false).Select(c => c.FirstName));
 
             var prm8 = (string)null;
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.StartsWith(prm8)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => false).Select(c => c.FirstName));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task String_starts_with_on_argument_with_bracket(bool isAsync)
+        public virtual async Task String_starts_with_on_argument_with_bracket(bool async)
         {
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.StartsWith("[")),
                 ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith("[")) == true));
 
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.StartsWith("B[")),
                 ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith("B[")) == true));
 
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.StartsWith("B[[a^")),
                 ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith("B[[a^")) == true));
 
             var prm1 = "[";
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.StartsWith(prm1)),
                 ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith(prm1)) == true));
 
             var prm2 = "B[";
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.StartsWith(prm2)),
                 ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith(prm2)) == true));
 
             var prm3 = "B[[a^";
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.StartsWith(prm3)),
                 ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith(prm3)) == true));
 
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.StartsWith(c.LastName)),
                 ss => ss.Set<FunkyCustomer>().Where(
                     c => c.LastName != null && MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith(c.LastName)) == true));
@@ -317,10 +317,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task String_starts_with_on_argument_with_wildcard_column(bool isAsync)
+        public virtual Task String_starts_with_on_argument_with_wildcard_column(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                     .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
                     .Where(r => r.fn.StartsWith(r.ln)),
@@ -337,10 +337,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task String_starts_with_on_argument_with_wildcard_column_negated(bool isAsync)
+        public virtual Task String_starts_with_on_argument_with_wildcard_column_negated(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                     .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
                     .Where(r => !r.fn.StartsWith(r.ln)),
@@ -351,117 +351,117 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task String_ends_with_on_argument_with_wildcard_constant(bool isAsync)
+        public virtual async Task String_ends_with_on_argument_with_wildcard_constant(bool async)
         {
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.EndsWith("%B")).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith("%B")) == true)
                     .Select(c => c.FirstName));
 
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.EndsWith("a_")).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith("a_")) == true)
                     .Select(c => c.FirstName));
 
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.EndsWith(null)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => false).Select(c => c.FirstName));
 
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.EndsWith("")).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName));
 
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.EndsWith("_Ba_")).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith("_Ba_")) == true)
                     .Select(c => c.FirstName));
 
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.EndsWith("%B%a%r")).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith("%B%a%r")) == true)
                     .Select(c => c.FirstName));
 
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.EndsWith("")).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith("")) == true)
                     .Select(c => c.FirstName));
 
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.EndsWith(null)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => false).Select(c => c.FirstName));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task String_ends_with_on_argument_with_wildcard_parameter(bool isAsync)
+        public virtual async Task String_ends_with_on_argument_with_wildcard_parameter(bool async)
         {
             var prm1 = "%B";
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.EndsWith(prm1)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith(prm1)) == true)
                     .Select(c => c.FirstName));
 
             var prm2 = "a_";
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.EndsWith(prm2)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith(prm2)) == true)
                     .Select(c => c.FirstName));
 
             var prm3 = (string)null;
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.EndsWith(prm3)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => false).Select(c => c.FirstName));
 
             var prm4 = "";
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.EndsWith(prm4)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName));
 
             var prm5 = "_Ba_";
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.EndsWith(prm5)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith(prm5)) == true)
                     .Select(c => c.FirstName));
 
             var prm6 = "%B%a%r";
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.EndsWith(prm6)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith(prm6)) == true)
                     .Select(c => c.FirstName));
 
             var prm7 = "";
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.EndsWith(prm7)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => false).Select(c => c.FirstName));
 
             var prm8 = (string)null;
             await AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.EndsWith(prm8)).Select(c => c.FirstName),
                 ss => ss.Set<FunkyCustomer>().Where(c => false).Select(c => c.FirstName));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task String_ends_with_on_argument_with_wildcard_column(bool isAsync)
+        public virtual Task String_ends_with_on_argument_with_wildcard_column(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                     .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
                     .Where(r => r.fn.EndsWith(r.ln)),
@@ -478,10 +478,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task String_ends_with_on_argument_with_wildcard_column_negated(bool isAsync)
+        public virtual Task String_ends_with_on_argument_with_wildcard_column_negated(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                     .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
                     .Where(r => !r.fn.EndsWith(r.ln)),
@@ -492,10 +492,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task String_ends_with_inside_conditional(bool isAsync)
+        public virtual Task String_ends_with_inside_conditional(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                     .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
                     .Where(r => r.fn.EndsWith(r.ln) ? true : false),
@@ -515,10 +515,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task String_ends_with_inside_conditional_negated(bool isAsync)
+        public virtual Task String_ends_with_inside_conditional_negated(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                     .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
                     .Where(r => !r.fn.EndsWith(r.ln) ? true : false),
@@ -532,10 +532,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task String_ends_with_equals_nullable_column(bool isAsync)
+        public virtual Task String_ends_with_equals_nullable_column(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().SelectMany(c => ss.Set<FunkyCustomer>(), (c1, c2) => new { c1, c2 })
                     .Where(r => r.c1.FirstName.EndsWith(r.c2.LastName) == r.c1.NullableBool.Value),
                 ss => ss.Set<FunkyCustomer>().SelectMany(c => ss.Set<FunkyCustomer>(), (c1, c2) => new { c1, c2 })
@@ -554,10 +554,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task String_ends_with_not_equals_nullable_column(bool isAsync)
+        public virtual Task String_ends_with_not_equals_nullable_column(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<FunkyCustomer>().SelectMany(c => ss.Set<FunkyCustomer>(), (c1, c2) => new { c1, c2 })
                     .Where(r => r.c1.FirstName.EndsWith(r.c2.LastName) != r.c1.NullableBool.Value),
                 ss => ss.Set<FunkyCustomer>().SelectMany(c => ss.Set<FunkyCustomer>(), (c1, c2) => new { c1, c2 })
@@ -584,12 +584,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             public FunkyDataQueryFixtureBase()
             {
-                var entitySorters =
-                    new Dictionary<Type, Func<dynamic, object>> { { typeof(FunkyCustomer), e => e?.Id } }.ToDictionary(
-                        e => e.Key, e => (object)e.Value);
-                ;
+                var entitySorters = new Dictionary<Type, Func<object, object>> { { typeof(FunkyCustomer), e => ((FunkyCustomer)e)?.Id } }
+                    .ToDictionary(e => e.Key, e => (object)e.Value);
 
-                var entityAsserters = new Dictionary<Type, Action<dynamic, dynamic>>
+                var entityAsserters = new Dictionary<Type, Action<object, object>>
                 {
                     {
                         typeof(FunkyCustomer), (e, a) =>
@@ -597,22 +595,29 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(e == null, a == null);
                             if (a != null)
                             {
-                                Assert.Equal(e.Id, a.Id);
-                                Assert.Equal(e.FirstName, a.FirstName);
-                                Assert.Equal(e.LastName, a.LastName);
-                                Assert.Equal(e.NullableBool, a.NullableBool);
+                                var ee = (FunkyCustomer)e;
+                                var aa = (FunkyCustomer)a;
+
+                                Assert.Equal(ee.Id, aa.Id);
+                                Assert.Equal(ee.FirstName, aa.FirstName);
+                                Assert.Equal(ee.LastName, aa.LastName);
+                                Assert.Equal(ee.NullableBool, aa.NullableBool);
                             }
                         }
                     }
                 }.ToDictionary(e => e.Key, e => (object)e.Value);
-                ;
 
-                QueryAsserter = new QueryAsserter<FunkyDataContext>(
+                QueryAsserter = CreateQueryAsserter(entitySorters, entityAsserters);
+            }
+
+            protected virtual QueryAsserter<FunkyDataContext> CreateQueryAsserter(
+                Dictionary<Type, object> entitySorters,
+                Dictionary<Type, object> entityAsserters)
+                => new QueryAsserter<FunkyDataContext>(
                     CreateContext,
                     new FunkyDataData(),
                     entitySorters,
                     entityAsserters);
-            }
 
             protected override string StoreName { get; } = "FunkyDataQueryTest";
 

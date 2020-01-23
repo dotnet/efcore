@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -19,6 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
             if (methodCallExpression.Method.DeclaringType == typeof(Queryable)
                 && methodCallExpression.Method.IsGenericMethod)
             {
@@ -236,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return base.VisitMethodCall(methodCallExpression);
         }
 
-        private class SelectManyVerifyingExpressionVisitor : ExpressionVisitor
+        private sealed class SelectManyVerifyingExpressionVisitor : ExpressionVisitor
         {
             private readonly List<ParameterExpression> _allowedParameters = new List<ParameterExpression>();
             private readonly ISet<string> _allowedMethods = new HashSet<string> { nameof(Queryable.Where), nameof(Queryable.AsQueryable) };
@@ -291,6 +294,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
             {
+                Check.NotNull(lambdaExpression, nameof(lambdaExpression));
+
                 try
                 {
                     _allowedParameters.AddRange(lambdaExpression.Parameters);
@@ -308,6 +313,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
+                Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
                 if (_correlated)
                 {
                     return methodCallExpression;
@@ -337,6 +344,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitParameter(ParameterExpression parameterExpression)
             {
+                Check.NotNull(parameterExpression, nameof(parameterExpression));
+
                 if (_allowedParameters.Contains(parameterExpression))
                 {
                     return parameterExpression;

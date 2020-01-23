@@ -15,6 +15,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     /// <summary>
@@ -50,7 +52,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotNull(databaseModelFactory, nameof(databaseModelFactory));
             Check.NotNull(scaffoldingModelFactory, nameof(scaffoldingModelFactory));
             Check.NotNull(modelCodeGeneratorSelector, nameof(modelCodeGeneratorSelector));
+            Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
             Check.NotNull(cSharpHelper, nameof(cSharpHelper));
+            Check.NotNull(connectionStringResolver, nameof(connectionStringResolver));
 
             _databaseModelFactory = databaseModelFactory;
             _factory = scaffoldingModelFactory;

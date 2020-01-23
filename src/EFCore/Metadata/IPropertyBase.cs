@@ -13,29 +13,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IPropertyBase : IAnnotatable
     {
         /// <summary>
-        ///     Gets the name of the property.
+        ///     Gets the name of this property-like object.
         /// </summary>
         string Name { get; }
 
         /// <summary>
-        ///     Gets the type that this property belongs to.
+        ///     Gets the type that this property-like object belongs to.
         /// </summary>
         ITypeBase DeclaringType { get; }
 
         /// <summary>
-        ///     Gets the type of value that this property holds.
+        ///     Gets the type of value that this property-like object holds.
         /// </summary>
         Type ClrType { get; }
 
         /// <summary>
-        ///     Gets the <see cref="PropertyInfo" /> for the underlying CLR property that this
-        ///     object represents. This may be <c>null</c> for shadow properties or properties mapped directly to fields.
+        ///     Gets the <see cref="PropertyInfo" /> for the underlying CLR property for this property-like object.
+        ///     This may be <c>null</c> for shadow properties or if mapped directly to a field.
         /// </summary>
         PropertyInfo PropertyInfo { get; }
 
         /// <summary>
-        ///     Gets the <see cref="FieldInfo" /> for the underlying CLR field for this property.
-        ///     This may be <c>null</c> for shadow properties or if the backing field for the property is not known.
+        ///     Gets the <see cref="FieldInfo" /> for the underlying CLR field for this property-like object.
+        ///     This may be <c>null</c> for shadow properties or if the backing field is not known.
         /// </summary>
         FieldInfo FieldInfo { get; }
     }

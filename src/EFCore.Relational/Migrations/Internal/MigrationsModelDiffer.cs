@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -272,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 else
                 {
                     leftovers.Add(operation);
-                    Debug.Assert(false, "Unexpected operation type: " + operation.GetType());
+                    Check.DebugAssert(false, "Unexpected operation type: " + operation.GetType());
                 }
             }
 
@@ -722,7 +721,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 var index = clrType.GetTypeInfo().DeclaredProperties
                     .IndexOf(clrProperty, PropertyInfoEqualityComparer.Instance);
 
-                Debug.Assert(clrType != null);
+                Check.DebugAssert(clrType != null, "clrType is null");
                 types.GetOrAddNew(clrType)[index] = clrProperty;
             }
 
@@ -758,7 +757,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 var index = clrType.GetTypeInfo().DeclaredProperties
                     .IndexOf(clrProperty, PropertyInfoEqualityComparer.Instance);
 
-                Debug.Assert(clrType != null);
+                Check.DebugAssert(clrType != null, "clrType is null");
                 types.GetOrAddNew(clrType)[index] = clrProperty;
             }
 
@@ -799,7 +798,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .Concat(entityType.GetDirectlyDerivedTypes().SelectMany(GetSortedProperties));
         }
 
-        private class PropertyInfoEqualityComparer : IEqualityComparer<PropertyInfo>
+        private sealed class PropertyInfoEqualityComparer : IEqualityComparer<PropertyInfo>
         {
             private PropertyInfoEqualityComparer()
             {
@@ -2220,7 +2219,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var width = array.GetLength(0);
             var height = array.GetLength(1);
 
-            Debug.Assert(height == values.Count);
+            Check.DebugAssert(height == values.Count, $"height of {height} != values.Count of {values.Count}");
 
             var result = new object[width + 1, height];
             for (var i = 0; i < width; i++)
@@ -2236,7 +2235,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             return result;
         }
 
-        private class EntryMapping
+        private sealed class EntryMapping
         {
             public HashSet<IUpdateEntry> SourceEntries { get; } = new HashSet<IUpdateEntry>();
             public HashSet<IUpdateEntry> TargetEntries { get; } = new HashSet<IUpdateEntry>();

@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> True if the type is abstract, false otherwise. </returns>
         [DebuggerStepThrough]
         public static bool IsAbstract([NotNull] this ITypeBase type)
-            => type.ClrType?.GetTypeInfo().IsAbstract ?? false;
+            => type.ClrType?.IsAbstract ?? false;
 
         /// <summary>
         ///     Gets the root base type for a given entity type.
@@ -47,17 +47,6 @@ namespace Microsoft.EntityFrameworkCore
 
             return entityType.BaseType?.GetRootType() ?? entityType;
         }
-
-        /// <summary>
-        ///     Gets the root base type for a given entity type.
-        /// </summary>
-        /// <param name="entityType"> The type to find the root of. </param>
-        /// <returns>
-        ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
-        /// </returns>
-        [Obsolete("Use GetRootType")]
-        public static IEntityType RootType([NotNull] this IEntityType entityType)
-            => entityType.GetRootType();
 
         /// <summary>
         ///     Gets all types in the model that derive from a given entity type.
@@ -303,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore
             => entityType.AsEntityType().GetDeclaredIndexes();
 
         private static string DisplayNameDefault(this ITypeBase type)
-            => type.ClrType != null
+            => type.ClrType != null && !type.IsSharedType
                 ? type.ClrType.ShortDisplayName()
                 : type.Name;
 
@@ -356,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore
         [DebuggerStepThrough]
         public static string ShortName([NotNull] this ITypeBase type)
         {
-            if (type.ClrType != null)
+            if (type.ClrType != null && !type.IsSharedType)
             {
                 return type.ClrType.ShortDisplayName();
             }
@@ -408,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to find the foreign keys on. </param>
         /// <returns> The foreign keys. </returns>
         public static IEnumerable<IForeignKey> FindForeignKeys([NotNull] this IEntityType entityType, [NotNull] IProperty property)
-            => entityType.FindForeignKeys(new[] { property });
+            => property.GetContainingForeignKeys();
 
         /// <summary>
         ///     Gets the foreign keys defined on the given properties. Only foreign keys that are defined on exactly the specified
@@ -424,13 +413,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotEmpty(properties, nameof(properties));
             Check.HasNoNulls(properties, nameof(properties));
 
-            foreach (var foreignKey in entityType.GetForeignKeys())
-            {
-                if (PropertyListComparer.Instance.Equals(foreignKey.Properties, properties))
-                {
-                    yield return foreignKey;
-                }
-            }
+            return entityType.GetForeignKeys()
+                .Where(foreignKey => PropertyListComparer.Instance.Equals(foreignKey.Properties, properties));
         }
 
         /// <summary>
@@ -527,7 +511,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             var definingNavigation = entityType.DefiningEntityType.FindNavigation(entityType.DefiningNavigationName);
-            return definingNavigation?.GetTargetType() == entityType ? definingNavigation : null;
+            return definingNavigation?.TargetEntityType == entityType ? definingNavigation : null;
         }
 
         /// <summary>
@@ -555,7 +539,9 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(memberInfo, nameof(memberInfo));
 
-            return entityType.FindProperty(memberInfo.GetSimpleMemberName());
+            return (memberInfo as PropertyInfo)?.IsIndexerProperty() == true
+                ? null
+                : entityType.FindProperty(memberInfo.GetSimpleMemberName());
         }
 
         /// <summary>

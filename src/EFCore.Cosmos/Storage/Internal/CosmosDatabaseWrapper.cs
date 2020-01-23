@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 
@@ -48,9 +49,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosDatabaseWrapper(
-            DatabaseDependencies dependencies,
-            CosmosClientWrapper cosmosClient,
-            ILoggingOptions loggingOptions)
+            [NotNull] DatabaseDependencies dependencies,
+            [NotNull] CosmosClientWrapper cosmosClient,
+            [NotNull] ILoggingOptions loggingOptions)
             : base(dependencies)
         {
             _cosmosClient = cosmosClient;
@@ -79,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 var entry = entries[i];
                 var entityType = entry.EntityType;
 
-                Debug.Assert(!entityType.IsAbstract());
+                Check.DebugAssert(!entityType.IsAbstract(), $"{entityType} is abstract");
 
                 if (!entityType.IsDocumentRoot())
                 {
@@ -132,7 +133,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 var entry = entries[i];
                 var entityType = entry.EntityType;
 
-                Debug.Assert(!entityType.IsAbstract());
+                Check.DebugAssert(!entityType.IsAbstract(), $"{entityType} is abstract");
+
                 if (!entityType.IsDocumentRoot())
                 {
                     var root = GetRootDocument((InternalEntityEntry)entry);
@@ -204,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     {
                         document = documentSource.CreateDocument(entry);
 
-                        var propertyName = entityType.GetDiscriminatorProperty()?.GetPropertyName();
+                        var propertyName = entityType.GetDiscriminatorProperty()?.GetJsonPropertyName();
                         if (propertyName != null)
                         {
                             document[propertyName] =
@@ -259,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     {
                         document = documentSource.CreateDocument(entry);
 
-                        var propertyName = entityType.GetDiscriminatorProperty()?.GetPropertyName();
+                        var propertyName = entityType.GetDiscriminatorProperty()?.GetJsonPropertyName();
                         if (propertyName != null)
                         {
                             document[propertyName] =
@@ -284,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual DocumentSource GetDocumentSource(IEntityType entityType)
+        public virtual DocumentSource GetDocumentSource([NotNull] IEntityType entityType)
         {
             if (!_documentCollections.TryGetValue(entityType, out var documentSource))
             {

@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     public static class CoreStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.CoreStrings", typeof(CoreStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.CoreStrings", typeof(CoreStrings).Assembly);
 
         /// <summary>
         ///     Unable to save changes because a circular dependency was detected in the data to be saved: '{cycle}'.
@@ -61,6 +61,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string NoElements
             => GetString("NoElements");
+
+        /// <summary>
+        ///     The given 'IQueryable' does not support generation of query strings.
+        /// </summary>
+        public static string NotQueryingEnumerable
+            => GetString("NotQueryingEnumerable");
 
         /// <summary>
         ///     The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
@@ -509,6 +515,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, state);
 
         /// <summary>
+        ///     The value of '{entityType}.{property}' is unknown when attempting to save changes. This is because the property is also part of a foreign key for which the principal entity in the relationship is not known.
+        /// </summary>
+        public static string UnknownKeyValue([CanBeNull] object entityType, [CanBeNull] object property)
+            => string.Format(
+                GetString("UnknownKeyValue", nameof(entityType), nameof(property)),
+                entityType, property);
+
+        /// <summary>
         ///     The EF.Property&lt;T&gt; method may only be used within LINQ queries.
         /// </summary>
         public static string PropertyMethodInvoked
@@ -539,12 +553,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, key);
 
         /// <summary>
-        ///     Cannot remove key {key} from entity type '{entityType}' because it is referenced by a foreign key in entity type '{dependentType}'. All foreign keys must be removed or redefined before the referenced key can be removed.
+        ///     Cannot remove key {key} from entity type '{entityType}' because it is referenced by a foreign key {foreignKey} in entity type '{dependentType}'. All foreign keys must be removed or redefined before the referenced key can be removed.
         /// </summary>
-        public static string KeyInUse([CanBeNull] object key, [CanBeNull] object entityType, [CanBeNull] object dependentType)
+        public static string KeyInUse([CanBeNull] object key, [CanBeNull] object entityType, [CanBeNull] object foreignKey, [CanBeNull] object dependentType)
             => string.Format(
-                GetString("KeyInUse", nameof(key), nameof(entityType), nameof(dependentType)),
-                key, entityType, dependentType);
+                GetString("KeyInUse", nameof(key), nameof(entityType), nameof(foreignKey), nameof(dependentType)),
+                key, entityType, foreignKey, dependentType);
 
         /// <summary>
         ///     The service property '{property}' of type '{serviceType}' cannot be added to the entity type '{entityType}' because service property '{duplicateName}' of the same type already exists on entity type '{duplicateEntityType}'.
@@ -1361,7 +1375,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     Cannot create a relationship between '{newPrincipalEntityType}.{newPrincipalNavigation}' and '{newDependentEntityType}.{newDependentNavigation}', because there already is a relationship between '{existingPrincipalEntityType}.{existingPrincipalNavigation}' and '{existingDependentEntityType}.{existingDependentNavigation}'. Navigation properties can only participate in a single relationship.
+        ///     Cannot create a relationship between '{newPrincipalEntityType}.{newPrincipalNavigation}' and '{newDependentEntityType}.{newDependentNavigation}', because there already is a relationship between '{existingPrincipalEntityType}.{existingPrincipalNavigation}' and '{existingDependentEntityType}.{existingDependentNavigation}'. Navigation properties can only participate in a single relationship. If you want to override an existing relationship call Ignore on the navigation first.
         /// </summary>
         public static string ConflictingRelationshipNavigation([CanBeNull] object newPrincipalEntityType, [CanBeNull] object newPrincipalNavigation, [CanBeNull] object newDependentEntityType, [CanBeNull] object newDependentNavigation, [CanBeNull] object existingPrincipalEntityType, [CanBeNull] object existingPrincipalNavigation, [CanBeNull] object existingDependentEntityType, [CanBeNull] object existingDependentNavigation)
             => string.Format(
@@ -1915,14 +1929,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigation, principalType, dependentType);
 
         /// <summary>
-        ///     An indexed property was added to entity type '{entity}'. But there is no public indexer on '{entity}' taking a single argument of type 'string' and returning type 'object'.
-        /// </summary>
-        public static string NoIndexer([CanBeNull] object entity)
-            => string.Format(
-                GetString("NoIndexer", nameof(entity)),
-                entity);
-
-        /// <summary>
         ///     cannot bind '{failedBinds}' in '{parameters}'
         /// </summary>
         public static string ConstructorBindingFailed([CanBeNull] object failedBinds, [CanBeNull] object parameters)
@@ -1987,7 +1993,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 typeName);
 
         /// <summary>
-        ///     The invoked method is cannot be used for the entity type '{entityType}' because it does not have a primary key.
+        ///     The invoked method cannot be used for the entity type '{entityType}' because it does not have a primary key.
         /// </summary>
         public static string InvalidSetKeylessOperation([CanBeNull] object entityType)
             => string.Format(
@@ -2091,36 +2097,36 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     The foreign key {foreignKey} targeting the key {key} on '{principalType}' is defined on the entity type '{otherEntityType}', not '{entityType}'.
+        ///     The foreign key {foreignKey} targeting the key {key} on '{principalType}' cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.
         /// </summary>
-        public static string ForeignKeyWrongType([CanBeNull] object foreignKey, [CanBeNull] object key, [CanBeNull] object principalType, [CanBeNull] object otherEntityType, [CanBeNull] object entityType)
+        public static string ForeignKeyWrongType([CanBeNull] object foreignKey, [CanBeNull] object key, [CanBeNull] object principalType, [CanBeNull] object entityType, [CanBeNull] object otherEntityType)
             => string.Format(
-                GetString("ForeignKeyWrongType", nameof(foreignKey), nameof(key), nameof(principalType), nameof(otherEntityType), nameof(entityType)),
-                foreignKey, key, principalType, otherEntityType, entityType);
+                GetString("ForeignKeyWrongType", nameof(foreignKey), nameof(key), nameof(principalType), nameof(entityType), nameof(otherEntityType)),
+                foreignKey, key, principalType, entityType, otherEntityType);
 
         /// <summary>
-        ///     The index {index} is defined on the entity type '{otherEntityType}', not '{entityType}'.
+        ///     The index {index} cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.
         /// </summary>
-        public static string IndexWrongType([CanBeNull] object index, [CanBeNull] object otherEntityType, [CanBeNull] object entityType)
+        public static string IndexWrongType([CanBeNull] object index, [CanBeNull] object entityType, [CanBeNull] object otherEntityType)
             => string.Format(
-                GetString("IndexWrongType", nameof(index), nameof(otherEntityType), nameof(entityType)),
-                index, otherEntityType, entityType);
+                GetString("IndexWrongType", nameof(index), nameof(entityType), nameof(otherEntityType)),
+                index, entityType, otherEntityType);
 
         /// <summary>
-        ///     The key {key} cis defined on the entity type '{otherEntityType}', not '{entityType}'.
+        ///     The key {key} cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.
         /// </summary>
-        public static string KeyWrongType([CanBeNull] object key, [CanBeNull] object otherEntityType, [CanBeNull] object entityType)
+        public static string KeyWrongType([CanBeNull] object key, [CanBeNull] object entityType, [CanBeNull] object otherEntityType)
             => string.Format(
-                GetString("KeyWrongType", nameof(key), nameof(otherEntityType), nameof(entityType)),
-                key, otherEntityType, entityType);
+                GetString("KeyWrongType", nameof(key), nameof(entityType), nameof(otherEntityType)),
+                key, entityType, otherEntityType);
 
         /// <summary>
-        ///     The specified property '{property}' is declared on the entity type '{otherEntityType}', not '{entityType}'.
+        ///     The property '{property}' cannot be removed from the entity type '{entityType}' because it is declared on the entity type '{otherEntityType}'.
         /// </summary>
-        public static string PropertyWrongType([CanBeNull] object property, [CanBeNull] object otherEntityType, [CanBeNull] object entityType)
+        public static string PropertyWrongType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object otherEntityType)
             => string.Format(
-                GetString("PropertyWrongType", nameof(property), nameof(otherEntityType), nameof(entityType)),
-                property, otherEntityType, entityType);
+                GetString("PropertyWrongType", nameof(property), nameof(entityType), nameof(otherEntityType)),
+                property, entityType, otherEntityType);
 
         /// <summary>
         ///     There is no navigation on entity type '{entityType}' associated with the foreign key {foreignKey}.
@@ -2230,6 +2236,134 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("ClientProjectionCapturingConstantInTree", nameof(constantType)),
                 constantType);
 
+        /// <summary>
+        ///     Cannot remove foreign key {foreigKey} from entity type '{entityType}' because it is referenced by a skip navigation '{navigation}' on entity type '{navigationEntityType}'. All referencing skip navigation must be removed before the referenced foreign key can be removed.
+        /// </summary>
+        public static string ForeignKeyInUseSkipNavigation([CanBeNull] object foreigKey, [CanBeNull] object entityType, [CanBeNull] object navigation, [CanBeNull] object navigationEntityType)
+            => string.Format(
+                GetString("ForeignKeyInUseSkipNavigation", nameof(foreigKey), nameof(entityType), nameof(navigation), nameof(navigationEntityType)),
+                foreigKey, entityType, navigation, navigationEntityType);
+
+        /// <summary>
+        ///     The skip navigation property '{navigation}' cannot be added to entity type '{entityType}' because it is expected to be on the dependent entity type '{dependentEntityType}' of the foreign key {foreignKey}.
+        /// </summary>
+        public static string SkipNavigationWrongDependentType([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object dependentEntityType, [CanBeNull] object foreignKey)
+            => string.Format(
+                GetString("SkipNavigationWrongDependentType", nameof(navigation), nameof(entityType), nameof(dependentEntityType), nameof(foreignKey)),
+                navigation, entityType, dependentEntityType, foreignKey);
+
+        /// <summary>
+        ///     The skip navigation '{inverse}' declared on the entity type '{inverseEntityType}' cannot be set as the inverse of '{navigation}' that targets '{targetEntityType}'. The inverse should be declared on the target entity type.
+        /// </summary>
+        public static string SkipNavigationWrongInverse([CanBeNull] object inverse, [CanBeNull] object inverseEntityType, [CanBeNull] object navigation, [CanBeNull] object targetEntityType)
+            => string.Format(
+                GetString("SkipNavigationWrongInverse", nameof(inverse), nameof(inverseEntityType), nameof(navigation), nameof(targetEntityType)),
+                inverse, inverseEntityType, navigation, targetEntityType);
+
+        /// <summary>
+        ///     The skip navigation property '{navigation}' cannot be added to entity type '{entityType}' because it is expected to be on the principal entity type '{principalEntityType}' of the foreign key {foreignKey}.
+        /// </summary>
+        public static string SkipNavigationWrongPrincipalType([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object principalEntityType, [CanBeNull] object foreignKey)
+            => string.Format(
+                GetString("SkipNavigationWrongPrincipalType", nameof(navigation), nameof(entityType), nameof(principalEntityType), nameof(foreignKey)),
+                navigation, entityType, principalEntityType, foreignKey);
+
+        /// <summary>
+        ///     The skip navigation property '{navigation}' cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.
+        /// </summary>
+        public static string SkipNavigationWrongType([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object otherEntityType)
+            => string.Format(
+                GetString("SkipNavigationWrongType", nameof(navigation), nameof(entityType), nameof(otherEntityType)),
+                navigation, entityType, otherEntityType);
+
+        /// <summary>
+        ///     The skip navigation '{inverse}' using the association entity type '{inverseAssociationType}' cannot be set as the inverse of '{navigation}' that uses the association entity type '{associationType}'. The inverse should use the same association entity type.
+        /// </summary>
+        public static string SkipInverseMismatchedAssociationType([CanBeNull] object inverse, [CanBeNull] object inverseAssociationType, [CanBeNull] object navigation, [CanBeNull] object associationType)
+            => string.Format(
+                GetString("SkipInverseMismatchedAssociationType", nameof(inverse), nameof(inverseAssociationType), nameof(navigation), nameof(associationType)),
+                inverse, inverseAssociationType, navigation, associationType);
+
+        /// <summary>
+        ///     The skip navigation '{navigation}' on entity type '{entityType}' doesn't have an inverse configured. Every skip navigation should have an inverse skip navigation.
+        /// </summary>
+        public static string SkipNavigationNoInverse([CanBeNull] object navigation, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("SkipNavigationNoInverse", nameof(navigation), nameof(entityType)),
+                navigation, entityType);
+
+        /// <summary>
+        ///     The skip navigation '{navigation}' on entity type '{entityType}' is not a collection. Only collection skip navigation properties are currently supported.
+        /// </summary>
+        public static string SkipNavigationNonCollection([CanBeNull] object navigation, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("SkipNavigationNonCollection", nameof(navigation), nameof(entityType)),
+                navigation, entityType);
+
+        /// <summary>
+        ///     The foreign key '{foreignKey}' cannot be set for the skip navigation '{navigation}' as it uses the association entity type '{associationType}' while the inverse skip navigation '{inverse}' is using the association entity type '{inverseAssociationType}'. The inverse should use the same association entity type.
+        /// </summary>
+        public static string SkipInverseMismatchedForeignKey([CanBeNull] object foreignKey, [CanBeNull] object navigation, [CanBeNull] object associationType, [CanBeNull] object inverse, [CanBeNull] object inverseAssociationType)
+            => string.Format(
+                GetString("SkipInverseMismatchedForeignKey", nameof(foreignKey), nameof(navigation), nameof(associationType), nameof(inverse), nameof(inverseAssociationType)),
+                foreignKey, navigation, associationType, inverse, inverseAssociationType);
+
+        /// <summary>
+        ///     The skip navigation '{navigation}' on entity type '{entityType}' doesn't have a foreign key associated with it. Every skip navigation should have a configured foreign key.
+        /// </summary>
+        public static string SkipNavigationNoForeignKey([CanBeNull] object navigation, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("SkipNavigationNoForeignKey", nameof(navigation), nameof(entityType)),
+                navigation, entityType);
+
+        /// <summary>
+        ///     The foreign key {foreignKey} cannot be used for the skip navigation property '{navigation}' on the entity type '{entityType}' because it is expected to be on the dependent entity type '{dependentEntityType}'.
+        /// </summary>
+        public static string SkipNavigationForeignKeyWrongDependentType([CanBeNull] object foreignKey, [CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object dependentEntityType)
+            => string.Format(
+                GetString("SkipNavigationForeignKeyWrongDependentType", nameof(foreignKey), nameof(navigation), nameof(entityType), nameof(dependentEntityType)),
+                foreignKey, navigation, entityType, dependentEntityType);
+
+        /// <summary>
+        ///     The foreign key {foreignKey} cannot be used for the skip navigation property '{navigation}' on the entity type '{entityType}' because it is expected to be on the principal entity type '{principalEntityType}'.
+        /// </summary>
+        public static string SkipNavigationForeignKeyWrongPrincipalType([CanBeNull] object foreignKey, [CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object principalEntityType)
+            => string.Format(
+                GetString("SkipNavigationForeignKeyWrongPrincipalType", nameof(foreignKey), nameof(navigation), nameof(entityType), nameof(principalEntityType)),
+                foreignKey, navigation, entityType, principalEntityType);
+
+        /// <summary>
+        ///     Cannot add property '{property}' on entity type '{entity}' since there is no indexer on '{entity}' taking a single argument of type '{type}'.
+        /// </summary>
+        public static string NonIndexerEntityType([CanBeNull] object property, [CanBeNull] object entity, [CanBeNull] object type)
+            => string.Format(
+                GetString("NonIndexerEntityType", nameof(property), nameof(entity), nameof(type)),
+                property, entity, type);
+
+        /// <summary>
+        ///     Cannot set backing field '{field}' for the indexer property '{entityType}.{property}'. Indexer properties are not allowed to use a backing field.
+        /// </summary>
+        public static string BackingFieldOnIndexer([CanBeNull] object field, [CanBeNull] object entityType, [CanBeNull] object property)
+            => string.Format(
+                GetString("BackingFieldOnIndexer", nameof(field), nameof(entityType), nameof(property)),
+                field, entityType, property);
+
+        /// <summary>
+        ///     The entity type '{entityType}' cannot be added to the model because a shared entity type with the same clr type already exists.
+        /// </summary>
+        public static string ClashingSharedType([CanBeNull] object entityType)
+            => string.Format(
+                GetString("ClashingSharedType", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     Cannot find entity type with type '{clrType}' since model contains shared entity type(s) with same type.
+        /// </summary>
+        public static string CannotFindEntityWithClrTypeWhenShared([CanBeNull] object clrType)
+            => string.Format(
+                GetString("CannotFindEntityWithClrTypeWhenShared", nameof(clrType)),
+                clrType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
@@ -2254,7 +2388,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
     public static class CoreResources
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.CoreStrings", typeof(CoreResources).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.CoreStrings", typeof(CoreResources).Assembly);
 
         /// <summary>
         ///     An 'IServiceProvider' was created for internal use by Entity Framework.
@@ -3001,81 +3135,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Compiling query model: {newline}'{queryModel}'
-        /// </summary>
-        [Obsolete]
-        public static EventDefinition<string, string> LogCompilingQueryModel([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((LoggingDefinitions)logger.Definitions).LogCompilingQueryModel;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((LoggingDefinitions)logger.Definitions).LogCompilingQueryModel,
-                    () => new EventDefinition<string, string>(
-                        logger.Options,
-                        CoreEventId.QueryModelCompiling,
-                        LogLevel.Debug,
-                        "CoreEventId.QueryModelCompiling",
-                        level => LoggerMessage.Define<string, string>(
-                            level,
-                            CoreEventId.QueryModelCompiling,
-                            _resourceManager.GetString("LogCompilingQueryModel"))));
-            }
-
-            return (EventDefinition<string, string>)definition;
-        }
-
-        /// <summary>
-        ///     Optimized query model: {newline}'{queryModel}'
-        /// </summary>
-        [Obsolete]
-        public static EventDefinition<string, string> LogOptimizedQueryModel([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((LoggingDefinitions)logger.Definitions).LogOptimizedQueryModel;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((LoggingDefinitions)logger.Definitions).LogOptimizedQueryModel,
-                    () => new EventDefinition<string, string>(
-                        logger.Options,
-                        CoreEventId.QueryModelOptimized,
-                        LogLevel.Debug,
-                        "CoreEventId.QueryModelOptimized",
-                        level => LoggerMessage.Define<string, string>(
-                            level,
-                            CoreEventId.QueryModelOptimized,
-                            _resourceManager.GetString("LogOptimizedQueryModel"))));
-            }
-
-            return (EventDefinition<string, string>)definition;
-        }
-
-        /// <summary>
-        ///     Including navigation: '{navigation}'
-        /// </summary>
-        [Obsolete]
-        public static EventDefinition<string> LogIncludingNavigation([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((LoggingDefinitions)logger.Definitions).LogIncludingNavigation;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((LoggingDefinitions)logger.Definitions).LogIncludingNavigation,
-                    () => new EventDefinition<string>(
-                        logger.Options,
-                        CoreEventId.NavigationIncluded,
-                        LogLevel.Debug,
-                        "CoreEventId.NavigationIncluded",
-                        level => LoggerMessage.Define<string>(
-                            level,
-                            CoreEventId.NavigationIncluded,
-                            _resourceManager.GetString("LogIncludingNavigation"))));
-            }
-
-            return (EventDefinition<string>)definition;
-        }
-
-        /// <summary>
         ///     {plan}
         /// </summary>
         public static EventDefinition<string> LogQueryExecutionPlanned([NotNull] IDiagnosticsLogger logger)
@@ -3121,81 +3180,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition)definition;
-        }
-
-        /// <summary>
-        ///     The Include operation for navigation '{include}' is unnecessary and was ignored because the navigation is not reachable in the final query results. See https://go.microsoft.com/fwlink/?linkid=850303 for more information.
-        /// </summary>
-        [Obsolete]
-        public static EventDefinition<string> LogIgnoredInclude([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((LoggingDefinitions)logger.Definitions).LogIgnoredInclude;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((LoggingDefinitions)logger.Definitions).LogIgnoredInclude,
-                    () => new EventDefinition<string>(
-                        logger.Options,
-                        CoreEventId.IncludeIgnoredWarning,
-                        LogLevel.Warning,
-                        "CoreEventId.IncludeIgnoredWarning",
-                        level => LoggerMessage.Define<string>(
-                            level,
-                            CoreEventId.IncludeIgnoredWarning,
-                            _resourceManager.GetString("LogIgnoredInclude"))));
-            }
-
-            return (EventDefinition<string>)definition;
-        }
-
-        /// <summary>
-        ///     Query: '{queryModel}' uses a row limiting operation (Skip/Take) without OrderBy which may lead to unpredictable results.
-        /// </summary>
-        [Obsolete]
-        public static EventDefinition<string> LogRowLimitingOperationWithoutOrderBy([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((LoggingDefinitions)logger.Definitions).LogRowLimitingOperationWithoutOrderBy;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((LoggingDefinitions)logger.Definitions).LogRowLimitingOperationWithoutOrderBy,
-                    () => new EventDefinition<string>(
-                        logger.Options,
-                        CoreEventId.RowLimitingOperationWithoutOrderByWarning,
-                        LogLevel.Warning,
-                        "CoreEventId.RowLimitingOperationWithoutOrderByWarning",
-                        level => LoggerMessage.Define<string>(
-                            level,
-                            CoreEventId.RowLimitingOperationWithoutOrderByWarning,
-                            _resourceManager.GetString("LogRowLimitingOperationWithoutOrderBy"))));
-            }
-
-            return (EventDefinition<string>)definition;
-        }
-
-        /// <summary>
-        ///     Query: '{queryModel}' uses First/FirstOrDefault/Last/LastOrDefault operation without OrderBy and filter which may lead to unpredictable results.
-        /// </summary>
-        [Obsolete]
-        public static EventDefinition<string> LogFirstWithoutOrderByAndFilter([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((LoggingDefinitions)logger.Definitions).LogFirstWithoutOrderByAndFilter;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((LoggingDefinitions)logger.Definitions).LogFirstWithoutOrderByAndFilter,
-                    () => new EventDefinition<string>(
-                        logger.Options,
-                        CoreEventId.FirstWithoutOrderByAndFilterWarning,
-                        LogLevel.Warning,
-                        "CoreEventId.FirstWithoutOrderByAndFilterWarning",
-                        level => LoggerMessage.Define<string>(
-                            level,
-                            CoreEventId.FirstWithoutOrderByAndFilterWarning,
-                            _resourceManager.GetString("LogFirstWithoutOrderByAndFilter"))));
-            }
-
-            return (EventDefinition<string>)definition;
         }
 
         /// <summary>

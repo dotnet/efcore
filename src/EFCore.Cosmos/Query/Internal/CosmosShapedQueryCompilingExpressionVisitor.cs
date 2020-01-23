@@ -3,8 +3,10 @@
 
 using System;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
@@ -29,10 +31,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosShapedQueryCompilingExpressionVisitor(
-            ShapedQueryCompilingExpressionVisitorDependencies dependencies,
-            QueryCompilationContext queryCompilationContext,
-            ISqlExpressionFactory sqlExpressionFactory,
-            IQuerySqlGeneratorFactory querySqlGeneratorFactory)
+            [NotNull] ShapedQueryCompilingExpressionVisitorDependencies dependencies,
+            [NotNull] QueryCompilationContext queryCompilationContext,
+            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
+            [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory)
             : base(dependencies, queryCompilationContext)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
@@ -49,6 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression)
         {
+            Check.NotNull(shapedQueryExpression, nameof(shapedQueryExpression));
+
             var selectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
             selectExpression.ApplyProjection();
             var jObjectParameter = Expression.Parameter(typeof(JObject), "jObject");

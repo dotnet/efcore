@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -13,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -82,8 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 .FirstOrDefault(p => string.Equals(p.GetSimpleMemberName(), attribute.Property, StringComparison.OrdinalIgnoreCase));
 
             if (inverseNavigationPropertyInfo == null
-                || !Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(inverseNavigationPropertyInfo).GetTypeInfo()
-                    .IsAssignableFrom(entityType.ClrType.GetTypeInfo()))
+                || !Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(inverseNavigationPropertyInfo)
+                    .IsAssignableFrom(entityType.ClrType))
             {
                 throw new InvalidOperationException(
                     CoreStrings.InvalidNavigationWithInverseProperty(
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             if (ambiguousInverse != null)
             {
-                var existingInverse = targetEntityTypeBuilder.Metadata.FindNavigation(inverseNavigationPropertyInfo)?.FindInverse();
+                var existingInverse = targetEntityTypeBuilder.Metadata.FindNavigation(inverseNavigationPropertyInfo)?.Inverse;
                 var existingInverseType = existingInverse?.DeclaringEntityType;
                 if (existingInverse != null
                     && IsAmbiguousInverse(
@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     {
                         fk.Builder.HasNavigation(
                             (string)null,
-                            existingInverse.IsDependentToPrincipal(),
+                            existingInverse.IsOnDependent,
                             fromDataAnnotation: true);
                     }
                 }
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     {
                         fk.Builder.HasNavigation(
                             (string)null,
-                            existingNavigation.IsDependentToPrincipal(),
+                            existingNavigation.IsOnDependent,
                             fromDataAnnotation: true);
                     }
                 }
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     {
                         fk.Builder.HasNavigation(
                             (string)null,
-                            existingAmbiguousNavigation.IsDependentToPrincipal(),
+                            existingAmbiguousNavigation.IsOnDependent,
                             fromDataAnnotation: true);
                     }
                 }
@@ -241,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionContext<string> context)
         {
             var declaringType = navigationMemberInfo.DeclaringType;
-            Debug.Assert(declaringType != null);
+            Check.DebugAssert(declaringType != null, "declaringType is null");
             if (modelBuilder.Metadata.FindEntityType(declaringType) != null)
             {
                 return;
@@ -280,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var newRelationship = ConfigureInverseNavigation(
                 navigation.DeclaringEntityType.Builder,
                 navigation.GetIdentifyingMemberInfo(),
-                navigation.GetTargetType().Builder,
+                navigation.TargetEntityType.Builder,
                 attribute);
             if (newRelationship != relationshipBuilder)
             {
@@ -290,7 +290,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     return;
                 }
 
-                var newNavigation = navigation.IsDependentToPrincipal()
+                var newNavigation = navigation.IsOnDependent
                     ? newRelationship.Metadata.DependentToPrincipal
                     : newRelationship.Metadata.PrincipalToDependent;
 

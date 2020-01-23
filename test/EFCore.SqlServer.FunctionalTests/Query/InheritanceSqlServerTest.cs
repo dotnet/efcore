@@ -18,28 +18,26 @@ namespace Microsoft.EntityFrameworkCore.Query
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
-            Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         [ConditionalFact]
         public virtual void Common_property_shares_column()
         {
-            using (var context = CreateContext())
-            {
-                var liltType = context.Model.FindEntityType(typeof(Lilt));
-                var cokeType = context.Model.FindEntityType(typeof(Coke));
-                var teaType = context.Model.FindEntityType(typeof(Tea));
+            using var context = CreateContext();
+            var liltType = context.Model.FindEntityType(typeof(Lilt));
+            var cokeType = context.Model.FindEntityType(typeof(Coke));
+            var teaType = context.Model.FindEntityType(typeof(Tea));
 
-                Assert.Equal("SugarGrams", cokeType.FindProperty("SugarGrams").GetColumnName());
-                Assert.Equal("CaffeineGrams", cokeType.FindProperty("CaffeineGrams").GetColumnName());
-                Assert.Equal("CokeCO2", cokeType.FindProperty("Carbonation").GetColumnName());
+            Assert.Equal("SugarGrams", cokeType.FindProperty("SugarGrams").GetColumnName());
+            Assert.Equal("CaffeineGrams", cokeType.FindProperty("CaffeineGrams").GetColumnName());
+            Assert.Equal("CokeCO2", cokeType.FindProperty("Carbonation").GetColumnName());
 
-                Assert.Equal("SugarGrams", liltType.FindProperty("SugarGrams").GetColumnName());
-                Assert.Equal("LiltCO2", liltType.FindProperty("Carbonation").GetColumnName());
+            Assert.Equal("SugarGrams", liltType.FindProperty("SugarGrams").GetColumnName());
+            Assert.Equal("LiltCO2", liltType.FindProperty("Carbonation").GetColumnName());
 
-                Assert.Equal("CaffeineGrams", teaType.FindProperty("CaffeineGrams").GetColumnName());
-                Assert.Equal("HasMilk", teaType.FindProperty("HasMilk").GetColumnName());
-            }
+            Assert.Equal("CaffeineGrams", teaType.FindProperty("CaffeineGrams").GetColumnName());
+            Assert.Equal("HasMilk", teaType.FindProperty("HasMilk").GetColumnName());
         }
 
         public override void Can_query_when_shared_column()
@@ -499,7 +497,18 @@ FROM (
     FROM [Animal] AS [a0]
     WHERE [a0].[Discriminator] = N'Eagle'
 ) AS [t]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
+        }
+
+        public override void Member_access_on_intermediate_type_works()
+        {
+            base.Member_access_on_intermediate_type_works();
+
+            AssertSql(
+                @"SELECT [a].[Name]
+FROM [Animal] AS [a]
+WHERE [a].[Discriminator] = N'Kiwi'
+ORDER BY [a].[Name]");
         }
 
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)

@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -10,8 +12,14 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         protected override Expression VisitExtension(Expression extensionExpression)
         {
+            Check.NotNull(extensionExpression, nameof(extensionExpression));
+
             switch (extensionExpression)
             {
+                case ShapedQueryExpression shapedQueryExpression:
+                    return shapedQueryExpression.Update(
+                        Visit(shapedQueryExpression.QueryExpression), shapedQueryExpression.ShaperExpression);
+
                 case CaseExpression caseExpression:
                     return VisitCase(caseExpression);
 
@@ -81,8 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case SqlParameterExpression sqlParameterExpression:
                     return VisitSqlParameter(sqlParameterExpression);
 
-                case ScalarSubqueryExpression subSelectExpression:
-                    return VisitSubSelect(subSelectExpression);
+                case ScalarSubqueryExpression scalarSubqueryExpression:
+                    return VisitScalarSubquery(scalarSubqueryExpression);
 
                 case TableExpression tableExpression:
                     return VisitTable(tableExpression);
@@ -94,31 +102,31 @@ namespace Microsoft.EntityFrameworkCore.Query
             return base.VisitExtension(extensionExpression);
         }
 
-        protected abstract Expression VisitCase(CaseExpression caseExpression);
-        protected abstract Expression VisitColumn(ColumnExpression columnExpression);
-        protected abstract Expression VisitCrossApply(CrossApplyExpression crossApplyExpression);
-        protected abstract Expression VisitCrossJoin(CrossJoinExpression crossJoinExpression);
-        protected abstract Expression VisitExcept(ExceptExpression exceptExpression);
-        protected abstract Expression VisitExists(ExistsExpression existsExpression);
-        protected abstract Expression VisitFromSql(FromSqlExpression fromSqlExpression);
-        protected abstract Expression VisitIn(InExpression inExpression);
-        protected abstract Expression VisitIntersect(IntersectExpression intersectExpression);
-        protected abstract Expression VisitLike(LikeExpression likeExpression);
-        protected abstract Expression VisitInnerJoin(InnerJoinExpression innerJoinExpression);
-        protected abstract Expression VisitLeftJoin(LeftJoinExpression leftJoinExpression);
-        protected abstract Expression VisitOrdering(OrderingExpression orderingExpression);
-        protected abstract Expression VisitOuterApply(OuterApplyExpression outerApplyExpression);
-        protected abstract Expression VisitProjection(ProjectionExpression projectionExpression);
-        protected abstract Expression VisitRowNumber(RowNumberExpression rowNumberExpression);
-        protected abstract Expression VisitSelect(SelectExpression selectExpression);
-        protected abstract Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression);
-        protected abstract Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression);
-        protected abstract Expression VisitSqlFragment(SqlFragmentExpression sqlFragmentExpression);
-        protected abstract Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression);
-        protected abstract Expression VisitSqlParameter(SqlParameterExpression sqlParameterExpression);
-        protected abstract Expression VisitSqlUnary(SqlUnaryExpression sqlCastExpression);
-        protected abstract Expression VisitSubSelect(ScalarSubqueryExpression scalarSubqueryExpression);
-        protected abstract Expression VisitTable(TableExpression tableExpression);
-        protected abstract Expression VisitUnion(UnionExpression unionExpression);
+        protected abstract Expression VisitCase([NotNull] CaseExpression caseExpression);
+        protected abstract Expression VisitColumn([NotNull] ColumnExpression columnExpression);
+        protected abstract Expression VisitCrossApply([NotNull] CrossApplyExpression crossApplyExpression);
+        protected abstract Expression VisitCrossJoin([NotNull] CrossJoinExpression crossJoinExpression);
+        protected abstract Expression VisitExcept([NotNull] ExceptExpression exceptExpression);
+        protected abstract Expression VisitExists([NotNull] ExistsExpression existsExpression);
+        protected abstract Expression VisitFromSql([NotNull] FromSqlExpression fromSqlExpression);
+        protected abstract Expression VisitIn([NotNull] InExpression inExpression);
+        protected abstract Expression VisitIntersect([NotNull] IntersectExpression intersectExpression);
+        protected abstract Expression VisitLike([NotNull] LikeExpression likeExpression);
+        protected abstract Expression VisitInnerJoin([NotNull] InnerJoinExpression innerJoinExpression);
+        protected abstract Expression VisitLeftJoin([NotNull] LeftJoinExpression leftJoinExpression);
+        protected abstract Expression VisitOrdering([NotNull] OrderingExpression orderingExpression);
+        protected abstract Expression VisitOuterApply([NotNull] OuterApplyExpression outerApplyExpression);
+        protected abstract Expression VisitProjection([NotNull] ProjectionExpression projectionExpression);
+        protected abstract Expression VisitRowNumber([NotNull] RowNumberExpression rowNumberExpression);
+        protected abstract Expression VisitScalarSubquery([NotNull] ScalarSubqueryExpression scalarSubqueryExpression);
+        protected abstract Expression VisitSelect([NotNull] SelectExpression selectExpression);
+        protected abstract Expression VisitSqlBinary([NotNull] SqlBinaryExpression sqlBinaryExpression);
+        protected abstract Expression VisitSqlConstant([NotNull] SqlConstantExpression sqlConstantExpression);
+        protected abstract Expression VisitSqlFragment([NotNull] SqlFragmentExpression sqlFragmentExpression);
+        protected abstract Expression VisitSqlFunction([NotNull] SqlFunctionExpression sqlFunctionExpression);
+        protected abstract Expression VisitSqlParameter([NotNull] SqlParameterExpression sqlParameterExpression);
+        protected abstract Expression VisitSqlUnary([NotNull] SqlUnaryExpression sqlUnaryExpression);
+        protected abstract Expression VisitTable([NotNull] TableExpression tableExpression);
+        protected abstract Expression VisitUnion([NotNull] UnionExpression unionExpression);
     }
 }

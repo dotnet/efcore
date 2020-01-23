@@ -3,11 +3,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
@@ -26,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         public SqlServerPolygonMemberTranslator(
-            IRelationalTypeMappingSource typeMappingSource,
-            ISqlExpressionFactory sqlExpressionFactory)
+            [NotNull] IRelationalTypeMappingSource typeMappingSource,
+            [NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _typeMappingSource = typeMappingSource;
             _sqlExpressionFactory = sqlExpressionFactory;
@@ -35,9 +36,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
         public virtual SqlExpression Translate(SqlExpression instance, MemberInfo member, Type returnType)
         {
+            Check.NotNull(member, nameof(member));
+            Check.NotNull(returnType, nameof(returnType));
+
             if (typeof(Polygon).IsAssignableFrom(member.DeclaringType))
             {
-                Debug.Assert(instance.TypeMapping != null, "Instance must have typeMapping assigned.");
+                Check.DebugAssert(instance.TypeMapping != null, "Instance must have typeMapping assigned.");
                 var storeType = instance.TypeMapping.StoreType;
                 var isGeography = string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);
 
@@ -49,6 +53,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                             instance,
                             "RingN",
                             new[] { _sqlExpressionFactory.Constant(1) },
+                            nullResultAllowed: true,
+                            instancePropagatesNullability: true,
+                            argumentsPropagateNullability: new[] { false },
                             returnType,
                             _typeMappingSource.FindMapping(returnType, storeType));
                     }
@@ -60,6 +67,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                                 instance,
                                 "NumRings",
                                 Array.Empty<SqlExpression>(),
+                                nullResultAllowed: true,
+                                instancePropagatesNullability: true,
+                                argumentsPropagateNullability: Array.Empty<bool>(),
                                 returnType),
                             _sqlExpressionFactory.Constant(1));
                     }
@@ -75,6 +85,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         instance,
                         functionName,
                         Array.Empty<SqlExpression>(),
+                        nullResultAllowed: true,
+                        instancePropagatesNullability: true,
+                        argumentsPropagateNullability: Array.Empty<bool>(),
                         returnType,
                         resultTypeMapping);
                 }

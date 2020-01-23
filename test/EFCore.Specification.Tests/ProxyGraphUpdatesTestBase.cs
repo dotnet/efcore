@@ -81,27 +81,25 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void No_fixup_to_Deleted_entities()
         {
-            using (var context = CreateContext())
-            {
-                var root = LoadRoot(context);
-                var existing = root.OptionalChildren.OrderBy(e => e.Id).First();
+            using var context = CreateContext();
+            var root = LoadRoot(context);
+            var existing = root.OptionalChildren.OrderBy(e => e.Id).First();
 
-                existing.Parent = null;
-                existing.ParentId = null;
-                ((ICollection<Optional1>)root.OptionalChildren).Remove(existing);
+            existing.Parent = null;
+            existing.ParentId = null;
+            ((ICollection<Optional1>)root.OptionalChildren).Remove(existing);
 
-                context.Entry(existing).State = EntityState.Deleted;
+            context.Entry(existing).State = EntityState.Deleted;
 
-                var queried = context.Set<Optional1>().ToList();
+            var queried = context.Set<Optional1>().ToList();
 
-                Assert.Null(existing.Parent);
-                Assert.Null(existing.ParentId);
-                Assert.Single(root.OptionalChildren);
-                Assert.DoesNotContain(existing, root.OptionalChildren);
+            Assert.Null(existing.Parent);
+            Assert.Null(existing.ParentId);
+            Assert.Single(root.OptionalChildren);
+            Assert.DoesNotContain(existing, root.OptionalChildren);
 
-                Assert.Equal(2, queried.Count);
-                Assert.Contains(existing, queried);
-            }
+            Assert.Equal(2, queried.Count);
+            Assert.Contains(existing, queried);
         }
 
         [ConditionalTheory]
@@ -683,7 +681,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Same(new1, new2.Back);
 
                     Assert.NotNull(old1.Root);
-                    Assert.Null(old2.Back);
+                    Assert.Same(old1, old2.Back);
                     Assert.Equal(old1.Id, old2.Id);
                 });
         }

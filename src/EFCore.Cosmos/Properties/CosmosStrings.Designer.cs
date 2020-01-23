@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
     public static class CosmosStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Cosmos.Properties.CosmosStrings", typeof(CosmosStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Cosmos.Properties.CosmosStrings", typeof(CosmosStrings).Assembly);
 
         /// <summary>
         ///     Cosmos-specific methods can only be used when the context is using the Cosmos provider.

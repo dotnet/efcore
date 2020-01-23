@@ -36,33 +36,35 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             _includeResultAsserter = new IncludeQueryResultAsserter(_entitySorters, _entityAsserters);
         }
 
+        protected virtual void AssertRogueExecution(int expectedCount, IQueryable queryable)
+        {
+        }
+
         public override async Task AssertSingleResultTyped<TResult>(
             Func<ISetSource, TResult> actualSyncQuery,
             Func<ISetSource, Task<TResult>> actualAsyncQuery,
             Func<ISetSource, TResult> expectedQuery,
             Action<TResult, TResult> asserter,
             int entryCount,
-            bool isAsync,
+            bool async,
             string testMethodName)
         {
-            using (var context = _contextCreator())
+            using var context = _contextCreator();
+            TResult actual;
+
+            if (async)
             {
-                TResult actual;
-
-                if (isAsync)
-                {
-                    actual = await actualAsyncQuery(SetSourceCreator(context));
-                }
-                else
-                {
-                    actual = actualSyncQuery(SetSourceCreator(context));
-                }
-
-                var expected = expectedQuery(ExpectedData);
-
-                AssertEqual(expected, actual, asserter);
-                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
+                actual = await actualAsyncQuery(SetSourceCreator(context));
             }
+            else
+            {
+                actual = actualSyncQuery(SetSourceCreator(context));
+            }
+
+            var expected = expectedQuery(ExpectedData);
+
+            AssertEqual(expected, actual, asserter);
+            Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
         }
 
         public override async Task AssertQuery<TResult>(
@@ -72,49 +74,49 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Action<TResult, TResult> elementAsserter,
             bool assertOrder,
             int entryCount,
-            bool isAsync,
+            bool async,
             string testMethodName)
         {
-            using (var context = _contextCreator())
+            using var context = _contextCreator();
+            var query = actualQuery(SetSourceCreator(context));
+            if (ProceduralQueryGeneration && !async)
             {
-                var query = actualQuery(SetSourceCreator(context));
-                if (ProceduralQueryGeneration && !isAsync)
-                {
-                    new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
+                new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
 
-                    return;
-                }
-
-                OrderingSettingsVerifier(assertOrder, query.Expression.Type, elementSorter);
-
-                var actual = isAsync
-                    ? await query.ToArrayAsync()
-                    : query.ToArray();
-
-                var expected = expectedQuery(ExpectedData).ToArray();
-
-                if (!assertOrder
-                    && elementSorter == null)
-                {
-                    _entitySorters.TryGetValue(typeof(TResult), out var sorter);
-                    elementSorter = (Func<TResult, object>)sorter;
-                }
-
-                if (elementAsserter == null)
-                {
-                    _entityAsserters.TryGetValue(typeof(TResult), out var asserter);
-                    elementAsserter = (Action<TResult, TResult>)asserter;
-                }
-
-                TestHelpers.AssertResults(
-                    expected,
-                    actual,
-                    elementSorter,
-                    elementAsserter,
-                    assertOrder);
-
-                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
+                return;
             }
+
+            OrderingSettingsVerifier(assertOrder, query.Expression.Type, elementSorter);
+
+            var actual = async
+                ? await query.ToArrayAsync()
+                : query.ToArray();
+
+            AssertRogueExecution(actual.Length, query);
+
+            var expected = expectedQuery(ExpectedData).ToArray();
+
+            if (!assertOrder
+                && elementSorter == null)
+            {
+                _entitySorters.TryGetValue(typeof(TResult), out var sorter);
+                elementSorter = (Func<TResult, object>)sorter;
+            }
+
+            if (elementAsserter == null)
+            {
+                _entityAsserters.TryGetValue(typeof(TResult), out var asserter);
+                elementAsserter = (Action<TResult, TResult>)asserter;
+            }
+
+            TestHelpers.AssertResults(
+                expected,
+                actual,
+                elementSorter,
+                elementAsserter,
+                assertOrder);
+
+            Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
         }
 
         private void OrderingSettingsVerifier(bool assertOrder, Type type)
@@ -141,70 +143,70 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             bool assertOrder,
-            bool isAsync,
+            bool async,
             string testMethodName)
             where TResult : struct
         {
-            using (var context = _contextCreator())
+            using var context = _contextCreator();
+            var query = actualQuery(SetSourceCreator(context));
+            if (ProceduralQueryGeneration && !async)
             {
-                var query = actualQuery(SetSourceCreator(context));
-                if (ProceduralQueryGeneration && !isAsync)
-                {
-                    new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
+                new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
 
-                    return;
-                }
-
-                OrderingSettingsVerifier(assertOrder, query.Expression.Type);
-
-                var actual = isAsync
-                    ? await query.ToArrayAsync()
-                    : query.ToArray();
-
-                var expected = expectedQuery(ExpectedData).ToArray();
-
-                TestHelpers.AssertResults(
-                    expected,
-                    actual,
-                    e => e,
-                    Assert.Equal,
-                    assertOrder);
+                return;
             }
+
+            OrderingSettingsVerifier(assertOrder, query.Expression.Type);
+
+            var actual = async
+                ? await query.ToArrayAsync()
+                : query.ToArray();
+
+            AssertRogueExecution(actual.Length, query);
+
+            var expected = expectedQuery(ExpectedData).ToArray();
+
+            TestHelpers.AssertResults(
+                expected,
+                actual,
+                e => e,
+                Assert.Equal,
+                assertOrder);
         }
 
         public override async Task AssertQueryScalar<TResult>(
             Func<ISetSource, IQueryable<TResult?>> actualQuery,
             Func<ISetSource, IQueryable<TResult?>> expectedQuery,
             bool assertOrder,
-            bool isAsync,
+            bool async,
             string testMethodName)
             where TResult : struct
         {
-            using (var context = _contextCreator())
+            using var context = _contextCreator();
+            var query = actualQuery(SetSourceCreator(context));
+            if (ProceduralQueryGeneration && !async)
             {
-                var query = actualQuery(SetSourceCreator(context));
-                if (ProceduralQueryGeneration && !isAsync)
-                {
-                    new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
+                new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
 
-                    return;
-                }
-
-                OrderingSettingsVerifier(assertOrder, query.Expression.Type);
-
-                var actual = isAsync
-                    ? await query.ToArrayAsync()
-                    : query.ToArray();
-
-                var expected = expectedQuery(ExpectedData).ToArray();
-
-                TestHelpers.AssertResults(
-                    expected,
-                    actual,
-                    e => e,
-                    Assert.Equal,
-                    assertOrder);
+                return;
             }
+
+            OrderingSettingsVerifier(assertOrder, query.Expression.Type);
+
+            var actual = async
+                ? await query.ToArrayAsync()
+                : query.ToArray();
+
+            AssertRogueExecution(actual.Length, query);
+
+            var expected = expectedQuery(ExpectedData).ToArray();
+
+            TestHelpers.AssertResults(
+                expected,
+                actual,
+                e => e,
+                Assert.Equal,
+                assertOrder);
         }
 
         public override async Task<List<TResult>> AssertIncludeQuery<TResult>(
@@ -215,59 +217,59 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             List<Func<TResult, object>> clientProjections,
             bool assertOrder,
             int entryCount,
-            bool isAsync,
+            bool async,
             string testMethodName)
         {
-            using (var context = _contextCreator())
+            using var context = _contextCreator();
+            var query = actualQuery(SetSourceCreator(context));
+            if (ProceduralQueryGeneration && !async)
             {
-                var query = actualQuery(SetSourceCreator(context));
-                if (ProceduralQueryGeneration && !isAsync)
-                {
-                    new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
+                new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
 
-                    return default;
-                }
-
-                OrderingSettingsVerifier(assertOrder, query.Expression.Type, elementSorter);
-
-                var actual = isAsync
-                    ? await query.ToListAsync()
-                    : query.ToList();
-
-                var expected = expectedQuery(ExpectedData).ToList();
-
-                if (!assertOrder
-                    && elementSorter == null)
-                {
-                    _entitySorters.TryGetValue(typeof(TResult), out var sorter);
-                    elementSorter = (Func<TResult, object>)sorter;
-                }
-
-                if (elementSorter != null)
-                {
-                    actual = actual.OrderBy(elementSorter).ToList();
-                    expected = expected.OrderBy(elementSorter).ToList();
-                }
-
-                if (clientProjections != null)
-                {
-                    foreach (var clientProjection in clientProjections)
-                    {
-                        var projectedActual = actual.Select(clientProjection).ToList();
-                        var projectedExpected = expected.Select(clientProjection).ToList();
-
-                        _includeResultAsserter.AssertResult(projectedExpected, projectedActual, expectedIncludes);
-                    }
-                }
-                else
-                {
-                    _includeResultAsserter.AssertResult(expected, actual, expectedIncludes);
-                }
-
-                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
-
-                return actual;
+                return default;
             }
+
+            OrderingSettingsVerifier(assertOrder, query.Expression.Type, elementSorter);
+
+            var actual = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            AssertRogueExecution(actual.Count, query);
+
+            var expected = expectedQuery(ExpectedData).ToList();
+
+            if (!assertOrder
+                && elementSorter == null)
+            {
+                _entitySorters.TryGetValue(typeof(TResult), out var sorter);
+                elementSorter = (Func<TResult, object>)sorter;
+            }
+
+            if (elementSorter != null)
+            {
+                actual = actual.OrderBy(elementSorter).ToList();
+                expected = expected.OrderBy(elementSorter).ToList();
+            }
+
+            if (clientProjections != null)
+            {
+                foreach (var clientProjection in clientProjections)
+                {
+                    var projectedActual = actual.Select(clientProjection).ToList();
+                    var projectedExpected = expected.Select(clientProjection).ToList();
+
+                    _includeResultAsserter.AssertResult(projectedExpected, projectedActual, expectedIncludes);
+                }
+            }
+            else
+            {
+                _includeResultAsserter.AssertResult(expected, actual, expectedIncludes);
+            }
+
+            Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
+
+            return actual;
         }
 
         #region Assert termination operation methods
@@ -275,18 +277,16 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public override async Task AssertAny<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).AnyAsync()
-                    : actualQuery(SetSourceCreator(context)).Any();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).AnyAsync()
+                : actualQuery(SetSourceCreator(context)).Any();
 
-                var expected = expectedQuery(ExpectedData).Any();
+            var expected = expectedQuery(ExpectedData).Any();
 
-                Assert.Equal(expected, actual);
-            }
+            Assert.Equal(expected, actual);
         }
 
         public override async Task AssertAny<TResult>(
@@ -294,11 +294,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, bool>> actualPredicate,
             Expression<Func<TResult, bool>> expectedPredicate,
-            bool isAsync = false)
+            bool async = false)
         {
             using (var context = _contextCreator())
             {
-                var actual = isAsync
+                var actual = async
                     ? await actualQuery(SetSourceCreator(context)).AnyAsync(actualPredicate)
                     : actualQuery(SetSourceCreator(context)).Any(actualPredicate);
 
@@ -309,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             using (var context = _contextCreator())
             {
-                var actual = isAsync
+                var actual = async
                     ? await actualQuery(SetSourceCreator(context)).AnyAsync()
                     : actualQuery(SetSourceCreator(context)).Any();
 
@@ -324,18 +324,16 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, bool>> actualPredicate,
             Expression<Func<TResult, bool>> expectedPredicate,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).AllAsync(actualPredicate)
-                    : actualQuery(SetSourceCreator(context)).All(actualPredicate);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).AllAsync(actualPredicate)
+                : actualQuery(SetSourceCreator(context)).All(actualPredicate);
 
-                var expected = expectedQuery(ExpectedData).All(expectedPredicate);
+            var expected = expectedQuery(ExpectedData).All(expectedPredicate);
 
-                Assert.Equal(expected, actual);
-            }
+            Assert.Equal(expected, actual);
         }
 
         public override async Task AssertFirst<TResult>(
@@ -343,19 +341,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).FirstAsync()
-                    : actualQuery(SetSourceCreator(context)).First();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).FirstAsync()
+                : actualQuery(SetSourceCreator(context)).First();
 
-                var expected = expectedQuery(ExpectedData).First();
+            var expected = expectedQuery(ExpectedData).First();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
         }
 
         public override async Task AssertFirst<TResult>(
@@ -365,19 +361,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, bool>> expectedFirstPredicate,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).FirstAsync(actualFirstPredicate)
-                    : actualQuery(SetSourceCreator(context)).First(actualFirstPredicate);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).FirstAsync(actualFirstPredicate)
+                : actualQuery(SetSourceCreator(context)).First(actualFirstPredicate);
 
-                var expected = expectedQuery(ExpectedData).First(expectedFirstPredicate);
+            var expected = expectedQuery(ExpectedData).First(expectedFirstPredicate);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
         }
 
         public override async Task AssertFirstOrDefault<TResult>(
@@ -385,19 +379,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).FirstOrDefaultAsync()
-                    : actualQuery(SetSourceCreator(context)).FirstOrDefault();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).FirstOrDefaultAsync()
+                : actualQuery(SetSourceCreator(context)).FirstOrDefault();
 
-                var expected = expectedQuery(ExpectedData).FirstOrDefault();
+            var expected = expectedQuery(ExpectedData).FirstOrDefault();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
         }
 
         public override async Task AssertFirstOrDefault<TResult>(
@@ -407,19 +399,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, bool>> expectedPredicate,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).FirstOrDefaultAsync(actualPredicate)
-                    : actualQuery(SetSourceCreator(context)).FirstOrDefault(actualPredicate);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).FirstOrDefaultAsync(actualPredicate)
+                : actualQuery(SetSourceCreator(context)).FirstOrDefault(actualPredicate);
 
-                var expected = expectedQuery(ExpectedData).FirstOrDefault(expectedPredicate);
+            var expected = expectedQuery(ExpectedData).FirstOrDefault(expectedPredicate);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
         }
 
         public override async Task AssertSingle<TResult>(
@@ -427,19 +417,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).SingleAsync()
-                    : actualQuery(SetSourceCreator(context)).Single();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).SingleAsync()
+                : actualQuery(SetSourceCreator(context)).Single();
 
-                var expected = expectedQuery(ExpectedData).Single();
+            var expected = expectedQuery(ExpectedData).Single();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
         }
 
         public override async Task AssertSingle<TResult>(
@@ -449,19 +437,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, bool>> expectedFirstPredicate,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).SingleAsync(actualFirstPredicate)
-                    : actualQuery(SetSourceCreator(context)).Single(actualFirstPredicate);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).SingleAsync(actualFirstPredicate)
+                : actualQuery(SetSourceCreator(context)).Single(actualFirstPredicate);
 
-                var expected = expectedQuery(ExpectedData).Single(expectedFirstPredicate);
+            var expected = expectedQuery(ExpectedData).Single(expectedFirstPredicate);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
         }
 
         public override async Task AssertSingleOrDefault<TResult>(
@@ -469,19 +455,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).SingleOrDefaultAsync()
-                    : actualQuery(SetSourceCreator(context)).SingleOrDefault();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).SingleOrDefaultAsync()
+                : actualQuery(SetSourceCreator(context)).SingleOrDefault();
 
-                var expected = expectedQuery(ExpectedData).SingleOrDefault();
+            var expected = expectedQuery(ExpectedData).SingleOrDefault();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
         }
 
         public override async Task AssertSingleOrDefault<TResult>(
@@ -491,19 +475,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, bool>> expectedPredicate,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).SingleOrDefaultAsync(actualPredicate)
-                    : actualQuery(SetSourceCreator(context)).SingleOrDefault(actualPredicate);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).SingleOrDefaultAsync(actualPredicate)
+                : actualQuery(SetSourceCreator(context)).SingleOrDefault(actualPredicate);
 
-                var expected = expectedQuery(ExpectedData).SingleOrDefault(expectedPredicate);
+            var expected = expectedQuery(ExpectedData).SingleOrDefault(expectedPredicate);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
         }
 
         public override async Task AssertLast<TResult>(
@@ -511,19 +493,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).LastAsync()
-                    : actualQuery(SetSourceCreator(context)).Last();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).LastAsync()
+                : actualQuery(SetSourceCreator(context)).Last();
 
-                var expected = expectedQuery(ExpectedData).Last();
+            var expected = expectedQuery(ExpectedData).Last();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
         }
 
         public override async Task AssertLast<TResult>(
@@ -533,19 +513,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, bool>> expectedPredicate,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).LastAsync(actualPredicate)
-                    : actualQuery(SetSourceCreator(context)).Last(actualPredicate);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).LastAsync(actualPredicate)
+                : actualQuery(SetSourceCreator(context)).Last(actualPredicate);
 
-                var expected = expectedQuery(ExpectedData).Last(expectedPredicate);
+            var expected = expectedQuery(ExpectedData).Last(expectedPredicate);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
         }
 
         public override async Task AssertLastOrDefault<TResult>(
@@ -553,19 +531,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).LastOrDefaultAsync()
-                    : actualQuery(SetSourceCreator(context)).LastOrDefault();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).LastOrDefaultAsync()
+                : actualQuery(SetSourceCreator(context)).LastOrDefault();
 
-                var expected = expectedQuery(ExpectedData).LastOrDefault();
+            var expected = expectedQuery(ExpectedData).LastOrDefault();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
         }
 
         public override async Task AssertLastOrDefault<TResult>(
@@ -575,37 +551,33 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, bool>> expectedPredicate,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).LastOrDefaultAsync(actualPredicate)
-                    : actualQuery(SetSourceCreator(context)).LastOrDefault(actualPredicate);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).LastOrDefaultAsync(actualPredicate)
+                : actualQuery(SetSourceCreator(context)).LastOrDefault(actualPredicate);
 
-                var expected = expectedQuery(ExpectedData).LastOrDefault(expectedPredicate);
+            var expected = expectedQuery(ExpectedData).LastOrDefault(expectedPredicate);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
         }
 
         public override async Task AssertCount<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).CountAsync()
-                    : actualQuery(SetSourceCreator(context)).Count();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).CountAsync()
+                : actualQuery(SetSourceCreator(context)).Count();
 
-                var expected = expectedQuery(ExpectedData).Count();
+            var expected = expectedQuery(ExpectedData).Count();
 
-                Assert.Equal(expected, actual);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            Assert.Equal(expected, actual);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertCount<TResult>(
@@ -613,37 +585,33 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, bool>> actualPredicate,
             Expression<Func<TResult, bool>> expectedPredicate,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).CountAsync(actualPredicate)
-                    : actualQuery(SetSourceCreator(context)).Count(actualPredicate);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).CountAsync(actualPredicate)
+                : actualQuery(SetSourceCreator(context)).Count(actualPredicate);
 
-                var expected = expectedQuery(ExpectedData).Count(expectedPredicate);
+            var expected = expectedQuery(ExpectedData).Count(expectedPredicate);
 
-                Assert.Equal(expected, actual);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            Assert.Equal(expected, actual);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertLongCount<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).LongCountAsync()
-                    : actualQuery(SetSourceCreator(context)).LongCount();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).LongCountAsync()
+                : actualQuery(SetSourceCreator(context)).LongCount();
 
-                var expected = expectedQuery(ExpectedData).LongCount();
+            var expected = expectedQuery(ExpectedData).LongCount();
 
-                Assert.Equal(expected, actual);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            Assert.Equal(expected, actual);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertLongCount<TResult>(
@@ -651,19 +619,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, bool>> actualPredicate,
             Expression<Func<TResult, bool>> expectedPredicate,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).LongCountAsync(actualPredicate)
-                    : actualQuery(SetSourceCreator(context)).LongCount(actualPredicate);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).LongCountAsync(actualPredicate)
+                : actualQuery(SetSourceCreator(context)).LongCount(actualPredicate);
 
-                var expected = expectedQuery(ExpectedData).LongCount(expectedPredicate);
+            var expected = expectedQuery(ExpectedData).LongCount(expectedPredicate);
 
-                Assert.Equal(expected, actual);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            Assert.Equal(expected, actual);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertMin<TResult>(
@@ -671,19 +637,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).MinAsync()
-                    : actualQuery(SetSourceCreator(context)).Min();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).MinAsync()
+                : actualQuery(SetSourceCreator(context)).Min();
 
-                var expected = expectedQuery(ExpectedData).Min();
+            var expected = expectedQuery(ExpectedData).Min();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
         }
 
         public override async Task AssertMin<TResult, TSelector>(
@@ -693,19 +657,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, TSelector>> expectedSelector,
             Action<TSelector, TSelector> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).MinAsync(actualSelector)
-                    : actualQuery(SetSourceCreator(context)).Min(actualSelector);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).MinAsync(actualSelector)
+                : actualQuery(SetSourceCreator(context)).Min(actualSelector);
 
-                var expected = expectedQuery(ExpectedData).Min(expectedSelector);
+            var expected = expectedQuery(ExpectedData).Min(expectedSelector);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
         }
 
         public override async Task AssertMax<TResult>(
@@ -713,19 +675,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).MaxAsync()
-                    : actualQuery(SetSourceCreator(context)).Max();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).MaxAsync()
+                : actualQuery(SetSourceCreator(context)).Max();
 
-                var expected = expectedQuery(ExpectedData).Max();
+            var expected = expectedQuery(ExpectedData).Max();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
         }
 
         public override async Task AssertMax<TResult, TSelector>(
@@ -735,209 +695,187 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, TSelector>> expectedSelector,
             Action<TSelector, TSelector> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).MaxAsync(actualSelector)
-                    : actualQuery(SetSourceCreator(context)).Max(actualSelector);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).MaxAsync(actualSelector)
+                : actualQuery(SetSourceCreator(context)).Max(actualSelector);
 
-                var expected = expectedQuery(ExpectedData).Max(expectedSelector);
+            var expected = expectedQuery(ExpectedData).Max(expectedSelector);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
         }
 
         public override async Task AssertSum(
             Func<ISetSource, IQueryable<int>> actualQuery,
             Func<ISetSource, IQueryable<int>> expectedQuery,
             Action<int, int> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).SumAsync()
-                    : actualQuery(SetSourceCreator(context)).Sum();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).SumAsync()
+                : actualQuery(SetSourceCreator(context)).Sum();
 
-                var expected = expectedQuery(ExpectedData).Sum();
+            var expected = expectedQuery(ExpectedData).Sum();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertSum(
             Func<ISetSource, IQueryable<int?>> actualQuery,
             Func<ISetSource, IQueryable<int?>> expectedQuery,
             Action<int?, int?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).SumAsync()
-                    : actualQuery(SetSourceCreator(context)).Sum();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).SumAsync()
+                : actualQuery(SetSourceCreator(context)).Sum();
 
-                var expected = expectedQuery(ExpectedData).Sum();
+            var expected = expectedQuery(ExpectedData).Sum();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertSum(
             Func<ISetSource, IQueryable<long>> actualQuery,
             Func<ISetSource, IQueryable<long>> expectedQuery,
             Action<long, long> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).SumAsync()
-                    : actualQuery(SetSourceCreator(context)).Sum();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).SumAsync()
+                : actualQuery(SetSourceCreator(context)).Sum();
 
-                var expected = expectedQuery(ExpectedData).Sum();
+            var expected = expectedQuery(ExpectedData).Sum();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertSum(
             Func<ISetSource, IQueryable<long?>> actualQuery,
             Func<ISetSource, IQueryable<long?>> expectedQuery,
             Action<long?, long?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).SumAsync()
-                    : actualQuery(SetSourceCreator(context)).Sum();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).SumAsync()
+                : actualQuery(SetSourceCreator(context)).Sum();
 
-                var expected = expectedQuery(ExpectedData).Sum();
+            var expected = expectedQuery(ExpectedData).Sum();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertSum(
             Func<ISetSource, IQueryable<decimal>> actualQuery,
             Func<ISetSource, IQueryable<decimal>> expectedQuery,
             Action<decimal, decimal> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).SumAsync()
-                    : actualQuery(SetSourceCreator(context)).Sum();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).SumAsync()
+                : actualQuery(SetSourceCreator(context)).Sum();
 
-                var expected = expectedQuery(ExpectedData).Sum();
+            var expected = expectedQuery(ExpectedData).Sum();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertSum(
             Func<ISetSource, IQueryable<decimal?>> actualQuery,
             Func<ISetSource, IQueryable<decimal?>> expectedQuery,
             Action<decimal?, decimal?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).SumAsync()
-                    : actualQuery(SetSourceCreator(context)).Sum();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).SumAsync()
+                : actualQuery(SetSourceCreator(context)).Sum();
 
-                var expected = expectedQuery(ExpectedData).Sum();
+            var expected = expectedQuery(ExpectedData).Sum();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertSum(
             Func<ISetSource, IQueryable<float>> actualQuery,
             Func<ISetSource, IQueryable<float>> expectedQuery,
             Action<float, float> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).SumAsync()
-                    : actualQuery(SetSourceCreator(context)).Sum();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).SumAsync()
+                : actualQuery(SetSourceCreator(context)).Sum();
 
-                var expected = expectedQuery(ExpectedData).Sum();
+            var expected = expectedQuery(ExpectedData).Sum();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertSum(
             Func<ISetSource, IQueryable<float?>> actualQuery,
             Func<ISetSource, IQueryable<float?>> expectedQuery,
             Action<float?, float?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).SumAsync()
-                    : actualQuery(SetSourceCreator(context)).Sum();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).SumAsync()
+                : actualQuery(SetSourceCreator(context)).Sum();
 
-                var expected = expectedQuery(ExpectedData).Sum();
+            var expected = expectedQuery(ExpectedData).Sum();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertSum(
             Func<ISetSource, IQueryable<double>> actualQuery,
             Func<ISetSource, IQueryable<double>> expectedQuery,
             Action<double, double> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).SumAsync()
-                    : actualQuery(SetSourceCreator(context)).Sum();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).SumAsync()
+                : actualQuery(SetSourceCreator(context)).Sum();
 
-                var expected = expectedQuery(ExpectedData).Sum();
+            var expected = expectedQuery(ExpectedData).Sum();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertSum(
             Func<ISetSource, IQueryable<double?>> actualQuery,
             Func<ISetSource, IQueryable<double?>> expectedQuery,
             Action<double?, double?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).SumAsync()
-                    : actualQuery(SetSourceCreator(context)).Sum();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).SumAsync()
+                : actualQuery(SetSourceCreator(context)).Sum();
 
-                var expected = expectedQuery(ExpectedData).Sum();
+            var expected = expectedQuery(ExpectedData).Sum();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertSum<TResult>(
@@ -946,19 +884,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, int>> actualSelector,
             Expression<Func<TResult, int>> expectedSelector,
             Action<int, int> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
-                    : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
+                : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
 
-                var expected = expectedQuery(ExpectedData).Sum(expectedSelector);
+            var expected = expectedQuery(ExpectedData).Sum(expectedSelector);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertSum<TResult>(
@@ -967,19 +903,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, int?>> actualSelector,
             Expression<Func<TResult, int?>> expectedSelector,
             Action<int?, int?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
-                    : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
+                : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
 
-                var expected = expectedQuery(ExpectedData).Sum(expectedSelector);
+            var expected = expectedQuery(ExpectedData).Sum(expectedSelector);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertSum<TResult>(
@@ -988,19 +922,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, long>> actualSelector,
             Expression<Func<TResult, long>> expectedSelector,
             Action<long, long> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
-                    : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
+                : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
 
-                var expected = expectedQuery(ExpectedData).Sum(expectedSelector);
+            var expected = expectedQuery(ExpectedData).Sum(expectedSelector);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertSum<TResult>(
@@ -1009,19 +941,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, long?>> actualSelector,
             Expression<Func<TResult, long?>> expectedSelector,
             Action<long?, long?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
-                    : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
+                : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
 
-                var expected = expectedQuery(ExpectedData).Sum(expectedSelector);
+            var expected = expectedQuery(ExpectedData).Sum(expectedSelector);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertSum<TResult>(
@@ -1030,19 +960,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, decimal>> actualSelector,
             Expression<Func<TResult, decimal>> expectedSelector,
             Action<decimal, decimal> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
-                    : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
+                : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
 
-                var expected = expectedQuery(ExpectedData).Sum(expectedSelector);
+            var expected = expectedQuery(ExpectedData).Sum(expectedSelector);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertSum<TResult>(
@@ -1051,19 +979,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, decimal?>> actualSelector,
             Expression<Func<TResult, decimal?>> expectedSelector,
             Action<decimal?, decimal?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
-                    : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
+                : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
 
-                var expected = expectedQuery(ExpectedData).Sum(expectedSelector);
+            var expected = expectedQuery(ExpectedData).Sum(expectedSelector);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertSum<TResult>(
@@ -1072,19 +998,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, float>> actualSelector,
             Expression<Func<TResult, float>> expectedSelector,
             Action<float, float> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
-                    : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
+                : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
 
-                var expected = expectedQuery(ExpectedData).Sum(expectedSelector);
+            var expected = expectedQuery(ExpectedData).Sum(expectedSelector);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertSum<TResult>(
@@ -1093,19 +1017,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, float?>> actualSelector,
             Expression<Func<TResult, float?>> expectedSelector,
             Action<float?, float?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
-                    : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
+                : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
 
-                var expected = expectedQuery(ExpectedData).Sum(expectedSelector);
+            var expected = expectedQuery(ExpectedData).Sum(expectedSelector);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertSum<TResult>(
@@ -1114,19 +1036,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, double>> actualSelector,
             Expression<Func<TResult, double>> expectedSelector,
             Action<double, double> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
-                    : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
+                : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
 
-                var expected = expectedQuery(ExpectedData).Sum(expectedSelector);
+            var expected = expectedQuery(ExpectedData).Sum(expectedSelector);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertSum<TResult>(
@@ -1135,209 +1055,187 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, double?>> actualSelector,
             Expression<Func<TResult, double?>> expectedSelector,
             Action<double?, double?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
-                    : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
+                : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
 
-                var expected = expectedQuery(ExpectedData).Sum(expectedSelector);
+            var expected = expectedQuery(ExpectedData).Sum(expectedSelector);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertAverage(
             Func<ISetSource, IQueryable<int>> actualQuery,
             Func<ISetSource, IQueryable<int>> expectedQuery,
             Action<double, double> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).AverageAsync()
-                    : actualQuery(SetSourceCreator(context)).Average();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).AverageAsync()
+                : actualQuery(SetSourceCreator(context)).Average();
 
-                var expected = expectedQuery(ExpectedData).Average();
+            var expected = expectedQuery(ExpectedData).Average();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertAverage(
             Func<ISetSource, IQueryable<int?>> actualQuery,
             Func<ISetSource, IQueryable<int?>> expectedQuery,
             Action<double?, double?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).AverageAsync()
-                    : actualQuery(SetSourceCreator(context)).Average();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).AverageAsync()
+                : actualQuery(SetSourceCreator(context)).Average();
 
-                var expected = expectedQuery(ExpectedData).Average();
+            var expected = expectedQuery(ExpectedData).Average();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertAverage(
             Func<ISetSource, IQueryable<long>> actualQuery,
             Func<ISetSource, IQueryable<long>> expectedQuery,
             Action<double, double> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).AverageAsync()
-                    : actualQuery(SetSourceCreator(context)).Average();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).AverageAsync()
+                : actualQuery(SetSourceCreator(context)).Average();
 
-                var expected = expectedQuery(ExpectedData).Average();
+            var expected = expectedQuery(ExpectedData).Average();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertAverage(
             Func<ISetSource, IQueryable<long?>> actualQuery,
             Func<ISetSource, IQueryable<long?>> expectedQuery,
             Action<double?, double?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).AverageAsync()
-                    : actualQuery(SetSourceCreator(context)).Average();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).AverageAsync()
+                : actualQuery(SetSourceCreator(context)).Average();
 
-                var expected = expectedQuery(ExpectedData).Average();
+            var expected = expectedQuery(ExpectedData).Average();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertAverage(
             Func<ISetSource, IQueryable<decimal>> actualQuery,
             Func<ISetSource, IQueryable<decimal>> expectedQuery,
             Action<decimal, decimal> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).AverageAsync()
-                    : actualQuery(SetSourceCreator(context)).Average();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).AverageAsync()
+                : actualQuery(SetSourceCreator(context)).Average();
 
-                var expected = expectedQuery(ExpectedData).Average();
+            var expected = expectedQuery(ExpectedData).Average();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertAverage(
             Func<ISetSource, IQueryable<decimal?>> actualQuery,
             Func<ISetSource, IQueryable<decimal?>> expectedQuery,
             Action<decimal?, decimal?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).AverageAsync()
-                    : actualQuery(SetSourceCreator(context)).Average();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).AverageAsync()
+                : actualQuery(SetSourceCreator(context)).Average();
 
-                var expected = expectedQuery(ExpectedData).Average();
+            var expected = expectedQuery(ExpectedData).Average();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertAverage(
             Func<ISetSource, IQueryable<float>> actualQuery,
             Func<ISetSource, IQueryable<float>> expectedQuery,
             Action<float, float> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).AverageAsync()
-                    : actualQuery(SetSourceCreator(context)).Average();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).AverageAsync()
+                : actualQuery(SetSourceCreator(context)).Average();
 
-                var expected = expectedQuery(ExpectedData).Average();
+            var expected = expectedQuery(ExpectedData).Average();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertAverage(
             Func<ISetSource, IQueryable<float?>> actualQuery,
             Func<ISetSource, IQueryable<float?>> expectedQuery,
             Action<float?, float?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).AverageAsync()
-                    : actualQuery(SetSourceCreator(context)).Average();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).AverageAsync()
+                : actualQuery(SetSourceCreator(context)).Average();
 
-                var expected = expectedQuery(ExpectedData).Average();
+            var expected = expectedQuery(ExpectedData).Average();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertAverage(
             Func<ISetSource, IQueryable<double>> actualQuery,
             Func<ISetSource, IQueryable<double>> expectedQuery,
             Action<double, double> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).AverageAsync()
-                    : actualQuery(SetSourceCreator(context)).Average();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).AverageAsync()
+                : actualQuery(SetSourceCreator(context)).Average();
 
-                var expected = expectedQuery(ExpectedData).Average();
+            var expected = expectedQuery(ExpectedData).Average();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertAverage(
             Func<ISetSource, IQueryable<double?>> actualQuery,
             Func<ISetSource, IQueryable<double?>> expectedQuery,
             Action<double?, double?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).AverageAsync()
-                    : actualQuery(SetSourceCreator(context)).Average();
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).AverageAsync()
+                : actualQuery(SetSourceCreator(context)).Average();
 
-                var expected = expectedQuery(ExpectedData).Average();
+            var expected = expectedQuery(ExpectedData).Average();
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertAverage<TResult>(
@@ -1346,19 +1244,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, int>> actualSelector,
             Expression<Func<TResult, int>> expectedSelector,
             Action<double, double> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
-                    : actualQuery(SetSourceCreator(context)).Average(actualSelector);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
+                : actualQuery(SetSourceCreator(context)).Average(actualSelector);
 
-                var expected = expectedQuery(ExpectedData).Average(expectedSelector);
+            var expected = expectedQuery(ExpectedData).Average(expectedSelector);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertAverage<TResult>(
@@ -1367,19 +1263,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, int?>> actualSelector,
             Expression<Func<TResult, int?>> expectedSelector,
             Action<double?, double?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
-                    : actualQuery(SetSourceCreator(context)).Average(actualSelector);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
+                : actualQuery(SetSourceCreator(context)).Average(actualSelector);
 
-                var expected = expectedQuery(ExpectedData).Average(expectedSelector);
+            var expected = expectedQuery(ExpectedData).Average(expectedSelector);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertAverage<TResult>(
@@ -1388,19 +1282,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, long>> actualSelector,
             Expression<Func<TResult, long>> expectedSelector,
             Action<double, double> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
-                    : actualQuery(SetSourceCreator(context)).Average(actualSelector);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
+                : actualQuery(SetSourceCreator(context)).Average(actualSelector);
 
-                var expected = expectedQuery(ExpectedData).Average(expectedSelector);
+            var expected = expectedQuery(ExpectedData).Average(expectedSelector);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertAverage<TResult>(
@@ -1409,19 +1301,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, long?>> actualSelector,
             Expression<Func<TResult, long?>> expectedSelector,
             Action<double?, double?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
-                    : actualQuery(SetSourceCreator(context)).Average(actualSelector);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
+                : actualQuery(SetSourceCreator(context)).Average(actualSelector);
 
-                var expected = expectedQuery(ExpectedData).Average(expectedSelector);
+            var expected = expectedQuery(ExpectedData).Average(expectedSelector);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertAverage<TResult>(
@@ -1430,19 +1320,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, decimal>> actualSelector,
             Expression<Func<TResult, decimal>> expectedSelector,
             Action<decimal, decimal> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
-                    : actualQuery(SetSourceCreator(context)).Average(actualSelector);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
+                : actualQuery(SetSourceCreator(context)).Average(actualSelector);
 
-                var expected = expectedQuery(ExpectedData).Average(expectedSelector);
+            var expected = expectedQuery(ExpectedData).Average(expectedSelector);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertAverage<TResult>(
@@ -1451,19 +1339,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, decimal?>> actualSelector,
             Expression<Func<TResult, decimal?>> expectedSelector,
             Action<decimal?, decimal?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
-                    : actualQuery(SetSourceCreator(context)).Average(actualSelector);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
+                : actualQuery(SetSourceCreator(context)).Average(actualSelector);
 
-                var expected = expectedQuery(ExpectedData).Average(expectedSelector);
+            var expected = expectedQuery(ExpectedData).Average(expectedSelector);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertAverage<TResult>(
@@ -1472,19 +1358,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, float>> actualSelector,
             Expression<Func<TResult, float>> expectedSelector,
             Action<float, float> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
-                    : actualQuery(SetSourceCreator(context)).Average(actualSelector);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
+                : actualQuery(SetSourceCreator(context)).Average(actualSelector);
 
-                var expected = expectedQuery(ExpectedData).Average(expectedSelector);
+            var expected = expectedQuery(ExpectedData).Average(expectedSelector);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertAverage<TResult>(
@@ -1493,19 +1377,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, float?>> actualSelector,
             Expression<Func<TResult, float?>> expectedSelector,
             Action<float?, float?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
-                    : actualQuery(SetSourceCreator(context)).Average(actualSelector);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
+                : actualQuery(SetSourceCreator(context)).Average(actualSelector);
 
-                var expected = expectedQuery(ExpectedData).Average(expectedSelector);
+            var expected = expectedQuery(ExpectedData).Average(expectedSelector);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertAverage<TResult>(
@@ -1514,19 +1396,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, double>> actualSelector,
             Expression<Func<TResult, double>> expectedSelector,
             Action<double, double> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
-                    : actualQuery(SetSourceCreator(context)).Average(actualSelector);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
+                : actualQuery(SetSourceCreator(context)).Average(actualSelector);
 
-                var expected = expectedQuery(ExpectedData).Average(expectedSelector);
+            var expected = expectedQuery(ExpectedData).Average(expectedSelector);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         public override async Task AssertAverage<TResult>(
@@ -1535,19 +1415,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, double?>> actualSelector,
             Expression<Func<TResult, double?>> expectedSelector,
             Action<double?, double?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = isAsync
-                    ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
-                    : actualQuery(SetSourceCreator(context)).Average(actualSelector);
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
+                : actualQuery(SetSourceCreator(context)).Average(actualSelector);
 
-                var expected = expectedQuery(ExpectedData).Average(expectedSelector);
+            var expected = expectedQuery(ExpectedData).Average(expectedSelector);
 
-                AssertEqual(expected, actual, asserter);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         #endregion

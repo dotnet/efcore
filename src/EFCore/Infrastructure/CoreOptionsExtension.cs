@@ -33,11 +33,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private IServiceProvider _applicationServiceProvider;
         private IModel _model;
         private ILoggerFactory _loggerFactory;
+        private IDbContextLogger _contextLogger;
         private IMemoryCache _memoryCache;
         private bool _sensitiveDataLoggingEnabled;
         private bool _detailedErrorsEnabled;
         private QueryTrackingBehavior _queryTrackingBehavior = QueryTrackingBehavior.TrackAll;
-        private IDictionary<Type, Type> _replacedServices;
+        private IDictionary<(Type, Type), Type> _replacedServices;
         private int? _maxPoolSize;
         private bool _serviceProviderCachingEnabled = true;
         private DbContextOptionsExtensionInfo _info;
@@ -66,6 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             _applicationServiceProvider = copyFrom.ApplicationServiceProvider;
             _model = copyFrom.Model;
             _loggerFactory = copyFrom.LoggerFactory;
+            _contextLogger = copyFrom.DbContextLogger;
             _memoryCache = copyFrom.MemoryCache;
             _sensitiveDataLoggingEnabled = copyFrom.IsSensitiveDataLoggingEnabled;
             _detailedErrorsEnabled = copyFrom.DetailedErrorsEnabled;
@@ -77,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             if (copyFrom._replacedServices != null)
             {
-                _replacedServices = new Dictionary<Type, Type>(copyFrom._replacedServices);
+                _replacedServices = new Dictionary<(Type, Type), Type>(copyFrom._replacedServices);
             }
         }
 
@@ -172,6 +174,21 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
+        /// <param name="contextLogger"> The option to change. </param>
+        /// <returns> A new instance with the option changed. </returns>
+        public virtual CoreOptionsExtension WithDbContextLogger([CanBeNull] IDbContextLogger contextLogger)
+        {
+            var clone = Clone();
+
+            clone._contextLogger = contextLogger;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
+        ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
+        /// </summary>
         /// <param name="sensitiveDataLoggingEnabled"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
         public virtual CoreOptionsExtension WithSensitiveDataLoggingEnabled(bool sensitiveDataLoggingEnabled)
@@ -218,18 +235,22 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
         /// <param name="serviceType"> The service contract. </param>
-        /// <param name="implementationType"> The implementation type to use for the service. </param>
+        /// <param name="newImplementationType"> The implementation type to use for the service. </param>
+        /// <param name="currentImplementationType"> The specific existing implementation type to replace. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithReplacedService([NotNull] Type serviceType, [NotNull] Type implementationType)
+        public virtual CoreOptionsExtension WithReplacedService(
+            [NotNull] Type serviceType,
+            [NotNull] Type newImplementationType,
+            [CanBeNull] Type currentImplementationType = null)
         {
             var clone = Clone();
 
             if (clone._replacedServices == null)
             {
-                clone._replacedServices = new Dictionary<Type, Type>();
+                clone._replacedServices = new Dictionary<(Type, Type), Type>();
             }
 
-            clone._replacedServices[serviceType] = implementationType;
+            clone._replacedServices[(serviceType, currentImplementationType)] = newImplementationType;
 
             return clone;
         }
@@ -319,6 +340,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual ILoggerFactory LoggerFactory => _loggerFactory;
 
         /// <summary>
+        ///     The option set from the <see cref="DbContextOptionsBuilder.LogTo(Action{string},LogLevel,DbContextLoggerOptions?)" /> method.
+        /// </summary>
+        public virtual IDbContextLogger DbContextLogger => _contextLogger;
+
+        /// <summary>
         ///     The option set from the <see cref="DbContextOptionsBuilder.UseMemoryCache" /> method.
         /// </summary>
         public virtual IMemoryCache MemoryCache => _memoryCache;
@@ -351,7 +377,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The options set from the <see cref="DbContextOptionsBuilder.ReplaceService{TService,TImplementation}" /> method.
         /// </summary>
-        public virtual IReadOnlyDictionary<Type, Type> ReplacedServices => (IReadOnlyDictionary<Type, Type>)_replacedServices;
+        public virtual IReadOnlyDictionary<(Type, Type), Type> ReplacedServices => (IReadOnlyDictionary<(Type, Type), Type>)_replacedServices;
 
         /// <summary>
         ///     The option set from the
@@ -486,7 +512,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     foreach (var replacedService in Extension._replacedServices)
                     {
-                        debugInfo["Core:" + nameof(DbContextOptionsBuilder.ReplaceService) + ":" + replacedService.Key.DisplayName()]
+                        var (serviceType, implementationType) = replacedService.Key;
+
+                        debugInfo["Core:"
+                                + nameof(DbContextOptionsBuilder.ReplaceService)
+                                + ":"
+                                + serviceType.DisplayName()
+                                + (implementationType == null ? "" : ", " + implementationType.DisplayName())]
                             = replacedService.Value.GetHashCode().ToString(CultureInfo.InvariantCulture);
                     }
                 }

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -128,27 +127,5 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         protected override TestHelpers TestHelpers => CosmosTestHelpers.Instance;
-
-        private class Customer
-        {
-            public int Id { get; set; }
-            public string Name { get; set; }
-            public string PartitionId { get; set; }
-            public ICollection<Order> Orders { get; set; }
-        }
-
-        private class Order
-        {
-            public int Id { get; set; }
-            public string PartitionId { get; set; }
-            public Customer Customer { get; set; }
-            public OrderDetails OrderDetails { get; set; }
-        }
-
-        [Owned]
-        private class OrderDetails
-        {
-            public string ShippingAddress { get; set; }
-        }
     }
 }

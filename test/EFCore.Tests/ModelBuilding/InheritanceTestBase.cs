@@ -373,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .WithOne(e => e.SpecialOrderCombination)
                     .HasPrincipalKey<OrderCombination>(e => e.Id);
 
-                Assert.Null(dependentEntityBuilder.Metadata.GetNavigations().Single().FindInverse());
+                Assert.Null(dependentEntityBuilder.Metadata.GetNavigations().Single().Inverse);
                 var newFk = derivedDependentEntityBuilder.Metadata.GetDeclaredNavigations().Single().ForeignKey;
                 Assert.Equal(nameof(SpecialOrder.SpecialOrderCombination), newFk.DependentToPrincipal.Name);
                 Assert.Equal(nameof(OrderCombination.Order), newFk.PrincipalToDependent.Name);
@@ -400,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .WithOne()
                     .HasForeignKey<SpecialOrder>(e => e.SpecialCustomerId);
 
-                Assert.Null(dependentEntityBuilder.Metadata.GetNavigations().Single().FindInverse());
+                Assert.Null(dependentEntityBuilder.Metadata.GetNavigations().Single().Inverse);
                 var newFk = principalEntityBuilder.Metadata.GetDeclaredNavigations().Single().ForeignKey;
                 Assert.Null(newFk.DependentToPrincipal);
                 Assert.Equal(nameof(OrderCombination.Order), newFk.PrincipalToDependent.Name);
@@ -725,11 +725,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var bookLabel = modelBuilder.Model.FindEntityType(typeof(BookLabel));
                 var specialNavigation = bookLabel.GetDeclaredNavigations().Single(n => n.Name == nameof(BookLabel.SpecialBookLabel));
-                Assert.Equal(typeof(SpecialBookLabel), specialNavigation.GetTargetType().ClrType);
-                Assert.Equal(nameof(SpecialBookLabel.BookLabel), specialNavigation.FindInverse().Name);
+                Assert.Equal(typeof(SpecialBookLabel), specialNavigation.TargetEntityType.ClrType);
+                Assert.Equal(nameof(SpecialBookLabel.BookLabel), specialNavigation.Inverse.Name);
                 var anotherNavigation = bookLabel.GetDeclaredNavigations().Single(n => n.Name == nameof(BookLabel.AnotherBookLabel));
-                Assert.Equal(typeof(AnotherBookLabel), anotherNavigation.GetTargetType().ClrType);
-                Assert.Null(anotherNavigation.FindInverse());
+                Assert.Equal(typeof(AnotherBookLabel), anotherNavigation.TargetEntityType.ClrType);
+                Assert.Null(anotherNavigation.Inverse);
             }
 
             [ConditionalFact]
@@ -763,15 +763,15 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var citizen = modelBuilder.Model.FindEntityType(typeof(CitizenViewModel));
                 var citizenNavigation = citizen.GetDeclaredNavigations().Single(n => n.Name == nameof(CitizenViewModel.CityVM));
-                Assert.Equal(nameof(CityViewModel.People), citizenNavigation.FindInverse().Name);
+                Assert.Equal(nameof(CityViewModel.People), citizenNavigation.Inverse.Name);
 
                 var doctor = modelBuilder.Model.FindEntityType(typeof(DoctorViewModel));
                 var doctorNavigation = doctor.GetDeclaredNavigations().Single(n => n.Name == nameof(CitizenViewModel.CityVM));
-                Assert.Equal(nameof(CityViewModel.Medics), doctorNavigation.FindInverse().Name);
+                Assert.Equal(nameof(CityViewModel.Medics), doctorNavigation.Inverse.Name);
 
                 var police = modelBuilder.Model.FindEntityType(typeof(PoliceViewModel));
                 var policeNavigation = police.GetDeclaredNavigations().Single(n => n.Name == nameof(CitizenViewModel.CityVM));
-                Assert.Equal(nameof(CityViewModel.Police), policeNavigation.FindInverse().Name);
+                Assert.Equal(nameof(CityViewModel.Police), policeNavigation.Inverse.Name);
 
                 Assert.Empty(modelBuilder.Model.FindEntityType(typeof(CityViewModel)).GetForeignKeys());
 

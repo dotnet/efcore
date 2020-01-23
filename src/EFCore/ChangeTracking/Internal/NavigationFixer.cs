@@ -3,10 +3,10 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
@@ -60,8 +60,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var foreignKey = navigation.ForeignKey;
             var stateManager = entry.StateManager;
-            var inverse = navigation.FindInverse();
-            var targetEntityType = navigation.GetTargetType();
+            var inverse = navigation.Inverse;
+            var targetEntityType = navigation.TargetEntityType;
 
             var oldTargetEntry = oldValue == null ? null : stateManager.TryGetEntry(oldValue, targetEntityType);
             if (oldTargetEntry?.EntityState == EntityState.Detached)
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 _inFixup = true;
 
-                if (navigation.IsDependentToPrincipal())
+                if (navigation.IsOnDependent)
                 {
                     if (newValue != null)
                     {
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
                 else
                 {
-                    Debug.Assert(foreignKey.IsUnique);
+                    Check.DebugAssert(foreignKey.IsUnique, $"foreignKey {foreignKey} is not unique");
 
                     if (oldTargetEntry != null)
                     {
@@ -220,8 +220,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var foreignKey = navigation.ForeignKey;
             var stateManager = entry.StateManager;
-            var inverse = navigation.FindInverse();
-            var targetEntityType = navigation.GetTargetType();
+            var inverse = navigation.Inverse;
+            var targetEntityType = navigation.TargetEntityType;
 
             foreach (var oldValue in removed)
             {
@@ -655,7 +655,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             var navigationValue = entry[principalToDependent];
                             if (navigationValue != null)
                             {
-                                if (principalToDependent.IsCollection())
+                                if (principalToDependent.IsCollection)
                                 {
                                     var dependents = ((IEnumerable)navigationValue).Cast<object>().ToList();
                                     foreach (var dependentEntity in dependents)
@@ -676,7 +676,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 }
                                 else
                                 {
-                                    var targetEntityType = principalToDependent.GetTargetType();
+                                    var targetEntityType = principalToDependent.TargetEntityType;
                                     var dependentEntry = stateManager.TryGetEntry(navigationValue, targetEntityType);
                                     if (dependentEntry == null
                                         || dependentEntry.EntityState == EntityState.Detached)
@@ -703,7 +703,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         var navigationValue = entry[dependentToPrincipal];
                         if (navigationValue != null)
                         {
-                            var targetEntityType = dependentToPrincipal.GetTargetType();
+                            var targetEntityType = dependentToPrincipal.TargetEntityType;
                             var principalEntry = stateManager.TryGetEntry(navigationValue, targetEntityType);
                             if (principalEntry == null
                                 || principalEntry.EntityState == EntityState.Detached)
@@ -737,9 +737,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 var setModified = referencedEntry.EntityState != EntityState.Unchanged;
 
-                if (!navigation.IsDependentToPrincipal())
+                if (!navigation.IsOnDependent)
                 {
-                    if (navigation.IsCollection())
+                    if (navigation.IsCollection)
                     {
                         if (entry.CollectionContains(navigation, referencedEntry))
                         {
@@ -865,6 +865,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             object dependentValue,
             object principalValue)
             => (principalProperty.GetKeyValueComparer()
+                    ?? principalProperty.GetValueComparer()
                     ?? principalProperty.GetTypeMapping().KeyComparer)
                 ?.Equals(dependentValue, principalValue)
                 ?? StructuralComparisons.StructuralEqualityComparer.Equals(
@@ -996,7 +997,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             InternalEntityEntry value,
             bool fromQuery)
         {
-            if (navigation.IsCollection())
+            if (navigation.IsCollection)
             {
                 AddToCollection(entry, navigation, value, fromQuery);
             }
@@ -1012,7 +1013,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             InternalEntityEntry value,
             bool fromQuery)
         {
-            if (navigation.IsCollection())
+            if (navigation.IsCollection)
             {
                 RemoveFromCollection(entry, navigation, value);
             }

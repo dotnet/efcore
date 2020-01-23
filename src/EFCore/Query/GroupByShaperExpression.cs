@@ -4,13 +4,20 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class GroupByShaperExpression : Expression, IPrintableExpression
     {
-        public GroupByShaperExpression(Expression keySelector, Expression elementSelector)
+        public GroupByShaperExpression(
+            [NotNull] Expression keySelector,
+            [NotNull] Expression elementSelector)
         {
+            Check.NotNull(keySelector, nameof(keySelector));
+            Check.NotNull(elementSelector, nameof(elementSelector));
+
             KeySelector = keySelector;
             ElementSelector = elementSelector;
         }
@@ -23,6 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.AppendLine($"{nameof(GroupByShaperExpression)}:");
             expressionPrinter.Append("KeySelector: ");
             expressionPrinter.Visit(KeySelector);
@@ -34,15 +43,22 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
+            Check.NotNull(visitor, nameof(visitor));
+
             var keySelector = visitor.Visit(KeySelector);
             var elementSelector = visitor.Visit(ElementSelector);
 
             return Update(keySelector, elementSelector);
         }
 
-        public virtual GroupByShaperExpression Update(Expression keySelector, Expression elementSelector)
-            => keySelector != KeySelector || elementSelector != ElementSelector
+        public virtual GroupByShaperExpression Update([NotNull] Expression keySelector, [NotNull] Expression elementSelector)
+        {
+            Check.NotNull(keySelector, nameof(keySelector));
+            Check.NotNull(elementSelector, nameof(elementSelector));
+
+            return keySelector != KeySelector || elementSelector != ElementSelector
                 ? new GroupByShaperExpression(keySelector, elementSelector)
                 : this;
+        }
     }
 }

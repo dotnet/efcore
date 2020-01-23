@@ -10,6 +10,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     internal static class EnumerableMethods
     {
+        public static MethodInfo AsEnumerable { get; }
         public static MethodInfo Cast { get; }
         public static MethodInfo OfType { get; }
 
@@ -19,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore
         public static MethodInfo Contains { get; }
 
         public static MethodInfo ToList { get; }
+        public static MethodInfo ToArray { get; }
 
         public static MethodInfo Concat { get; }
         public static MethodInfo Except { get; }
@@ -126,10 +128,12 @@ namespace Microsoft.EntityFrameworkCore
 
         static EnumerableMethods()
         {
-            var enumerableMethods = typeof(Enumerable).GetTypeInfo()
+            var enumerableMethods = typeof(Enumerable)
                 .GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
                 .ToList();
 
+            AsEnumerable = enumerableMethods.Single(
+                mi => mi.Name == nameof(Enumerable.AsEnumerable) && mi.IsGenericMethod && mi.GetParameters().Length == 1);
             Cast = enumerableMethods.Single(
                 mi => mi.Name == nameof(Enumerable.Cast) && mi.GetParameters().Length == 1);
             OfType = enumerableMethods.Single(
@@ -150,6 +154,8 @@ namespace Microsoft.EntityFrameworkCore
 
             ToList = enumerableMethods.Single(
                 mi => mi.Name == nameof(Enumerable.ToList) && mi.GetParameters().Length == 1);
+            ToArray = enumerableMethods.Single(
+                mi => mi.Name == nameof(Enumerable.ToArray) && mi.GetParameters().Length == 1);
 
             Concat = enumerableMethods.Single(
                 mi => mi.Name == nameof(Enumerable.Concat) && mi.GetParameters().Length == 2);

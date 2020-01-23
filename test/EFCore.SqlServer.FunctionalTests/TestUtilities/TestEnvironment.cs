@@ -52,21 +52,19 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 {
                     sqlConnection.Open();
 
-                    using (var command = new SqlCommand(
-                        "SELECT FULLTEXTSERVICEPROPERTY('IsFullTextInstalled')", sqlConnection))
+                    using var command = new SqlCommand(
+                        "SELECT FULLTEXTSERVICEPROPERTY('IsFullTextInstalled')", sqlConnection);
+                    var result = (int)command.ExecuteScalar();
+
+                    _fullTextInstalled = result == 1;
+
+                    if (_fullTextInstalled.Value)
                     {
-                        var result = (int)command.ExecuteScalar();
+                        var flag = GetFlag("SupportsFullTextSearch");
 
-                        _fullTextInstalled = result == 1;
-
-                        if (_fullTextInstalled.Value)
+                        if (flag.HasValue)
                         {
-                            var flag = GetFlag("SupportsFullTextSearch");
-
-                            if (flag.HasValue)
-                            {
-                                return flag.Value;
-                            }
+                            return flag.Value;
                         }
                     }
                 }

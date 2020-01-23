@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -36,7 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             ExpressionType.Equal,
             ExpressionType.NotEqual,
             ExpressionType.ExclusiveOr,
-            ExpressionType.Coalesce,
             ExpressionType.RightShift,
             ExpressionType.LeftShift
         };
@@ -54,10 +54,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public SqlBinaryExpression(
             ExpressionType operatorType,
-            SqlExpression left,
-            SqlExpression right,
-            Type type,
-            CoreTypeMapping typeMapping)
+            [NotNull] SqlExpression left,
+            [NotNull] SqlExpression right,
+            [NotNull] Type type,
+            [CanBeNull] CoreTypeMapping typeMapping)
             : base(type, typeMapping)
         {
             Check.NotNull(left, nameof(left));
@@ -101,6 +101,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
+            Check.NotNull(visitor, nameof(visitor));
+
             var left = (SqlExpression)visitor.Visit(Left);
             var right = (SqlExpression)visitor.Visit(Right);
 
@@ -113,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlBinaryExpression Update(SqlExpression left, SqlExpression right)
+        public virtual SqlBinaryExpression Update([NotNull] SqlExpression left, [NotNull] SqlExpression right)
             => left != Left || right != Right
                 ? new SqlBinaryExpression(OperatorType, left, right, Type, TypeMapping)
                 : this;
@@ -126,6 +128,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public override void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             var requiresBrackets = RequiresBrackets(Left);
 
             if (requiresBrackets)
@@ -155,12 +159,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             {
                 expressionPrinter.Append(")");
             }
-        }
 
-        private bool RequiresBrackets(SqlExpression expression)
-        {
-            return expression is SqlBinaryExpression sqlBinary
-                   && sqlBinary.OperatorType != ExpressionType.Coalesce;
+            static bool RequiresBrackets(SqlExpression expression) => expression is SqlBinaryExpression;
         }
 
         /// <summary>

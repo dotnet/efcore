@@ -246,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         private static object[] GetLoadValues(INavigation navigation, InternalEntityEntry entry)
         {
-            var properties = navigation.IsDependentToPrincipal()
+            var properties = navigation.IsOnDependent
                 ? navigation.ForeignKey.Properties
                 : navigation.ForeignKey.PrincipalKey.Properties;
 
@@ -267,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         private static IReadOnlyList<IProperty> GetLoadProperties(INavigation navigation)
-            => navigation.IsDependentToPrincipal()
+            => navigation.IsOnDependent
                 ? navigation.ForeignKey.PrincipalKey.Properties
                 : navigation.ForeignKey.Properties;
 

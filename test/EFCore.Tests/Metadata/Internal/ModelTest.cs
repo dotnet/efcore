@@ -107,9 +107,40 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
+        public void Can_add_and_remove_shared_entity()
+        {
+            var model = CreateModel();
+            var entityTypeName = "SharedCustomer1";
+            Assert.Null(model.FindEntityType(typeof(Customer)));
+            Assert.Null(model.FindEntityType(entityTypeName));
+
+            var entityType = model.AddEntityType(entityTypeName, typeof(Customer));
+
+            Assert.Equal(typeof(Customer), entityType.ClrType);
+            Assert.Equal(entityTypeName, entityType.Name);
+            Assert.NotNull(model.FindEntityType(entityTypeName));
+            Assert.Same(model, entityType.Model);
+            Assert.NotNull(((EntityType)entityType).Builder);
+
+            Assert.Same(entityType, model.FindEntityType(entityTypeName));
+            Assert.Equal(
+                CoreStrings.CannotFindEntityWithClrTypeWhenShared(typeof(Customer).DisplayName()),
+                Assert.Throws<InvalidOperationException>(
+                    () => model.FindEntityType(typeof(Customer))).Message);
+
+            Assert.Equal(new[] { entityType }, model.GetEntityTypes().ToArray());
+
+            Assert.Same(entityType, model.RemoveEntityType(entityType.Name));
+
+            Assert.Null(model.RemoveEntityType(entityType.Name));
+            Assert.Null(model.FindEntityType(entityTypeName));
+            Assert.Null(((EntityType)entityType).Builder);
+        }
+
+        [ConditionalFact]
         public void Can_add_weak_entity_types()
         {
-            IMutableModel model = CreateModel();
+            var model = CreateModel();
             var customerType = model.AddEntityType(typeof(Customer));
             var idProperty = customerType.AddProperty(Customer.IdProperty);
             var customerKey = customerType.AddKey(idProperty);
