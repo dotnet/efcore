@@ -32,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             query = new EnumerableToQueryableMethodConvertingExpressionVisitor().Visit(query);
             query = new QueryMetadataExtractingExpressionVisitor(_queryCompilationContext).Visit(query);
             query = new InvocationExpressionRemovingExpressionVisitor().Visit(query);
+            query = new LanguageNormalizingExpressionVisitor().Visit(query);
             query = new AllAnyToContainsRewritingExpressionVisitor().Visit(query);
             query = new GroupJoinFlatteningExpressionVisitor().Visit(query);
             query = new NullCheckRemovingExpressionVisitor().Visit(query);
