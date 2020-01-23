@@ -7043,7 +7043,9 @@ GROUP BY [c].[Name]");
             await base.Group_by_on_StartsWith_with_null_parameter_as_argument(async);
 
             AssertSql(
-                @"");
+                @"SELECT CAST(0 AS bit)
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
         }
 
         public override async Task Group_by_with_having_StartsWith_with_null_parameter_as_argument(bool async)

@@ -7105,7 +7105,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(g => new { g.Key, Aggregate = g.Max() })));
         }
 
-        [ConditionalTheory(Skip = "issue #19020")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Group_by_on_StartsWith_with_null_parameter_as_argument(bool async)
         {
@@ -7113,7 +7113,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return AssertQueryScalar(
                 async,
-                ss => ss.Set<Gear>().GroupBy(g => g.FullName.StartsWith(prm)).Select(g => g.Key));
+                ss => ss.Set<Gear>().GroupBy(g => g.FullName.StartsWith(prm)).Select(g => g.Key),
+                ss => ss.Set<Gear>().Select(g => false));
         }
 
         [ConditionalTheory]
