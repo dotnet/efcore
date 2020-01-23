@@ -7471,28 +7471,28 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Can_group_by_indexed_property_on_query(bool isAsync)
+        public virtual Task Can_group_by_indexed_property_on_query(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<City>().GroupBy(c => c["Nation"]).Select(g => g.Count()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Can_group_by_converted_indexed_property_on_query(bool isAsync)
+        public virtual Task Can_group_by_converted_indexed_property_on_query(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<City>().GroupBy(c => (string)c["Nation"]).Select(g => g.Count()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Can_join_on_indexed_property_on_query(bool isAsync)
+        public virtual Task Can_join_on_indexed_property_on_query(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss =>
                     (from c1 in ss.Set<City>()
                      join c2 in ss.Set<City>()
@@ -7502,41 +7502,51 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Projecting_index_property_ignores_include(bool isAsync)
+        public virtual Task Projecting_index_property_ignores_include(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => from c in ss.Set<City>().Include(c => c.BornGears).AsTracking()
                       select new { Nation = c["Nation"] });
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Indexer_property_is_pushdown_into_subquery(bool isAsync)
+        public virtual Task Indexer_property_is_pushdown_into_subquery(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Gear>().Where(g => ss.Set<City>().Where(c => c.Name == g.CityOfBirthName).FirstOrDefault()["Nation"] == null));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Conditional_with_conditions_evaluating_to_false_gets_optimized(bool isAsync)
+        public virtual Task Conditional_with_conditions_evaluating_to_false_gets_optimized(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Gear>().Select(g => g.Nickname == null && g.Nickname != null ? g.CityOfBirthName : g.FullName));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Conditional_with_conditions_evaluating_to_true_gets_optimized(bool isAsync)
+        public virtual Task Conditional_with_conditions_evaluating_to_true_gets_optimized(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Gear>().Select(g => g.Nickname == null || g.Nickname != null ? g.CityOfBirthName : g.FullName));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_required_string_column_compared_to_null_parameter(bool async)
+        {
+            var nullParameter = default(string);
+
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Gear>().Select(g => g.Nickname == nullParameter));
+        }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 

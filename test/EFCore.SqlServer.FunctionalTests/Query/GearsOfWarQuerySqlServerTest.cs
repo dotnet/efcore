@@ -7445,9 +7445,9 @@ WHERE [c].[Nation] IS NOT NULL
 ORDER BY [c].[Nation], [c].[Name]");
         }
 
-        public override async Task Can_group_by_indexed_property_on_query(bool isAsync)
+        public override async Task Can_group_by_indexed_property_on_query(bool async)
         {
-            await base.Can_group_by_indexed_property_on_query(isAsync);
+            await base.Can_group_by_indexed_property_on_query(async);
 
             AssertSql(
                 @"SELECT COUNT(*)
@@ -7455,9 +7455,9 @@ FROM [Cities] AS [c]
 GROUP BY [c].[Nation]");
         }
 
-        public override async Task Can_group_by_converted_indexed_property_on_query(bool isAsync)
+        public override async Task Can_group_by_converted_indexed_property_on_query(bool async)
         {
-            await base.Can_group_by_converted_indexed_property_on_query(isAsync);
+            await base.Can_group_by_converted_indexed_property_on_query(async);
 
             AssertSql(
                 @"SELECT COUNT(*)
@@ -7465,9 +7465,9 @@ FROM [Cities] AS [c]
 GROUP BY [c].[Nation]");
         }
 
-        public override async Task Can_join_on_indexed_property_on_query(bool isAsync)
+        public override async Task Can_join_on_indexed_property_on_query(bool async)
         {
-            await base.Can_join_on_indexed_property_on_query(isAsync);
+            await base.Can_join_on_indexed_property_on_query(async);
 
             AssertSql(
                 @"SELECT [c].[Name], [c0].[Location]
@@ -7475,18 +7475,18 @@ FROM [Cities] AS [c]
 INNER JOIN [Cities] AS [c0] ON [c].[Nation] = [c0].[Nation]");
         }
 
-        public override async Task Projecting_index_property_ignores_include(bool isAsync)
+        public override async Task Projecting_index_property_ignores_include(bool async)
         {
-            await base.Projecting_index_property_ignores_include(isAsync);
+            await base.Projecting_index_property_ignores_include(async);
 
             AssertSql(
                 @"SELECT [c].[Nation]
 FROM [Cities] AS [c]");
         }
 
-        public override async Task Indexer_property_is_pushdown_into_subquery(bool isAsync)
+        public override async Task Indexer_property_is_pushdown_into_subquery(bool async)
         {
-            await base.Indexer_property_is_pushdown_into_subquery(isAsync);
+            await base.Indexer_property_is_pushdown_into_subquery(async);
 
             AssertSql(
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
@@ -7497,9 +7497,9 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND (
     WHERE [c].[Name] = [g].[CityOfBirthName]) IS NULL");
         }
 
-        public override async Task Conditional_with_conditions_evaluating_to_false_gets_optimized(bool isAsync)
+        public override async Task Conditional_with_conditions_evaluating_to_false_gets_optimized(bool async)
         {
-            await base.Conditional_with_conditions_evaluating_to_false_gets_optimized(isAsync);
+            await base.Conditional_with_conditions_evaluating_to_false_gets_optimized(async);
 
             AssertSql(
                 @"SELECT [g].[FullName]
@@ -7507,12 +7507,22 @@ FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
         }
 
-        public override async Task Conditional_with_conditions_evaluating_to_true_gets_optimized(bool isAsync)
+        public override async Task Conditional_with_conditions_evaluating_to_true_gets_optimized(bool async)
         {
-            await base.Conditional_with_conditions_evaluating_to_true_gets_optimized(isAsync);
+            await base.Conditional_with_conditions_evaluating_to_true_gets_optimized(async);
 
             AssertSql(
                 @"SELECT [g].[CityOfBirthName]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
+        }
+
+        public override async Task Projecting_required_string_column_compared_to_null_parameter(bool async)
+        {
+            await base.Projecting_required_string_column_compared_to_null_parameter(async);
+
+            AssertSql(
+                @"SELECT CAST(0 AS bit)
 FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
         }
