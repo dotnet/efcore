@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             if (hasDependencyContext)
             {
-                var candidateAssets = new Dictionary<string, int>();
+                var candidateAssets = new Dictionary<(string, string), int>();
                 var rid = RuntimeEnvironment.GetRuntimeIdentifier();
                 var rids = DependencyContext.Default.RuntimeGraph.FirstOrDefault(g => g.Runtime == rid)?.Fallbacks.ToList()
                     ?? new List<string>();
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 var fallbacks = rids.IndexOf(group.Runtime);
                                 if (fallbacks != -1)
                                 {
-                                    candidateAssets.Add(library.Path + "/" + file.Path, fallbacks);
+                                    candidateAssets.Add((library.Path, file.Path), fallbacks);
                                 }
                             }
                         }
@@ -159,24 +159,39 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 }
 
                 var assetPath = candidateAssets.OrderBy(p => p.Value)
-                    .Select(p => p.Key.Replace('/', Path.DirectorySeparatorChar)).FirstOrDefault();
-                if (assetPath != null)
+                    .Select(p => p.Key).FirstOrDefault();
+                if (assetPath != default)
                 {
-                    string assetFullPath = null;
-                    var probingDirectories = ((string)AppDomain.CurrentDomain.GetData("PROBING_DIRECTORIES"))
-                        .Split(Path.PathSeparator);
-                    foreach (var directory in probingDirectories)
+                    string assetDirectory = null;
+                    if (File.Exists(Path.Combine(AppContext.BaseDirectory, assetPath.Item2)))
                     {
-                        var candidateFullPath = Path.Combine(directory, assetPath);
-                        if (File.Exists(candidateFullPath))
+                        // NB: This enables framework-dependent deployments
+                        assetDirectory = Path.Combine(
+                            AppContext.BaseDirectory,
+                            Path.GetDirectoryName(assetPath.Item2.Replace('/', Path.DirectorySeparatorChar)));
+                    }
+                    else
+                    {
+                        string assetFullPath = null;
+                        var probingDirectories = ((string)AppDomain.CurrentDomain.GetData("PROBING_DIRECTORIES"))
+                            .Split(Path.PathSeparator);
+                        foreach (var directory in probingDirectories)
                         {
-                            assetFullPath = candidateFullPath;
+                            var candidateFullPath = Path.Combine(
+                                directory,
+                                (assetPath.Item1 + "/" + assetPath.Item2).Replace('/', Path.DirectorySeparatorChar));
+                            if (File.Exists(candidateFullPath))
+                            {
+                                assetFullPath = candidateFullPath;
+                            }
                         }
+
+                        Debug.Assert(assetFullPath != null);
+
+                        assetDirectory = Path.GetDirectoryName(assetFullPath);
                     }
 
-                    Debug.Assert(assetFullPath != null);
-
-                    var assetDirectory = Path.GetDirectoryName(assetFullPath);
+                    Debug.Assert(assetDirectory != null);
 
                     var currentPath = Environment.GetEnvironmentVariable(_pathVariableName);
                     if (!currentPath.Split(Path.PathSeparator).Any(
