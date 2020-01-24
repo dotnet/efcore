@@ -7525,6 +7525,7 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
                 @"SELECT CAST(0 AS bit)
 FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
+        }
 
         public override async Task SequenceEqual_is_translated_with_byte_array(bool isAsync)
         {

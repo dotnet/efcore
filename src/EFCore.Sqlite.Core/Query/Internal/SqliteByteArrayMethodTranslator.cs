@@ -27,23 +27,30 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
                 var source = arguments[0];
 
-                var value = arguments[1] is SqlConstantExpression constantValue
-                    ? (SqlExpression)_sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value }, source.TypeMapping)
-                    : _sqlExpressionFactory.Function(
-                        "char",
-                        new[] { arguments[1] },
-                        nullResultAllowed: false,
-                        argumentsPropagateNullability: new[] { false },
-                        typeof(string));
+                if (genericMethodDefinition == EnumerableMethods.Contains)
+                {
+                    var value = arguments[1] is SqlConstantExpression constantValue
+                        ? (SqlExpression)_sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value }, source.TypeMapping)
+                        : _sqlExpressionFactory.Function(
+                            "char",
+                            new[] { arguments[1] },
+                            nullResultAllowed: false,
+                            argumentsPropagateNullability: new[] { false },
+                            typeof(string));
 
-                return _sqlExpressionFactory.GreaterThan(
-                    _sqlExpressionFactory.Function(
-                        "instr",
-                        new[] { source, value },
-                        nullResultAllowed: true,
-                        argumentsPropagateNullability: new[] { true, true },
-                        typeof(int)),
-                    _sqlExpressionFactory.Constant(0));
+                    return _sqlExpressionFactory.GreaterThan(
+                        _sqlExpressionFactory.Function(
+                            "instr",
+                            new[] { source, value },
+                            nullResultAllowed: true,
+                            argumentsPropagateNullability: new[] { true, true },
+                            typeof(int)),
+                        _sqlExpressionFactory.Constant(0));
+                }
+                else if (genericMethodDefinition == EnumerableMethods.SequenceEqual)
+                {
+                    return _sqlExpressionFactory.Equal(source, arguments[1]);
+                }
             }
 
             return null;
