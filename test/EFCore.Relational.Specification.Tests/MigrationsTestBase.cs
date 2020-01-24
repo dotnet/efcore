@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         e.HasKey("CustomId");
                         e.HasAlternateKey("SSN");
-                        e.HasCheckConstraint("CK_SSN", $"{DelimitIdentifier("SSN")} > 0");
+                        e.HasCheckConstraint("CK_EmployerId", $"{DelimitIdentifier("EmployerId")} > 0");
                         e.HasOne("Employers").WithMany("People").HasForeignKey("EmployerId");
 
                         e.HasComment("Table comment");
@@ -338,17 +338,16 @@ be found in the docs.";
             => Test(
                 builder => builder.Entity("People").Property<int>("Id"),
                 builder => { },
-                builder => builder.Entity("People").Property<DateTime?>("Birthday")
-                    .HasColumnType("date")
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP"),
+                builder => builder.Entity("People").Property<int>("Sum")
+                    .HasDefaultValueSql("1 + 2"),
                 model =>
                 {
                     var table = Assert.Single(model.Tables);
                     Assert.Equal(2, table.Columns.Count);
-                    var nameColumn = Assert.Single(table.Columns, c => c.Name == "Birthday");
-                    Assert.Equal("date", nameColumn.StoreType);
-                    Assert.True(nameColumn.IsNullable);
-                    Assert.Equal("(getdate())", nameColumn.DefaultValueSql);
+                    var sumColumn = Assert.Single(table.Columns, c => c.Name == "Sum");
+                    Assert.Contains("1", sumColumn.DefaultValueSql);
+                    Assert.Contains("+", sumColumn.DefaultValueSql);
+                    Assert.Contains("2", sumColumn.DefaultValueSql);
                 });
 
         [ConditionalFact]
@@ -358,17 +357,17 @@ be found in the docs.";
                     "People", e =>
                     {
                         e.Property<int>("Id");
-                        e.Property<string>("FirstName");
-                        e.Property<string>("LastName");
+                        e.Property<int>("X");
+                        e.Property<int>("Y");
                     }),
                 builder => { },
-                builder => builder.Entity("People").Property<string>("FullName").HasComputedColumnSql("FirstName + ' ' + LastName"),
+                builder => builder.Entity("People").Property<string>("Sum").HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}"),
                 model =>
                 {
                     var table = Assert.Single(model.Tables);
-                    var column = Assert.Single(table.Columns, c => c.Name == "FullName");
-                    Assert.Contains("FirstName", column.ComputedColumnSql);
-                    Assert.Contains("LastName", column.ComputedColumnSql);
+                    var sumColumn = Assert.Single(table.Columns, c => c.Name == "Sum");
+                    Assert.Contains("X", sumColumn.ComputedColumnSql);
+                    Assert.Contains("Y", sumColumn.ComputedColumnSql);
                 });
 
         // TODO: Check this out
@@ -581,17 +580,18 @@ be found in the docs.";
                     "People", e =>
                     {
                         e.Property<int>("Id");
-                        e.Property<string>("FirstName");
-                        e.Property<string>("LastName");
+                        e.Property<int>("X");
+                        e.Property<int>("Y");
                     }),
-                builder => builder.Entity("People").Property<string>("FullName"),
-                builder => builder.Entity("People").Property<string>("FullName").HasComputedColumnSql("FirstName + ' ' + LastName"),
+                builder => builder.Entity("People").Property<int>("Sum"),
+                builder => builder.Entity("People").Property<int>("Sum").HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}"),
                 model =>
                 {
                     var table = Assert.Single(model.Tables);
-                    var column = Assert.Single(table.Columns, c => c.Name == "FullName");
-                    Assert.Contains("FirstName", column.ComputedColumnSql);
-                    Assert.Contains("LastName", column.ComputedColumnSql);
+                    var sumColumn = Assert.Single(table.Columns, c => c.Name == "Sum");
+                    Assert.Contains("X", sumColumn.ComputedColumnSql);
+                    Assert.Contains("Y", sumColumn.ComputedColumnSql);
+                    Assert.Contains("+", sumColumn.ComputedColumnSql);
                 });
 
         [ConditionalFact]
@@ -601,18 +601,19 @@ be found in the docs.";
                     "People", e =>
                     {
                         e.Property<int>("Id");
-                        e.Property<string>("FirstName");
-                        e.Property<string>("LastName");
-                        e.Property<string>("FullName");
+                        e.Property<int>("X");
+                        e.Property<int>("Y");
+                        e.Property<int>("Sum");
                     }),
-                builder => builder.Entity("People").Property<string>("FullName").HasComputedColumnSql("FirstName + ' ' + LastName"),
-                builder => builder.Entity("People").Property<string>("FullName").HasComputedColumnSql("FirstName + ', ' + LastName"),
+                builder => builder.Entity("People").Property<int>("Sum").HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}"),
+                builder => builder.Entity("People").Property<int>("Sum").HasComputedColumnSql($"{DelimitIdentifier("X")} - {DelimitIdentifier("Y")}"),
                 model =>
                 {
                     var table = Assert.Single(model.Tables);
-                    var column = Assert.Single(table.Columns, c => c.Name == "FullName");
-                    Assert.Contains("FirstName", column.ComputedColumnSql);
-                    Assert.Contains("LastName", column.ComputedColumnSql);
+                    var sumColumn = Assert.Single(table.Columns, c => c.Name == "Sum");
+                    Assert.Contains("X", sumColumn.ComputedColumnSql);
+                    Assert.Contains("Y", sumColumn.ComputedColumnSql);
+                    Assert.Contains("-", sumColumn.ComputedColumnSql);
                 });
 
         [ConditionalFact]

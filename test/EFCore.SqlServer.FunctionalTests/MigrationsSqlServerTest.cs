@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
-            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         public override async Task Create_table()
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore
     [SSN] nvarchar(11) NOT NULL,
     CONSTRAINT [PK_People] PRIMARY KEY ([CustomId]),
     CONSTRAINT [AK_People_SSN] UNIQUE ([SSN]),
-    CONSTRAINT [CK_SSN] CHECK ([SSN] > 0),
+    CONSTRAINT [CK_EmployerId] CHECK ([EmployerId] > 0),
     CONSTRAINT [FK_People_Employers_EmployerId] FOREIGN KEY ([EmployerId]) REFERENCES [Employers] ([Id]) ON DELETE NO ACTION
 );
 EXEC sp_addextendedproperty 'MS_Description', N'Table comment', 'SCHEMA', N'dbo2', 'TABLE', N'People';
@@ -315,7 +315,7 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [TestTableSchema].[TestTa
             await base.Add_column_with_defaultValueSql();
 
             AssertSql(
-                @"ALTER TABLE [People] ADD [Birthday] date NULL DEFAULT (CURRENT_TIMESTAMP);");
+                @"ALTER TABLE [People] ADD [Sum] int NOT NULL DEFAULT (1 + 2);");
         }
 
         public override async Task Add_column_with_computedSql()
@@ -323,7 +323,7 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [TestTableSchema].[TestTa
             await base.Add_column_with_computedSql();
 
             AssertSql(
-                @"ALTER TABLE [People] ADD [FullName] AS FirstName + ' ' + LastName;");
+                @"ALTER TABLE [People] ADD [Sum] AS [X] + [Y];");
         }
 
         public override async Task Add_column_with_required()
@@ -495,10 +495,10 @@ CREATE INDEX [IX_People_FirstName_LastName] ON [People] ([FirstName], [LastName]
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'FullName');
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Sum');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
-ALTER TABLE [People] DROP COLUMN [FullName];
-ALTER TABLE [People] ADD [FullName] AS FirstName + ' ' + LastName;");
+ALTER TABLE [People] DROP COLUMN [Sum];
+ALTER TABLE [People] ADD [Sum] AS [X] + [Y];");
         }
 
         public override async Task Alter_column_change_computed()
@@ -510,10 +510,10 @@ ALTER TABLE [People] ADD [FullName] AS FirstName + ' ' + LastName;");
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'FullName');
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Sum');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
-ALTER TABLE [People] DROP COLUMN [FullName];
-ALTER TABLE [People] ADD [FullName] AS FirstName + ', ' + LastName;");
+ALTER TABLE [People] DROP COLUMN [Sum];
+ALTER TABLE [People] ADD [Sum] AS [X] - [Y];");
         }
 
         [ConditionalFact]
