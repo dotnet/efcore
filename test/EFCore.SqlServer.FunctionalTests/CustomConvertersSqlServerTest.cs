@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore
         public CustomConvertersSqlServerTest(CustomConvertersSqlServerFixture fixture)
             : base(fixture)
         {
+            Fixture.TestSqlLoggerFactory.Clear();
         }
 
         [ConditionalFact]
@@ -37,6 +38,7 @@ BinaryKeyDataType.Ex ---> [nullable nvarchar] [MaxLength = -1]
 BinaryKeyDataType.Id ---> [varbinary] [MaxLength = 900]
 Blog.BlogId ---> [int] [Precision = 10 Scale = 0]
 Blog.Discriminator ---> [nvarchar] [MaxLength = -1]
+Blog.IndexerVisible ---> [nvarchar] [MaxLength = 3]
 Blog.IsVisible ---> [nvarchar] [MaxLength = 1]
 Blog.RssUrl ---> [nullable nvarchar] [MaxLength = -1]
 Blog.Url ---> [nullable nvarchar] [MaxLength = -1]
@@ -194,6 +196,68 @@ User.Id ---> [uniqueidentifier]
             Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);
         }
 
+        [ConditionalFact]
+        public override void Value_conversion_is_appropriately_used_for_join_condition()
+        {
+            base.Value_conversion_is_appropriately_used_for_join_condition();
+
+            AssertSql(
+                @"@__blogId_0='1'
+
+SELECT [b].[Url]
+FROM [Blog] AS [b]
+INNER JOIN [Post] AS [p] ON (([b].[BlogId] = [p].[BlogId]) AND ([b].[IsVisible] = N'Y')) AND ([b].[BlogId] = @__blogId_0)
+WHERE [b].[Discriminator] IN (N'Blog', N'RssBlog') AND ([b].[IsVisible] = N'Y')");
+        }
+
+        [ConditionalFact]
+        public override void Value_conversion_is_appropriately_used_for_left_join_condition()
+        {
+            base.Value_conversion_is_appropriately_used_for_left_join_condition();
+
+            AssertSql(
+                @"@__blogId_0='1'
+
+SELECT [b].[Url]
+FROM [Blog] AS [b]
+LEFT JOIN [Post] AS [p] ON (([b].[BlogId] = [p].[BlogId]) AND ([b].[IsVisible] = N'Y')) AND ([b].[BlogId] = @__blogId_0)
+WHERE [b].[Discriminator] IN (N'Blog', N'RssBlog') AND ([b].[IsVisible] = N'Y')");
+        }
+
+        [ConditionalFact]
+        public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used()
+        {
+            base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used();
+
+            AssertSql(
+                @"SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
+FROM [Blog] AS [b]
+WHERE [b].[Discriminator] IN (N'Blog', N'RssBlog') AND ([b].[IsVisible] = N'Y')");
+        }
+
+        public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
+        {
+            base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty();
+
+            AssertSql(
+                @"SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
+FROM [Blog] AS [b]
+WHERE [b].[Discriminator] IN (N'Blog', N'RssBlog') AND ([b].[IsVisible] = N'Y')");
+        }
+
+        public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer()
+        {
+            base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer();
+
+            AssertSql(
+                @"SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
+FROM [Blog] AS [b]
+WHERE [b].[Discriminator] IN (N'Blog', N'RssBlog') AND ([b].[IndexerVisible] <> N'Aye')");
+        }
+
+        private void AssertSql(params string[] expected)
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+
         public class CustomConvertersSqlServerFixture : CustomConvertersFixtureBase
         {
             public override bool StrictEquality => true;
@@ -205,7 +269,7 @@ User.Id ---> [uniqueidentifier]
             public override bool SupportsLargeStringComparisons => true;
 
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
-
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
             public override bool SupportsBinaryKeys => true;
 
             public override bool SupportsDecimalComparisons => true;

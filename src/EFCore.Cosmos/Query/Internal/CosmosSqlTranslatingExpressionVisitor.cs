@@ -100,12 +100,21 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             Check.NotNull(memberExpression, nameof(memberExpression));
 
-            return TryBindMember(memberExpression.Expression, MemberIdentity.Create(memberExpression.Member), out var result)
-                ? result
-                : TranslationFailed(memberExpression.Expression, Visit(memberExpression.Expression), out var sqlInnerExpression)
-                    ? null
-                    : _memberTranslatorProvider.Translate(sqlInnerExpression, memberExpression.Member, memberExpression.Type);
+            return CompensateForValueConverter(
+                TryBindMember(memberExpression.Expression, MemberIdentity.Create(memberExpression.Member), out var result)
+                    ? result
+                    : TranslationFailed(memberExpression.Expression, Visit(memberExpression.Expression), out var sqlInnerExpression)
+                        ? null
+                        : _memberTranslatorProvider.Translate(sqlInnerExpression, memberExpression.Member, memberExpression.Type));
         }
+
+        private Expression CompensateForValueConverter(Expression result)
+            => result != null
+                && result.Type == typeof(bool)
+                && result is KeyAccessExpression keyAccessExpression
+                && keyAccessExpression.TypeMapping.Converter != null
+                ? _sqlExpressionFactory.Equal(keyAccessExpression, _sqlExpressionFactory.Constant(true, keyAccessExpression.TypeMapping))
+                : result;
 
         private bool TryBindMember(Expression source, MemberIdentity member, out Expression expression)
         {
@@ -162,15 +171,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName))
             {
-                return TryBindMember(source, MemberIdentity.Create(propertyName), out var result)
-                    ? result
-                    : null;
+                return CompensateForValueConverter(
+                    TryBindMember(source, MemberIdentity.Create(propertyName), out var result)
+                        ? result
+                        : null);
             }
 
             // EF Indexer property
             if (methodCallExpression.TryGetIndexerArguments(_model, out source, out propertyName))
             {
-                return TryBindMember(source, MemberIdentity.Create(propertyName), out var result) ? result : null;
+                return CompensateForValueConverter(
+                    TryBindMember(source, MemberIdentity.Create(propertyName), out var result)
+                        ? result
+                        : null);
             }
 
             if (TranslationFailed(methodCallExpression.Object, Visit(methodCallExpression.Object), out var sqlObject))

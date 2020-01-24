@@ -247,12 +247,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(memberExpression, nameof(memberExpression));
 
-            return TryBindMember(memberExpression.Expression, MemberIdentity.Create(memberExpression.Member), out var result)
-                ? result
-                : TranslationFailed(memberExpression.Expression, base.Visit(memberExpression.Expression), out var sqlInnerExpression)
-                    ? null
-                    : Dependencies.MemberTranslatorProvider.Translate(sqlInnerExpression, memberExpression.Member, memberExpression.Type);
+            return CompensateForValueConverter(
+                TryBindMember(memberExpression.Expression, MemberIdentity.Create(memberExpression.Member), out var result)
+                    ? result
+                    : TranslationFailed(memberExpression.Expression, base.Visit(memberExpression.Expression), out var sqlInnerExpression)
+                        ? null
+                        : Dependencies.MemberTranslatorProvider.Translate(sqlInnerExpression, memberExpression.Member, memberExpression.Type));
         }
+
+        private Expression CompensateForValueConverter(Expression result)
+            => result != null
+                && result.Type == typeof(bool)
+                && result is ColumnExpression columnExpression
+                && columnExpression.TypeMapping.Converter != null
+                ? SqlExpressionFactory.Equal(columnExpression, SqlExpressionFactory.Constant(true, columnExpression.TypeMapping))
+                : result;
 
         private bool TryBindMember(Expression source, MemberIdentity member, out Expression expression)
         {
@@ -369,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 if (TryBindMember(source, MemberIdentity.Create(propertyName), out var result))
                 {
-                    return result;
+                    return CompensateForValueConverter(result);
                 }
 
                 throw new InvalidOperationException("EF.Property called with wrong property name.");
@@ -378,7 +387,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             // EF Indexer property
             if (methodCallExpression.TryGetIndexerArguments(_model, out source, out propertyName))
             {
-                return TryBindMember(source, MemberIdentity.Create(propertyName), out var result) ? result : null;
+                return CompensateForValueConverter(
+                    TryBindMember(source, MemberIdentity.Create(propertyName), out var result)
+                        ? result
+                        : null);
             }
 
             // GroupBy Aggregate case
