@@ -292,8 +292,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     Gets the original property values for this entity. The original values are the property
-        ///     values as they were when the entity was retrieved from the database.
+        ///     <para>
+        ///         Gets the original property values for this entity. The original values are the property
+        ///         values as they were when the entity was retrieved from the database.
+        ///     </para>
+        ///     <para>
+        ///         Note that whenever real original property values are not available (e.g. entity was not yet 
+        ///         persisted to the database) this will default to the current property values of this entity.
+        ///     </para>
         /// </summary>
         /// <value> The original values. </value>
         public virtual PropertyValues OriginalValues
