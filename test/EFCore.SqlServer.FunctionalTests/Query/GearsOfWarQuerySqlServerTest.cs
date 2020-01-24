@@ -7527,6 +7527,35 @@ FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
         }
 
+        public override async Task Group_by_nullable_property_HasValue_and_project_the_grouping_key(bool async)
+        {
+            await base.Group_by_nullable_property_HasValue_and_project_the_grouping_key(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [w].[SynergyWithId] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [Weapons] AS [w]
+GROUP BY CASE
+    WHEN [w].[SynergyWithId] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END");
+        }
+
+        public override async Task Group_by_nullable_property_and_project_the_grouping_key_HasValue(bool async)
+        {
+            await base.Group_by_nullable_property_and_project_the_grouping_key_HasValue(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [w].[SynergyWithId] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [Weapons] AS [w]
+GROUP BY [w].[SynergyWithId]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

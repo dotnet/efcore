@@ -7548,6 +7548,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Gear>().Select(g => g.Nickname == nullParameter));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Group_by_nullable_property_HasValue_and_project_the_grouping_key(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Weapon>()
+                    .GroupBy(w => w.SynergyWithId.HasValue)
+                    .Select(g => g.Key));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Group_by_nullable_property_and_project_the_grouping_key_HasValue(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Weapon>()
+                    .GroupBy(w => w.SynergyWithId)
+                    .Select(g => g.Key.HasValue));
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
