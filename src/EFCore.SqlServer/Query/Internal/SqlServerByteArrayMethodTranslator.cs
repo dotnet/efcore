@@ -27,28 +27,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             if (method.IsGenericMethod
                  && arguments[0].Type == typeof(byte[]))
             {
-                var genericMethodDefinition = method.GetGenericMethodDefinition();
                 var source = arguments[0];
                 var sourceTypeMapping = source.TypeMapping;
 
-                if (genericMethodDefinition == EnumerableMethods.Contains)
-                {
-                    var value = arguments[1] is SqlConstantExpression constantValue
-                        ? (SqlExpression)_sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value }, sourceTypeMapping)
-                        : _sqlExpressionFactory.Convert(arguments[1], typeof(byte[]), sourceTypeMapping);
+                var value = arguments[1] is SqlConstantExpression constantValue
+                    ? (SqlExpression)_sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value }, sourceTypeMapping)
+                    : _sqlExpressionFactory.Convert(arguments[1], typeof(byte[]), sourceTypeMapping);
 
-                    return _sqlExpressionFactory.GreaterThan(
-                        _sqlExpressionFactory.Function(
-                            "CHARINDEX",
-                            new[] { value, source },
-                            nullResultAllowed: true,
-                            argumentsPropagateNullability: new[] { true, true },
-                            typeof(int)),
-                        _sqlExpressionFactory.Constant(0)); 
-                } else if (genericMethodDefinition == EnumerableMethods.SequenceEqual)
-                {
-                    return _sqlExpressionFactory.Equal(source, arguments[1]);
-                }
+                return _sqlExpressionFactory.GreaterThan(
+                    _sqlExpressionFactory.Function(
+                        "CHARINDEX",
+                        new[] { value, source },
+                        nullResultAllowed: true,
+                        argumentsPropagateNullability: new[] { true, true },
+                        typeof(int)),
+                    _sqlExpressionFactory.Constant(0));
             }
 
             return null;
