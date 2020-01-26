@@ -25,7 +25,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             Check.NotNull(arguments, nameof(arguments));
 
             if (method.IsGenericMethod
-                 && arguments[0].Type == typeof(byte[]))
+                && method.GetGenericMethodDefinition() == EnumerableMethods.Contains
+                && arguments[0].Type == typeof(byte[]))
             {
                 var source = arguments[0];
                 var sourceTypeMapping = source.TypeMapping;

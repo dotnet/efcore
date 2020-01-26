@@ -21,10 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
             if (method.IsGenericMethod
+                && method.GetGenericMethodDefinition() == EnumerableMethods.Contains
                 && arguments[0].Type == typeof(byte[]))
             {
-                var genericMethodDefinition = method.GetGenericMethodDefinition();
-
                 var source = arguments[0];
 
                 var value = arguments[1] is SqlConstantExpression constantValue

@@ -7550,7 +7550,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task SequenceEqual_is_translated_with_byte_array(bool async)
+        public virtual Task Byte_array_filter_by_SequenceEqual(bool async)
         {
             var byteArrayParam = new byte[] { 0x04, 0x05, 0x06, 0x07, 0x08 };
 

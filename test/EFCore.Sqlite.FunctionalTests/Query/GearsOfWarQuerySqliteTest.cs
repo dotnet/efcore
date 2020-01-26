@@ -137,9 +137,9 @@ FROM ""Squads"" AS ""s""
 WHERE length(""s"".""Banner"") = length(@__byteArrayParam)");
         }
 
-        public override async Task SequenceEqual_is_translated_with_byte_array(bool async)
+        public override async Task Byte_array_filter_by_SequenceEqual(bool async)
         {
-            await base.SequenceEqual_is_translated_with_byte_array(async);
+            await base.Byte_array_filter_by_SequenceEqual(async);
 
             AssertSql(@"@__byteArrayParam_0='0x0405060708' (Size = 5) (DbType = String)
 
