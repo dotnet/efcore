@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             Check.NotNull(arguments, nameof(arguments));
 
             if (method.IsGenericMethod
-                && method.GetGenericMethodDefinition() == EnumerableMethods.Contains
+                && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains)
                 && arguments[0].Type == typeof(byte[]))
             {
                 var source = arguments[0];

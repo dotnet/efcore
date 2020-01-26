@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
             if (method.IsGenericMethod
-                && method.GetGenericMethodDefinition() == EnumerableMethods.Contains
+                && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains)
                 && arguments[0].Type == typeof(byte[]))
             {
                 var source = arguments[0];

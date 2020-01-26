@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
             if (method.IsGenericMethod
-                && method.GetGenericMethodDefinition() == EnumerableMethods.SequenceEqual
+                && method.GetGenericMethodDefinition().Equals(EnumerableMethods.SequenceEqual)
                 && arguments[0].Type == typeof(byte[]))
             {
                 return _sqlExpressionFactory.Equal(arguments[0], arguments[1]);
