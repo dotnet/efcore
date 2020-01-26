@@ -7527,9 +7527,9 @@ FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
         }
 
-        public override async Task SequenceEqual_is_translated_with_byte_array(bool isAsync)
+        public override async Task Byte_array_filter_by_SequenceEqual(bool isAsync)
         {
-            await base.SequenceEqual_is_translated_with_byte_array(isAsync);
+            await base.Byte_array_filter_by_SequenceEqual(isAsync);
 
             AssertSql(@"@__byteArrayParam_0='0x0405060708' (Size = 5)
 
