@@ -33,6 +33,15 @@ namespace Microsoft.Data.Sqlite
             Assert.Equal(SqliteOpenMode.Memory, builder.Mode);
         }
 
+
+        [Fact]
+        public void Ctor_parses_LowerCaseGuids()
+        {
+            var builder = new SqliteConnectionStringBuilder("Lower Case Guids = True");
+
+            Assert.True(builder.LowerCaseGuids);
+        }
+
         [Fact]
         public void Filename_is_alias_for_DataSource()
         {
@@ -81,6 +90,22 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void LowerCaseGuid_defaults_to_False()
+        {
+            Assert.False(new SqliteConnectionStringBuilder().LowerCaseGuids);
+        }
+
+        [Fact]
+        public void LowerCaseGuids_works()
+        {
+            var builder = new SqliteConnectionStringBuilder();
+
+            builder.LowerCaseGuids = true;
+
+            Assert.True(builder.LowerCaseGuids);
+        }
+
+        [Fact]
         public void Cache_defaults()
         {
             Assert.Equal(SqliteCacheMode.Default, new SqliteConnectionStringBuilder().Cache);
@@ -98,13 +123,14 @@ namespace Microsoft.Data.Sqlite
             var keys = (ICollection<string>)new SqliteConnectionStringBuilder().Keys;
 
             Assert.True(keys.IsReadOnly);
-            Assert.Equal(6, keys.Count);
+            Assert.Equal(7, keys.Count);
             Assert.Contains("Data Source", keys);
             Assert.Contains("Mode", keys);
             Assert.Contains("Cache", keys);
             Assert.Contains("Password", keys);
             Assert.Contains("Foreign Keys", keys);
             Assert.Contains("Recursive Triggers", keys);
+            Assert.Contains("Lower Case Guids", keys);
         }
 
         [Fact]
@@ -113,7 +139,7 @@ namespace Microsoft.Data.Sqlite
             var values = (ICollection<object>)new SqliteConnectionStringBuilder().Values;
 
             Assert.True(values.IsReadOnly);
-            Assert.Equal(6, values.Count);
+            Assert.Equal(7, values.Count);
         }
 
         [Fact]
@@ -183,40 +209,51 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Theory]
-        [InlineData(1, true)]
-        [InlineData("True", true)]
-        [InlineData(0, false)]
-        [InlineData("False", false)]
-        [InlineData(null, null)]
-        [InlineData("", null)]
-        public void Item_converts_to_bool_on_set(object value, bool? expected)
+        [InlineData("Foreign Keys", 1, true)]
+        [InlineData("Foreign Keys", "True", true)]
+        [InlineData("Foreign Keys", 0, false)]
+        [InlineData("Foreign Keys", "False", false)]
+        [InlineData("Foreign Keys", null, null)]
+        [InlineData("Foreign Keys", "", null)]
+        [InlineData("Lower Case Guids", 1, true)]
+        [InlineData("Lower Case Guids", "True", true)]
+        [InlineData("Lower Case Guids", 0, false)]
+        [InlineData("Lower Case Guids", "False", false)]
+        public void Item_converts_to_bool_on_set(string item, object value, bool? expected)
         {
             var builder = new SqliteConnectionStringBuilder();
 
-            builder["Foreign Keys"] = value;
+            builder[item] = value;
 
-            Assert.Equal(expected, builder["Foreign Keys"]);
+            Assert.Equal(expected, builder[item]);
         }
 
         [Theory]
-        [InlineData("1")]
-        [InlineData("Yes")]
-        [InlineData("On")]
-        [InlineData("0")]
-        [InlineData("No")]
-        [InlineData("Off")]
-        public void Item_throws_when_cannot_convert_to_bool_on_set(object value)
+        [InlineData("Foreign Keys", "1")]
+        [InlineData("Foreign Keys", "Yes")]
+        [InlineData("Foreign Keys", "On")]
+        [InlineData("Foreign Keys", "0")]
+        [InlineData("Foreign Keys", "No")]
+        [InlineData("Foreign Keys", "Off")]
+        [InlineData("Lower Case Guids", "1")]
+        [InlineData("Lower Case Guids", "Yes")]
+        [InlineData("Lower Case Guids", "On")]
+        [InlineData("Lower Case Guids", "0")]
+        [InlineData("Lower Case Guids", "No")]
+        [InlineData("Lower Case Guids", "Off")]
+
+        public void Item_throws_when_cannot_convert_to_bool_on_set(string item, object value)
         {
             var builder = new SqliteConnectionStringBuilder();
 
-            Assert.ThrowsAny<FormatException>(() => builder["Foreign Keys"] = value);
+            Assert.ThrowsAny<FormatException>(() => builder[item] = value);
         }
 
         [Fact]
         public void Clear_resets_everything()
         {
             var builder = new SqliteConnectionStringBuilder(
-                "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True");
+                "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True;Lower Case Guids=True");
 
             builder.Clear();
 
@@ -226,6 +263,7 @@ namespace Microsoft.Data.Sqlite
             Assert.Empty(builder.Password);
             Assert.Null(builder.ForeignKeys);
             Assert.False(builder.RecursiveTriggers);
+            Assert.False(builder.LowerCaseGuids);
         }
 
         [Fact]
@@ -307,11 +345,12 @@ namespace Microsoft.Data.Sqlite
                 Mode = SqliteOpenMode.Memory,
                 Password = "test",
                 ForeignKeys = true,
-                RecursiveTriggers = true
+                RecursiveTriggers = true,
+                LowerCaseGuids = true
             };
 
             Assert.Equal(
-                "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True",
+                "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True;Lower Case Guids=True",
                 builder.ToString());
         }
 

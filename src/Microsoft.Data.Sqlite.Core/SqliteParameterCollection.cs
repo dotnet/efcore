@@ -330,12 +330,12 @@ namespace Microsoft.Data.Sqlite
         protected override void SetParameter(string parameterName, DbParameter value)
             => SetParameter(IndexOfChecked(parameterName), value);
 
-        internal int Bind(sqlite3_stmt stmt)
+        internal int Bind(SqliteConnection connection, sqlite3_stmt stmt)
         {
             var bound = 0;
             foreach (var parameter in _parameters)
             {
-                if (parameter.Bind(stmt))
+                if (parameter.Bind(connection, stmt))
                 {
                     bound++;
                 }

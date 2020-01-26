@@ -189,7 +189,7 @@ namespace Microsoft.Data.Sqlite
             SqliteType = SqliteType.Text;
         }
 
-        internal bool Bind(sqlite3_stmt stmt)
+        internal bool Bind(SqliteConnection connection, sqlite3_stmt stmt)
         {
             if (string.IsNullOrEmpty(ParameterName))
             {
@@ -208,7 +208,7 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Resources.RequiresSet(nameof(Value)));
             }
 
-            new SqliteParameterBinder(stmt, index, _value, _size, _sqliteType).Bind();
+            new SqliteParameterBinder(connection, stmt, index, _value, _size, _sqliteType).Bind();
 
             return true;
         }

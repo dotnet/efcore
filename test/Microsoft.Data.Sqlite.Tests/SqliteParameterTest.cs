@@ -242,11 +242,33 @@ namespace Microsoft.Data.Sqlite
                 new byte[] { 0xDB, 0x2D, 0x90, 0x1C, 0xB6, 0xF4, 0x45, 0x49, 0xAF, 0x38, 0x0D, 0xC1, 0xB0, 0x76, 0x04, 0x65 },
                 SqliteType.Blob);
 
+        private void BindGuid_works(Guid value, object coercedValue, bool lowerCase)
+        {
+            using (var connection = new SqliteConnection($"Data Source=:memory:;Lower Case Guids={(lowerCase ? "True" : "False")}"))
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT @Parameter;";
+                var sqliteParameter = command.Parameters.AddWithValue("@Parameter", value);
+
+                connection.Open();
+
+                var result = command.ExecuteScalar();
+
+                Assert.Equal(coercedValue, result);
+            }
+        }
+
         [Fact]
-        public void Bind_works_when_Guid()
-            => Bind_works(
+        public void Bind_works_when_Guid_without_lower_case_guids()
+            => BindGuid_works(
                 new Guid("1c902ddb-f4b6-4945-af38-0dc1b0760465"),
-                "1C902DDB-F4B6-4945-AF38-0DC1B0760465");
+                "1C902DDB-F4B6-4945-AF38-0DC1B0760465", false);
+
+        [Fact]
+        public void Bind_works_when_Guid_with_lower_case_guids()
+            => BindGuid_works(
+                new Guid("1c902ddb-f4b6-4945-af38-0dc1b0760465"),
+                "1c902ddb-f4b6-4945-af38-0dc1b0760465", true);
 
         [Fact]
         public void Bind_works_when_Nullable()

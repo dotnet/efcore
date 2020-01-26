@@ -13,16 +13,18 @@ namespace Microsoft.Data.Sqlite
     {
         private readonly object _value;
         private readonly SqliteType? _sqliteType;
+        private readonly SqliteConnection _sqliteconnection;
 
-        protected SqliteValueBinder(object value)
-            : this(value, null)
+        protected SqliteValueBinder(SqliteConnection connection, object value)
+            : this(connection, value, null)
         {
         }
 
-        protected SqliteValueBinder(object value, SqliteType? sqliteType)
+        protected SqliteValueBinder(SqliteConnection connection, object value, SqliteType? sqliteType)
         {
             _value = value;
             _sqliteType = sqliteType;
+            _sqliteconnection = connection;
         }
 
         protected abstract void BindInt64(long value);
@@ -136,7 +138,7 @@ namespace Microsoft.Data.Sqlite
                 var guid = (Guid)_value;
                 if (_sqliteType != SqliteType.Blob)
                 {
-                    var value = guid.ToString().ToUpper();
+                    var value = _sqliteconnection.ConnectionOptions.LowerCaseGuids ? guid.ToString() : guid.ToString().ToUpper();
                     BindText(value);
                 }
                 else

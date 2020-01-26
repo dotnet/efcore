@@ -28,6 +28,7 @@ namespace Microsoft.Data.Sqlite
         private const string PasswordKeyword = "Password";
         private const string ForeignKeysKeyword = "Foreign Keys";
         private const string RecursiveTriggersKeyword = "Recursive Triggers";
+        private const string LowerCaseGuidsKeyword = "Lower Case Guids";
 
         private enum Keywords
         {
@@ -36,7 +37,8 @@ namespace Microsoft.Data.Sqlite
             Cache,
             Password,
             ForeignKeys,
-            RecursiveTriggers
+            RecursiveTriggers,
+            LowerCaseGuids
         }
 
         private static readonly IReadOnlyList<string> _validKeywords;
@@ -48,16 +50,18 @@ namespace Microsoft.Data.Sqlite
         private string _password = string.Empty;
         private bool? _foreignKeys;
         private bool _recursiveTriggers;
+        private bool _lowerCaseGuids;
 
         static SqliteConnectionStringBuilder()
         {
-            var validKeywords = new string[6];
+            var validKeywords = new string[7];
             validKeywords[(int)Keywords.DataSource] = DataSourceKeyword;
             validKeywords[(int)Keywords.Mode] = ModeKeyword;
             validKeywords[(int)Keywords.Cache] = CacheKeyword;
             validKeywords[(int)Keywords.Password] = PasswordKeyword;
             validKeywords[(int)Keywords.ForeignKeys] = ForeignKeysKeyword;
             validKeywords[(int)Keywords.RecursiveTriggers] = RecursiveTriggersKeyword;
+            validKeywords[(int)Keywords.LowerCaseGuids] = LowerCaseGuidsKeyword;
             _validKeywords = validKeywords;
 
             _keywords = new Dictionary<string, Keywords>(8, StringComparer.OrdinalIgnoreCase)
@@ -68,7 +72,7 @@ namespace Microsoft.Data.Sqlite
                 [PasswordKeyword] = Keywords.Password,
                 [ForeignKeysKeyword] = Keywords.ForeignKeys,
                 [RecursiveTriggersKeyword] = Keywords.RecursiveTriggers,
-
+                [LowerCaseGuidsKeyword] = Keywords.LowerCaseGuids,
                 // aliases
                 [FilenameKeyword] = Keywords.DataSource,
                 [DataSourceNoSpaceKeyword] = Keywords.DataSource
@@ -184,6 +188,16 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
+        ///     Gets or sets a value indicating whether to serialize GUID values in upper or lower case.
+        /// </summary>
+        /// <value>A value indicating whether to make GUID values upper-case.</value>
+        public bool LowerCaseGuids
+        {
+            get => _lowerCaseGuids;
+            set => base[LowerCaseGuidsKeyword] = _lowerCaseGuids = value;
+        }
+
+        /// <summary>
         ///     Gets or sets the value associated with the specified key.
         /// </summary>
         /// <param name="keyword">The key.</param>
@@ -224,6 +238,10 @@ namespace Microsoft.Data.Sqlite
 
                     case Keywords.RecursiveTriggers:
                         RecursiveTriggers = Convert.ToBoolean(value, CultureInfo.InvariantCulture);
+                        return;
+
+                    case Keywords.LowerCaseGuids:
+                        LowerCaseGuids = Convert.ToBoolean(value, CultureInfo.InvariantCulture);
                         return;
 
                     default:
@@ -366,6 +384,9 @@ namespace Microsoft.Data.Sqlite
                 case Keywords.RecursiveTriggers:
                     return RecursiveTriggers;
 
+                case Keywords.LowerCaseGuids:
+                    return LowerCaseGuids;
+
                 default:
                     Debug.Assert(false, "Unexpected keyword: " + index);
                     return null;
@@ -403,6 +424,10 @@ namespace Microsoft.Data.Sqlite
 
                 case Keywords.RecursiveTriggers:
                     _recursiveTriggers = false;
+                    return;
+
+                case Keywords.LowerCaseGuids:
+                    _lowerCaseGuids = false;
                     return;
 
                 default:

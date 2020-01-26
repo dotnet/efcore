@@ -648,7 +648,7 @@ namespace Microsoft.Data.Sqlite
                         // TODO: Avoid closure by passing function via user_data
                         var result = function((TState)user_data, values);
 
-                        new SqliteResultBinder(ctx, result).Bind();
+                        new SqliteResultBinder(this, ctx, result).Bind();
                     }
                     catch (Exception ex)
                     {
@@ -734,7 +734,7 @@ namespace Microsoft.Data.Sqlite
                             // TODO: Avoid closure by passing resultSelector via user_data
                             var result = resultSelector(context.Accumulate);
 
-                            new SqliteResultBinder(ctx, result).Bind();
+                            new SqliteResultBinder(this, ctx, result).Bind();
                         }
                         catch (Exception ex)
                         {

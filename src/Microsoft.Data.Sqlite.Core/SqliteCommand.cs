@@ -330,7 +330,7 @@ namespace Microsoft.Data.Sqlite
 
                 if (_parameters.IsValueCreated)
                 {
-                    boundParams = _parameters.Value.Bind(stmt);
+                    boundParams = _parameters.Value.Bind(_connection, stmt);
                 }
 
                 var expectedParams = sqlite3_bind_parameter_count(stmt);
