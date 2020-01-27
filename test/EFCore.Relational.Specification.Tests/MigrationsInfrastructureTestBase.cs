@@ -16,7 +16,7 @@ using Xunit;
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture<TFixture>
-        where TFixture : MigrationsFixtureBase, new()
+        where TFixture : MigrationsInfrastructureFixtureBase, new()
     {
         protected TFixture Fixture { get; }
 
@@ -263,11 +263,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             using var db = Fixture.CreateContext();
             var migrator = db.GetService<IMigrator>();
-            MigrationsFixtureBase.ActiveProvider = null;
+            MigrationsInfrastructureFixtureBase.ActiveProvider = null;
 
             migrator.GenerateScript(toMigration: "Migration1");
 
-            ActiveProvider = MigrationsFixtureBase.ActiveProvider;
+            ActiveProvider = MigrationsInfrastructureFixtureBase.ActiveProvider;
         }
 
         [ConditionalFact]
@@ -308,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore
         private void SetSql(string value) => Sql = value.Replace(ProductInfo.GetVersion(), "7.0.0-test");
     }
 
-    public abstract class MigrationsFixtureBase : SharedStoreFixtureBase<MigrationsFixtureBase.MigrationsContext>
+    public abstract class MigrationsInfrastructureFixtureBase : SharedStoreFixtureBase<MigrationsInfrastructureFixtureBase.MigrationsContext>
     {
         public static string ActiveProvider { get; set; }
         public new RelationalTestStore TestStore => (RelationalTestStore)base.TestStore;
@@ -355,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected override void Up(MigrationBuilder migrationBuilder)
             {
-                MigrationsFixtureBase.ActiveProvider = migrationBuilder.ActiveProvider;
+                MigrationsInfrastructureFixtureBase.ActiveProvider = migrationBuilder.ActiveProvider;
 
                 migrationBuilder
                     .CreateTable(

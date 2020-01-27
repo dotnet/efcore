@@ -988,7 +988,7 @@ WHERE ""MigrationId"" = '00000000000002_Migration2';
             DiffSnapshot(new AspNetIdentity30ModelSnapshot(), context);
         }
 
-        public class MigrationsInfrastructureSqliteFixture : MigrationsFixtureBase
+        public class MigrationsInfrastructureSqliteFixture : MigrationsInfrastructureFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
         }
