@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -28,6 +29,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     /// </summary>
     public abstract class ValueComparer : IEqualityComparer
     {
+        internal static readonly MethodInfo ArrayCopyMethod
+            = typeof(Array).GetMethods()
+                .Single(t => t.Name == nameof(Array.Copy)
+                    && t.GetParameters().Length == 3
+                    && t.GetParameters()[0].ParameterType == typeof(Array)
+                    && t.GetParameters()[1].ParameterType == typeof(Array)
+                    && t.GetParameters()[2].ParameterType == typeof(int));
+
         internal static readonly MethodInfo EqualityComparerHashCodeMethod
             = typeof(IEqualityComparer).GetRuntimeMethod(nameof(IEqualityComparer.GetHashCode), new[] { typeof(object) });
 

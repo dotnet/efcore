@@ -403,6 +403,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <c>null</c> otherwise.
         /// </returns>
+        [Obsolete("Use HasKeyValueComparer. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
         IConventionPropertyBuilder HasStructuralValueComparer([CanBeNull] ValueComparer comparer, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -414,6 +415,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     <c>true</c> if the given <see cref="ValueComparer" /> can be configured for this property.
         /// </returns>
+        [Obsolete("Use CanSetStructuralValueComparer. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
         bool CanSetStructuralValueComparer([CanBeNull] ValueComparer comparer, bool fromDataAnnotation = false);
     }
 }

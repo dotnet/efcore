@@ -559,37 +559,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalPropertyBuilder HasStructuralValueComparer(
-            [CanBeNull] ValueComparer comparer, ConfigurationSource configurationSource)
-        {
-            if (configurationSource.Overrides(Metadata.GetStructuralValueComparerConfigurationSource())
-                || Metadata.GetStructuralValueComparer(fallback: false) == comparer)
-            {
-                Metadata.SetStructuralValueComparer(comparer, configurationSource);
-
-                return this;
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual bool CanSetStructuralValueComparer([CanBeNull] ValueComparer comparer, ConfigurationSource? configurationSource)
-            => (configurationSource.Overrides(Metadata.GetStructuralValueComparerConfigurationSource())
-                    && Metadata.CheckValueComparer(comparer) == null)
-                || Metadata.GetStructuralValueComparer(fallback: false) == comparer;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public virtual InternalPropertyBuilder Attach([NotNull] InternalEntityTypeBuilder entityTypeBuilder)
         {
             var newProperty = entityTypeBuilder.Metadata.FindProperty(Metadata.Name);
@@ -975,7 +944,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         IConventionPropertyBuilder IConventionPropertyBuilder.HasStructuralValueComparer(ValueComparer comparer, bool fromDataAnnotation)
-            => HasStructuralValueComparer(
+            => HasKeyValueComparer(
                 comparer, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -985,7 +954,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         bool IConventionPropertyBuilder.CanSetStructuralValueComparer(ValueComparer comparer, bool fromDataAnnotation)
-            => CanSetStructuralValueComparer(
+            => CanSetKeyValueComparer(
                 comparer, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

@@ -310,19 +310,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="fallback"> If true, then the key comparer is returned when the structural comparer is not set. </param>
         /// <returns> The comparer, or <c>null</c> if none has been set. </returns>
+        [Obsolete("Use GetKeyValueComparer. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
         public static ValueComparer GetStructuralValueComparer([NotNull] this IProperty property, bool fallback = true)
-        {
-            Check.NotNull(property, nameof(property));
-
-            var comparer = (ValueComparer)property[CoreAnnotationNames.StructuralValueComparer];
-
-            return fallback
-                ? comparer
-                ?? (ValueComparer)property[CoreAnnotationNames.KeyValueComparer]
-                ?? (ValueComparer)property[CoreAnnotationNames.ValueComparer]
-                ?? property.FindTypeMapping()?.StructuralComparer
-                : comparer;
-        }
+            => property.GetKeyValueComparer(fallback);
 
         /// <summary>
         ///     Creates a formatted string representation of the given properties such as is useful
