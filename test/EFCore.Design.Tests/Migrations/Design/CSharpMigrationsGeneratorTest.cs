@@ -51,7 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.ValueConverter,
                 CoreAnnotationNames.ValueComparer,
                 CoreAnnotationNames.KeyValueComparer,
+#pragma warning disable 618
                 CoreAnnotationNames.StructuralValueComparer,
+#pragma warning restore 618
                 CoreAnnotationNames.BeforeSaveBehavior,
                 CoreAnnotationNames.AfterSaveBehavior,
                 CoreAnnotationNames.ProviderClrType,

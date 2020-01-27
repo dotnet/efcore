@@ -503,7 +503,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.TypeMapping,
                 CoreAnnotationNames.ValueComparer,
                 CoreAnnotationNames.KeyValueComparer,
+#pragma warning disable 618
                 CoreAnnotationNames.StructuralValueComparer,
+#pragma warning restore 618
                 CoreAnnotationNames.ValueConverter,
                 CoreAnnotationNames.ProviderClrType);
 

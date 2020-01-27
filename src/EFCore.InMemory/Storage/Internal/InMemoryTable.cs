@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                     _valueConverters.Add((property.GetIndex(), converter));
                 }
 
-                var comparer = property.GetStructuralValueComparer();
+                var comparer = property.GetKeyValueComparer();
                 if (!comparer.HasDefaultBehavior)
                 {
                     if (_valueComparers == null)
@@ -146,8 +146,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             return rows;
         }
 
-        private static List<ValueComparer> GetStructuralComparers(IEnumerable<IProperty> properties)
-            => properties.Select(p => p.GetStructuralValueComparer()).ToList();
+        private static List<ValueComparer> GetKeyComparers(IEnumerable<IProperty> properties)
+            => properties.Select(p => p.GetKeyValueComparer()).ToList();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         public virtual void Create(IUpdateEntry entry)
         {
             var row = entry.EntityType.GetProperties()
-                .Select(p => SnapshotValue(p, p.GetStructuralValueComparer(), entry))
+                .Select(p => SnapshotValue(p, p.GetKeyValueComparer(), entry))
                 .ToArray();
 
             _rows.Add(CreateKey(entry), row);
@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         {
             if (property.IsConcurrencyToken)
             {
-                var comparer = property.GetStructuralValueComparer();
+                var comparer = property.GetKeyValueComparer();
                 var originalValue = entry.GetOriginalValue(property);
 
                 if ((comparer != null && !comparer.Equals(rowValue, originalValue))
@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             if (_rows.ContainsKey(key))
             {
                 var properties = entry.EntityType.GetProperties().ToList();
-                var comparers = GetStructuralComparers(properties);
+                var comparers = GetKeyComparers(properties);
                 var valueBuffer = new object[properties.Count];
                 var concurrencyConflicts = new Dictionary<IProperty, object>();
 

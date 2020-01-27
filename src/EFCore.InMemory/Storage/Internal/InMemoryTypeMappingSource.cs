@@ -49,14 +49,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             Check.DebugAssert(clrType != null, "ClrType is null");
 
             if (clrType.IsValueType
-                || clrType == typeof(string))
+                || clrType == typeof(string)
+                || clrType == typeof(byte[]))
             {
                 return new InMemoryTypeMapping(clrType);
-            }
-
-            if (clrType == typeof(byte[]))
-            {
-                return new InMemoryTypeMapping(clrType, structuralComparer: new ArrayStructuralComparer<byte>());
             }
 
             if (clrType.FullName == "NetTopologySuite.Geometries.Geometry"
@@ -66,7 +62,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 
                 return new InMemoryTypeMapping(
                     clrType,
-                    comparer,
                     comparer,
                     comparer);
             }
