@@ -1227,7 +1227,7 @@ GO
             }
         }
 
-        public class MigrationsInfrastructureSqlServerFixture : MigrationsFixtureBase
+        public class MigrationsInfrastructureSqlServerFixture : MigrationsInfrastructureFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
 
