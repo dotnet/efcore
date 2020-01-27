@@ -88,7 +88,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             expressionPrinter.Append(IsNegated ? " NOT IN " : " IN ");
             expressionPrinter.Append("(");
 
-            if (Values is SqlConstantExpression constantValuesExpression
+            if (Subquery != null)
+            {
+                using (expressionPrinter.Indent())
+                {
+                    expressionPrinter.Visit(Subquery);
+                }
+            }
+            else if (Values is SqlConstantExpression constantValuesExpression
                 && constantValuesExpression.Value is IEnumerable constantValues)
             {
                 var first = true;

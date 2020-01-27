@@ -2200,14 +2200,24 @@ INNER JOIN [LevelTwo] AS [l0] ON [l].[Id] = (
                 @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
-WHERE 1 IN (
-    SELECT [t].[Id]
-    FROM (
-        SELECT DISTINCT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Optional_Self_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToMany_Required_Self_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id], [l1].[OneToOne_Optional_Self3Id]
-        FROM [LevelThree] AS [l1]
-        WHERE [l0].[Id] IS NOT NULL AND ([l0].[Id] = [l1].[OneToMany_Optional_Inverse3Id])
-    ) AS [t]
-)");
+WHERE EXISTS (
+    SELECT DISTINCT 1
+    FROM [LevelThree] AS [l1]
+    WHERE ([l0].[Id] IS NOT NULL AND ([l0].[Id] = [l1].[OneToMany_Optional_Inverse3Id])) AND ([l1].[Id] = 1))");
+        }
+
+        public override async Task Contains_with_subquery_optional_navigation_scalar_distinct_and_constant_item(bool async)
+        {
+            await base.Contains_with_subquery_optional_navigation_scalar_distinct_and_constant_item(async);
+
+            AssertSql(
+                @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
+FROM [LevelOne] AS [l]
+LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
+WHERE EXISTS (
+    SELECT DISTINCT 1
+    FROM [LevelThree] AS [l1]
+    WHERE ([l0].[Id] IS NOT NULL AND ([l0].[Id] = [l1].[OneToMany_Optional_Inverse3Id])) AND (CAST(LEN([l1].[Name]) AS int) = 1))");
         }
 
         public override async Task Required_navigation_on_a_subquery_with_First_in_projection(bool async)
@@ -4421,6 +4431,71 @@ OUTER APPLY (
 
             AssertSql(
                 @"");
+        }
+
+        public override void Contains_over_optional_navigation_with_null_constant()
+        {
+            base.Contains_over_optional_navigation_with_null_constant();
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [LevelOne] AS [l]
+        LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
+        WHERE [l0].[Id] IS NULL) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END");
+        }
+
+        public override async Task Contains_over_optional_navigation_with_null_parameter(bool async)
+        {
+            await base.Contains_over_optional_navigation_with_null_parameter(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [LevelOne] AS [l]
+        LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
+        WHERE [l0].[Id] IS NULL) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END");
+        }
+
+        public override async Task Contains_over_optional_navigation_with_null_column(bool async)
+        {
+            await base.Contains_over_optional_navigation_with_null_column(async);
+
+            AssertSql(
+                @"SELECT [l1].[Name], [l2].[Name] AS [OptionalName], CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [LevelOne] AS [l]
+        LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
+        WHERE ([l0].[Name] = [l2].[Name]) OR ([l0].[Name] IS NULL AND [l2].[Name] IS NULL)) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [Contains]
+FROM [LevelOne] AS [l1]
+LEFT JOIN [LevelTwo] AS [l2] ON [l1].[Id] = [l2].[Level1_Optional_Id]");
+        }
+
+        public override async Task Contains_over_optional_navigation_with_null_entity_reference(bool async)
+        {
+            await base.Contains_over_optional_navigation_with_null_entity_reference(async);
+
+            AssertSql(
+                @"SELECT [l1].[Name], [l2].[Name] AS [OptionalName], CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [LevelOne] AS [l]
+        LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
+        WHERE ([l0].[Id] = [l3].[Id]) OR ([l0].[Id] IS NULL AND [l3].[Id] IS NULL)) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [Contains]
+FROM [LevelOne] AS [l1]
+LEFT JOIN [LevelTwo] AS [l2] ON [l1].[Id] = [l2].[Level1_Optional_Id]
+LEFT JOIN [LevelTwo] AS [l3] ON [l1].[Id] = [l3].[OneToOne_Optional_PK_Inverse2Id]");
         }
 
         private void AssertSql(params string[] expected) => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

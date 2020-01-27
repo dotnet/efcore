@@ -208,9 +208,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(existsExpression, nameof(existsExpression));
 
-            return existsExpression.Update(
-                VisitInternal<SelectExpression>(existsExpression.Subquery).ResultExpression);
+            var subquery = VisitInternal<SelectExpression>(existsExpression.Subquery).ResultExpression;
+            _nullable = false;
+
+            // if subquery has predicate which evaluates to false, we can simply return false
+            return IsConstantFalse(subquery.Predicate)
+                ? subquery.Predicate
+                : existsExpression.Update(subquery);
         }
+
+        private static bool IsConstantFalse(SqlExpression expression)
+            => expression is SqlConstantExpression constantExpression
+            && constantExpression.Value is bool boolValue
+            && !boolValue;
 
         protected override Expression VisitFromSql(FromSqlExpression fromSqlExpression)
             => Check.NotNull(fromSqlExpression, nameof(fromSqlExpression));
@@ -223,8 +233,23 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (inExpression.Subquery != null)
             {
-                var (subquery, subqueryNullable) = VisitInternal<SelectExpression>(inExpression.Subquery);
-                _nullable = itemNullable || subqueryNullable;
+                var subquery = VisitInternal<SelectExpression>(inExpression.Subquery).ResultExpression;
+
+                // a IN (SELECT * FROM table WHERE false) => false
+                if (IsConstantFalse(subquery.Predicate))
+                {
+                    _nullable = false;
+
+                    return subquery.Predicate;
+                }
+
+                // if item is not nullable, and subquery contains a non-nullable column we know the result can never be null
+                // note: in this case we could broaden the optimization if we knew the nullability of the projection
+                // but we don't keep that information and we want to avoid double visitation
+                _nullable = !(!itemNullable
+                    && subquery.Projection.Count == 1
+                    && subquery.Projection[0].Expression is ColumnExpression columnProjection
+                    && !columnProjection.IsNullable);
 
                 return inExpression.Update(item, values: null, subquery);
             }
@@ -234,8 +259,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (UseRelationalNulls
                 || !(inExpression.Values is SqlConstantExpression || inExpression.Values is SqlParameterExpression))
             {
-                var (values, valuesNullable) = VisitInternal<SqlExpression>(inExpression.Values);
-                _nullable = itemNullable || valuesNullable;
+                var values = VisitInternal<SqlExpression>(inExpression.Values).ResultExpression;
+                _nullable = false;
 
                 return inExpression.Update(item, values, subquery: null);
             }
@@ -266,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (!itemNullable
                 || (_allowOptimizedExpansion && !inExpression.IsNegated && !hasNullValue))
             {
-                _nullable = itemNullable;
+                _nullable = false;
 
                 // non_nullable IN (1, 2) -> non_nullable IN (1, 2)
                 // non_nullable IN (1, 2, NULL) -> non_nullable IN (1, 2)
@@ -276,7 +301,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return inExpression.Update(item, inValuesExpression, subquery: null);
             }
 
-            // adding null comparison term to remove nulls completely from the resulting expression
             _nullable = false;
 
             // nullable IN (1, 2) -> nullable IN (1, 2) AND nullable IS NOT NULL (full)

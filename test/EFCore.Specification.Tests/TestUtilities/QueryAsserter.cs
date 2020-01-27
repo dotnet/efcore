@@ -1473,6 +1473,25 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Assert.Empty(context.ChangeTracker.Entries());
         }
 
+        public override async Task AssertContains<TElement>(
+            Func<ISetSource, IQueryable<TElement>> actualQuery,
+            Func<ISetSource, IQueryable<TElement>> expectedQuery,
+            TElement actualElement,
+            TElement expectedElement,
+            Action<bool, bool> asserter = null,
+            bool async = false)
+        {
+            using var context = _contextCreator();
+            var actual = async
+                ? await actualQuery(SetSourceCreator(context)).ContainsAsync(actualElement)
+                : actualQuery(SetSourceCreator(context)).Contains(actualElement);
+
+            var expected = expectedQuery(ExpectedData).Contains(expectedElement);
+
+            AssertEqual(expected, actual, asserter);
+            Assert.Empty(context.ChangeTracker.Entries());
+        }
+
         #endregion
 
         #region Helpers

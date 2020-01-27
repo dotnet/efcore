@@ -1229,6 +1229,24 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery(async, ss => ss.Set<NullSemanticsEntity1>().Select(x => x.NullableStringB + x.NullableStringA));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Empty_subquery_with_contains_returns_false(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<NullSemanticsEntity1>().Where(e => ss.Set<NullSemanticsEntity2>().Where(x => false).Select(x => x.NullableIntA).Contains(e.NullableIntA)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Empty_subquery_with_contains_negated_returns_true(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<NullSemanticsEntity1>().Where(e => !ss.Set<NullSemanticsEntity2>().Where(x => false).Select(x => x.NullableIntA).Contains(e.NullableIntA)));
+        }
+
         private string NormalizeDelimitersInRawString(string sql)
             => Fixture.TestStore.NormalizeDelimitersInRawString(sql);
 

@@ -2474,10 +2474,10 @@ FROM [Orders] AS [o]");
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE N'Chai' IN (
-    SELECT [p0].[ProductName]
+WHERE EXISTS (
+    SELECT 1
     FROM [Products] AS [p0]
-)");
+    WHERE [p0].[ProductName] = N'Chai')");
         }
 
         public override async Task Where_subquery_on_collection(bool async)
@@ -2487,11 +2487,10 @@ WHERE N'Chai' IN (
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE CAST(5 AS smallint) IN (
-    SELECT [o].[Quantity]
+WHERE EXISTS (
+    SELECT 1
     FROM [Order Details] AS [o]
-    WHERE [o].[ProductID] = [p].[ProductID]
-)");
+    WHERE ([o].[ProductID] = [p].[ProductID]) AND ([o].[Quantity] = CAST(5 AS smallint)))");
         }
 
         public override async Task Select_many_cross_join_same_collection(bool async)
@@ -3634,12 +3633,11 @@ WHERE CONVERT(date, [o].[OrderDate]) IN ('1996-07-04T00:00:00.000')");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[OrderID] > 11000) AND [o].[OrderID] IN (
-    SELECT [o0].[OrderID]
+WHERE ([o].[OrderID] > 11000) AND EXISTS (
+    SELECT 1
     FROM [Order Details] AS [o0]
     INNER JOIN [Products] AS [p] ON [o0].[ProductID] = [p].[ProductID]
-    WHERE [p].[ProductName] = N'Chai'
-)");
+    WHERE ([p].[ProductName] = N'Chai') AND ([o0].[OrderID] = [o].[OrderID]))");
         }
 
         public override async Task Complex_query_with_repeated_query_model_compiles_correctly(bool async)

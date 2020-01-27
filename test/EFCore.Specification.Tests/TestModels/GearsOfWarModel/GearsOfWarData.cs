@@ -324,12 +324,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
         public static IReadOnlyList<LocustLeader> CreateLocustLeaders()
             => new List<LocustLeader>
             {
-                new LocustLeader { Name = "General Karn", ThreatLevel = 3 },
-                new LocustLeader { Name = "General RAAM", ThreatLevel = 4 },
-                new LocustLeader { Name = "High Priest Skorge", ThreatLevel = 1 },
-                new LocustCommander { Name = "Queen Myrrah", ThreatLevel = 5 },
-                new LocustLeader { Name = "The Speaker", ThreatLevel = 3 },
-                new LocustCommander { Name = "Unknown", ThreatLevel = 0 }
+                new LocustLeader { Name = "General Karn", ThreatLevel = 3, ThreatLevelByte = 3, ThreatLevelNullableByte = 3 },
+                new LocustLeader { Name = "General RAAM", ThreatLevel = 4, ThreatLevelByte = 4, ThreatLevelNullableByte = 4 },
+                new LocustLeader { Name = "High Priest Skorge", ThreatLevel = 1, ThreatLevelByte = 1, ThreatLevelNullableByte = 1 },
+                new LocustCommander { Name = "Queen Myrrah", ThreatLevel = 5, ThreatLevelByte = 5, ThreatLevelNullableByte = 5 },
+                new LocustLeader { Name = "The Speaker", ThreatLevel = 3, ThreatLevelByte = 3, ThreatLevelNullableByte = 3 },
+                new LocustCommander { Name = "Unknown", ThreatLevel = 0, ThreatLevelByte = 0, ThreatLevelNullableByte = null }
             };
 
         public static IReadOnlyList<Faction> CreateFactions()

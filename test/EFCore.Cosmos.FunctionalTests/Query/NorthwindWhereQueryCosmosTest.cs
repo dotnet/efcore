@@ -2053,6 +2053,12 @@ WHERE ((c[""Discriminator""] = ""Order"") AND @__p_0)");
             return base.Where_collection_navigation_ToArray_Length_member(async);
         }
 
+        [ConditionalTheory(Skip = "Issue#17246 (Contains over subquery is not supported")]
+        public override Task Where_Queryable_AsEnumerable_Contains_negated(bool async)
+        {
+            return base.Where_Queryable_AsEnumerable_Contains_negated(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

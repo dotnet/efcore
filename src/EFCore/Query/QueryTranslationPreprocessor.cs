@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             query = NormalizeQueryableMethodCall(query);
 
             query = new VBToCSharpConvertingExpressionVisitor().Visit(query);
-            query = new AllAnyToContainsRewritingExpressionVisitor().Visit(query);
+            query = new AllAnyContainsRewritingExpressionVisitor().Visit(query);
             query = new NullCheckRemovingExpressionVisitor().Visit(query);
             query = new EntityEqualityRewritingExpressionVisitor(_queryCompilationContext).Rewrite(query);
             query = new SubqueryMemberPushdownExpressionVisitor(_queryCompilationContext.Model).Visit(query);

@@ -162,6 +162,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                             Assert.Equal(ee.Name, aa.Name);
                             Assert.Equal(ee.ThreatLevel, aa.ThreatLevel);
+                            Assert.Equal(ee.ThreatLevelByte, aa.ThreatLevelByte);
+                            Assert.Equal(ee.ThreatLevelNullableByte, aa.ThreatLevelNullableByte);
+
                             if (e is LocustCommander locustCommander)
                             {
                                 var actualLocustCommander = (LocustCommander)aa;
@@ -183,6 +186,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                             Assert.Equal(ee.Name, aa.Name);
                             Assert.Equal(ee.ThreatLevel, aa.ThreatLevel);
+                            Assert.Equal(ee.ThreatLevelByte, aa.ThreatLevelByte);
+                            Assert.Equal(ee.ThreatLevelNullableByte, aa.ThreatLevelNullableByte);
                             Assert.Equal(ee.DefeatedByNickname, aa.DefeatedByNickname);
                             Assert.Equal(ee.DefeatedBySquadId, aa.DefeatedBySquadId);
                         }

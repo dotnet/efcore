@@ -1169,12 +1169,11 @@ ORDER BY COUNT(*), [o].[CustomerID]");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] IN (
-    SELECT [o0].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM [Orders] AS [o0]
     GROUP BY [o0].[CustomerID]
-    HAVING COUNT(*) > 30
-)");
+    HAVING (COUNT(*) > 30) AND (([o0].[CustomerID] = [o].[CustomerID]) OR ([o0].[CustomerID] IS NULL AND [o].[CustomerID] IS NULL)))");
         }
 
         public override async Task GroupBy_aggregate_Pushdown(bool async)

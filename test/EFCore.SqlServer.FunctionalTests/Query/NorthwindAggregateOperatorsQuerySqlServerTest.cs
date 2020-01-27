@@ -716,10 +716,10 @@ ORDER BY [c].[ContactName] DESC");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (
-    SELECT [o].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM [Orders] AS [o]
-)");
+    WHERE [o].[CustomerID] = [c].[CustomerID])");
         }
 
         public override async Task Contains_with_local_array_closure(bool async)
@@ -959,13 +959,13 @@ FROM [Customers] AS [c]");
             await base.Contains_top_level(async);
 
             AssertSql(
-                @"@__p_0='ALFKI' (Size = 4000)
+                @"@__p_0='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
 SELECT CASE
-    WHEN @__p_0 IN (
-        SELECT [c].[CustomerID]
+    WHEN EXISTS (
+        SELECT 1
         FROM [Customers] AS [c]
-    ) THEN CAST(1 AS bit)
+        WHERE [c].[CustomerID] = @__p_0) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }
@@ -1079,11 +1079,10 @@ WHERE [o].[OrderID] = 10248",
                 @"@__entity_equality_p_0_OrderID='10248' (Nullable = true)
 
 SELECT CASE
-    WHEN @__entity_equality_p_0_OrderID IN (
-        SELECT [o].[OrderID]
+    WHEN EXISTS (
+        SELECT 1
         FROM [Orders] AS [o]
-        WHERE [o].[CustomerID] = N'VINET'
-    ) THEN CAST(1 AS bit)
+        WHERE ([o].[CustomerID] = N'VINET') AND ([o].[OrderID] = @__entity_equality_p_0_OrderID)) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }
@@ -1097,11 +1096,10 @@ END");
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE @__entity_equality_someOrder_0_OrderID IN (
-    SELECT [o].[OrderID]
+WHERE EXISTS (
+    SELECT 1
     FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID]
-)");
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[OrderID] = @__entity_equality_someOrder_0_OrderID))");
         }
 
         public override async Task List_Contains_with_constant_list(bool async)
@@ -1164,19 +1162,120 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN (N'ALFKI')");
         }
 
-        public override void Contains_over_entityType_with_null_should_rewrite_to_identity_equality()
+        public override async Task Contains_over_entityType_with_null_should_rewrite_to_false(bool async)
         {
-            base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality();
+            await base.Contains_over_entityType_with_null_should_rewrite_to_false(async);
+
+            AssertSql(
+                @"SELECT CAST(0 AS bit)");
+        }
+
+        public override async Task Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery(bool async)
+        {
+            await base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE 0 = 1");
+        }
+
+        public override async Task Contains_over_scalar_with_null_should_rewrite_to_identity_equality_subquery(bool async)
+        {
+            await base.Contains_over_scalar_with_null_should_rewrite_to_identity_equality_subquery(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o0]
+    WHERE ([o0].[CustomerID] = N'VINET') AND [o0].[CustomerID] IS NULL)");
+        }
+
+        public override async Task Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery_negated(bool async)
+        {
+            await base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery_negated(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE NOT (EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o0]
+    WHERE ([o0].[CustomerID] = N'VINET') AND [o0].[CustomerID] IS NULL))");
+        }
+
+        public override async Task Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery_complex(bool async)
+        {
+            await base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery_complex(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Orders] AS [o0]
+        WHERE ([o0].[CustomerID] = N'VINET') AND [o0].[CustomerID] IS NULL) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END = CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Orders] AS [o1]
+        WHERE (([o1].[CustomerID] <> N'VINET') OR [o1].[CustomerID] IS NULL) AND [o1].[CustomerID] IS NULL) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END");
+        }
+
+        public override async Task Contains_over_nullable_scalar_with_null_in_subquery_translated_correctly(bool async)
+        {
+            await base.Contains_over_nullable_scalar_with_null_in_subquery_translated_correctly(async);
 
             AssertSql(
                 @"SELECT CASE
-    WHEN NULL IN (
-        SELECT [o].[OrderID]
+    WHEN EXISTS (
+        SELECT 1
         FROM [Orders] AS [o]
-        WHERE [o].[CustomerID] = N'VINET'
-    ) THEN CAST(1 AS bit)
+        WHERE ([o].[CustomerID] = N'VINET') AND [o].[CustomerID] IS NULL) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
-END");
+END
+FROM [Orders] AS [o0]");
+        }
+
+        public override async Task Contains_over_non_nullable_scalar_with_null_in_subquery_simplifies_to_false(bool async)
+        {
+            await base.Contains_over_non_nullable_scalar_with_null_in_subquery_simplifies_to_false(async);
+
+            AssertSql(
+                @"SELECT CAST(0 AS bit)
+FROM [Orders] AS [o]");
+        }
+
+        public override async Task Contains_over_entityType_should_materialize_when_composite(bool async)
+        {
+            await base.Contains_over_entityType_should_materialize_when_composite(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE ([o].[ProductID] = 42) AND EXISTS (
+    SELECT 1
+    FROM [Order Details] AS [o0]
+    WHERE ([o0].[OrderID] = [o].[OrderID]) AND ([o0].[ProductID] = [o].[ProductID]))");
+        }
+
+        public override async Task Contains_over_entityType_should_materialize_when_composite2(bool async)
+        {
+            await base.Contains_over_entityType_should_materialize_when_composite2(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE ([o].[ProductID] = 42) AND EXISTS (
+    SELECT 1
+    FROM [Order Details] AS [o0]
+    WHERE ([o0].[OrderID] > 42) AND (([o0].[OrderID] = [o].[OrderID]) AND ([o0].[ProductID] = [o].[ProductID])))");
         }
 
         public override async Task String_FirstOrDefault_in_projection_does_client_eval(bool async)

@@ -1569,15 +1569,21 @@ WHERE [c].[CustomerID] = @__p_0");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE [o].[ProductID] IN (
-    SELECT TOP(1) [p].[ProductID]
-    FROM [Products] AS [p]
-    ORDER BY [p].[ProductID]
-) OR [o].[OrderID] IN (
-    SELECT TOP(1) [o0].[OrderID]
-    FROM [Orders] AS [o0]
-    ORDER BY [o0].[OrderID]
-)");
+WHERE EXISTS (
+    SELECT 1
+    FROM (
+        SELECT TOP(1) [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+        FROM [Products] AS [p]
+        ORDER BY [p].[ProductID]
+    ) AS [t]
+    WHERE [t].[ProductID] = [o].[ProductID]) OR EXISTS (
+    SELECT 1
+    FROM (
+        SELECT TOP(1) [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+        FROM [Orders] AS [o0]
+        ORDER BY [o0].[OrderID]
+    ) AS [t0]
+    WHERE [t0].[OrderID] = [o].[OrderID])");
         }
 
         public override async Task Where_multiple_contains_in_subquery_with_and(bool async)
@@ -1587,15 +1593,21 @@ WHERE [o].[ProductID] IN (
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE [o].[ProductID] IN (
-    SELECT TOP(20) [p].[ProductID]
-    FROM [Products] AS [p]
-    ORDER BY [p].[ProductID]
-) AND [o].[OrderID] IN (
-    SELECT TOP(10) [o0].[OrderID]
-    FROM [Orders] AS [o0]
-    ORDER BY [o0].[OrderID]
-)");
+WHERE EXISTS (
+    SELECT 1
+    FROM (
+        SELECT TOP(20) [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+        FROM [Products] AS [p]
+        ORDER BY [p].[ProductID]
+    ) AS [t]
+    WHERE [t].[ProductID] = [o].[ProductID]) AND EXISTS (
+    SELECT 1
+    FROM (
+        SELECT TOP(10) [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+        FROM [Orders] AS [o0]
+        ORDER BY [o0].[OrderID]
+    ) AS [t0]
+    WHERE [t0].[OrderID] = [o].[OrderID])");
         }
 
         public override async Task Where_contains_on_navigation(bool async)
@@ -1608,11 +1620,10 @@ FROM [Orders] AS [o]
 WHERE EXISTS (
     SELECT 1
     FROM [Customers] AS [c]
-    WHERE [o].[OrderID] IN (
-        SELECT [o0].[OrderID]
+    WHERE EXISTS (
+        SELECT 1
         FROM [Orders] AS [o0]
-        WHERE [c].[CustomerID] = [o0].[CustomerID]
-    ))");
+        WHERE ([c].[CustomerID] = [o0].[CustomerID]) AND ([o0].[OrderID] = [o].[OrderID])))");
         }
 
         public override async Task Where_subquery_FirstOrDefault_is_null(bool async)
@@ -1792,11 +1803,10 @@ ORDER BY [c].[CustomerID], [o].[OrderID]");
                 @"SELECT [c].[CustomerID], [o].[CustomerID], [o].[OrderID]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-WHERE N'ALFKI' IN (
-    SELECT [o0].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM [Orders] AS [o0]
-    WHERE [o0].[CustomerID] = [c].[CustomerID]
-)
+    WHERE ([o0].[CustomerID] = [c].[CustomerID]) AND ([o0].[CustomerID] = N'ALFKI'))
 ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
@@ -1823,11 +1833,10 @@ ORDER BY [c].[CustomerID], [o].[OrderID]");
                 @"SELECT [c].[CustomerID], [o].[CustomerID], [o].[OrderID]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-WHERE N'ALFKI' IN (
-    SELECT [o0].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM [Orders] AS [o0]
-    WHERE [o0].[CustomerID] = [c].[CustomerID]
-)
+    WHERE ([o0].[CustomerID] = [c].[CustomerID]) AND ([o0].[CustomerID] = N'ALFKI'))
 ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
@@ -1854,11 +1863,25 @@ ORDER BY [c].[CustomerID], [o].[OrderID]");
                 @"SELECT [c].[CustomerID], [o].[CustomerID], [o].[OrderID]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-WHERE N'ALFKI' IN (
-    SELECT [o0].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM [Orders] AS [o0]
-    WHERE [o0].[CustomerID] = [c].[CustomerID]
-)
+    WHERE ([o0].[CustomerID] = [c].[CustomerID]) AND ([o0].[CustomerID] = N'ALFKI'))
+ORDER BY [c].[CustomerID], [o].[OrderID]");
+        }
+
+        public override async Task Where_Queryable_AsEnumerable_Contains_negated(bool async)
+        {
+            await base.Where_Queryable_AsEnumerable_Contains_negated(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [o].[CustomerID], [o].[OrderID]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE NOT (EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o0]
+    WHERE ([o0].[CustomerID] = [c].[CustomerID]) AND ([o0].[CustomerID] = N'ALFKI')))
 ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
@@ -1909,11 +1932,10 @@ ORDER BY [o].[OrderID], [o0].[OrderID], [o0].[ProductID]");
 SELECT [c].[CustomerID], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-WHERE @__entity_equality_order_0_OrderID IN (
-    SELECT [o0].[OrderID]
+WHERE EXISTS (
+    SELECT 1
     FROM [Orders] AS [o0]
-    WHERE [c].[CustomerID] = [o0].[CustomerID]
-)
+    WHERE ([c].[CustomerID] = [o0].[CustomerID]) AND ([o0].[OrderID] = @__entity_equality_order_0_OrderID))
 ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
@@ -1964,11 +1986,10 @@ ORDER BY [o].[OrderID], [o0].[OrderID], [o0].[ProductID]");
 SELECT [c].[CustomerID], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-WHERE @__entity_equality_order_0_OrderID IN (
-    SELECT [o0].[OrderID]
+WHERE EXISTS (
+    SELECT 1
     FROM [Orders] AS [o0]
-    WHERE [c].[CustomerID] = [o0].[CustomerID]
-)
+    WHERE ([c].[CustomerID] = [o0].[CustomerID]) AND ([o0].[OrderID] = @__entity_equality_order_0_OrderID))
 ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 

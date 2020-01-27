@@ -2092,6 +2092,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_Queryable_AsEnumerable_Contains_negated(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Select(c => new { c.CustomerID, Subquery = ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).Select(o => o.CustomerID).AsEnumerable() })
+                    .Where(e => !e.Subquery.Contains("ALFKI")),
+                elementSorter: e => e.CustomerID,
+                elementAsserter: (e, a) => AssertCollection(e.Subquery, a.Subquery));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_Queryable_ToList_Count_member(bool async)
         {
             return AssertQuery(

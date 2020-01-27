@@ -70,6 +70,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public override Task Outer_parameter_in_join_key_inner_and_outer(bool async) => null;
 
+        public override Task Subquery_projecting_nullable_scalar_contains_nullable_value_needs_null_expansion(bool async) => null;
+
+        public override Task Subquery_projecting_nullable_scalar_contains_nullable_value_needs_null_expansion_negated(bool async) => null;
+
+        public override Task Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion(bool async) => null;
+
+        public override Task Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion_negated(bool async) => null;
+
         [ConditionalTheory(Skip = "Issue #17230")]
         public override Task Project_collection_navigation_nested_with_take_composite_key(bool async)
             => base.Project_collection_navigation_nested_with_take_composite_key(async);

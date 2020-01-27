@@ -515,6 +515,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Action<double?, double?> asserter = null,
             bool async = false);
 
+        public abstract Task AssertContains<TElement>(
+            Func<ISetSource, IQueryable<TElement>> actualQuery,
+            Func<ISetSource, IQueryable<TElement>> expectedQuery,
+            TElement actualElement,
+            TElement expectedElement,
+            Action<bool, bool> asserter = null,
+            bool async = false);
+
         #endregion
 
         #region Helpers

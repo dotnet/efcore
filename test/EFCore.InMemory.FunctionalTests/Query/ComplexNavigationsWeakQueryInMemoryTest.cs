@@ -83,5 +83,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return base.Nested_SelectMany_correlated_with_join_table_correctly_translated_to_apply(async);
         }
+
+        [ConditionalTheory(Skip = "issue #19742")]
+        public override Task Contains_over_optional_navigation_with_null_column(bool async)
+        {
+            return base.Contains_over_optional_navigation_with_null_column(async);
+        }
+
+        [ConditionalTheory(Skip = "issue #19742")]
+        public override Task Contains_over_optional_navigation_with_null_entity_reference(bool async)
+        {
+            return base.Contains_over_optional_navigation_with_null_entity_reference(async);
+        }
     }
 }

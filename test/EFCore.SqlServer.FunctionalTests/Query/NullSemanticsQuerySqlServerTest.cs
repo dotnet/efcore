@@ -1781,6 +1781,26 @@ FROM [Entities1] AS [e]
 WHERE (([e].[NullableStringA] IS NOT NULL AND [e].[NullableBoolB] IS NOT NULL) AND [e].[NullableStringC] IS NOT NULL) AND (([e].[NullableBoolB] <> [e].[NullableBoolC]) OR [e].[NullableBoolC] IS NULL)");
         }
 
+        public override async Task Empty_subquery_with_contains_returns_false(bool async)
+        {
+            await base.Empty_subquery_with_contains_returns_false(async);
+
+            AssertSql(
+                @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE 0 = 1");
+        }
+
+
+        public override async Task Empty_subquery_with_contains_negated_returns_true(bool async)
+        {
+            await base.Empty_subquery_with_contains_negated_returns_true(async);
+
+            AssertSql(
+                @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

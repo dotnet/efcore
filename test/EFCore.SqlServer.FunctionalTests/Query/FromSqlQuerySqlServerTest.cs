@@ -135,12 +135,12 @@ WHERE CHARINDEX(N'z', [c].[ContactName]) > 0");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (
-    SELECT [o].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM (
         SELECT * FROM ""Orders""
     ) AS [o]
-)");
+    WHERE [o].[CustomerID] = [c].[CustomerID])");
         }
 
         public override void FromSqlRaw_composed_contains2()
@@ -150,12 +150,12 @@ WHERE [c].[CustomerID] IN (
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[CustomerID] = N'ALFKI') AND [c].[CustomerID] IN (
-    SELECT [o].[CustomerID]
+WHERE ([c].[CustomerID] = N'ALFKI') AND EXISTS (
+    SELECT 1
     FROM (
         SELECT * FROM ""Orders""
     ) AS [o]
-)");
+    WHERE [o].[CustomerID] = [c].[CustomerID])");
         }
 
         public override void FromSqlRaw_queryable_multiple_composed()
@@ -581,12 +581,12 @@ SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @somename");
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] IN (
-    SELECT [c].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM (
         SELECT * FROM ""Customers"" WHERE ""City"" = @city
     ) AS [c]
-)");
+    WHERE [c].[CustomerID] = [o].[CustomerID])");
         }
 
         [ConditionalFact]
@@ -611,12 +611,12 @@ WHERE [o].[CustomerID] IN (
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] IN (
-    SELECT [c].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM (
         SELECT * FROM ""Customers"" WHERE ""City"" = @p0
     ) AS [c]
-)");
+    WHERE [c].[CustomerID] = [o].[CustomerID])");
         }
 
         [ConditionalFact]
@@ -641,12 +641,12 @@ WHERE [o].[CustomerID] IN (
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] IN (
-    SELECT [c].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM (
         SELECT * FROM ""Customers"" WHERE ""City"" = @city
     ) AS [c]
-)");
+    WHERE [c].[CustomerID] = [o].[CustomerID])");
         }
 
         [ConditionalFact]
@@ -690,24 +690,24 @@ WHERE [o].[CustomerID] IN (
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] IN (
-    SELECT [c].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM (
         SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @title
     ) AS [c]
-)",
+    WHERE [c].[CustomerID] = [o].[CustomerID])",
                 //
                 @"@city='London' (Nullable = false) (Size = 6)
 p1='Sales Representative' (Size = 4000)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] IN (
-    SELECT [c].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM (
         SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = @p1
     ) AS [c]
-)");
+    WHERE [c].[CustomerID] = [o].[CustomerID])");
         }
 
         public override void FromSqlInterpolated_parameterization_issue_12213()
@@ -724,24 +724,24 @@ p0='10300'
 
 SELECT [o].[OrderID]
 FROM [Orders] AS [o]
-WHERE ([o].[OrderID] <= @__max_0) AND [o].[OrderID] IN (
-    SELECT [o0].[OrderID]
+WHERE ([o].[OrderID] <= @__max_0) AND EXISTS (
+    SELECT 1
     FROM (
         SELECT * FROM ""Orders"" WHERE ""OrderID"" >= @p0
     ) AS [o0]
-)",
+    WHERE [o0].[OrderID] = [o].[OrderID])",
                 //
                 @"@__max_0='10400'
 p0='10300'
 
 SELECT [o].[OrderID]
 FROM [Orders] AS [o]
-WHERE ([o].[OrderID] <= @__max_0) AND [o].[OrderID] IN (
-    SELECT [o0].[OrderID]
+WHERE ([o].[OrderID] <= @__max_0) AND EXISTS (
+    SELECT 1
     FROM (
         SELECT * FROM ""Orders"" WHERE ""OrderID"" >= @p0
     ) AS [o0]
-)");
+    WHERE [o0].[OrderID] = [o].[OrderID])");
         }
 
         public override void FromSqlRaw_does_not_parameterize_interpolated_string()

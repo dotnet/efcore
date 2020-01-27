@@ -1551,26 +1551,92 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Throws<InvalidOperationException>(() => context.CustomerQueries.Contains(new CustomerView()));
         }
 
-        [ConditionalFact]
-        public virtual void Contains_over_entityType_with_null_should_rewrite_to_identity_equality()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_over_entityType_with_null_should_rewrite_to_false(bool async)
         {
-            using var context = CreateContext();
-            var query
-                = context.Orders.Where(o => o.CustomerID == "VINET")
-                    .Contains(null);
-
-            Assert.False(query);
+            return AssertContains(
+                async,
+                ss => ss.Set<Order>().Where(o => o.CustomerID == "VINET"),
+                null);
         }
 
-        [ConditionalFact]
-        public virtual void Contains_over_entityType_should_materialize_when_composite()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery(bool async)
         {
-            using var context = CreateContext();
-            Assert.Equal(
-                "Cannot translate a Contains() operator on entity 'OrderDetail' because it has a composite key.",
-                Assert.Throws<InvalidOperationException>(
-                    () => context.OrderDetails.Where(o => o.ProductID == 42)
-                        .Contains(context.OrderDetails.First(o => o.OrderID == 10248 && o.ProductID == 42))).Message);
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().Where(o => ss.Set<Order>().Where(o => o.CustomerID == "VINET").Contains(null)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_over_scalar_with_null_should_rewrite_to_identity_equality_subquery(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().Where(o => ss.Set<Order>().Where(o => o.CustomerID == "VINET").Select(o => o.CustomerID).Contains(null)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery_negated(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().Where(o => !ss.Set<Order>().Where(o => o.CustomerID == "VINET").Select(o => o.CustomerID).Contains(null)),
+                entryCount: 830);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery_complex(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().Where(o => ss.Set<Order>().Where(o => o.CustomerID == "VINET").Select(o => o.CustomerID)
+                    .Contains(null) == ss.Set<Order>().Where(o => o.CustomerID != "VINET").Select(o => o.CustomerID)
+                    .Contains(null)),
+                entryCount: 830);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_over_nullable_scalar_with_null_in_subquery_translated_correctly(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => ss.Set<Order>().Where(o => o.CustomerID == "VINET").Select(o => o.CustomerID).Contains(null)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_over_non_nullable_scalar_with_null_in_subquery_simplifies_to_false(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => ss.Set<Customer>().Where(o => o.CustomerID != "VINET").Select(o => o.CustomerID).Contains(null)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_over_entityType_should_materialize_when_composite(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OrderDetail>().Where(o => o.ProductID == 42 && ss.Set<OrderDetail>().Contains(o)),
+                entryCount: 30);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_over_entityType_should_materialize_when_composite2(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OrderDetail>().Where(o => o.ProductID == 42 && ss.Set<OrderDetail>().Where(x => x.OrderID > 42).Contains(o)),
+                entryCount: 30);
         }
 
         [ConditionalTheory]

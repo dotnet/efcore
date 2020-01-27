@@ -1102,6 +1102,23 @@ namespace Microsoft.EntityFrameworkCore.Query
             => Fixture.QueryAsserter.AssertAverage(
                 actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async);
 
+        protected Task AssertContains<TElement>(
+            bool async,
+            Func<ISetSource, IQueryable<TElement>> query,
+            TElement element,
+            Action<bool, bool> asserter = null)
+            => AssertContains(async, query, query, element, element, asserter);
+
+        protected Task AssertContains<TElement>(
+            bool async,
+            Func<ISetSource, IQueryable<TElement>> actualQuery,
+            Func<ISetSource, IQueryable<TElement>> expectedQuery,
+            TElement actualElement,
+            TElement expectedElement,
+            Action<bool, bool> asserter = null)
+            => Fixture.QueryAsserter.AssertContains(
+                actualQuery, expectedQuery, actualElement, expectedElement, asserter, async);
+
         #endregion
 
         #region Helpers

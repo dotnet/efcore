@@ -2454,6 +2454,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_with_subquery_optional_navigation_scalar_distinct_and_constant_item(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>().Where(l1 => l1.OneToOne_Optional_FK1.OneToMany_Optional2.Select(l3 => l3.Name.Length).Distinct().Contains(1)),
+                ss => ss.Set<Level1>().Where(l1 => l1.OneToOne_Optional_FK1.OneToMany_Optional2.MaybeScalar(x => x.Select(l3 => l3.Name.Length).Distinct().Contains(1)) == true));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual async Task Complex_query_with_optional_navigations_and_client_side_evaluation(bool async)
         {
             var message = (await Assert.ThrowsAsync<InvalidOperationException>(
@@ -4919,6 +4929,56 @@ namespace Microsoft.EntityFrameworkCore.Query
                 l1 => l1.OneToMany_Optional1.DefaultIfEmpty().SelectMany(
                     l2 => l2.OneToOne_Required_PK2.OneToMany_Optional3.DefaultIfEmpty()
                     .Select(l4 => new { l1Name = l1.Name, l2Name = l2.OneToOne_Required_PK2.Name, l3Name = l4.OneToOne_Optional_PK_Inverse4.Name }))));
+        }
+
+        [ConditionalFact]
+        public virtual void Contains_over_optional_navigation_with_null_constant()
+        {
+            using var ctx = CreateContext();
+            var result = ctx.Set<Level1>().Select(l1 => l1.OneToOne_Optional_FK1).Contains(null);
+            var expected = Fixture.QueryAsserter.ExpectedData.Set<Level1>().Select(l1 => l1.OneToOne_Optional_FK1).Contains(null);
+
+            Assert.Equal(expected, result);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_over_optional_navigation_with_null_parameter(bool async)
+        {
+            return AssertContains(
+                async,
+                ss => ss.Set<Level1>().Select(l1 => l1.OneToOne_Optional_FK1),
+                null);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_over_optional_navigation_with_null_column(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>().Select(l1 => new
+                {
+                    l1.Name,
+                    OptionalName = l1.OneToOne_Optional_FK1.Name,
+                    Contains = ss.Set<Level1>().Select(x => x.OneToOne_Optional_FK1.Name).Contains(l1.OneToOne_Optional_FK1.Name)
+                }),
+                elementSorter: e => (e.Name, e.OptionalName, e.Contains));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_over_optional_navigation_with_null_entity_reference(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>().Select(l1 => new
+                {
+                    l1.Name,
+                    OptionalName = l1.OneToOne_Optional_FK1.Name,
+                    Contains = ss.Set<Level1>().Select(x => x.OneToOne_Optional_FK1).Contains(l1.OneToOne_Optional_PK1)
+                }),
+                elementSorter: e => (e.Name, e.OptionalName, e.Contains));
         }
     }
 }

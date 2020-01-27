@@ -2140,21 +2140,19 @@ WHERE [e].[Id] = @__id_0");
 
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
-WHERE [e].[Id] IN (
-    SELECT [e0].[Id]
+WHERE EXISTS (
+    SELECT 1
     FROM [Entities] AS [e0]
-    WHERE [e0].[Id] = @__id_0
-)",
+    WHERE ([e0].[Id] = @__id_0) AND ([e0].[Id] = [e].[Id]))",
                     //
                     @"@__id_0='2'
 
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
-WHERE [e].[Id] IN (
-    SELECT [e0].[Id]
+WHERE EXISTS (
+    SELECT 1
     FROM [Entities] AS [e0]
-    WHERE [e0].[Id] = @__id_0
-)");
+    WHERE ([e0].[Id] = @__id_0) AND ([e0].[Id] = [e].[Id]))");
             }
         }
 
