@@ -8,11 +8,11 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
-    public class ByteArrayTranslator: IMethodCallTranslator
+    public class ByteArraySequenceEqualTranslator: IMethodCallTranslator
     {
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public ByteArrayTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
+        public ByteArraySequenceEqualTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
