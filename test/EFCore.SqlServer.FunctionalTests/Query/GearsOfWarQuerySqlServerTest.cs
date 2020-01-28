@@ -7527,6 +7527,17 @@ FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
         }
 
+        public override async Task Byte_array_filter_by_SequenceEqual(bool isAsync)
+        {
+            await base.Byte_array_filter_by_SequenceEqual(isAsync);
+
+            AssertSql(@"@__byteArrayParam_0='0x0405060708' (Size = 5)
+
+SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
+FROM [Squads] AS [s]
+WHERE [s].[Banner5] = @__byteArrayParam_0");
+        }
+
         public override async Task Group_by_nullable_property_HasValue_and_project_the_grouping_key(bool async)
         {
             await base.Group_by_nullable_property_HasValue_and_project_the_grouping_key(async);

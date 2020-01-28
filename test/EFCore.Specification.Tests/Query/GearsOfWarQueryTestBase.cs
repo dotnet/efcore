@@ -7550,6 +7550,17 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Byte_array_filter_by_SequenceEqual(bool async)
+        {
+            var byteArrayParam = new byte[] { 0x04, 0x05, 0x06, 0x07, 0x08 };
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Squad>().Where(s => s.Banner5.SequenceEqual(byteArrayParam)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Group_by_nullable_property_HasValue_and_project_the_grouping_key(bool async)
         {
             return AssertQueryScalar(
