@@ -205,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                         {
                             return (DbContext)ActivatorUtilities.GetServiceOrCreateInstance(appServices, context);
                         }
-                        catch (MissingMethodException ex)
+                        catch (Exception ex)
                         {
                             throw new OperationException(DesignStrings.NoParameterlessConstructor(context.Name), ex);
                         }
