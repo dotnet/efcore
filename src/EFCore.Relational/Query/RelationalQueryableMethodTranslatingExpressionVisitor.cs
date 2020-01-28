@@ -1026,6 +1026,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             var lambdaBody = ReplacingExpressionVisitor.Replace(
                 lambdaExpression.Parameters.Single(), shapedQueryExpression.ShaperExpression, lambdaExpression.Body);
 
+            lambdaBody = IgnoreCheckedExpressionVisitor.Ignore(lambdaBody);
+
             return ExpandWeakEntities((SelectExpression)shapedQueryExpression.QueryExpression, lambdaBody);
         }
 

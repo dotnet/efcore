@@ -7497,8 +7497,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Checked_context_with_cast_does_not_fail(bool isAsync)
         {
-            using var ctx = CreateContext();
-
             checked
             {
                 return AssertQuery(
@@ -7511,8 +7509,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Checked_context_with_addition_does_not_fail(bool isAsync)
         {
-            using var ctx = CreateContext();
-
             checked
             {
                 return AssertQuery(
@@ -7520,7 +7516,23 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ss => ss.Set<LocustLeader>().Where(w => w.ThreatLevel >= ((int)(long?)5 + (long?)w.ThreatLevel)));
             }
         }
-        
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Checked_context_throws_on_client_evaluation(bool isAsync)
+        {
+            checked
+            {
+                return Assert.ThrowsAsync<InvalidOperationException>(
+                    () => AssertQueryScalar(
+                        isAsync,
+                        ss => ss.Set<LocustLeader>().Select(w => w.ThreatLevel >= (byte)GetThreatLevel()))
+                    );
+            }
+        }
+
+        private int GetThreatLevel() => 256;
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
