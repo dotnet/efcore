@@ -26,4 +26,9 @@
     <PackageReference Include="xunit" Version="$(XUnitVersion)" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="TestModels\BookStore\erlkoenig.txt" />
+    <EmbeddedResource Include="TestModels\BookStore\ulysses.txt" />
+  </ItemGroup>
+
 </Project>
