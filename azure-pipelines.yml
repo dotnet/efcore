@@ -158,7 +158,7 @@ stages:
                     echo "##vso[task.setvariable variable=_CosmosConnectionUrl]https://ef-pr-test.documents.azure.com:443/"
                     echo "##vso[task.setvariable variable=_CosmosToken]$(ef-pr-cosmos-test)"
                 displayName: Prepare to run Cosmos tests on ef-pr-test
-                condition: and(eq(variables['_CosmosConnectionUrl'], 'true'), or(endsWith(variables['Build.BuildId'], '1'), endsWith(variables['Build.BuildId'], '3'), endsWith(variables['Build.BuildId'], '5'), endsWith(variables['Build.BuildId'], '7'), endsWith(variables['Build.BuildId'], '9')))
+                condition: and(eq(variables['_CosmosConnectionUrl'], 'true'), or(endsWith(variables['_runCounter'], '1'), endsWith(variables['_runCounter'], '3'), endsWith(variables['_runCounter'], '5'), endsWith(variables['_runCounter'], '7'), endsWith(variables['_runCounter'], '9')))
               - ${{ if ne(variables['System.TeamProject'], 'public') }}:
                 - task: Bash@3
                   displayName: Setup Private Feeds Credentials
@@ -168,7 +168,7 @@ stages:
                   env:
                     Token: $(dn-bot-dnceng-artifact-feeds-rw)
               - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
-                env: 
+                env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                   Test__Cosmos__AuthToken: $(_CosmosToken)
                 name: Build
