@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder.Entity<Customer>().Property(x => x.ETag).SetEtagConcurrency();
             var model = modelBuilder.Model;
 
-            var etagProperty = model.FindEntityType(typeof(Customer).FullName).FindProperty("ConcurrencyToken");
+            var etagProperty = model.FindEntityType(typeof(Customer).FullName).FindProperty("ETag");
             Assert.NotNull(etagProperty);
             Assert.Equal(ValueGenerated.OnAddOrUpdate, etagProperty.ValueGenerated);
             Assert.True(etagProperty.IsConcurrencyToken);
