@@ -705,6 +705,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override DataBuilder<TDependentEntity> HasData(params object[] data)
                 => OwnedNavigationBuilder.HasData(data);
 
+            public override DataBuilder<TDependentEntity> HasData(IEnumerable<TDependentEntity> data)
+                => OwnedNavigationBuilder.HasData(data);
+
+            public override DataBuilder<TDependentEntity> HasData(IEnumerable<object> data)
+                => OwnedNavigationBuilder.HasData(data);
+
             OwnedNavigationBuilder<TEntity, TDependentEntity> IInfrastructure<OwnedNavigationBuilder<TEntity, TDependentEntity>>.
                 Instance
                 => OwnedNavigationBuilder;

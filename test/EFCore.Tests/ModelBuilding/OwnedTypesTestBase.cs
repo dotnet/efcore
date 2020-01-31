@@ -425,8 +425,23 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Null(model.FindEntityType(typeof(SpecialOrder)));
             }
 
-            [ConditionalFact]
-            public virtual void Can_configure_owned_type_from_an_owned_type_collection()
+            [Flags]
+            public enum HasDataOverload
+            {
+                Array = 0,
+                Enumerable = 1,
+                Generic = 2,
+                Params = 4
+            }
+
+            [ConditionalTheory]
+            [InlineData(HasDataOverload.Array)]
+            [InlineData(HasDataOverload.Array | HasDataOverload.Params)]
+            [InlineData(HasDataOverload.Array | HasDataOverload.Generic)]
+            [InlineData(HasDataOverload.Array | HasDataOverload.Params | HasDataOverload.Generic)]
+            [InlineData(HasDataOverload.Enumerable)]
+            [InlineData(HasDataOverload.Enumerable | HasDataOverload.Generic)]
+            public virtual void Can_configure_owned_type_from_an_owned_type_collection(HasDataOverload hasDataOverload)
             {
                 var modelBuilder = CreateModelBuilder();
 
@@ -435,9 +450,33 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     c => c.Orders, ob =>
                     {
                         ob.HasKey(o => o.OrderId);
-                        ob.OwnsOne(o => o.Details)
-                            .HasData(
-                                new OrderDetails { OrderId = -1 });
+                        var ownedNavigationBuilder = ob.OwnsOne(o => o.Details);
+
+                        switch (hasDataOverload)
+                        {
+                            case HasDataOverload.Array:
+                                ownedNavigationBuilder.HasData(new object[] { new OrderDetails { OrderId = -1 } });
+                                break;
+                            case HasDataOverload.Array | HasDataOverload.Params:
+                                ownedNavigationBuilder.HasData((object)new OrderDetails { OrderId = -1 });
+                                break;
+                            case HasDataOverload.Array | HasDataOverload.Generic:
+                                // ReSharper disable once RedundantExplicitParamsArrayCreation
+                                ownedNavigationBuilder.HasData(new[] { new OrderDetails { OrderId = -1 } });
+                                break;
+                            case HasDataOverload.Array | HasDataOverload.Params | HasDataOverload.Generic:
+                                ownedNavigationBuilder.HasData(new OrderDetails { OrderId = -1 });
+                                break;
+                            case HasDataOverload.Enumerable:
+                                ownedNavigationBuilder.HasData(new List<object> { new OrderDetails { OrderId = -1 } });
+                                break;
+                            case HasDataOverload.Enumerable | HasDataOverload.Generic:
+                                ownedNavigationBuilder.HasData(new List<OrderDetails>() { new OrderDetails { OrderId = -1 } });
+                                break;
+                            default:
+                                Assert.True(false, $"Unexpected HasData overload specification {hasDataOverload}");
+                                break;
+                        }
                     });
 
                 var model = modelBuilder.FinalizeModel();
