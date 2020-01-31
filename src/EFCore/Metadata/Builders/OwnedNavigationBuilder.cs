@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -777,6 +778,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the model data. </returns>
         public virtual DataBuilder HasData([NotNull] params object[] data)
+        {
+            Check.NotNull(data, nameof(data));
+
+            OwnedEntityType.AddData(data);
+
+            return new DataBuilder();
+        }
+
+        /// <summary>
+        ///     Configures this entity to have seed data. It is used to generate data motion migrations.
+        /// </summary>
+        /// <param name="data">
+        ///     A collection of seed data represented by anonymous types.
+        /// </param>
+        /// <returns> An object that can be used to configure the model data. </returns>
+        public virtual DataBuilder HasData([NotNull] IEnumerable<object> data)
         {
             Check.NotNull(data, nameof(data));
 

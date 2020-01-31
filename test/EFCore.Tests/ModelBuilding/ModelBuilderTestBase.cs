@@ -515,6 +515,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract DataBuilder<TDependentEntity> HasData(params TDependentEntity[] data);
 
             public abstract DataBuilder<TDependentEntity> HasData(params object[] data);
+
+            public abstract DataBuilder<TDependentEntity> HasData(IEnumerable<TDependentEntity> data);
+
+            public abstract DataBuilder<TDependentEntity> HasData(IEnumerable<object> data);
         }
     }
 }

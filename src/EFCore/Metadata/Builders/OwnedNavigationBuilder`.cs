@@ -631,10 +631,40 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures this entity to have seed data. It is used to generate data motion migrations.
         /// </summary>
         /// <param name="data">
+        ///     A collection of seed data.
+        /// </param>
+        /// <returns> An object that can be used to configure the model data. </returns>
+        public virtual DataBuilder<TDependentEntity> HasData([NotNull] IEnumerable<TDependentEntity> data)
+        {
+            Check.NotNull(data, nameof(data));
+
+            OwnedEntityType.AddData(data);
+
+            return new DataBuilder<TDependentEntity>();
+        }
+
+        /// <summary>
+        ///     Configures this entity to have seed data. It is used to generate data motion migrations.
+        /// </summary>
+        /// <param name="data">
         ///     An array of seed data represented by anonymous types.
         /// </param>
         /// <returns> An object that can be used to configure the model data. </returns>
         public new virtual DataBuilder<TDependentEntity> HasData([NotNull] params object[] data)
+        {
+            base.HasData(data);
+
+            return new DataBuilder<TDependentEntity>();
+        }
+
+        /// <summary>
+        ///     Configures this entity to have seed data. It is used to generate data motion migrations.
+        /// </summary>
+        /// <param name="data">
+        ///     A collection of seed data represented by anonymous types.
+        /// </param>
+        /// <returns> An object that can be used to configure the model data. </returns>
+        public new virtual DataBuilder<TDependentEntity> HasData([NotNull] IEnumerable<object> data)
         {
             base.HasData(data);
 

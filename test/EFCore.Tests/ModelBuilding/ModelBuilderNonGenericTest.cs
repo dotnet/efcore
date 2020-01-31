@@ -707,6 +707,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 return new DataBuilder<TDependentEntity>();
             }
 
+            public override DataBuilder<TDependentEntity> HasData(IEnumerable<TDependentEntity> data)
+            {
+                OwnedNavigationBuilder.HasData(data);
+                return new DataBuilder<TDependentEntity>();
+            }
+
+            public override DataBuilder<TDependentEntity> HasData(IEnumerable<object> data)
+            {
+                OwnedNavigationBuilder.HasData(data);
+                return new DataBuilder<TDependentEntity>();
+            }
+
             OwnedNavigationBuilder IInfrastructure<OwnedNavigationBuilder>.Instance => OwnedNavigationBuilder;
         }
     }
