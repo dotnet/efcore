@@ -16,27 +16,25 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TFixture Fixture { get; }
 
-        [ConditionalFact(Skip = "issue #15285")]
+        [ConditionalFact]
         public virtual void Property_entry_original_value_is_set()
         {
-            using (var c = CreateF1Context())
-            {
-                c.Database.CreateExecutionStrategy().Execute(
-                    c, context =>
+            using var c = CreateF1Context();
+            c.Database.CreateExecutionStrategy().Execute(
+                c, context =>
+                {
+                    using (context.Database.BeginTransaction())
                     {
-                        using (context.Database.BeginTransaction())
-                        {
-                            // ReSharper disable once UnusedVariable
-                            var engine = context.Engines.OrderBy(e => e.Id).First();
-                            var trackedEntry = context.ChangeTracker.Entries<Engine>().First();
-                            trackedEntry.Property(e => e.Name).OriginalValue = "ChangedEngine";
+                        // ReSharper disable once UnusedVariable
+                        var engine = context.Engines.OrderBy(e => e.Id).First();
+                        var trackedEntry = context.ChangeTracker.Entries<Engine>().First();
+                        trackedEntry.Property(e => e.Name).OriginalValue = "ChangedEngine";
 
-                            Assert.Equal(
-                                RelationalStrings.UpdateConcurrencyException("1", "0"),
-                                Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges()).Message);
-                        }
-                    });
-            }
+                        Assert.Equal(
+                            RelationalStrings.UpdateConcurrencyException("1", "0"),
+                            Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges()).Message);
+                    }
+                });
         }
 
         protected F1Context CreateF1Context() => Fixture.CreateContext();

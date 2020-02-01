@@ -7,6 +7,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Inheritance
     {
         public int SugarGrams { get; set; }
         public int CaffeineGrams { get; set; }
-        public int Carbination { get; set; }
+        public int Carbonation { get; set; }
     }
 }

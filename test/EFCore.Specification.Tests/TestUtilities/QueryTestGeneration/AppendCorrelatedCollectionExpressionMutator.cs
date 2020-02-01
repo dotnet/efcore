@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 {
@@ -16,17 +17,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
         }
 
         private bool ContainsCollectionNavigation(Type type)
-            => Context.Model.FindEntityType(type)?.GetNavigations().Any(n => n.IsCollection()) ?? false;
+            => Context.Model.FindEntityType(type)?.GetNavigations().Any(n => n.IsCollection) ?? false;
 
         public override bool IsValid(Expression expression)
             => IsQueryableResult(expression)
-               && IsEntityType(expression.Type.GetGenericArguments()[0])
-               && ContainsCollectionNavigation(expression.Type.GetGenericArguments()[0]);
+                && IsEntityType(expression.Type.GetGenericArguments()[0])
+                && ContainsCollectionNavigation(expression.Type.GetGenericArguments()[0]);
 
         public override Expression Apply(Expression expression, Random random)
         {
             var typeArgument = expression.Type.GetGenericArguments()[0];
-            var navigations = Context.Model.FindEntityType(typeArgument).GetNavigations().Where(n => n.IsCollection()).ToList();
+            var navigations = Context.Model.FindEntityType(typeArgument).GetNavigations().Where(n => n.IsCollection).ToList();
 
             var i = random.Next(navigations.Count);
             var navigation = navigations[i];
@@ -34,9 +35,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             var collectionElementType = navigation.ForeignKey.DeclaringEntityType.ClrType;
             var listType = typeof(List<>).MakeGenericType(collectionElementType);
 
-            var select = SelectMethodInfo.MakeGenericMethod(typeArgument, listType);
-            var where = EnumerableWhereMethodInfo.MakeGenericMethod(collectionElementType);
-            var toList = ToListMethodInfo.MakeGenericMethod(collectionElementType);
+            var select = QueryableMethods.Select.MakeGenericMethod(typeArgument, listType);
+            var where = EnumerableMethods.Where.MakeGenericMethod(collectionElementType);
+            var toList = EnumerableMethods.ToList.MakeGenericMethod(collectionElementType);
 
             var outerPrm = Expression.Parameter(typeArgument, "outerPrm");
             var innerPrm = Expression.Parameter(collectionElementType, "innerPrm");

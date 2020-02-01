@@ -20,7 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="loggingOptions"> Logging options. </param>
         /// <param name="eventId"> The <see cref="EventId" />. </param>
         /// <param name="level"> The <see cref="LogLevel" /> at which the event will be logged. </param>
-        /// <param name="eventIdCode"> A string representing the code that should be passed to <see cref="DbContextOptionsBuilder.ConfigureWarnings"/>. </param>
+        /// <param name="eventIdCode">
+        ///     A string representing the code that should be passed to <see cref="DbContextOptionsBuilder.ConfigureWarnings" />.
+        /// </param>
         /// <param name="messageFormat"> The parameterized message definition. </param>
         public FallbackEventDefinition(
             [NotNull] ILoggingOptions loggingOptions,
@@ -55,15 +57,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <typeparam name="TLoggerCategory"> The <see cref="DbLoggerCategory" />. </typeparam>
         /// <param name="logger"> The logger to which the event should be logged. </param>
-        /// <param name="warningBehavior"> Whether the event should be logged, thrown as an exception or ignored. </param>
         /// <param name="logAction"> A delegate that will log the message to an <see cref="ILogger" />. </param>
         public virtual void Log<TLoggerCategory>(
             [NotNull] IDiagnosticsLogger<TLoggerCategory> logger,
-            WarningBehavior warningBehavior,
             [NotNull] Action<ILogger> logAction)
             where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
         {
-            switch (warningBehavior)
+            switch (WarningBehavior)
             {
                 case WarningBehavior.Log:
                     logAction(logger.Logger);

@@ -1,9 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -107,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         [ConditionalFact]
         public void Does_not_warn_for_duplicate_non_conflicting_annotations()
         {
-            var model = new Model();
+            var model = new ModelBuilder(new ConventionSet()).Model;
             model.SetProductVersion("1.1.2");
             model["Unicorn:DefaultSchema"] = "Value";
             model["Hippo:DefaultSchema"] = "Value";
@@ -166,8 +169,26 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Assert.Empty(reporter.Messages);
             Assert.Equal(
                 nameof(BlogDetails.BlogId),
-                model.FindEntityType(typeof(Blog)).FindNavigation(nameof(Blog.Details)).GetTargetType().FindPrimaryKey().Properties.Single()
+                model.FindEntityType(typeof(Blog)).FindNavigation(nameof(Blog.Details)).TargetEntityType.FindPrimaryKey().Properties.Single()
                     .Name);
+        }
+
+        [ConditionalTheory]
+        [InlineData(typeof(OwnershipModelSnapshot2_0))]
+        [InlineData(typeof(OwnershipModelSnapshot2_1))]
+        [InlineData(typeof(OwnershipModelSnapshot2_2))]
+        [InlineData(typeof(OwnershipModelSnapshot3_0))]
+        public void Can_diff_against_older_ownership_model(Type snapshotType)
+        {
+            using var db = new Ownership.OwnershipContext();
+            var differ = db.GetService<IMigrationsModelDiffer>();
+            var snapshot = (ModelSnapshot)Activator.CreateInstance(snapshotType);
+            var reporter = new TestOperationReporter();
+            var processor = new SnapshotModelProcessor(reporter);
+
+            var differences = differ.GetDifferences(processor.Process(snapshot.Model), db.Model);
+
+            Assert.Empty(differences);
         }
 
         private void AddAnnotations(IMutableAnnotatable element)
@@ -213,6 +234,967 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             public int BlogId { get; set; }
 
             public ICollection<Post> Posts { get; set; }
+        }
+
+        private class OwnershipModelSnapshot2_0 : ModelSnapshot
+        {
+            protected override void BuildModel(ModelBuilder modelBuilder)
+            {
+#pragma warning disable 612, 618
+                modelBuilder
+                    .HasAnnotation("ProductVersion", "2.0.3-rtm-10026")
+                    .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                modelBuilder.Entity("Ownership.OwningType1", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OwningType1");
+                });
+
+                modelBuilder.Entity("Ownership.OwningType2", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OwningType2");
+                });
+
+                modelBuilder.Entity("Ownership.OwningType1", b =>
+                {
+                    b.OwnsOne("Ownership.OwnedType", "OwnedType1", b1 =>
+                    {
+                        b1.Property<int>("OwningType1Id");
+
+                        b1.ToTable("OwningType1");
+
+                        b1.HasOne("Ownership.OwningType1")
+                            .WithOne("OwnedType1")
+                            .HasForeignKey("Ownership.OwnedType", "OwningType1Id")
+                            .OnDelete(DeleteBehavior.Cascade);
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType1", b2 =>
+                        {
+                            b2.Property<int>("OwnedTypeOwningType1Id");
+
+                            b2.Property<int>("Value");
+
+                            b2.ToTable("OwningType1");
+
+                            b2.HasOne("Ownership.OwnedType")
+                                .WithOne("NestedOwnedType1")
+                                .HasForeignKey("Ownership.NestedOwnedType", "OwnedTypeOwningType1Id")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType2", b2 =>
+                        {
+                            b2.Property<int>("OwnedTypeOwningType1Id");
+
+                            b2.Property<int>("Value");
+
+                            b2.ToTable("OwningType1");
+
+                            b2.HasOne("Ownership.OwnedType")
+                                .WithOne("NestedOwnedType2")
+                                .HasForeignKey("Ownership.NestedOwnedType", "OwnedTypeOwningType1Id")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
+                    });
+
+                    b.OwnsOne("Ownership.OwnedType", "OwnedType2", b1 =>
+                    {
+                        b1.Property<int?>("OwningType1Id");
+
+                        b1.ToTable("OwningType1");
+
+                        b1.HasOne("Ownership.OwningType1")
+                            .WithOne("OwnedType2")
+                            .HasForeignKey("Ownership.OwnedType", "OwningType1Id")
+                            .OnDelete(DeleteBehavior.Cascade);
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType1", b2 =>
+                        {
+                            b2.Property<int?>("OwnedTypeOwningType1Id");
+
+                            b2.Property<int>("Value");
+
+                            b2.ToTable("OwningType1");
+
+                            b2.HasOne("Ownership.OwnedType")
+                                .WithOne("NestedOwnedType1")
+                                .HasForeignKey("Ownership.NestedOwnedType", "OwnedTypeOwningType1Id")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType2", b2 =>
+                        {
+                            b2.Property<int?>("OwnedTypeOwningType1Id");
+
+                            b2.Property<int>("Value");
+
+                            b2.ToTable("OwningType1");
+
+                            b2.HasOne("Ownership.OwnedType")
+                                .WithOne("NestedOwnedType2")
+                                .HasForeignKey("Ownership.NestedOwnedType", "OwnedTypeOwningType1Id")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
+                    });
+                });
+
+                modelBuilder.Entity("Ownership.OwningType2", b =>
+                {
+                    b.OwnsOne("Ownership.OwnedType", "OwnedType1", b1 =>
+                    {
+                        b1.Property<int?>("OwningType2Id");
+
+                        b1.ToTable("OwningType2");
+
+                        b1.HasOne("Ownership.OwningType2")
+                            .WithOne("OwnedType1")
+                            .HasForeignKey("Ownership.OwnedType", "OwningType2Id")
+                            .OnDelete(DeleteBehavior.Cascade);
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType1", b2 =>
+                        {
+                            b2.Property<int?>("OwnedTypeOwningType2Id");
+
+                            b2.Property<int>("Value");
+
+                            b2.ToTable("OwningType2");
+
+                            b2.HasOne("Ownership.OwnedType")
+                                .WithOne("NestedOwnedType1")
+                                .HasForeignKey("Ownership.NestedOwnedType", "OwnedTypeOwningType2Id")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType2", b2 =>
+                        {
+                            b2.Property<int?>("OwnedTypeOwningType2Id");
+
+                            b2.Property<int>("Value");
+
+                            b2.ToTable("OwningType2");
+
+                            b2.HasOne("Ownership.OwnedType")
+                                .WithOne("NestedOwnedType2")
+                                .HasForeignKey("Ownership.NestedOwnedType", "OwnedTypeOwningType2Id")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
+                    });
+
+                    b.OwnsOne("Ownership.OwnedType", "OwnedType2", b1 =>
+                    {
+                        b1.Property<int?>("OwningType2Id");
+
+                        b1.ToTable("OwningType2");
+
+                        b1.HasOne("Ownership.OwningType2")
+                            .WithOne("OwnedType2")
+                            .HasForeignKey("Ownership.OwnedType", "OwningType2Id")
+                            .OnDelete(DeleteBehavior.Cascade);
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType1", b2 =>
+                        {
+                            b2.Property<int?>("OwnedTypeOwningType2Id");
+
+                            b2.Property<int>("Value");
+
+                            b2.ToTable("OwningType2");
+
+                            b2.HasOne("Ownership.OwnedType")
+                                .WithOne("NestedOwnedType1")
+                                .HasForeignKey("Ownership.NestedOwnedType", "OwnedTypeOwningType2Id")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType2", b2 =>
+                        {
+                            b2.Property<int?>("OwnedTypeOwningType2Id");
+
+                            b2.Property<int>("Value");
+
+                            b2.ToTable("OwningType2");
+
+                            b2.HasOne("Ownership.OwnedType")
+                                .WithOne("NestedOwnedType2")
+                                .HasForeignKey("Ownership.NestedOwnedType", "OwnedTypeOwningType2Id")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
+                    });
+                });
+#pragma warning restore 612, 618
+            }
+        }
+
+        private class OwnershipModelSnapshot2_1 : ModelSnapshot
+        {
+            protected override void BuildModel(ModelBuilder modelBuilder)
+            {
+#pragma warning disable 612, 618
+                modelBuilder
+                    .HasAnnotation("ProductVersion", "2.1.11-servicing-32099")
+                    .HasAnnotation("Relational:MaxIdentifierLength", 128)
+                    .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                modelBuilder.Entity("Ownership.OwningType1", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OwningType1");
+                });
+
+                modelBuilder.Entity("Ownership.OwningType2", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OwningType2");
+                });
+
+                modelBuilder.Entity("Ownership.OwningType1", b =>
+                {
+                    b.OwnsOne("Ownership.OwnedType", "OwnedType1", b1 =>
+                    {
+                        b1.Property<int>("OwningType1Id")
+                            .ValueGeneratedOnAdd()
+                            .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                        b1.ToTable("OwningType1");
+
+                        b1.HasOne("Ownership.OwningType1")
+                            .WithOne("OwnedType1")
+                            .HasForeignKey("Ownership.OwnedType", "OwningType1Id")
+                            .OnDelete(DeleteBehavior.Cascade);
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType1", b2 =>
+                        {
+                            b2.Property<int>("OwnedTypeOwningType1Id")
+                                .ValueGeneratedOnAdd()
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b2.Property<int>("Value");
+
+                            b2.ToTable("OwningType1");
+
+                            b2.HasOne("Ownership.OwnedType")
+                                .WithOne("NestedOwnedType1")
+                                .HasForeignKey("Ownership.NestedOwnedType", "OwnedTypeOwningType1Id")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType2", b2 =>
+                        {
+                            b2.Property<int>("OwnedTypeOwningType1Id")
+                                .ValueGeneratedOnAdd()
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b2.Property<int>("Value");
+
+                            b2.ToTable("OwningType1");
+
+                            b2.HasOne("Ownership.OwnedType")
+                                .WithOne("NestedOwnedType2")
+                                .HasForeignKey("Ownership.NestedOwnedType", "OwnedTypeOwningType1Id")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
+                    });
+
+                    b.OwnsOne("Ownership.OwnedType", "OwnedType2", b1 =>
+                    {
+                        b1.Property<int>("OwningType1Id")
+                            .ValueGeneratedOnAdd()
+                            .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                        b1.ToTable("OwningType1");
+
+                        b1.HasOne("Ownership.OwningType1")
+                            .WithOne("OwnedType2")
+                            .HasForeignKey("Ownership.OwnedType", "OwningType1Id")
+                            .OnDelete(DeleteBehavior.Cascade);
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType1", b2 =>
+                        {
+                            b2.Property<int>("OwnedTypeOwningType1Id")
+                                .ValueGeneratedOnAdd()
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b2.Property<int>("Value");
+
+                            b2.ToTable("OwningType1");
+
+                            b2.HasOne("Ownership.OwnedType")
+                                .WithOne("NestedOwnedType1")
+                                .HasForeignKey("Ownership.NestedOwnedType", "OwnedTypeOwningType1Id")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType2", b2 =>
+                        {
+                            b2.Property<int>("OwnedTypeOwningType1Id")
+                                .ValueGeneratedOnAdd()
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b2.Property<int>("Value");
+
+                            b2.ToTable("OwningType1");
+
+                            b2.HasOne("Ownership.OwnedType")
+                                .WithOne("NestedOwnedType2")
+                                .HasForeignKey("Ownership.NestedOwnedType", "OwnedTypeOwningType1Id")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
+                    });
+                });
+
+                modelBuilder.Entity("Ownership.OwningType2", b =>
+                {
+                    b.OwnsOne("Ownership.OwnedType", "OwnedType1", b1 =>
+                    {
+                        b1.Property<int?>("OwningType2Id")
+                            .ValueGeneratedOnAdd()
+                            .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                        b1.ToTable("OwningType2");
+
+                        b1.HasOne("Ownership.OwningType2")
+                            .WithOne("OwnedType1")
+                            .HasForeignKey("Ownership.OwnedType", "OwningType2Id")
+                            .OnDelete(DeleteBehavior.Cascade);
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType1", b2 =>
+                        {
+                            b2.Property<int?>("OwnedTypeOwningType2Id")
+                                .ValueGeneratedOnAdd()
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b2.Property<int>("Value");
+
+                            b2.ToTable("OwningType2");
+
+                            b2.HasOne("Ownership.OwnedType")
+                                .WithOne("NestedOwnedType1")
+                                .HasForeignKey("Ownership.NestedOwnedType", "OwnedTypeOwningType2Id")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType2", b2 =>
+                        {
+                            b2.Property<int?>("OwnedTypeOwningType2Id")
+                                .ValueGeneratedOnAdd()
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b2.Property<int>("Value");
+
+                            b2.ToTable("OwningType2");
+
+                            b2.HasOne("Ownership.OwnedType")
+                                .WithOne("NestedOwnedType2")
+                                .HasForeignKey("Ownership.NestedOwnedType", "OwnedTypeOwningType2Id")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
+                    });
+
+                    b.OwnsOne("Ownership.OwnedType", "OwnedType2", b1 =>
+                    {
+                        b1.Property<int?>("OwningType2Id")
+                            .ValueGeneratedOnAdd()
+                            .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                        b1.ToTable("OwningType2");
+
+                        b1.HasOne("Ownership.OwningType2")
+                            .WithOne("OwnedType2")
+                            .HasForeignKey("Ownership.OwnedType", "OwningType2Id")
+                            .OnDelete(DeleteBehavior.Cascade);
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType1", b2 =>
+                        {
+                            b2.Property<int?>("OwnedTypeOwningType2Id")
+                                .ValueGeneratedOnAdd()
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b2.Property<int>("Value");
+
+                            b2.ToTable("OwningType2");
+
+                            b2.HasOne("Ownership.OwnedType")
+                                .WithOne("NestedOwnedType1")
+                                .HasForeignKey("Ownership.NestedOwnedType", "OwnedTypeOwningType2Id")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType2", b2 =>
+                        {
+                            b2.Property<int?>("OwnedTypeOwningType2Id")
+                                .ValueGeneratedOnAdd()
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b2.Property<int>("Value");
+
+                            b2.ToTable("OwningType2");
+
+                            b2.HasOne("Ownership.OwnedType")
+                                .WithOne("NestedOwnedType2")
+                                .HasForeignKey("Ownership.NestedOwnedType", "OwnedTypeOwningType2Id")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
+                    });
+                });
+#pragma warning restore 612, 618
+            }
+        }
+
+        private class OwnershipModelSnapshot2_2 : ModelSnapshot
+        {
+            protected override void BuildModel(ModelBuilder modelBuilder)
+            {
+#pragma warning disable 612, 618
+                modelBuilder
+                    .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
+                    .HasAnnotation("Relational:MaxIdentifierLength", 128)
+                    .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                modelBuilder.Entity("Ownership.OwningType1", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OwningType1");
+                });
+
+                modelBuilder.Entity("Ownership.OwningType2", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OwningType2");
+                });
+
+                modelBuilder.Entity("Ownership.OwningType1", b =>
+                {
+                    b.OwnsOne("Ownership.OwnedType", "OwnedType1", b1 =>
+                    {
+                        b1.Property<int>("OwningType1Id")
+                            .ValueGeneratedOnAdd()
+                            .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                        b1.HasKey("OwningType1Id");
+
+                        b1.ToTable("OwningType1");
+
+                        b1.HasOne("Ownership.OwningType1")
+                            .WithOne("OwnedType1")
+                            .HasForeignKey("Ownership.OwnedType", "OwningType1Id")
+                            .OnDelete(DeleteBehavior.Cascade);
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType1", b2 =>
+                        {
+                            b2.Property<int>("OwnedTypeOwningType1Id")
+                                .ValueGeneratedOnAdd()
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b2.Property<int>("Value");
+
+                            b2.HasKey("OwnedTypeOwningType1Id");
+
+                            b2.ToTable("OwningType1");
+
+                            b2.HasOne("Ownership.OwnedType")
+                                .WithOne("NestedOwnedType1")
+                                .HasForeignKey("Ownership.NestedOwnedType", "OwnedTypeOwningType1Id")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType2", b2 =>
+                        {
+                            b2.Property<int>("OwnedTypeOwningType1Id")
+                                .ValueGeneratedOnAdd()
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b2.Property<int>("Value");
+
+                            b2.HasKey("OwnedTypeOwningType1Id");
+
+                            b2.ToTable("OwningType1");
+
+                            b2.HasOne("Ownership.OwnedType")
+                                .WithOne("NestedOwnedType2")
+                                .HasForeignKey("Ownership.NestedOwnedType", "OwnedTypeOwningType1Id")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
+                    });
+
+                    b.OwnsOne("Ownership.OwnedType", "OwnedType2", b1 =>
+                    {
+                        b1.Property<int>("OwningType1Id")
+                            .ValueGeneratedOnAdd()
+                            .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                        b1.HasKey("OwningType1Id");
+
+                        b1.ToTable("OwningType1");
+
+                        b1.HasOne("Ownership.OwningType1")
+                            .WithOne("OwnedType2")
+                            .HasForeignKey("Ownership.OwnedType", "OwningType1Id")
+                            .OnDelete(DeleteBehavior.Cascade);
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType1", b2 =>
+                        {
+                            b2.Property<int>("OwnedTypeOwningType1Id")
+                                .ValueGeneratedOnAdd()
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b2.Property<int>("Value");
+
+                            b2.HasKey("OwnedTypeOwningType1Id");
+
+                            b2.ToTable("OwningType1");
+
+                            b2.HasOne("Ownership.OwnedType")
+                                .WithOne("NestedOwnedType1")
+                                .HasForeignKey("Ownership.NestedOwnedType", "OwnedTypeOwningType1Id")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType2", b2 =>
+                        {
+                            b2.Property<int>("OwnedTypeOwningType1Id")
+                                .ValueGeneratedOnAdd()
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b2.Property<int>("Value");
+
+                            b2.HasKey("OwnedTypeOwningType1Id");
+
+                            b2.ToTable("OwningType1");
+
+                            b2.HasOne("Ownership.OwnedType")
+                                .WithOne("NestedOwnedType2")
+                                .HasForeignKey("Ownership.NestedOwnedType", "OwnedTypeOwningType1Id")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
+                    });
+                });
+
+                modelBuilder.Entity("Ownership.OwningType2", b =>
+                {
+                    b.OwnsOne("Ownership.OwnedType", "OwnedType1", b1 =>
+                    {
+                        b1.Property<int>("OwningType2Id")
+                            .ValueGeneratedOnAdd()
+                            .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                        b1.HasKey("OwningType2Id");
+
+                        b1.ToTable("OwningType2");
+
+                        b1.HasOne("Ownership.OwningType2")
+                            .WithOne("OwnedType1")
+                            .HasForeignKey("Ownership.OwnedType", "OwningType2Id")
+                            .OnDelete(DeleteBehavior.Cascade);
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType1", b2 =>
+                        {
+                            b2.Property<int?>("OwnedTypeOwningType2Id")
+                                .ValueGeneratedOnAdd()
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b2.Property<int>("Value");
+
+                            b2.HasKey("OwnedTypeOwningType2Id");
+
+                            b2.ToTable("OwningType2");
+
+                            b2.HasOne("Ownership.OwnedType")
+                                .WithOne("NestedOwnedType1")
+                                .HasForeignKey("Ownership.NestedOwnedType", "OwnedTypeOwningType2Id")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType2", b2 =>
+                        {
+                            b2.Property<int?>("OwnedTypeOwningType2Id")
+                                .ValueGeneratedOnAdd()
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b2.Property<int>("Value");
+
+                            b2.HasKey("OwnedTypeOwningType2Id");
+
+                            b2.ToTable("OwningType2");
+
+                            b2.HasOne("Ownership.OwnedType")
+                                .WithOne("NestedOwnedType2")
+                                .HasForeignKey("Ownership.NestedOwnedType", "OwnedTypeOwningType2Id")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
+                    });
+
+                    b.OwnsOne("Ownership.OwnedType", "OwnedType2", b1 =>
+                    {
+                        b1.Property<int>("OwningType2Id")
+                            .ValueGeneratedOnAdd()
+                            .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                        b1.HasKey("OwningType2Id");
+
+                        b1.ToTable("OwningType2");
+
+                        b1.HasOne("Ownership.OwningType2")
+                            .WithOne("OwnedType2")
+                            .HasForeignKey("Ownership.OwnedType", "OwningType2Id")
+                            .OnDelete(DeleteBehavior.Cascade);
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType1", b2 =>
+                        {
+                            b2.Property<int?>("OwnedTypeOwningType2Id")
+                                .ValueGeneratedOnAdd()
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b2.Property<int>("Value");
+
+                            b2.HasKey("OwnedTypeOwningType2Id");
+
+                            b2.ToTable("OwningType2");
+
+                            b2.HasOne("Ownership.OwnedType")
+                                .WithOne("NestedOwnedType1")
+                                .HasForeignKey("Ownership.NestedOwnedType", "OwnedTypeOwningType2Id")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType2", b2 =>
+                        {
+                            b2.Property<int?>("OwnedTypeOwningType2Id")
+                                .ValueGeneratedOnAdd()
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b2.Property<int>("Value");
+
+                            b2.HasKey("OwnedTypeOwningType2Id");
+
+                            b2.ToTable("OwningType2");
+
+                            b2.HasOne("Ownership.OwnedType")
+                                .WithOne("NestedOwnedType2")
+                                .HasForeignKey("Ownership.NestedOwnedType", "OwnedTypeOwningType2Id")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
+                    });
+                });
+#pragma warning restore 612, 618
+            }
+        }
+
+        private class OwnershipModelSnapshot3_0 : ModelSnapshot
+        {
+            protected override void BuildModel(ModelBuilder modelBuilder)
+            {
+#pragma warning disable 612, 618
+                modelBuilder
+                    .HasAnnotation("ProductVersion", "3.0.0")
+                    .HasAnnotation("Relational:MaxIdentifierLength", 128)
+                    .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                modelBuilder.Entity("Ownership.OwningType1", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OwningType1");
+                });
+
+                modelBuilder.Entity("Ownership.OwningType2", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OwningType2");
+                });
+
+                modelBuilder.Entity("Ownership.OwningType1", b =>
+                {
+                    b.OwnsOne("Ownership.OwnedType", "OwnedType1", b1 =>
+                    {
+                        b1.Property<int>("OwningType1Id")
+                            .ValueGeneratedOnAdd()
+                            .HasColumnType("int")
+                            .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                        b1.HasKey("OwningType1Id");
+
+                        b1.ToTable("OwningType1");
+
+                        b1.WithOwner()
+                            .HasForeignKey("OwningType1Id");
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType1", b2 =>
+                        {
+                            b2.Property<int>("OwnedTypeOwningType1Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int")
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b2.Property<int>("Value")
+                                .HasColumnType("int");
+
+                            b2.HasKey("OwnedTypeOwningType1Id");
+
+                            b2.ToTable("OwningType1");
+
+                            b2.WithOwner()
+                                .HasForeignKey("OwnedTypeOwningType1Id");
+                        });
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType2", b2 =>
+                        {
+                            b2.Property<int>("OwnedTypeOwningType1Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int")
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b2.Property<int>("Value")
+                                .HasColumnType("int");
+
+                            b2.HasKey("OwnedTypeOwningType1Id");
+
+                            b2.ToTable("OwningType1");
+
+                            b2.WithOwner()
+                                .HasForeignKey("OwnedTypeOwningType1Id");
+                        });
+                    });
+
+                    b.OwnsOne("Ownership.OwnedType", "OwnedType2", b1 =>
+                    {
+                        b1.Property<int>("OwningType1Id")
+                            .ValueGeneratedOnAdd()
+                            .HasColumnType("int")
+                            .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                        b1.HasKey("OwningType1Id");
+
+                        b1.ToTable("OwningType1");
+
+                        b1.WithOwner()
+                            .HasForeignKey("OwningType1Id");
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType1", b2 =>
+                        {
+                            b2.Property<int>("OwnedTypeOwningType1Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int")
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b2.Property<int>("Value")
+                                .HasColumnType("int");
+
+                            b2.HasKey("OwnedTypeOwningType1Id");
+
+                            b2.ToTable("OwningType1");
+
+                            b2.WithOwner()
+                                .HasForeignKey("OwnedTypeOwningType1Id");
+                        });
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType2", b2 =>
+                        {
+                            b2.Property<int>("OwnedTypeOwningType1Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int")
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b2.Property<int>("Value")
+                                .HasColumnType("int");
+
+                            b2.HasKey("OwnedTypeOwningType1Id");
+
+                            b2.ToTable("OwningType1");
+
+                            b2.WithOwner()
+                                .HasForeignKey("OwnedTypeOwningType1Id");
+                        });
+                    });
+                });
+
+                modelBuilder.Entity("Ownership.OwningType2", b =>
+                {
+                    b.OwnsOne("Ownership.OwnedType", "OwnedType1", b1 =>
+                    {
+                        b1.Property<int>("OwningType2Id")
+                            .ValueGeneratedOnAdd()
+                            .HasColumnType("int")
+                            .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                        b1.HasKey("OwningType2Id");
+
+                        b1.ToTable("OwningType2");
+
+                        b1.WithOwner()
+                            .HasForeignKey("OwningType2Id");
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType1", b2 =>
+                        {
+                            b2.Property<int?>("OwnedTypeOwningType2Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int")
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b2.Property<int>("Value")
+                                .HasColumnType("int");
+
+                            b2.HasKey("OwnedTypeOwningType2Id");
+
+                            b2.ToTable("OwningType2");
+
+                            b2.WithOwner()
+                                .HasForeignKey("OwnedTypeOwningType2Id");
+                        });
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType2", b2 =>
+                        {
+                            b2.Property<int?>("OwnedTypeOwningType2Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int")
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b2.Property<int>("Value")
+                                .HasColumnType("int");
+
+                            b2.HasKey("OwnedTypeOwningType2Id");
+
+                            b2.ToTable("OwningType2");
+
+                            b2.WithOwner()
+                                .HasForeignKey("OwnedTypeOwningType2Id");
+                        });
+                    });
+
+                    b.OwnsOne("Ownership.OwnedType", "OwnedType2", b1 =>
+                    {
+                        b1.Property<int>("OwningType2Id")
+                            .ValueGeneratedOnAdd()
+                            .HasColumnType("int")
+                            .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                        b1.HasKey("OwningType2Id");
+
+                        b1.ToTable("OwningType2");
+
+                        b1.WithOwner()
+                            .HasForeignKey("OwningType2Id");
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType1", b2 =>
+                        {
+                            b2.Property<int?>("OwnedTypeOwningType2Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int")
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b2.Property<int>("Value")
+                                .HasColumnType("int");
+
+                            b2.HasKey("OwnedTypeOwningType2Id");
+
+                            b2.ToTable("OwningType2");
+
+                            b2.WithOwner()
+                                .HasForeignKey("OwnedTypeOwningType2Id");
+                        });
+
+                        b1.OwnsOne("Ownership.NestedOwnedType", "NestedOwnedType2", b2 =>
+                        {
+                            b2.Property<int?>("OwnedTypeOwningType2Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int")
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b2.Property<int>("Value")
+                                .HasColumnType("int");
+
+                            b2.HasKey("OwnedTypeOwningType2Id");
+
+                            b2.ToTable("OwningType2");
+
+                            b2.WithOwner()
+                                .HasForeignKey("OwnedTypeOwningType2Id");
+                        });
+                    });
+                });
+#pragma warning restore 612, 618
+            }
+        }
+    }
+}
+
+namespace Ownership
+{
+    internal class OwningType1
+    {
+        public int Id { get; set; }
+        public OwnedType OwnedType1 { get; set; }
+        public OwnedType OwnedType2 { get; set; }
+    }
+
+    internal class OwningType2
+    {
+        public int Id { get; set; }
+        public OwnedType OwnedType1 { get; set; }
+        public OwnedType OwnedType2 { get; set; }
+    }
+
+    [Owned]
+    internal class OwnedType
+    {
+        public NestedOwnedType NestedOwnedType1 { get; set; }
+        public NestedOwnedType NestedOwnedType2 { get; set; }
+    }
+
+    [Owned]
+    internal class NestedOwnedType
+    {
+        public int Value { get; set; }
+    }
+
+    internal class OwnershipContext : DbContext
+    {
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+            => options.UseSqlServer(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=Ownership");
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<OwningType1>();
+            modelBuilder.Entity<OwningType2>();
         }
     }
 }

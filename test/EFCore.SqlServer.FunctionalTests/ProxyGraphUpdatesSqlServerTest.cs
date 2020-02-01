@@ -28,13 +28,15 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        // issue #15318
-        internal class LazyLoading : ProxyGraphUpdatesSqlServerTestBase<LazyLoading.ProxyGraphUpdatesWithLazyLoadingSqlServerFixture>
+        public class LazyLoading : ProxyGraphUpdatesSqlServerTestBase<LazyLoading.ProxyGraphUpdatesWithLazyLoadingSqlServerFixture>
         {
             public LazyLoading(ProxyGraphUpdatesWithLazyLoadingSqlServerFixture fixture)
                 : base(fixture)
             {
             }
+
+            protected override bool DoesLazyLoading => true;
+            protected override bool DoesChangeTracking => false;
 
             public class ProxyGraphUpdatesWithLazyLoadingSqlServerFixture : ProxyGraphUpdatesSqlServerFixtureBase
             {
@@ -48,7 +50,65 @@ namespace Microsoft.EntityFrameworkCore
 
                 protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
                 {
-                    modelBuilder.ForSqlServerUseIdentityColumns();
+                    modelBuilder.UseIdentityColumns();
+
+                    base.OnModelCreating(modelBuilder, context);
+                }
+            }
+        }
+
+        public class ChangeTracking : ProxyGraphUpdatesSqlServerTestBase<ChangeTracking.ProxyGraphUpdatesWithChangeTrackingSqlServerFixture>
+        {
+            public ChangeTracking(ProxyGraphUpdatesWithChangeTrackingSqlServerFixture fixture)
+                : base(fixture)
+            {
+            }
+
+            protected override bool DoesLazyLoading => false;
+            protected override bool DoesChangeTracking => true;
+
+            public class ProxyGraphUpdatesWithChangeTrackingSqlServerFixture : ProxyGraphUpdatesSqlServerFixtureBase
+            {
+                protected override string StoreName { get; } = "ProxyGraphChangeTrackingUpdatesTest";
+
+                public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+                    => base.AddOptions(builder.UseChangeDetectionProxies());
+
+                protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
+                    => base.AddServices(serviceCollection.AddEntityFrameworkProxies());
+
+                protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+                {
+                    modelBuilder.UseIdentityColumns();
+
+                    base.OnModelCreating(modelBuilder, context);
+                }
+            }
+        }
+
+        public class ChangeTrackingAndLazyLoading : ProxyGraphUpdatesSqlServerTestBase<ChangeTrackingAndLazyLoading.ProxyGraphUpdatesWithChangeTrackingAndLazyLoadingSqlServerFixture>
+        {
+            public ChangeTrackingAndLazyLoading(ProxyGraphUpdatesWithChangeTrackingAndLazyLoadingSqlServerFixture fixture)
+                : base(fixture)
+            {
+            }
+
+            protected override bool DoesLazyLoading => true;
+            protected override bool DoesChangeTracking => true;
+
+            public class ProxyGraphUpdatesWithChangeTrackingAndLazyLoadingSqlServerFixture : ProxyGraphUpdatesSqlServerFixtureBase
+            {
+                protected override string StoreName { get; } = "ProxyGraphChangeTrackingAndLazyLoadingUpdatesTest";
+
+                public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+                    => base.AddOptions(builder.UseLazyLoadingProxies().UseChangeDetectionProxies());
+
+                protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
+                    => base.AddServices(serviceCollection.AddEntityFrameworkProxies());
+
+                protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+                {
+                    modelBuilder.UseIdentityColumns();
 
                     base.OnModelCreating(modelBuilder, context);
                 }

@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -193,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             else
             {
                 builder.Append("new { ");
-                builder.Append(string.Join(", ", properties.Select(p => "x." + p)));
+                builder.AppendJoin(", ", properties.Select(p => "x." + p));
                 builder.Append(" }");
             }
 
@@ -245,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             if (type.IsNested)
             {
-                Debug.Assert(type.DeclaringType != null);
+                Check.DebugAssert(type.DeclaringType != null, "DeclaringType is null");
                 builder
                     .Append(Reference(type.DeclaringType))
                     .Append(".");
@@ -324,7 +323,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Check.NotNull(name, nameof(name));
 
             var @namespace = new StringBuilder();
-            foreach (var piece in name.Where(p => !string.IsNullOrEmpty(p)).SelectMany(p => p.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries)))
+            foreach (var piece in name.Where(p => !string.IsNullOrEmpty(p))
+                .SelectMany(p => p.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries)))
             {
                 var identifier = Identifier(piece);
                 if (!string.IsNullOrEmpty(identifier))
@@ -380,16 +380,16 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         public virtual string Literal(DateTime value)
             => string.Format(
-                CultureInfo.InvariantCulture,
-                "new DateTime({0}, {1}, {2}, {3}, {4}, {5}, {6}, DateTimeKind.{7})",
-                value.Year,
-                value.Month,
-                value.Day,
-                value.Hour,
-                value.Minute,
-                value.Second,
-                value.Millisecond,
-                value.Kind)
+                   CultureInfo.InvariantCulture,
+                   "new DateTime({0}, {1}, {2}, {3}, {4}, {5}, {6}, DateTimeKind.{7})",
+                   value.Year,
+                   value.Month,
+                   value.Day,
+                   value.Hour,
+                   value.Minute,
+                   value.Second,
+                   value.Millisecond,
+                   value.Kind)
                + (value.Ticks % 10000 == 0
                    ? ""
                    : string.Format(
@@ -430,22 +430,22 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             {
                 return $"double.{nameof(double.NaN)}";
             }
-            else if (double.IsNegativeInfinity(number))
+
+            if (double.IsNegativeInfinity(number))
             {
                 return $"double.{nameof(double.NegativeInfinity)}";
             }
-            else if (double.IsPositiveInfinity(number))
+
+            if (double.IsPositiveInfinity(number))
             {
                 return $"double.{nameof(double.PositiveInfinity)}";
             }
-            else
-            {
-                return !literal.Contains("E")
-                    && !literal.Contains("e")
-                    && !literal.Contains(".")
-                    ? literal + ".0"
-                    : literal;
-            }
+
+            return !literal.Contains("E")
+                   && !literal.Contains("e")
+                   && !literal.Contains(".")
+                ? literal + ".0"
+                : literal;
         }
 
         /// <summary>
@@ -547,7 +547,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Literal(BigInteger value) => $"BigInteger.Parse(\"{value.ToString(NumberFormatInfo.InvariantInfo)}\", NumberFormatInfo.InvariantInfo)";
+        public virtual string Literal(BigInteger value) =>
+            $"BigInteger.Parse(\"{value.ToString(NumberFormatInfo.InvariantInfo)}\", NumberFormatInfo.InvariantInfo)";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -574,77 +575,87 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             builder.Append("new");
 
-            var byteArray = type == typeof(byte);
-            if (byteArray)
-            {
-                builder.Append(" byte");
-            }
-            else if (type == typeof(object))
-            {
-                builder.Append(" object");
-            }
+            var valuesList = values.OfType<object>().ToList();
 
-            builder.Append("[]");
-
-            if (vertical)
+            if (valuesList.Count == 0)
             {
-                builder.AppendLine();
+                builder
+                    .Append(' ')
+                    .Append(Reference(type))
+                    .Append("[0]");
             }
             else
             {
-                builder.Append(" ");
-            }
-
-            builder.Append("{");
-
-            if (vertical)
-            {
-                builder.AppendLine();
-                builder.IncrementIndent();
-            }
-            else
-            {
-                builder.Append(" ");
-            }
-
-            var first = true;
-            foreach (var value in values)
-            {
-                if (first)
+                var byteArray = type == typeof(byte);
+                if (byteArray)
                 {
-                    first = false;
+                    builder.Append(" byte");
+                }
+                else if (type == typeof(object))
+                {
+                    builder.Append(" object");
+                }
+
+                if (vertical)
+                {
+                    builder.AppendLine("[]");
                 }
                 else
                 {
-                    builder.Append(",");
+                    builder.Append("[] ");
+                }
 
-                    if (vertical)
+                builder.Append("{");
+
+                if (vertical)
+                {
+                    builder.AppendLine();
+                    builder.IncrementIndent();
+                }
+                else
+                {
+                    builder.Append(" ");
+                }
+
+                var first = true;
+                foreach (var value in valuesList)
+                {
+                    if (first)
                     {
-                        builder.AppendLine();
+                        first = false;
                     }
                     else
                     {
-                        builder.Append(" ");
+                        builder.Append(",");
+
+                        if (vertical)
+                        {
+                            builder.AppendLine();
+                        }
+                        else
+                        {
+                            builder.Append(" ");
+                        }
                     }
+
+                    builder.Append(
+                        byteArray
+                            ? Literal((int)(byte)value)
+                            : UnknownLiteral(value));
                 }
 
-                builder.Append(
-                    byteArray
-                        ? Literal((int)(byte)value)
-                        : UnknownLiteral(value));
-            }
+                if (vertical)
+                {
+                    builder.AppendLine();
+                    builder.DecrementIndent();
+                }
+                else
+                {
+                    builder.Append(" ");
+                }
 
-            if (vertical)
-            {
-                builder.AppendLine();
-                builder.DecrementIndent();
+                builder.Append("}");
             }
-            else
-            {
-                builder.Append(" ");
-            }
-
-            builder.Append("}");
 
             return builder.ToString();
         }
@@ -719,7 +730,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual string GetSimpleEnumValue(Type type, string name)
+        protected virtual string GetSimpleEnumValue([NotNull] Type type, [NotNull] string name)
             => Reference(type) + "." + name;
 
         /// <summary>
@@ -728,7 +739,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual string GetCompositeEnumValue(Type type, Enum flags)
+        protected virtual string GetCompositeEnumValue([NotNull] Type type, [NotNull] Enum flags)
         {
             var allValues = new HashSet<Enum>(GetFlags(flags));
             foreach (var currentValue in allValues.ToList())
@@ -740,7 +751,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 }
             }
 
-            return allValues.Aggregate((string)null,
+            return allValues.Aggregate(
+                (string)null,
                 (previous, current) =>
                     previous == null
                         ? GetSimpleEnumValue(type, Enum.GetName(type, current))
@@ -890,14 +902,21 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     if (memberExpression.Expression == null)
                     {
                         builder
-                            .Append(Reference(memberExpression.Member.DeclaringType, useFullName: true))
-                            .Append('.')
-                            .Append(memberExpression.Member.Name);
-
-                        return true;
+                            .Append(Reference(memberExpression.Member.DeclaringType, useFullName: true));
+                    }
+                    else
+                    {
+                        if (!HandleExpression(memberExpression.Expression, builder))
+                        {
+                            return false;
+                        }
                     }
 
-                    return false;
+                    builder
+                        .Append('.')
+                        .Append(memberExpression.Member.Name);
+
+                    return true;
                 }
             }
 
@@ -982,7 +1001,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 return ch < 'A'
                     ? false
                     : ch <= 'Z'
-                       || ch == '_';
+                      || ch == '_';
             }
 
             if (ch <= 'z')
@@ -999,9 +1018,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             {
                 return ch < 'A'
                     ? ch >= '0'
-                           && ch <= '9'
+                      && ch <= '9'
                     : ch <= 'Z'
-                       || ch == '_';
+                      || ch == '_';
             }
 
             if (ch <= 'z')

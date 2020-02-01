@@ -13,18 +13,18 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     {
         private readonly MethodInfo _assertElementMethodInfo;
         private readonly MethodInfo _assertCollectionMethodInfo;
-        private readonly Dictionary<Type, Func<dynamic, object>> _entitySorters;
-        private readonly Dictionary<Type, Action<dynamic, dynamic>> _entityAsserters;
+        private readonly Dictionary<Type, object> _entitySorters;
+        private readonly Dictionary<Type, object> _entityAsserters;
 
         private List<string> _path;
         private Stack<string> _fullPath;
 
         public IncludeQueryResultAsserter(
-            Dictionary<Type, Func<dynamic, object>> entitySorters,
-            Dictionary<Type, Action<dynamic, dynamic>> entityAsserters)
+            Dictionary<Type, object> entitySorters,
+            Dictionary<Type, object> entityAsserters)
         {
-            _entitySorters = entitySorters ?? new Dictionary<Type, Func<dynamic, object>>();
-            _entityAsserters = entityAsserters ?? new Dictionary<Type, Action<dynamic, dynamic>>();
+            _entitySorters = entitySorters ?? new Dictionary<Type, object>();
+            _entityAsserters = entityAsserters ?? new Dictionary<Type, object>();
 
             _assertElementMethodInfo = typeof(IncludeQueryResultAsserter).GetTypeInfo().GetDeclaredMethod(nameof(AssertElement));
             _assertCollectionMethodInfo = typeof(IncludeQueryResultAsserter).GetTypeInfo().GetDeclaredMethod(nameof(AssertCollection));
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Assert.Equal(expected == null, actual == null);
 
             var expectedType = expected.GetType();
-            if (expectedType.GetTypeInfo().IsGenericType
+            if (expectedType.IsGenericType
                 && expectedType.GetTypeInfo().ImplementedInterfaces.Any(
                     i => i.IsConstructedGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
             {
@@ -81,7 +81,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             if (_entityAsserters.TryGetValue(expectedType, out var asserter))
             {
-                asserter(expected, actual);
+                ((Action<dynamic, dynamic>)asserter)(expected, actual);
+                //asserter(expected, actual);
                 ProcessIncludes(expected, actual, expectedIncludes);
 
                 return;
@@ -125,8 +126,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             if (_entitySorters.TryGetValue(typeof(TElement), out var sorter))
             {
-                expectedList = ((IEnumerable<object>)expectedList).OrderBy(sorter).Cast<TElement>().ToList();
-                actualList = ((IEnumerable<object>)actualList).OrderBy(sorter).Cast<TElement>().ToList();
+                // TODO: fix/cleanup
+                var actualSorter = (Func<dynamic, object>)sorter;
+                expectedList = ((IEnumerable<object>)expectedList).OrderBy(actualSorter).Cast<TElement>().ToList();
+                actualList = ((IEnumerable<object>)actualList).OrderBy(actualSorter).Cast<TElement>().ToList();
             }
 
             Assert.Equal(expectedList.Count, actualList.Count);
@@ -145,8 +148,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         protected void ProcessIncludes<TEntity>(TEntity expected, TEntity actual, IEnumerable<IExpectedInclude> expectedIncludes)
         {
-            var curentPath = string.Join(".", _path);
-            foreach (var expectedInclude in expectedIncludes.OfType<ExpectedInclude<TEntity>>().Where(i => i.NavigationPath == curentPath))
+            var currentPath = string.Join(".", _path);
+            foreach (var expectedInclude in expectedIncludes.OfType<ExpectedInclude<TEntity>>().Where(i => i.NavigationPath == currentPath))
             {
                 var expectedIncludedNavigation = expectedInclude.Include(expected);
                 var actualIncludedNavigation = expectedInclude.Include(actual);

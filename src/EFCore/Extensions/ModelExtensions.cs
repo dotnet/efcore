@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -42,9 +43,9 @@ namespace Microsoft.EntityFrameworkCore
             var realModel = (Model)Check.NotNull(model, nameof(model));
 
             return realModel.FindEntityType(type)
-                   ?? (type.BaseType == null
-                       ? null
-                       : realModel.FindEntityType(type.BaseType));
+                ?? (type.BaseType == null
+                    ? null
+                    : realModel.FindEntityType(type.BaseType));
         }
 
         /// <summary>
@@ -125,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore
         [DebuggerStepThrough]
         public static ChangeTrackingStrategy GetChangeTrackingStrategy([NotNull] this IModel model)
             => (ChangeTrackingStrategy?)Check.NotNull(model, nameof(model))[CoreAnnotationNames.ChangeTrackingStrategy]
-               ?? ChangeTrackingStrategy.Snapshot;
+                ?? ChangeTrackingStrategy.Snapshot;
 
         /// <summary>
         ///     <para>
@@ -142,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore
         [DebuggerStepThrough]
         public static PropertyAccessMode GetPropertyAccessMode([NotNull] this IModel model)
             => (PropertyAccessMode?)Check.NotNull(model, nameof(model))[CoreAnnotationNames.PropertyAccessMode]
-               ?? PropertyAccessMode.PreferField;
+                ?? PropertyAccessMode.PreferField;
 
         /// <summary>
         ///     Gets the EF Core assembly version used to build this model
@@ -150,5 +151,16 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to get the version for. </param>
         public static string GetProductVersion([NotNull] this IModel model)
             => model[CoreAnnotationNames.ProductVersion] as string;
+
+        /// <summary>
+        ///     Gets a value indicating whether the given MethodInfo reprensent an indexer access.
+        /// </summary>
+        /// <param name="model"> The model to use. </param>
+        /// <param name="methodInfo"> The MethodInfo to check for. </param>
+        public static bool IsIndexerMethod([NotNull] this IModel model, [NotNull] MethodInfo methodInfo)
+             => !methodInfo.IsStatic
+                && methodInfo.IsSpecialName
+                && model.AsModel().FindIndexerPropertyInfo(methodInfo.DeclaringType) is PropertyInfo indexerProperty
+                && (methodInfo == indexerProperty.GetMethod || methodInfo == indexerProperty.SetMethod);
     }
 }

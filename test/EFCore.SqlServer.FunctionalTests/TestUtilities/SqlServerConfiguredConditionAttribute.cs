@@ -3,7 +3,7 @@
 
 using System;
 using System.Runtime.InteropServices;
-using Microsoft.Data.SqlClient;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
@@ -11,14 +11,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Assembly)]
     public sealed class SqlServerConfiguredConditionAttribute : Attribute, ITestCondition
     {
-        private static readonly string _dataSource =
-            new SqlConnectionStringBuilder(SqlServerTestStore.CreateConnectionString("sample")).DataSource;
+        public ValueTask<bool> IsMetAsync()
+            => new ValueTask<bool>(
+                TestEnvironment.IsConfigured && (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || !TestEnvironment.IsLocalDb));
 
-        private readonly bool _isLocalDb = _dataSource.StartsWith("(localdb)", StringComparison.OrdinalIgnoreCase);
-
-        public bool IsMet => RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || !_isLocalDb;
-
-        public string SkipReason => _isLocalDb
+        public string SkipReason => TestEnvironment.IsLocalDb
             ? "LocalDb is not accessible on this platform. An external SQL Server must be configured."
             : "No test SQL Server has been configured.";
     }

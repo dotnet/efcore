@@ -100,32 +100,26 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Can_get_IServiceProvider()
         {
-            using (var context = InMemoryTestHelpers.Instance.CreateContext())
-            {
-                Assert.Same(
-                    ((IInfrastructure<IServiceProvider>)context).Instance,
-                    ((IInfrastructure<IServiceProvider>)context.Database).Instance);
-            }
+            using var context = InMemoryTestHelpers.Instance.CreateContext();
+            Assert.Same(
+                ((IInfrastructure<IServiceProvider>)context).Instance,
+                ((IInfrastructure<IServiceProvider>)context.Database).Instance);
         }
 
         [ConditionalFact]
         public void Can_get_DatabaseCreator()
         {
-            using (var context = InMemoryTestHelpers.Instance.CreateContext())
-            {
-                Assert.Same(
-                    context.GetService<IDatabaseCreator>(),
-                    context.Database.GetService<IDatabaseCreator>());
-            }
+            using var context = InMemoryTestHelpers.Instance.CreateContext();
+            Assert.Same(
+                context.GetService<IDatabaseCreator>(),
+                context.Database.GetService<IDatabaseCreator>());
         }
 
         [ConditionalFact]
         public void Can_get_Model()
         {
-            using (var context = InMemoryTestHelpers.Instance.CreateContext())
-            {
-                Assert.Same(context.GetService<IModel>(), context.Database.GetService<IModel>());
-            }
+            using var context = InMemoryTestHelpers.Instance.CreateContext();
+            Assert.Same(context.GetService<IModel>(), context.Database.GetService<IModel>());
         }
 
         [ConditionalTheory]
@@ -171,14 +165,18 @@ namespace Microsoft.EntityFrameworkCore
             public void EnlistTransaction(Transaction transaction) => throw new NotImplementedException();
 
             public void ResetState() => throw new NotImplementedException();
+            public Task ResetStateAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
         }
 
         private class FakeDbContextTransaction : IDbContextTransaction
         {
             public void Dispose() => throw new NotImplementedException();
+            public ValueTask DisposeAsync() => throw new NotImplementedException();
             public Guid TransactionId { get; }
             public void Commit() => throw new NotImplementedException();
             public void Rollback() => throw new NotImplementedException();
+            public Task CommitAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+            public Task RollbackAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
         }
 
         [ConditionalFact]

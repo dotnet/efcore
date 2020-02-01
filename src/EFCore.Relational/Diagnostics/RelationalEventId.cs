@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
+using System.Data.Common;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
@@ -36,6 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             CommandExecuting = CoreEventId.RelationalBaseId + 100,
             CommandExecuted,
             CommandError,
+            CommandCreating,
+            CommandCreated,
 
             // Transaction events
             TransactionStarted = CoreEventId.RelationalBaseId + 200,
@@ -47,6 +49,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             AmbientTransactionWarning,
             AmbientTransactionEnlisted,
             ExplicitTransactionEnlisted,
+            TransactionStarting,
+            TransactionCommitting,
+            TransactionRollingBack,
 
             // DataReader events
             DataReaderDisposing = CoreEventId.RelationalBaseId + 300,
@@ -149,6 +154,32 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
+        ///         A <see cref="DbCommand" /> is being created.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Command" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="CommandCorrelatedEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId CommandCreating = MakeCommandId(Id.CommandCreating);
+
+        /// <summary>
+        ///     <para>
+        ///         A <see cref="DbCommand" /> has been created.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Command" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="CommandEndEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId CommandCreated = MakeCommandId(Id.CommandCreated);
+
+        /// <summary>
+        ///     <para>
         ///         A database command is executing.
         ///     </para>
         ///     <para>
@@ -197,10 +228,23 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
         ///     </para>
         ///     <para>
-        ///         This event uses the <see cref="TransactionEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///         This event uses the <see cref="TransactionEndEventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
         public static readonly EventId TransactionStarted = MakeTransactionId(Id.TransactionStarted);
+
+        /// <summary>
+        ///     <para>
+        ///         A database transaction is starting.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TransactionStartingEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId TransactionStarting = MakeTransactionId(Id.TransactionStarting);
 
         /// <summary>
         ///     <para>
@@ -217,6 +261,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
+        ///         A database transaction is being committed.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TransactionEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId TransactionCommitting = MakeTransactionId(Id.TransactionCommitting);
+
+        /// <summary>
+        ///     <para>
         ///         A database transaction has been committed.
         ///     </para>
         ///     <para>
@@ -227,6 +284,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId TransactionCommitted = MakeTransactionId(Id.TransactionCommitted);
+
+        /// <summary>
+        ///     <para>
+        ///         A database transaction is being rolled back.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TransactionEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId TransactionRollingBack = MakeTransactionId(Id.TransactionRollingBack);
 
         /// <summary>
         ///     <para>
@@ -431,17 +501,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         Part of a query is being evaluated on the client instead of on the database server.
-        ///     </para>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
-        ///     </para>
-        /// </summary>
-        [Obsolete]
-        public static readonly EventId QueryClientEvaluationWarning = MakeQueryId(Id.QueryClientEvaluationWarning);
-
-        /// <summary>
-        ///     <para>
         ///         A query is using equals comparisons in a possibly unintended way.
         ///     </para>
         ///     <para>
@@ -451,7 +510,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event uses the <see cref="ExpressionEventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
-        public static readonly EventId QueryPossibleUnintendedUseOfEqualsWarning = MakeQueryId(Id.QueryPossibleUnintendedUseOfEqualsWarning);
+        public static readonly EventId QueryPossibleUnintendedUseOfEqualsWarning =
+            MakeQueryId(Id.QueryPossibleUnintendedUseOfEqualsWarning);
 
         /// <summary>
         ///     <para>
@@ -461,7 +521,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
         ///     </para>
         /// </summary>
-        public static readonly EventId QueryPossibleExceptionWithAggregateOperatorWarning = MakeQueryId(Id.QueryPossibleExceptionWithAggregateOperatorWarning);
+        public static readonly EventId QueryPossibleExceptionWithAggregateOperatorWarning =
+            MakeQueryId(Id.QueryPossibleExceptionWithAggregateOperatorWarning);
 
         private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
         private static EventId MakeValidationId(Id id) => new EventId((int)id, _validationPrefix + id);

@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Adds the given extension to the underlying options and creates a new
-        ///     <see cref="DbContextOptions"/> with the extension added.
+        ///     <see cref="DbContextOptions" /> with the extension added.
         /// </summary>
         /// <typeparam name="TExtension"> The type of extension to be added. </typeparam>
         /// <param name="extension"> The extension to be added. </param>

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -24,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the sequence. </param>
         /// <param name="schema"> The schema of the sequence. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static PropertyBuilder ForSqlServerUseSequenceHiLo(
+        public static PropertyBuilder UseHiLo(
             [NotNull] this PropertyBuilder propertyBuilder,
             [CanBeNull] string name = null,
             [CanBeNull] string schema = null)
@@ -44,11 +43,11 @@ namespace Microsoft.EntityFrameworkCore
                 model.AddSequence(name, schema).IncrementBy = 10;
             }
 
-            property.SetSqlServerValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo);
-            property.SetSqlServerHiLoSequenceName(name);
-            property.SetSqlServerHiLoSequenceSchema(schema);
-            property.SetSqlServerIdentitySeed(null);
-            property.SetSqlServerIdentityIncrement(null);
+            property.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo);
+            property.SetHiLoSequenceName(name);
+            property.SetHiLoSequenceSchema(schema);
+            property.SetIdentitySeed(null);
+            property.SetIdentityIncrement(null);
 
             return propertyBuilder;
         }
@@ -62,11 +61,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the sequence. </param>
         /// <param name="schema"> The schema of the sequence. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static PropertyBuilder<TProperty> ForSqlServerUseSequenceHiLo<TProperty>(
+        public static PropertyBuilder<TProperty> UseHiLo<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
             [CanBeNull] string name = null,
             [CanBeNull] string schema = null)
-            => (PropertyBuilder<TProperty>)ForSqlServerUseSequenceHiLo((PropertyBuilder)propertyBuilder, name, schema);
+            => (PropertyBuilder<TProperty>)UseHiLo((PropertyBuilder)propertyBuilder, name, schema);
 
         /// <summary>
         ///     Configures the database sequence used for the hi-lo pattern to generate values for the key property,
@@ -77,19 +76,19 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="schema">The schema of the sequence. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> A builder to further configure the sequence. </returns>
-        public static IConventionSequenceBuilder ForSqlServerHasHiLoSequence(
+        public static IConventionSequenceBuilder HasHiLoSequence(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
             [CanBeNull] string name,
             [CanBeNull] string schema,
             bool fromDataAnnotation = false)
         {
-            if (!propertyBuilder.ForSqlServerCanSetHiLoSequence(name, schema))
+            if (!propertyBuilder.CanSetHiLoSequence(name, schema, fromDataAnnotation))
             {
                 return null;
             }
 
-            propertyBuilder.Metadata.SetSqlServerHiLoSequenceName(name, fromDataAnnotation);
-            propertyBuilder.Metadata.SetSqlServerHiLoSequenceSchema(schema, fromDataAnnotation);
+            propertyBuilder.Metadata.SetHiLoSequenceName(name, fromDataAnnotation);
+            propertyBuilder.Metadata.SetHiLoSequenceSchema(schema, fromDataAnnotation);
 
             return name == null
                 ? null
@@ -104,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="schema">The schema of the sequence. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the given name and schema can be set for the hi-lo sequence. </returns>
-        public static bool ForSqlServerCanSetHiLoSequence(
+        public static bool CanSetHiLoSequence(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
             [CanBeNull] string name,
             [CanBeNull] string schema,
@@ -115,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NullButNotEmpty(schema, nameof(schema));
 
             return propertyBuilder.CanSetAnnotation(SqlServerAnnotationNames.HiLoSequenceName, name, fromDataAnnotation)
-                   && propertyBuilder.CanSetAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema, schema, fromDataAnnotation);
+                && propertyBuilder.CanSetAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema, schema, fromDataAnnotation);
         }
 
         /// <summary>
@@ -126,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
         /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static PropertyBuilder ForSqlServerUseIdentityColumn(
+        public static PropertyBuilder UseIdentityColumn(
             [NotNull] this PropertyBuilder propertyBuilder,
             int seed = 1,
             int increment = 1)
@@ -134,11 +133,11 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 
             var property = propertyBuilder.Metadata;
-            property.SetSqlServerValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
-            property.SetSqlServerIdentitySeed(seed);
-            property.SetSqlServerIdentityIncrement(increment);
-            property.SetSqlServerHiLoSequenceName(null);
-            property.SetSqlServerHiLoSequenceSchema(null);
+            property.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
+            property.SetIdentitySeed(seed);
+            property.SetIdentityIncrement(increment);
+            property.SetHiLoSequenceName(null);
+            property.SetHiLoSequenceSchema(null);
 
             return propertyBuilder;
         }
@@ -152,42 +151,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
         /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static PropertyBuilder<TProperty> ForSqlServerUseIdentityColumn<TProperty>(
+        public static PropertyBuilder<TProperty> UseIdentityColumn<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
             int seed = 1,
             int increment = 1)
-            => (PropertyBuilder<TProperty>)ForSqlServerUseIdentityColumn((PropertyBuilder)propertyBuilder, seed, increment);
-
-        /// <summary>
-        ///     Configures the key property to use the SQL Server IDENTITY feature to generate values for new entities,
-        ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
-        /// </summary>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
-        /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        [Obsolete("Use ForSqlServerUseIdentityColumn instead")]
-        public static PropertyBuilder UseSqlServerIdentityColumn(
-            [NotNull] this PropertyBuilder propertyBuilder,
-            int seed = 1,
-            int increment = 1)
-            => propertyBuilder.ForSqlServerUseIdentityColumn(seed, increment);
-
-        /// <summary>
-        ///     Configures the key property to use the SQL Server IDENTITY feature to generate values for new entities,
-        ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
-        /// </summary>
-        /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
-        /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        [Obsolete("Use ForSqlServerUseIdentityColumn instead")]
-        public static PropertyBuilder<TProperty> UseSqlServerIdentityColumn<TProperty>(
-            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-            int seed = 1,
-            int increment = 1)
-            => propertyBuilder.ForSqlServerUseIdentityColumn(seed, increment);
+            => (PropertyBuilder<TProperty>)UseIdentityColumn((PropertyBuilder)propertyBuilder, seed, increment);
 
         /// <summary>
         ///     Configures the seed for SQL Server IDENTITY.
@@ -199,12 +167,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <c>null</c> otherwise.
         /// </returns>
-        public static IConventionPropertyBuilder ForSqlServerHasIdentitySeed(
+        public static IConventionPropertyBuilder HasIdentityColumnSeed(
             [NotNull] this IConventionPropertyBuilder propertyBuilder, int? seed, bool fromDataAnnotation = false)
         {
-            if (propertyBuilder.ForSqlServerCanSetIdentitySeed(seed, fromDataAnnotation))
+            if (propertyBuilder.CanSetIdentityColumnSeed(seed, fromDataAnnotation))
             {
-                propertyBuilder.Metadata.SetSqlServerIdentitySeed(seed, fromDataAnnotation);
+                propertyBuilder.Metadata.SetIdentitySeed(seed, fromDataAnnotation);
                 return propertyBuilder;
             }
 
@@ -218,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the given value can be set as the seed for SQL Server IDENTITY. </returns>
-        public static bool ForSqlServerCanSetIdentitySeed(
+        public static bool CanSetIdentityColumnSeed(
             [NotNull] this IConventionPropertyBuilder propertyBuilder, int? seed, bool fromDataAnnotation = false)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
@@ -236,12 +204,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <c>null</c> otherwise.
         /// </returns>
-        public static IConventionPropertyBuilder ForSqlServerHasIdentityIncrement(
+        public static IConventionPropertyBuilder HasIdentityColumnIncrement(
             [NotNull] this IConventionPropertyBuilder propertyBuilder, int? increment, bool fromDataAnnotation = false)
         {
-            if (propertyBuilder.ForSqlServerCanSetIdentityIncrement(increment, fromDataAnnotation))
+            if (propertyBuilder.CanSetIdentityColumnIncrement(increment, fromDataAnnotation))
             {
-                propertyBuilder.Metadata.SetSqlServerIdentityIncrement(increment, fromDataAnnotation);
+                propertyBuilder.Metadata.SetIdentityIncrement(increment, fromDataAnnotation);
                 return propertyBuilder;
             }
 
@@ -255,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the given value can be set as the default increment for SQL Server IDENTITY. </returns>
-        public static bool ForSqlServerCanSetIdentityIncrement(
+        public static bool CanSetIdentityColumnIncrement(
             [NotNull] this IConventionPropertyBuilder propertyBuilder, int? increment, bool fromDataAnnotation = false)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
@@ -273,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <c>null</c> otherwise.
         /// </returns>
-        public static IConventionPropertyBuilder ForSqlServerHasValueGenerationStrategy(
+        public static IConventionPropertyBuilder HasValueGenerationStrategy(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
             SqlServerValueGenerationStrategy? valueGenerationStrategy,
             bool fromDataAnnotation = false)
@@ -281,16 +249,16 @@ namespace Microsoft.EntityFrameworkCore
             if (propertyBuilder.CanSetAnnotation(
                 SqlServerAnnotationNames.ValueGenerationStrategy, valueGenerationStrategy, fromDataAnnotation))
             {
-                propertyBuilder.Metadata.SetSqlServerValueGenerationStrategy(valueGenerationStrategy, fromDataAnnotation);
+                propertyBuilder.Metadata.SetValueGenerationStrategy(valueGenerationStrategy, fromDataAnnotation);
                 if (valueGenerationStrategy != SqlServerValueGenerationStrategy.IdentityColumn)
                 {
-                    propertyBuilder.ForSqlServerHasIdentitySeed(null, fromDataAnnotation);
-                    propertyBuilder.ForSqlServerHasIdentityIncrement(null, fromDataAnnotation);
+                    propertyBuilder.HasIdentityColumnSeed(null, fromDataAnnotation);
+                    propertyBuilder.HasIdentityColumnIncrement(null, fromDataAnnotation);
                 }
 
                 if (valueGenerationStrategy != SqlServerValueGenerationStrategy.SequenceHiLo)
                 {
-                    propertyBuilder.ForSqlServerHasHiLoSequence(null, null, fromDataAnnotation);
+                    propertyBuilder.HasHiLoSequence(null, null, fromDataAnnotation);
                 }
 
                 return propertyBuilder;
@@ -306,7 +274,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="valueGenerationStrategy"> The value generation strategy. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the given value can be set as the default value generation strategy. </returns>
-        public static bool ForSqlServerCanSetValueGenerationStrategy(
+        public static bool CanSetValueGenerationStrategy(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
             SqlServerValueGenerationStrategy? valueGenerationStrategy,
             bool fromDataAnnotation = false)
@@ -315,8 +283,8 @@ namespace Microsoft.EntityFrameworkCore
 
             return (valueGenerationStrategy == null
                     || SqlServerPropertyExtensions.IsCompatibleWithValueGeneration(propertyBuilder.Metadata))
-                   && propertyBuilder.CanSetAnnotation(
-                       SqlServerAnnotationNames.ValueGenerationStrategy, valueGenerationStrategy, fromDataAnnotation);
+                && propertyBuilder.CanSetAnnotation(
+                    SqlServerAnnotationNames.ValueGenerationStrategy, valueGenerationStrategy, fromDataAnnotation);
         }
     }
 }

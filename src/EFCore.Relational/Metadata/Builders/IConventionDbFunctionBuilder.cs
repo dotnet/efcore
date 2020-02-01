@@ -4,7 +4,8 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -55,6 +56,44 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the given schema can be set for the database function. </returns>
         bool CanSetSchema([CanBeNull] string schema, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Sets the store type of the function in the database.
+        /// </summary>
+        /// <param name="storeType"> The store type of the function in the database. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        IConventionDbFunctionBuilder HasStoreType([CanBeNull] string storeType, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns a value indicating whether the given store type can be set for the database function.
+        /// </summary>
+        /// <param name="storeType"> The store type of the function in the database. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the given store type can be set for the database function. </returns>
+        bool CanSetStoreType([CanBeNull] string storeType, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Sets the return type mapping of the database function.
+        /// </summary>
+        /// <param name="typeMapping"> The return type mapping of the function in the database. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        IConventionDbFunctionBuilder HasTypeMapping([CanBeNull] RelationalTypeMapping typeMapping, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns a value indicating whether the given return type mapping can be set for the database function.
+        /// </summary>
+        /// <param name="typeMapping"> The return type mapping of the function in the database. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the given return type mapping can be set for the database function. </returns>
+        bool CanSetTypeMapping([CanBeNull] RelationalTypeMapping typeMapping, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     <para>

@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public static class DesignStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.DesignStrings", typeof(DesignStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.DesignStrings", typeof(DesignStrings).Assembly);
 
         /// <summary>
         ///     The name '{migrationName}' is used by an existing migration.
@@ -257,6 +257,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static string FindingContexts
             => GetString("FindingContexts");
+
+        /// <summary>
+        ///     Failed creating connection: {exceptionMessage}
+        /// </summary>
+        public static string BadConnection([CanBeNull] object exceptionMessage)
+            => string.Format(
+                GetString("BadConnection", nameof(exceptionMessage)),
+                exceptionMessage);
+
+        /// <summary>
+        ///     Connection information is only available for relational database providers.
+        /// </summary>
+        public static string NoRelationalConnection
+            => GetString("NoRelationalConnection");
 
         /// <summary>
         ///     The namespace '{migrationsNamespace}' contains migrations for a different DbContext. This can result in conflicting migration names. It's recommend to put migrations for different DbContext classes into different namespaces.

@@ -101,11 +101,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override void WritePropertyValue(IPropertyBase propertyBase, object value)
+        protected override void WritePropertyValue(IPropertyBase propertyBase, object value, bool forMaterialization)
         {
             if (!propertyBase.IsShadowProperty())
             {
-                base.WritePropertyValue(propertyBase, value);
+                base.WritePropertyValue(propertyBase, value, forMaterialization);
             }
             else
             {
@@ -119,10 +119,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override object GetOrCreateCollection(INavigation navigation)
+        public override object GetOrCreateCollection(INavigation navigation, bool forMaterialization)
             => navigation.IsShadowProperty()
                 ? GetOrCreateCollectionTyped(navigation)
-                : base.GetOrCreateCollection(navigation);
+                : base.GetOrCreateCollection(navigation, forMaterialization);
 
         private ICollection<object> GetOrCreateCollectionTyped(INavigation navigation)
         {
@@ -152,14 +152,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override bool AddToCollection(INavigation navigation, InternalEntityEntry value)
+        public override bool AddToCollection(INavigation navigation, InternalEntityEntry value, bool forMaterialization)
         {
             if (!navigation.IsShadowProperty())
             {
-                return base.AddToCollection(navigation, value);
+                return base.AddToCollection(navigation, value, forMaterialization);
             }
 
-            if (navigation.GetTargetType().ClrType == null)
+            if (navigation.TargetEntityType.ClrType == null)
             {
                 return false;
             }

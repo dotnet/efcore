@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -13,12 +12,6 @@ namespace Microsoft.EntityFrameworkCore
         public ConvertToProviderTypesInMemoryTest(ConvertToProviderTypesInMemoryFixture fixture)
             : base(fixture)
         {
-        }
-
-        [ConditionalFact(Skip = "Issue#15711")]
-        public override void Can_insert_and_read_back_with_string_key()
-        {
-            base.Can_insert_and_read_back_with_string_key();
         }
 
         public class ConvertToProviderTypesInMemoryFixture : ConvertToProviderTypesFixtureBase

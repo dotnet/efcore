@@ -117,13 +117,34 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="CosmosNotInUse" xml:space="preserve">
+    <value>Cosmos-specific methods can only be used when the context is using the Cosmos provider.</value>
+  </data>
+  <data name="DuplicateDiscriminatorValue" xml:space="preserve">
+    <value>The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type mapped to the container '{container}' needs to have a unique discriminator value.</value>
+  </data>
+  <data name="NoDiscriminatorProperty" xml:space="preserve">
+    <value>The entity type '{entityType}' is sharing the container '{container}' with other types, but does not have a discriminator property configured.</value>
+  </data>
+  <data name="NoDiscriminatorValue" xml:space="preserve">
+    <value>The entity type '{entityType}' is sharing the container '{container}' with other types, but does not have a discriminator value configured.</value>
+  </data>
+  <data name="NoPartitionKey" xml:space="preserve">
+    <value>The entity type '{entityType}' does not have a partition key set, but it is mapped to the container '{container}' shared by entity types with partition keys.</value>
+  </data>
   <data name="OrphanedNestedDocument" xml:space="preserve">
     <value>The entity of type '{entityType}' is mapped as a part of the document mapped to '{missingEntityType}', but there is no tracked entity of this type with the corresponding key value. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
   </data>
   <data name="OrphanedNestedDocumentSensitive" xml:space="preserve">
     <value>The entity of type '{entityType}' is mapped as a part of the document mapped to '{missingEntityType}', but there is no tracked entity of this type with the key value '{keyValue}'.</value>
   </data>
-  <data name="UnableToDiscriminate" xml:space="preserve">
-    <value>No matching discriminator values where found for this instance of '{entityType}'.</value>
+  <data name="PartitionKeyMissingProperty" xml:space="preserve">
+    <value>The partition key for entity type '{entityType}' is set to '{property}', but there is no property with that name.</value>
+  </data>
+  <data name="PartitionKeyNonStringStoreType" xml:space="preserve">
+    <value>The type of the partition key property '{property}' on '{entityType}' is '{propertyType}'. All partition key properties need to be strings or have a string converter.</value>
+  </data>
+  <data name="PartitionKeyStoreNameMismatch" xml:space="preserve">
+    <value>The partition key property '{property1}' on '{entityType1}' is mapped as '{storeName1}', but the partition key property '{property2}' on '{entityType2}' is mapped as '{storeName2}'. All partition key properties need to be mapped to the same store property.</value>
   </data>
 </root>

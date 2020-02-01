@@ -1,10 +1,10 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using GeoAPI.Geometries;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
+using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="ordinates"> The dimension ordinates. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static PropertyBuilder ForSqliteHasDimension(
+        public static PropertyBuilder HasGeometricDimension(
             [NotNull] this PropertyBuilder propertyBuilder,
             Ordinates ordinates)
         {
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore
                 dimension += "M";
             }
 
-            propertyBuilder.Metadata.SetSqliteDimension(dimension);
+            propertyBuilder.Metadata.SetGeometricDimension(dimension);
 
             return propertyBuilder;
         }
@@ -47,9 +47,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="ordinates"> The dimension ordinates. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static PropertyBuilder<TProperty> ForSqliteHasDimension<TProperty>(
+        public static PropertyBuilder<TProperty> HasGeometricDimension<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
             Ordinates ordinates)
-            => (PropertyBuilder<TProperty>)ForSqliteHasDimension((PropertyBuilder)propertyBuilder, ordinates);
+            => (PropertyBuilder<TProperty>)HasGeometricDimension((PropertyBuilder)propertyBuilder, ordinates);
     }
 }

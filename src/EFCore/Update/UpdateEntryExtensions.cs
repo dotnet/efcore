@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -26,7 +26,19 @@ namespace Microsoft.EntityFrameworkCore.Update
         public static string BuildCurrentValuesString(
             [NotNull] this IUpdateEntry entry,
             [NotNull] IEnumerable<IPropertyBase> properties)
-            => "{" + string.Join(", ", properties.Select(p => p.Name + ": " + Convert.ToString(entry.GetCurrentValue(p), CultureInfo.InvariantCulture))) + "}";
+            => "{"
+                + string.Join(
+                    ", ", properties.Select(
+                        p =>
+                        {
+                            var currentValue = entry.GetCurrentValue(p);
+                            return p.Name
+                                + ": "
+                                + (currentValue == null
+                                    ? "<null>"
+                                    : Convert.ToString(currentValue, CultureInfo.InvariantCulture));
+                        }))
+                + "}";
 
         /// <summary>
         ///     Creates a formatted string representation of the given properties and their original
@@ -39,6 +51,18 @@ namespace Microsoft.EntityFrameworkCore.Update
         public static string BuildOriginalValuesString(
             [NotNull] this IUpdateEntry entry,
             [NotNull] IEnumerable<IPropertyBase> properties)
-            => "{" + string.Join(", ", properties.Select(p => p.Name + ": " + Convert.ToString(entry.GetOriginalValue(p), CultureInfo.InvariantCulture))) + "}";
+            => "{"
+                + string.Join(
+                    ", ", properties.Select(
+                        p =>
+                        {
+                            var originalValue = entry.GetOriginalValue(p);
+                            return p.Name
+                                + ": "
+                                + (originalValue == null
+                                    ? "<null>"
+                                    : Convert.ToString(originalValue, CultureInfo.InvariantCulture));
+                        }))
+                + "}";
     }
 }

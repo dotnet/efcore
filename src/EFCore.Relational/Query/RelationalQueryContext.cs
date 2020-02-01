@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Data.Common;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -14,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         /// <summary>
         ///     <para>
-        ///         Creates a new <see cref="RelationalQueryContext"/> instance.
+        ///         Creates a new <see cref="RelationalQueryContext" /> instance.
         ///     </para>
         ///     <para>
         ///         This type is typically used by database providers (and other extensions). It is generally
@@ -22,20 +23,27 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     </para>
         /// </summary>
         /// <param name="dependencies"> The dependencies to use. </param>
-        /// <param name="connection"> The relational connection. </param>
-        /// <param name="executionStrategyFactory"> A factory for creating the execution strategy to use. </param>
+        /// <param name="relationalDependencies"> The relational-specific dependencies to use. </param>
         public RelationalQueryContext(
             [NotNull] QueryContextDependencies dependencies,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] IExecutionStrategyFactory executionStrategyFactory)
+            [NotNull] RelationalQueryContextDependencies relationalDependencies)
             : base(dependencies)
         {
-            Check.NotNull(connection, nameof(connection));
-            Check.NotNull(executionStrategyFactory, nameof(executionStrategyFactory));
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
 
-            Connection = connection;
-            ExecutionStrategyFactory = executionStrategyFactory;
+            RelationalDependencies = relationalDependencies;
         }
+
+        /// <summary>
+        ///     Relational-specific dependencies.
+        /// </summary>
+        protected virtual RelationalQueryContextDependencies RelationalDependencies { get; }
+
+        /// <summary>
+        ///     A factory for creating a readable query string from a <see cref="DbCommand"/>
+        /// </summary>
+        public virtual IRelationalQueryStringFactory RelationalQueryStringFactory
+            => RelationalDependencies.RelationalQueryStringFactory;
 
         /// <summary>
         ///     Gets the active relational connection.
@@ -43,14 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <value>
         ///     The connection.
         /// </value>
-        public virtual IRelationalConnection Connection { get; }
-
-        /// <summary>
-        ///     The execution strategy factory.
-        /// </summary>
-        /// <value>
-        ///     The execution strategy factory.
-        /// </value>
-        public virtual IExecutionStrategyFactory ExecutionStrategyFactory { get; }
+        public virtual IRelationalConnection Connection
+            => RelationalDependencies.RelationalConnection;
     }
 }

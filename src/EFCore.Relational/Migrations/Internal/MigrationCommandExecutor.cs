@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
@@ -19,9 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public class MigrationCommandExecutor : IMigrationCommandExecutor
@@ -96,7 +96,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Check.NotNull(migrationCommands, nameof(migrationCommands));
             Check.NotNull(connection, nameof(connection));
 
-            using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+            var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+            try
             {
                 await connection.OpenAsync(cancellationToken);
 
@@ -118,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 && command.TransactionSuppressed)
                             {
                                 transaction.Commit();
-                                transaction.Dispose();
+                                await transaction.DisposeAsync();
                                 transaction = null;
                             }
 
@@ -129,13 +130,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }
                     finally
                     {
-                        transaction?.Dispose();
+                        if (transaction != null)
+                        {
+                            await transaction.DisposeAsync();
+                        }
                     }
                 }
                 finally
                 {
-                    connection.Close();
+                    await connection.CloseAsync();
                 }
+            }
+            finally
+            {
+                await transactionScope.DisposeAsyncIfAvailable();
             }
         }
     }

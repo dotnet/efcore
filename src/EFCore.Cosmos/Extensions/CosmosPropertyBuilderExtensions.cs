@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
@@ -19,16 +19,16 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks> If an empty string is supplied then the property will not be persisted. </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="name"> The name of the container. </param>
+        /// <param name="name"> The name of the property. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static PropertyBuilder ForCosmosToProperty(
+        public static PropertyBuilder ToJsonProperty(
             [NotNull] this PropertyBuilder propertyBuilder,
             [NotNull] string name)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(name, nameof(name));
 
-            propertyBuilder.Metadata.SetCosmosPropertyName(name);
+            propertyBuilder.Metadata.SetJsonPropertyName(name);
 
             return propertyBuilder;
         }
@@ -38,12 +38,12 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="name"> The name of the container. </param>
+        /// <param name="name"> The name of the property. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static PropertyBuilder<TProperty> ForCosmosToProperty<TProperty>(
+        public static PropertyBuilder<TProperty> ToJsonProperty<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
             [NotNull] string name)
-            => (PropertyBuilder<TProperty>)ForCosmosToProperty((PropertyBuilder)propertyBuilder, name);
+            => (PropertyBuilder<TProperty>)ToJsonProperty((PropertyBuilder)propertyBuilder, name);
 
         /// <summary>
         ///     <para>
@@ -54,23 +54,23 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="name"> The name of the container. </param>
+        /// <param name="name"> The name of the property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <c>null</c> otherwise.
         /// </returns>
-        public static IConventionPropertyBuilder ForCosmosToProperty(
+        public static IConventionPropertyBuilder ToJsonProperty(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
             [CanBeNull] string name,
             bool fromDataAnnotation = false)
         {
-            if (!propertyBuilder.ForCosmosCanSetProperty(name, fromDataAnnotation))
+            if (!propertyBuilder.CanSetJsonProperty(name, fromDataAnnotation))
             {
                 return null;
             }
 
-            propertyBuilder.Metadata.SetCosmosPropertyName(name, fromDataAnnotation);
+            propertyBuilder.Metadata.SetJsonPropertyName(name, fromDataAnnotation);
 
             return propertyBuilder;
         }
@@ -79,10 +79,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns a value indicating whether the given property name can be set.
         /// </summary>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="name"> The name of the container. </param>
+        /// <param name="name"> The name of the property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the property name can be set. </returns>
-        public static bool ForCosmosCanSetProperty(
+        public static bool CanSetJsonProperty(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
             [CanBeNull] string name,
             bool fromDataAnnotation = false)

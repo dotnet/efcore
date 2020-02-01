@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Same(cache.GetOrAdd(config1, true), cache.GetOrAdd(config2, true));
 
-            Assert.Equal(1, loggerFactory.Log.Count);
+            Assert.Single(loggerFactory.Log);
 
             Assert.Equal(
                 CoreResources.LogServiceProviderCreated(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(),
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Same(cache.GetOrAdd(config1, true), cache.GetOrAdd(config2, true));
 
-            Assert.Equal(1, loggerFactory.Log.Count);
+            Assert.Single(loggerFactory.Log);
 
             Assert.Equal(
                 CoreResources.LogServiceProviderCreated(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(),
@@ -225,37 +225,73 @@ namespace Microsoft.EntityFrameworkCore
 
         private class FakeDbContextOptionsExtension1 : IDbContextOptionsExtension
         {
-            public virtual bool ApplyServices(IServiceCollection services) => false;
+            private DbContextOptionsExtensionInfo _info;
 
-            public virtual long GetServiceProviderHashCode() => 0;
+            public string Something { get; set; }
+
+            public DbContextOptionsExtensionInfo Info
+                => _info ??= new ExtensionInfo(this);
+
+            public virtual void ApplyServices(IServiceCollection services)
+            {
+            }
 
             public virtual void Validate(IDbContextOptions options)
             {
             }
 
-            public virtual string LogFragment => "";
-
-            public void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+            private sealed class ExtensionInfo : DbContextOptionsExtensionInfo
             {
-                debugInfo["Fake1"] = "1";
+                public ExtensionInfo(IDbContextOptionsExtension extension)
+                    : base(extension)
+                {
+                }
+
+                public override bool IsDatabaseProvider => false;
+
+                public override long GetServiceProviderHashCode() => 0;
+
+                public override string LogFragment => "";
+
+                public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+                {
+                    debugInfo["Fake1"] = "1";
+                }
             }
         }
 
         private class FakeDbContextOptionsExtension2 : IDbContextOptionsExtension
         {
-            public virtual bool ApplyServices(IServiceCollection services) => false;
+            private DbContextOptionsExtensionInfo _info;
 
-            public virtual long GetServiceProviderHashCode() => 0;
+            public DbContextOptionsExtensionInfo Info
+                => _info ??= new ExtensionInfo(this);
+
+            public virtual void ApplyServices(IServiceCollection services)
+            {
+            }
 
             public virtual void Validate(IDbContextOptions options)
             {
             }
 
-            public virtual string LogFragment => "";
-
-            public void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+            private sealed class ExtensionInfo : DbContextOptionsExtensionInfo
             {
-                debugInfo["Fake2"] = "1";
+                public ExtensionInfo(IDbContextOptionsExtension extension)
+                    : base(extension)
+                {
+                }
+
+                public override bool IsDatabaseProvider => false;
+
+                public override long GetServiceProviderHashCode() => 0;
+
+                public override string LogFragment => "";
+
+                public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+                {
+                    debugInfo["Fake2"] = "1";
+                }
             }
         }
     }

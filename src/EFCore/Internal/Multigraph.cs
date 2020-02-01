@@ -160,15 +160,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             foreach (var vertex in _vertices)
             {
-                foreach (var outgoingNeighbour in GetOutgoingNeighbors(vertex))
+                foreach (var outgoingNeighbor in GetOutgoingNeighbors(vertex))
                 {
-                    if (predecessorCounts.ContainsKey(outgoingNeighbour))
+                    if (predecessorCounts.ContainsKey(outgoingNeighbor))
                     {
-                        predecessorCounts[outgoingNeighbour]++;
+                        predecessorCounts[outgoingNeighbor]++;
                     }
                     else
                     {
-                        predecessorCounts[outgoingNeighbour] = 1;
+                        predecessorCounts[outgoingNeighbor] = 1;
                     }
                 }
             }
@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 {
                     var currentRoot = sortedQueue[index];
 
-                    foreach (var successor in GetOutgoingNeighbors(currentRoot).Where(neighbour => predecessorCounts.ContainsKey(neighbour)))
+                    foreach (var successor in GetOutgoingNeighbors(currentRoot).Where(neighbor => predecessorCounts.ContainsKey(neighbor)))
                     {
                         // Decrement counts for edges from sorted vertices and append any vertices that no longer have predecessors
                         predecessorCounts[successor]--;
@@ -212,19 +212,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                     // Iterate over the unsorted vertices
                     while ((candidateIndex < candidateVertices.Count)
-                           && !broken
-                           && (canBreakEdge != null))
+                        && !broken
+                        && (canBreakEdge != null))
                     {
                         var candidateVertex = candidateVertices[candidateIndex];
 
                         // Find vertices in the unsorted portion of the graph that have edges to the candidate
-                        var incomingNeighbours = GetIncomingNeighbors(candidateVertex)
-                            .Where(neighbour => predecessorCounts.ContainsKey(neighbour)).ToList();
+                        var incomingNeighbors = GetIncomingNeighbors(candidateVertex)
+                            .Where(neighbor => predecessorCounts.ContainsKey(neighbor)).ToList();
 
-                        foreach (var incomingNeighbour in incomingNeighbours)
+                        foreach (var incomingNeighbor in incomingNeighbors)
                         {
                             // Check to see if the edge can be broken
-                            if (canBreakEdge(incomingNeighbour, candidateVertex, _successorMap[incomingNeighbour][candidateVertex]))
+                            if (canBreakEdge(incomingNeighbor, candidateVertex, _successorMap[incomingNeighbor][candidateVertex]))
                             {
                                 predecessorCounts[candidateVertex]--;
                                 if (predecessorCounts[candidateVertex] == 0)
@@ -244,16 +244,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     {
                         // Failed to break the cycle
                         var currentCycleVertex = _vertices.First(v => predecessorCounts.ContainsKey(v));
-                        var cycle = new List<TVertex>
-                        {
-                            currentCycleVertex
-                        };
+                        var cycle = new List<TVertex> { currentCycleVertex };
                         var finished = false;
                         while (!finished)
                         {
                             // Find a cycle
                             foreach (var predecessor in GetIncomingNeighbors(currentCycleVertex)
-                                .Where(neighbour => predecessorCounts.ContainsKey(neighbour)))
+                                .Where(neighbor => predecessorCounts.ContainsKey(neighbor)))
                             {
                                 if (predecessorCounts[predecessor] != 0)
                                 {
@@ -324,15 +321,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             foreach (var vertex in _vertices)
             {
-                foreach (var outgoingNeighbour in GetOutgoingNeighbors(vertex))
+                foreach (var outgoingNeighbor in GetOutgoingNeighbors(vertex))
                 {
-                    if (predecessorCounts.ContainsKey(outgoingNeighbour))
+                    if (predecessorCounts.ContainsKey(outgoingNeighbor))
                     {
-                        predecessorCounts[outgoingNeighbour]++;
+                        predecessorCounts[outgoingNeighbor]++;
                     }
                     else
                     {
-                        predecessorCounts[outgoingNeighbour] = 1;
+                        predecessorCounts[outgoingNeighbor] = 1;
                     }
                 }
             }
@@ -383,10 +380,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 var currentCycleVertex = _vertices.First(
                     v => predecessorCounts.TryGetValue(v, out var predecessorNumber) ? predecessorNumber != 0 : false);
-                var cyclicWalk = new List<TVertex>
-                {
-                    currentCycleVertex
-                };
+                var cyclicWalk = new List<TVertex> { currentCycleVertex };
                 var finished = false;
                 while (!finished)
                 {
@@ -448,7 +442,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override IEnumerable<TVertex> GetOutgoingNeighbors(TVertex @from)
+        public override IEnumerable<TVertex> GetOutgoingNeighbors(TVertex from)
             => _successorMap.TryGetValue(from, out var successorSet)
                 ? successorSet.Keys
                 : Enumerable.Empty<TVertex>();

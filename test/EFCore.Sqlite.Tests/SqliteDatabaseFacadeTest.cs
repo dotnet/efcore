@@ -11,28 +11,24 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void IsSqlite_when_using_SQLite()
         {
-            using (var context = new ProviderContext(
+            using var context = new ProviderContext(
                 new DbContextOptionsBuilder()
                     .UseInternalServiceProvider(
                         new ServiceCollection()
                             .AddEntityFrameworkSqlite()
                             .BuildServiceProvider())
-                    .UseSqlite("Database=Maltesers").Options))
-            {
-                Assert.True(context.Database.IsSqlite());
-            }
+                    .UseSqlite("Database=Maltesers").Options);
+            Assert.True(context.Database.IsSqlite());
         }
 
         [ConditionalFact]
         public void Not_IsSqlite_when_using_different_provider()
         {
-            using (var context = new ProviderContext(
+            using var context = new ProviderContext(
                 new DbContextOptionsBuilder()
                     .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
-                    .UseInMemoryDatabase("Maltesers").Options))
-            {
-                Assert.False(context.Database.IsSqlite());
-            }
+                    .UseInMemoryDatabase("Maltesers").Options);
+            Assert.False(context.Database.IsSqlite());
         }
 
         private class ProviderContext : DbContext

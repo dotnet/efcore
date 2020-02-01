@@ -25,8 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Update
     /// </summary>
     public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     {
-        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
-        private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
         private readonly List<ModificationCommand> _modificationCommands = new List<ModificationCommand>();
 
         /// <summary>
@@ -37,12 +35,18 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
-            _commandBuilderFactory = dependencies.CommandBuilderFactory;
-            SqlGenerationHelper = dependencies.SqlGenerationHelper;
-            UpdateSqlGenerator = dependencies.UpdateSqlGenerator;
-            _valueBufferFactoryFactory = dependencies.ValueBufferFactoryFactory;
-            Logger = dependencies.Logger;
+            Dependencies = dependencies;
         }
+
+        /// <summary>
+        ///     Service dependencies.
+        /// </summary>
+        public virtual ModificationCommandBatchFactoryDependencies Dependencies { get; }
+
+        /// <summary>
+        ///     The update SQL generator.
+        /// </summary>
+        protected virtual IUpdateSqlGenerator UpdateSqlGenerator => Dependencies.UpdateSqlGenerator;
 
         /// <summary>
         ///     Gets or sets the cached command text for the commands in the batch.
@@ -53,21 +57,6 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     The ordinal of the last command for which command text was built.
         /// </summary>
         protected virtual int LastCachedCommandIndex { get; set; }
-
-        /// <summary>
-        ///     A helper for SQL generation.
-        /// </summary>
-        protected virtual ISqlGenerationHelper SqlGenerationHelper { get; }
-
-        /// <summary>
-        ///     A SQL generator for insert, update, and delete commands.
-        /// </summary>
-        protected virtual IUpdateSqlGenerator UpdateSqlGenerator { get; }
-
-        /// <summary>
-        ///     A logger.
-        /// </summary>
-        protected virtual IDiagnosticsLogger<DbLoggerCategory.Database.Command> Logger { get; }
 
         /// <summary>
         ///     The list of conceptual insert/update/delete <see cref="ModificationCommands" />s in the batch.
@@ -194,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <returns> The command. </returns>
         protected virtual RawSqlCommand CreateStoreCommand()
         {
-            var commandBuilder = _commandBuilderFactory
+            var commandBuilder = Dependencies.CommandBuilderFactory
                 .Create()
                 .Append(GetCommandText());
 
@@ -212,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     {
                         commandBuilder.AddParameter(
                             columnModification.ParameterName,
-                            SqlGenerationHelper.GenerateParameterName(columnModification.ParameterName),
+                            Dependencies.SqlGenerationHelper.GenerateParameterName(columnModification.ParameterName),
                             columnModification.Property);
 
                         parameterValues.Add(columnModification.ParameterName, columnModification.Value);
@@ -222,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     {
                         commandBuilder.AddParameter(
                             columnModification.OriginalParameterName,
-                            SqlGenerationHelper.GenerateParameterName(columnModification.OriginalParameterName),
+                            Dependencies.SqlGenerationHelper.GenerateParameterName(columnModification.OriginalParameterName),
                             columnModification.Property);
 
                         parameterValues.Add(columnModification.OriginalParameterName, columnModification.OriginalValue);
@@ -246,13 +235,14 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             try
             {
-                using (var dataReader = storeCommand.RelationalCommand.ExecuteReader(
-                    connection,
-                    storeCommand.ParameterValues,
-                    Logger))
-                {
-                    Consume(dataReader);
-                }
+                using var dataReader = storeCommand.RelationalCommand.ExecuteReader(
+                    new RelationalCommandParameterObject(
+                        connection,
+                        storeCommand.ParameterValues,
+                        null,
+                        Dependencies.CurrentContext.Context,
+                        Dependencies.Logger));
+                Consume(dataReader);
             }
             catch (DbUpdateException)
             {
@@ -281,14 +271,15 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             try
             {
-                using (var dataReader = await storeCommand.RelationalCommand.ExecuteReaderAsync(
-                    connection,
-                    storeCommand.ParameterValues,
-                    Logger,
-                    cancellationToken))
-                {
-                    await ConsumeAsync(dataReader, cancellationToken);
-                }
+                await using var dataReader = await storeCommand.RelationalCommand.ExecuteReaderAsync(
+                    new RelationalCommandParameterObject(
+                        connection,
+                        storeCommand.ParameterValues,
+                        null,
+                        Dependencies.CurrentContext.Context,
+                        Dependencies.Logger),
+                    cancellationToken);
+                await ConsumeAsync(dataReader, cancellationToken);
             }
             catch (DbUpdateException)
             {
@@ -325,8 +316,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     being modified such that a ValueBuffer with appropriate slots can be created.
         /// </param>
         /// <returns> The factory. </returns>
-        protected virtual IRelationalValueBufferFactory CreateValueBufferFactory([NotNull] IReadOnlyList<ColumnModification> columnModifications)
-            => _valueBufferFactoryFactory
+        protected virtual IRelationalValueBufferFactory CreateValueBufferFactory(
+            [NotNull] IReadOnlyList<ColumnModification> columnModifications)
+            => Dependencies.ValueBufferFactoryFactory
                 .Create(
                     Check.NotNull(columnModifications, nameof(columnModifications))
                         .Where(c => c.IsRead)

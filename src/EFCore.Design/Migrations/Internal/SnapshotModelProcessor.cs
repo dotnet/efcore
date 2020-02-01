@@ -36,7 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             _operationReporter = operationReporter;
             _relationalNames = new HashSet<string>(
                 typeof(RelationalAnnotationNames)
-                    .GetTypeInfo()
                     .GetRuntimeFields()
                     .Where(p => p.Name != nameof(RelationalAnnotationNames.Prefix))
                     .Select(p => ((string)p.GetValue(null)).Substring(RelationalAnnotationNames.Prefix.Length - 1)));
@@ -56,29 +55,29 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
 
             var version = model.GetProductVersion();
-            if (version == null)
+            if (version != null)
             {
-                return model;
-            }
+                ProcessElement(model, version);
 
-            ProcessElement(model, version);
-
-            foreach (var entityType in model.GetEntityTypes())
-            {
-                ProcessElement(entityType, version);
-                ProcessCollection(entityType.GetProperties(), version);
-                ProcessCollection(entityType.GetKeys(), version);
-                ProcessCollection(entityType.GetIndexes(), version);
-
-                foreach (var element in entityType.GetForeignKeys())
+                foreach (var entityType in model.GetEntityTypes())
                 {
-                    ProcessElement(element, version);
-                    ProcessElement(element.DependentToPrincipal, version);
-                    ProcessElement(element.PrincipalToDependent, version);
+                    ProcessElement(entityType, version);
+                    ProcessCollection(entityType.GetProperties(), version);
+                    ProcessCollection(entityType.GetKeys(), version);
+                    ProcessCollection(entityType.GetIndexes(), version);
+
+                    foreach (var element in entityType.GetForeignKeys())
+                    {
+                        ProcessElement(element, version);
+                        ProcessElement(element.DependentToPrincipal, version);
+                        ProcessElement(element.PrincipalToDependent, version);
+                    }
                 }
             }
 
-            return model;
+            return model is IMutableModel mutableModel
+                ? mutableModel.FinalizeModel()
+                : model;
         }
 
         private void ProcessCollection(IEnumerable<IAnnotatable> metadata, string version)
@@ -96,14 +95,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             if ((version.StartsWith("2.0", StringComparison.Ordinal)
                  || version.StartsWith("2.1", StringComparison.Ordinal))
                 && entityType is IMutableEntityType mutableEntityType
-                && entityType.FindPrimaryKey() == null)
+                && !entityType.IsOwned())
             {
-                var ownership = mutableEntityType.FindOwnership();
-                if (ownership is IMutableForeignKey mutableOwnership
-                    && ownership.IsUnique)
-                {
-                    mutableEntityType.SetPrimaryKey(mutableOwnership.Properties);
-                }
+                UpdateOwnedTypes(mutableEntityType);
             }
         }
 
@@ -136,6 +130,54 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         }
                     }
                 }
+            }
+        }
+
+        private void UpdateOwnedTypes(IMutableEntityType entityType)
+        {
+            var ownerships = entityType.GetDeclaredReferencingForeignKeys().Where(fk => fk.IsOwnership && fk.IsUnique)
+                .ToList();
+            foreach (var ownership in ownerships)
+            {
+                var ownedType = ownership.DeclaringEntityType;
+
+                var oldPrincipalKey = ownership.PrincipalKey;
+                if (!oldPrincipalKey.IsPrimaryKey())
+                {
+                    ownership.SetProperties(
+                        (IReadOnlyList<Property>)ownership.Properties,
+                        ownership.PrincipalEntityType.FindPrimaryKey());
+
+                    if (oldPrincipalKey is IConventionKey conventionKey
+                        && conventionKey.GetConfigurationSource() == ConfigurationSource.Convention)
+                    {
+                        oldPrincipalKey.DeclaringEntityType.RemoveKey(oldPrincipalKey);
+                    }
+
+                    foreach (var oldProperty in oldPrincipalKey.Properties)
+                    {
+                        if (oldProperty is IConventionProperty conventionProperty
+                            && conventionProperty.GetConfigurationSource() == ConfigurationSource.Convention)
+                        {
+                            oldProperty.DeclaringEntityType.RemoveProperty(oldProperty);
+                        }
+                    }
+                }
+
+                if (ownedType.FindPrimaryKey() == null)
+                {
+                    foreach (var mutableProperty in ownership.Properties)
+                    {
+                        if (mutableProperty.IsNullable)
+                        {
+                            mutableProperty.IsNullable = false;
+                        }
+                    }
+
+                    ownedType.SetPrimaryKey(ownership.Properties);
+                }
+
+                UpdateOwnedTypes(ownedType);
             }
         }
     }

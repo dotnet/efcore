@@ -1,13 +1,17 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
@@ -47,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             Check.NotEmpty(name, nameof(name));
 
-            _function.FunctionName = name;
+            _function.Name = name;
 
             return this;
         }
@@ -57,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             if (((IConventionDbFunctionBuilder)this).CanSetName(name, fromDataAnnotation))
             {
-                ((IConventionDbFunction)_function).SetFunctionName(name, fromDataAnnotation);
+                ((IConventionDbFunction)_function).SetName(name, fromDataAnnotation);
                 return this;
             }
 
@@ -66,8 +70,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <inheritdoc />
         bool IConventionDbFunctionBuilder.CanSetName(string name, bool fromDataAnnotation)
-            => Overrides(fromDataAnnotation, _function.GetFunctionNameConfigurationSource())
-               || _function.FunctionName == name;
+            => Overrides(fromDataAnnotation, _function.GetNameConfigurationSource())
+                || _function.Name == name;
 
         /// <summary>
         ///     Sets the schema of the database function.
@@ -96,7 +100,54 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <inheritdoc />
         bool IConventionDbFunctionBuilder.CanSetSchema(string schema, bool fromDataAnnotation)
             => Overrides(fromDataAnnotation, _function.GetSchemaConfigurationSource())
-               || _function.Schema == schema;
+                || _function.Schema == schema;
+
+        /// <summary>
+        ///     Sets the store type of the database function.
+        /// </summary>
+        /// <param name="storeType"> The store type of the function in the database. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual DbFunctionBuilder HasStoreType([CanBeNull] string storeType)
+        {
+            _function.StoreType = storeType;
+
+            return this;
+        }
+
+        /// <inheritdoc />
+        IConventionDbFunctionBuilder IConventionDbFunctionBuilder.HasStoreType(string storeType, bool fromDataAnnotation)
+        {
+            if (((IConventionDbFunctionBuilder)this).CanSetStoreType(storeType, fromDataAnnotation))
+            {
+                ((IConventionDbFunction)_function).SetStoreType(storeType, fromDataAnnotation);
+                return this;
+            }
+
+            return null;
+        }
+
+        /// <inheritdoc />
+        bool IConventionDbFunctionBuilder.CanSetStoreType(string storeType, bool fromDataAnnotation)
+            => Overrides(fromDataAnnotation, _function.GetStoreTypeConfigurationSource())
+                || _function.StoreType == storeType;
+
+        /// <inheritdoc />
+        IConventionDbFunctionBuilder IConventionDbFunctionBuilder.HasTypeMapping(
+            RelationalTypeMapping returnTypeMapping, bool fromDataAnnotation)
+        {
+            if (((IConventionDbFunctionBuilder)this).CanSetTypeMapping(returnTypeMapping, fromDataAnnotation))
+            {
+                ((IConventionDbFunction)_function).SetTypeMapping(returnTypeMapping, fromDataAnnotation);
+                return this;
+            }
+
+            return null;
+        }
+
+        /// <inheritdoc />
+        bool IConventionDbFunctionBuilder.CanSetTypeMapping(RelationalTypeMapping returnTypeMapping, bool fromDataAnnotation)
+            => Overrides(fromDataAnnotation, _function.GetTypeMappingConfigurationSource())
+                || _function.TypeMapping == returnTypeMapping;
 
         /// <summary>
         ///     <para>
@@ -136,11 +187,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return null;
         }
 
+        /// <summary>
+        ///     Creates a <see cref="DbFunctionParameterBuilder" /> for a parameter with the given name.
+        /// </summary>
+        /// <param name="name"> The parameter name. </param>
+        /// <returns> The builder to use for further parameter configuration. </returns>
+        public virtual DbFunctionParameterBuilder HasParameter([NotNull] string name)
+        {
+            return new DbFunctionParameterBuilder((DbFunctionParameter)FindParameter(name));
+        }
+
+        private IDbFunctionParameter FindParameter(string name)
+        {
+            var parameter = Metadata.Parameters.SingleOrDefault(
+                funcParam => string.Compare(funcParam.Name, name, StringComparison.OrdinalIgnoreCase) == 0);
+
+            if (parameter == null)
+            {
+                throw new ArgumentException(
+                    RelationalStrings.DbFunctionInvalidParameterName(name, Metadata.MethodInfo.DisplayName()));
+            }
+
+            return parameter;
+        }
+
         /// <inheritdoc />
         bool IConventionDbFunctionBuilder.CanSetTranslation(
             Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation, bool fromDataAnnotation)
             => Overrides(fromDataAnnotation, _function.GetTranslationConfigurationSource())
-               || _function.Translation == translation;
+                || _function.Translation == translation;
 
         private bool Overrides(bool fromDataAnnotation, ConfigurationSource? configurationSource)
             => (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)

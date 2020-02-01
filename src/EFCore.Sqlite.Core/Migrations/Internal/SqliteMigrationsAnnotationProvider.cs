@@ -22,9 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public class SqliteMigrationsAnnotationProvider : MigrationsAnnotationProvider
@@ -70,13 +70,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal
                 yield return new Annotation(SqliteAnnotationNames.Autoincrement, true);
             }
 
-            var srid = property.GetSqliteSrid();
+            var srid = property.GetSrid();
             if (srid != null)
             {
                 yield return new Annotation(SqliteAnnotationNames.Srid, srid);
             }
 
-            var dimension = property.GetSqliteDimension();
+            var dimension = property.GetGeometricDimension();
             if (dimension != null)
             {
                 yield return new Annotation(SqliteAnnotationNames.Dimension, dimension);
@@ -84,7 +84,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal
         }
 
         private static bool HasConverter(IProperty property)
-            => (property.FindMapping()?.Converter
-                ?? property.GetValueConverter()) != null;
+            => property.FindTypeMapping()?.Converter != null;
     }
 }

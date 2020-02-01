@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
@@ -9,7 +10,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     /// <summary>
     ///     A <see cref="MigrationOperation" /> for creating a new table.
     /// </summary>
-    public class CreateTableOperation : MigrationOperation
+    [DebuggerDisplay("CREATE TABLE {Name}")]
+    public class CreateTableOperation : TableOperation
     {
         /// <summary>
         ///     The name of the table.

@@ -84,7 +84,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     continue;
                 }
 
-                var factory = CreateSharedTableEntryMapFactory(tableMapping.Value, updateAdapter, tableMapping.Key.TableName, tableMapping.Key.Schema);
+                var factory = CreateSharedTableEntryMapFactory(
+                    tableMapping.Value, updateAdapter, tableMapping.Key.TableName, tableMapping.Key.Schema);
 
                 sharedTablesMap.Add(tableMapping.Key, factory);
             }
@@ -106,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         {
             var principals = new Dictionary<IEntityType, IReadOnlyList<IEntityType>>(entityTypes.Count);
             var dependents = new Dictionary<IEntityType, IReadOnlyList<IEntityType>>(entityTypes.Count);
-            foreach (var entityType in entityTypes)
+            foreach (var entityType in entityTypes.Where(t => t.FindPrimaryKey() != null))
             {
                 var principalList = new List<IEntityType>();
                 foreach (var foreignKey in entityType.FindForeignKeys(entityType.FindPrimaryKey().Properties))
@@ -127,8 +128,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     if (referencingForeignKey.PrincipalEntityType.IsAssignableFrom(entityType)
                         && entityTypes.Contains(referencingForeignKey.DeclaringEntityType)
                         && !referencingForeignKey.IsIntraHierarchical()
-                        && PropertyListComparer.Instance.Compare(
-                            referencingForeignKey.DeclaringEntityType.FindPrimaryKey().Properties, referencingForeignKey.Properties) == 0)
+                        && (PropertyListComparer.Instance.Compare(
+                                referencingForeignKey.DeclaringEntityType.FindPrimaryKey().Properties,
+                                referencingForeignKey.Properties)
+                            == 0))
                     {
                         dependentList.Add(referencingForeignKey.DeclaringEntityType);
                     }
@@ -192,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
         private IUpdateEntry GetMainEntry(IUpdateEntry entry)
         {
-            var entityType = entry.EntityType.RootType();
+            var entityType = entry.EntityType.GetRootType();
             if (_principals[entityType].Count == 0)
             {
                 return entry;
@@ -246,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
         }
 
-        private class EntryComparer : IComparer<IUpdateEntry>
+        private sealed class EntryComparer : IComparer<IUpdateEntry>
         {
             private readonly IReadOnlyDictionary<IEntityType, IReadOnlyList<IEntityType>> _principals;
 
@@ -256,14 +259,11 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
 
             public int Compare(IUpdateEntry x, IUpdateEntry y)
-            {
-                if (_principals[x.EntityType].Count == 0)
-                {
-                    return -1;
-                }
-
-                return _principals[y.EntityType].Count == 0 ? 1 : StringComparer.Ordinal.Compare(x.EntityType.Name, y.EntityType.Name);
-            }
+                => _principals[x.EntityType].Count == 0
+                    ? -1
+                    : _principals[y.EntityType].Count == 0
+                        ? 1
+                        : StringComparer.Ordinal.Compare(x.EntityType.Name, y.EntityType.Name);
         }
     }
 }

@@ -42,11 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             "connectionstring",
                             new DatabaseModelFactoryOptions(),
                             new ModelReverseEngineerOptions(),
-                            new ModelCodeGenerationOptions()
-                            {
-                                ModelNamespace = "FakeNamespace",
-                                ContextName = contextName,
-                            }))
+                            new ModelCodeGenerationOptions { ModelNamespace = "FakeNamespace", ContextName = contextName }))
                     .Message);
         }
     }

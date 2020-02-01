@@ -23,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public class SqlServerTypeMappingSource : RelationalTypeMappingSource
@@ -64,6 +64,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         private readonly SqlServerStringTypeMapping _fixedLengthUnicodeString
             = new SqlServerStringTypeMapping(unicode: true, fixedLength: true);
 
+        private readonly SqlServerStringTypeMapping _textUnicodeString
+            = new SqlServerStringTypeMapping("ntext", unicode: true, sqlDbType: SqlDbType.NText);
+
         private readonly SqlServerStringTypeMapping _variableLengthUnicodeString
             = new SqlServerStringTypeMapping(unicode: true);
 
@@ -73,6 +76,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         private readonly SqlServerStringTypeMapping _fixedLengthAnsiString
             = new SqlServerStringTypeMapping(fixedLength: true);
 
+        private readonly SqlServerStringTypeMapping _textAnsiString
+            = new SqlServerStringTypeMapping("text", sqlDbType: SqlDbType.Text);
+
         private readonly SqlServerStringTypeMapping _variableLengthAnsiString
             = new SqlServerStringTypeMapping();
 
@@ -81,6 +87,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 
         private readonly SqlServerByteArrayTypeMapping _variableLengthBinary
             = new SqlServerByteArrayTypeMapping();
+
+        private readonly SqlServerByteArrayTypeMapping _imageBinary
+            = new SqlServerByteArrayTypeMapping("image", sqlDbType: SqlDbType.Image);
 
         private readonly SqlServerByteArrayTypeMapping _variableLengthMaxBinary
             = new SqlServerByteArrayTypeMapping("varbinary(max)", storeTypePostfix: StoreTypePostfix.None);
@@ -107,7 +116,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             = new GuidTypeMapping("uniqueidentifier", DbType.Guid);
 
         private readonly DecimalTypeMapping _decimal
-            = new SqlServerDecimalTypeMapping("decimal(18, 2)", precision: 18, scale: 2, storeTypePostfix: StoreTypePostfix.PrecisionAndScale);
+            = new SqlServerDecimalTypeMapping(
+                "decimal(18, 2)", precision: 18, scale: 2, storeTypePostfix: StoreTypePostfix.PrecisionAndScale);
 
         private readonly DecimalTypeMapping _money
             = new SqlServerDecimalTypeMapping("money");
@@ -197,14 +207,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     { "decimal", _decimal },
                     { "double precision", _double },
                     { "float", _double },
-                    { "image", _variableLengthBinary },
+                    { "image", _imageBinary },
                     { "int", _int },
                     { "money", _money },
                     { "national char varying", _variableLengthUnicodeString },
                     { "national character varying", _variableLengthUnicodeString },
                     { "national character", _fixedLengthUnicodeString },
                     { "nchar", _fixedLengthUnicodeString },
-                    { "ntext", _variableLengthUnicodeString },
+                    { "ntext", _textUnicodeString },
                     { "numeric", _decimal },
                     { "nvarchar", _variableLengthUnicodeString },
                     { "nvarchar(max)", _variableLengthMaxUnicodeString },
@@ -214,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     { "smallint", _short },
                     { "smallmoney", _money },
                     { "sql_variant", _sqlVariant },
-                    { "text", _variableLengthAnsiString },
+                    { "text", _textAnsiString },
                     { "time", _time },
                     { "timestamp", _rowversion },
                     { "tinyint", _byte },
@@ -256,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
             => FindRawMapping(mappingInfo)?.Clone(mappingInfo)
-               ?? base.FindMapping(mappingInfo);
+                ?? base.FindMapping(mappingInfo);
 
         private RelationalTypeMapping FindRawMapping(RelationalTypeMappingInfo mappingInfo)
         {
@@ -279,9 +289,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     || _storeTypeMappings.TryGetValue(storeTypeNameBase, out mapping))
                 {
                     return clrType == null
-                           || mapping.ClrType == clrType
-                        ? mapping
-                        : null;
+                        || mapping.ClrType == clrType
+                            ? mapping
+                            : null;
                 }
             }
 
@@ -309,12 +319,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                         size = isFixedLength ? maxSize : (int?)null;
                     }
 
-                    return size == null
-                        ? isAnsi ? _variableLengthMaxAnsiString : _variableLengthMaxUnicodeString
-                        : new SqlServerStringTypeMapping(
-                            unicode: !isAnsi,
-                            size: size,
-                            fixedLength: isFixedLength);
+                    if (size == null)
+                    {
+                        return isAnsi
+                            ? isFixedLength
+                                ? _fixedLengthAnsiString
+                                : _variableLengthMaxAnsiString
+                            : isFixedLength
+                                ? _fixedLengthUnicodeString
+                                : _variableLengthMaxUnicodeString;
+                    }
+
+                    return new SqlServerStringTypeMapping(
+                        unicode: !isAnsi,
+                        size: size,
+                        fixedLength: isFixedLength);
                 }
 
                 if (clrType == typeof(byte[]))

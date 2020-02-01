@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace System.Text
 {
@@ -85,6 +86,24 @@ namespace System.Text
             }
 
             return stringBuilder;
+        }
+
+        public static void AppendBytes(this StringBuilder builder, byte[] bytes)
+        {
+            builder.Append("'0x");
+
+            for (var i = 0; i < bytes.Length; i++)
+            {
+                if (i > 31)
+                {
+                    builder.Append("...");
+                    break;
+                }
+
+                builder.Append(bytes[i].ToString("X2", CultureInfo.InvariantCulture));
+            }
+
+            builder.Append('\'');
         }
     }
 }

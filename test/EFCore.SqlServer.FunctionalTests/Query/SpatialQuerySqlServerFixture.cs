@@ -3,7 +3,7 @@
 
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,6 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return optionsBuilder;
         }
 
+        protected override bool CanExecuteQueryString => true;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             base.OnModelCreating(modelBuilder, context);
@@ -34,10 +36,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.HasDbFunction(
                 typeof(GeoExtensions).GetMethod(nameof(GeoExtensions.Distance)),
                 b => b.HasTranslation(
-                    e => new SqlFunctionExpression(
-                        e.First(),
+                    e => SqlFunctionExpression.Create(
+                        instance: e.First(),
                         "STDistance",
-                         e.Skip(1),
+                        arguments: e.Skip(1),
+                        nullResultAllowed: true,
+                        instancPropagatesNullability: true,
+                        argumentsPropagateNullability: e.Skip(1).Select(a => true),
                         typeof(double),
                         null)));
         }

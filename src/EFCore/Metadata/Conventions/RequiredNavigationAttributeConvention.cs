@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
     ///     A convention that configures the principal side of the relationship as required if the
-    ///     <see cref="RequiredAttribute"/> is applied on the navigation property to the principal entity type 
+    ///     <see cref="RequiredAttribute" /> is applied on the navigation property to the principal entity type.
     /// </summary>
     public class RequiredNavigationAttributeConvention : NavigationAttributeConventionBase<RequiredAttribute>
     {
@@ -43,14 +43,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Check.NotNull(navigation, nameof(navigation));
             Check.NotNull(attribute, nameof(attribute));
 
-            if (navigation.IsCollection())
+            if (navigation.IsCollection)
             {
+                Dependencies.Logger.RequiredAttributeOnCollection(navigation.ForeignKey.DependentToPrincipal);
                 return;
             }
 
-            if (!navigation.IsDependentToPrincipal())
+            if (!navigation.IsOnDependent)
             {
-                var inverse = navigation.FindInverse();
+                var inverse = navigation.Inverse;
                 if (inverse != null)
                 {
                     var attributes = GetAttributes<RequiredAttribute>(inverse.DeclaringEntityType, inverse);
@@ -61,9 +62,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     }
                 }
 
-                if (!navigation.ForeignKey.IsUnique
-                    || relationshipBuilder.Metadata.GetPrincipalEndConfigurationSource() != null)
+                if (relationshipBuilder.Metadata.GetPrincipalEndConfigurationSource() != null)
                 {
+                    Dependencies.Logger.RequiredAttributeOnDependent(navigation.ForeignKey.PrincipalToDependent);
                     return;
                 }
 
@@ -76,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     return;
                 }
 
-                Dependencies.Logger.RequiredAttributeOnDependent(newRelationshipBuilder.Metadata.DependentToPrincipal);
+                Dependencies.Logger.RequiredAttributeInverted(newRelationshipBuilder.Metadata.DependentToPrincipal);
                 relationshipBuilder = newRelationshipBuilder;
             }
 

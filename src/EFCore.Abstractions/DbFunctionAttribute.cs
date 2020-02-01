@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore
     public class DbFunctionAttribute : Attribute
 #pragma warning restore CA1813 // Avoid unsealed attributes
     {
-        private string _functionName;
+        private string _name;
         private string _schema;
 
         /// <summary>
@@ -30,28 +30,28 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Initializes a new instance of the <see cref="DbFunctionAttribute" /> class.
         /// </summary>
-        /// <param name="functionName">The name of the function in the database.</param>
+        /// <param name="name">The name of the function in the database.</param>
         /// <param name="schema">The schema of the function in the database.</param>
-        public DbFunctionAttribute([NotNull] string functionName, [CanBeNull] string schema = null)
+        public DbFunctionAttribute([NotNull] string name, [CanBeNull] string schema = null)
         {
-            Check.NotEmpty(functionName, nameof(functionName));
+            Check.NotEmpty(name, nameof(name));
 
-            _functionName = functionName;
+            _name = name;
             _schema = schema;
         }
 
         /// <summary>
         ///     The name of the function in the database.
         /// </summary>
-        public virtual string FunctionName
+        public virtual string Name
         {
-            get => _functionName;
+            get => _name;
             [param: NotNull]
             set
             {
                 Check.NotEmpty(value, nameof(value));
 
-                _functionName = value;
+                _name = value;
             }
         }
 

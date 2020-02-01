@@ -12,28 +12,54 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Azure.Cosmos;
+using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {
-    public class CosmosClientWrapper : IDisposable
+    /// <summary>
+    ///     <para>
+    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///         any release. You should only use it directly in your code with extreme caution and knowing that
+    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
+    ///     </para>
+    /// </summary>
+    public class CosmosClientWrapper
     {
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static readonly JsonSerializer Serializer = new JsonSerializer();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static readonly string DefaultPartitionKey = "__partitionKey";
+
+        private readonly SingletonCosmosClientWrapper _singletonWrapper;
         private readonly string _databaseId;
-        private readonly string _endPoint;
-        private readonly string _authKey;
-        private CosmosClient _client;
         private readonly IExecutionStrategyFactory _executionStrategyFactory;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _commandLogger;
-
-        private static readonly string _userAgent = " Microsoft.EntityFrameworkCore.Cosmos/" + ProductInfo.GetVersion();
-        public static readonly JsonSerializer Serializer = new JsonSerializer();
-        private string _region;
 
         static CosmosClientWrapper()
         {
@@ -41,92 +67,139 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             Serializer.DateFormatHandling = DateFormatHandling.IsoDateFormat;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public CosmosClientWrapper(
+            [NotNull] SingletonCosmosClientWrapper singletonWrapper,
             [NotNull] IDbContextOptions dbContextOptions,
             [NotNull] IExecutionStrategyFactory executionStrategyFactory,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
         {
-            var options = dbContextOptions.FindExtension<CosmosDbOptionsExtension>();
+            var options = dbContextOptions.FindExtension<CosmosOptionsExtension>();
 
+            _singletonWrapper = singletonWrapper;
             _databaseId = options.DatabaseName;
-            _endPoint = options.ServiceEndPoint;
-            _authKey = options.AuthKeyOrResourceToken;
-            _region = options.Region;
             _executionStrategyFactory = executionStrategyFactory;
             _commandLogger = commandLogger;
         }
 
-        private CosmosClient Client =>
-            _client
-            ?? (_client = new CosmosClient(
-                BuildCosmosConfiguration()));
+        private CosmosClient Client => _singletonWrapper.Client;
 
-        private CosmosConfiguration BuildCosmosConfiguration()
-        {
-            var configuration = new CosmosConfiguration(_endPoint, _authKey)
-            {
-                UserAgentSuffix = _userAgent,
-                ConnectionMode = ConnectionMode.Direct
-            };
-
-            if (_region != null)
-            {
-                configuration = configuration.UseCurrentRegion(_region);
-            }
-
-            return configuration;
-        }
-
-        public bool CreateDatabaseIfNotExists()
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CreateDatabaseIfNotExists()
             => _executionStrategyFactory.Create().Execute(
                 (object)null, CreateDatabaseIfNotExistsOnce, null);
 
-        public bool CreateDatabaseIfNotExistsOnce(
-            DbContext context,
-            object state)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CreateDatabaseIfNotExistsOnce(
+            [NotNull] DbContext context,
+            [NotNull] object state)
             => CreateDatabaseIfNotExistsOnceAsync(context, state).GetAwaiter().GetResult();
 
-        public Task<bool> CreateDatabaseIfNotExistsAsync(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Task<bool> CreateDatabaseIfNotExistsAsync(
             CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
                 (object)null, CreateDatabaseIfNotExistsOnceAsync, null, cancellationToken);
 
-        public async Task<bool> CreateDatabaseIfNotExistsOnceAsync(
-            DbContext _,
-            object __,
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual async Task<bool> CreateDatabaseIfNotExistsOnceAsync(
+            [CanBeNull] DbContext _,
+            [CanBeNull] object __,
             CancellationToken cancellationToken = default)
         {
-            var response = await Client.Databases.CreateDatabaseIfNotExistsAsync(_databaseId, cancellationToken: cancellationToken);
+            var response = await Client.CreateDatabaseIfNotExistsAsync(_databaseId, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
             return response.StatusCode == HttpStatusCode.Created;
         }
 
-        public bool DeleteDatabase()
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool DeleteDatabase()
             => _executionStrategyFactory.Create().Execute((object)null, DeleteDatabaseOnce, null);
 
-        public bool DeleteDatabaseOnce(
-            DbContext context,
-            object state)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool DeleteDatabaseOnce(
+            [CanBeNull] DbContext context,
+            [CanBeNull] object state)
             => DeleteDatabaseOnceAsync(context, state).GetAwaiter().GetResult();
 
-        public Task<bool> DeleteDatabaseAsync(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Task<bool> DeleteDatabaseAsync(
             CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
                 (object)null, DeleteDatabaseOnceAsync, null, cancellationToken);
 
-        public async Task<bool> DeleteDatabaseOnceAsync(
-            DbContext _,
-            object __,
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual async Task<bool> DeleteDatabaseOnceAsync(
+            [CanBeNull] DbContext _,
+            [CanBeNull] object __,
             CancellationToken cancellationToken = default)
         {
-            var response = await Client.Databases[_databaseId].DeleteAsync(cancellationToken: cancellationToken);
+            using var response = await Client.GetDatabase(_databaseId).DeleteStreamAsync(cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                return false;
+            }
 
+            response.EnsureSuccessStatusCode();
             return response.StatusCode == HttpStatusCode.NoContent;
         }
 
-        public bool CreateContainerIfNotExists(
-            string containerId,
-            string partitionKey)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CreateContainerIfNotExists(
+            [NotNull] string containerId,
+            [NotNull] string partitionKey)
             => _executionStrategyFactory.Create().Execute(
                 (containerId, partitionKey), CreateContainerIfNotExistsOnce, null);
 
@@ -135,9 +208,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             (string ContainerId, string PartitionKey) parameters)
             => CreateContainerIfNotExistsOnceAsync(context, parameters).GetAwaiter().GetResult();
 
-        public Task<bool> CreateContainerIfNotExistsAsync(
-            string containerId,
-            string partitionKey,
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Task<bool> CreateContainerIfNotExistsAsync(
+            [NotNull] string containerId,
+            [NotNull] string partitionKey,
             CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
                 (containerId, partitionKey), CreateContainerIfNotExistsOnceAsync, null, cancellationToken);
@@ -147,123 +226,195 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             (string ContainerId, string PartitionKey) parameters,
             CancellationToken cancellationToken = default)
         {
-            var response = await Client.Databases[_databaseId].Containers
-                .CreateContainerIfNotExistsAsync(
-                new CosmosContainerSettings(parameters.ContainerId, "/" + parameters.PartitionKey), cancellationToken: cancellationToken);
+            using var response = await Client.GetDatabase(_databaseId).CreateContainerStreamAsync(
+                    new ContainerProperties(parameters.ContainerId, "/" + parameters.PartitionKey)
+                    {
+                        PartitionKeyDefinitionVersion = PartitionKeyDefinitionVersion.V2
+                    },
+                    cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+            if (response.StatusCode == HttpStatusCode.Conflict)
+            {
+                return false;
+            }
 
+            response.EnsureSuccessStatusCode();
             return response.StatusCode == HttpStatusCode.Created;
         }
 
-        public bool CreateItem(
-            string containerId,
-            JToken document)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CreateItem(
+            [NotNull] string containerId,
+            [NotNull] JToken document,
+            [CanBeNull] string partitionKey)
             => _executionStrategyFactory.Create().Execute(
-                (containerId, document), CreateItemOnce, null);
+                (containerId, document, partitionKey), CreateItemOnce, null);
 
         private bool CreateItemOnce(
             DbContext context,
-            (string ContainerId, JToken Document) parameters)
+            (string ContainerId, JToken Document, string PartitionKey) parameters)
             => CreateItemOnceAsync(context, parameters).GetAwaiter().GetResult();
 
-        public Task<bool> CreateItemAsync(
-            string containerId,
-            JToken document,
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Task<bool> CreateItemAsync(
+            [NotNull] string containerId,
+            [NotNull] JToken document,
+            [CanBeNull] string partitionKey,
             CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
-                (containerId, document), CreateItemOnceAsync, null, cancellationToken);
+                (containerId, document, partitionKey), CreateItemOnceAsync, null, cancellationToken);
 
         private async Task<bool> CreateItemOnceAsync(
             DbContext _,
-            (string ContainerId, JToken Document) parameters,
+            (string ContainerId, JToken Document, string PartitionKey) parameters,
             CancellationToken cancellationToken = default)
         {
-            using (var stream = new MemoryStream())
-            using (var writer = new StreamWriter(stream, new UTF8Encoding(), bufferSize: 1024, leaveOpen: false))
-            using (var jsonWriter = new JsonTextWriter(writer))
-            {
-                JsonSerializer.Create().Serialize(jsonWriter, parameters.Document);
-                await jsonWriter.FlushAsync();
+            await using var stream = new MemoryStream();
+            await using var writer = new StreamWriter(stream, new UTF8Encoding(), bufferSize: 1024, leaveOpen: false);
+            using var jsonWriter = new JsonTextWriter(writer);
+            JsonSerializer.Create().Serialize(jsonWriter, parameters.Document);
+            await jsonWriter.FlushAsync(cancellationToken);
 
-                var items = Client.Databases[_databaseId].Containers[parameters.ContainerId].Items;
-                using (var response = await items.CreateItemStreamAsync("0", stream, new CosmosItemRequestOptions(), cancellationToken))
-                {
-                    return response.StatusCode == HttpStatusCode.Created;
-                }
-            }
+            var container = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
+            var partitionKey = CreatePartitionKey(parameters.PartitionKey);
+            using var response = await container.CreateItemStreamAsync(stream, partitionKey, null, cancellationToken);
+            response.EnsureSuccessStatusCode();
+            return response.StatusCode == HttpStatusCode.Created;
         }
 
-        public bool ReplaceItem(
-            string collectionId,
-            string documentId,
-            JObject document)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool ReplaceItem(
+            [NotNull] string collectionId,
+            [NotNull] string documentId,
+            [NotNull] JObject document,
+            [CanBeNull] string partitionKey)
             => _executionStrategyFactory.Create().Execute(
-                (collectionId, documentId, document), ReplaceItemOnce, null);
+                (collectionId, documentId, document, partitionKey), ReplaceItemOnce, null);
 
         private bool ReplaceItemOnce(
             DbContext context,
-            (string, string, JObject) parameters)
+            (string ContainerId, string ItemId, JObject Document, string PartitionKey) parameters)
             => ReplaceItemOnceAsync(context, parameters).GetAwaiter().GetResult();
 
-        public Task<bool> ReplaceItemAsync(
-            string collectionId,
-            string documentId,
-            JObject document,
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Task<bool> ReplaceItemAsync(
+            [NotNull] string collectionId,
+            [NotNull] string documentId,
+            [NotNull] JObject document,
+            [CanBeNull] string partitionKey,
             CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
-                (collectionId, documentId, document), ReplaceItemOnceAsync, null, cancellationToken);
+                (collectionId, documentId, document, partitionKey), ReplaceItemOnceAsync, null, cancellationToken);
 
         private async Task<bool> ReplaceItemOnceAsync(
             DbContext _,
-            (string ContainerId, string ItemId, JObject Document) parameters,
+            (string ContainerId, string ItemId, JObject Document, string PartitionKey) parameters,
             CancellationToken cancellationToken = default)
         {
-            using (var stream = new MemoryStream())
-            using (var writer = new StreamWriter(stream, new UTF8Encoding(), bufferSize: 1024, leaveOpen: false))
-            using (var jsonWriter = new JsonTextWriter(writer))
-            {
-                JsonSerializer.Create().Serialize(jsonWriter, parameters.Document);
-                await jsonWriter.FlushAsync();
+            using var stream = new MemoryStream();
+            using var writer = new StreamWriter(stream, new UTF8Encoding(), bufferSize: 1024, leaveOpen: false);
+            using var jsonWriter = new JsonTextWriter(writer);
+            JsonSerializer.Create().Serialize(jsonWriter, parameters.Document);
+            await jsonWriter.FlushAsync(cancellationToken);
 
-                var items = Client.Databases[_databaseId].Containers[parameters.ContainerId].Items;
-                using (var response = await items.ReplaceItemStreamAsync("0", parameters.ItemId, stream, null, cancellationToken))
-                {
-                    return response.StatusCode == HttpStatusCode.OK;
-                }
-            }
+            var container = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
+            var partitionKey = CreatePartitionKey(parameters.PartitionKey);
+            using var response = await container.ReplaceItemStreamAsync(
+                stream, parameters.ItemId, partitionKey, null, cancellationToken);
+            response.EnsureSuccessStatusCode();
+            return response.StatusCode == HttpStatusCode.OK;
         }
 
-        public bool DeleteItem(
-            string containerId,
-            string documentId)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool DeleteItem(
+            [NotNull] string containerId,
+            [NotNull] string documentId,
+            [CanBeNull] string partitionKey)
             => _executionStrategyFactory.Create().Execute(
-                (containerId, documentId), DeleteItemOnce, null);
+                (containerId, documentId, partitionKey), DeleteItemOnce, null);
 
-        public bool DeleteItemOnce(
-            DbContext context,
-            (string ContainerId, string DocumentId) parameters)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool DeleteItemOnce(
+            [NotNull] DbContext context,
+            (string ContainerId, string DocumentId, string PartitionKey) parameters)
             => DeleteItemOnceAsync(context, parameters).GetAwaiter().GetResult();
 
-        public Task<bool> DeleteItemAsync(
-            string containerId,
-            string documentId,
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Task<bool> DeleteItemAsync(
+            [NotNull] string containerId,
+            [NotNull] string documentId,
+            [CanBeNull] string partitionKey,
             CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
-                (containerId, documentId), DeleteItemOnceAsync, null, cancellationToken);
+                (containerId, documentId, partitionKey), DeleteItemOnceAsync, null, cancellationToken);
 
-        public async Task<bool> DeleteItemOnceAsync(
-            DbContext _,
-            (string ContainerId, string DocumentId) parameters,
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual async Task<bool> DeleteItemOnceAsync(
+            [CanBeNull] DbContext _,
+            (string ContainerId, string DocumentId, string PartitionKey) parameters,
             CancellationToken cancellationToken = default)
         {
-            var items = Client.Databases[_databaseId].Containers[parameters.ContainerId].Items;
-            using (var response = await items.DeleteItemStreamAsync("0", parameters.DocumentId, null, cancellationToken))
-            {
-                return response.StatusCode == HttpStatusCode.NoContent;
-            }
+            var items = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
+            var partitionKey = CreatePartitionKey(parameters.PartitionKey);
+            using var response = await items.DeleteItemStreamAsync(
+                parameters.DocumentId, partitionKey, cancellationToken: cancellationToken);
+            response.EnsureSuccessStatusCode();
+            return response.StatusCode == HttpStatusCode.NoContent;
         }
 
-        public IEnumerable<JObject> ExecuteSqlQuery(
-            string containerId,
+        private PartitionKey CreatePartitionKey(string partitionKey)
+            => partitionKey == null
+                ? PartitionKey.None
+                : new PartitionKey(partitionKey);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IEnumerable<JObject> ExecuteSqlQuery(
+            [NotNull] string containerId,
             [NotNull] CosmosSqlQuery query)
         {
             _commandLogger.ExecutingSqlQuery(query);
@@ -271,8 +422,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             return new DocumentEnumerable(this, containerId, query);
         }
 
-        public IAsyncEnumerable<JObject> ExecuteSqlQueryAsync(
-            string containerId,
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IAsyncEnumerable<JObject> ExecuteSqlQueryAsync(
+            [NotNull] string containerId,
             [NotNull] CosmosSqlQuery query)
         {
             _commandLogger.ExecutingSqlQuery(query);
@@ -280,21 +437,21 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             return new DocumentAsyncEnumerable(this, containerId, query);
         }
 
-        private CosmosResultSetIterator CreateQuery(
+        private FeedIterator CreateQuery(
             string containerId,
             CosmosSqlQuery query)
         {
-            var items = Client.Databases[_databaseId].Containers[containerId].Items;
-            var queryDefinition = new CosmosSqlQueryDefinition(query.Query);
+            var container = Client.GetDatabase(_databaseId).GetContainer(containerId);
+            var queryDefinition = new QueryDefinition(query.Query);
             foreach (var parameter in query.Parameters)
             {
-                queryDefinition.UseParameter(parameter.Name, parameter.Value);
+                queryDefinition = queryDefinition.WithParameter(parameter.Name, parameter.Value);
             }
 
-            return items.CreateItemQueryAsStream(queryDefinition, "0");
+            return container.GetItemQueryStreamIterator(queryDefinition);
         }
 
-        private class DocumentEnumerable : IEnumerable<JObject>
+        private sealed class DocumentEnumerable : IEnumerable<JObject>
         {
             private readonly CosmosClientWrapper _cosmosClient;
             private readonly string _containerId;
@@ -314,9 +471,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-            private class Enumerator : IEnumerator<JObject>
+            private sealed class Enumerator : IEnumerator<JObject>
             {
-                private CosmosResultSetIterator _query;
+                private FeedIterator _query;
+                private ResponseMessage _responseMessage;
                 private Stream _responseStream;
                 private StreamReader _reader;
                 private JsonTextReader _jsonReader;
@@ -351,7 +509,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                             return false;
                         }
 
-                        _responseStream = _query.FetchNextSetAsync().GetAwaiter().GetResult().Content;
+                        _responseMessage = _query.ReadNextAsync().GetAwaiter().GetResult();
+                        _responseMessage.EnsureSuccessStatusCode();
+
+                        _responseStream = _responseMessage.Content;
                         _reader = new StreamReader(_responseStream);
                         _jsonReader = new JsonTextReader(_reader);
 
@@ -369,22 +530,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                             }
                         }
 
-                        ObjectFound:
-                        ;
+                        ObjectFound: ;
                     }
 
                     while (_jsonReader.Read())
                     {
                         if (_jsonReader.TokenType == JsonToken.StartObject)
                         {
-                            while (_jsonReader.Read())
-                            {
-                                if (_jsonReader.TokenType == JsonToken.StartObject)
-                                {
-                                    Current = new JsonSerializer().Deserialize<JObject>(_jsonReader);
-                                    return true;
-                                }
-                            }
+                            Current = new JsonSerializer().Deserialize<JObject>(_jsonReader);
+
+                            return true;
                         }
                     }
 
@@ -406,13 +561,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     _reader = null;
                     _responseStream?.Dispose();
                     _responseStream = null;
+                    _responseMessage?.Dispose();
+                    _responseMessage = null;
                 }
 
                 public void Reset() => throw new NotImplementedException();
             }
         }
 
-        private class DocumentAsyncEnumerable : IAsyncEnumerable<JObject>
+        private sealed class DocumentAsyncEnumerable : IAsyncEnumerable<JObject>
         {
             private readonly CosmosClientWrapper _cosmosClient;
             private readonly string _containerId;
@@ -430,9 +587,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
             public IAsyncEnumerator<JObject> GetAsyncEnumerator(CancellationToken cancellationToken = default)
                 => new AsyncEnumerator(this, cancellationToken);
-            private class AsyncEnumerator : IAsyncEnumerator<JObject>
+
+            private sealed class AsyncEnumerator : IAsyncEnumerator<JObject>
             {
-                private CosmosResultSetIterator _query;
+                private FeedIterator _query;
+                private ResponseMessage _responseMessage;
                 private Stream _responseStream;
                 private StreamReader _reader;
                 private JsonTextReader _jsonReader;
@@ -450,7 +609,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 }
 
                 public JObject Current { get; private set; }
-
 
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 public async ValueTask<bool> MoveNextAsync()
@@ -470,7 +628,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                             return false;
                         }
 
-                        _responseStream = (await _query.FetchNextSetAsync(_cancellationToken)).Content;
+                        _responseMessage = await _query.ReadNextAsync(_cancellationToken);
+                        _responseMessage.EnsureSuccessStatusCode();
+
+                        _responseStream = _responseMessage.Content;
                         _reader = new StreamReader(_responseStream);
                         _jsonReader = new JsonTextReader(_reader);
 
@@ -488,48 +649,35 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                             }
                         }
 
-                        ObjectFound:
-                        ;
+                        ObjectFound: ;
                     }
 
                     while (_jsonReader.Read())
                     {
                         if (_jsonReader.TokenType == JsonToken.StartObject)
                         {
-                            while (_jsonReader.Read())
-                            {
-                                if (_jsonReader.TokenType == JsonToken.StartObject)
-                                {
-                                    Current = new JsonSerializer().Deserialize<JObject>(_jsonReader);
-                                    return true;
-                                }
-                            }
+                            Current = new JsonSerializer().Deserialize<JObject>(_jsonReader);
+                            return true;
                         }
                     }
 
-                    _jsonReader.Close();
-                    _jsonReader = null;
-                    _reader.Dispose();
-                    _reader = null;
-                    _responseStream.Dispose();
-                    _responseStream = null;
+                    await DisposeAsync();
+
                     return await MoveNextAsync();
                 }
 
-                public ValueTask DisposeAsync()
+                public async ValueTask DisposeAsync()
                 {
                     _jsonReader?.Close();
                     _jsonReader = null;
-                    _reader?.Dispose();
+                    await _reader.DisposeAsyncIfAvailable();
                     _reader = null;
-                    _responseStream?.Dispose();
+                    await _responseStream.DisposeAsync();
                     _responseStream = null;
-
-                    return default;
+                    await _responseMessage.DisposeAsyncIfAvailable();
+                    _responseMessage = null;
                 }
             }
         }
-
-        public void Dispose() => _client?.Dispose();
     }
 }

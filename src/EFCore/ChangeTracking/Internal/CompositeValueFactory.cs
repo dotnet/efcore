@@ -5,7 +5,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -133,11 +132,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         protected static IEqualityComparer<object[]> CreateEqualityComparer([NotNull] IReadOnlyList<IProperty> properties)
         {
-            var comparers = properties.Select(p => p.GetKeyValueComparer() ?? p.FindMapping()?.KeyComparer).ToList();
+            var comparers = properties.Select(p => p.GetKeyValueComparer()).ToList();
 
             return comparers.All(c => c != null)
                 ? new CompositeCustomComparer(comparers)
-                : properties.Any(p => typeof(IStructuralEquatable).GetTypeInfo().IsAssignableFrom(p.ClrType.GetTypeInfo()))
+                : properties.Any(p => typeof(IStructuralEquatable).IsAssignableFrom(p.ClrType))
                     ? (IEqualityComparer<object[]>)new StructuralCompositeComparer()
                     : new CompositeComparer();
         }
@@ -218,16 +217,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public int GetHashCode(object[] obj)
             {
-                var hashCode = 0;
-
-                // ReSharper disable once ForCanBeConvertedToForeach
-                // ReSharper disable once LoopCanBeConvertedToQuery
-                for (var i = 0; i < obj.Length; i++)
+                var hash = new HashCode();
+                foreach (var value in obj)
                 {
-                    hashCode = (hashCode * 397) ^ (obj[i]?.GetHashCode() ?? 0);
+                    hash.Add(value);
                 }
 
-                return hashCode;
+                return hash.ToHashCode();
             }
         }
 

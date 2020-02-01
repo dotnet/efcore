@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.//
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
@@ -16,7 +16,8 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public async Task No_warning_on_ef_non_internal()
-            => await AssertNoDiagnostics(@"
+            => await AssertNoDiagnostics(
+                @"
 var a = new Microsoft.EntityFrameworkCore.Infrastructure.Annotatable();
 var x = a.GetAnnotations();
 ");
@@ -26,7 +27,8 @@ var x = a.GetAnnotations();
         [ConditionalFact]
         public async Task Warning_on_ef_internal_namespace_invocation()
         {
-            var (diagnostics, source) = await GetDiagnosticsAsync(@"var x = typeof(object).GetMethod(nameof(object.ToString), Type.EmptyTypes).DisplayName();");
+            var (diagnostics, source) = await GetDiagnosticsAsync(
+                @"var x = typeof(object).GetMethod(nameof(object.ToString), Type.EmptyTypes).DisplayName();");
             var diagnostic = diagnostics.Single();
 
             Assert.Equal(InternalUsageDiagnosticAnalyzer.Id, diagnostic.Id);
@@ -36,7 +38,7 @@ var x = a.GetAnnotations();
                 diagnostic.GetMessage());
 
             var span = diagnostic.Location.SourceSpan;
-            Assert.Equal("DisplayName", source.Substring(span.Start, span.End - span.Start));
+            Assert.Equal("DisplayName", source[span.Start..span.End]);
         }
 
         [ConditionalFact]
@@ -52,7 +54,7 @@ var x = a.GetAnnotations();
                 diagnostic.GetMessage());
 
             var span = diagnostic.Location.SourceSpan;
-            Assert.Equal("CoreSingletonOptions", source.Substring(span.Start, span.End - span.Start));
+            Assert.Equal("CoreSingletonOptions", source[span.Start..span.End]);
         }
 
         [ConditionalFact]
@@ -69,18 +71,21 @@ class MyClass : Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalPara
             Assert.Equal(InternalUsageDiagnosticAnalyzer.Id, diagnostic.Id);
             Assert.Equal(DiagnosticSeverity.Warning, diagnostic.Severity);
             Assert.Equal(
-                string.Format(InternalUsageDiagnosticAnalyzer.MessageFormat, "Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalParameter"),
+                string.Format(
+                    InternalUsageDiagnosticAnalyzer.MessageFormat, "Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalParameter"),
                 diagnostic.GetMessage());
 
             var span = diagnostic.Location.SourceSpan;
-            Assert.Equal("Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalParameter",
-                source.Substring(span.Start, span.End - span.Start));
+            Assert.Equal(
+                "Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalParameter",
+                source[span.Start..span.End]);
         }
 
         [ConditionalFact]
         public async Task No_warning_on_ef_internal_namespace_in_same_assembly()
         {
-            var diagnostics = await GetDiagnosticsFullSourceAsync(@"
+            var diagnostics = await GetDiagnosticsFullSourceAsync(
+                @"
 namespace My.EntityFrameworkCore.Internal
 {
     class MyClass
@@ -109,34 +114,40 @@ namespace Bar
         [ConditionalFact]
         public async Task Warning_on_ef_internal_attribute_property_access()
         {
-            var (diagnostics, source) = await GetDiagnosticsAsync(@"var x = Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkRelationalServicesBuilder.RelationalServices.Count;");
+            var (diagnostics, source) = await GetDiagnosticsAsync(
+                @"var x = Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkRelationalServicesBuilder.RelationalServices.Count;");
             //throw new Exception("FOO: " + string.Join(", ", diagnostics.Select(d => d.ToString())));
             var diagnostic = diagnostics.Single();
 
             Assert.Equal(InternalUsageDiagnosticAnalyzer.Id, diagnostic.Id);
             Assert.Equal(DiagnosticSeverity.Warning, diagnostic.Severity);
             Assert.Equal(
-                string.Format(InternalUsageDiagnosticAnalyzer.MessageFormat, "Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkRelationalServicesBuilder.RelationalServices"),
+                string.Format(
+                    InternalUsageDiagnosticAnalyzer.MessageFormat,
+                    "Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkRelationalServicesBuilder.RelationalServices"),
                 diagnostic.GetMessage());
 
             var span = diagnostic.Location.SourceSpan;
-            Assert.Equal("RelationalServices", source.Substring(span.Start, span.End - span.Start));
+            Assert.Equal("RelationalServices", source[span.Start..span.End]);
         }
 
         [ConditionalFact]
         public async Task Warning_on_ef_internal_name_instantiation()
         {
-            var (diagnostics, source) = await GetDiagnosticsAsync(@"new Microsoft.EntityFrameworkCore.Update.UpdateSqlGeneratorDependencies(null, null);");
+            var (diagnostics, source) =
+                await GetDiagnosticsAsync(@"new Microsoft.EntityFrameworkCore.Update.UpdateSqlGeneratorDependencies(null, null);");
             var diagnostic = diagnostics.Single();
 
             Assert.Equal(InternalUsageDiagnosticAnalyzer.Id, diagnostic.Id);
             Assert.Equal(DiagnosticSeverity.Warning, diagnostic.Severity);
             Assert.Equal(
-                string.Format(InternalUsageDiagnosticAnalyzer.MessageFormat, "Microsoft.EntityFrameworkCore.Update.UpdateSqlGeneratorDependencies"),
+                string.Format(
+                    InternalUsageDiagnosticAnalyzer.MessageFormat, "Microsoft.EntityFrameworkCore.Update.UpdateSqlGeneratorDependencies"),
                 diagnostic.GetMessage());
 
             var span = diagnostic.Location.SourceSpan;
-            Assert.Equal("new Microsoft.EntityFrameworkCore.Update.UpdateSqlGeneratorDependencies(null, null)", source.Substring(span.Start, span.End - span.Start));
+            Assert.Equal(
+                "new Microsoft.EntityFrameworkCore.Update.UpdateSqlGeneratorDependencies(null, null)", source[span.Start..span.End]);
         }
 
         #endregion Attribute

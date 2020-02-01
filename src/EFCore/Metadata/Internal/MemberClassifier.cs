@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -66,14 +66,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             targetType = targetSequenceType ?? targetType;
             targetType = targetType.UnwrapNullableType();
 
-            return targetType.GetTypeInfo().IsInterface
-                   || targetType.GetTypeInfo().IsValueType
-                   || targetType == typeof(object)
-                   || _parameterBindingFactories.FindFactory(targetType, memberInfo.GetSimpleMemberName()) != null
-                   || _typeMappingSource.FindMapping(targetType) != null
-                   || targetType.GetTypeInfo().IsArray
-                ? null
-                : targetType;
+            return targetType.IsInterface
+                || targetType.IsValueType
+                || targetType == typeof(object)
+                || _parameterBindingFactories.FindFactory(targetType, memberInfo.GetSimpleMemberName()) != null
+                || _typeMappingSource.FindMapping(targetType) != null
+                || targetType.IsArray
+                    ? null
+                    : targetType;
         }
     }
 }

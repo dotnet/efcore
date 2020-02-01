@@ -10,9 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Microsoft.Data.Sqlite.Properties;
-using SQLitePCL;
 using Xunit;
-
 using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite
@@ -247,8 +245,7 @@ namespace Microsoft.Data.Sqlite
                 connection1.Open();
 
                 connection1.ExecuteNonQuery(
-                    "CREATE TABLE Person (Name TEXT);" +
-                    "INSERT INTO Person VALUES ('Waldo');");
+                    "CREATE TABLE Person (Name TEXT);" + "INSERT INTO Person VALUES ('Waldo');");
 
                 using (var connection2 = new SqliteConnection(connectionString))
                 {
@@ -263,14 +260,14 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Open_works_when_password()
         {
-            switch (SQLitePCLExtensions.GetProviderName())
+            switch (GetNativeLibraryName())
             {
-                case "SQLite3Provider_e_sqlite3":
+                case "e_sqlite3":
                     Open_works_when_password_e_sqlite3();
                     break;
 
                 // NB: Change project dependencies to test this
-                case "SQLite3Provider_sqlcipher":
+                case "e_sqlcipher":
                     Open_works_when_password_sqlcipher();
                     break;
             }
@@ -350,8 +347,7 @@ namespace Microsoft.Data.Sqlite
                 connection1.Open();
 
                 connection1.ExecuteNonQuery(
-                    "CREATE TABLE Person (Name TEXT);" +
-                    "INSERT INTO Person VALUES ('Waldo');");
+                    "CREATE TABLE Person (Name TEXT);" + "INSERT INTO Person VALUES ('Waldo');");
 
                 using (var connection2 = new SqliteConnection("Data Source=:memory:"))
                 {

@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The name of the column to which the property is mapped. </returns>
         public static string GetColumnName([NotNull] this IProperty property)
             => (string)property[RelationalAnnotationNames.ColumnName]
-               ?? GetDefaultColumnName(property);
+                ?? GetDefaultColumnName(property);
 
         /// <summary>
         ///     Returns the default column name to which the property would be mapped.
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore
                 baseName = builder.ToString();
             }
 
-            return IdentifierHelpers.Truncate(baseName, property.DeclaringEntityType.Model.GetMaxIdentifierLength());
+            return Uniquifier.Truncate(baseName, property.DeclaringEntityType.Model.GetMaxIdentifierLength());
         }
 
         /// <summary>
@@ -360,14 +360,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> A flag indicating if the property as capable of storing only fixed-length data, such as strings. </returns>
-        public static bool IsFixedLength([NotNull] this IProperty property)
-            => (bool?)property[RelationalAnnotationNames.IsFixedLength] ?? GetDefaultIsFixedLength(property);
-
-        private static bool GetDefaultIsFixedLength(IProperty property)
-        {
-            var sharedTablePrincipalPrimaryKeyProperty = property.FindSharedTableRootPrimaryKeyProperty();
-            return sharedTablePrincipalPrimaryKeyProperty != null && IsFixedLength(sharedTablePrincipalPrimaryKeyProperty);
-        }
+        public static bool? IsFixedLength([NotNull] this IProperty property)
+            => (bool?)property[RelationalAnnotationNames.IsFixedLength];
 
         /// <summary>
         ///     Sets a flag indicating whether the property as capable of storing only fixed-length data, such as strings.
@@ -375,9 +369,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="fixedLength"> A value indicating whether the property is constrained to fixed length values. </param>
         public static void SetIsFixedLength([NotNull] this IMutableProperty property, bool? fixedLength)
-            => property.SetOrRemoveAnnotation(
-                RelationalAnnotationNames.IsFixedLength,
-                fixedLength);
+            => property.SetOrRemoveAnnotation(RelationalAnnotationNames.IsFixedLength, fixedLength);
 
         /// <summary>
         ///     Sets a flag indicating whether the property as capable of storing only fixed-length data, such as strings.
@@ -397,13 +389,22 @@ namespace Microsoft.EntityFrameworkCore
             => property.FindAnnotation(RelationalAnnotationNames.IsFixedLength)?.GetConfigurationSource();
 
         /// <summary>
-        ///     Returns the <see cref="RelationalTypeMapping" /> for the given property.
+        ///     Returns the <see cref="RelationalTypeMapping" /> for the given property on a finalized model.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The type mapping. </returns>
+        [DebuggerStepThrough]
+        public static RelationalTypeMapping GetRelationalTypeMapping([NotNull] this IProperty property)
+            => (RelationalTypeMapping)property.GetTypeMapping();
+
+        /// <summary>
+        ///     Returns the <see cref="RelationalTypeMapping" /> for the given property on a finalized model.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The type mapping, or null if none was found. </returns>
         [DebuggerStepThrough]
         public static RelationalTypeMapping FindRelationalMapping([NotNull] this IProperty property)
-            => property[CoreAnnotationNames.TypeMapping] as RelationalTypeMapping;
+            => (RelationalTypeMapping)property.FindTypeMapping();
 
         /// <summary>
         ///     <para>
@@ -419,9 +420,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <c>True</c> if the mapped column is nullable; <c>false</c> otherwise. </returns>
         public static bool IsColumnNullable([NotNull] this IProperty property)
             => !property.IsPrimaryKey()
-               && (property.DeclaringEntityType.BaseType != null
-                   || property.IsNullable
-                   || IsTableSplitting(property.DeclaringEntityType));
+                && (property.DeclaringEntityType.BaseType != null
+                    || property.IsNullable
+                    || IsTableSplitting(property.DeclaringEntityType));
 
         private static bool IsTableSplitting(IEntityType entityType)
             => entityType.FindPrimaryKey()?.Properties[0].FindSharedTableLink() != null;
@@ -454,10 +455,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 if (visitedTypes == null)
                 {
-                    visitedTypes = new HashSet<IEntityType>
-                    {
-                        linkingRelationship.DeclaringEntityType
-                    };
+                    visitedTypes = new HashSet<IEntityType> { linkingRelationship.DeclaringEntityType };
                 }
 
                 if (!visitedTypes.Add(linkingRelationship.PrincipalEntityType))
@@ -470,5 +468,45 @@ namespace Microsoft.EntityFrameworkCore
 
             return principalProperty == property ? null : principalProperty;
         }
+
+        /// <summary>
+        ///     Returns the comment for the column this property is mapped to.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The comment for the column this property is mapped to. </returns>
+        public static string GetComment([NotNull] this IProperty property)
+        {
+            var value = (string)property[RelationalAnnotationNames.Comment];
+            if (value != null)
+            {
+                return value;
+            }
+
+            var sharedTablePrincipalPrimaryKeyProperty = property.FindSharedTableRootPrimaryKeyProperty();
+            if (sharedTablePrincipalPrimaryKeyProperty != null)
+            {
+                return GetComment(sharedTablePrincipalPrimaryKeyProperty);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Configures a comment to be applied to the column this property is mapped to.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="comment"> The comment for the column. </param>
+        public static void SetComment([NotNull] this IMutableProperty property, [CanBeNull] string comment)
+            => property.SetOrRemoveAnnotation(RelationalAnnotationNames.Comment, comment);
+
+        /// <summary>
+        ///     Configures a comment to be applied to the column this property is mapped to.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="comment"> The comment for the column. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void SetComment(
+            [NotNull] this IConventionProperty property, [CanBeNull] string comment, bool fromDataAnnotation = false)
+            => property.SetOrRemoveAnnotation(RelationalAnnotationNames.Comment, comment, fromDataAnnotation);
     }
 }

@@ -13,13 +13,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             var modelBuilder = CreateConventionModelBuilder();
 
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Geometry)
+                .HasSrid(1);
+
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Geometry)
-                .ForSqliteHasSrid(1)
                 .Metadata;
 
-            Assert.Equal(1, property.GetSqliteSrid());
+            Assert.Equal(1, property.GetSrid());
         }
 
         [ConditionalFact]
@@ -27,13 +31,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             var modelBuilder = CreateConventionModelBuilder();
 
+            modelBuilder
+                .Entity<Customer>()
+                .Property<string>("Geometry")
+                .HasSrid(1);
+
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property<string>("Geometry")
-                .ForSqliteHasSrid(1)
                 .Metadata;
 
-            Assert.Equal(1, property.GetSqliteSrid());
+            Assert.Equal(1, property.GetSrid());
         }
 
         [ConditionalFact]
@@ -41,13 +49,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             var modelBuilder = ((IConventionModel)CreateConventionModelBuilder().Model).Builder;
 
+            modelBuilder
+                .Entity(typeof(Customer))
+                .Property(typeof(string), "Geometry")
+                .HasSrid(1);
+
             var property = modelBuilder
                 .Entity(typeof(Customer))
                 .Property(typeof(string), "Geometry")
-                .ForSqliteHasSrid(1)
                 .Metadata;
 
-            Assert.Equal(1, property.GetSqliteSrid());
+            Assert.Equal(1, property.GetSrid());
         }
 
         [ConditionalFact]
@@ -55,13 +67,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             var modelBuilder = ((IConventionModel)CreateConventionModelBuilder().Model).Builder;
 
+            modelBuilder
+                .Entity(typeof(Customer))
+                .Property(typeof(string), "Geometry")
+                .HasGeometricDimension("Z");
+
             var property = modelBuilder
                 .Entity(typeof(Customer))
                 .Property(typeof(string), "Geometry")
-                .ForSqliteHasDimension("Z")
                 .Metadata;
 
-            Assert.Equal("Z", property.GetSqliteDimension());
+            Assert.Equal("Z", property.GetGeometricDimension());
         }
 
         protected virtual ModelBuilder CreateConventionModelBuilder()

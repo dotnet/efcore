@@ -1,12 +1,12 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
-
 using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite
@@ -15,6 +15,7 @@ namespace Microsoft.Data.Sqlite
     {
         private readonly SqliteConnection _connection;
         private readonly byte[][] _blobCache;
+        private readonly int?[] _typeCache;
         private bool _stepped;
 
         public SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnection connection)
@@ -23,6 +24,7 @@ namespace Microsoft.Data.Sqlite
             HasRows = hasRows;
             _connection = connection;
             _blobCache = new byte[FieldCount][];
+            _typeCache = new int?[FieldCount];
         }
 
         public virtual object this[string name]
@@ -55,10 +57,10 @@ namespace Microsoft.Data.Sqlite
             => sqlite3_column_int64(Handle, ordinal);
 
         protected override string GetStringCore(int ordinal)
-            => sqlite3_column_text(Handle, ordinal);
+            => sqlite3_column_text(Handle, ordinal).utf8_to_string();
 
         protected override byte[] GetBlobCore(int ordinal)
-            => sqlite3_column_blob(Handle, ordinal);
+            => sqlite3_column_blob(Handle, ordinal).ToArray();
 
         protected override int GetSqliteType(int ordinal)
         {
@@ -80,7 +82,7 @@ namespace Microsoft.Data.Sqlite
 
         public virtual string GetName(int ordinal)
         {
-            var name = sqlite3_column_name(Handle, ordinal);
+            var name = sqlite3_column_name(Handle, ordinal).utf8_to_string();
             if (name == null
                 && (ordinal < 0 || ordinal >= FieldCount))
             {
@@ -107,7 +109,7 @@ namespace Microsoft.Data.Sqlite
 
         public virtual string GetDataTypeName(int ordinal)
         {
-            var typeName = sqlite3_column_decltype(Handle, ordinal);
+            var typeName = sqlite3_column_decltype(Handle, ordinal).utf8_to_string();
             if (typeName != null)
             {
                 var i = typeName.IndexOf('(');
@@ -140,6 +142,20 @@ namespace Microsoft.Data.Sqlite
         public virtual Type GetFieldType(int ordinal)
         {
             var sqliteType = GetSqliteType(ordinal);
+            if (sqliteType == SQLITE_NULL)
+            {
+                sqliteType = _typeCache[ordinal] ?? Sqlite3AffinityType(GetDataTypeName(ordinal));
+            }
+            else
+            {
+                _typeCache[ordinal] = sqliteType;
+            }
+
+            return GetFieldTypeFromSqliteType(sqliteType);
+        }
+
+        internal static Type GetFieldTypeFromSqliteType(int sqliteType)
+        {
             switch (sqliteType)
             {
                 case SQLITE_INTEGER:
@@ -210,8 +226,8 @@ namespace Microsoft.Data.Sqlite
                 throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, message: null);
             }
 
-            var blobDatabaseName = sqlite3_column_database_name(Handle, ordinal);
-            var blobTableName = sqlite3_column_table_name(Handle, ordinal);
+            var blobDatabaseName = sqlite3_column_database_name(Handle, ordinal).utf8_to_string();
+            var blobTableName = sqlite3_column_table_name(Handle, ordinal).utf8_to_string();
 
             var rowidOrdinal = -1;
             for (var i = 0; i < FieldCount; i++)
@@ -221,19 +237,19 @@ namespace Microsoft.Data.Sqlite
                     continue;
                 }
 
-                var databaseName = sqlite3_column_database_name(Handle, i);
+                var databaseName = sqlite3_column_database_name(Handle, i).utf8_to_string();
                 if (databaseName != blobDatabaseName)
                 {
                     continue;
                 }
 
-                var tableName = sqlite3_column_table_name(Handle, i);
+                var tableName = sqlite3_column_table_name(Handle, i).utf8_to_string();
                 if (tableName != blobTableName)
                 {
                     continue;
                 }
 
-                var columnName = sqlite3_column_origin_name(Handle, i);
+                var columnName = sqlite3_column_origin_name(Handle, i).utf8_to_string();
                 if (columnName == "rowid")
                 {
                     rowidOrdinal = i;
@@ -264,7 +280,7 @@ namespace Microsoft.Data.Sqlite
                 return new MemoryStream(GetCachedBlob(ordinal), false);
             }
 
-            var blobColumnName = sqlite3_column_origin_name(Handle, ordinal);
+            var blobColumnName = sqlite3_column_origin_name(Handle, ordinal).utf8_to_string();
             var rowid = GetInt32(rowidOrdinal);
 
             return new SqliteBlob(_connection, blobTableName, blobColumnName, rowid, readOnly: true);
@@ -278,6 +294,7 @@ namespace Microsoft.Data.Sqlite
 
                 return HasRows;
             }
+
             if (sqlite3_data_count(Handle) == 0)
             {
                 return false;
@@ -312,5 +329,35 @@ namespace Microsoft.Data.Sqlite
 
             return blob;
         }
+
+        internal static int Sqlite3AffinityType(string dataTypeName)
+        {
+            if (dataTypeName == null)
+            {
+                // if no type is specified then the column has affinity BLOB
+                return SQLITE_BLOB;
+            }
+
+            var typeRules = new Func<string, int?>[]
+            {
+                name => Contains(name, "INT") ? SQLITE_INTEGER : (int?)null,
+                name => Contains(name, "CHAR")
+                    || Contains(name, "CLOB")
+                    || Contains(name, "TEXT")
+                        ? SQLITE_TEXT
+                        : (int?)null,
+                name => Contains(name, "BLOB") ? SQLITE_BLOB : (int?)null,
+                name => Contains(name, "REAL")
+                    || Contains(name, "FLOA")
+                    || Contains(name, "DOUB")
+                        ? SQLITE_FLOAT
+                        : (int?)null
+            };
+
+            return typeRules.Select(r => r(dataTypeName)).FirstOrDefault(r => r != null) ?? SQLITE_TEXT; // code NUMERICAL affinity as TEXT
+        }
+
+        private static bool Contains(string haystack, string needle)
+            => haystack.IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0;
     }
 }

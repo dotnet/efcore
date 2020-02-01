@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -35,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
-            _contextType = dependencies.CurrentDbContext.Context.GetType();
+            _contextType = dependencies.CurrentContext.Context.GetType();
             _activeProvider = dependencies.DatabaseProvider.Name;
             Dependencies = dependencies;
         }
@@ -245,7 +244,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 var migration = migrations[migrations.Count - 1];
                 model = migration.TargetModel;
 
-                if (!Dependencies.MigrationsModelDiffer.HasDifferences(model, Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model)))
+                if (!Dependencies.MigrationsModelDiffer.HasDifferences(
+                    model, Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model)))
                 {
                     var applied = false;
                     try
@@ -334,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             else
             {
                 var modelSnapshotNamespace = modelSnapshot.GetType().Namespace;
-                Debug.Assert(!string.IsNullOrEmpty(modelSnapshotNamespace));
+                Check.DebugAssert(!string.IsNullOrEmpty(modelSnapshotNamespace), "modelSnapshotNamespace is null or empty");
                 var modelSnapshotCode = codeGenerator.GenerateSnapshot(
                     modelSnapshotNamespace,
                     _contextType,
@@ -386,9 +386,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             return new MigrationFiles
             {
-                MigrationFile = migrationFile,
-                MetadataFile = migrationMetadataFile,
-                SnapshotFile = modelSnapshotFile
+                MigrationFile = migrationFile, MetadataFile = migrationMetadataFile, SnapshotFile = modelSnapshotFile
             };
         }
 

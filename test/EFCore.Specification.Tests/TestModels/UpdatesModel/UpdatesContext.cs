@@ -24,11 +24,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.UpdatesModel
             var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
 
             context.Add(
-                new Category
-                {
-                    Id = 78,
-                    PrincipalId = 778
-                });
+                new Category { Id = 78, PrincipalId = 778 });
             context.Add(
                 new Product
                 {

@@ -50,6 +50,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IConventionEntityType AddEntityType([NotNull] Type clrType, bool fromDataAnnotation = false);
 
         /// <summary>
+        ///     Adds an entity type to the model.
+        /// </summary>
+        /// <param name="name"> The name of the entity to be added. </param>
+        /// <param name="clrType"> The CLR class that is used to represent instances of the entity type. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The new entity type. </returns>
+        IConventionEntityType AddEntityType([NotNull] string name, [NotNull] Type clrType, bool fromDataAnnotation = false);
+
+        /// <summary>
         ///     Adds an entity type with a defining navigation to the model.
         /// </summary>
         /// <param name="name"> The name of the entity type to be added. </param>

@@ -28,44 +28,38 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData(nameof(PropertyEntry.OriginalValue), true)]
         public void Row_version_is_marked_as_modified_only_if_it_really_changed(string mode, bool changeValue)
         {
-            using (var context = new OptimisticContext())
+            using var context = new OptimisticContext();
+            var token = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
+            var newToken = changeValue ? new byte[] { 1, 2, 3, 4, 0, 6, 7, 8 } : token;
+
+            var entity = context.Attach(
+                new WithRowVersion { Id = 789, Version = token.ToArray() }).Entity;
+
+            var propertyEntry = context.Entry(entity).Property(e => e.Version);
+
+            Assert.Equal(token, propertyEntry.CurrentValue);
+            Assert.Equal(token, propertyEntry.OriginalValue);
+            Assert.False(propertyEntry.IsModified);
+            Assert.Equal(EntityState.Unchanged, context.Entry(entity).State);
+
+            switch (mode)
             {
-                var token = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
-                var newToken = changeValue ? new byte[] { 1, 2, 3, 4, 0, 6, 7, 8 } : token;
-
-                var entity = context.Attach(
-                    new WithRowVersion
-                    {
-                        Id = 789,
-                        Version = token.ToArray()
-                    }).Entity;
-
-                var propertyEntry = context.Entry(entity).Property(e => e.Version);
-
-                Assert.Equal(token, propertyEntry.CurrentValue);
-                Assert.Equal(token, propertyEntry.OriginalValue);
-                Assert.False(propertyEntry.IsModified);
-                Assert.Equal(EntityState.Unchanged, context.Entry(entity).State);
-
-                switch (mode)
-                {
-                    case nameof(ChangeTracker.DetectChanges):
-                        entity.Version = newToken.ToArray();
-                        context.ChangeTracker.DetectChanges();
-                        break;
-                    case nameof(PropertyEntry.CurrentValue):
-                        propertyEntry.CurrentValue = newToken.ToArray();
-                        break;
-                    case nameof(PropertyEntry.OriginalValue):
-                        propertyEntry.OriginalValue = newToken.ToArray();
-                        break;
-                    default:
-                        throw new NotImplementedException("Unexpected test mode.");
-                }
-
-                Assert.Equal(changeValue, propertyEntry.IsModified);
-                Assert.Equal(changeValue ? EntityState.Modified : EntityState.Unchanged, context.Entry(entity).State);
+                case nameof(ChangeTracker.DetectChanges):
+                    entity.Version = newToken.ToArray();
+                    context.ChangeTracker.DetectChanges();
+                    break;
+                case nameof(PropertyEntry.CurrentValue):
+                    propertyEntry.CurrentValue = newToken.ToArray();
+                    break;
+                case nameof(PropertyEntry.OriginalValue):
+                    propertyEntry.OriginalValue = newToken.ToArray();
+                    break;
+                default:
+                    throw new NotImplementedException("Unexpected test mode.");
             }
+
+            Assert.Equal(changeValue, propertyEntry.IsModified);
+            Assert.Equal(changeValue ? EntityState.Modified : EntityState.Unchanged, context.Entry(entity).State);
         }
 
         private class WithRowVersion
@@ -95,6 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected override DbType DefaultParameterType
             => DbType.Int32;
 
+        [ConditionalTheory]
         [InlineData(typeof(SqlServerDateTimeOffsetTypeMapping), typeof(DateTimeOffset))]
         [InlineData(typeof(SqlServerDateTimeTypeMapping), typeof(DateTime))]
         [InlineData(typeof(SqlServerDoubleTypeMapping), typeof(double))]
@@ -105,16 +100,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
             base.Create_and_clone_with_converter(mappingType, clrType);
         }
 
-        [InlineData(typeof(SqlServerByteArrayTypeMapping), typeof(byte[]))]
-        public override void Create_and_clone_sized_mappings_with_converter(Type mappingType, Type clrType)
+        [ConditionalFact]
+        public virtual void Create_and_clone_SQL_Server_sized_mappings_with_converter()
         {
-            base.Create_and_clone_sized_mappings_with_converter(mappingType, clrType);
+            ConversionCloneTest(
+                typeof(SqlServerByteArrayTypeMapping),
+                typeof(byte[]),
+                SqlDbType.Image);
         }
 
-        [InlineData(typeof(SqlServerStringTypeMapping), typeof(string))]
-        public override void Create_and_clone_unicode_sized_mappings_with_converter(Type mappingType, Type clrType)
+        [ConditionalFact]
+        public virtual void Create_and_clone_SQL_Server_unicode_sized_mappings_with_converter()
         {
-            base.Create_and_clone_unicode_sized_mappings_with_converter(mappingType, clrType);
+            UnicodeConversionCloneTest(
+                typeof(SqlServerStringTypeMapping),
+                typeof(string),
+                SqlDbType.Text);
         }
 
         [ConditionalFact]
@@ -228,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Test_GenerateSqlLiteral_helper(
                 GetMapping("smalldatetime"),
                 new DateTime(2015, 3, 12, 13, 36, 37, 371, DateTimeKind.Utc),
-                "'2015-03-12T13:36:37.371'");
+                "'2015-03-12T13:36:37'");
 
             Test_GenerateSqlLiteral_helper(
                 GetMapping("datetime2"),

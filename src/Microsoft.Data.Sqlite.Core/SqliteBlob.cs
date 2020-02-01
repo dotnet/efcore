@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -6,7 +6,6 @@ using System.Data;
 using System.IO;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
-
 using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite
@@ -14,6 +13,7 @@ namespace Microsoft.Data.Sqlite
     /// <summary>
     ///     Provides methods to access the contents of a blob.
     /// </summary>
+    /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/blob-io">BLOB I/O</seealso>
     public class SqliteBlob : Stream
     {
         private sqlite3_blob _blob;
@@ -28,6 +28,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="columnName">The name of the column containing the blob.</param>
         /// <param name="rowid">The rowid of the row containing the blob.</param>
         /// <param name="readOnly">A value indicating whether the blob is read-only.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/blob-io">BLOB I/O</seealso>
         public SqliteBlob(
             SqliteConnection connection,
             string tableName,
@@ -47,6 +48,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="columnName">The name of the column containing the blob.</param>
         /// <param name="rowid">The rowid of the row containing the blob.</param>
         /// <param name="readOnly">A value indicating whether the blob is read-only.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/blob-io">BLOB I/O</seealso>
         public SqliteBlob(
             SqliteConnection connection,
             string databaseName,
@@ -179,7 +181,7 @@ namespace Microsoft.Data.Sqlite
                 count = (int)(Length - position);
             }
 
-            var rc = sqlite3_blob_read(_blob, buffer, offset, count, (int)position);
+            var rc = sqlite3_blob_read(_blob, buffer.AsSpan(offset, count), (int)position);
             SqliteException.ThrowExceptionForRC(rc, _db);
             _position += count;
             return count;
@@ -236,7 +238,7 @@ namespace Microsoft.Data.Sqlite
                 throw new NotSupportedException(Resources.ResizeNotSupported);
             }
 
-            var rc = sqlite3_blob_write(_blob, buffer, offset, count, (int)position);
+            var rc = sqlite3_blob_write(_blob, buffer.AsSpan(offset, count), (int)position);
             SqliteException.ThrowExceptionForRC(rc, _db);
             _position += count;
         }

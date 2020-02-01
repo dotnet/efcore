@@ -5,8 +5,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    // issue #15285
-    internal class OwnedQuerySqliteTest : RelationalOwnedQueryTestBase<OwnedQuerySqliteTest.OwnedQuerySqliteFixture>
+    public class OwnedQuerySqliteTest : RelationalOwnedQueryTestBase<OwnedQuerySqliteTest.OwnedQuerySqliteFixture>
     {
         public OwnedQuerySqliteTest(OwnedQuerySqliteFixture fixture)
             : base(fixture)

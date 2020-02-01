@@ -5,11 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -111,7 +111,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitParameter(ParameterExpression parameterExpression)
             {
-                if (typeof(TContext).GetTypeInfo().IsAssignableFrom(parameterExpression.Type.GetTypeInfo()))
+                Check.NotNull(parameterExpression, nameof(parameterExpression));
+
+                if (typeof(TContext).IsAssignableFrom(parameterExpression.Type))
                 {
                     return Expression.Constant(_context);
                 }

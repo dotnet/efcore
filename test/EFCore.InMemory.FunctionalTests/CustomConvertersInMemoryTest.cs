@@ -19,16 +19,21 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        [ConditionalFact(Skip = "Issue#15711")]
-        public override void Can_insert_and_read_back_with_string_key()
+        [ConditionalFact(Skip = "Issue#17050")]
+        public override void Value_conversion_with_property_named_value()
         {
-            base.Can_insert_and_read_back_with_string_key();
         }
 
-        [ConditionalFact(Skip = "Issue#15711")]
-        public override void Can_query_and_update_with_nullable_converter_on_primary_key()
+        [ConditionalFact(Skip = "Issue#17050")]
+        public override void Collection_property_as_scalar_Any()
         {
-            base.Can_query_and_update_with_nullable_converter_on_primary_key();
+            base.Collection_property_as_scalar_Any();
+        }
+
+        [ConditionalFact(Skip = "Issue#17050")]
+        public override void Collection_enum_as_string_Contains()
+        {
+            base.Collection_enum_as_string_Contains();
         }
 
         public class CustomConvertersInMemoryFixture : CustomConvertersFixtureBase

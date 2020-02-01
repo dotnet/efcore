@@ -17,9 +17,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public class CompiledQueryCache : ICompiledQueryCache
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     compiledQuery = compiler();
 
-                    _memoryCache.Set(cacheKey, compiledQuery);
+                    _memoryCache.Set(cacheKey, compiledQuery, new MemoryCacheEntryOptions { Size = 10 });
                 }
                 finally
                 {

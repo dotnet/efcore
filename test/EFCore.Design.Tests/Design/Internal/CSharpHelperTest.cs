@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public void Literal_works_when_empty_ByteArray() =>
             Literal_works(
                 Array.Empty<byte>(),
-                "new byte[] {  }");
+                "new byte[0]");
 
         [ConditionalFact]
         public void Literal_works_when_single_ByteArray() =>
@@ -193,6 +193,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         [ConditionalFact]
+        public void Literal_works_when_empty_StringArray()
+        {
+            var literal = new CSharpHelper(TypeMappingSource).Literal(new string[] { });
+            Assert.Equal("new string[0]", literal);
+        }
+
+        [ConditionalFact]
         public void Literal_works_when_ObjectArray()
         {
             var literal = new CSharpHelper(TypeMappingSource).Literal(new object[] { 'A', 1 });
@@ -207,11 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var result = new CSharpHelper(TypeMappingSource).Literal(value);
 
             Assert.Equal(
-                "new object[,]" + EOL +
-                "{" + EOL +
-                "    { 'A', 1 }," + EOL +
-                "    { 'B', 2 }" + EOL +
-                "}",
+                "new object[,]" + EOL + "{" + EOL + "    { 'A', 1 }," + EOL + "    { 'B', 2 }" + EOL + "}",
                 result);
         }
 
@@ -537,22 +540,35 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public void Literal_with_static_field()
         {
             var typeMapping = CreateTypeMappingSource<SimpleTestType>(
-                v => Expression.Field(null, typeof(SimpleTestType).GetField(nameof(SimpleTestType.SomeField))));
+                v => Expression.Field(null, typeof(SimpleTestType).GetField(nameof(SimpleTestType.SomeStaticField))));
 
             Assert.Equal(
-                "Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestType.SomeField",
-                new CSharpHelper(typeMapping).UnknownLiteral(SimpleTestType.SomeField));
+                "Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestType.SomeStaticField",
+                new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType()));
         }
 
         [ConditionalFact]
         public void Literal_with_static_property()
         {
             var typeMapping = CreateTypeMappingSource<SimpleTestType>(
-                v => Expression.Property(null, typeof(SimpleTestType).GetProperty(nameof(SimpleTestType.SomeProperty))));
+                v => Expression.Property(null, typeof(SimpleTestType).GetProperty(nameof(SimpleTestType.SomeStaticProperty))));
 
             Assert.Equal(
-                "Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestType.SomeProperty",
-                new CSharpHelper(typeMapping).UnknownLiteral(SimpleTestType.SomeProperty));
+                "Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestType.SomeStaticProperty",
+                new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType()));
+        }
+
+        [ConditionalFact]
+        public void Literal_with_instance_property()
+        {
+            var typeMapping = CreateTypeMappingSource<SimpleTestType>(
+                v => Expression.Property(
+                    Expression.New(typeof(SimpleTestType)),
+                    typeof(SimpleTestType).GetProperty(nameof(SimpleTestType.SomeInstanceProperty))));
+
+            Assert.Equal(
+                "new Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestType().SomeInstanceProperty",
+                new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType()));
         }
 
         [ConditionalFact]
@@ -676,8 +692,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
     internal class SimpleTestType
     {
-        public static readonly SimpleTestType SomeField = new SimpleTestType();
-        public static SimpleTestType SomeProperty { get; } = new SimpleTestType();
+        public static readonly int SomeStaticField = 8;
+        public readonly int SomeField = 8;
+        public static int SomeStaticProperty { get; } = 8;
+        public int SomeInstanceProperty { get; } = 8;
 
         public SimpleTestType()
         {

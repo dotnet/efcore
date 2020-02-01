@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     <para>
     ///         A convention that configures the foreign key properties associated with a navigation property
-    ///         based on the <see cref="ForeignKeyAttribute"/> specified on the properties or the navigation properties.
+    ///         based on the <see cref="ForeignKeyAttribute" /> specified on the properties or the navigation properties.
     ///     </para>
     ///     <para>
     ///         For one-to-one relationships the attribute has to be specified on the navigation property pointing to the principal.
@@ -116,25 +116,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                 if (fkPropertyOnDependent != null)
                 {
-                    fkPropertiesToSet = new List<string>
-                    {
-                        fkPropertyOnDependent.GetSimpleMemberName()
-                    };
+                    fkPropertiesToSet = new List<string> { fkPropertyOnDependent.GetSimpleMemberName() };
                     upgradeDependentToPrincipalNavigationSource = true;
                 }
                 else
                 {
-                    if (foreignKey.PrincipalToDependent.IsCollection())
+                    if (foreignKey.PrincipalToDependent.IsCollection)
                     {
                         context.StopProcessing();
                         return;
                     }
 
                     shouldInvert = true;
-                    fkPropertiesToSet = new List<string>
-                    {
-                        fkPropertyOnPrincipal.GetSimpleMemberName()
-                    };
+                    fkPropertiesToSet = new List<string> { fkPropertyOnPrincipal.GetSimpleMemberName() };
                     upgradePrincipalToDependentNavigationSource = true;
                 }
             }
@@ -172,10 +166,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                         upgradePrincipalToDependentNavigationSource = false;
 
-                        fkPropertiesToSet = fkPropertiesOnDependentToPrincipal ?? new List<string>
-                        {
-                            fkPropertyOnDependent.GetSimpleMemberName()
-                        };
+                        fkPropertiesToSet = fkPropertiesOnDependentToPrincipal
+                            ?? new List<string> { fkPropertyOnDependent.GetSimpleMemberName() };
                     }
 
                     if (fkPropertyOnDependent != null)
@@ -216,9 +208,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     var conflictingFk = foreignKey.DeclaringEntityType.FindForeignKeys(existingProperties)
                         .FirstOrDefault(
                             fk => fk != foreignKey
-                                  && fk.PrincipalEntityType == foreignKey.PrincipalEntityType
-                                  && fk.GetConfigurationSource() == ConfigurationSource.DataAnnotation
-                                  && fk.GetPropertiesConfigurationSource() == ConfigurationSource.DataAnnotation);
+                                && fk.PrincipalEntityType == foreignKey.PrincipalEntityType
+                                && fk.GetConfigurationSource() == ConfigurationSource.DataAnnotation
+                                && fk.GetPropertiesConfigurationSource() == ConfigurationSource.DataAnnotation);
                     if (conflictingFk != null)
                     {
                         throw new InvalidOperationException(
@@ -237,7 +229,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        private static IConventionRelationshipBuilder SplitNavigationsToSeparateRelationships(IConventionRelationshipBuilder relationshipBuilder)
+        private static IConventionRelationshipBuilder SplitNavigationsToSeparateRelationships(
+            IConventionRelationshipBuilder relationshipBuilder)
         {
             var foreignKey = relationshipBuilder.Metadata;
             var dependentToPrincipalNavigationName = foreignKey.DependentToPrincipal.Name;
@@ -262,10 +255,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return relationshipBuilder == null
                 ? null
                 : foreignKey.PrincipalEntityType.Builder.HasRelationship(
-                      foreignKey.DeclaringEntityType,
-                      principalToDependentNavigationName,
-                      null,
-                      fromDataAnnotation: true) == null
+                    foreignKey.DeclaringEntityType,
+                    principalToDependentNavigationName,
+                    null,
+                    fromDataAnnotation: true)
+                == null
                     ? null
                     : relationshipBuilder;
         }
@@ -274,14 +268,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             => entityType.GetRuntimeProperties()?.Values
                 .FirstOrDefault(
                     p => string.Equals(p.GetSimpleMemberName(), propertyName, StringComparison.OrdinalIgnoreCase)
-                         && Attribute.IsDefined(p, typeof(ForeignKeyAttribute), inherit: true))
+                        && Attribute.IsDefined(p, typeof(ForeignKeyAttribute), inherit: true))
                 ?.GetCustomAttribute<ForeignKeyAttribute>(inherit: true);
 
         private static ForeignKeyAttribute GetForeignKeyAttribute(IConventionNavigation navigation)
-            => GetAttribute<ForeignKeyAttribute>(navigation.PropertyInfo);
+            => GetAttribute<ForeignKeyAttribute>(navigation.GetIdentifyingMemberInfo());
 
         private static InversePropertyAttribute GetInversePropertyAttribute(IConventionNavigation navigation)
-            => GetAttribute<InversePropertyAttribute>(navigation.PropertyInfo);
+            => GetAttribute<InversePropertyAttribute>(navigation.GetIdentifyingMemberInfo());
 
         private static TAttribute GetAttribute<TAttribute>(MemberInfo memberInfo)
             where TAttribute : Attribute
@@ -407,7 +401,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 foreach (var declaredNavigation in entityType.GetDeclaredNavigations())
                 {
-                    if (declaredNavigation.IsCollection())
+                    if (declaredNavigation.IsCollection)
                     {
                         var foreignKey = declaredNavigation.ForeignKey;
                         var fkPropertyOnPrincipal

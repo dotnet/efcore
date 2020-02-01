@@ -5,12 +5,10 @@
     <packageTypes>
       <packageType name="$packageType$" />
     </packageTypes>
-    <dependencies>
-      <group targetFramework=".NETCoreApp2.1" />
-    </dependencies>
   </metadata>
 
   <files>
+    $CommonFileElements$
     <file src="$SettingsFile$" target="tools\$targetFramework$\any" />
     <file src="$Output$" target="tools\$targetFramework$\any" />
     <file src="$OutputBinary$" target="tools\$targetFramework$\any\tools\netcoreapp2.0\any" />

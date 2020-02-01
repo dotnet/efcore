@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 
             var firstConverter
                 = ProviderClrType.IsNullableType()
-                  && !secondConverter.ModelClrType.IsNullableType()
+                && !secondConverter.ModelClrType.IsNullableType()
                     ? ComposeWith(
                         (ValueConverter)Activator.CreateInstance(
                             typeof(CastingConverter<,>).MakeGenericType(

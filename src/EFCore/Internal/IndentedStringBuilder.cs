@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using JetBrains.Annotations;
@@ -18,11 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public class IndentedStringBuilder
     {
         private const byte IndentSize = 4;
-
-        private readonly string _disconnectedIndent = new string(' ', IndentSize);
-        private readonly string _suspendedIndent = "|" + new string(' ', IndentSize - 1);
-        private readonly string _connectedIndent = "|" + new string('_', IndentSize - 2) + " ";
-
         private byte _indent;
         private bool _indentPending = true;
 
@@ -158,15 +152,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return this;
         }
 
-        private enum NodeConnectionState
-        {
-            Disconnected = 0,
-            Connected = 1,
-            Suspended = 2
-        }
-
-        private readonly List<NodeConnectionState> _nodeConnectionStates = new List<NodeConnectionState>();
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -174,76 +159,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IndentedStringBuilder IncrementIndent()
-            => IncrementIndent(false);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual IndentedStringBuilder IncrementIndent(bool connectNode)
         {
-            var state = connectNode ? NodeConnectionState.Connected : NodeConnectionState.Disconnected;
-            if (_indent == _nodeConnectionStates.Count)
-            {
-                _nodeConnectionStates.Add(state);
-            }
-            else
-            {
-                _nodeConnectionStates[_indent] = state;
-            }
-
             _indent++;
 
             return this;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void DisconnectCurrentNode()
-        {
-            if (_indent > 0
-                && _nodeConnectionStates.Count >= _indent)
-            {
-                _nodeConnectionStates[_indent - 1] = NodeConnectionState.Disconnected;
-            }
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void SuspendCurrentNode()
-        {
-            if (_indent > 0
-                && _nodeConnectionStates.Count >= _indent
-                && _nodeConnectionStates[_indent - 1] == NodeConnectionState.Connected)
-            {
-                _nodeConnectionStates[_indent - 1] = NodeConnectionState.Suspended;
-            }
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void ReconnectCurrentNode()
-        {
-            if (_indent > 0
-                && _nodeConnectionStates.Count >= _indent
-                && _nodeConnectionStates[_indent - 1] == NodeConnectionState.Suspended)
-            {
-                _nodeConnectionStates[_indent - 1] = NodeConnectionState.Connected;
-            }
         }
 
         /// <summary>
@@ -257,8 +176,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             if (_indent > 0)
             {
                 _indent--;
-
-                _nodeConnectionStates.RemoveAt(_indent);
             }
 
             return this;
@@ -284,25 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             if (_indentPending && (_indent > 0))
             {
-                var indentString = string.Empty;
-                for (var i = 0; i < _nodeConnectionStates.Count; i++)
-                {
-                    if (_nodeConnectionStates[i] == NodeConnectionState.Disconnected)
-                    {
-                        indentString += _disconnectedIndent;
-                    }
-                    else if (i == _nodeConnectionStates.Count - 1
-                             && _nodeConnectionStates[i] == NodeConnectionState.Connected)
-                    {
-                        indentString += _connectedIndent;
-                    }
-                    else
-                    {
-                        indentString += _suspendedIndent;
-                    }
-                }
-
-                _stringBuilder.Append(indentString);
+                _stringBuilder.Append(new string(' ', _indent * IndentSize));
             }
 
             _indentPending = false;

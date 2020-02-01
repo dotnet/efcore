@@ -31,9 +31,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public StateData(int propertyCount, int navigationCount)
             {
-                _bits = new int[
-                    (Math.Max(propertyCount, navigationCount) * BitsForPropertyFlags + BitsForAdditionalState - 1)
-                    / BitsPerInt + 1];
+                var bitsNumber = Math.Max(propertyCount, navigationCount) * BitsForPropertyFlags + BitsForAdditionalState - 1;
+                _bits = new int[(bitsNumber / BitsPerInt) + 1];
             }
 
             public void FlagAllProperties(int propertyCount, PropertyFlag propertyFlag, bool flagged)

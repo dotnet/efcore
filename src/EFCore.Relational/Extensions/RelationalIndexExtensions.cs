@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore
                 .AppendJoin(index.Properties.Select(p => p.GetColumnName()), "_")
                 .ToString();
 
-            return IdentifierHelpers.Truncate(baseName, index.DeclaringEntityType.Model.GetMaxIdentifierLength());
+            return Uniquifier.Truncate(baseName, index.DeclaringEntityType.Model.GetMaxIdentifierLength());
         }
 
         /// <summary>

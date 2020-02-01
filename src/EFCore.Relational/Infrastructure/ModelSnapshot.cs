@@ -3,7 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -14,12 +14,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     {
         private IModel _model;
 
-        private IMutableModel CreateModel()
+        private IModel CreateModel()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+
             BuildModel(modelBuilder);
 
-            return modelBuilder.Model;
+            return model;
         }
 
         /// <summary>

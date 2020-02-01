@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public void Annotations_are_added_when_conventional_model_builder_is_used_with_sequences()
         {
             var model = SqlServerTestHelpers.Instance.CreateConventionBuilder()
-                .ForSqlServerUseSequenceHiLo()
+                .UseHiLo()
                 .Model;
 
             model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
@@ -40,9 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.Equal(RelationalAnnotationNames.MaxIdentifierLength, annotations[0].Name);
 
             Assert.Equal(
-                RelationalAnnotationNames.SequencePrefix +
-                "." +
-                SqlServerModelExtensions.DefaultHiLoSequenceName,
+                RelationalAnnotationNames.SequencePrefix + "." + SqlServerModelExtensions.DefaultHiLoSequenceName,
                 annotations[1].Name);
             Assert.NotNull(annotations[1].Value);
 

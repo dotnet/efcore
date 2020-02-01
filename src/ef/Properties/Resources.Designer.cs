@@ -8,13 +8,15 @@ using JetBrains.Annotations;
 namespace Microsoft.EntityFrameworkCore.Tools.Properties
 {
     /// <summary>
-    ///		This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     internal static class Resources
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Tools.Properties.Resources", typeof(Resources).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Tools.Properties.Resources", typeof(Resources).Assembly);
 
         /// <summary>
         ///     The assembly to use.
@@ -143,12 +145,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string DbContextScaffoldForceDescription
             => GetString("DbContextScaffoldForceDescription");
-
-        /// <summary>
-        ///     Generate a script to create all tables for the DbContext.
-        /// </summary>
-        public static string DbContextScriptDescription
-            => GetString("DbContextScriptDescription");
 
         /// <summary>
         ///     Entity Framework Core Command-line Tools
@@ -453,6 +449,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string WorkingDirDescription
             => GetString("WorkingDirDescription");
+
+        /// <summary>
+        ///     Generate a script to create all tables for the DbContext.
+        /// </summary>
+        public static string DbContextScriptDescription
+            => GetString("DbContextScriptDescription");
 
         private static string GetString(string name, params string[] formatterNames)
         {

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -93,9 +94,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(StoreTypePostfix.PrecisionAndScale, clone.StoreTypePostfix);
         }
 
-        [ConditionalTheory]
-        [InlineData(typeof(ByteArrayTypeMapping), typeof(byte[]))]
-        public virtual void Create_and_clone_sized_mappings_with_converter(Type mappingType, Type clrType)
+        [ConditionalFact]
+        public virtual void Create_and_clone_sized_mappings_with_converter()
+        {
+            ConversionCloneTest(typeof(ByteArrayTypeMapping), typeof(byte[]));
+        }
+
+        protected virtual void ConversionCloneTest(
+            Type mappingType,
+            Type clrType,
+            params object[] additionalArgs)
         {
             var mapping = (RelationalTypeMapping)Activator.CreateInstance(
                 mappingType,
@@ -108,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         size: 33,
                         fixedLength: true,
                         storeTypePostfix: StoreTypePostfix.Size)
-                },
+                }.Concat(additionalArgs).ToArray(),
                 null,
                 null);
 
@@ -149,9 +157,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(StoreTypePostfix.Size, clone.StoreTypePostfix);
         }
 
-        [ConditionalTheory]
-        [InlineData(typeof(StringTypeMapping), typeof(string))]
-        public virtual void Create_and_clone_unicode_sized_mappings_with_converter(Type mappingType, Type clrType)
+        [ConditionalFact]
+        public virtual void Create_and_clone_unicode_sized_mappings_with_converter()
+        {
+            UnicodeConversionCloneTest(typeof(StringTypeMapping), typeof(string));
+        }
+
+        protected virtual void UnicodeConversionCloneTest(
+            Type mappingType,
+            Type clrType,
+            params object[] additionalArgs)
         {
             var mapping = (RelationalTypeMapping)Activator.CreateInstance(
                 mappingType,
@@ -162,10 +177,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     FakeTypeMapping.CreateParameters(
                         clrType,
                         size: 33,
-                        unicide: false,
+                        unicode: false,
                         fixedLength: true,
                         storeTypePostfix: StoreTypePostfix.Size)
-                },
+                }.Concat(additionalArgs).ToArray(),
                 null,
                 null);
 
@@ -225,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             public static object CreateParameters(
                 Type clrType,
                 int? size = null,
-                bool unicide = false,
+                bool unicode = false,
                 bool fixedLength = false,
                 StoreTypePostfix storeTypePostfix = StoreTypePostfix.PrecisionAndScale)
             {
@@ -239,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     storeTypePostfix,
                     System.Data.DbType.VarNumeric,
                     size: size,
-                    unicode: unicide,
+                    unicode: unicode,
                     fixedLength: fixedLength);
             }
 
@@ -250,99 +265,87 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [ConditionalFact]
         public void Can_create_simple_parameter()
         {
-            using (var command = CreateTestCommand())
-            {
-                var parameter = new IntTypeMapping("int")
-                    .CreateParameter(command, "Name", 17, nullable: false);
+            using var command = CreateTestCommand();
+            var parameter = new IntTypeMapping("int")
+                .CreateParameter(command, "Name", 17, nullable: false);
 
-                Assert.Equal(ParameterDirection.Input, parameter.Direction);
-                Assert.Equal("Name", parameter.ParameterName);
-                Assert.Equal(17, parameter.Value);
-                Assert.Equal(DefaultParameterType, parameter.DbType);
-                Assert.False(parameter.IsNullable);
-            }
+            Assert.Equal(ParameterDirection.Input, parameter.Direction);
+            Assert.Equal("Name", parameter.ParameterName);
+            Assert.Equal(17, parameter.Value);
+            Assert.Equal(DefaultParameterType, parameter.DbType);
+            Assert.False(parameter.IsNullable);
         }
 
         [ConditionalFact]
         public void Can_create_simple_nullable_parameter()
         {
-            using (var command = CreateTestCommand())
-            {
-                var parameter = new IntTypeMapping("int")
-                    .CreateParameter(command, "Name", 17, nullable: true);
+            using var command = CreateTestCommand();
+            var parameter = new IntTypeMapping("int")
+                .CreateParameter(command, "Name", 17, nullable: true);
 
-                Assert.Equal(ParameterDirection.Input, parameter.Direction);
-                Assert.Equal("Name", parameter.ParameterName);
-                Assert.Equal(17, parameter.Value);
-                Assert.Equal(DefaultParameterType, parameter.DbType);
-                Assert.True(parameter.IsNullable);
-            }
+            Assert.Equal(ParameterDirection.Input, parameter.Direction);
+            Assert.Equal("Name", parameter.ParameterName);
+            Assert.Equal(17, parameter.Value);
+            Assert.Equal(DefaultParameterType, parameter.DbType);
+            Assert.True(parameter.IsNullable);
         }
 
         [ConditionalFact]
         public void Can_create_simple_parameter_with_DbType()
         {
-            using (var command = CreateTestCommand())
-            {
-                var parameter = new IntTypeMapping("int", DbType.Int32)
-                    .CreateParameter(command, "Name", 17, nullable: false);
+            using var command = CreateTestCommand();
+            var parameter = new IntTypeMapping("int", DbType.Int32)
+                .CreateParameter(command, "Name", 17, nullable: false);
 
-                Assert.Equal(ParameterDirection.Input, parameter.Direction);
-                Assert.Equal("Name", parameter.ParameterName);
-                Assert.Equal(17, parameter.Value);
-                Assert.Equal(DbType.Int32, parameter.DbType);
-                Assert.False(parameter.IsNullable);
-            }
+            Assert.Equal(ParameterDirection.Input, parameter.Direction);
+            Assert.Equal("Name", parameter.ParameterName);
+            Assert.Equal(17, parameter.Value);
+            Assert.Equal(DbType.Int32, parameter.DbType);
+            Assert.False(parameter.IsNullable);
         }
 
         [ConditionalFact]
         public void Can_create_simple_nullable_parameter_with_DbType()
         {
-            using (var command = CreateTestCommand())
-            {
-                var parameter = new IntTypeMapping("int", DbType.Int32)
-                    .CreateParameter(command, "Name", 17, nullable: true);
+            using var command = CreateTestCommand();
+            var parameter = new IntTypeMapping("int", DbType.Int32)
+                .CreateParameter(command, "Name", 17, nullable: true);
 
-                Assert.Equal(ParameterDirection.Input, parameter.Direction);
-                Assert.Equal("Name", parameter.ParameterName);
-                Assert.Equal(17, parameter.Value);
-                Assert.Equal(DbType.Int32, parameter.DbType);
-                Assert.True(parameter.IsNullable);
-            }
+            Assert.Equal(ParameterDirection.Input, parameter.Direction);
+            Assert.Equal("Name", parameter.ParameterName);
+            Assert.Equal(17, parameter.Value);
+            Assert.Equal(DbType.Int32, parameter.DbType);
+            Assert.True(parameter.IsNullable);
         }
 
         [ConditionalFact]
         public void Can_create_required_string_parameter()
         {
-            using (var command = CreateTestCommand())
-            {
-                var parameter = new StringTypeMapping("nvarchar(23)", DbType.String, unicode: true, size: 23)
-                    .CreateParameter(command, "Name", "Value", nullable: false);
+            using var command = CreateTestCommand();
+            var parameter = new StringTypeMapping("nvarchar(23)", DbType.String, unicode: true, size: 23)
+                .CreateParameter(command, "Name", "Value", nullable: false);
 
-                Assert.Equal(ParameterDirection.Input, parameter.Direction);
-                Assert.Equal("Name", parameter.ParameterName);
-                Assert.Equal("Value", parameter.Value);
-                Assert.Equal(DbType.String, parameter.DbType);
-                Assert.False(parameter.IsNullable);
-                Assert.Equal(5, parameter.Size);
-            }
+            Assert.Equal(ParameterDirection.Input, parameter.Direction);
+            Assert.Equal("Name", parameter.ParameterName);
+            Assert.Equal("Value", parameter.Value);
+            Assert.Equal(DbType.String, parameter.DbType);
+            Assert.False(parameter.IsNullable);
+            Assert.Equal(5, parameter.Size);
         }
 
         [ConditionalFact]
         public void Can_create_string_parameter()
         {
-            using (var command = CreateTestCommand())
-            {
-                var parameter = new StringTypeMapping("nvarchar(23)", DbType.String, unicode: true, size: 23)
-                    .CreateParameter(command, "Name", "Value", nullable: true);
+            using var command = CreateTestCommand();
+            var parameter = new StringTypeMapping("nvarchar(23)", DbType.String, unicode: true, size: 23)
+                .CreateParameter(command, "Name", "Value", nullable: true);
 
-                Assert.Equal(ParameterDirection.Input, parameter.Direction);
-                Assert.Equal("Name", parameter.ParameterName);
-                Assert.Equal("Value", parameter.Value);
-                Assert.Equal(DbType.String, parameter.DbType);
-                Assert.True(parameter.IsNullable);
-                Assert.Equal(5, parameter.Size);
-            }
+            Assert.Equal(ParameterDirection.Input, parameter.Direction);
+            Assert.Equal("Name", parameter.ParameterName);
+            Assert.Equal("Value", parameter.Value);
+            Assert.Equal(DbType.String, parameter.DbType);
+            Assert.True(parameter.IsNullable);
+            Assert.Equal(5, parameter.Size);
         }
 
         protected virtual void Test_GenerateSqlLiteral_helper(
@@ -529,12 +532,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [ConditionalFact]
         public virtual void Primary_key_type_mapping_is_picked_up_by_FK_without_going_through_store_type()
         {
-            using (var context = new FruityContext(ContextOptions))
-            {
-                Assert.Same(
-                    context.Model.FindEntityType(typeof(Banana)).FindProperty("Id").FindMapping(),
-                    context.Model.FindEntityType(typeof(Kiwi)).FindProperty("BananaId").FindMapping());
-            }
+            using var context = new FruityContext(ContextOptions);
+            Assert.Same(
+                context.Model.FindEntityType(typeof(Banana)).FindProperty("Id").GetTypeMapping(),
+                context.Model.FindEntityType(typeof(Kiwi)).FindProperty("BananaId").GetTypeMapping());
         }
 
         private class FruityContext : DbContext
@@ -551,13 +552,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [ConditionalFact]
         public virtual void Primary_key_type_mapping_can_differ_from_FK()
         {
-            using (var context = new MismatchedFruityContext(ContextOptions))
-            {
-                Assert.Equal(
-                    typeof(short),
-                    context.Model.FindEntityType(typeof(Banana)).FindProperty("Id").FindMapping().Converter.ProviderClrType);
-                Assert.Null(context.Model.FindEntityType(typeof(Kiwi)).FindProperty("Id").FindMapping().Converter);
-            }
+            using var context = new MismatchedFruityContext(ContextOptions);
+            Assert.Equal(
+                typeof(short),
+                context.Model.FindEntityType(typeof(Banana)).FindProperty("Id").GetTypeMapping().Converter.ProviderClrType);
+            Assert.Null(context.Model.FindEntityType(typeof(Kiwi)).FindProperty("Id").GetTypeMapping().Converter);
         }
 
         private class MismatchedFruityContext : FruityContext

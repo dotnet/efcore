@@ -65,10 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static IProperty GetGenerationProperty([NotNull] this IProperty property)
         {
-            var traversalList = new List<IProperty>
-            {
-                property
-            };
+            var traversalList = new List<IProperty> { property };
 
             var index = 0;
             while (index < traversalList.Count)
@@ -107,9 +104,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static bool RequiresValueGenerator([NotNull] this IProperty property)
             => ((property.ValueGenerated & ValueGenerated.OnAdd) == ValueGenerated.OnAdd
-                && !property.IsForeignKey()
-                && property.IsKey())
-               || property.GetValueGeneratorFactory() != null;
+                    && !property.IsForeignKey()
+                    && property.IsKey())
+                || property.GetValueGeneratorFactory() != null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -128,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 var generationProperty = property.GetGenerationProperty();
                 return (generationProperty != null)
-                       && (generationProperty.ValueGenerated != ValueGenerated.Never);
+                    && (generationProperty.ValueGenerated != ValueGenerated.Never);
             }
 
             return false;
@@ -142,9 +139,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static bool RequiresOriginalValue([NotNull] this IProperty property)
             => property.DeclaringEntityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.ChangingAndChangedNotifications
-               || property.IsConcurrencyToken
-               || property.IsKey()
-               || property.IsForeignKey();
+                || property.IsConcurrencyToken
+                || property.IsKey()
+                || property.IsForeignKey()
+                || property.IsUniqueIndex();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -154,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static bool IsKeyOrForeignKey([NotNull] this IProperty property)
             => property.IsKey()
-               || property.IsForeignKey();
+                || property.IsForeignKey();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -164,10 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static IReadOnlyList<IProperty> FindPrincipals([NotNull] this IProperty property)
         {
-            var principals = new List<IProperty>
-            {
-                property
-            };
+            var principals = new List<IProperty> { property };
             AddPrincipals(property, principals);
             return principals;
         }
@@ -205,17 +200,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static string ToDebugString(
             [NotNull] this IProperty property,
-            bool singleLine = true,
-            bool includeIndexes = false,
+            MetadataDebugStringOptions options,
             [NotNull] string indent = "")
         {
             var builder = new StringBuilder();
 
             builder.Append(indent);
 
+            var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
             if (singleLine)
             {
-                builder.Append("Property: ").Append(property.DeclaringEntityType.DisplayName()).Append(".");
+                builder.Append($"Property: {property.DeclaringEntityType.DisplayName()}.");
             }
 
             builder.Append(property.Name).Append(" (");
@@ -235,11 +230,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (property.IsShadowProperty())
             {
                 builder.Append(" Shadow");
-            }
-
-            if (property.IsIndexedProperty())
-            {
-                builder.Append(" Indexed");
             }
 
             if (!property.IsNullable)
@@ -303,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append(" PropertyAccessMode.").Append(property.GetPropertyAccessMode());
             }
 
-            if (includeIndexes)
+            if ((options & MetadataDebugStringOptions.IncludePropertyIndexes) != 0)
             {
                 var indexes = property.GetPropertyIndexes();
                 if (indexes != null)
@@ -316,7 +306,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            if (!singleLine)
+            if (!singleLine &&
+                (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
             {
                 builder.Append(property.AnnotationsToDebugString(indent + "  "));
             }

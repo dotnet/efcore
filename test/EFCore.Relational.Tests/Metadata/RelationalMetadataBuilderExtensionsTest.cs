@@ -194,6 +194,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("s < p", entityType.GetCheckConstraints().Single().Sql);
         }
 
+        [ConditionalFact]
+        public void Can_access_comment()
+        {
+            var typeBuilder = CreateBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
+            var entityType = typeBuilder.Metadata;
+
+            Assert.NotNull(typeBuilder.HasComment("My Comment"));
+            Assert.Equal("My Comment", entityType.GetComment());
+
+            Assert.NotNull(typeBuilder.HasComment("My Comment 2", fromDataAnnotation: true));
+            Assert.Equal("My Comment 2", entityType.GetComment());
+
+            Assert.Null(typeBuilder.HasComment("My Comment"));
+            Assert.Equal("My Comment 2", entityType.GetComment());
+        }
+
         private class Splot
         {
             public static readonly PropertyInfo SplowedProperty = typeof(Splot).GetProperty("Splowed");

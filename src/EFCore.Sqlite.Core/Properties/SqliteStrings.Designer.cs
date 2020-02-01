@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
     public static class SqliteStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Sqlite.Properties.SqliteStrings", typeof(SqliteStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Sqlite.Properties.SqliteStrings", typeof(SqliteStrings).Assembly);
 
         /// <summary>
         ///     SQLite does not support this migration operation ('{operation}'). For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.
@@ -47,6 +47,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         public static string ComputedColumnsNotSupported
             => GetString("ComputedColumnsNotSupported");
 
+        /// <summary>
+        ///     SQLite cannot order by expressions of type '{type}'. Convert the values to a supported type or use LINQ to Objects to order the results.
+        /// </summary>
+        public static string OrderByNotSupported([CanBeNull] object type)
+            => string.Format(
+                GetString("OrderByNotSupported", nameof(type)),
+                type);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
@@ -71,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
     public static class SqliteResources
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Sqlite.Properties.SqliteStrings", typeof(SqliteResources).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Sqlite.Properties.SqliteStrings", typeof(SqliteResources).Assembly);
 
         /// <summary>
         ///     The entity type '{entityType}' is configured to use schema '{schema}'. SQLite does not support schemas. This configuration will be ignored by the SQLite provider.

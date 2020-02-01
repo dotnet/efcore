@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             return ReferenceEquals(this, obj)
                 ? true
                 : obj.GetType() == GetType()
-                  && Equals((CustomerView)obj);
+                && Equals((CustomerView)obj);
         }
 
         public static bool operator ==(CustomerView left, CustomerView right)
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 
         public override int GetHashCode()
             // ReSharper disable once NonReadonlyMemberInGetHashCode
-            => CompanyName.GetHashCode();
+            => CompanyName?.GetHashCode() ?? 0;
 
         public override string ToString()
             => "CustomerView " + CompanyName;

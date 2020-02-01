@@ -38,6 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         protected virtual DbContextOptionsBuilder OptionsBuilder { get; }
 
+        /// <inheritdoc />
         DbContextOptionsBuilder IRelationalDbContextOptionsBuilderInfrastructure.OptionsBuilder => OptionsBuilder;
 
         /// <summary>
@@ -103,7 +104,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="getExecutionStrategy"> A function that returns a new instance of an execution strategy. </param>
         public virtual TBuilder ExecutionStrategy(
             [NotNull] Func<ExecutionStrategyDependencies, IExecutionStrategy> getExecutionStrategy)
-            => WithOption(e => (TExtension)e.WithExecutionStrategyFactory(Check.NotNull(getExecutionStrategy, nameof(getExecutionStrategy))));
+            => WithOption(
+                e => (TExtension)e.WithExecutionStrategyFactory(Check.NotNull(getExecutionStrategy, nameof(getExecutionStrategy))));
 
         /// <summary>
         ///     Sets an option by cloning the extension used to store the settings. This ensures the builder

@@ -193,7 +193,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected override Func<QueryContext, Task<TResult>> CreateCompiledQuery(
             IQueryCompiler queryCompiler, Expression expression)
-            => throw new NotImplementedException();
-            //queryCompiler.CreateCompiledAsyncSingletonQuery<TResult>(expression);
+            => queryCompiler.CreateCompiledAsyncQuery<Task<TResult>>(expression);
     }
 }

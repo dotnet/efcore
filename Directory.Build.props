@@ -11,7 +11,16 @@
     <Copyright>$(CopyrightMicrosoft)</Copyright>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
   </PropertyGroup>
-  
+
+  <PropertyGroup>
+    <DefaultNetCoreTargetFramework>netcoreapp3.1</DefaultNetCoreTargetFramework>
+
+    <!-- Working around https://github.com/NuGet/Home/issues/8467 -->
+    <NoWarn>$(NoWarn);NU5131</NoWarn>
+    <!-- TODO - remove this line once we use embedded package icons -->
+    <NoWarn>$(NoWarn);NU5048</NoWarn>
+  </PropertyGroup>
+
   <PropertyGroup>
     <StrongNameKeyId>MicrosoftAspNetCore</StrongNameKeyId>
     <PackageTags>Entity Framework Core;entity-framework-core;EF;Data;O/RM;EntityFramework;EntityFrameworkCore;EFCore</PackageTags>
@@ -19,14 +28,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <LangVersion>8.0</LangVersion>
     <DebugType>portable</DebugType>
-    <PackageLicenseUrl Condition="'$(PackageLicenseExpression)' == ''">https://raw.githubusercontent.com/aspnet/AspNetCore/2.0.0/LICENSE.txt</PackageLicenseUrl>
-    <PackageIconUrl>https://go.microsoft.com/fwlink/?LinkID=288859</PackageIconUrl>
     <PackageProjectUrl>https://docs.microsoft.com/ef/core/</PackageProjectUrl>
-  </PropertyGroup>
-  
-  <!-- HACK: Work around dotnet/arcade#1373 -->
-  <PropertyGroup>
-    <NoWarn>$(NoWarn);NU5125</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

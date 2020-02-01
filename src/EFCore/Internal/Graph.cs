@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public abstract IEnumerable<TVertex> GetOutgoingNeighbors([NotNull] TVertex @from);
+        public abstract IEnumerable<TVertex> GetOutgoingNeighbors([NotNull] TVertex from);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -56,11 +56,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 var currentVertex = visitingQueue[currentVertexIndex];
                 currentVertexIndex++;
                 // ReSharper disable once LoopCanBeConvertedToQuery
-                foreach (var neighbour in GetOutgoingNeighbors(currentVertex))
+                foreach (var neighbor in GetOutgoingNeighbors(currentVertex))
                 {
-                    if (unreachableVertices.Remove(neighbour))
+                    if (unreachableVertices.Remove(neighbor))
                     {
-                        visitingQueue.Add(neighbour);
+                        visitingQueue.Add(neighbor);
                     }
                 }
             }

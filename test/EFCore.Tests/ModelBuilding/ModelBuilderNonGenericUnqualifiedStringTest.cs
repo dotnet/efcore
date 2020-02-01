@@ -7,7 +7,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
@@ -78,7 +77,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsMany<TRelatedEntity>(
                 Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression)
                 => new NonGenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(
-                    EntityTypeBuilder.OwnsMany(typeof(TRelatedEntity).Name,
+                    EntityTypeBuilder.OwnsMany(
+                        typeof(TRelatedEntity).Name,
                         navigationExpression.GetPropertyAccess().GetSimpleMemberName()));
 
             public override TestEntityTypeBuilder<TEntity> OwnsMany<TRelatedEntity>(
@@ -108,8 +108,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 return new NonGenericTestCollectionNavigationBuilder<TEntity, TRelatedEntity>(
                     navigationName == null
-                    ? EntityTypeBuilder.HasMany(typeof(TRelatedEntity).FullName, navigationName)
-                    : EntityTypeBuilder.HasMany(navigationName));
+                        ? EntityTypeBuilder.HasMany(typeof(TRelatedEntity).FullName, navigationName)
+                        : EntityTypeBuilder.HasMany(navigationName));
             }
         }
 
@@ -187,8 +187,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 return new NonGenericStringTestReferenceNavigationBuilder<TDependentEntity, TNewDependentEntity>(
                     navigationName == null
-                    ? OwnedNavigationBuilder.HasOne(typeof(TNewDependentEntity).FullName, navigationName)
-                    : OwnedNavigationBuilder.HasOne(navigationName));
+                        ? OwnedNavigationBuilder.HasOne(typeof(TNewDependentEntity).FullName, navigationName)
+                        : OwnedNavigationBuilder.HasOne(navigationName));
             }
         }
     }

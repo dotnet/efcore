@@ -1,7 +1,9 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
@@ -33,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <returns> The model files. </returns>
         SavedModelFiles Save(
             [NotNull] ScaffoldedModel scaffoldedModel,
-            [CanBeNull] string outputDir,
+            [NotNull] string outputDir,
             bool overwriteFiles);
     }
 }

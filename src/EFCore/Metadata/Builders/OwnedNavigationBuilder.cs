@@ -76,11 +76,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [EntityFrameworkInternal]
         protected virtual T UpdateBuilder<T>([NotNull] Func<T> configure)
         {
-            var foreignKey = _builder.Metadata;
+            IConventionForeignKey foreignKey = _builder.Metadata;
             var result = DependentEntityType.Model.ConventionDispatcher.Run(configure, ref foreignKey);
             if (foreignKey != null)
             {
-                _builder = foreignKey.Builder;
+                _builder = ((ForeignKey)foreignKey).Builder;
             }
 
             return result;
@@ -597,7 +597,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 navigationName,
                 DependentEntityType.Builder.HasRelationship(
                     relatedEntityType, navigationName, ConfigurationSource.Explicit,
-                    setTargetAsPrincipal: DependentEntityType == relatedEntityType).Metadata);
+                    targetIsPrincipal: DependentEntityType == relatedEntityType ? true : (bool?)null).Metadata);
         }
 
         /// <summary>
@@ -672,7 +672,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 navigationName,
                 DependentEntityType.Builder.HasRelationship(
                     relatedEntityType, navigationName, ConfigurationSource.Explicit,
-                    setTargetAsPrincipal: DependentEntityType == relatedEntityType).Metadata);
+                    targetIsPrincipal: DependentEntityType == relatedEntityType ? true : (bool?)null).Metadata);
         }
 
         /// <summary>
@@ -690,13 +690,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 return relatedEntityType;
             }
 
+            var model = DependentEntityType.Model;
             if (navigationName != null)
             {
-                relatedEntityType = Builder.ModelBuilder.Metadata.FindEntityType(relatedTypeName, navigationName, DependentEntityType);
+                relatedEntityType = model.FindEntityType(relatedTypeName, navigationName, DependentEntityType);
             }
 
-            return relatedEntityType ??
-                   DependentEntityType.Builder.ModelBuilder.Entity(relatedTypeName, ConfigurationSource.Explicit).Metadata;
+            if (relatedEntityType == null
+                && model.GetProductVersion()?.StartsWith("2.", StringComparison.Ordinal) == true)
+            {
+                var owner = DependentEntityType.FindOwnership().PrincipalEntityType;
+                if (owner.Name == relatedTypeName)
+                {
+                    relatedEntityType = owner;
+                }
+            }
+
+            return relatedEntityType ?? Builder.ModelBuilder.Entity(relatedTypeName, ConfigurationSource.Explicit).Metadata;
         }
 
         /// <summary>
@@ -719,8 +729,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 relatedEntityType = Builder.ModelBuilder.Metadata.FindEntityType(relatedType, navigationName, DependentEntityType);
             }
 
-            return relatedEntityType ??
-                   DependentEntityType.Builder.ModelBuilder.Entity(relatedType, ConfigurationSource.Explicit).Metadata;
+            return relatedEntityType ?? DependentEntityType.Builder.ModelBuilder.Entity(relatedType, ConfigurationSource.Explicit).Metadata;
         }
 
         /// <summary>

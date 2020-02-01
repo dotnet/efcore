@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+
 namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
 {
     public class Engine
@@ -11,11 +13,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
 
         public override bool Equals(object obj)
             => obj is Engine other
-               && VehicleName == other.VehicleName
-               && Description == other.Description;
+                && VehicleName == other.VehicleName
+                && Description == other.Description;
 
-        public override int GetHashCode()
-            => VehicleName.GetHashCode() * 397
-               ^ Description.GetHashCode();
+        public override int GetHashCode() => HashCode.Combine(VehicleName, Description);
     }
 }

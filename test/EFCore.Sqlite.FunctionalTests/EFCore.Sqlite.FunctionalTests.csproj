@@ -1,11 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
-    <!-- Workaround https://github.com/Microsoft/vstest/issues/792. -->
-    <HasRuntimeOutput>true</HasRuntimeOutput>
     <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
@@ -25,8 +23,6 @@
 
   <ItemGroup>
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="$(SQLitePCLRawBundleESqlite3PackageVersion)" />
-    <!-- TODO: Remove when ericsink/SQLitePCL.raw#253 is resolved -->
-    <PackageReference Include="NETStandard.Library" Version="1.6.1" />
   </ItemGroup>
 
 </Project>

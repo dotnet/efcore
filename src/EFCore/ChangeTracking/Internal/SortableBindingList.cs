@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         protected override bool SupportsSortingCore => true;
 
-        private class PropertyComparer : Comparer<T>
+        private sealed class PropertyComparer : Comparer<T>
         {
             private readonly IComparer _comparer;
             private readonly ListSortDirection _direction;
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public static bool CanSort(Type type)
                 => type.GetInterface("IComparable") != null
-                   || (type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>));
+                    || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>));
         }
     }
 }

@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
@@ -181,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         protected virtual IEnumerable<string> GetNamespaces([NotNull] IModel model)
             => model.GetEntityTypes().SelectMany(
                     e => e.GetDeclaredProperties()
-                        .SelectMany(p => (p.FindMapping()?.Converter?.ProviderClrType ?? p.ClrType).GetNamespaces()))
+                        .SelectMany(p => (FindValueConverter(p)?.ProviderClrType ?? p.ClrType).GetNamespaces()))
                 .Concat(GetAnnotationNamespaces(GetAnnotatables(model)));
 
         private static IEnumerable<IAnnotatable> GetAnnotatables(IModel model)
@@ -214,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
         }
 
-        private static IEnumerable<string> GetAnnotationNamespaces(IEnumerable<IAnnotatable> items)
+        private IEnumerable<string> GetAnnotationNamespaces(IEnumerable<IAnnotatable> items)
         {
             var ignoredAnnotations = new List<string>
             {
@@ -229,7 +230,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.TypeMapping,
                 CoreAnnotationNames.ValueComparer,
                 CoreAnnotationNames.KeyValueComparer,
+#pragma warning disable 618
                 CoreAnnotationNames.StructuralValueComparer,
+#pragma warning restore 618
                 CoreAnnotationNames.ConstructorBinding,
                 CoreAnnotationNames.NavigationAccessMode,
                 CoreAnnotationNames.PropertyAccessMode,
@@ -243,17 +246,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             var ignoredAnnotationTypes = new List<string>
             {
-                RelationalAnnotationNames.DbFunction,
-                RelationalAnnotationNames.SequencePrefix
+                RelationalAnnotationNames.DbFunction, RelationalAnnotationNames.SequencePrefix
             };
 
             return items.SelectMany(
                 i => i.GetAnnotations().Select(
-                        a => new
-                        {
-                            Annotatable = i,
-                            Annotation = a
-                        })
+                        a => new { Annotatable = i, Annotation = a })
                     .Where(
                         a => a.Annotation.Value != null
                              && !ignoredAnnotations.Contains(a.Annotation.Name)
@@ -261,10 +259,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .SelectMany(a => GetProviderType(a.Annotatable, a.Annotation.Value.GetType()).GetNamespaces()));
         }
 
-        private static Type GetProviderType(IAnnotatable annotatable, Type valueType)
+        private ValueConverter FindValueConverter(IProperty property)
+            => (property.FindTypeMapping()
+                ?? Dependencies.RelationalTypeMappingSource.FindMapping(property))?.Converter;
+
+        private Type GetProviderType(IAnnotatable annotatable, Type valueType)
             => annotatable is IProperty property
                && valueType.UnwrapNullableType() == property.ClrType.UnwrapNullableType()
-                ? property.FindMapping()?.Converter?.ProviderClrType ?? valueType
+                ? FindValueConverter(property)?.ProviderClrType ?? valueType
                 : valueType;
     }
 }

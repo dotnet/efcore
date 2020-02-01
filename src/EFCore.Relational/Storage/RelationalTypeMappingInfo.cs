@@ -35,11 +35,23 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="principals"> The principal property chain for the property for which mapping is needed. </param>
         /// <param name="storeTypeName"> The provider-specific relational type name for which mapping is needed. </param>
         /// <param name="storeTypeNameBase"> The provider-specific relational type name, with any facets removed. </param>
-        /// <param name="fallbackUnicode"> Specifies a fallback Specifies Unicode or ANSI mapping for the mapping, in case one isn't found at the core level, or <c>null</c> for default. </param>
+        /// <param name="fallbackUnicode">
+        ///     Specifies a fallback Specifies Unicode or ANSI mapping for the mapping, in case one isn't found at the core
+        ///     level, or <c>null</c> for default.
+        /// </param>
         /// <param name="fixedLength"> Specifies a fixed length mapping, or <c>null</c> for default. </param>
-        /// <param name="fallbackSize"> Specifies a fallback size for the mapping, in case one isn't found at the core level, or <c>null</c> for default. </param>
-        /// <param name="fallbackPrecision"> Specifies a fallback precision for the mapping, in case one isn't found at the core level, or <c>null</c> for default. </param>
-        /// <param name="fallbackScale"> Specifies a fallback scale for the mapping, in case one isn't found at the core level, or <c>null</c> for default. </param>
+        /// <param name="fallbackSize">
+        ///     Specifies a fallback size for the mapping, in case one isn't found at the core level, or <c>null</c> for
+        ///     default.
+        /// </param>
+        /// <param name="fallbackPrecision">
+        ///     Specifies a fallback precision for the mapping, in case one isn't found at the core level, or <c>null</c>
+        ///     for default.
+        /// </param>
+        /// <param name="fallbackScale">
+        ///     Specifies a fallback scale for the mapping, in case one isn't found at the core level, or <c>null</c> for
+        ///     default.
+        /// </param>
         public RelationalTypeMappingInfo(
             [NotNull] IReadOnlyList<IProperty> principals,
             [CanBeNull] string storeTypeName = null,
@@ -233,8 +245,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> <c>True</c> if they represent the same mapping; <c>false</c> otherwise. </returns>
         public bool Equals(RelationalTypeMappingInfo other)
             => _coreTypeMappingInfo.Equals(other._coreTypeMappingInfo)
-               && IsFixedLength == other.IsFixedLength
-               && StoreTypeName == other.StoreTypeName;
+                && IsFixedLength == other.IsFixedLength
+                && StoreTypeName == other.StoreTypeName;
 
         /// <summary>
         ///     Compares this <see cref="RelationalTypeMappingInfo" /> to another to check if they represent the same mapping.
@@ -243,19 +255,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> <c>True</c> if they represent the same mapping; <c>false</c> otherwise. </returns>
         public override bool Equals(object obj)
             => obj != null
-               && obj.GetType() == GetType()
-               && Equals((RelationalTypeMappingInfo)obj);
+                && obj.GetType() == GetType()
+                && Equals((RelationalTypeMappingInfo)obj);
 
         /// <summary>
         ///     Returns a hash code for this object.
         /// </summary>
         /// <returns> The hash code. </returns>
-        public override int GetHashCode()
-        {
-            var hashCode = _coreTypeMappingInfo.GetHashCode();
-            hashCode = (hashCode * 397) ^ (StoreTypeName?.GetHashCode() ?? 0);
-            hashCode = (hashCode * 397) ^ (IsFixedLength?.GetHashCode() ?? 0);
-            return hashCode;
-        }
+        public override int GetHashCode() => HashCode.Combine(_coreTypeMappingInfo, StoreTypeName, IsFixedLength);
     }
 }

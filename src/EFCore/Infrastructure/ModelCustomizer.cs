@@ -10,16 +10,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// <summary>
     ///     <para>
     ///         Builds the model for a given context. This implementation builds the model by calling
-    ///         <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> on the context.
+    ///         <see cref="DbContext.OnModelCreating(ModelBuilder)" /> on the context.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
     ///         not used in application code.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public class ModelCustomizer : IModelCustomizer
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     Performs additional configuration of the model in addition to what is discovered by convention. This default implementation
-        ///     builds the model for a given context by calling <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" />
+        ///     builds the model for a given context by calling <see cref="DbContext.OnModelCreating(ModelBuilder)" />
         ///     on the context.
         /// </summary>
         /// <param name="modelBuilder">

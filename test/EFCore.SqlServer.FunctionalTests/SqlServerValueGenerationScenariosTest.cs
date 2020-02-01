@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -24,31 +23,23 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Insert_with_Identity_column()
         {
-            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
+            using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+            using (var context = new BlogContextIdentity(testStore.Name))
             {
-                using (var context = new BlogContextIdentity(testStore.Name))
-                {
-                    context.Database.EnsureCreatedResiliently();
+                context.Database.EnsureCreatedResiliently();
 
-                    context.AddRange(
-                        new Blog
-                        {
-                            Name = "One Unicorn"
-                        }, new Blog
-                        {
-                            Name = "Two Unicorns"
-                        });
+                context.AddRange(
+                    new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
-                    context.SaveChanges();
-                }
+                context.SaveChanges();
+            }
 
-                using (var context = new BlogContextIdentity(testStore.Name))
-                {
-                    var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
+            using (var context = new BlogContextIdentity(testStore.Name))
+            {
+                var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
-                    Assert.Equal(1, blogs[0].Id);
-                    Assert.Equal(2, blogs[1].Id);
-                }
+                Assert.Equal(1, blogs[0].Id);
+                Assert.Equal(2, blogs[1].Id);
             }
         }
 
@@ -64,33 +55,25 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Insert_with_sequence_HiLo()
         {
-            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
+            using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+            using (var context = new BlogContextHiLo(testStore.Name))
             {
-                using (var context = new BlogContextHiLo(testStore.Name))
-                {
-                    context.Database.EnsureCreatedResiliently();
+                context.Database.EnsureCreatedResiliently();
 
-                    context.AddRange(
-                        new Blog
-                        {
-                            Name = "One Unicorn"
-                        }, new Blog
-                        {
-                            Name = "Two Unicorns"
-                        });
+                context.AddRange(
+                    new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
-                    context.SaveChanges();
-                }
+                context.SaveChanges();
+            }
 
-                using (var context = new BlogContextHiLo(testStore.Name))
-                {
-                    var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
+            using (var context = new BlogContextHiLo(testStore.Name))
+            {
+                var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
-                    Assert.Equal(1, blogs[0].Id);
-                    Assert.Equal(2, blogs[0].OtherId);
-                    Assert.Equal(3, blogs[1].Id);
-                    Assert.Equal(4, blogs[1].OtherId);
-                }
+                Assert.Equal(1, blogs[0].Id);
+                Assert.Equal(2, blogs[0].OtherId);
+                Assert.Equal(3, blogs[1].Id);
+                Assert.Equal(4, blogs[1].OtherId);
             }
         }
 
@@ -103,16 +86,13 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.ForSqlServerUseSequenceHiLo();
+                modelBuilder.UseHiLo();
 
                 modelBuilder.Entity<Blog>(
                     eb =>
                     {
                         eb.HasAlternateKey(
-                            b => new
-                            {
-                                b.OtherId
-                            });
+                            b => new { b.OtherId });
                         eb.Property(b => b.OtherId).ValueGeneratedOnAdd();
                     });
             }
@@ -122,55 +102,41 @@ namespace Microsoft.EntityFrameworkCore
         [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Insert_with_default_value_from_sequence()
         {
-            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
+            using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+            using (var context = new BlogContextDefaultValue(testStore.Name))
             {
-                using (var context = new BlogContextDefaultValue(testStore.Name))
-                {
-                    context.Database.EnsureCreatedResiliently();
+                context.Database.EnsureCreatedResiliently();
 
-                    context.AddRange(
-                        new Blog
-                        {
-                            Name = "One Unicorn"
-                        }, new Blog
-                        {
-                            Name = "Two Unicorns"
-                        });
+                context.AddRange(
+                    new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
-                    context.SaveChanges();
-                }
+                context.SaveChanges();
+            }
 
-                using (var context = new BlogContextDefaultValue(testStore.Name))
-                {
-                    var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
+            using (var context = new BlogContextDefaultValue(testStore.Name))
+            {
+                var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
-                    Assert.Equal(0, blogs[0].Id);
-                    Assert.Equal(1, blogs[1].Id);
-                }
+                Assert.Equal(0, blogs[0].Id);
+                Assert.Equal(1, blogs[1].Id);
+            }
 
-                using (var context = new BlogContextDefaultValueNoMigrations(testStore.Name))
-                {
-                    context.AddRange(
-                        new Blog
-                        {
-                            Name = "One Unicorn"
-                        }, new Blog
-                        {
-                            Name = "Two Unicorns"
-                        });
+            using (var context = new BlogContextDefaultValueNoMigrations(testStore.Name))
+            {
+                context.AddRange(
+                    new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
-                    context.SaveChanges();
-                }
+                context.SaveChanges();
+            }
 
-                using (var context = new BlogContextDefaultValueNoMigrations(testStore.Name))
-                {
-                    var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
+            using (var context = new BlogContextDefaultValueNoMigrations(testStore.Name))
+            {
+                var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
-                    Assert.Equal(0, blogs[0].Id);
-                    Assert.Equal(1, blogs[1].Id);
-                    Assert.Equal(2, blogs[2].Id);
-                    Assert.Equal(3, blogs[3].Id);
-                }
+                Assert.Equal(0, blogs[0].Id);
+                Assert.Equal(1, blogs[1].Id);
+                Assert.Equal(2, blogs[2].Id);
+                Assert.Equal(3, blogs[3].Id);
             }
         }
 
@@ -214,31 +180,23 @@ namespace Microsoft.EntityFrameworkCore
         [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Insert_with_default_string_value_from_sequence()
         {
-            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
+            using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+            using (var context = new BlogContextStringDefaultValue(testStore.Name))
             {
-                using (var context = new BlogContextStringDefaultValue(testStore.Name))
-                {
-                    context.Database.EnsureCreatedResiliently();
+                context.Database.EnsureCreatedResiliently();
 
-                    context.AddRange(
-                        new BlogWithStringKey
-                        {
-                            Name = "One Unicorn"
-                        }, new BlogWithStringKey
-                        {
-                            Name = "Two Unicorns"
-                        });
+                context.AddRange(
+                    new BlogWithStringKey { Name = "One Unicorn" }, new BlogWithStringKey { Name = "Two Unicorns" });
 
-                    context.SaveChanges();
-                }
+                context.SaveChanges();
+            }
 
-                using (var context = new BlogContextStringDefaultValue(testStore.Name))
-                {
-                    var blogs = context.StringyBlogs.OrderBy(e => e.Id).ToList();
+            using (var context = new BlogContextStringDefaultValue(testStore.Name))
+            {
+                var blogs = context.StringyBlogs.OrderBy(e => e.Id).ToList();
 
-                    Assert.Equal("i77", blogs[0].Id);
-                    Assert.Equal("i78", blogs[1].Id);
-                }
+                Assert.Equal("i77", blogs[0].Id);
+                Assert.Equal("i78", blogs[1].Id);
             }
         }
 
@@ -256,13 +214,13 @@ namespace Microsoft.EntityFrameworkCore
                 base.OnModelCreating(modelBuilder);
 
                 modelBuilder
-                    .HasSequence("MyStrinySequence")
+                    .HasSequence("MyStringSequence")
                     .StartsAt(77);
 
                 modelBuilder
                     .Entity<BlogWithStringKey>()
                     .Property(e => e.Id)
-                    .HasDefaultValueSql("'i' + CAST((NEXT VALUE FOR MyStrinySequence) AS VARCHAR(20))");
+                    .HasDefaultValueSql("'i' + CAST((NEXT VALUE FOR MyStringSequence) AS VARCHAR(20))");
             }
         }
 
@@ -276,31 +234,23 @@ namespace Microsoft.EntityFrameworkCore
         [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Insert_with_key_default_value_from_sequence()
         {
-            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
+            using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+            using (var context = new BlogContextKeyColumnWithDefaultValue(testStore.Name))
             {
-                using (var context = new BlogContextKeyColumnWithDefaultValue(testStore.Name))
-                {
-                    context.Database.EnsureCreatedResiliently();
+                context.Database.EnsureCreatedResiliently();
 
-                    context.AddRange(
-                        new Blog
-                        {
-                            Name = "One Unicorn"
-                        }, new Blog
-                        {
-                            Name = "Two Unicorns"
-                        });
+                context.AddRange(
+                    new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
-                    context.SaveChanges();
-                }
+                context.SaveChanges();
+            }
 
-                using (var context = new BlogContextKeyColumnWithDefaultValue(testStore.Name))
-                {
-                    var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
+            using (var context = new BlogContextKeyColumnWithDefaultValue(testStore.Name))
+            {
+                var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
-                    Assert.Equal(77, blogs[0].Id);
-                    Assert.Equal(78, blogs[1].Id);
-                }
+                Assert.Equal(77, blogs[0].Id);
+                Assert.Equal(78, blogs[1].Id);
             }
         }
 
@@ -328,33 +278,23 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Insert_with_explicit_non_default_keys()
         {
-            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
+            using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+            using (var context = new BlogContextNoKeyGeneration(testStore.Name))
             {
-                using (var context = new BlogContextNoKeyGeneration(testStore.Name))
-                {
-                    context.Database.EnsureCreatedResiliently();
+                context.Database.EnsureCreatedResiliently();
 
-                    context.AddRange(
-                        new Blog
-                        {
-                            Id = 66,
-                            Name = "One Unicorn"
-                        }, new Blog
-                        {
-                            Id = 67,
-                            Name = "Two Unicorns"
-                        });
+                context.AddRange(
+                    new Blog { Id = 66, Name = "One Unicorn" }, new Blog { Id = 67, Name = "Two Unicorns" });
 
-                    context.SaveChanges();
-                }
+                context.SaveChanges();
+            }
 
-                using (var context = new BlogContextNoKeyGeneration(testStore.Name))
-                {
-                    var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
+            using (var context = new BlogContextNoKeyGeneration(testStore.Name))
+            {
+                var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
-                    Assert.Equal(66, blogs[0].Id);
-                    Assert.Equal(67, blogs[1].Id);
-                }
+                Assert.Equal(66, blogs[0].Id);
+                Assert.Equal(67, blogs[1].Id);
             }
         }
 
@@ -377,34 +317,24 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Insert_with_explicit_with_default_keys()
         {
-            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
+            using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+            using (var context = new BlogContextNoKeyGenerationNullableKey(testStore.Name))
             {
-                using (var context = new BlogContextNoKeyGenerationNullableKey(testStore.Name))
-                {
-                    context.Database.EnsureCreatedResiliently();
+                context.Database.EnsureCreatedResiliently();
 
-                    context.AddRange(
-                        new NullableKeyBlog
-                        {
-                            Id = 0,
-                            Name = "One Unicorn"
-                        },
-                        new NullableKeyBlog
-                        {
-                            Id = 1,
-                            Name = "Two Unicorns"
-                        });
+                context.AddRange(
+                    new NullableKeyBlog { Id = 0, Name = "One Unicorn" },
+                    new NullableKeyBlog { Id = 1, Name = "Two Unicorns" });
 
-                    context.SaveChanges();
-                }
+                context.SaveChanges();
+            }
 
-                using (var context = new BlogContextNoKeyGenerationNullableKey(testStore.Name))
-                {
-                    var blogs = context.NullableKeyBlogs.OrderBy(e => e.Id).ToList();
+            using (var context = new BlogContextNoKeyGenerationNullableKey(testStore.Name))
+            {
+                var blogs = context.NullableKeyBlogs.OrderBy(e => e.Id).ToList();
 
-                    Assert.Equal(0, blogs[0].Id);
-                    Assert.Equal(1, blogs[1].Id);
-                }
+                Assert.Equal(0, blogs[0].Id);
+                Assert.Equal(1, blogs[1].Id);
             }
         }
 
@@ -427,55 +357,46 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Insert_with_non_key_default_value()
         {
-            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
+            using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+            using (var context = new BlogContextNonKeyDefaultValue(testStore.Name))
             {
-                using (var context = new BlogContextNonKeyDefaultValue(testStore.Name))
+                context.Database.EnsureCreatedResiliently();
+
+                var blogs = new List<Blog>
                 {
-                    context.Database.EnsureCreatedResiliently();
+                    new Blog { Name = "One Unicorn" },
+                    new Blog { Name = "Two Unicorns", CreatedOn = new DateTime(1969, 8, 3, 0, 10, 0) }
+                };
 
-                    var blogs = new List<Blog>
-                    {
-                        new Blog
-                        {
-                            Name = "One Unicorn"
-                        },
-                        new Blog
-                        {
-                            Name = "Two Unicorns",
-                            CreatedOn = new DateTime(1969, 8, 3, 0, 10, 0)
-                        }
-                    };
+                context.AddRange(blogs);
 
-                    context.AddRange(blogs);
+                context.SaveChanges();
 
-                    context.SaveChanges();
+                Assert.NotEqual(new DateTime(), blogs[0].CreatedOn);
+                Assert.NotEqual(new DateTime(), blogs[1].CreatedOn);
+                Assert.Null(blogs[0].OtherId);
+                Assert.Null(blogs[1].OtherId);
+            }
 
-                    Assert.NotEqual(new DateTime(), blogs[0].CreatedOn);
-                    Assert.NotEqual(new DateTime(), blogs[1].CreatedOn);
-                    Assert.Null(blogs[0].OtherId);
-                    Assert.Null(blogs[1].OtherId);
-                }
+            using (var context = new BlogContextNonKeyDefaultValue(testStore.Name))
+            {
+                var blogs = context.Blogs.OrderBy(e => e.Name).ToList();
 
-                using (var context = new BlogContextNonKeyDefaultValue(testStore.Name))
-                {
-                    var blogs = context.Blogs.OrderBy(e => e.Name).ToList();
+                Assert.NotEqual(new DateTime(), blogs[0].CreatedOn);
+                Assert.Equal(new DateTime(1969, 8, 3, 0, 10, 0), blogs[1].CreatedOn);
 
-                    Assert.NotEqual(new DateTime(), blogs[0].CreatedOn);
-                    Assert.Equal(new DateTime(1969, 8, 3, 0, 10, 0), blogs[1].CreatedOn);
+                blogs[0].CreatedOn = new DateTime(1973, 9, 3, 0, 10, 0);
+                blogs[1].Name = "Zwo Unicorns";
 
-                    blogs[0].CreatedOn = new DateTime(1973, 9, 3, 0, 10, 0);
-                    blogs[1].Name = "Zwo Unicorns";
+                context.SaveChanges();
+            }
 
-                    context.SaveChanges();
-                }
+            using (var context = new BlogContextNonKeyDefaultValue(testStore.Name))
+            {
+                var blogs = context.Blogs.OrderBy(e => e.Name).ToList();
 
-                using (var context = new BlogContextNonKeyDefaultValue(testStore.Name))
-                {
-                    var blogs = context.Blogs.OrderBy(e => e.Name).ToList();
-
-                    Assert.Equal(new DateTime(1969, 8, 3, 0, 10, 0), blogs[1].CreatedOn);
-                    Assert.Equal(new DateTime(1973, 9, 3, 0, 10, 0), blogs[0].CreatedOn);
-                }
+                Assert.Equal(new DateTime(1969, 8, 3, 0, 10, 0), blogs[1].CreatedOn);
+                Assert.Equal(new DateTime(1973, 9, 3, 0, 10, 0), blogs[0].CreatedOn);
             }
         }
 
@@ -495,7 +416,7 @@ namespace Microsoft.EntityFrameworkCore
                             .HasDefaultValueSql("getdate()");
 
                         b.Property(e => e.OtherId)
-                            .HasDefaultValue(value: null);
+                            .HasDefaultValue();
                     });
             }
         }
@@ -503,51 +424,43 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Insert_with_non_key_default_value_readonly()
         {
-            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
+            using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+            using (var context = new BlogContextNonKeyReadOnlyDefaultValue(testStore.Name))
             {
-                using (var context = new BlogContextNonKeyReadOnlyDefaultValue(testStore.Name))
-                {
-                    context.Database.EnsureCreatedResiliently();
+                context.Database.EnsureCreatedResiliently();
 
-                    context.AddRange(
-                        new Blog
-                        {
-                            Name = "One Unicorn"
-                        },
-                        new Blog
-                        {
-                            Name = "Two Unicorns"
-                        });
+                context.AddRange(
+                    new Blog { Name = "One Unicorn" },
+                    new Blog { Name = "Two Unicorns" });
 
-                    context.SaveChanges();
+                context.SaveChanges();
 
-                    Assert.NotEqual(new DateTime(), context.Blogs.ToList()[0].CreatedOn);
-                }
+                Assert.NotEqual(new DateTime(), context.Blogs.ToList()[0].CreatedOn);
+            }
 
-                DateTime dateTime0;
+            DateTime dateTime0;
 
-                using (var context = new BlogContextNonKeyReadOnlyDefaultValue(testStore.Name))
-                {
-                    var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
+            using (var context = new BlogContextNonKeyReadOnlyDefaultValue(testStore.Name))
+            {
+                var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
-                    dateTime0 = blogs[0].CreatedOn;
+                dateTime0 = blogs[0].CreatedOn;
 
-                    Assert.NotEqual(new DateTime(), dateTime0);
-                    Assert.NotEqual(new DateTime(), blogs[1].CreatedOn);
+                Assert.NotEqual(new DateTime(), dateTime0);
+                Assert.NotEqual(new DateTime(), blogs[1].CreatedOn);
 
-                    blogs[0].Name = "One Pegasus";
-                    blogs[1].CreatedOn = new DateTime(1973, 9, 3, 0, 10, 0);
+                blogs[0].Name = "One Pegasus";
+                blogs[1].CreatedOn = new DateTime(1973, 9, 3, 0, 10, 0);
 
-                    context.SaveChanges();
-                }
+                context.SaveChanges();
+            }
 
-                using (var context = new BlogContextNonKeyReadOnlyDefaultValue(testStore.Name))
-                {
-                    var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
+            using (var context = new BlogContextNonKeyReadOnlyDefaultValue(testStore.Name))
+            {
+                var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
-                    Assert.Equal(dateTime0, blogs[0].CreatedOn);
-                    Assert.Equal(new DateTime(1973, 9, 3, 0, 10, 0), blogs[1].CreatedOn);
-                }
+                Assert.Equal(dateTime0, blogs[0].CreatedOn);
+                Assert.Equal(new DateTime(1973, 9, 3, 0, 10, 0), blogs[1].CreatedOn);
             }
         }
 
@@ -570,36 +483,30 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Insert_and_update_with_computed_column()
         {
-            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
+            using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+            using (var context = new BlogContextComputedColumn(testStore.Name))
             {
-                using (var context = new BlogContextComputedColumn(testStore.Name))
-                {
-                    context.Database.EnsureCreatedResiliently();
+                context.Database.EnsureCreatedResiliently();
 
-                    var blog = context.Add(
-                        new FullNameBlog
-                        {
-                            FirstName = "One",
-                            LastName = "Unicorn"
-                        }).Entity;
+                var blog = context.Add(
+                    new FullNameBlog { FirstName = "One", LastName = "Unicorn" }).Entity;
 
-                    context.SaveChanges();
+                context.SaveChanges();
 
-                    Assert.Equal("One Unicorn", blog.FullName);
-                }
+                Assert.Equal("One Unicorn", blog.FullName);
+            }
 
-                using (var context = new BlogContextComputedColumn(testStore.Name))
-                {
-                    var blog = context.FullNameBlogs.Single();
+            using (var context = new BlogContextComputedColumn(testStore.Name))
+            {
+                var blog = context.FullNameBlogs.Single();
 
-                    Assert.Equal("One Unicorn", blog.FullName);
+                Assert.Equal("One Unicorn", blog.FullName);
 
-                    blog.LastName = "Pegasus";
+                blog.LastName = "Pegasus";
 
-                    context.SaveChanges();
+                context.SaveChanges();
 
-                    Assert.Equal("One Pegasus", blog.FullName);
-                }
+                Assert.Equal("One Pegasus", blog.FullName);
             }
         }
 
@@ -626,45 +533,39 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Insert_and_update_with_computed_column_with_function()
         {
-            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
+            using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+            using (var context = new BlogContextComputedColumnWithFunction(testStore.Name))
             {
-                using (var context = new BlogContextComputedColumnWithFunction(testStore.Name))
-                {
-                    context.Database.ExecuteSqlRaw
-                    (
-                        @"CREATE FUNCTION
+                context.Database.ExecuteSqlRaw
+                (
+                    @"CREATE FUNCTION
 [dbo].[GetFullName](@First NVARCHAR(MAX), @Second NVARCHAR(MAX))
 RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
 
-                    context.GetService<IRelationalDatabaseCreator>().CreateTables();
-                }
+                context.GetService<IRelationalDatabaseCreator>().CreateTables();
+            }
 
-                using (var context = new BlogContextComputedColumnWithFunction(testStore.Name))
-                {
-                    var blog = context.Add(
-                        new FullNameBlog
-                        {
-                            FirstName = "One",
-                            LastName = "Unicorn"
-                        }).Entity;
+            using (var context = new BlogContextComputedColumnWithFunction(testStore.Name))
+            {
+                var blog = context.Add(
+                    new FullNameBlog { FirstName = "One", LastName = "Unicorn" }).Entity;
 
-                    context.SaveChanges();
+                context.SaveChanges();
 
-                    Assert.Equal("OneUnicorn", blog.FullName);
-                }
+                Assert.Equal("OneUnicorn", blog.FullName);
+            }
 
-                using (var context = new BlogContextComputedColumnWithFunction(testStore.Name))
-                {
-                    var blog = context.FullNameBlogs.Single();
+            using (var context = new BlogContextComputedColumnWithFunction(testStore.Name))
+            {
+                var blog = context.FullNameBlogs.Single();
 
-                    Assert.Equal("OneUnicorn", blog.FullName);
+                Assert.Equal("OneUnicorn", blog.FullName);
 
-                    blog.LastName = "Pegasus";
+                blog.LastName = "Pegasus";
 
-                    context.SaveChanges();
+                context.SaveChanges();
 
-                    Assert.Equal("OnePegasus", blog.FullName);
-                }
+                Assert.Equal("OnePegasus", blog.FullName);
             }
         }
 
@@ -688,16 +589,15 @@ RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
         [ConditionalFact]
         public void Insert_and_update_with_computed_column_with_querying_function()
         {
-            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
+            using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+            using (var context = new BlogContextComputedColumn(testStore.Name))
             {
-                using (var context = new BlogContextComputedColumn(testStore.Name))
-                {
-                    context.GetService<IRelationalDatabaseCreator>().CreateTables();
+                context.GetService<IRelationalDatabaseCreator>().CreateTables();
 
-                    context.Database.ExecuteSqlRaw("ALTER TABLE dbo.FullNameBlogs DROP COLUMN FullName;");
+                context.Database.ExecuteSqlRaw("ALTER TABLE dbo.FullNameBlogs DROP COLUMN FullName;");
 
-                    context.Database.ExecuteSqlRaw(
-                        @"CREATE FUNCTION [dbo].[GetFullName](@Id int)
+                context.Database.ExecuteSqlRaw(
+                    @"CREATE FUNCTION [dbo].[GetFullName](@Id int)
 RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS
 BEGIN
     DECLARE @FullName NVARCHAR(MAX);
@@ -705,105 +605,85 @@ BEGIN
     RETURN @FullName
 END");
 
-                    context.Database.ExecuteSqlRaw("ALTER TABLE dbo.FullNameBlogs ADD FullName AS [dbo].[GetFullName]([Id]); ");
-                }
+                context.Database.ExecuteSqlRaw("ALTER TABLE dbo.FullNameBlogs ADD FullName AS [dbo].[GetFullName]([Id]); ");
+            }
 
-                try
+            try
+            {
+                using (var context = new BlogContextComputedColumn(testStore.Name))
                 {
-                    using (var context = new BlogContextComputedColumn(testStore.Name))
-                    {
-                        var blog = context.Add(
-                            new FullNameBlog
-                            {
-                                FirstName = "One",
-                                LastName = "Unicorn"
-                            }).Entity;
+                    var blog = context.Add(
+                        new FullNameBlog { FirstName = "One", LastName = "Unicorn" }).Entity;
 
-                        context.SaveChanges();
+                    context.SaveChanges();
 
-                        Assert.Equal("OneUnicorn", blog.FullName);
-                    }
-
-                    using (var context = new BlogContextComputedColumn(testStore.Name))
-                    {
-                        var blog = context.FullNameBlogs.Single();
-
-                        Assert.Equal("OneUnicorn", blog.FullName);
-
-                        blog.LastName = "Pegasus";
-
-                        context.SaveChanges();
-
-                        Assert.Equal("OnePegasus", blog.FullName);
-                    }
-
-                    using (var context = new BlogContextComputedColumn(testStore.Name))
-                    {
-                        var blog1 = context.Add(
-                            new FullNameBlog
-                            {
-                                FirstName = "Hank",
-                                LastName = "Unicorn"
-                            }).Entity;
-                        var blog2 = context.Add(
-                            new FullNameBlog
-                            {
-                                FirstName = "Jeff",
-                                LastName = "Unicorn"
-                            }).Entity;
-
-                        context.SaveChanges();
-
-                        Assert.Equal("HankUnicorn", blog1.FullName);
-                        Assert.Equal("JeffUnicorn", blog2.FullName);
-                    }
+                    Assert.Equal("OneUnicorn", blog.FullName);
                 }
-                finally
+
+                using (var context = new BlogContextComputedColumn(testStore.Name))
                 {
-                    using (var context = new BlogContextComputedColumn(testStore.Name))
-                    {
-                        context.Database.ExecuteSqlRaw("ALTER TABLE dbo.FullNameBlogs DROP COLUMN FullName;");
-                        context.Database.ExecuteSqlRaw("DROP FUNCTION [dbo].[GetFullName];");
-                    }
+                    var blog = context.FullNameBlogs.Single();
+
+                    Assert.Equal("OneUnicorn", blog.FullName);
+
+                    blog.LastName = "Pegasus";
+
+                    context.SaveChanges();
+
+                    Assert.Equal("OnePegasus", blog.FullName);
                 }
+
+                using (var context = new BlogContextComputedColumn(testStore.Name))
+                {
+                    var blog1 = context.Add(
+                        new FullNameBlog { FirstName = "Hank", LastName = "Unicorn" }).Entity;
+                    var blog2 = context.Add(
+                        new FullNameBlog { FirstName = "Jeff", LastName = "Unicorn" }).Entity;
+
+                    context.SaveChanges();
+
+                    Assert.Equal("HankUnicorn", blog1.FullName);
+                    Assert.Equal("JeffUnicorn", blog2.FullName);
+                }
+            }
+            finally
+            {
+                using var context = new BlogContextComputedColumn(testStore.Name);
+                context.Database.ExecuteSqlRaw("ALTER TABLE dbo.FullNameBlogs DROP COLUMN FullName;");
+                context.Database.ExecuteSqlRaw("DROP FUNCTION [dbo].[GetFullName];");
             }
         }
 
         [ConditionalFact]
         public void Insert_with_client_generated_GUID_key()
         {
-            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
+            using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+            Guid afterSave;
+            using (var context = new BlogContextClientGuidKey(testStore.Name))
             {
-                Guid afterSave;
-                using (var context = new BlogContextClientGuidKey(testStore.Name))
-                {
-                    context.Database.EnsureCreatedResiliently();
+                context.Database.EnsureCreatedResiliently();
 
-                    var blog = context.Add(
-                        new GuidBlog
-                        {
-                            Name = "One Unicorn"
-                        }).Entity;
+                var blog = context.Add(
+                    new GuidBlog { Name = "One Unicorn" }).Entity;
 
-                    var beforeSave = blog.Id;
-                    var beforeSaveNotId = blog.NotId;
+                var beforeSave = blog.Id;
+                var beforeSaveNotId = blog.NotId;
 
-                    Assert.NotEqual(default, beforeSave);
-                    Assert.NotEqual(default, beforeSaveNotId);
+                Assert.NotEqual(default, beforeSave);
+                Assert.NotEqual(default, beforeSaveNotId);
 
-                    context.SaveChanges();
+                context.SaveChanges();
 
-                    afterSave = blog.Id;
-                    var afterSaveNotId = blog.NotId;
+                afterSave = blog.Id;
+                var afterSaveNotId = blog.NotId;
 
-                    Assert.Equal(beforeSave, afterSave);
-                    Assert.Equal(beforeSaveNotId, afterSaveNotId);
-                }
+                Assert.Equal(beforeSave, afterSave);
+                Assert.Equal(beforeSaveNotId, afterSaveNotId);
+            }
 
-                using (var context = new BlogContextClientGuidKey(testStore.Name))
-                {
-                    Assert.Equal(afterSave, context.GuidBlogs.Single().Id);
-                }
+            using (var context = new BlogContextClientGuidKey(testStore.Name))
+            {
+                Assert.Equal(afterSave, context.GuidBlogs.Single().Id);
             }
         }
 
@@ -827,24 +707,17 @@ END");
         [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
         public void Insert_with_ValueGeneratedOnAdd_GUID_nonkey_property_throws()
         {
-            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
-            {
-                using (var context = new BlogContextClientGuidNonKey(testStore.Name))
-                {
-                    context.Database.EnsureCreatedResiliently();
+            using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+            using var context = new BlogContextClientGuidNonKey(testStore.Name);
+            context.Database.EnsureCreatedResiliently();
 
-                    var blog = context.Add(
-                        new GuidBlog
-                        {
-                            Name = "One Unicorn"
-                        }).Entity;
+            var blog = context.Add(
+                new GuidBlog { Name = "One Unicorn" }).Entity;
 
-                    Assert.Equal(default, blog.NotId);
+            Assert.Equal(default, blog.NotId);
 
-                    // No value set on a required column
-                    Assert.Throws<DbUpdateException>(() => context.SaveChanges());
-                }
-            }
+            // No value set on a required column
+            Assert.Throws<DbUpdateException>(() => context.SaveChanges());
         }
 
         public class BlogContextClientGuidNonKey : ContextBase
@@ -861,40 +734,35 @@ END");
         [ConditionalFact]
         public void Insert_with_server_generated_GUID_key()
         {
-            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
+            using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+            Guid afterSave;
+            using (var context = new BlogContextServerGuidKey(testStore.Name))
             {
-                Guid afterSave;
-                using (var context = new BlogContextServerGuidKey(testStore.Name))
-                {
-                    context.Database.EnsureCreatedResiliently();
+                context.Database.EnsureCreatedResiliently();
 
-                    var blog = context.Add(
-                        new GuidBlog
-                        {
-                            Name = "One Unicorn"
-                        }).Entity;
+                var blog = context.Add(
+                    new GuidBlog { Name = "One Unicorn" }).Entity;
 
-                    var beforeSave = blog.Id;
-                    var beforeSaveNotId = blog.NotId;
+                var beforeSave = blog.Id;
+                var beforeSaveNotId = blog.NotId;
 
-                    Assert.Equal(default, beforeSave);
-                    Assert.Equal(default, beforeSaveNotId);
+                Assert.Equal(default, beforeSave);
+                Assert.Equal(default, beforeSaveNotId);
 
-                    context.SaveChanges();
+                context.SaveChanges();
 
-                    afterSave = blog.Id;
-                    var afterSaveNotId = blog.NotId;
+                afterSave = blog.Id;
+                var afterSaveNotId = blog.NotId;
 
-                    Assert.NotEqual(default, afterSave);
-                    Assert.NotEqual(default, afterSaveNotId);
-                    Assert.NotEqual(beforeSave, afterSave);
-                    Assert.NotEqual(beforeSaveNotId, afterSaveNotId);
-                }
+                Assert.NotEqual(default, afterSave);
+                Assert.NotEqual(default, afterSaveNotId);
+                Assert.NotEqual(beforeSave, afterSave);
+                Assert.NotEqual(beforeSaveNotId, afterSaveNotId);
+            }
 
-                using (var context = new BlogContextServerGuidKey(testStore.Name))
-                {
-                    Assert.Equal(afterSave, context.GuidBlogs.Single().Id);
-                }
+            using (var context = new BlogContextServerGuidKey(testStore.Name))
+            {
+                Assert.Equal(afterSave, context.GuidBlogs.Single().Id);
             }
         }
 
@@ -923,61 +791,37 @@ END");
         [ConditionalFact]
         public void Insert_with_explicit_non_default_keys_by_default()
         {
-            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
-            {
-                using (var context = new BlogContext(testStore.Name))
-                {
-                    context.Database.EnsureCreatedResiliently();
+            using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+            using var context = new BlogContext(testStore.Name);
+            context.Database.EnsureCreatedResiliently();
 
-                    context.AddRange(
-                        new Blog
-                        {
-                            Id = 1,
-                            Name = "One Unicorn"
-                        }, new Blog
-                        {
-                            Id = 2,
-                            Name = "Two Unicorns"
-                        });
+            context.AddRange(
+                new Blog { Id = 1, Name = "One Unicorn" }, new Blog { Id = 2, Name = "Two Unicorns" });
 
-                    // DbUpdateException : An error occurred while updating the entries. See the
-                    // inner exception for details.
-                    // SqlException : Cannot insert explicit value for identity column in table
-                    // 'Blog' when IDENTITY_INSERT is set to OFF.
-                    context.Database.CreateExecutionStrategy().Execute(
-                        context, c =>
-                            Assert.Throws<DbUpdateException>(() => c.SaveChanges()));
-                }
-            }
+            // DbUpdateException : An error occurred while updating the entries. See the
+            // inner exception for details.
+            // SqlException : Cannot insert explicit value for identity column in table
+            // 'Blog' when IDENTITY_INSERT is set to OFF.
+            context.Database.CreateExecutionStrategy().Execute(
+                context, c =>
+                    Assert.Throws<DbUpdateException>(() => c.SaveChanges()));
         }
 
         [ConditionalFact]
         public void Insert_with_explicit_default_keys()
         {
-            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
-            {
-                using (var context = new BlogContext(testStore.Name))
-                {
-                    context.Database.EnsureCreatedResiliently();
+            using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+            using var context = new BlogContext(testStore.Name);
+            context.Database.EnsureCreatedResiliently();
 
-                    context.AddRange(
-                        new Blog
-                        {
-                            Id = 0,
-                            Name = "One Unicorn"
-                        }, new Blog
-                        {
-                            Id = 1,
-                            Name = "Two Unicorns"
-                        });
+            context.AddRange(
+                new Blog { Id = 0, Name = "One Unicorn" }, new Blog { Id = 1, Name = "Two Unicorns" });
 
-                    // DbUpdateException : An error occurred while updating the entries. See the
-                    // inner exception for details.
-                    // SqlException : Cannot insert explicit value for identity column in table
-                    // 'Blog' when IDENTITY_INSERT is set to OFF.
-                    Assert.Throws<DbUpdateException>(() => context.SaveChanges());
-                }
-            }
+            // DbUpdateException : An error occurred while updating the entries. See the
+            // inner exception for details.
+            // SqlException : Cannot insert explicit value for identity column in table
+            // 'Blog' when IDENTITY_INSERT is set to OFF.
+            Assert.Throws<DbUpdateException>(() => context.SaveChanges());
         }
 
         public class BlogContext : ContextBase
@@ -991,33 +835,23 @@ END");
         [ConditionalFact]
         public void Insert_with_implicit_default_keys()
         {
-            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
+            using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+            using (var context = new BlogContextSpecifyKeysUsingDefault(testStore.Name))
             {
-                using (var context = new BlogContextSpecifyKeysUsingDefault(testStore.Name))
-                {
-                    context.Database.EnsureCreatedResiliently();
+                context.Database.EnsureCreatedResiliently();
 
-                    context.AddRange(
-                        new Blog
-                        {
-                            Id = 0,
-                            Name = "One Unicorn"
-                        }, new Blog
-                        {
-                            Id = 1,
-                            Name = "Two Unicorns"
-                        });
+                context.AddRange(
+                    new Blog { Id = 0, Name = "One Unicorn" }, new Blog { Id = 1, Name = "Two Unicorns" });
 
-                    context.SaveChanges();
-                }
+                context.SaveChanges();
+            }
 
-                using (var context = new BlogContextSpecifyKeysUsingDefault(testStore.Name))
-                {
-                    var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
+            using (var context = new BlogContextSpecifyKeysUsingDefault(testStore.Name))
+            {
+                var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
-                    Assert.Equal(0, blogs[0].Id);
-                    Assert.Equal(1, blogs[1].Id);
-                }
+                Assert.Equal(0, blogs[0].Id);
+                Assert.Equal(1, blogs[1].Id);
             }
         }
 
@@ -1041,29 +875,18 @@ END");
         [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Insert_explicit_value_throws_when_readonly_sequence_before_save()
         {
-            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
-            {
-                using (var context = new BlogContextReadOnlySequenceKeyColumnWithDefaultValue(testStore.Name))
-                {
-                    context.Database.EnsureCreatedResiliently();
+            using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+            using var context = new BlogContextReadOnlySequenceKeyColumnWithDefaultValue(testStore.Name);
+            context.Database.EnsureCreatedResiliently();
 
-                    context.AddRange(
-                        new Blog
-                        {
-                            Id = 1,
-                            Name = "One Unicorn"
-                        }, new Blog
-                        {
-                            Name = "Two Unicorns"
-                        });
+            context.AddRange(
+                new Blog { Id = 1, Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
-                    // The property 'Id' on entity type 'Blog' is defined to be read-only before it is
-                    // saved, but its value has been set to something other than a temporary or default value.
-                    Assert.Equal(
-                        CoreStrings.PropertyReadOnlyBeforeSave("Id", "Blog"),
-                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-                }
-            }
+            // The property 'Id' on entity type 'Blog' is defined to be read-only before it is
+            // saved, but its value has been set to something other than a temporary or default value.
+            Assert.Equal(
+                CoreStrings.PropertyReadOnlyBeforeSave("Id", "Blog"),
+                Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
         }
 
         public class BlogContextReadOnlySequenceKeyColumnWithDefaultValue : ContextBase
@@ -1088,136 +911,106 @@ END");
         [ConditionalFact]
         public void Insert_explicit_value_throws_when_readonly_before_save()
         {
-            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
-            {
-                using (var context = new BlogContextNonKeyReadOnlyDefaultValue(testStore.Name))
-                {
-                    context.Database.EnsureCreatedResiliently();
+            using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+            using var context = new BlogContextNonKeyReadOnlyDefaultValue(testStore.Name);
+            context.Database.EnsureCreatedResiliently();
 
-                    context.AddRange(
-                        new Blog
-                        {
-                            Name = "One Unicorn"
-                        },
-                        new Blog
-                        {
-                            Name = "Two Unicorns",
-                            CreatedOn = new DateTime(1969, 8, 3, 0, 10, 0)
-                        });
+            context.AddRange(
+                new Blog { Name = "One Unicorn" },
+                new Blog { Name = "Two Unicorns", CreatedOn = new DateTime(1969, 8, 3, 0, 10, 0) });
 
-                    // The property 'CreatedOn' on entity type 'Blog' is defined to be read-only before it is
-                    // saved, but its value has been set to something other than a temporary or default value.
-                    Assert.Equal(
-                        CoreStrings.PropertyReadOnlyBeforeSave("CreatedOn", "Blog"),
-                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-                }
-            }
+            // The property 'CreatedOn' on entity type 'Blog' is defined to be read-only before it is
+            // saved, but its value has been set to something other than a temporary or default value.
+            Assert.Equal(
+                CoreStrings.PropertyReadOnlyBeforeSave("CreatedOn", "Blog"),
+                Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
         }
 
         [ConditionalFact]
         public void Insert_explicit_value_into_computed_column()
         {
-            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
-            {
-                using (var context = new BlogContextComputedColumn(testStore.Name))
+            using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+            using var context = new BlogContextComputedColumn(testStore.Name);
+            context.Database.EnsureCreatedResiliently();
+
+            context.Add(
+                new FullNameBlog
                 {
-                    context.Database.EnsureCreatedResiliently();
+                    FirstName = "One",
+                    LastName = "Unicorn",
+                    FullName = "Gerald"
+                });
 
-                    context.Add(
-                        new FullNameBlog
-                        {
-                            FirstName = "One",
-                            LastName = "Unicorn",
-                            FullName = "Gerald"
-                        });
-
-                    // The property 'FullName' on entity type 'FullNameBlog' is defined to be read-only before it is
-                    // saved, but its value has been set to something other than a temporary or default value.
-                    Assert.Equal(
-                        CoreStrings.PropertyReadOnlyBeforeSave("FullName", "FullNameBlog"),
-                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-                }
-            }
+            // The property 'FullName' on entity type 'FullNameBlog' is defined to be read-only before it is
+            // saved, but its value has been set to something other than a temporary or default value.
+            Assert.Equal(
+                CoreStrings.PropertyReadOnlyBeforeSave("FullName", "FullNameBlog"),
+                Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
         }
 
         [ConditionalFact]
         public void Update_explicit_value_in_computed_column()
         {
-            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
+            using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+            using (var context = new BlogContextComputedColumn(testStore.Name))
             {
-                using (var context = new BlogContextComputedColumn(testStore.Name))
-                {
-                    context.Database.EnsureCreatedResiliently();
+                context.Database.EnsureCreatedResiliently();
 
-                    context.Add(
-                        new FullNameBlog
-                        {
-                            FirstName = "One",
-                            LastName = "Unicorn"
-                        });
+                context.Add(
+                    new FullNameBlog { FirstName = "One", LastName = "Unicorn" });
 
-                    context.SaveChanges();
-                }
+                context.SaveChanges();
+            }
 
-                using (var context = new BlogContextComputedColumn(testStore.Name))
-                {
-                    var blog = context.FullNameBlogs.Single();
+            using (var context = new BlogContextComputedColumn(testStore.Name))
+            {
+                var blog = context.FullNameBlogs.Single();
 
-                    blog.FullName = "The Gorilla";
+                blog.FullName = "The Gorilla";
 
-                    // The property 'FullName' on entity type 'FullNameBlog' is defined to be read-only after it has been saved,
-                    // but its value has been modified or marked as modified.
-                    Assert.Equal(
-                        CoreStrings.PropertyReadOnlyAfterSave("FullName", "FullNameBlog"),
-                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-                }
+                // The property 'FullName' on entity type 'FullNameBlog' is defined to be read-only after it has been saved,
+                // but its value has been modified or marked as modified.
+                Assert.Equal(
+                    CoreStrings.PropertyReadOnlyAfterSave("FullName", "FullNameBlog"),
+                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
             }
         }
 
         // Concurrency
         [ConditionalFact]
-        public void Resolve_concurreny()
+        public void Resolve_concurrency()
         {
-            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
+            using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+            using var context = new BlogContextConcurrencyWithRowversion(testStore.Name);
+            context.Database.EnsureCreatedResiliently();
+
+            var blog = context.Add(
+                new ConcurrentBlog { Name = "One Unicorn" }).Entity;
+
+            context.SaveChanges();
+
+            using var innerContext = new BlogContextConcurrencyWithRowversion(testStore.Name);
+            var updatedBlog = innerContext.ConcurrentBlogs.Single();
+            updatedBlog.Name = "One Pegasus";
+            innerContext.SaveChanges();
+            var currentTimestamp = updatedBlog.Timestamp.ToArray();
+
+            try
             {
-                using (var context = new BlogContextConcurrencyWithRowversion(testStore.Name))
-                {
-                    context.Database.EnsureCreatedResiliently();
+                blog.Name = "One Earth Pony";
+                context.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                // Update original values (and optionally any current values)
+                // Would normally do this with just one method call
+                context.Entry(blog).Property(e => e.Id).OriginalValue = updatedBlog.Id;
+                context.Entry(blog).Property(e => e.Name).OriginalValue = updatedBlog.Name;
+                context.Entry(blog).Property(e => e.Timestamp).OriginalValue = updatedBlog.Timestamp;
 
-                    var blog = context.Add(
-                        new ConcurrentBlog
-                        {
-                            Name = "One Unicorn"
-                        }).Entity;
+                context.SaveChanges();
 
-                    context.SaveChanges();
-
-                    using (var innerContext = new BlogContextConcurrencyWithRowversion(testStore.Name))
-                    {
-                        var updatedBlog = innerContext.ConcurrentBlogs.Single();
-                        updatedBlog.Name = "One Pegasus";
-                        innerContext.SaveChanges();
-                        var currentTimestamp = updatedBlog.Timestamp.ToArray();
-
-                        try
-                        {
-                            blog.Name = "One Earth Pony";
-                            context.SaveChanges();
-                        }
-                        catch (DbUpdateConcurrencyException)
-                        {
-                            // Update origianal values (and optionally any current values)
-                            // Would normally do this with just one method call
-                            context.Entry(blog).Property(e => e.Id).OriginalValue = updatedBlog.Id;
-                            context.Entry(blog).Property(e => e.Name).OriginalValue = updatedBlog.Name;
-                            context.Entry(blog).Property(e => e.Timestamp).OriginalValue = updatedBlog.Timestamp;
-
-                            context.SaveChanges();
-
-                            Assert.NotEqual(blog.Timestamp, currentTimestamp);
-                        }
-                    }
-                }
+                Assert.NotEqual(blog.Timestamp, currentTimestamp);
             }
         }
 

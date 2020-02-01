@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -40,6 +41,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the base type of this entity type. Returns <c>null</c> if this is not a derived type in an inheritance hierarchy.
         /// </summary>
         new IConventionEntityType BaseType { get; }
+
+        /// <summary>
+        ///     Gets the defining entity type.
+        /// </summary>
+        new IConventionEntityType DefiningEntityType { get; }
 
         /// <summary>
         ///     Gets a value indicating whether the entity type has no keys.
@@ -163,6 +169,83 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         void RemoveForeignKey([NotNull] IConventionForeignKey foreignKey);
 
         /// <summary>
+        ///     Adds a new skip navigation properties to this entity type.
+        /// </summary>
+        /// <param name="name"> The name of the skip navigation property to add. </param>
+        /// <param name="memberInfo">
+        ///     <para>
+        ///         The corresponding CLR type member or <c>null</c> for a shadow property.
+        ///     </para>
+        ///     <para>
+        ///         An indexer with a <c>string</c> parameter and <c>object</c> return type can be used.
+        ///     </para>
+        /// </param>
+        /// <param name="targetEntityType"> The entity type that the skip navigation property will hold an instance(s) of.</param>
+        /// <param name="collection"> Whether the navigation property is a collection property. </param>
+        /// <param name="onDependent">
+        ///     Whether the navigation property is defined on the dependent side of the underlying foreign key.
+        /// </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The newly created skip navigation property. </returns>
+        IConventionSkipNavigation AddSkipNavigation(
+            [NotNull] string name,
+            [CanBeNull] MemberInfo memberInfo,
+            [NotNull] IConventionEntityType targetEntityType,
+            bool collection,
+            bool onDependent,
+            bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Gets a skip navigation property on this entity type. Returns <c>null</c> if no navigation property is found.
+        /// </summary>
+        /// <param name="memberInfo"> The navigation property on the entity class. </param>
+        /// <returns> The navigation property, or <c>null</c> if none is found. </returns>
+        new IConventionSkipNavigation FindSkipNavigation([NotNull] MemberInfo memberInfo)
+            => (IConventionSkipNavigation)((IEntityType)this).FindSkipNavigation(memberInfo);
+
+        /// <summary>
+        ///     Gets a skip navigation property on this entity type. Returns <c>null</c> if no skip navigation property is found.
+        /// </summary>
+        /// <param name="name"> The name of the navigation property on the entity class. </param>
+        /// <returns> The navigation property, or <c>null</c> if none is found. </returns>
+        new IConventionSkipNavigation FindSkipNavigation([NotNull] string name);
+
+        /// <summary>
+        ///     Gets a skip navigation property on this entity type. Does not return skip navigation properties defined on a base type.
+        ///     Returns <c>null</c> if no skip navigation property is found.
+        /// </summary>
+        /// <param name="name"> The name of the navigation property on the entity class. </param>
+        /// <returns> The navigation property, or <c>null</c> if none is found. </returns>
+        new IConventionSkipNavigation FindDeclaredSkipNavigation([NotNull] string name)
+            => (IConventionSkipNavigation)((IEntityType)this).FindDeclaredSkipNavigation(name);
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all skip navigation properties declared on this entity type.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return skip navigation properties declared declared on base types.
+        ///         It is useful when iterating over all entity types to avoid processing the same foreign key more than once.
+        ///         Use <see cref="GetSkipNavigations" /> to also return skip navigation properties declared on base types.
+        ///     </para>
+        /// </summary>
+        /// <returns> Declared foreign keys. </returns>
+        new IEnumerable<IConventionSkipNavigation> GetDeclaredSkipNavigations()
+            => ((IEntityType)this).GetDeclaredSkipNavigations().Cast<IConventionSkipNavigation>();
+
+        /// <summary>
+        ///     Gets all skip navigation properties on this entity type.
+        /// </summary>
+        /// <returns> All skip navigation properties on this entity type. </returns>
+        new IEnumerable<IConventionSkipNavigation> GetSkipNavigations();
+
+        /// <summary>
+        ///     Removes a skip navigation property from this entity type.
+        /// </summary>
+        /// <param name="navigation"> The skip navigation to be removed. </param>
+        void RemoveSkipNavigation([NotNull] IConventionSkipNavigation navigation);
+
+        /// <summary>
         ///     Adds an index to this entity type.
         /// </summary>
         /// <param name="properties"> The properties that are to be indexed. </param>
@@ -197,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="memberInfo">
         ///     <para>
         ///         The corresponding CLR type member or <c>null</c> for a shadow property.
-        ///     </para> 
+        ///     </para>
         ///     <para>
         ///         An indexer with a <c>string</c> parameter and <c>object</c> return type can be used.
         ///     </para>

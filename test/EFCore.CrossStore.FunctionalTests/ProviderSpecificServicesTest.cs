@@ -21,33 +21,29 @@ namespace Microsoft.EntityFrameworkCore
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
 
-            using (var context = new ConstructorTestContext1A(options))
-            {
-                Assert.Equal(
-                    RelationalStrings.RelationalNotInUse,
-                    Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
-            }
+            using var context = new ConstructorTestContext1A(options);
+            Assert.Equal(
+                RelationalStrings.RelationalNotInUse,
+                Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
         }
 
         [ConditionalFact]
         public void Throws_with_add_when_non_relational_provider_in_use()
         {
-            var appServiceProivder = new ServiceCollection()
+            var appServiceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<ConstructorTestContext1A>(
                     (p, b) => b.UseInMemoryDatabase(Guid.NewGuid().ToString()).UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
-            using (var serviceScope = appServiceProivder
+            using var serviceScope = appServiceProvider
                 .GetRequiredService<IServiceScopeFactory>()
-                .CreateScope())
-            {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+                .CreateScope();
+            var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
 
-                Assert.Equal(
-                    RelationalStrings.RelationalNotInUse,
-                    Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
-            }
+            Assert.Equal(
+                RelationalStrings.RelationalNotInUse,
+                Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
         }
 
         private class ConstructorTestContext1A : DbContext

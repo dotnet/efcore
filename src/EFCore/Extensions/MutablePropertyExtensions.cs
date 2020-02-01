@@ -57,18 +57,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The primary that use this property, or <c>null</c> if it is not part of the primary key.
         /// </returns>
-        [Obsolete("Use FindContainingPrimaryKey()")]
-        public static IMutableKey GetContainingPrimaryKey([NotNull] this IMutableProperty property)
-            => property.FindContainingPrimaryKey();
-
-        /// <summary>
-        ///     Gets the primary key that uses this property (including a composite primary key in which this property
-        ///     is included).
-        /// </summary>
-        /// <param name="property"> The property to get primary key for. </param>
-        /// <returns>
-        ///     The primary that use this property, or <c>null</c> if it is not part of the primary key.
-        /// </returns>
         public static IMutableKey FindContainingPrimaryKey([NotNull] this IMutableProperty property)
             => (IMutableKey)((IProperty)property).FindContainingPrimaryKey();
 
@@ -201,7 +189,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="comparer"> The comparer, or <c>null</c> to remove any previously set comparer. </param>
+        [Obsolete("Use SetKeyValueComparer. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
         public static void SetStructuralValueComparer([NotNull] this IMutableProperty property, [CanBeNull] ValueComparer comparer)
-            => property.AsProperty().SetStructuralValueComparer(comparer, ConfigurationSource.Explicit);
+            => property.SetKeyValueComparer(comparer);
     }
 }

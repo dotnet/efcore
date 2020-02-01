@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotEmpty(databaseName, nameof(databaseName));
 
             var extension = optionsBuilder.Options.FindExtension<InMemoryOptionsExtension>()
-                            ?? new InMemoryOptionsExtension();
+                ?? new InMemoryOptionsExtension();
 
             extension = extension.WithStoreName(databaseName);
 
@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore
             // Set warnings defaults
             var coreOptionsExtension
                 = optionsBuilder.Options.FindExtension<CoreOptionsExtension>()
-                  ?? new CoreOptionsExtension();
+                ?? new CoreOptionsExtension();
 
             coreOptionsExtension = coreOptionsExtension.WithWarningsConfiguration(
                 coreOptionsExtension.WarningsConfiguration.TryWithExplicit(

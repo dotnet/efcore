@@ -66,12 +66,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IEntityType GetRootType()
             => EntityTypes.SingleOrDefault(
                 t => t.BaseType == null
-                     && t.FindForeignKeys(t.FindDeclaredPrimaryKey().Properties)
-                         .All(
-                             fk => !fk.PrincipalKey.IsPrimaryKey()
-                                   || fk.PrincipalEntityType.RootType() == t
-                                   || t.GetTableName() != fk.PrincipalEntityType.GetTableName()
-                                   || t.GetSchema() != fk.PrincipalEntityType.GetSchema()));
+                    && (t.FindDeclaredPrimaryKey() == null
+                        || t.FindForeignKeys(t.FindDeclaredPrimaryKey().Properties)
+                            .All(
+                                fk => !fk.PrincipalKey.IsPrimaryKey()
+                                    || fk.PrincipalEntityType.GetRootType() == t
+                                    || t.GetTableName() != fk.PrincipalEntityType.GetTableName()
+                                    || t.GetSchema() != fk.PrincipalEntityType.GetSchema())));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -93,7 +94,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             foreach (var property in EntityTypes.SelectMany(EntityFrameworkCore.EntityTypeExtensions.GetDeclaredProperties))
             {
                 var columnName = property.GetColumnName();
-                if (!dictionary.ContainsKey(columnName))
+                if (!dictionary.TryGetValue(columnName, out var otherProperty)
+                    || (otherProperty.IsColumnNullable() && !property.IsColumnNullable()))
                 {
                     dictionary[columnName] = property;
                 }
@@ -133,8 +135,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 .Distinct((x, y) => x.GetConstraintName() == y.GetConstraintName())
                 .Where(
                     fk => !(EntityTypes.Contains(fk.PrincipalEntityType)
-                            && fk.Properties.Select(p => p.GetColumnName())
-                                .SequenceEqual(fk.PrincipalKey.Properties.Select(p => p.GetColumnName()))));
+                        && fk.Properties.Select(p => p.GetColumnName())
+                            .SequenceEqual(fk.PrincipalKey.Properties.Select(p => p.GetColumnName()))));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -155,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static IReadOnlyList<TableMapping> GetTableMappings([NotNull] IModel model)
         {
             var tables = new Dictionary<(string Schema, string TableName), List<IEntityType>>();
-            foreach (var entityType in model.GetEntityTypes().Where(et => et.FindPrimaryKey() != null))
+            foreach (var entityType in model.GetEntityTypes().Where(et => !et.IsIgnoredByMigrations()))
             {
                 var fullName = (entityType.GetSchema(), entityType.GetTableName());
                 if (!tables.TryGetValue(fullName, out var mappedEntityTypes))
@@ -194,5 +196,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ? new TableMapping(schema, table, mappedEntities)
                 : null;
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual string GetComment()
+            => EntityTypes.Select(e => e.GetComment()).FirstOrDefault(c => c != null);
     }
 }

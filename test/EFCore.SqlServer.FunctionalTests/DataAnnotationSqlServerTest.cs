@@ -39,7 +39,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(
                 CoreStrings.WarningAsErrorTemplate(
                     RelationalEventId.ModelValidationKeyDefaultValueWarning,
-                    RelationalResources.LogKeyHasDefaultValue(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(nameof(Login1.UserName), nameof(Login1)),
+                    RelationalResources.LogKeyHasDefaultValue(new TestLogger<SqlServerLoggingDefinitions>())
+                        .GenerateMessage(nameof(Login1.UserName), nameof(Login1)),
                     "RelationalEventId.ModelValidationKeyDefaultValueWarning"),
                 Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
 
@@ -85,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var property = GetProperty<ColumnKeyAnnotationClass2>(modelBuilder, "PersonFirstName");
 
-            var storeType = property.FindRelationalMapping().StoreType;
+            var storeType = property.GetRelationalTypeMapping().StoreType;
 
             Assert.Equal("nvarchar(64)", storeType);
 
@@ -98,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var property = GetProperty<TimestampAndMaxlen>(modelBuilder, "MaxTimestamp");
 
-            var storeType = property.FindRelationalMapping().StoreType;
+            var storeType = property.GetRelationalTypeMapping().StoreType;
 
             Assert.Equal("rowversion", storeType);
 
@@ -119,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = base.DatabaseGeneratedOption_configures_the_property_correctly();
 
             var identity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntity)).FindProperty(nameof(GeneratedEntity.Identity));
-            Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, identity.GetSqlServerValueGenerationStrategy());
+            Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, identity.GetValueGenerationStrategy());
 
             return modelBuilder;
         }
@@ -131,13 +132,13 @@ namespace Microsoft.EntityFrameworkCore
             var entity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntityNonInteger));
 
             var stringProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.String));
-            Assert.Equal(SqlServerValueGenerationStrategy.None, stringProperty.GetSqlServerValueGenerationStrategy());
+            Assert.Equal(SqlServerValueGenerationStrategy.None, stringProperty.GetValueGenerationStrategy());
 
             var dateTimeProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.DateTime));
-            Assert.Equal(SqlServerValueGenerationStrategy.None, dateTimeProperty.GetSqlServerValueGenerationStrategy());
+            Assert.Equal(SqlServerValueGenerationStrategy.None, dateTimeProperty.GetValueGenerationStrategy());
 
             var guidProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.Guid));
-            Assert.Equal(SqlServerValueGenerationStrategy.None, guidProperty.GetSqlServerValueGenerationStrategy());
+            Assert.Equal(SqlServerValueGenerationStrategy.None, guidProperty.GetValueGenerationStrategy());
 
             return modelBuilder;
         }
@@ -146,36 +147,40 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
 
-            Assert.Equal(
-                @"SELECT TOP(1) [r].[UniqueNo], [r].[MaxLengthProperty], [r].[Name], [r].[RowVersion], [t].[UniqueNo], [t].[Details_Name], [t0].[UniqueNo], [t0].[AdditionalDetails_Name]
-FROM [Sample] AS [r]
+            AssertSql(
+                @"SELECT TOP(1) [s].[UniqueNo], [s].[MaxLengthProperty], [s].[Name], [s].[RowVersion], [t].[UniqueNo], [t].[AdditionalDetails_Name], [t0].[UniqueNo], [t0].[Details_Name]
+FROM [Sample] AS [s]
 LEFT JOIN (
-    SELECT [r.Details].*
-    FROM [Sample] AS [r.Details]
-    WHERE [r.Details].[Details_Name] IS NOT NULL
-) AS [t] ON [r].[UniqueNo] = [t].[UniqueNo]
+    SELECT [s0].[UniqueNo], [s0].[AdditionalDetails_Name], [s1].[UniqueNo] AS [UniqueNo0]
+    FROM [Sample] AS [s0]
+    INNER JOIN [Sample] AS [s1] ON [s0].[UniqueNo] = [s1].[UniqueNo]
+    WHERE [s0].[AdditionalDetails_Name] IS NOT NULL
+) AS [t] ON [s].[UniqueNo] = [t].[UniqueNo]
 LEFT JOIN (
-    SELECT [r.AdditionalDetails].*
-    FROM [Sample] AS [r.AdditionalDetails]
-    WHERE [r.AdditionalDetails].[AdditionalDetails_Name] IS NOT NULL
-) AS [t0] ON [r].[UniqueNo] = [t0].[UniqueNo]
-WHERE [r].[UniqueNo] = 1
-
-SELECT TOP(1) [r].[UniqueNo], [r].[MaxLengthProperty], [r].[Name], [r].[RowVersion], [t].[UniqueNo], [t].[Details_Name], [t0].[UniqueNo], [t0].[AdditionalDetails_Name]
-FROM [Sample] AS [r]
+    SELECT [s2].[UniqueNo], [s2].[Details_Name], [s3].[UniqueNo] AS [UniqueNo0]
+    FROM [Sample] AS [s2]
+    INNER JOIN [Sample] AS [s3] ON [s2].[UniqueNo] = [s3].[UniqueNo]
+    WHERE [s2].[Details_Name] IS NOT NULL
+) AS [t0] ON [s].[UniqueNo] = [t0].[UniqueNo]
+WHERE [s].[UniqueNo] = 1",
+                //
+                @"SELECT TOP(1) [s].[UniqueNo], [s].[MaxLengthProperty], [s].[Name], [s].[RowVersion], [t].[UniqueNo], [t].[AdditionalDetails_Name], [t0].[UniqueNo], [t0].[Details_Name]
+FROM [Sample] AS [s]
 LEFT JOIN (
-    SELECT [r.Details].*
-    FROM [Sample] AS [r.Details]
-    WHERE [r.Details].[Details_Name] IS NOT NULL
-) AS [t] ON [r].[UniqueNo] = [t].[UniqueNo]
+    SELECT [s0].[UniqueNo], [s0].[AdditionalDetails_Name], [s1].[UniqueNo] AS [UniqueNo0]
+    FROM [Sample] AS [s0]
+    INNER JOIN [Sample] AS [s1] ON [s0].[UniqueNo] = [s1].[UniqueNo]
+    WHERE [s0].[AdditionalDetails_Name] IS NOT NULL
+) AS [t] ON [s].[UniqueNo] = [t].[UniqueNo]
 LEFT JOIN (
-    SELECT [r.AdditionalDetails].*
-    FROM [Sample] AS [r.AdditionalDetails]
-    WHERE [r.AdditionalDetails].[AdditionalDetails_Name] IS NOT NULL
-) AS [t0] ON [r].[UniqueNo] = [t0].[UniqueNo]
-WHERE [r].[UniqueNo] = 1
-
-@p2='1'
+    SELECT [s2].[UniqueNo], [s2].[Details_Name], [s3].[UniqueNo] AS [UniqueNo0]
+    FROM [Sample] AS [s2]
+    INNER JOIN [Sample] AS [s3] ON [s2].[UniqueNo] = [s3].[UniqueNo]
+    WHERE [s2].[Details_Name] IS NOT NULL
+) AS [t0] ON [s].[UniqueNo] = [t0].[UniqueNo]
+WHERE [s].[UniqueNo] = 1",
+                //
+                @"@p2='1'
 @p0='ModifiedData' (Nullable = false) (Size = 4000)
 @p1='00000000-0000-0000-0003-000000000001'
 @p3='00000001-0000-0000-0000-000000000001'
@@ -183,9 +188,9 @@ WHERE [r].[UniqueNo] = 1
 SET NOCOUNT ON;
 UPDATE [Sample] SET [Name] = @p0, [RowVersion] = @p1
 WHERE [UniqueNo] = @p2 AND [RowVersion] = @p3;
-SELECT @@ROWCOUNT;
-
-@p2='1'
+SELECT @@ROWCOUNT;",
+                //
+                @"@p2='1'
 @p0='ChangedData' (Nullable = false) (Size = 4000)
 @p1='00000000-0000-0000-0002-000000000001'
 @p3='00000001-0000-0000-0000-000000000001'
@@ -193,17 +198,15 @@ SELECT @@ROWCOUNT;
 SET NOCOUNT ON;
 UPDATE [Sample] SET [Name] = @p0, [RowVersion] = @p1
 WHERE [UniqueNo] = @p2 AND [RowVersion] = @p3;
-SELECT @@ROWCOUNT;",
-                Sql,
-                ignoreLineEndingDifferences: true);
+SELECT @@ROWCOUNT;");
         }
 
         public override void DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity()
         {
             base.DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity();
 
-            Assert.Equal(
-                @"@p0='' (Size = 10)
+            AssertSql(
+                @"@p0=NULL (Size = 10)
 @p1='Third' (Nullable = false) (Size = 4000)
 @p2='00000000-0000-0000-0000-000000000003'
 @p3='Third Additional Name' (Size = 4000)
@@ -214,16 +217,14 @@ INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion], [AdditionalDeta
 VALUES (@p0, @p1, @p2, @p3, @p4);
 SELECT [UniqueNo]
 FROM [Sample]
-WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
-                Sql,
-                ignoreLineEndingDifferences: true);
+WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();");
         }
 
         public override void MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length()
         {
             base.MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length();
 
-            Assert.Equal(
+            AssertSql(
                 @"@p0='Short' (Size = 10)
 @p1='ValidString' (Nullable = false) (Size = 4000)
 @p2='00000000-0000-0000-0000-000000000001'
@@ -235,9 +236,9 @@ INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion], [AdditionalDeta
 VALUES (@p0, @p1, @p2, @p3, @p4);
 SELECT [UniqueNo]
 FROM [Sample]
-WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();
-
-@p0='VeryVeryVeryVeryVeryVeryLongString' (Size = -1)
+WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
+                //
+                @"@p0='VeryVeryVeryVeryVeryVeryLongString' (Size = 4000)
 @p1='ValidString' (Nullable = false) (Size = 4000)
 @p2='00000000-0000-0000-0000-000000000002'
 @p3='Third Additional Name' (Size = 4000)
@@ -248,30 +249,41 @@ INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion], [AdditionalDeta
 VALUES (@p0, @p1, @p2, @p3, @p4);
 SELECT [UniqueNo]
 FROM [Sample]
-WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
-                Sql,
-                ignoreLineEndingDifferences: true);
+WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();");
         }
 
         public override void RequiredAttribute_for_navigation_throws_while_inserting_null_value()
         {
             base.RequiredAttribute_for_navigation_throws_while_inserting_null_value();
 
-            Assert.Contains(
-                "@p1='1'" + _eol,
-                Sql);
+            AssertSql(
+                @"@p0=NULL (DbType = Int32)
+@p1='1'
 
-            Assert.Contains(
-                "@p1='' (Nullable = false) (DbType = Int32)" + _eol,
-                Sql);
+SET NOCOUNT ON;
+INSERT INTO [BookDetails] ([AdditionalBookDetailsId], [AnotherBookId])
+VALUES (@p0, @p1);
+SELECT [Id]
+FROM [BookDetails]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();",
+                //
+                @"@p0=NULL (DbType = Int32)
+@p1=NULL (Nullable = false) (DbType = Int32)
+
+SET NOCOUNT ON;
+INSERT INTO [BookDetails] ([AdditionalBookDetailsId], [AnotherBookId])
+VALUES (@p0, @p1);
+SELECT [Id]
+FROM [BookDetails]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
         }
 
         public override void RequiredAttribute_for_property_throws_while_inserting_null_value()
         {
             base.RequiredAttribute_for_property_throws_while_inserting_null_value();
 
-            Assert.Equal(
-                @"@p0='' (Size = 10)
+            AssertSql(
+                @"@p0=NULL (Size = 10)
 @p1='ValidString' (Nullable = false) (Size = 4000)
 @p2='00000000-0000-0000-0000-000000000001'
 @p3='Two' (Size = 4000)
@@ -282,10 +294,10 @@ INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion], [AdditionalDeta
 VALUES (@p0, @p1, @p2, @p3, @p4);
 SELECT [UniqueNo]
 FROM [Sample]
-WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();
-
-@p0='' (Size = 10)
-@p1='' (Nullable = false) (Size = 4000)
+WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
+                //
+                @"@p0=NULL (Size = 10)
+@p1=NULL (Nullable = false) (Size = 4000)
 @p2='00000000-0000-0000-0000-000000000002'
 @p3='Two' (Size = 4000)
 @p4='One' (Size = 4000)
@@ -295,16 +307,14 @@ INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion], [AdditionalDeta
 VALUES (@p0, @p1, @p2, @p3, @p4);
 SELECT [UniqueNo]
 FROM [Sample]
-WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
-                Sql,
-                ignoreLineEndingDifferences: true);
+WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();");
         }
 
         public override void StringLengthAttribute_throws_while_inserting_value_longer_than_max_length()
         {
             base.StringLengthAttribute_throws_while_inserting_value_longer_than_max_length();
 
-            Assert.Equal(
+            AssertSql(
                 @"@p0='ValidString' (Size = 16)
 
 SET NOCOUNT ON;
@@ -312,18 +322,16 @@ INSERT INTO [Two] ([Data])
 VALUES (@p0);
 SELECT [Id], [Timestamp]
 FROM [Two]
-WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();
-
-@p0='ValidButLongString' (Size = -1)
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();",
+                //
+                @"@p0='ValidButLongString' (Size = 4000)
 
 SET NOCOUNT ON;
 INSERT INTO [Two] ([Data])
 VALUES (@p0);
 SELECT [Id], [Timestamp]
 FROM [Two]
-WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();",
-                Sql,
-                ignoreLineEndingDifferences: true);
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
         }
 
         public override void TimestampAttribute_throws_if_value_in_database_changed()
@@ -336,7 +344,8 @@ WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();",
 
         private static readonly string _eol = Environment.NewLine;
 
-        private string Sql => Fixture.TestSqlLoggerFactory.Sql;
+        private void AssertSql(params string[] expected)
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
         public class DataAnnotationSqlServerFixture : DataAnnotationFixtureBase
         {

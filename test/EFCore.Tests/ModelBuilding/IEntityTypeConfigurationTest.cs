@@ -90,6 +90,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 builder.Property(c => c.Name).HasMaxLength(1000);
             }
         }
+
         protected class Order
         {
             public int OrderId { get; set; }

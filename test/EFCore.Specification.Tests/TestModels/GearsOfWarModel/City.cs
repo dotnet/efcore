@@ -8,34 +8,32 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
 {
     public class City
     {
-        public const string NationPropertyName = "Nation";
-        private string _nationProperty = "Undefined";
-
+        private string _nation;
         // non-integer key with not conventional name
         public string Name { get; set; }
 
         public string Location { get; set; }
 
-        public object this[string indexedPropertyName]
+        public object this[string name]
         {
             get
             {
-                if (!NationPropertyName.Equals(indexedPropertyName, StringComparison.Ordinal))
+                if (!string.Equals(name, "Nation", StringComparison.Ordinal))
                 {
-                    throw new Exception("Invalid attempt to get indexed property " + nameof(City) + "." + indexedPropertyName);
+                    throw new InvalidOperationException($"Indexed property with key {name} is not defined on {nameof(City)}.");
                 }
 
-                return _nationProperty;
+                return _nation;
             }
 
             set
             {
-                if (!NationPropertyName.Equals(indexedPropertyName, StringComparison.Ordinal))
+                if (!string.Equals(name, "Nation", StringComparison.Ordinal))
                 {
-                    throw new Exception("Invalid attempt to set indexed property " + nameof(City) + "." + indexedPropertyName);
+                    throw new InvalidOperationException($"Indexed property with key {name} is not defined on {nameof(City)}.");
                 }
 
-                _nationProperty = (string)value;
+                _nation = (string)value;
             }
         }
 

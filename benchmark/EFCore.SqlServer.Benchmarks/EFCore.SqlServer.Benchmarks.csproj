@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net461;netcoreapp2.0;netcoreapp2.1;netcoreapp2.2;netcoreapp3.0</TargetFrameworks>
-    <TargetFrameworks Condition=" '$(Configuration)' == 'Release' Or '$(Configuration)' == 'Debug' ">netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks>net461;netcoreapp2.0;netcoreapp2.1;netcoreapp2.2;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks Condition=" '$(Configuration)' == 'Release' Or '$(Configuration)' == 'Debug' ">netcoreapp3.1</TargetFrameworks>
     <RootNamespace>Microsoft.EntityFrameworkCore.Benchmarks</RootNamespace>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
@@ -15,15 +15,15 @@
     <ProjectReference Include="..\..\src\EFCore.SqlServer\EFCore.SqlServer.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(Configuration)' == 'Release22' ">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.1" />
+  <ItemGroup Condition=" '$(Configuration)' == 'Release22' Or '$(Configuration)' == 'Debug22' ">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.4" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(Configuration)' == 'Release21' ">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.1.4" />
+  <ItemGroup Condition=" '$(Configuration)' == 'Release21' Or '$(Configuration)' == 'Debug21' ">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.1.11" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(Configuration)' == 'Release20' ">
+  <ItemGroup Condition=" '$(Configuration)' == 'Release20' Or '$(Configuration)' == 'Debug20' ">
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.0.3" />
   </ItemGroup>
 
@@ -35,8 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\Shared\**\*.cs" Link="%(RecursiveDir)%(FileName)%(Extension)" />
-    <Compile Include="..\Shared.EFCore\**\*.cs" Link="%(RecursiveDir)%(FileName)%(Extension)" />
+    <ProjectReference Include="..\EFCore.Benchmarks\EFCore.Benchmarks.csproj" />
   </ItemGroup>
 
 </Project>

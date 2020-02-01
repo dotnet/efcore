@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
 {
-    public abstract class ComplexNavigationsData : IExpectedData
+    public abstract class ComplexNavigationsData : ISetSource
     {
         public IReadOnlyList<Level1> LevelOnes { get; }
         public IReadOnlyList<Level2> LevelTwos { get; }
@@ -260,56 +260,16 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
         {
             var result = new List<Level3>
             {
-                new Level3
-                {
-                    Id = 1,
-                    Name = "L3 01"
-                },
-                new Level3
-                {
-                    Id = 2,
-                    Name = "L3 02"
-                },
-                new Level3
-                {
-                    Id = 3,
-                    Name = "L3 03"
-                },
-                new Level3
-                {
-                    Id = 4,
-                    Name = "L3 04"
-                },
-                new Level3
-                {
-                    Id = 5,
-                    Name = "L3 05"
-                },
-                new Level3
-                {
-                    Id = 6,
-                    Name = "L3 06"
-                },
-                new Level3
-                {
-                    Id = 7,
-                    Name = "L3 07"
-                },
-                new Level3
-                {
-                    Id = 8,
-                    Name = "L3 08"
-                },
-                new Level3
-                {
-                    Id = 9,
-                    Name = "L3 09"
-                },
-                new Level3
-                {
-                    Id = 10,
-                    Name = "L3 10"
-                }
+                new Level3 { Id = 1, Name = "L3 01" },
+                new Level3 { Id = 2, Name = "L3 02" },
+                new Level3 { Id = 3, Name = "L3 03" },
+                new Level3 { Id = 4, Name = "L3 04" },
+                new Level3 { Id = 5, Name = "L3 05" },
+                new Level3 { Id = 6, Name = "L3 06" },
+                new Level3 { Id = 7, Name = "L3 07" },
+                new Level3 { Id = 8, Name = "L3 08" },
+                new Level3 { Id = 9, Name = "L3 09" },
+                new Level3 { Id = 10, Name = "L3 10" }
             };
 
             foreach (var l3 in result)
@@ -327,56 +287,16 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
         {
             var result = new List<Level4>
             {
-                new Level4
-                {
-                    Id = 1,
-                    Name = "L4 01"
-                },
-                new Level4
-                {
-                    Id = 2,
-                    Name = "L4 02"
-                },
-                new Level4
-                {
-                    Id = 3,
-                    Name = "L4 03"
-                },
-                new Level4
-                {
-                    Id = 4,
-                    Name = "L4 04"
-                },
-                new Level4
-                {
-                    Id = 5,
-                    Name = "L4 05"
-                },
-                new Level4
-                {
-                    Id = 6,
-                    Name = "L4 06"
-                },
-                new Level4
-                {
-                    Id = 7,
-                    Name = "L4 07"
-                },
-                new Level4
-                {
-                    Id = 8,
-                    Name = "L4 08"
-                },
-                new Level4
-                {
-                    Id = 9,
-                    Name = "L4 09"
-                },
-                new Level4
-                {
-                    Id = 10,
-                    Name = "L4 10"
-                }
+                new Level4 { Id = 1, Name = "L4 01" },
+                new Level4 { Id = 2, Name = "L4 02" },
+                new Level4 { Id = 3, Name = "L4 03" },
+                new Level4 { Id = 4, Name = "L4 04" },
+                new Level4 { Id = 5, Name = "L4 05" },
+                new Level4 { Id = 6, Name = "L4 06" },
+                new Level4 { Id = 7, Name = "L4 07" },
+                new Level4 { Id = 8, Name = "L4 08" },
+                new Level4 { Id = 9, Name = "L4 09" },
+                new Level4 { Id = 10, Name = "L4 10" }
             };
 
             foreach (var l4 in result)
@@ -392,21 +312,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
         {
             var result = new List<InheritanceBase1>
             {
-                new InheritanceDerived1
-                {
-                    Id = 1,
-                    Name = "ID1 01"
-                },
-                new InheritanceDerived1
-                {
-                    Id = 2,
-                    Name = "ID1 02"
-                },
-                new InheritanceDerived2
-                {
-                    Id = 3,
-                    Name = "ID2 01"
-                }
+                new InheritanceDerived1 { Id = 1, Name = "ID1 01" },
+                new InheritanceDerived1 { Id = 2, Name = "ID1 02" },
+                new InheritanceDerived2 { Id = 3, Name = "ID2 01" }
             };
 
             return result;
@@ -414,14 +322,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
 
         public static IReadOnlyList<InheritanceBase2> CreateInheritanceBaseTwos()
         {
-            var result = new List<InheritanceBase2>
-            {
-                new InheritanceBase2
-                {
-                    Id = 1,
-                    Name = "IB2 01"
-                }
-            };
+            var result = new List<InheritanceBase2> { new InheritanceBase2 { Id = 1, Name = "IB2 01" } };
 
             return result;
         }
@@ -430,21 +331,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
         {
             var result = new List<InheritanceLeaf1>
             {
-                new InheritanceLeaf1
-                {
-                    Id = 1,
-                    Name = "IL1 01"
-                },
-                new InheritanceLeaf1
-                {
-                    Id = 2,
-                    Name = "IL1 02"
-                },
-                new InheritanceLeaf1
-                {
-                    Id = 3,
-                    Name = "IL1 03"
-                }
+                new InheritanceLeaf1 { Id = 1, Name = "IL1 01" },
+                new InheritanceLeaf1 { Id = 2, Name = "IL1 02" },
+                new InheritanceLeaf1 { Id = 3, Name = "IL1 03" }
             };
 
             return result;
@@ -452,14 +341,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
 
         public static IReadOnlyList<InheritanceLeaf2> CreateInheritanceLeafTwos()
         {
-            var result = new List<InheritanceLeaf2>
-            {
-                new InheritanceLeaf2
-                {
-                    Id = 1,
-                    Name = "IL2 01"
-                }
-            };
+            var result = new List<InheritanceLeaf2> { new InheritanceLeaf2 { Id = 1, Name = "IL2 01" } };
 
             return result;
         }
@@ -471,11 +353,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
             IReadOnlyList<InheritanceLeaf2> il2s)
         {
             ib2s[0].Reference = ib1s[0];
-            ib2s[0].Collection = new List<InheritanceBase1>
-            {
-                ib1s[1],
-                ib1s[2]
-            };
+            ib2s[0].Collection = new List<InheritanceBase1> { ib1s[1], ib1s[2] };
 
             ((InheritanceDerived1)ib1s[0]).ReferenceSameType = il1s[0];
             ((InheritanceDerived1)ib1s[1]).ReferenceSameType = il1s[1];
@@ -485,40 +363,20 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
             ((InheritanceDerived1)ib1s[1]).ReferenceDifferentType = il1s[1];
             ((InheritanceDerived2)ib1s[2]).ReferenceDifferentType = il2s[0];
 
-            ((InheritanceDerived1)ib1s[0]).CollectionSameType = new List<InheritanceLeaf1>
-            {
-                il1s[0]
-            };
+            ((InheritanceDerived1)ib1s[0]).CollectionSameType = new List<InheritanceLeaf1> { il1s[0] };
             ((InheritanceDerived1)ib1s[1]).CollectionSameType = new List<InheritanceLeaf1>();
-            ((InheritanceDerived2)ib1s[2]).CollectionSameType = new List<InheritanceLeaf1>
-            {
-                il1s[1],
-                il1s[2]
-            };
+            ((InheritanceDerived2)ib1s[2]).CollectionSameType = new List<InheritanceLeaf1> { il1s[1], il1s[2] };
 
-            ((InheritanceDerived1)ib1s[0]).CollectionDifferentType = new List<InheritanceLeaf1>
-            {
-                il1s[0]
-            };
-            ((InheritanceDerived1)ib1s[1]).CollectionDifferentType = new List<InheritanceLeaf1>
-            {
-                il1s[1],
-                il1s[2]
-            };
-            ((InheritanceDerived2)ib1s[2]).CollectionDifferentType = new List<InheritanceLeaf2>
-            {
-                il2s[0]
-            };
+            ((InheritanceDerived1)ib1s[0]).CollectionDifferentType = new List<InheritanceLeaf1> { il1s[0] };
+            ((InheritanceDerived1)ib1s[1]).CollectionDifferentType = new List<InheritanceLeaf1> { il1s[1], il1s[2] };
+            ((InheritanceDerived2)ib1s[2]).CollectionDifferentType = new List<InheritanceLeaf2> { il2s[0] };
         }
 
         public static void WireUpInheritancePart2(
             IReadOnlyList<InheritanceBase2> ib2s,
             IReadOnlyList<InheritanceLeaf2> il2s)
         {
-            il2s[0].BaseCollection = new List<InheritanceBase2>
-            {
-                ib2s[0]
-            };
+            il2s[0].BaseCollection = new List<InheritanceBase2> { ib2s[0] };
         }
 
         public static void WireUpPart1(
@@ -587,60 +445,29 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
                 l1s[0].OneToMany_Required1.Add(l2s[10]);
             }
 
-            l1s[0].OneToMany_Required_Self1 = new List<Level1>
-            {
-                l1s[0],
-                l1s[1]
-            };
+            l1s[0].OneToMany_Required_Self1 = new List<Level1> { l1s[0], l1s[1] };
             if (!tableSplitting)
             {
                 l1s[0].OneToMany_Required_Self1.Add(l1s[11]);
             }
 
-            l1s[1].OneToMany_Required_Self1 = new List<Level1>
-            {
-                l1s[2]
-            };
+            l1s[1].OneToMany_Required_Self1 = new List<Level1> { l1s[2] };
             if (!tableSplitting)
             {
                 l1s[1].OneToMany_Required_Self1.Add(l1s[12]);
             }
 
-            l1s[2].OneToMany_Required_Self1 = new List<Level1>
-            {
-                l1s[3]
-            };
-            l1s[3].OneToMany_Required_Self1 = new List<Level1>
-            {
-                l1s[4]
-            };
-            l1s[4].OneToMany_Required_Self1 = new List<Level1>
-            {
-                l1s[5]
-            };
-            l1s[5].OneToMany_Required_Self1 = new List<Level1>
-            {
-                l1s[6]
-            };
-            l1s[6].OneToMany_Required_Self1 = new List<Level1>
-            {
-                l1s[7]
-            };
-            l1s[7].OneToMany_Required_Self1 = new List<Level1>
-            {
-                l1s[8]
-            };
-            l1s[8].OneToMany_Required_Self1 = new List<Level1>
-            {
-                l1s[9]
-            };
+            l1s[2].OneToMany_Required_Self1 = new List<Level1> { l1s[3] };
+            l1s[3].OneToMany_Required_Self1 = new List<Level1> { l1s[4] };
+            l1s[4].OneToMany_Required_Self1 = new List<Level1> { l1s[5] };
+            l1s[5].OneToMany_Required_Self1 = new List<Level1> { l1s[6] };
+            l1s[6].OneToMany_Required_Self1 = new List<Level1> { l1s[7] };
+            l1s[7].OneToMany_Required_Self1 = new List<Level1> { l1s[8] };
+            l1s[8].OneToMany_Required_Self1 = new List<Level1> { l1s[9] };
             l1s[9].OneToMany_Required_Self1 = new List<Level1>();
             if (!tableSplitting)
             {
-                l1s[10].OneToMany_Required_Self1 = new List<Level1>
-                {
-                    l1s[10]
-                };
+                l1s[10].OneToMany_Required_Self1 = new List<Level1> { l1s[10] };
                 l1s[11].OneToMany_Required_Self1 = new List<Level1>();
                 l1s[12].OneToMany_Required_Self1 = new List<Level1>();
             }
@@ -697,48 +524,20 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
                 l3s[9]
             };
 
-            l2s[0].OneToMany_Required_Self2 = new List<Level2>
-            {
-                l2s[0],
-                l2s[1]
-            };
+            l2s[0].OneToMany_Required_Self2 = new List<Level2> { l2s[0], l2s[1] };
             if (!tableSplitting)
             {
                 l2s[0].OneToMany_Required_Self2.Add(l2s[10]);
             }
 
-            l2s[1].OneToMany_Required_Self2 = new List<Level2>
-            {
-                l2s[2]
-            };
-            l2s[2].OneToMany_Required_Self2 = new List<Level2>
-            {
-                l2s[3]
-            };
-            l2s[3].OneToMany_Required_Self2 = new List<Level2>
-            {
-                l2s[4]
-            };
-            l2s[4].OneToMany_Required_Self2 = new List<Level2>
-            {
-                l2s[5]
-            };
-            l2s[5].OneToMany_Required_Self2 = new List<Level2>
-            {
-                l2s[6]
-            };
-            l2s[6].OneToMany_Required_Self2 = new List<Level2>
-            {
-                l2s[7]
-            };
-            l2s[7].OneToMany_Required_Self2 = new List<Level2>
-            {
-                l2s[8]
-            };
-            l2s[8].OneToMany_Required_Self2 = new List<Level2>
-            {
-                l2s[9]
-            };
+            l2s[1].OneToMany_Required_Self2 = new List<Level2> { l2s[2] };
+            l2s[2].OneToMany_Required_Self2 = new List<Level2> { l2s[3] };
+            l2s[3].OneToMany_Required_Self2 = new List<Level2> { l2s[4] };
+            l2s[4].OneToMany_Required_Self2 = new List<Level2> { l2s[5] };
+            l2s[5].OneToMany_Required_Self2 = new List<Level2> { l2s[6] };
+            l2s[6].OneToMany_Required_Self2 = new List<Level2> { l2s[7] };
+            l2s[7].OneToMany_Required_Self2 = new List<Level2> { l2s[8] };
+            l2s[8].OneToMany_Required_Self2 = new List<Level2> { l2s[9] };
             l2s[9].OneToMany_Required_Self2 = new List<Level2>();
             if (!tableSplitting)
             {
@@ -797,82 +596,26 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
                 l4s[9]
             };
 
-            l3s[0].OneToMany_Required_Self3 = new List<Level3>
-            {
-                l3s[0],
-                l3s[1]
-            };
-            l3s[1].OneToMany_Required_Self3 = new List<Level3>
-            {
-                l3s[2]
-            };
-            l3s[2].OneToMany_Required_Self3 = new List<Level3>
-            {
-                l3s[3]
-            };
-            l3s[3].OneToMany_Required_Self3 = new List<Level3>
-            {
-                l3s[4]
-            };
-            l3s[4].OneToMany_Required_Self3 = new List<Level3>
-            {
-                l3s[5]
-            };
-            l3s[5].OneToMany_Required_Self3 = new List<Level3>
-            {
-                l3s[6]
-            };
-            l3s[6].OneToMany_Required_Self3 = new List<Level3>
-            {
-                l3s[7]
-            };
-            l3s[7].OneToMany_Required_Self3 = new List<Level3>
-            {
-                l3s[8]
-            };
-            l3s[8].OneToMany_Required_Self3 = new List<Level3>
-            {
-                l3s[9]
-            };
+            l3s[0].OneToMany_Required_Self3 = new List<Level3> { l3s[0], l3s[1] };
+            l3s[1].OneToMany_Required_Self3 = new List<Level3> { l3s[2] };
+            l3s[2].OneToMany_Required_Self3 = new List<Level3> { l3s[3] };
+            l3s[3].OneToMany_Required_Self3 = new List<Level3> { l3s[4] };
+            l3s[4].OneToMany_Required_Self3 = new List<Level3> { l3s[5] };
+            l3s[5].OneToMany_Required_Self3 = new List<Level3> { l3s[6] };
+            l3s[6].OneToMany_Required_Self3 = new List<Level3> { l3s[7] };
+            l3s[7].OneToMany_Required_Self3 = new List<Level3> { l3s[8] };
+            l3s[8].OneToMany_Required_Self3 = new List<Level3> { l3s[9] };
             l3s[9].OneToMany_Required_Self3 = new List<Level3>();
 
-            l4s[0].OneToMany_Required_Self4 = new List<Level4>
-            {
-                l4s[0],
-                l4s[1]
-            };
-            l4s[1].OneToMany_Required_Self4 = new List<Level4>
-            {
-                l4s[2]
-            };
-            l4s[2].OneToMany_Required_Self4 = new List<Level4>
-            {
-                l4s[3]
-            };
-            l4s[3].OneToMany_Required_Self4 = new List<Level4>
-            {
-                l4s[4]
-            };
-            l4s[4].OneToMany_Required_Self4 = new List<Level4>
-            {
-                l4s[5]
-            };
-            l4s[5].OneToMany_Required_Self4 = new List<Level4>
-            {
-                l4s[6]
-            };
-            l4s[6].OneToMany_Required_Self4 = new List<Level4>
-            {
-                l4s[7]
-            };
-            l4s[7].OneToMany_Required_Self4 = new List<Level4>
-            {
-                l4s[8]
-            };
-            l4s[8].OneToMany_Required_Self4 = new List<Level4>
-            {
-                l4s[9]
-            };
+            l4s[0].OneToMany_Required_Self4 = new List<Level4> { l4s[0], l4s[1] };
+            l4s[1].OneToMany_Required_Self4 = new List<Level4> { l4s[2] };
+            l4s[2].OneToMany_Required_Self4 = new List<Level4> { l4s[3] };
+            l4s[3].OneToMany_Required_Self4 = new List<Level4> { l4s[4] };
+            l4s[4].OneToMany_Required_Self4 = new List<Level4> { l4s[5] };
+            l4s[5].OneToMany_Required_Self4 = new List<Level4> { l4s[6] };
+            l4s[6].OneToMany_Required_Self4 = new List<Level4> { l4s[7] };
+            l4s[7].OneToMany_Required_Self4 = new List<Level4> { l4s[8] };
+            l4s[8].OneToMany_Required_Self4 = new List<Level4> { l4s[9] };
             l4s[9].OneToMany_Required_Self4 = new List<Level4>();
         }
 
@@ -1184,26 +927,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
                 l2s[9]
             };
 
-            l1s[1].OneToMany_Optional_Self1 = new List<Level1>
-            {
-                l1s[0]
-            };
-            l1s[3].OneToMany_Optional_Self1 = new List<Level1>
-            {
-                l1s[2]
-            };
-            l1s[5].OneToMany_Optional_Self1 = new List<Level1>
-            {
-                l1s[4]
-            };
-            l1s[7].OneToMany_Optional_Self1 = new List<Level1>
-            {
-                l1s[6]
-            };
-            l1s[9].OneToMany_Optional_Self1 = new List<Level1>
-            {
-                l1s[8]
-            };
+            l1s[1].OneToMany_Optional_Self1 = new List<Level1> { l1s[0] };
+            l1s[3].OneToMany_Optional_Self1 = new List<Level1> { l1s[2] };
+            l1s[5].OneToMany_Optional_Self1 = new List<Level1> { l1s[4] };
+            l1s[7].OneToMany_Optional_Self1 = new List<Level1> { l1s[6] };
+            l1s[9].OneToMany_Optional_Self1 = new List<Level1> { l1s[8] };
 
             l1s[0].OneToOne_Optional_Self1 = l1s[9];
             l1s[1].OneToOne_Optional_Self1 = l1s[8];
@@ -1229,32 +957,13 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
                 l3s[5],
                 l3s[9]
             };
-            l2s[1].OneToMany_Optional2 = new List<Level3>
-            {
-                l3s[3],
-                l3s[7]
-            };
+            l2s[1].OneToMany_Optional2 = new List<Level3> { l3s[3], l3s[7] };
 
-            l2s[1].OneToMany_Optional_Self2 = new List<Level2>
-            {
-                l2s[0]
-            };
-            l2s[3].OneToMany_Optional_Self2 = new List<Level2>
-            {
-                l2s[2]
-            };
-            l2s[5].OneToMany_Optional_Self2 = new List<Level2>
-            {
-                l2s[4]
-            };
-            l2s[7].OneToMany_Optional_Self2 = new List<Level2>
-            {
-                l2s[6]
-            };
-            l2s[9].OneToMany_Optional_Self2 = new List<Level2>
-            {
-                l2s[8]
-            };
+            l2s[1].OneToMany_Optional_Self2 = new List<Level2> { l2s[0] };
+            l2s[3].OneToMany_Optional_Self2 = new List<Level2> { l2s[2] };
+            l2s[5].OneToMany_Optional_Self2 = new List<Level2> { l2s[4] };
+            l2s[7].OneToMany_Optional_Self2 = new List<Level2> { l2s[6] };
+            l2s[9].OneToMany_Optional_Self2 = new List<Level2> { l2s[8] };
 
             l2s[0].OneToOne_Optional_Self2 = l2s[9];
             l2s[1].OneToOne_Optional_Self2 = l2s[8];
@@ -1283,26 +992,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
                 l4s[9]
             };
 
-            l3s[1].OneToMany_Optional_Self3 = new List<Level3>
-            {
-                l3s[0]
-            };
-            l3s[3].OneToMany_Optional_Self3 = new List<Level3>
-            {
-                l3s[2]
-            };
-            l3s[5].OneToMany_Optional_Self3 = new List<Level3>
-            {
-                l3s[4]
-            };
-            l3s[7].OneToMany_Optional_Self3 = new List<Level3>
-            {
-                l3s[6]
-            };
-            l3s[9].OneToMany_Optional_Self3 = new List<Level3>
-            {
-                l3s[8]
-            };
+            l3s[1].OneToMany_Optional_Self3 = new List<Level3> { l3s[0] };
+            l3s[3].OneToMany_Optional_Self3 = new List<Level3> { l3s[2] };
+            l3s[5].OneToMany_Optional_Self3 = new List<Level3> { l3s[4] };
+            l3s[7].OneToMany_Optional_Self3 = new List<Level3> { l3s[6] };
+            l3s[9].OneToMany_Optional_Self3 = new List<Level3> { l3s[8] };
 
             l3s[0].OneToOne_Optional_Self3 = l3s[9];
             l3s[1].OneToOne_Optional_Self3 = l3s[8];
@@ -1310,26 +1004,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
             l3s[3].OneToOne_Optional_Self3 = l3s[6];
             l3s[4].OneToOne_Optional_Self3 = l3s[5];
 
-            l4s[1].OneToMany_Optional_Self4 = new List<Level4>
-            {
-                l4s[0]
-            };
-            l4s[3].OneToMany_Optional_Self4 = new List<Level4>
-            {
-                l4s[2]
-            };
-            l4s[5].OneToMany_Optional_Self4 = new List<Level4>
-            {
-                l4s[4]
-            };
-            l4s[7].OneToMany_Optional_Self4 = new List<Level4>
-            {
-                l4s[6]
-            };
-            l4s[9].OneToMany_Optional_Self4 = new List<Level4>
-            {
-                l4s[8]
-            };
+            l4s[1].OneToMany_Optional_Self4 = new List<Level4> { l4s[0] };
+            l4s[3].OneToMany_Optional_Self4 = new List<Level4> { l4s[2] };
+            l4s[5].OneToMany_Optional_Self4 = new List<Level4> { l4s[4] };
+            l4s[7].OneToMany_Optional_Self4 = new List<Level4> { l4s[6] };
+            l4s[9].OneToMany_Optional_Self4 = new List<Level4> { l4s[8] };
         }
 
         public static void WireUpInversePart2(
@@ -1451,16 +1130,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
             var globalizations = new List<ComplexNavigationGlobalization>();
             for (var i = 0; i < 10; i++)
             {
-                var language = new ComplexNavigationLanguage
-                {
-                    Name = "Language" + i,
-                    CultureString = "Foo" + i
-                };
-                var globalization = new ComplexNavigationGlobalization
-                {
-                    Text = "Globalization" + i,
-                    Language = language
-                };
+                var language = new ComplexNavigationLanguage { Name = "Language" + i, CultureString = "Foo" + i };
+                var globalization = new ComplexNavigationGlobalization { Text = "Globalization" + i, Language = language };
                 globalizations.Add(globalization);
 
                 context.Languages.Add(language);
@@ -1483,26 +1154,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
             WireUpInheritancePart2(ib2s, il2s);
             context.SaveChanges();
 
-            var mls1 = new ComplexNavigationString
-            {
-                DefaultText = "MLS1",
-                Globalizations = globalizations.Take(3).ToList()
-            };
-            var mls2 = new ComplexNavigationString
-            {
-                DefaultText = "MLS2",
-                Globalizations = globalizations.Skip(3).Take(3).ToList()
-            };
-            var mls3 = new ComplexNavigationString
-            {
-                DefaultText = "MLS3",
-                Globalizations = globalizations.Skip(6).Take(3).ToList()
-            };
-            var mls4 = new ComplexNavigationString
-            {
-                DefaultText = "MLS4",
-                Globalizations = globalizations.Skip(9).ToList()
-            };
+            var mls1 = new ComplexNavigationString { DefaultText = "MLS1", Globalizations = globalizations.Take(3).ToList() };
+            var mls2 = new ComplexNavigationString { DefaultText = "MLS2", Globalizations = globalizations.Skip(3).Take(3).ToList() };
+            var mls3 = new ComplexNavigationString { DefaultText = "MLS3", Globalizations = globalizations.Skip(6).Take(3).ToList() };
+            var mls4 = new ComplexNavigationString { DefaultText = "MLS4", Globalizations = globalizations.Skip(9).ToList() };
 
             context.MultilingualStrings.AddRange(mls1, mls2, mls3, mls4);
 

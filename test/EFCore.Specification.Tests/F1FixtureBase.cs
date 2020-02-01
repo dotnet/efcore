@@ -74,7 +74,17 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<TitleSponsor>()
                 .OwnsOne(s => s.Details);
 
-            // TODO: Sponsor * <-> * Team. Many-to-many relationships are not supported without CLR class for join table. See issue #1368
+            modelBuilder.Entity<Team>()
+                .HasMany(t => t.Sponsors)
+                .WithMany(s => s.Teams)
+                .UsingEntity<TeamSponsor>(
+                    ts => ts
+                        .HasOne(t => t.Sponsor)
+                        .WithMany(),
+                    ts => ts
+                        .HasOne(t => t.Team)
+                        .WithMany())
+                .HasKey(ts => new { ts.SponsorId, ts.TeamId });
         }
 
         protected override void Seed(F1Context context) => F1Context.Seed(context);

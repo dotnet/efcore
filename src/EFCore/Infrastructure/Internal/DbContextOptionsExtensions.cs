@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Text;
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
             var builder = new StringBuilder();
             foreach (var extension in contextOptions.Extensions)
             {
-                builder.Append(extension.LogFragment);
+                builder.Append(extension.Info.LogFragment);
             }
 
             var fragment = builder.ToString();

@@ -49,6 +49,20 @@ namespace Microsoft.Data.Sqlite
                 }, "FieldCount");
 
         [Fact]
+        public void FieldCount_returns_zero_when_non_query()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("CREATE TABLE dual(dummy);"))
+                {
+                    Assert.Equal(0, reader.FieldCount);
+                }
+            }
+        }
+
+        [Fact]
         public void GetBoolean_works()
             => GetX_works(
                 "SELECT 1;",
@@ -62,6 +76,10 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void GetBoolean_throws_when_non_query()
+            => X_throws_when_non_query(r => r.GetBoolean(0));
+
+        [Fact]
         public void GetByte_works()
             => GetX_works(
                 "SELECT 1;",
@@ -73,6 +91,10 @@ namespace Microsoft.Data.Sqlite
         {
             X_throws_when_closed(r => r.GetByte(0), nameof(SqliteDataReader.GetByte));
         }
+
+        [Fact]
+        public void GetByte_throws_when_non_query()
+            => X_throws_when_non_query(r => r.GetByte(0));
 
         [Fact]
         public void GetBytes_works()
@@ -159,6 +181,10 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void GetBytes_throws_when_non_query()
+            => X_throws_when_non_query(r => r.GetBytes(0, 0, null, 0, 0));
+
+        [Fact]
         public void GetChar_works()
             => GetX_works(
                 "SELECT 1;",
@@ -177,6 +203,10 @@ namespace Microsoft.Data.Sqlite
         {
             X_throws_when_closed(r => r.GetChar(0), nameof(SqliteDataReader.GetChar));
         }
+
+        [Fact]
+        public void GetChar_throws_when_non_query()
+            => X_throws_when_non_query(r => r.GetChar(0));
 
         [Fact]
         public void GetChars_works()
@@ -227,6 +257,10 @@ namespace Microsoft.Data.Sqlite
         {
             X_throws_when_closed(r => r.GetChars(0, 0, null, 0, 0), nameof(SqliteDataReader.GetChars));
         }
+
+        [Fact]
+        public void GetChars_throws_when_non_query()
+            => X_throws_when_non_query(r => r.GetChars(0, 0, null, 0, 0));
 
         [Fact]
         public void GetStream_works()
@@ -351,6 +385,10 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void GetStream_throws_when_non_query()
+            => X_throws_when_non_query(r => r.GetStream(0));
+
+        [Fact]
         public void GetDateTime_works_with_text()
             => GetX_works(
                 "SELECT '2014-04-15 10:47:16';",
@@ -382,6 +420,10 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void GetDateTime_throws_when_non_query()
+            => X_throws_when_non_query(r => r.GetDateTime(0));
+
+        [Fact]
         public void GetDateTimeOffset_works_with_text()
             => GetX_works(
                 "SELECT '2014-04-15 10:47:16';",
@@ -409,6 +451,10 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void GetDateTimeOffset_throws_when_non_query()
+            => X_throws_when_non_query(r => r.GetDateTimeOffset(0));
+
+        [Fact]
         public void GetTimeSpan_works_with_text()
             => GetX_works(
                 "SELECT '12:06:29';",
@@ -434,6 +480,10 @@ namespace Microsoft.Data.Sqlite
         {
             X_throws_when_closed(r => r.GetTimeSpan(0), nameof(SqliteDataReader.GetTimeSpan));
         }
+
+        [Fact]
+        public void GetTimeSpan_throws_when_non_query()
+            => X_throws_when_non_query(r => r.GetTimeSpan(0));
 
         [Fact]
         public void GetDateTimeOffset_throws_when_null()
@@ -494,6 +544,10 @@ namespace Microsoft.Data.Sqlite
         public void GetDataTypeName_throws_when_closed()
             => X_throws_when_closed(r => r.GetDataTypeName(0), "GetDataTypeName");
 
+        [Fact]
+        public void GetDataTypeName_throws_when_non_query()
+            => X_throws_when_non_query(r => r.GetDataTypeName(0));
+
         [Theory]
         [InlineData("3.14", 3.14)]
         [InlineData("1.0e-2", 0.01)]
@@ -514,6 +568,10 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void GetDecimal_throws_when_non_query()
+            => X_throws_when_non_query(r => r.GetDecimal(0));
+
+        [Fact]
         public void GetDouble_throws_when_null()
             => GetX_throws_when_null(
                 r => r.GetDouble(0));
@@ -523,6 +581,10 @@ namespace Microsoft.Data.Sqlite
         {
             X_throws_when_closed(r => r.GetDouble(0), nameof(SqliteDataReader.GetDouble));
         }
+
+        [Fact]
+        public void GetDouble_throws_when_non_query()
+            => X_throws_when_non_query(r => r.GetDouble(0));
 
         [Fact]
         public void GetEnumerator_works()
@@ -671,6 +733,10 @@ namespace Microsoft.Data.Sqlite
             X_throws_when_closed(r => r.GetFieldValue<long>(0), nameof(SqliteDataReader.GetFieldValue));
         }
 
+        [Fact]
+        public void GetFieldValue_throws_when_non_query()
+            => X_throws_when_non_query(r => r.GetFieldValue<long>(0));
+
         [Theory]
         [InlineData(byte.MinValue)]
         [InlineData(char.MinValue)]
@@ -715,6 +781,56 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
+        [Theory]
+        [InlineData("TEXT", typeof(string))]
+        [InlineData("CHARACTER(20)", typeof(string))]
+        [InlineData("NVARCHAR(100)", typeof(string))]
+        [InlineData("CLOB", typeof(string))]
+        [InlineData("INTEGER", typeof(long))]
+        [InlineData("BIGINT", typeof(long))]
+        [InlineData("UNSIGNED BIG INT", typeof(long))]
+        [InlineData("REAL", typeof(double))]
+        [InlineData("DOUBLE", typeof(double))]
+        [InlineData("FLOAT", typeof(double))]
+        [InlineData("BLOB", typeof(byte[]))]
+        [InlineData("", typeof(byte[]))]
+        [InlineData("NUMERIC", typeof(string))]
+        [InlineData("DATETIME", typeof(string))]
+        public void GetFieldType_works_on_NULL(string type, Type expected)
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.ExecuteNonQuery($"CREATE TABLE Test(Value {type});");
+
+                using (var reader = connection.ExecuteReader("SELECT Value FROM Test;"))
+                {
+                    Assert.Equal(expected, reader.GetFieldType(0));
+                }
+            }
+        }
+
+        [Fact]
+        public void GetFieldType_works_on_NULL_cached()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.ExecuteNonQuery("CREATE TABLE Test(Value FOOBAR);");
+                connection.ExecuteNonQuery("INSERT INTO Test (Value) VALUES ('test'), (NULL);");
+
+                using (var reader = connection.ExecuteReader("SELECT Value FROM Test;"))
+                {
+                    Assert.True(reader.Read());
+                    Assert.Equal(typeof(string), reader.GetFieldType(0));
+                    Assert.Equal("test", reader.GetValue(0));
+                    Assert.True(reader.Read());
+                    Assert.Equal(typeof(string), reader.GetFieldType(0));
+                    Assert.Equal(DBNull.Value, reader.GetValue(0));
+                }
+            }
+        }
+
         [Fact]
         public void GetFieldType_throws_when_ordinal_out_of_range()
         {
@@ -736,6 +852,10 @@ namespace Microsoft.Data.Sqlite
         public void GetFieldType_throws_when_closed()
             => X_throws_when_closed(r => r.GetFieldType(0), "GetFieldType");
 
+        [Fact]
+        public void GetFieldType_throws_when_non_query()
+            => X_throws_when_non_query(r => r.GetFieldType(0));
+
         [Theory]
         [InlineData("3", 3f)]
         [InlineData("9e999", float.PositiveInfinity)]
@@ -751,6 +871,10 @@ namespace Microsoft.Data.Sqlite
         {
             X_throws_when_closed(r => r.GetFloat(0), nameof(SqliteDataReader.GetFloat));
         }
+
+        [Fact]
+        public void GetFloat_throws_when_non_query()
+            => X_throws_when_non_query(r => r.GetFloat(0));
 
         [Theory]
         [InlineData("2.0", 2.0)]
@@ -796,6 +920,10 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void GetGuid_throws_when_non_query()
+            => X_throws_when_non_query(r => r.GetGuid(0));
+
+        [Fact]
         public void GetInt16_works()
             => GetX_works(
                 "SELECT 1;",
@@ -809,6 +937,10 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void GetInt16_throws_when_non_query()
+            => X_throws_when_non_query(r => r.GetInt16(0));
+
+        [Fact]
         public void GetInt32_works()
             => GetX_works(
                 "SELECT 1;",
@@ -820,6 +952,10 @@ namespace Microsoft.Data.Sqlite
         {
             X_throws_when_closed(r => r.GetInt32(0), nameof(SqliteDataReader.GetInt32));
         }
+
+        [Fact]
+        public void GetInt32_throws_when_non_query()
+            => X_throws_when_non_query(r => r.GetInt32(0));
 
         [Fact]
         public void GetInt64_works()
@@ -838,6 +974,10 @@ namespace Microsoft.Data.Sqlite
         public void GetInt64_throws_when_null()
             => GetX_throws_when_null(
                 r => r.GetInt64(0));
+
+        [Fact]
+        public void GetInt64_throws_when_non_query()
+            => X_throws_when_non_query(r => r.GetInt64(0));
 
         [Fact]
         public void GetName_works()
@@ -873,6 +1013,10 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void GetName_throws_when_closed()
             => X_throws_when_closed(r => r.GetName(0), "GetName");
+
+        [Fact]
+        public void GetName_throws_when_non_query()
+            => X_throws_when_non_query(r => r.GetName(0));
 
         [Fact]
         public void GetOrdinal_works()
@@ -912,6 +1056,10 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void GetOrdinal_throws_when_non_query()
+            => X_throws_when_non_query(r => r.GetOrdinal("dummy"));
+
+        [Fact]
         public void GetString_works_utf8()
             => GetX_works(
                 "SELECT '测试测试测试';",
@@ -949,6 +1097,10 @@ namespace Microsoft.Data.Sqlite
         {
             X_throws_when_closed(r => r.GetString(0), nameof(SqliteDataReader.GetString));
         }
+
+        [Fact]
+        public void GetString_throws_when_non_query()
+            => X_throws_when_non_query(r => r.GetString(0));
 
         [Theory]
         [InlineData("SELECT 1;", 1L)]
@@ -995,6 +1147,10 @@ namespace Microsoft.Data.Sqlite
             => X_throws_when_closed(r => r.GetValue(0), "GetValue");
 
         [Fact]
+        public void GetValue_throws_when_non_query()
+            => X_throws_when_non_query(r => r.GetValue(0));
+
+        [Fact]
         public void GetValues_works()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -1039,6 +1195,10 @@ namespace Microsoft.Data.Sqlite
         {
             X_throws_when_closed(r => r.GetValues(null), nameof(SqliteDataReader.GetValues));
         }
+
+        [Fact]
+        public void GetValues_throws_when_non_query()
+            => X_throws_when_non_query(r => r.GetValues(null));
 
         [Fact]
         public void HasRows_returns_true_when_rows()
@@ -1144,6 +1304,10 @@ namespace Microsoft.Data.Sqlite
             => X_throws_when_closed(r => r.IsDBNull(0), "IsDBNull");
 
         [Fact]
+        public void IsDBNull_throws_when_non_query()
+            => X_throws_when_non_query(r => r.IsDBNull(0));
+
+        [Fact]
         public void Item_by_ordinal_works()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -1161,6 +1325,21 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void Item_by_ordinal_throws_when_non_query()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("CREATE TABLE dual(dummy);"))
+                {
+                    var ex = Assert.Throws<InvalidOperationException>(() => reader[0]);
+                    Assert.Equal(Resources.NoData, ex.Message);
+                }
+            }
+        }
+
+        [Fact]
         public void Item_by_name_works()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -1173,6 +1352,21 @@ namespace Microsoft.Data.Sqlite
                     Assert.True(hasData);
 
                     Assert.Equal(1L, reader["Id"]);
+                }
+            }
+        }
+
+        [Fact]
+        public void Item_by_name_throws_when_non_query()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("CREATE TABLE dual(dummy);"))
+                {
+                    var ex = Assert.Throws<InvalidOperationException>(() => reader["dummy"]);
+                    Assert.Equal(Resources.NoData, ex.Message);
                 }
             }
         }
@@ -1307,6 +1501,20 @@ namespace Microsoft.Data.Sqlite
             => X_throws_when_closed(r => r.Read(), "Read");
 
         [Fact]
+        public void Read_returns_false_when_non_query()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("CREATE TABLE dual(dummy);"))
+                {
+                    Assert.False(reader.Read());
+                }
+            }
+        }
+
+        [Fact]
         public void RecordsAffected_works()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -1343,7 +1551,8 @@ namespace Microsoft.Data.Sqlite
                 connection.Open();
                 connection.ExecuteNonQuery("CREATE TABLE Test(Value);");
 
-                var reader = connection.ExecuteReader(@"
+                var reader = connection.ExecuteReader(
+                    @"
                     SELECT 1;
                     INSERT INTO Test VALUES(1);
                     SELECT 1;
@@ -1502,11 +1711,46 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
+        [Theory]
+        [InlineData("TEXT", typeof(string))]
+        [InlineData("CHARACTER(20)", typeof(string))]
+        [InlineData("NVARCHAR(100)", typeof(string))]
+        [InlineData("CLOB", typeof(string))]
+        [InlineData("INTEGER", typeof(long))]
+        [InlineData("BIGINT", typeof(long))]
+        [InlineData("UNSIGNED BIG INT", typeof(long))]
+        [InlineData("REAL", typeof(double))]
+        [InlineData("DOUBLE", typeof(double))]
+        [InlineData("FLOAT", typeof(double))]
+        [InlineData("BLOB", typeof(byte[]))]
+        [InlineData("", typeof(byte[]))]
+        [InlineData("NUMERIC", typeof(string))]
+        [InlineData("DATETIME", typeof(string))]
+        public void GetSchemaTable_DataType_works_on_empty_table(string type, Type expected)
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.ExecuteNonQuery($"CREATE TABLE Test(Value {type});");
+
+                using (var reader = connection.ExecuteReader("SELECT Value FROM Test;"))
+                {
+                    var schema = reader.GetSchemaTable();
+                    Assert.True(schema.Columns.Contains("DataType"));
+                    Assert.Equal(expected, schema.Rows[0]["DataType"]);
+                }
+            }
+        }
+
         [Fact]
         public void GetSchemaTable_throws_when_closed()
         {
             X_throws_when_closed(r => r.GetSchemaTable(), nameof(SqliteDataReader.GetSchemaTable));
         }
+
+        [Fact]
+        public void GetSchemaTable_throws_when_non_query()
+            => X_throws_when_non_query(r => r.GetSchemaTable());
 
         [Fact]
         public void Dispose_executes_remaining_statements()
@@ -1518,7 +1762,8 @@ namespace Microsoft.Data.Sqlite
                 connection.ExecuteNonQuery("CREATE TABLE Test(Value);");
                 connection.CreateFunction<string, long>("throw", message => throw new Exception(message));
 
-                var reader = connection.ExecuteReader(@"
+                var reader = connection.ExecuteReader(
+                    @"
                     SELECT 1;
                     INSERT INTO Test VALUES (1);");
                 ((IDisposable)reader).Dispose();
@@ -1537,7 +1782,8 @@ namespace Microsoft.Data.Sqlite
                 connection.ExecuteNonQuery("CREATE TABLE Test(Value);");
                 connection.CreateFunction<string, long>("throw", message => throw new Exception(message));
 
-                var reader = connection.ExecuteReader(@"
+                var reader = connection.ExecuteReader(
+                    @"
                     SELECT 1;
                     SELECT throw('An error');
                     INSERT INTO Test VALUES (1);");
@@ -1626,6 +1872,20 @@ namespace Microsoft.Data.Sqlite
 
                 var ex = Assert.Throws<InvalidOperationException>(() => action(reader));
                 Assert.Equal(Resources.DataReaderClosed(operation), ex.Message);
+            }
+        }
+
+        private static void X_throws_when_non_query(Action<SqliteDataReader> action)
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("CREATE TABLE dual(dummy);"))
+                {
+                    var ex = Assert.Throws<InvalidOperationException>(() => action(reader));
+                    Assert.Equal(Resources.NoData, ex.Message);
+                }
             }
         }
 

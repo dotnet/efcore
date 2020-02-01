@@ -5,6 +5,7 @@ using System;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -18,23 +19,51 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public interface IRelationalConnection : IRelationalTransactionManager, IDisposable
+    public interface IRelationalConnection : IRelationalTransactionManager, IDisposable, IAsyncDisposable
     {
         /// <summary>
-        ///     Gets the connection string for the database.
+        ///     Gets or sets the connection string for the database.
         /// </summary>
-        string ConnectionString { get; }
+        string ConnectionString
+        {
+            get => throw new NotImplementedException();
+            [param: CanBeNull] set => throw new NotImplementedException();
+        }
 
         /// <summary>
-        ///     Gets the underlying <see cref="System.Data.Common.DbConnection" /> used to connect to the database.
+        ///     Returns the configured connection string only if it has been set or a valid <see cref="DbConnection" /> exists.
         /// </summary>
-        DbConnection DbConnection { get; }
+        /// <returns> The connection string. </returns>
+        /// <exception cref="InvalidOperationException"> when connection string cannot be obtained. </exception>
+        string GetCheckedConnectionString() => ConnectionString;
+
+        /// <summary>
+        ///     <para>
+        ///         Gets or sets the underlying <see cref="System.Data.Common.DbConnection" /> used to connect to the database.
+        ///     </para>
+        ///     <para>
+        ///         The connection can only be changed when the existing connection, if any, is not open.
+        ///     </para>
+        ///     <para>
+        ///         Note that the connection must be disposed by application code since it was not created by Entity Framework.
+        ///     </para>
+        /// </summary>
+        DbConnection DbConnection
+        {
+            get => throw new NotImplementedException();
+            [param: CanBeNull] set => throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     The <see cref="DbContext" /> currently in use, or null if not known.
+        /// </summary>
+        DbContext Context { get; }
 
         /// <summary>
         ///     Gets the connection identifier.
@@ -73,9 +102,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         bool Close();
 
         /// <summary>
-        ///     Gets a value indicating whether the multiple active result sets feature is enabled.
+        ///     Closes the connection to the database.
         /// </summary>
-        bool IsMultipleActiveResultSetsEnabled { get; }
+        /// <returns>
+        ///     A task that represents the asynchronous operation, with a value of true if the connection
+        ///     was actually closed.
+        /// </returns>
+        Task<bool> CloseAsync();
 
         /// <summary>
         ///     Gets the current transaction.
@@ -88,6 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <value>
         ///     The semaphore.
         /// </value>
+        [Obsolete("EF Core no longer uses this semaphore. It will be removed in an upcoming release.")]
         SemaphoreSlim Semaphore { get; }
     }
 }

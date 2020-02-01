@@ -3,9 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -25,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
         /// </returns>
-        public static IConventionEntityType RootType([NotNull] this IConventionEntityType entityType)
-            => (IConventionEntityType)((IEntityType)entityType).RootType();
+        public static IConventionEntityType GetRootType([NotNull] this IConventionEntityType entityType)
+            => (IConventionEntityType)((IEntityType)entityType).GetRootType();
 
         /// <summary>
         ///     Gets all types in the model that derive from a given entity type.
@@ -51,6 +54,30 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The derived types. </returns>
         public static IEnumerable<IConventionEntityType> GetDirectlyDerivedTypes([NotNull] this IConventionEntityType entityType)
             => ((EntityType)entityType).GetDirectlyDerivedTypes();
+
+        /// <summary>
+        ///     Returns all base types of the given <see cref="IEntityType" />, including the type itself, top to bottom.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Base types. </returns>
+        public static IEnumerable<IConventionEntityType> GetAllBaseTypesInclusive([NotNull] this IConventionEntityType entityType)
+            => GetAllBaseTypesInclusiveAscending(entityType).Reverse();
+
+        /// <summary>
+        ///     Returns all base types of the given <see cref="IEntityType" />, including the type itself, bottom to top.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Base types. </returns>
+        public static IEnumerable<IConventionEntityType> GetAllBaseTypesInclusiveAscending([NotNull] this IConventionEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            while (entityType != null)
+            {
+                yield return entityType;
+                entityType = entityType.BaseType;
+            }
+        }
 
         /// <summary>
         ///     <para>
@@ -191,7 +218,6 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] IReadOnlyList<IConventionProperty> properties)
             => ((EntityType)entityType).RemoveKey(properties);
 
-
         /// <summary>
         ///     <para>
         ///         Gets all foreign keys declared on the given <see cref="IConventionEntityType" />.
@@ -269,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///      Gets the foreign keys declared on the given <see cref="IConventionEntityType" /> using the given properties.
+        ///     Gets the foreign keys declared on the given <see cref="IConventionEntityType" /> using the given properties.
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="properties"> The properties to find the foreign keys on. </param>
@@ -409,7 +435,9 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(memberInfo, nameof(memberInfo));
 
-            return entityType.FindProperty(memberInfo.GetSimpleMemberName());
+            return (memberInfo as PropertyInfo)?.IsIndexerProperty() == true
+                ? null
+                : entityType.FindProperty(memberInfo.GetSimpleMemberName());
         }
 
         /// <summary>
@@ -449,7 +477,8 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IConventionEntityType entityType,
             [NotNull] MemberInfo memberInfo,
             bool fromDataAnnotation = false)
-            => Check.NotNull(entityType, nameof(entityType)).AddProperty(memberInfo.GetSimpleMemberName(), memberInfo.GetMemberType(),
+            => Check.NotNull(entityType, nameof(entityType)).AddProperty(
+                memberInfo.GetSimpleMemberName(), memberInfo.GetMemberType(),
                 memberInfo, setTypeConfigurationSource: true, fromDataAnnotation);
 
         /// <summary>
@@ -462,7 +491,8 @@ namespace Microsoft.EntityFrameworkCore
         public static IConventionProperty AddProperty(
             [NotNull] this IConventionEntityType entityType, [NotNull] string name,
             bool fromDataAnnotation = false)
-            => ((EntityType)entityType).AddProperty(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+            => ((EntityType)entityType).AddProperty(
+                name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     Adds a property to this entity type.
@@ -479,7 +509,7 @@ namespace Microsoft.EntityFrameworkCore
             => entityType.AddProperty(name, propertyType, null, setTypeConfigurationSource, fromDataAnnotation);
 
         /// <summary>
-        ///     Adds a property based on an indexer to this entity type.
+        ///     Adds an indexed property to this entity type.
         /// </summary>
         /// <param name="entityType"> The entity type to add the property to. </param>
         /// <param name="name"> The name of the property to add. </param>
@@ -490,8 +520,18 @@ namespace Microsoft.EntityFrameworkCore
         public static IConventionProperty AddIndexedProperty(
             [NotNull] this IConventionEntityType entityType, [NotNull] string name, [NotNull] Type propertyType,
             bool setTypeConfigurationSource = true, bool fromDataAnnotation = false)
-            => Check.NotNull(entityType, nameof(entityType))
-                .AddProperty(name, propertyType, entityType.GetIndexerProperty(), setTypeConfigurationSource, fromDataAnnotation);
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            var indexerPropertyInfo = entityType.FindIndexerPropertyInfo();
+            if (indexerPropertyInfo == null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.NonIndexerEntityType(name, entityType.DisplayName(), typeof(string).ShortDisplayName()));
+            }
+
+            return entityType.AddProperty(name, propertyType, indexerPropertyInfo, setTypeConfigurationSource, fromDataAnnotation);
+        }
 
         /// <summary>
         ///     Gets the index defined on the given property. Returns null if no index is defined.
@@ -599,6 +639,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The configuration source for <see cref="EntityTypeExtensions.GetDefiningQuery" />. </returns>
         public static ConfigurationSource? GetDefiningQueryConfigurationSource([NotNull] this IConventionEntityType entityType)
             => entityType.FindAnnotation(CoreAnnotationNames.DefiningQuery)?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Returns the <see cref="IConventionProperty" /> that will be used for storing a discriminator value.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the discriminator property for. </param>
+        public static IConventionProperty GetDiscriminatorProperty([NotNull] this IConventionEntityType entityType)
+            => (IConventionProperty)((IEntityType)entityType).GetDiscriminatorProperty();
 
         /// <summary>
         ///     Sets the <see cref="IProperty" /> that will be used for storing a discriminator value.

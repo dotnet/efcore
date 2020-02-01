@@ -1,6 +1,7 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
@@ -13,8 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// <inheritdoc />
         public virtual int Compare(string x, string y)
         {
-            var xSystemNamespace = x != null && (string.Equals(x, "System") || x.StartsWith("System."));
-            var ySystemNamespace = y != null && (string.Equals(y, "System") || y.StartsWith("System."));
+            var xSystemNamespace = x != null && (x == "System" || x.StartsWith("System.", StringComparison.Ordinal));
+            var ySystemNamespace = y != null && (y == "System" || y.StartsWith("System.", StringComparison.Ordinal));
 
             return xSystemNamespace && !ySystemNamespace
                 ? -1

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -26,16 +26,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         public InMemoryTypeMapping(
             [NotNull] Type clrType,
             [CanBeNull] ValueComparer comparer = null,
-            [CanBeNull] ValueComparer keyComparer = null,
-            [CanBeNull] ValueComparer structuralComparer = null)
+            [CanBeNull] ValueComparer keyComparer = null)
             : base(
                 new CoreTypeMappingParameters(
                     clrType,
                     converter: null,
                     comparer,
-                    keyComparer,
-                    structuralComparer,
-                    valueGeneratorFactory: null))
+                    keyComparer))
         {
         }
 

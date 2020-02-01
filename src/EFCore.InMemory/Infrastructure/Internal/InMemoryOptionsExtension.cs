@@ -7,7 +7,6 @@ using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
@@ -22,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
     {
         private string _storeName;
         private InMemoryDatabaseRoot _databaseRoot;
-        private string _logFragment;
+        private DbContextOptionsExtensionInfo _info;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -45,6 +44,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
             _storeName = copyFrom._storeName;
             _databaseRoot = copyFrom._databaseRoot;
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual DbContextOptionsExtensionInfo Info
+            => _info ??= new ExtensionInfo(this);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -106,33 +114,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool ApplyServices(IServiceCollection services)
-        {
-            Check.NotNull(services, nameof(services));
-
-            services.AddEntityFrameworkInMemoryDatabase();
-
-            return true;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual long GetServiceProviderHashCode() => _databaseRoot?.GetHashCode() ?? 0L;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void PopulateDebugInfo(IDictionary<string, string> debugInfo)
-        {
-            debugInfo["InMemoryDatabase:DatabaseRoot"] = (_databaseRoot?.GetHashCode() ?? 0L).ToString(CultureInfo.InvariantCulture);
-        }
+        public virtual void ApplyServices(IServiceCollection services)
+            => services.AddEntityFrameworkInMemoryDatabase();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -144,27 +127,42 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
         {
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual string LogFragment
+        private sealed class ExtensionInfo : DbContextOptionsExtensionInfo
         {
-            get
+            private string _logFragment;
+
+            public ExtensionInfo(IDbContextOptionsExtension extension)
+                : base(extension)
             {
-                if (_logFragment == null)
-                {
-                    var builder = new StringBuilder();
-
-                    builder.Append("StoreName=").Append(_storeName).Append(' ');
-
-                    _logFragment = builder.ToString();
-                }
-
-                return _logFragment;
             }
+
+            private new InMemoryOptionsExtension Extension
+                => (InMemoryOptionsExtension)base.Extension;
+
+            public override bool IsDatabaseProvider => true;
+
+            public override string LogFragment
+            {
+                get
+                {
+                    if (_logFragment == null)
+                    {
+                        var builder = new StringBuilder();
+
+                        builder.Append("StoreName=").Append(Extension._storeName).Append(' ');
+
+                        _logFragment = builder.ToString();
+                    }
+
+                    return _logFragment;
+                }
+            }
+
+            public override long GetServiceProviderHashCode() => Extension._databaseRoot?.GetHashCode() ?? 0L;
+
+            public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+                => debugInfo["InMemoryDatabase:DatabaseRoot"]
+                    = (Extension._databaseRoot?.GetHashCode() ?? 0L).ToString(CultureInfo.InvariantCulture);
         }
     }
 }

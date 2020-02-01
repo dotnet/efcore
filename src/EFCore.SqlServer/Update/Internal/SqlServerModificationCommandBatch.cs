@@ -163,7 +163,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             }
 
             var stringBuilder = new StringBuilder();
-            var resultSetMapping = UpdateSqlGenerator.AppendBulkInsertOperation(stringBuilder, _bulkInsertCommands, lastIndex - _bulkInsertCommands.Count);
+            var resultSetMapping = UpdateSqlGenerator.AppendBulkInsertOperation(
+                stringBuilder, _bulkInsertCommands, lastIndex - _bulkInsertCommands.Count);
             for (var i = lastIndex - _bulkInsertCommands.Count; i < lastIndex; i++)
             {
                 CommandResultSet[i] = resultSetMapping;
@@ -211,10 +212,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
 
         private static bool CanBeInsertedInSameStatement(ModificationCommand firstCommand, ModificationCommand secondCommand)
             => string.Equals(firstCommand.TableName, secondCommand.TableName, StringComparison.Ordinal)
-               && string.Equals(firstCommand.Schema, secondCommand.Schema, StringComparison.Ordinal)
-               && firstCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName).SequenceEqual(
-                   secondCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName))
-               && firstCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName).SequenceEqual(
-                   secondCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName));
+                && string.Equals(firstCommand.Schema, secondCommand.Schema, StringComparison.Ordinal)
+                && firstCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName).SequenceEqual(
+                    secondCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName))
+                && firstCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName).SequenceEqual(
+                    secondCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName));
     }
 }

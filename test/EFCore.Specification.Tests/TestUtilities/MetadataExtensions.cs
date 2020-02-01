@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                         navigation.ForeignKey.PrincipalKey.Properties.Select(
                             p => targetPrincipalEntityType.FindProperty(p.Name)).ToList()),
                     targetPrincipalEntityType);
-                var clonedNavigation = navigation.IsDependentToPrincipal()
+                var clonedNavigation = navigation.IsOnDependent
                     ? (navigation.GetIdentifyingMemberInfo() != null
                         ? targetForeignKey.HasDependentToPrincipal(navigation.GetIdentifyingMemberInfo())
                         : targetForeignKey.HasDependentToPrincipal(navigation.Name))

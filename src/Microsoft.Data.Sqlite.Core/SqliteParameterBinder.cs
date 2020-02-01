@@ -1,9 +1,8 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using SQLitePCL;
-
 using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite
@@ -53,7 +52,7 @@ namespace Microsoft.Data.Sqlite
 
         private bool ShouldTruncate(int length)
             => _size.HasValue
-               && length > _size.Value
-               && _size.Value != -1;
+                && length > _size.Value
+                && _size.Value != -1;
     }
 }

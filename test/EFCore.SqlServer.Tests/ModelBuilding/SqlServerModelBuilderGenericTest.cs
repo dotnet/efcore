@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -35,11 +36,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal("[Name] IS NOT NULL", index.GetFilter());
 
-                indexBuilder.ForSqlServerIsClustered();
+                indexBuilder.IsClustered();
 
                 Assert.Null(index.GetFilter());
 
-                indexBuilder.ForSqlServerIsClustered(false);
+                indexBuilder.IsClustered(false);
 
                 Assert.Equal("[Name] IS NOT NULL", index.GetFilter());
 
@@ -247,15 +248,15 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(book.GetTableName(), bookLabel2Ownership2.DeclaringEntityType.GetTableName());
 
                 Assert.NotSame(bookOwnership1.DeclaringEntityType, bookOwnership2.DeclaringEntityType);
-                Assert.Equal(1, bookOwnership1.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookOwnership1.DeclaringEntityType.GetForeignKeys().Count());
+                Assert.Single(bookOwnership1.DeclaringEntityType.GetForeignKeys());
+                Assert.Single(bookOwnership1.DeclaringEntityType.GetForeignKeys());
 
                 Assert.NotSame(bookLabel1Ownership1.DeclaringEntityType, bookLabel2Ownership1.DeclaringEntityType);
                 Assert.NotSame(bookLabel1Ownership2.DeclaringEntityType, bookLabel2Ownership2.DeclaringEntityType);
-                Assert.Equal(1, bookLabel1Ownership1.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookLabel1Ownership2.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookLabel2Ownership1.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookLabel2Ownership2.DeclaringEntityType.GetForeignKeys().Count());
+                Assert.Single(bookLabel1Ownership1.DeclaringEntityType.GetForeignKeys());
+                Assert.Single(bookLabel1Ownership2.DeclaringEntityType.GetForeignKeys());
+                Assert.Single(bookLabel2Ownership1.DeclaringEntityType.GetForeignKeys());
+                Assert.Single(bookLabel2Ownership2.DeclaringEntityType.GetForeignKeys());
 
                 Assert.Equal(2, model.GetEntityTypes().Count(e => e.ClrType == typeof(BookLabel)));
                 Assert.Equal(4, model.GetEntityTypes().Count(e => e.ClrType == typeof(AnotherBookLabel)));
@@ -296,9 +297,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             {
                                 tb.Ignore(l => l.Book);
                                 tb.WithOwner()
-                                  .HasConstraintName("AlternateLabelFK");
+                                    .HasConstraintName("AlternateLabelFK");
                                 tb.ToTable("TT", "TS");
-                                tb.ForSqlServerIsMemoryOptimized();
+                                tb.IsMemoryOptimized();
                                 tb.OwnsOne(
                                     l => l.AnotherBookLabel, ab =>
                                     {
@@ -373,10 +374,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("BT", book.GetTableName());
                 Assert.Equal("LS", bookOwnership1.DeclaringEntityType.GetSchema());
                 Assert.Equal("LT", bookOwnership1.DeclaringEntityType.GetTableName());
-                Assert.False(bookOwnership1.DeclaringEntityType.GetSqlServerIsMemoryOptimized());
+                Assert.False(bookOwnership1.DeclaringEntityType.IsMemoryOptimized());
                 Assert.Equal("TS", bookOwnership2.DeclaringEntityType.GetSchema());
                 Assert.Equal("TT", bookOwnership2.DeclaringEntityType.GetTableName());
-                Assert.True(bookOwnership2.DeclaringEntityType.GetSqlServerIsMemoryOptimized());
+                Assert.True(bookOwnership2.DeclaringEntityType.IsMemoryOptimized());
                 Assert.Equal("AS2", bookLabel1Ownership1.DeclaringEntityType.GetSchema());
                 Assert.Equal("AT2", bookLabel1Ownership1.DeclaringEntityType.GetTableName());
                 Assert.Equal("SS1", bookLabel1Ownership2.DeclaringEntityType.GetSchema());
@@ -397,23 +398,47 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("Bar", bookLabel2Ownership11.PrincipalToDependent["Foo"]);
 
                 Assert.NotSame(bookOwnership1.DeclaringEntityType, bookOwnership2.DeclaringEntityType);
-                Assert.Equal(1, bookOwnership1.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookOwnership1.DeclaringEntityType.GetForeignKeys().Count());
+                Assert.Single(bookOwnership1.DeclaringEntityType.GetForeignKeys());
+                Assert.Single(bookOwnership2.DeclaringEntityType.GetForeignKeys());
 
                 Assert.NotSame(bookLabel1Ownership1.DeclaringEntityType, bookLabel2Ownership1.DeclaringEntityType);
                 Assert.NotSame(bookLabel1Ownership2.DeclaringEntityType, bookLabel2Ownership2.DeclaringEntityType);
-                Assert.Equal(1, bookLabel1Ownership1.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookLabel1Ownership2.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookLabel2Ownership1.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookLabel2Ownership2.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookLabel1Ownership1.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookLabel1Ownership2.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookLabel2Ownership1.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookLabel2Ownership2.DeclaringEntityType.GetForeignKeys().Count());
+                Assert.Single(bookLabel1Ownership1.DeclaringEntityType.GetForeignKeys());
+                Assert.Single(bookLabel1Ownership2.DeclaringEntityType.GetForeignKeys());
+                Assert.Single(bookLabel2Ownership1.DeclaringEntityType.GetForeignKeys());
+                Assert.Single(bookLabel2Ownership2.DeclaringEntityType.GetForeignKeys());
+
+                Assert.NotSame(bookLabel1Ownership11.DeclaringEntityType, bookLabel2Ownership11.DeclaringEntityType);
+                Assert.NotSame(bookLabel1Ownership21.DeclaringEntityType, bookLabel2Ownership21.DeclaringEntityType);
+                Assert.Single(bookLabel1Ownership11.DeclaringEntityType.GetForeignKeys());
+                Assert.Single(bookLabel1Ownership21.DeclaringEntityType.GetForeignKeys());
+                Assert.Single(bookLabel2Ownership11.DeclaringEntityType.GetForeignKeys());
+                Assert.Single(bookLabel2Ownership21.DeclaringEntityType.GetForeignKeys());
 
                 Assert.Equal(2, model.GetEntityTypes().Count(e => e.ClrType == typeof(BookLabel)));
                 Assert.Equal(4, model.GetEntityTypes().Count(e => e.ClrType == typeof(AnotherBookLabel)));
                 Assert.Equal(4, model.GetEntityTypes().Count(e => e.ClrType == typeof(SpecialBookLabel)));
+
+                Assert.Equal(ValueGenerated.Never, bookOwnership1.DeclaringEntityType.FindPrimaryKey().Properties.Single().ValueGenerated);
+                Assert.Equal(ValueGenerated.Never, bookOwnership2.DeclaringEntityType.FindPrimaryKey().Properties.Single().ValueGenerated);
+
+                Assert.Equal(
+                    ValueGenerated.Never, bookLabel1Ownership1.DeclaringEntityType.FindPrimaryKey().Properties.Single().ValueGenerated);
+                Assert.Equal(
+                    ValueGenerated.Never, bookLabel1Ownership2.DeclaringEntityType.FindPrimaryKey().Properties.Single().ValueGenerated);
+                Assert.Equal(
+                    ValueGenerated.Never, bookLabel2Ownership1.DeclaringEntityType.FindPrimaryKey().Properties.Single().ValueGenerated);
+                Assert.Equal(
+                    ValueGenerated.Never, bookLabel2Ownership2.DeclaringEntityType.FindPrimaryKey().Properties.Single().ValueGenerated);
+
+                Assert.Equal(
+                    ValueGenerated.Never, bookLabel1Ownership11.DeclaringEntityType.FindPrimaryKey().Properties.Single().ValueGenerated);
+                Assert.Equal(
+                    ValueGenerated.Never, bookLabel1Ownership21.DeclaringEntityType.FindPrimaryKey().Properties.Single().ValueGenerated);
+                Assert.Equal(
+                    ValueGenerated.Never, bookLabel2Ownership11.DeclaringEntityType.FindPrimaryKey().Properties.Single().ValueGenerated);
+                Assert.Equal(
+                    ValueGenerated.Never, bookLabel2Ownership21.DeclaringEntityType.FindPrimaryKey().Properties.Single().ValueGenerated);
             }
 
             [ConditionalFact]
@@ -427,7 +452,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     r =>
                     {
                         r.HasKey(o => o.OrderId);
-                        r.ForSqlServerIsMemoryOptimized();
+                        r.IsMemoryOptimized();
                         r.Ignore(o => o.OrderCombination);
                         r.Ignore(o => o.Details);
                     });
@@ -438,14 +463,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(nameof(Order.Customer), ownership.DependentToPrincipal.Name);
                 Assert.Equal("FK_Order_Customer_CustomerId", ownership.GetConstraintName());
 
-                Assert.Equal(1, owned.GetForeignKeys().Count());
-                Assert.Equal(1, owned.GetIndexes().Count());
+                Assert.Single(owned.GetForeignKeys());
+                Assert.Single(owned.GetIndexes());
                 Assert.Equal(
                     new[] { nameof(Order.OrderId), nameof(Order.AnotherCustomerId), nameof(Order.CustomerId) },
                     owned.GetProperties().Select(p => p.GetColumnName()));
                 Assert.Equal(nameof(Order), owned.GetTableName());
                 Assert.Null(owned.GetSchema());
-                Assert.True(owned.GetSqlServerIsMemoryOptimized());
+                Assert.True(owned.IsMemoryOptimized());
 
                 modelBuilder.Entity<Customer>().OwnsMany(
                     c => c.Orders,
@@ -480,7 +505,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 entityBuilder.Property(d => d.CustomerId);
                 entityBuilder.HasIndex(d => d.CustomerId);
                 entityBuilder.WithOwner(d => d.Customer)
-                             .HasPrincipalKey(c => c.AlternateKey);
+                    .HasPrincipalKey(c => c.AlternateKey);
 
                 modelBuilder.FinalizeModel();
 
@@ -493,7 +518,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(nameof(Customer.AlternateKey), ownership.PrincipalKey.Properties.Single().Name);
                 var owned = ownership.DeclaringEntityType;
                 Assert.Same(entityBuilder.OwnedEntityType, owned);
-                Assert.Equal(1, owned.GetForeignKeys().Count());
+                Assert.Single(owned.GetForeignKeys());
                 Assert.Equal(nameof(CustomerDetails.CustomerId), owned.GetIndexes().Single().Properties.Single().Name);
                 Assert.Equal(
                     new[] { "CustomerAlternateKey", nameof(CustomerDetails.CustomerId), nameof(CustomerDetails.Id) },
@@ -526,7 +551,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => CreateTestModelBuilder(SqlServerTestHelpers.Instance);
         }
 
-        public class SqlServerGenericQueryTypes : GenericQueryTypes
+        public class SqlServerGenericKeylessEntities : GenericKeylessEntities
         {
             protected override TestModelBuilder CreateModelBuilder()
                 => CreateTestModelBuilder(SqlServerTestHelpers.Instance);

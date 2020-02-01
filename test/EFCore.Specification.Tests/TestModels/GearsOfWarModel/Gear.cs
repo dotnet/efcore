@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
 
         public string FullName { get; set; }
 
-        public string CityOrBirthName { get; set; }
+        public string CityOfBirthName { get; set; }
         public virtual City CityOfBirth { get; set; }
 
         public virtual City AssignedCity { get; set; }

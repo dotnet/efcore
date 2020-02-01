@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata minClientVersion="3.6">
     $CommonMetadataElements$
@@ -10,9 +11,10 @@
     </dependencies>
   </metadata>
   <files>
+    $CommonFileElements$
     <file src="lib\**\*" target="lib/" />
-    <file src="tools\**\*" target="tools/"/>
-    <file src="$targetDir$*.psd1" target="tools/"/>
+    <file src="tools\**\*" target="tools/" />
+    <file src="$intermediateOutputPath$*.psd1" target="tools/" />
     <file src="../../artifacts/bin/ef/$configuration$/net461/ef.exe" target="tools/net461/any/" />
     <file src="../../artifacts/bin/ef/$configuration$/net461/ef.pdb" target="tools/net461/any/" />
     <file src="../../artifacts/bin/ef/x86/$configuration$/net461/ef.exe" target="tools/net461/win-x86/" />

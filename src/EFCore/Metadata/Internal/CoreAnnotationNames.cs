@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -139,6 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [Obsolete("Use KeyValueComparer. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
         public const string StructuralValueComparer = "StructuralValueComparer";
 
         /// <summary>
@@ -227,6 +229,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public const string AmbiguousField = "BackingFieldConvention:AmbiguousField";
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public static readonly ISet<string> AllNames = new HashSet<string>
         {
             MaxLength,
@@ -244,7 +254,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ValueConverter,
             ValueComparer,
             KeyValueComparer,
+#pragma warning disable 618
             StructuralValueComparer,
+#pragma warning restore 618
             AfterSaveBehavior,
             BeforeSaveBehavior,
             QueryFilter,
@@ -254,7 +266,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             InverseNavigations,
             NavigationCandidates,
             AmbiguousNavigations,
-            DuplicateServiceProperties
+            DuplicateServiceProperties,
+            AmbiguousField
         };
     }
 }

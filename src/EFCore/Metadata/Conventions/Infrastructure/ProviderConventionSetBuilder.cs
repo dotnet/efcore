@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
     /// <summary>
     ///     <para>
     ///         A service on the EF internal service provider that creates the <see cref="ConventionSet" />
-    ///         for the current database provider. This is combined with <see cref="IConventionSetCustomizer" />
+    ///         for the current database provider. This is combined with <see cref="IConventionSetPlugin" />
     ///         instances to produce the full convention set exposed by the <see cref="IConventionSetBuilder" />
     ///         service.
     ///     </para>
@@ -74,6 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.EntityTypeAddedConventions.Add(new DerivedTypeDiscoveryConvention(Dependencies));
 
             conventionSet.EntityTypeIgnoredConventions.Add(inversePropertyAttributeConvention);
+            conventionSet.EntityTypeIgnoredConventions.Add(relationshipDiscoveryConvention);
 
             var discriminatorConvention = new DiscriminatorConvention(Dependencies);
             conventionSet.EntityTypeRemovedConventions.Add(new OwnedTypesConvention(Dependencies));
@@ -104,6 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             var databaseGeneratedAttributeConvention = new DatabaseGeneratedAttributeConvention(Dependencies);
             var requiredPropertyAttributeConvention = new RequiredPropertyAttributeConvention(Dependencies);
             var nonNullableReferencePropertyConvention = new NonNullableReferencePropertyConvention(Dependencies);
+            var nonNullableNavigationConvention = new NonNullableNavigationConvention(Dependencies);
             var maxLengthAttributeConvention = new MaxLengthAttributeConvention(Dependencies);
             var stringLengthAttributeConvention = new StringLengthAttributeConvention(Dependencies);
             var timestampAttributeConvention = new TimestampAttributeConvention(Dependencies);
@@ -171,11 +173,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.ModelFinalizedConventions.Add(foreignKeyIndexConvention);
             conventionSet.ModelFinalizedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.ModelFinalizedConventions.Add(servicePropertyDiscoveryConvention);
+            conventionSet.ModelFinalizedConventions.Add(nonNullableReferencePropertyConvention);
+            conventionSet.ModelFinalizedConventions.Add(nonNullableNavigationConvention);
+            conventionSet.ModelFinalizedConventions.Add(new QueryFilterDefiningQueryRewritingConvention(Dependencies));
+            conventionSet.ModelFinalizedConventions.Add(inversePropertyAttributeConvention);
+            conventionSet.ModelFinalizedConventions.Add(backingFieldConvention);
             conventionSet.ModelFinalizedConventions.Add(new ValidatingConvention(Dependencies));
+            // Don't add any more conventions to ModelFinalizedConventions after ValidatingConvention
 
             conventionSet.NavigationAddedConventions.Add(backingFieldConvention);
             conventionSet.NavigationAddedConventions.Add(new RequiredNavigationAttributeConvention(Dependencies));
-            conventionSet.NavigationAddedConventions.Add(new NonNullableNavigationConvention(Dependencies));
+            conventionSet.NavigationAddedConventions.Add(nonNullableNavigationConvention);
             conventionSet.NavigationAddedConventions.Add(inversePropertyAttributeConvention);
             conventionSet.NavigationAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.NavigationAddedConventions.Add(relationshipDiscoveryConvention);

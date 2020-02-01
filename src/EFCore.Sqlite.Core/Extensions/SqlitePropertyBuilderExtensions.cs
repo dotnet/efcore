@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
@@ -20,11 +20,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="srid"> The SRID. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static PropertyBuilder ForSqliteHasSrid([NotNull] this PropertyBuilder propertyBuilder, int srid)
+        public static PropertyBuilder HasSrid([NotNull] this PropertyBuilder propertyBuilder, int srid)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 
-            propertyBuilder.Metadata.SetSqliteSrid(srid);
+            propertyBuilder.Metadata.SetSrid(srid);
 
             return propertyBuilder;
         }
@@ -35,10 +35,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="srid"> The SRID. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static PropertyBuilder<TProperty> ForSqliteHasSrid<TProperty>(
+        public static PropertyBuilder<TProperty> HasSrid<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
             int srid)
-            => (PropertyBuilder<TProperty>)ForSqliteHasSrid((PropertyBuilder)propertyBuilder, srid);
+            => (PropertyBuilder<TProperty>)HasSrid((PropertyBuilder)propertyBuilder, srid);
 
         /// <summary>
         ///     Configures the SRID of the column that the property maps to when targeting SQLite.
@@ -50,14 +50,14 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <c>null</c> otherwise.
         /// </returns>
-        public static IConventionPropertyBuilder ForSqliteHasSrid(
+        public static IConventionPropertyBuilder HasSrid(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
             int? srid,
             bool fromDataAnnotation = false)
         {
-            if (propertyBuilder.ForSqliteCanSetSrid(srid, fromDataAnnotation))
+            if (propertyBuilder.CanSetSrid(srid, fromDataAnnotation))
             {
-                propertyBuilder.Metadata.SetSqliteSrid(srid, fromDataAnnotation);
+                propertyBuilder.Metadata.SetSrid(srid, fromDataAnnotation);
 
                 return propertyBuilder;
             }
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="srid"> The SRID. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the given value can be set as the SRID for the column. </returns>
-        public static bool ForSqliteCanSetSrid(
+        public static bool CanSetSrid(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
             int? srid,
             bool fromDataAnnotation = false)
@@ -91,14 +91,14 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <c>null</c> otherwise.
         /// </returns>
-        public static IConventionPropertyBuilder ForSqliteHasDimension(
+        public static IConventionPropertyBuilder HasGeometricDimension(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
             [CanBeNull] string dimension,
             bool fromDataAnnotation = false)
         {
-            if (propertyBuilder.ForSqliteCanSetDimension(dimension, fromDataAnnotation))
+            if (propertyBuilder.CanSetGeometricDimension(dimension, fromDataAnnotation))
             {
-                propertyBuilder.Metadata.SetSqliteDimension(dimension, fromDataAnnotation);
+                propertyBuilder.Metadata.SetGeometricDimension(dimension, fromDataAnnotation);
 
                 return propertyBuilder;
             }
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="dimension"> The dimension. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the given value can be set as the dimension for the column. </returns>
-        public static bool ForSqliteCanSetDimension(
+        public static bool CanSetGeometricDimension(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
             [CanBeNull] string dimension,
             bool fromDataAnnotation = false)

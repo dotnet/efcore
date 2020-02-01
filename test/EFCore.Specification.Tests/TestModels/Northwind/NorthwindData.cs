@@ -7,14 +7,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 {
-    public partial class NorthwindData : IExpectedData
+    public partial class NorthwindData : ISetSource
     {
         private readonly Customer[] _customers;
         private readonly CustomerView[] _customerViews;
@@ -67,11 +67,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                 customer.Orders.Add(order);
 
                 orderQueries.Add(
-                    new OrderQuery
-                    {
-                        CustomerID = order.CustomerID,
-                        Customer = order.Customer
-                    });
+                    new OrderQuery { CustomerID = order.CustomerID, Customer = order.Customer });
             }
 
             _orderQueries = orderQueries.ToArray();
@@ -137,6 +133,20 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 
         public static void Seed(NorthwindContext context)
         {
+            AddEntities(context);
+
+            context.SaveChanges();
+        }
+
+        public static Task SeedAsync(NorthwindContext context)
+        {
+            AddEntities(context);
+
+            return context.SaveChangesAsync();
+        }
+
+        private static void AddEntities(NorthwindContext context)
+        {
             context.Set<Customer>().AddRange(CreateCustomers());
 
             var titleProperty = context.Model.FindEntityType(typeof(Employee)).FindProperty("Title");
@@ -149,8 +159,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             context.Set<Order>().AddRange(CreateOrders());
             context.Set<Product>().AddRange(CreateProducts());
             context.Set<OrderDetail>().AddRange(CreateOrderDetails());
-
-            context.SaveChanges();
         }
 
         private class AsyncEnumerable<T> : IAsyncQueryProvider, IOrderedQueryable<T>
@@ -187,11 +195,23 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             private class ShadowStateAccessRewriter : ExpressionVisitor
             {
                 protected override Expression VisitMethodCall(MethodCallExpression expression)
-                    => expression.IsEFProperty()
+                    => expression.Method.IsEFPropertyMethod()
                         ? Expression.Property(
-                            expression.Arguments[0].RemoveConvert(),
+                            RemoveConvert(expression.Arguments[0]),
                             Expression.Lambda<Func<string>>(expression.Arguments[1]).Compile().Invoke())
                         : base.VisitMethodCall(expression);
+            }
+
+            private static Expression RemoveConvert(Expression expression)
+            {
+                if (expression is UnaryExpression unaryExpression
+                    && (expression.NodeType == ExpressionType.Convert
+                        || expression.NodeType == ExpressionType.ConvertChecked))
+                {
+                    return RemoveConvert(unaryExpression.Operand);
+                }
+
+                return expression;
             }
 
             public IQueryable CreateQuery(Expression expression)

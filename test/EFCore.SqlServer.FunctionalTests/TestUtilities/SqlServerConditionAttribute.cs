@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
@@ -18,60 +19,57 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Conditions = conditions;
         }
 
-        public bool IsMet
+        public ValueTask<bool> IsMetAsync()
         {
-            get
+            var isMet = true;
+            if (Conditions.HasFlag(SqlServerCondition.SupportsSequences))
             {
-                var isMet = true;
-                if (Conditions.HasFlag(SqlServerCondition.SupportsSequences))
-                {
-                    isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsSequences)) ?? true;
-                }
-
-                if (Conditions.HasFlag(SqlServerCondition.SupportsOffset))
-                {
-                    isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true;
-                }
-
-                if (Conditions.HasFlag(SqlServerCondition.SupportsHiddenColumns))
-                {
-                    isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsHiddenColumns)) ?? false;
-                }
-
-                if (Conditions.HasFlag(SqlServerCondition.SupportsMemoryOptimized))
-                {
-                    isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsMemoryOptimized)) ?? false;
-                }
-
-                if (Conditions.HasFlag(SqlServerCondition.IsSqlAzure))
-                {
-                    isMet &= TestEnvironment.IsSqlAzure;
-                }
-
-                if (Conditions.HasFlag(SqlServerCondition.IsNotSqlAzure))
-                {
-                    isMet &= !TestEnvironment.IsSqlAzure;
-                }
-
-                if (Conditions.HasFlag(SqlServerCondition.SupportsAttach))
-                {
-                    var defaultConnection = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection);
-                    isMet &= defaultConnection.DataSource.Contains("(localdb)")
-                             || defaultConnection.UserInstance;
-                }
-
-                if (Conditions.HasFlag(SqlServerCondition.IsNotTeamCity))
-                {
-                    isMet &= !TestEnvironment.IsTeamCity;
-                }
-
-                if (Conditions.HasFlag(SqlServerCondition.SupportsFullTextSearch))
-                {
-                    isMet &= TestEnvironment.IsFullTestSearchSupported;
-                }
-
-                return isMet;
+                isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsSequences)) ?? true;
             }
+
+            if (Conditions.HasFlag(SqlServerCondition.SupportsOffset))
+            {
+                isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true;
+            }
+
+            if (Conditions.HasFlag(SqlServerCondition.SupportsHiddenColumns))
+            {
+                isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsHiddenColumns)) ?? false;
+            }
+
+            if (Conditions.HasFlag(SqlServerCondition.SupportsMemoryOptimized))
+            {
+                isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsMemoryOptimized)) ?? false;
+            }
+
+            if (Conditions.HasFlag(SqlServerCondition.IsSqlAzure))
+            {
+                isMet &= TestEnvironment.IsSqlAzure;
+            }
+
+            if (Conditions.HasFlag(SqlServerCondition.IsNotSqlAzure))
+            {
+                isMet &= !TestEnvironment.IsSqlAzure;
+            }
+
+            if (Conditions.HasFlag(SqlServerCondition.SupportsAttach))
+            {
+                var defaultConnection = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection);
+                isMet &= defaultConnection.DataSource.Contains("(localdb)")
+                    || defaultConnection.UserInstance;
+            }
+
+            if (Conditions.HasFlag(SqlServerCondition.IsNotCI))
+            {
+                isMet &= !TestEnvironment.IsCI;
+            }
+
+            if (Conditions.HasFlag(SqlServerCondition.SupportsFullTextSearch))
+            {
+                isMet &= TestEnvironment.IsFullTestSearchSupported;
+            }
+
+            return new ValueTask<bool>(isMet);
         }
 
         public string SkipReason =>

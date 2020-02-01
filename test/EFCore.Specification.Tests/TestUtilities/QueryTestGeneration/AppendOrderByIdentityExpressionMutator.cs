@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 {
@@ -15,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
         public override bool IsValid(Expression expression)
             => IsQueryableResult(expression)
-               && IsOrderedableType(expression.Type.GetGenericArguments()[0]);
+                && IsOrderedableType(expression.Type.GetGenericArguments()[0]);
 
         public override Expression Apply(Expression expression, Random random)
         {
@@ -23,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
             var isDescending = random.Next(3) == 0;
             var orderBy = isDescending
-                ? OrderByDescendingMethodInfo.MakeGenericMethod(typeArgument, typeArgument)
-                : OrderByMethodInfo.MakeGenericMethod(typeArgument, typeArgument);
+                ? QueryableMethods.OrderByDescending.MakeGenericMethod(typeArgument, typeArgument)
+                : QueryableMethods.OrderBy.MakeGenericMethod(typeArgument, typeArgument);
 
             var prm = Expression.Parameter(typeArgument, "prm");
             var lambda = Expression.Lambda(prm, prm);

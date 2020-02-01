@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -38,10 +39,8 @@ namespace Microsoft.EntityFrameworkCore
                 0, threadCount,
                 i =>
                 {
-                    using (var context = new SlowContext())
-                    {
-                        models[i] = context.Model;
-                    }
+                    using var context = new SlowContext();
+                    models[i] = context.Model;
                 });
 
             Assert.NotNull(models[0]);
@@ -78,9 +77,11 @@ namespace Microsoft.EntityFrameworkCore
             var model = CreateDefaultModelSource(setFinder)
                 .GetModel(
                     InMemoryTestHelpers.Instance.CreateContext(),
-                    new RuntimeConventionSetBuilder(new ProviderConventionSetBuilder(
-                        InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>()
-                            .With(setFinder)), new List<IConventionSetCustomizer>()));
+                    new RuntimeConventionSetBuilder(
+                        new ProviderConventionSetBuilder(
+                            InMemoryTestHelpers.Instance.CreateContextServices()
+                                .GetRequiredService<ProviderConventionSetBuilderDependencies>()
+                                .With(setFinder)), new List<IConventionSetPlugin>()));
 
             Assert.Equal(
                 new[] { typeof(SetA).DisplayName(), typeof(SetB).DisplayName() },
@@ -145,6 +146,12 @@ namespace Microsoft.EntityFrameworkCore
             var packageVersion = typeof(Context1).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
                 .Single(m => m.Key == "PackageVersion").Value;
 
+            var prereleaseIndex = packageVersion.IndexOf("-", StringComparison.Ordinal);
+            if (prereleaseIndex != -1)
+            {
+                packageVersion = packageVersion.Substring(0, prereleaseIndex);
+            }
+
             Assert.StartsWith(packageVersion, model.GetProductVersion(), StringComparison.OrdinalIgnoreCase);
         }
 
@@ -165,7 +172,8 @@ namespace Microsoft.EntityFrameworkCore
                 : base(
                     new ModelSourceDependencies(
                         new ModelCustomizer(new ModelCustomizerDependencies(setFinder)),
-                        InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelCacheKeyFactory>()))
+                        InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelCacheKeyFactory>(),
+                        new MemoryCache(new MemoryCacheOptions { SizeLimit = 200 })))
             {
             }
         }

@@ -142,24 +142,17 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             var closedInnerType = openInnerType.MakeGenericType(genArgsInnerType);
             return new TheoryData<Type, bool, string>
             {
-                {
-                    typeof(List<>), false, "List<>"
-                },
-                {
-                    typeof(Dictionary<,>), false, "Dictionary<,>"
-                },
-                {
-                    typeof(List<>), true, "System.Collections.Generic.List<>"
-                },
-                {
-                    typeof(Dictionary<,>), true, "System.Collections.Generic.Dictionary<,>"
-                },
+                { typeof(List<>), false, "List<>" },
+                { typeof(Dictionary<,>), false, "Dictionary<,>" },
+                { typeof(List<>), true, "System.Collections.Generic.List<>" },
+                { typeof(Dictionary<,>), true, "System.Collections.Generic.Dictionary<,>" },
                 {
                     typeof(Level1<>.Level2<>.Level3<>), true,
                     "Microsoft.EntityFrameworkCore.Utilities.TypeNameHelperTest+Level1<>+Level2<>+Level3<>"
                 },
                 {
-                    typeof(PartiallyClosedGeneric<>).BaseType, true, "Microsoft.EntityFrameworkCore.Utilities.TypeNameHelperTest+C<, int>"
+                    typeof(PartiallyClosedGeneric<>).BaseType, true,
+                    "Microsoft.EntityFrameworkCore.Utilities.TypeNameHelperTest+C<, int>"
                 },
                 {
                     typeof(OuterGeneric<>.InnerNonGeneric.InnerGeneric<,>.InnerGenericLeafNode<>), true,

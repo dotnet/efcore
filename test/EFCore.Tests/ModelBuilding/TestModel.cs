@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public ToastedBun ToastedBun { get; set; }
 
-            public Moostard Moostard { get; set; }
+            public Mustard Mustard { get; set; }
         }
 
         private class Tomato
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public Whoopper Whoopper { get; set; }
         }
 
-        private class Moostard
+        private class Mustard
         {
             public int Id1 { get; set; }
             public int Id2 { get; set; }
@@ -93,6 +93,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public string Name { get; set; }
 
             public IEnumerable<Order> Orders { get; set; }
+
+            [NotMapped]
+            public ICollection<SpecialOrder> SomeOrders { get; set; }
 
             public CustomerDetails Details { get; set; }
         }
@@ -138,14 +141,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int? CustomerId { get; set; }
             public Guid AnotherCustomerId { get; set; }
             public Customer Customer { get; set; }
-
             public OrderCombination OrderCombination { get; set; }
-
             public OrderDetails Details { get; set; }
             public ICollection<Product> Products { get; set; }
 
             public event PropertyChangedEventHandler PropertyChanged;
-
             protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
             {
                 if (PropertyChanged == null)
@@ -155,18 +155,45 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
         }
 
+        private class OrderProduct
+        {
+            public static readonly PropertyInfo OrderIdProperty = typeof(OrderProduct).GetProperty(nameof(OrderId));
+            public static readonly PropertyInfo ProductIdProperty = typeof(OrderProduct).GetProperty(nameof(ProductId));
+
+            public int OrderId { get; set; }
+            public int ProductId { get; set; }
+            public virtual Order Order { get; set; }
+            public virtual Product Product { get; set; }
+        }
+
         [NotMapped]
         protected class Product
         {
             public int Id { get; set; }
+
+            [NotMapped]
             public Order Order { get; set; }
+
+            [NotMapped]
+            public virtual ICollection<Order> Orders { get; set; }
+
+            public virtual ICollection<Category> Categories { get; set; }
         }
 
         protected class ProductCategory
         {
+            public int ProductId { get; set; }
+            public int CategoryId { get; set; }
+            public virtual Product Product { get; set; }
+            public virtual Category Category { get; set; }
+        }
+
+        protected class Category
+        {
             public int Id { get; set; }
             public string Name { get; set; }
-            public ICollection<Product> Products { get; set; }
+            public virtual ICollection<ProductCategory> ProductCategories { get; set; }
+            public virtual ICollection<Product> Products { get; set; }
         }
 
         [Owned]
@@ -217,6 +244,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
             private int _forUp;
             private string _forDown;
+#pragma warning disable IDE0044 // Add readonly modifier
+#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable CS0169 // Remove unused private fields
+            private int? _forWierd;
+#pragma warning restore CS0169 // Remove unused private fields
+#pragma warning restore IDE0051 // Remove unused private members
+#pragma warning restore IDE0044 // Add readonly modifier
 
             public int Id { get; set; }
 
@@ -278,6 +312,26 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public SelfRefManyToOne SelfRef1 { get; set; }
             public ICollection<SelfRefManyToOne> SelfRef2 { get; set; }
             public int SelfRefId { get; set; }
+        }
+
+        protected class User
+        {
+            [Required]
+            public Guid Id { get; set; }
+
+            [Required]
+            [MaxLength(150)]
+            public string Name { get; set; }
+
+            [Required]
+            public User CreatedBy { get; set; }
+
+            public User UpdatedBy { get; set; }
+
+            [Required]
+            public Guid CreatedById { get; set; }
+
+            public Guid? UpdatedById { get; set; }
         }
 
         protected class SelfRefManyToOneDerived : SelfRefManyToOne
@@ -566,6 +620,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class PrincipalTypeWithKeyAnnotation
         {
             public int Id { get; set; }
+
+            [NotMapped]
+            public BaseTypeWithKeyAnnotation Navigation { get; set; }
         }
 
         protected class CityViewModel
@@ -649,7 +706,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public Value Value { get; set; }
         }
 
-        protected class QueryType
+        protected class KeylessEntity
         {
             public int CustomerId { get; set; }
             public Customer Customer { get; set; }
@@ -697,7 +754,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class PrincipalShadowFk
         {
             public Guid PrincipalShadowFkId { get; set; }
-            public List<DependentShadowFk> Dependends { get; set; }
+            public List<DependentShadowFk> Dependents { get; set; }
         }
 
         protected class BaseOwner

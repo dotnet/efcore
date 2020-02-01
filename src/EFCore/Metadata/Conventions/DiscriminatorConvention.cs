@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     return;
                 }
 
-                var rootTypeBuilder = entityType.RootType().Builder;
+                var rootTypeBuilder = entityType.GetRootType().Builder;
                 discriminator = rootTypeBuilder?.HasDiscriminator(typeof(string));
 
                 if (newBaseType.BaseType == null)

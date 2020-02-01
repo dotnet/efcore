@@ -3,8 +3,6 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-using Xunit;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
@@ -14,12 +12,6 @@ namespace Microsoft.EntityFrameworkCore
         public BuiltInDataTypesInMemoryTest(BuiltInDataTypesInMemoryFixture fixture)
             : base(fixture)
         {
-        }
-
-        [ConditionalFact(Skip = "Issue#15711")]
-        public override void Can_insert_and_read_back_with_string_key()
-        {
-            base.Can_insert_and_read_back_with_string_key();
         }
 
         public class BuiltInDataTypesInMemoryFixture : BuiltInDataTypesFixtureBase

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
     ///     A convention that configures model function mappings based on public static methods on the context marked with
-    ///     <see cref="DbFunctionAttribute"/>.
+    ///     <see cref="DbFunctionAttribute" />.
     /// </summary>
     public class RelationalDbFunctionAttributeConvention : IModelInitializedConvention, IModelAnnotationChangedConvention
     {
@@ -39,15 +39,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         /// <param name="modelBuilder"> The builder for the model. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessModelInitialized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        public virtual void ProcessModelInitialized(
+            IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
         {
             var contextType = Dependencies.ContextType;
             while (contextType != null
-                   && contextType != typeof(DbContext))
+                && contextType != typeof(DbContext))
             {
                 var functions = contextType.GetMethods(
-                        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
-                        | BindingFlags.Static | BindingFlags.DeclaredOnly)
+                        BindingFlags.Public
+                        | BindingFlags.NonPublic
+                        | BindingFlags.Instance
+                        | BindingFlags.Static
+                        | BindingFlags.DeclaredOnly)
                     .Where(mi => mi.IsDefined(typeof(DbFunctionAttribute)));
 
                 foreach (var function in functions)
@@ -86,9 +90,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <summary>
-        ///     Called when an <see cref="IMutableDbFunction"/> is added to the model.
+        ///     Called when an <see cref="IMutableDbFunction" /> is added to the model.
         /// </summary>
-        /// <param name="dbFunctionBuilder"> The builder for the <see cref="IMutableDbFunction"/>. </param>
+        /// <param name="dbFunctionBuilder"> The builder for the <see cref="IMutableDbFunction" />. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         protected virtual void ProcessDbFunctionAdded(
             [NotNull] IConventionDbFunctionBuilder dbFunctionBuilder, [NotNull] IConventionContext context)
@@ -96,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var methodInfo = dbFunctionBuilder.Metadata.MethodInfo;
             var dbFunctionAttribute = methodInfo.GetCustomAttributes<DbFunctionAttribute>().SingleOrDefault();
 
-            dbFunctionBuilder.HasName(dbFunctionAttribute?.FunctionName ?? methodInfo.Name);
+            dbFunctionBuilder.HasName(dbFunctionAttribute?.Name ?? methodInfo.Name);
             dbFunctionBuilder.HasSchema(dbFunctionAttribute?.Schema);
         }
     }

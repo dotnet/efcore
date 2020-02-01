@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             IMutableModel model = new Model();
             var entityType = model.AddEntityType(typeof(IndexedClass));
-            entityType.AddProperty("Id", typeof(int));
+            var id = entityType.AddProperty("Id", typeof(int));
             var propertyA = entityType.AddIndexedProperty("PropertyA", typeof(string));
             model.FinalizeModel();
 
@@ -68,10 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class IndexedClass
         {
-            private readonly Dictionary<string, object> _internalValues = new Dictionary<string, object>
-            {
-                    { "PropertyA", "ValueA" }
-                };
+            private readonly Dictionary<string, object> _internalValues = new Dictionary<string, object> { { "PropertyA", "ValueA" } };
 
             internal int Id { get; set; }
 

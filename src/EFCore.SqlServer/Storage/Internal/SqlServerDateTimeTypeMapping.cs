@@ -4,7 +4,7 @@
 using System.Data;
 using System.Data.Common;
 using JetBrains.Annotations;
-using Microsoft.Data.SqlClient; // Note: Hard reference to SqlClient here.
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
@@ -17,9 +17,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
     /// </summary>
     public class SqlServerDateTimeTypeMapping : DateTimeTypeMapping
     {
-        private const string DateFormatConst = "{0:yyyy-MM-dd}";
-        private const string DateTimeFormatConst = "{0:yyyy-MM-ddTHH:mm:ss.fff}";
-        private const string DateTime2FormatConst = "{0:yyyy-MM-ddTHH:mm:ss.fffffffK}";
+        private const string DateFormatConst = "'{0:yyyy-MM-dd}'";
+        private const string SmallDateTimeFormatConst = "'{0:yyyy-MM-ddTHH:mm:ss}'";
+        private const string DateTimeFormatConst = "'{0:yyyy-MM-ddTHH:mm:ss.fff}'";
+
+        private readonly string[] _dateTime2Formats =
+        {
+            "'{0:yyyy-MM-ddTHH:mm:ss}'",
+            "'{0:yyyy-MM-ddTHH:mm:ss.fK}'",
+            "'{0:yyyy-MM-ddTHH:mm:ss.ffK}'",
+            "'{0:yyyy-MM-ddTHH:mm:ss.fffK}'",
+            "'{0:yyyy-MM-ddTHH:mm:ss.ffffK}'",
+            "'{0:yyyy-MM-ddTHH:mm:ss.fffffK}'",
+            "'{0:yyyy-MM-ddTHH:mm:ss.ffffffK}'",
+            "'{0:yyyy-MM-ddTHH:mm:ss.fffffffK}'"
+        };
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -83,10 +95,31 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override string SqlLiteralFormatString
-            => StoreType == "date"
-                ? "'" + DateFormatConst + "'"
-                : (StoreType == "datetime" || StoreType == "smalldatetime"
-                    ? "'" + DateTimeFormatConst + "'"
-                    : "'" + DateTime2FormatConst + "'");
+        {
+            get
+            {
+                switch (StoreType)
+                {
+                    case "date":
+                        return DateFormatConst;
+                    case "datetime":
+                        return DateTimeFormatConst;
+                    case "smalldatetime":
+                        return SmallDateTimeFormatConst;
+                    default:
+                        if (Size.HasValue)
+                        {
+                            var size = Size.Value;
+                            if (size <= 7
+                                && size >= 0)
+                            {
+                                return _dateTime2Formats[size];
+                            }
+                        }
+
+                        return _dateTime2Formats[7];
+                }
+            }
+        }
     }
 }

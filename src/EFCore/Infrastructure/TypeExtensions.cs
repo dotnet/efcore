@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
     ///     <para>
-    ///         Extension methods for <see cref="Type"/> instances.
+    ///         Extension methods for <see cref="Type" /> instances.
     ///     </para>
     ///     <para>
     ///         These extensions are typically used by database providers (and other extensions). They are generally

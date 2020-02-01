@@ -125,290 +125,6 @@ namespace Microsoft.EntityFrameworkCore
         ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
         ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter -
-        ///         <code>context.Database.ExecuteSqlCommand("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>.
-        ///         You can also consider using ExecuteSqlInterpolated to use interpolated string syntax to create parameters.
-        ///     </para>
-        /// </summary>
-        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
-        /// <param name="sql"> The SQL to execute. </param>
-        /// <param name="parameters"> Parameters to use with the SQL. </param>
-        /// <returns> The number of rows affected. </returns>
-        [Obsolete(
-            "For the execution of SQL queries using plain strings, use ExecuteSqlRaw instead. For the execution of SQL queries using interpolated string syntax to create parameters, use ExecuteSqlInterpolated instead.")]
-        public static int ExecuteSqlCommand(
-            [NotNull] this DatabaseFacade databaseFacade,
-            RawSqlString sql,
-            [NotNull] params object[] parameters)
-            => ExecuteSqlCommand(databaseFacade, sql, (IEnumerable<object>)parameters);
-
-        /// <summary>
-        ///     <para>
-        ///         Executes the given SQL against the database and returns the number of rows affected.
-        ///     </para>
-        ///     <para>
-        ///         Note that this method does not start a transaction. To use this method with
-        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
-        ///     </para>
-        ///     <para>
-        ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
-        ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
-        ///         can be used explicitly, making sure to also use a transaction if the SQL is not
-        ///         idempotent.
-        ///     </para>
-        ///     <para>
-        ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
-        ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter -
-        ///         <code>context.Database.ExecuteSqlCommand($"SELECT * FROM [dbo].[SearchBlogs]({userSuppliedSearchTerm})")</code>.
-        ///     </para>
-        /// </summary>
-        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
-        /// <param name="sql"> The interpolated string representing a SQL query with parameters. </param>
-        /// <returns> The number of rows affected. </returns>
-        [Obsolete(
-            "For the execution of SQL queries using plain strings, use ExecuteSqlRaw instead. For the execution of SQL queries using interpolated string syntax to create parameters, use ExecuteSqlInterpolated instead.")]
-        public static int ExecuteSqlCommand(
-            [NotNull] this DatabaseFacade databaseFacade,
-            [NotNull] FormattableString sql)
-            => ExecuteSqlCommand(databaseFacade, sql.Format, sql.GetArguments());
-
-        /// <summary>
-        ///     <para>
-        ///         Executes the given SQL against the database and returns the number of rows affected.
-        ///     </para>
-        ///     <para>
-        ///         Note that this method does not start a transaction. To use this method with
-        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
-        ///     </para>
-        ///     <para>
-        ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
-        ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
-        ///         can be used explicitly, making sure to also use a transaction if the SQL is not
-        ///         idempotent.
-        ///     </para>
-        ///     <para>
-        ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
-        ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
-        ///         You can also consider using ExecuteSqlInterpolated to use interpolated string syntax to create parameters.
-        ///     </para>
-        /// </summary>
-        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
-        /// <param name="sql"> The SQL to execute. </param>
-        /// <param name="parameters"> Parameters to use with the SQL. </param>
-        /// <returns> The number of rows affected. </returns>
-        [Obsolete(
-            "For the execution of SQL queries using plain strings, use ExecuteSqlRaw instead. For the execution of SQL queries using interpolated string syntax to create parameters, use ExecuteSqlInterpolated instead.")]
-        public static int ExecuteSqlCommand(
-            [NotNull] this DatabaseFacade databaseFacade,
-            RawSqlString sql,
-            [NotNull] IEnumerable<object> parameters)
-        {
-            Check.NotNull(databaseFacade, nameof(databaseFacade));
-            Check.NotNull(sql, nameof(sql));
-            Check.NotNull(parameters, nameof(parameters));
-
-            var concurrencyDetector = databaseFacade.GetService<IConcurrencyDetector>();
-            var logger = databaseFacade.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
-
-            using (concurrencyDetector.EnterCriticalSection())
-            {
-                var rawSqlCommand = databaseFacade
-                    .GetRelationalService<IRawSqlCommandBuilder>()
-                    .Build(sql.Format, parameters);
-
-                return rawSqlCommand
-                    .RelationalCommand
-                    .ExecuteNonQuery(
-                        databaseFacade.GetRelationalService<IRelationalConnection>(),
-                        rawSqlCommand.ParameterValues,
-                        logger);
-            }
-        }
-
-        /// <summary>
-        ///     <para>
-        ///         Executes the given SQL against the database and returns the number of rows affected.
-        ///     </para>
-        ///     <para>
-        ///         Note that this method does not start a transaction. To use this method with
-        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
-        ///     </para>
-        ///     <para>
-        ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
-        ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
-        ///         can be used explicitly, making sure to also use a transaction if the SQL is not
-        ///         idempotent.
-        ///     </para>
-        ///     <para>
-        ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
-        ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter -
-        ///         <code>context.Database.ExecuteSqlCommandAsync($"SELECT * FROM [dbo].[SearchBlogs]({userSuppliedSearchTerm})")</code>.
-        ///     </para>
-        /// </summary>
-        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
-        /// <param name="sql"> The interpolated string representing a SQL query with parameters. </param>
-        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
-        /// <returns>
-        ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
-        /// </returns>
-        [Obsolete(
-            "For the async execution of SQL queries using plain strings, use ExecuteSqlRawAsync instead. For the async execution of SQL queries using interpolated string syntax to create parameters, use ExecuteSqlInterpolatedAsync instead.")]
-        public static Task<int> ExecuteSqlCommandAsync(
-            [NotNull] this DatabaseFacade databaseFacade,
-            [NotNull] FormattableString sql,
-            CancellationToken cancellationToken = default)
-            => ExecuteSqlCommandAsync(databaseFacade, sql.Format, sql.GetArguments(), cancellationToken);
-
-        /// <summary>
-        ///     <para>
-        ///         Executes the given SQL against the database and returns the number of rows affected.
-        ///     </para>
-        ///     <para>
-        ///         Note that this method does not start a transaction. To use this method with
-        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
-        ///     </para>
-        ///     <para>
-        ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
-        ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
-        ///         can be used explicitly, making sure to also use a transaction if the SQL is not
-        ///         idempotent.
-        ///     </para>
-        ///     <para>
-        ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
-        ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter -
-        ///         <code>context.Database.ExecuteSqlCommandAsync("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>.
-        ///     </para>
-        /// </summary>
-        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
-        /// <param name="sql"> The SQL to execute. </param>
-        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
-        /// <returns>
-        ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
-        /// </returns>
-        [Obsolete(
-            "For the async execution of SQL queries using plain strings, use ExecuteSqlRawAsync instead. For the async execution of SQL queries using interpolated string syntax to create parameters, use ExecuteSqlInterpolatedAsync instead.")]
-        public static Task<int> ExecuteSqlCommandAsync(
-            [NotNull] this DatabaseFacade databaseFacade,
-            RawSqlString sql,
-            CancellationToken cancellationToken = default)
-            => ExecuteSqlCommandAsync(databaseFacade, sql, Enumerable.Empty<object>(), cancellationToken);
-
-        /// <summary>
-        ///     <para>
-        ///         Executes the given SQL against the database and returns the number of rows affected.
-        ///     </para>
-        ///     <para>
-        ///         Note that this method does not start a transaction. To use this method with
-        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
-        ///     </para>
-        ///     <para>
-        ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
-        ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
-        ///         can be used explicitly, making sure to also use a transaction if the SQL is not
-        ///         idempotent.
-        ///     </para>
-        ///     <para>
-        ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
-        ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter -
-        ///         <code>context.Database.ExecuteSqlCommandAsync("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>.
-        ///         You can also consider using ExecuteSqlInterpolated to use interpolated string syntax to create parameters.
-        ///     </para>
-        /// </summary>
-        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
-        /// <param name="sql"> The SQL to execute. </param>
-        /// <param name="parameters"> Parameters to use with the SQL. </param>
-        /// <returns>
-        ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
-        /// </returns>
-        [Obsolete(
-            "For the async execution of SQL queries using plain strings, use ExecuteSqlRawAsync instead. For the async execution of SQL queries using interpolated string syntax to create parameters, use ExecuteSqlInterpolatedAsync instead.")]
-        public static Task<int> ExecuteSqlCommandAsync(
-            [NotNull] this DatabaseFacade databaseFacade,
-            RawSqlString sql,
-            [NotNull] params object[] parameters)
-            => ExecuteSqlCommandAsync(databaseFacade, sql, (IEnumerable<object>)parameters);
-
-        /// <summary>
-        ///     <para>
-        ///         Executes the given SQL against the database and returns the number of rows affected.
-        ///     </para>
-        ///     <para>
-        ///         Note that this method does not start a transaction. To use this method with
-        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
-        ///     </para>
-        ///     <para>
-        ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
-        ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
-        ///         can be used explicitly, making sure to also use a transaction if the SQL is not
-        ///         idempotent.
-        ///     </para>
-        ///     <para>
-        ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
-        ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
-        ///         You can also consider using ExecuteSqlInterpolated to use interpolated string syntax to create parameters.
-        ///     </para>
-        /// </summary>
-        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
-        /// <param name="sql"> The SQL to execute. </param>
-        /// <param name="parameters"> Parameters to use with the SQL. </param>
-        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
-        /// <returns>
-        ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
-        /// </returns>
-        [Obsolete(
-            "For the async execution of SQL queries using plain strings, use ExecuteSqlRawAsync instead. For the async execution of SQL queries using interpolated string syntax to create parameters, use ExecuteSqlInterpolatedAsync instead.")]
-        public static async Task<int> ExecuteSqlCommandAsync(
-            [NotNull] this DatabaseFacade databaseFacade,
-            RawSqlString sql,
-            [NotNull] IEnumerable<object> parameters,
-            CancellationToken cancellationToken = default)
-        {
-            Check.NotNull(databaseFacade, nameof(databaseFacade));
-            Check.NotNull(sql, nameof(sql));
-            Check.NotNull(parameters, nameof(parameters));
-
-            var concurrencyDetector = databaseFacade.GetService<IConcurrencyDetector>();
-            var logger = databaseFacade.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
-
-            using (await concurrencyDetector.EnterCriticalSectionAsync(cancellationToken))
-            {
-                var rawSqlCommand = databaseFacade
-                    .GetRelationalService<IRawSqlCommandBuilder>()
-                    .Build(sql.Format, parameters);
-
-                return await rawSqlCommand
-                    .RelationalCommand
-                    .ExecuteNonQueryAsync(
-                        databaseFacade.GetRelationalService<IRelationalConnection>(),
-                        rawSqlCommand.ParameterValues,
-                        logger,
-                        cancellationToken);
-            }
-        }
-
-        /// <summary>
-        ///     <para>
-        ///         Executes the given SQL against the database and returns the number of rows affected.
-        ///     </para>
-        ///     <para>
-        ///         Note that this method does not start a transaction. To use this method with
-        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
-        ///     </para>
-        ///     <para>
-        ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
-        ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
-        ///         can be used explicitly, making sure to also use a transaction if the SQL is not
-        ///         idempotent.
-        ///     </para>
-        ///     <para>
-        ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
-        ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter -
         ///         <code>context.Database.ExecuteSqlRaw("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>.
         ///         You can also consider using ExecuteSqlInterpolated to use interpolated string syntax to create parameters.
         ///     </para>
@@ -486,21 +202,24 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(sql, nameof(sql));
             Check.NotNull(parameters, nameof(parameters));
 
-            var concurrencyDetector = databaseFacade.GetService<IConcurrencyDetector>();
-            var logger = databaseFacade.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
+            var facadeDependencies = GetFacadeDependencies(databaseFacade);
+            var concurrencyDetector = facadeDependencies.ConcurrencyDetector;
+            var logger = facadeDependencies.CommandLogger;
 
             using (concurrencyDetector.EnterCriticalSection())
             {
-                var rawSqlCommand = databaseFacade
-                    .GetRelationalService<IRawSqlCommandBuilder>()
+                var rawSqlCommand = GetFacadeDependencies(databaseFacade).RawSqlCommandBuilder
                     .Build(sql, parameters);
 
                 return rawSqlCommand
                     .RelationalCommand
                     .ExecuteNonQuery(
-                        databaseFacade.GetRelationalService<IRelationalConnection>(),
-                        rawSqlCommand.ParameterValues,
-                        logger);
+                        new RelationalCommandParameterObject(
+                            facadeDependencies.RelationalConnection,
+                            rawSqlCommand.ParameterValues,
+                            null,
+                            ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context,
+                            logger));
             }
         }
 
@@ -636,21 +355,24 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(sql, nameof(sql));
             Check.NotNull(parameters, nameof(parameters));
 
-            var concurrencyDetector = databaseFacade.GetService<IConcurrencyDetector>();
-            var logger = databaseFacade.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
+            var facadeDependencies = GetFacadeDependencies(databaseFacade);
+            var concurrencyDetector = facadeDependencies.ConcurrencyDetector;
+            var logger = facadeDependencies.CommandLogger;
 
-            using (await concurrencyDetector.EnterCriticalSectionAsync(cancellationToken))
+            using (concurrencyDetector.EnterCriticalSection())
             {
-                var rawSqlCommand = databaseFacade
-                    .GetRelationalService<IRawSqlCommandBuilder>()
+                var rawSqlCommand = GetFacadeDependencies(databaseFacade).RawSqlCommandBuilder
                     .Build(sql, parameters);
 
                 return await rawSqlCommand
                     .RelationalCommand
                     .ExecuteNonQueryAsync(
-                        databaseFacade.GetRelationalService<IRelationalConnection>(),
-                        rawSqlCommand.ParameterValues,
-                        logger,
+                        new RelationalCommandParameterObject(
+                            facadeDependencies.RelationalConnection,
+                            rawSqlCommand.ParameterValues,
+                            null,
+                            ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context,
+                            logger),
                         cancellationToken);
             }
         }
@@ -661,7 +383,44 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <returns> The <see cref="DbConnection" /> </returns>
         public static DbConnection GetDbConnection([NotNull] this DatabaseFacade databaseFacade)
-            => databaseFacade.GetRelationalService<IRelationalConnection>().DbConnection;
+            => GetFacadeDependencies(databaseFacade).RelationalConnection.DbConnection;
+
+        /// <summary>
+        ///     <para>
+        ///         Sets the underlying ADO.NET <see cref="DbConnection" /> for this <see cref="DbContext" />.
+        ///     </para>
+        ///     <para>
+        ///         The connection can only be set when the existing connection, if any, is not open.
+        ///     </para>
+        ///     <para>
+        ///         Note that the given connection must be disposed by application code since it was not created by Entity Framework.
+        ///     </para>
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="connection"> The connection. </param>
+        public static void SetDbConnection([NotNull] this DatabaseFacade databaseFacade, [CanBeNull] DbConnection connection)
+            => GetFacadeDependencies(databaseFacade).RelationalConnection.DbConnection = connection;
+
+        /// <summary>
+        ///     Gets the underlying connection string configured for this <see cref="DbContext" />.
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <returns> The connection string. </returns>
+        public static string GetConnectionString([NotNull] this DatabaseFacade databaseFacade)
+            => GetFacadeDependencies(databaseFacade).RelationalConnection.ConnectionString;
+
+        /// <summary>
+        ///     <para>
+        ///         Sets the underlying connection string configured for this <see cref="DbContext" />.
+        ///     </para>
+        ///     <para>
+        ///         It may not be possible to change the connection string if existing connection, if any, is open.
+        ///     </para>
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="connectionString"> The connection string. </param>
+        public static void SetConnectionString([NotNull] this DatabaseFacade databaseFacade, [CanBeNull] string connectionString)
+            => GetFacadeDependencies(databaseFacade).RelationalConnection.ConnectionString = connectionString;
 
         /// <summary>
         ///     Opens the underlying <see cref="DbConnection" />.
@@ -670,29 +429,35 @@ namespace Microsoft.EntityFrameworkCore
         public static void OpenConnection([NotNull] this DatabaseFacade databaseFacade)
             => databaseFacade.CreateExecutionStrategy().Execute(
                 databaseFacade, database
-                    => database.GetRelationalService<IRelationalConnection>().Open());
+                    => GetFacadeDependencies(database).RelationalConnection.Open());
 
         /// <summary>
         ///     Opens the underlying <see cref="DbConnection" />.
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
-        /// <returns>
-        ///     A task that represents the asynchronous operation.
-        /// </returns>
+        /// <returns> A task that represents the asynchronous operation. </returns>
         public static Task OpenConnectionAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             CancellationToken cancellationToken = default)
             => databaseFacade.CreateExecutionStrategy().ExecuteAsync(
                 databaseFacade, (database, ct) =>
-                    database.GetRelationalService<IRelationalConnection>().OpenAsync(cancellationToken), cancellationToken);
+                    GetFacadeDependencies(database).RelationalConnection.OpenAsync(cancellationToken), cancellationToken);
 
         /// <summary>
         ///     Closes the underlying <see cref="DbConnection" />.
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         public static void CloseConnection([NotNull] this DatabaseFacade databaseFacade)
-            => databaseFacade.GetRelationalService<IRelationalConnection>().Close();
+            => GetFacadeDependencies(databaseFacade).RelationalConnection.Close();
+
+        /// <summary>
+        ///     Closes the underlying <see cref="DbConnection" />.
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        public static Task CloseConnectionAsync([NotNull] this DatabaseFacade databaseFacade)
+            => GetFacadeDependencies(databaseFacade).RelationalConnection.CloseAsync();
 
         /// <summary>
         ///     Starts a new transaction with a given <see cref="IsolationLevel" />.
@@ -755,6 +520,28 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Sets the <see cref="DbTransaction" /> to be used by database operations on the <see cref="DbContext" />.
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="transaction"> The <see cref="DbTransaction" /> to use. </param>
+        /// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
+        /// <returns> A <see cref="Task" /> containing the <see cref="IDbContextTransaction" /> for the given transaction. </returns>
+        public static Task<IDbContextTransaction> UseTransactionAsync(
+            [NotNull] this DatabaseFacade databaseFacade,
+            [CanBeNull] DbTransaction transaction,
+            CancellationToken cancellationToken = default)
+        {
+            var transactionManager = GetTransactionManager(databaseFacade);
+
+            if (!(transactionManager is IRelationalTransactionManager relationalTransactionManager))
+            {
+                throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
+            }
+
+            return relationalTransactionManager.UseTransactionAsync(transaction, cancellationToken);
+        }
+
+        /// <summary>
         ///     <para>
         ///         Sets the timeout (in seconds) to use for commands executed with this <see cref="DbContext" />.
         ///     </para>
@@ -766,7 +553,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="timeout"> The timeout to use, in seconds. </param>
         public static void SetCommandTimeout([NotNull] this DatabaseFacade databaseFacade, int? timeout)
-            => databaseFacade.GetRelationalService<IRelationalConnection>().CommandTimeout = timeout;
+            => GetFacadeDependencies(databaseFacade).RelationalConnection.CommandTimeout = timeout;
 
         /// <summary>
         ///     <para>
@@ -806,7 +593,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <returns> The timeout, in seconds, or null if no timeout has been set. </returns>
         public static int? GetCommandTimeout([NotNull] this DatabaseFacade databaseFacade)
-            => databaseFacade.GetRelationalService<IRelationalConnection>().CommandTimeout;
+            => GetFacadeDependencies(databaseFacade).RelationalConnection.CommandTimeout;
 
         /// <summary>
         ///     Generates a script to create all tables for the current model.
@@ -816,6 +603,28 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static string GenerateCreateScript([NotNull] this DatabaseFacade databaseFacade)
             => databaseFacade.GetRelationalService<IRelationalDatabaseCreator>().GenerateCreateScript();
+
+        /// <summary>
+        ///     <para>
+        ///         Returns true if the database provider currently in use is a relational database.
+        ///     </para>
+        /// </summary>
+        /// <param name="databaseFacade"> The facade from <see cref="DbContext.Database" />. </param>
+        /// <returns> True if a relational database provider is being used; false otherwise. </returns>
+        public static bool IsRelational([NotNull] this DatabaseFacade databaseFacade)
+            => ((IDatabaseFacadeDependenciesAccessor)Check.NotNull(databaseFacade, nameof(databaseFacade))).Dependencies is IRelationalDatabaseFacadeDependencies;
+
+        private static IRelationalDatabaseFacadeDependencies GetFacadeDependencies(DatabaseFacade databaseFacade)
+        {
+            var dependencies = ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies;
+
+            if (dependencies is IRelationalDatabaseFacadeDependencies relationalDependencies)
+            {
+                return relationalDependencies;
+            }
+
+            throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
+        }
 
         private static TService GetRelationalService<TService>(this IInfrastructure<IServiceProvider> databaseFacade)
         {
@@ -831,6 +640,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static IDbContextTransactionManager GetTransactionManager([NotNull] this DatabaseFacade databaseFacade)
-            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IDbContextTransactionManager>();
+            => ((IDatabaseFacadeDependenciesAccessor)Check.NotNull(databaseFacade, nameof(databaseFacade))).Dependencies.TransactionManager;
     }
 }

@@ -92,7 +92,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 entityType.RemoveAnnotation(CoreAnnotationNames.AmbiguousNavigations);
                 entityType.RemoveAnnotation(CoreAnnotationNames.NavigationCandidates);
-                entityType.RemoveAnnotation(CoreAnnotationNames.InverseNavigations);
             }
         }
     }

@@ -16,9 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// </summary>
         public virtual Annotatable OldDatabase { get; } = new Annotatable();
 
-        /// <summary>
-        ///     The <see cref="OldDatabase" /> exposed to examine annotations.
-        /// </summary>
+        /// <inheritdoc />
         IMutableAnnotatable IAlterMigrationOperation.OldAnnotations => OldDatabase;
     }
 }

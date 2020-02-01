@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Transient"/>. This means that each
+    ///         The service lifetime is <see cref="ServiceLifetime.Transient" />. This means that each
     ///         entity instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
@@ -123,8 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 : Task.CompletedTask;
         }
 
-        private bool ShouldLoad(object entity, string navigationName,
-            out NavigationEntry navigationEntry)
+        private bool ShouldLoad(object entity, string navigationName, out NavigationEntry navigationEntry)
         {
             if (_loadedStates != null
                 && _loadedStates.TryGetValue(navigationName, out var loaded)
@@ -140,6 +139,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
             else if (Context.ChangeTracker.LazyLoadingEnabled)
             {
+                // Set early to avoid recursive loading overflow
+                SetLoaded(entity, navigationName, loaded: true);
+
                 var entityEntry = Context.Entry(entity); // Will use local-DetectChanges, if enabled.
                 var tempNavigationEntry = entityEntry.Navigation(navigationName);
 
@@ -152,6 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     Logger.NavigationLazyLoading(Context, entity, navigationName);
 
                     navigationEntry = tempNavigationEntry;
+
                     return true;
                 }
             }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -38,11 +38,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static readonly MethodInfo _createEntityQueryableMethod
             = typeof(AsyncQueryProviderExtensions)
-                .GetTypeInfo().GetDeclaredMethod(nameof(_CreateEntityQueryable));
+                .GetTypeInfo().GetDeclaredMethod(nameof(CreateEntityQueryable));
 
         [UsedImplicitly]
-        // ReSharper disable once InconsistentNaming
-        private static EntityQueryable<TResult> _CreateEntityQueryable<TResult>(IAsyncQueryProvider entityQueryProvider)
+        private static EntityQueryable<TResult> CreateEntityQueryable<TResult>(IAsyncQueryProvider entityQueryProvider)
             => new EntityQueryable<TResult>(entityQueryProvider);
     }
 }

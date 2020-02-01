@@ -3,18 +3,21 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
     ///     <para>
-    ///         Extension methods for <see cref="Expression"/> types.
+    ///         Extension methods for <see cref="Expression" /> types.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -24,9 +27,168 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     public static class ExpressionExtensions
     {
         /// <summary>
+        ///     Creates a printable string representation of the given expression.
+        /// </summary>
+        /// <param name="expression"> The expression. </param>
+        /// <param name="characterLimit"> An optional limit to the number of characters included. </param>
+        /// <returns> The printable representation. </returns>
+        public static string Print([NotNull] this Expression expression, int? characterLimit = null)
+            => new ExpressionPrinter().Print(Check.NotNull(expression, nameof(expression)), characterLimit);
+
+        /// <summary>
+        ///     Creates a <see cref="MemberExpression"></see> that represents accessing either a field or a property.
+        /// </summary>
+        /// <param name="expression"> An <see cref="Expression"></see> that represents the object that the member belongs to. </param>
+        /// <param name="member"> The <see cref="MemberInfo"></see> that describes the field or property to be accessed. </param>
+        /// <returns> The <see cref="MemberExpression"></see> that results from calling the appropriate factory method. </returns>
+        public static MemberExpression MakeMemberAccess(
+            [CanBeNull] this Expression expression,
+            [NotNull] MemberInfo member)
+        {
+            var memberDeclaringClrType = member.DeclaringType;
+            if (expression != null
+                && memberDeclaringClrType != expression.Type
+                && expression.Type.IsAssignableFrom(memberDeclaringClrType))
+            {
+                expression = Expression.Convert(expression, memberDeclaringClrType);
+            }
+
+            return Expression.MakeMemberAccess(expression, member);
+        }
+
+        /// <summary>
+        ///     Creates a <see cref="BinaryExpression"></see> that represents an assignment operation.
+        /// </summary>
+        /// <param name="memberExpression"> The member to which assignment will be made. </param>
+        /// <param name="valueExpression"> The value that will be assigned. </param>
+        /// <returns> The <see cref="BinaryExpression" /> representing the assignment binding. </returns>
+        public static Expression Assign(
+            [NotNull] this MemberExpression memberExpression,
+            [NotNull] Expression valueExpression)
+        {
+            if (memberExpression.Member is FieldInfo fieldInfo
+                && fieldInfo.IsInitOnly)
+            {
+                return (BinaryExpression)Activator.CreateInstance(
+                    _assignBinaryExpressionType,
+                    BindingFlags.NonPublic | BindingFlags.Instance,
+                    null,
+                    new object[] { memberExpression, valueExpression },
+                    null);
+            }
+
+            return Expression.Assign(memberExpression, valueExpression);
+        }
+
+        private static readonly Type _assignBinaryExpressionType
+            = typeof(Expression).Assembly.GetType("System.Linq.Expressions.AssignBinaryExpression");
+
+        /// <summary>
+        ///     If the given a method-call expression represents a call to <see cref="EF.Property{TProperty}" />, then this
+        ///     method extracts the entity expression and property name.
+        /// </summary>
+        /// <param name="methodCallExpression"> The method-call expression for <see cref="EF.Property{TProperty}" /> </param>
+        /// <param name="entityExpression"> The extracted entity access expression. </param>
+        /// <param name="propertyName"> The accessed property name. </param>
+        /// <returns> True if the method-call was for <see cref="EF.Property{TProperty}" />; false otherwise. </returns>
+        public static bool TryGetEFPropertyArguments(
+            [NotNull] this MethodCallExpression methodCallExpression,
+            out Expression entityExpression,
+            out string propertyName)
+        {
+            if (methodCallExpression.Method.IsEFPropertyMethod()
+                && methodCallExpression.Arguments[1] is ConstantExpression propertyNameExpression)
+            {
+                entityExpression = methodCallExpression.Arguments[0];
+                propertyName = (string)propertyNameExpression.Value;
+                return true;
+            }
+
+            (entityExpression, propertyName) = (null, null);
+            return false;
+        }
+
+        /// <summary>
+        ///     If the given a method-call expression represents a call to indexer on the entity, then this
+        ///     method extracts the entity expression and property name.
+        /// </summary>
+        /// <param name="methodCallExpression"> The method-call expression for indexer. </param>
+        /// <param name="model"> The model to use. </param>
+        /// <param name="entityExpression"> The extracted entity access expression. </param>
+        /// <param name="propertyName"> The accessed property name. </param>
+        /// <returns> True if the method-call was for indexer; false otherwise. </returns>
+        public static bool TryGetIndexerArguments(
+            [NotNull] this MethodCallExpression methodCallExpression,
+            [NotNull] IModel model,
+            out Expression entityExpression,
+            out string propertyName)
+        {
+            if (model.IsIndexerMethod(methodCallExpression.Method)
+                && methodCallExpression.Arguments[0] is ConstantExpression propertyNameExpression)
+            {
+                entityExpression = methodCallExpression.Object;
+                propertyName = (string)propertyNameExpression.Value;
+                return true;
+            }
+
+            (entityExpression, propertyName) = (null, null);
+            return false;
+        }
+
+        /// <summary>
         ///     <para>
-        ///         Returns a list of <see cref="PropertyInfo"/> extracted from the given simple
-        ///         <see cref="LambdaExpression"/>.
+        ///         Gets the <see cref="PropertyInfo" /> represented by a simple property-access expression.
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used to parse property access lambdas from fluent APIs.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyAccessExpression"> The expression. </param>
+        /// <returns> The <see cref="PropertyInfo" />. </returns>
+        public static PropertyInfo GetPropertyAccess([NotNull] this LambdaExpression propertyAccessExpression)
+        {
+            Check.DebugAssert(
+                propertyAccessExpression.Parameters.Count == 1,
+                $"Parameters.Count is {propertyAccessExpression.Parameters.Count}");
+
+            var parameterExpression = propertyAccessExpression.Parameters.Single();
+            var propertyInfo = parameterExpression.MatchSimplePropertyAccess(propertyAccessExpression.Body);
+
+            if (propertyInfo == null)
+            {
+                throw new ArgumentException(
+                    CoreStrings.InvalidPropertyExpression(propertyAccessExpression),
+                    nameof(propertyAccessExpression));
+            }
+
+            var declaringType = propertyInfo.DeclaringType;
+            var parameterType = parameterExpression.Type;
+
+            if (declaringType != null
+                && declaringType != parameterType
+                && declaringType.IsInterface
+                && declaringType.IsAssignableFrom(parameterType))
+            {
+                var propertyGetter = propertyInfo.GetMethod;
+                var interfaceMapping = parameterType.GetTypeInfo().GetRuntimeInterfaceMap(declaringType);
+                var index = Array.FindIndex(interfaceMapping.InterfaceMethods, p => propertyGetter.Equals(p));
+                var targetMethod = interfaceMapping.TargetMethods[index];
+                foreach (var runtimeProperty in parameterType.GetRuntimeProperties())
+                {
+                    if (targetMethod.Equals(runtimeProperty.GetMethod))
+                    {
+                        return runtimeProperty;
+                    }
+                }
+            }
+
+            return propertyInfo;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Returns a list of <see cref="PropertyInfo" /> extracted from the given simple
+        ///         <see cref="LambdaExpression" />.
         ///     </para>
         ///     <para>
         ///         Only simple expressions are supported, such as those used to reference a property.
@@ -62,31 +224,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
 
             return propertyPaths;
-        }
-
-        /// <summary>
-        ///     <para>
-        ///         Returns a new expression with any see <see cref="ExpressionType.Convert"/> or
-        ///         <see cref="ExpressionType.ConvertChecked"/> nodes removed from the head of the
-        ///         given expression tree/
-        ///     </para>
-        ///     <para>
-        ///         This method is typically used by database providers (and other extensions). It is generally
-        ///         not used in application code.
-        ///     </para>
-        /// </summary>
-        /// <param name="expression"> The expression. </param>
-        /// <returns> A new expression with converts at the head removed. </returns>
-        public static Expression RemoveConvert([CanBeNull] this Expression expression)
-        {
-            while (expression != null
-                   && (expression.NodeType == ExpressionType.Convert
-                       || expression.NodeType == ExpressionType.ConvertChecked))
-            {
-                expression = RemoveConvert(((UnaryExpression)expression).Operand);
-            }
-
-            return expression;
         }
     }
 }

@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     public class RuntimeConventionSetBuilder : IConventionSetBuilder
     {
         private readonly IProviderConventionSetBuilder _conventionSetBuilder;
-        private readonly IList<IConventionSetCustomizer> _customizers;
+        private readonly IList<IConventionSetPlugin> _plugins;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -37,10 +37,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public RuntimeConventionSetBuilder(
             [NotNull] IProviderConventionSetBuilder providerConventionSetBuilder,
-            [NotNull] IEnumerable<IConventionSetCustomizer> customizers)
+            [NotNull] IEnumerable<IConventionSetPlugin> plugins)
         {
             _conventionSetBuilder = providerConventionSetBuilder;
-            _customizers = customizers.ToList();
+            _plugins = plugins.ToList();
         }
 
         /// <summary>
@@ -53,9 +53,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var conventionSet = _conventionSetBuilder.CreateConventionSet();
 
-            foreach (var customizer in _customizers)
+            foreach (var plugin in _plugins)
             {
-                conventionSet = customizer.ModifyConventions(conventionSet);
+                conventionSet = plugin.ModifyConventions(conventionSet);
             }
 
             return conventionSet;

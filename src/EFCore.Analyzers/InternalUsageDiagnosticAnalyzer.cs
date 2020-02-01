@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         protected const string DefaultTitle = "Internal EF Core API usage.";
         protected const string Category = "Usage";
 
-        static readonly int EFLen = "EntityFrameworkCore".Length;
+        private static readonly int EFLen = "EntityFrameworkCore".Length;
 
         private static readonly DiagnosticDescriptor _descriptor
             = new DiagnosticDescriptor(
@@ -40,10 +40,12 @@ namespace Microsoft.EntityFrameworkCore
         public override void Initialize(AnalysisContext context)
         {
             context.EnableConcurrentExecution();
-            context.RegisterSyntaxNodeAction(AnalyzeNode,
+            context.RegisterSyntaxNodeAction(
+                AnalyzeNode,
                 SyntaxKind.SimpleMemberAccessExpression,
                 SyntaxKind.ObjectCreationExpression,
                 SyntaxKind.ClassDeclaration);
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         }
 
         private void AnalyzeNode(SyntaxNodeAnalysisContext context)
@@ -52,30 +54,33 @@ namespace Microsoft.EntityFrameworkCore
             {
                 case MemberAccessExpressionSyntax memberAccessSyntax:
                 {
-                    if (context.SemanticModel.GetSymbolInfo(context.Node, context.CancellationToken).Symbol is ISymbol symbol &&
-                        symbol.ContainingAssembly != context.Compilation.Assembly)
+                    if (context.SemanticModel.GetSymbolInfo(context.Node, context.CancellationToken).Symbol is ISymbol symbol
+                        && !Equals(symbol.ContainingAssembly, context.Compilation.Assembly))
                     {
                         var containingType = symbol.ContainingType;
 
                         if (HasInternalAttribute(symbol))
                         {
-                            context.ReportDiagnostic(Diagnostic.Create(_descriptor, memberAccessSyntax.Name.GetLocation(), $"{containingType}.{symbol.Name}"));
+                            context.ReportDiagnostic(
+                                Diagnostic.Create(_descriptor, memberAccessSyntax.Name.GetLocation(), $"{containingType}.{symbol.Name}"));
                             return;
                         }
 
-                        if (IsInInternalNamespace(containingType) || HasInternalAttribute(containingType))
+                        if (IsInInternalNamespace(containingType)
+                            || HasInternalAttribute(containingType))
                         {
                             context.ReportDiagnostic(Diagnostic.Create(_descriptor, memberAccessSyntax.Name.GetLocation(), containingType));
                             return;
                         }
                     }
+
                     return;
                 }
 
                 case ObjectCreationExpressionSyntax creationSyntax:
                 {
-                    if (context.SemanticModel.GetSymbolInfo(context.Node, context.CancellationToken).Symbol is ISymbol symbol &&
-                        symbol.ContainingAssembly != context.Compilation.Assembly)
+                    if (context.SemanticModel.GetSymbolInfo(context.Node, context.CancellationToken).Symbol is ISymbol symbol
+                        && !Equals(symbol.ContainingAssembly, context.Compilation.Assembly))
                     {
                         var containingType = symbol.ContainingType;
 
@@ -85,7 +90,8 @@ namespace Microsoft.EntityFrameworkCore
                             return;
                         }
 
-                        if (IsInInternalNamespace(containingType) || HasInternalAttribute(containingType))
+                        if (IsInInternalNamespace(containingType)
+                            || HasInternalAttribute(containingType))
                         {
                             context.ReportDiagnostic(Diagnostic.Create(_descriptor, creationSyntax.Type.GetLocation(), containingType));
                             return;
@@ -97,10 +103,10 @@ namespace Microsoft.EntityFrameworkCore
 
                 case ClassDeclarationSyntax declarationSyntax:
                 {
-                    if (context.SemanticModel.GetDeclaredSymbol(declarationSyntax)?.BaseType is ISymbol symbol &&
-                        symbol.ContainingAssembly != context.Compilation.Assembly &&
-                        (IsInInternalNamespace(symbol) || HasInternalAttribute(symbol)) &&
-                        declarationSyntax.BaseList?.Types.Count > 0)
+                    if (context.SemanticModel.GetDeclaredSymbol(declarationSyntax)?.BaseType is ISymbol symbol
+                        && !Equals(symbol.ContainingAssembly, context.Compilation.Assembly)
+                        && (IsInInternalNamespace(symbol) || HasInternalAttribute(symbol))
+                        && declarationSyntax.BaseList?.Types.Count > 0)
                     {
                         context.ReportDiagnostic(Diagnostic.Create(_descriptor, declarationSyntax.BaseList.Types[0].GetLocation(), symbol));
                     }

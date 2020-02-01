@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
@@ -17,22 +17,26 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     public class MigrationCommand
     {
         private readonly IRelationalCommand _relationalCommand;
+        private readonly DbContext _context;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _logger;
 
         /// <summary>
         ///     Creates a new instance of the command.
         /// </summary>
         /// <param name="relationalCommand"> The underlying <see cref="IRelationalCommand" /> that will be used to execute the command. </param>
+        /// <param name="context"> The current <see cref="DbContext" /> or null if not known. </param>
         /// <param name="logger"> The command logger. </param>
         /// <param name="transactionSuppressed"> Indicates whether or not transactions should be suppressed while executing the command. </param>
         public MigrationCommand(
             [NotNull] IRelationalCommand relationalCommand,
+            [CanBeNull] DbContext context,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
             bool transactionSuppressed = false)
         {
             Check.NotNull(relationalCommand, nameof(relationalCommand));
 
             _relationalCommand = relationalCommand;
+            _context = context;
             _logger = logger;
             TransactionSuppressed = transactionSuppressed;
         }
@@ -57,9 +61,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] IRelationalConnection connection,
             [CanBeNull] IReadOnlyDictionary<string, object> parameterValues = null)
             => _relationalCommand.ExecuteNonQuery(
-                Check.NotNull(connection, nameof(connection)),
-                parameterValues,
-                _logger);
+                new RelationalCommandParameterObject(
+                    connection,
+                    parameterValues,
+                    null,
+                    _context,
+                    _logger));
 
         /// <summary>
         ///     Executes the command and returns the number of rows affected.
@@ -73,9 +80,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] IReadOnlyDictionary<string, object> parameterValues = null,
             CancellationToken cancellationToken = default)
             => _relationalCommand.ExecuteNonQueryAsync(
-                Check.NotNull(connection, nameof(connection)),
-                parameterValues,
-                _logger,
+                new RelationalCommandParameterObject(
+                    connection,
+                    parameterValues,
+                    null,
+                    _context,
+                    _logger),
                 cancellationToken);
     }
 }

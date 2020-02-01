@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
 
         public override OrdersFixtureBase CreateFixture()
         {
-            return new OrdersFixture("Perf_Query_Compilation");
+            return new OrdersSqlServerFixture("Perf_Query_Compilation");
         }
     }
 }

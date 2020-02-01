@@ -12,7 +12,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#pragma warning disable 618
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -223,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         public static readonly RelationalTypeMapping NullMapping = new NullTypeMapping("NULL");
 
-        private class NullTypeMapping : RelationalTypeMapping
+        private sealed class NullTypeMapping : RelationalTypeMapping
         {
             public NullTypeMapping(string storeType)
                 : base(storeType, typeof(object))
@@ -243,34 +242,58 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Parameters = parameters;
 
-            var size = parameters.Size;
             var storeType = parameters.StoreType;
 
             if (storeType != null)
             {
-                StoreTypeNameBase = GetBaseName(storeType);
-                if (size != null && parameters.StoreTypePostfix == StoreTypePostfix.Size)
-                {
-                    storeType = StoreTypeNameBase + "(" + size + ")";
-                }
-                else if (parameters.StoreTypePostfix == StoreTypePostfix.PrecisionAndScale
-                         || parameters.StoreTypePostfix == StoreTypePostfix.Precision)
-                {
-                    var precision = parameters.Precision;
-                    if (precision != null)
-                    {
-                        var scale = parameters.Scale;
-                        storeType = StoreTypeNameBase
-                                    + "("
-                                    + (scale == null || parameters.StoreTypePostfix == StoreTypePostfix.Precision
-                                        ? precision.ToString()
-                                        : precision + "," + scale)
-                                    + ")";
-                    }
-                }
+                var storeTypeNameBase = GetBaseName(storeType);
+                StoreTypeNameBase = storeTypeNameBase;
+
+                storeType = ProcessStoreType(parameters, storeType, storeTypeNameBase);
             }
 
             StoreType = storeType;
+        }
+
+        /// <summary>
+        ///     Processes the store type name to add appropriate postfix/prefix text as needed.
+        /// </summary>
+        /// <param name="parameters"> The parameters for this mapping. </param>
+        /// <param name="storeType"> The specified store type name. </param>
+        /// <param name="storeTypeNameBase"> The calculated based name</param>
+        /// <returns> The store type name to use. </returns>
+        protected virtual string ProcessStoreType(
+            RelationalTypeMappingParameters parameters,
+            [NotNull] string storeType,
+            [NotNull] string storeTypeNameBase)
+        {
+            Check.NotNull(storeType, nameof(storeType));
+            Check.NotNull(storeTypeNameBase, nameof(storeTypeNameBase));
+
+            var size = parameters.Size;
+
+            if (size != null
+                && parameters.StoreTypePostfix == StoreTypePostfix.Size)
+            {
+                storeType = storeTypeNameBase + "(" + size + ")";
+            }
+            else if (parameters.StoreTypePostfix == StoreTypePostfix.PrecisionAndScale
+                || parameters.StoreTypePostfix == StoreTypePostfix.Precision)
+            {
+                var precision = parameters.Precision;
+                if (precision != null)
+                {
+                    var scale = parameters.Scale;
+                    storeType = storeTypeNameBase
+                        + "("
+                        + (scale == null || parameters.StoreTypePostfix == StoreTypePostfix.Precision
+                            ? precision.ToString()
+                            : precision + "," + scale)
+                        + ")";
+                }
+            }
+
+            return storeType;
         }
 
         private static string GetBaseName(string storeType)
@@ -349,37 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="mappingInfo"> The mapping info containing the facets to use. </param>
         /// <returns> The cloned mapping, or the original mapping if no clone was needed. </returns>
         public virtual RelationalTypeMapping Clone(in RelationalTypeMappingInfo mappingInfo)
-        {
-            if ((mappingInfo.Scale != null
-                 && mappingInfo.Scale != Parameters.Scale
-                 && StoreTypePostfix == StoreTypePostfix.PrecisionAndScale)
-                || (mappingInfo.Precision != null
-                    && mappingInfo.Precision != Parameters.Precision
-                    && (StoreTypePostfix == StoreTypePostfix.PrecisionAndScale
-                        || StoreTypePostfix == StoreTypePostfix.Precision)))
-            {
-                var storeTypeChanged = mappingInfo.StoreTypeNameBase != null
-                                        && !string.Equals(mappingInfo.StoreTypeNameBase, StoreTypeNameBase, StringComparison.OrdinalIgnoreCase);
-
-                return storeTypeChanged
-                    ? Clone(Parameters.WithTypeMappingInfo(mappingInfo))
-                    : Clone(
-                        mappingInfo.Precision ?? Parameters.Precision,
-                        mappingInfo.Scale ?? Parameters.Scale);
-            }
-
-            var storeTypeOrSizeChanged = (mappingInfo.Size != null
-                                            && mappingInfo.Size != Size
-                                            && StoreTypePostfix == StoreTypePostfix.Size)
-                                            || (mappingInfo.StoreTypeName != null
-                                                && !string.Equals(mappingInfo.StoreTypeName, StoreType, StringComparison.OrdinalIgnoreCase));
-
-            return storeTypeOrSizeChanged
-                ? Clone(
-                    mappingInfo.StoreTypeName ?? StoreType,
-                    mappingInfo.Size ?? Size)
-                : this;
-        }
+            => Clone(Parameters.WithTypeMappingInfo(mappingInfo));
 
         /// <summary>
         ///     Gets the name of the database type.
@@ -441,8 +434,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             parameter.Direction = ParameterDirection.Input;
             parameter.ParameterName = name;
 
-            if (Converter != null
-                && !IsLegacyEnumValue(Converter, value))
+            if (Converter != null)
             {
                 value = Converter.ConvertToProvider(value);
             }
@@ -464,23 +456,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return parameter;
         }
 
-        // Avoid converting value from enum to integer if it is already an integer; preserves 2.0 behavior
-        private static bool IsLegacyEnumValue(ValueConverter converter, object value)
-            => value != null
-               && IsLegacyInteger(value.GetType())
-               && converter.GetType().IsGenericType
-               && converter.GetType().GetGenericTypeDefinition() == typeof(EnumToNumberConverter<,>);
-
-        private static bool IsLegacyInteger(Type type)
-        {
-            type = type.UnwrapNullableType();
-
-            return type == typeof(int)
-                   || type == typeof(long)
-                   || type == typeof(short)
-                   || type == typeof(byte);
-        }
-
         /// <summary>
         ///     Configures type information of a <see cref="DbParameter" />.
         /// </summary>
@@ -498,14 +473,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         public virtual string GenerateSqlLiteral([CanBeNull] object value)
         {
+            // Enum when compared to constant will always have constant of integral type
+            // when enum would contain convert node. We remove the convert node but we also
+            // need to convert the integral value to enum value.
+            // This allows us to use converter on enum value or print enum value directly if supported by provider
+            if (value?.GetType().IsInteger() == true
+                && ClrType.UnwrapNullableType().IsEnum)
+            {
+                value = Enum.ToObject(ClrType.UnwrapNullableType(), value);
+            }
+
             if (Converter != null)
             {
-                if (value?.GetType().IsInteger() == true
-                    && ClrType.UnwrapNullableType().IsEnum)
-                {
-                    value = Enum.ToObject(ClrType.UnwrapNullableType(), value);
-                }
-
                 value = Converter.ConvertToProvider(value);
             }
 
@@ -543,10 +522,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var type = (Converter?.ProviderClrType ?? ClrType).UnwrapNullableType();
 
-            return _getXMethods.TryGetValue(type, out var method)
+            return GetDataReaderMethod(type);
+        }
+
+        /// <summary>
+        ///     The method to use when reading values of the given type. The method must be defined
+        ///     on <see cref="DbDataReader" />.
+        /// </summary>
+        /// <returns> The method to use to read the value. </returns>
+        public static MethodInfo GetDataReaderMethod([NotNull] Type type)
+            => _getXMethods.TryGetValue(type, out var method)
                 ? method
                 : _getFieldValueMethod.MakeGenericMethod(type);
-        }
 
         /// <summary>
         ///     Gets a custom expression tree for reading the value from the input data reader

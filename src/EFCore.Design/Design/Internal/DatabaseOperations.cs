@@ -96,10 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var scaffoldedModel = scaffolder.ScaffoldModel(
                 connectionString,
                 new DatabaseModelFactoryOptions(tables, schemas),
-                new ModelReverseEngineerOptions
-                {
-                    UseDatabaseNames = useDatabaseNames
-                },
+                new ModelReverseEngineerOptions { UseDatabaseNames = useDatabaseNames },
                 new ModelCodeGenerationOptions
                 {
                     UseDataAnnotations = useDataAnnotations,
@@ -108,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     ContextNamespace = contextNamespace,
                     Language = _language,
                     ContextDir = MakeDirRelative(outputDir, outputContextDir),
-                    ContextName = dbContextClassName,
+                    ContextName = dbContextClassName
                 });
 
             return scaffolder.Save(
@@ -138,7 +135,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var subPath = outputDir.Substring(projectDir.Length);
 
             return !string.IsNullOrWhiteSpace(subPath)
-                ? string.Join(".", subPath.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries))
+                ? string.Join(
+                    ".",
+                    subPath.Split(
+                        new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries))
                 : null;
         }
 
@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             var last = path[path.Length - 1];
             return last == Path.DirectorySeparatorChar
-                || last == Path.AltDirectorySeparatorChar
+                   || last == Path.AltDirectorySeparatorChar
                 ? path
                 : path + Path.DirectorySeparatorChar;
         }

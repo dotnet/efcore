@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
@@ -33,10 +33,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 IModel Create()
                 {
-                    var modelBuilder = new ModelBuilder(new ConventionSet());
+                    var model = new Model();
+                    var modelBuilder = new ModelBuilder(model);
                     BuildTargetModel(modelBuilder);
 
-                    return modelBuilder.Model;
+                    return model.FinalizeModel();
                 }
 
                 return _targetModel ??= Create();

@@ -17,11 +17,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     <para>
     ///         A convention that finds primary key property for the entity type based on the names, ignoring case:
-    ///             * Id
-    ///             * [entity name]Id
+    ///         * Id
+    ///         * [entity name]Id
     ///     </para>
-    ///         If the entity type is owned through a reference navigation property then the corresponding foreign key
-    ///         properties are used.
+    ///     If the entity type is owned through a reference navigation property then the corresponding foreign key
+    ///     properties are used.
     ///     <para>
     ///     </para>
     ///     <para>
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             List<IConventionProperty> keyProperties = null;
             var definingFk = entityType.FindDefiningNavigation()?.ForeignKey
-                             ?? entityType.FindOwnership();
+                ?? entityType.FindOwnership();
             if (definingFk != null
                 && definingFk.DeclaringEntityType != entityType)
             {
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 var candidateProperties = entityType.GetProperties().Where(
                     p => !p.IsShadowProperty()
-                         || !ConfigurationSource.Convention.Overrides(p.GetConfigurationSource()));
+                        || !ConfigurationSource.Convention.Overrides(p.GetConfigurationSource()));
                 keyProperties = DiscoverKeyProperties(entityType, candidateProperties).ToList();
                 if (keyProperties.Count > 1)
                 {
@@ -143,8 +143,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 var entityTypeName = entityType.ShortName();
                 keyProperties = candidateProperties.Where(
                     p => p.Name.Length == entityTypeName.Length + KeySuffix.Length
-                         && p.Name.StartsWith(entityTypeName, StringComparison.OrdinalIgnoreCase)
-                         && p.Name.EndsWith(KeySuffix, StringComparison.OrdinalIgnoreCase));
+                        && p.Name.StartsWith(entityTypeName, StringComparison.OrdinalIgnoreCase)
+                        && p.Name.EndsWith(KeySuffix, StringComparison.OrdinalIgnoreCase));
             }
 
             return keyProperties;

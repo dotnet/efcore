@@ -13,6 +13,6 @@ namespace Microsoft.EntityFrameworkCore
             serviceCollection.AddEntityFrameworkInMemoryDatabase();
         }
 
-        protected override Assembly TargetAssembly => typeof(ProxiesExtensions).GetTypeInfo().Assembly;
+        protected override Assembly TargetAssembly => typeof(ProxiesExtensions).Assembly;
     }
 }

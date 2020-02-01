@@ -6,6 +6,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Inheritance
     public class Lilt : Drink, ISugary
     {
         public int SugarGrams { get; set; }
-        public int Carbination { get; set; }
+        public int Carbonation { get; set; }
     }
 }

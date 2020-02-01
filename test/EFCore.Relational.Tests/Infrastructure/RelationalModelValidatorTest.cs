@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             Validate(model);
 
-            Assert.False(LoggerFactory.Log.Any(l => l.Level == LogLevel.Warning));
+            Assert.DoesNotContain(LoggerFactory.Log, l => l.Level == LogLevel.Warning);
         }
 
         [ConditionalFact]
@@ -51,7 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             property.SetDefaultValue(true);
             property.ValueGenerated = ValueGenerated.OnAdd;
 
-            VerifyWarning(RelationalResources.LogBoolWithDefaultWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("ImBool", "E"), model);
+            VerifyWarning(
+                RelationalResources.LogBoolWithDefaultWarning(new TestLogger<TestRelationalLoggingDefinitions>())
+                    .GenerateMessage("ImBool", "E"), model);
         }
 
         [ConditionalFact]
@@ -67,7 +69,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             property.SetDefaultValueSql("TRUE");
             property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
 
-            VerifyWarning(RelationalResources.LogBoolWithDefaultWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("ImBool", "E"), model);
+            VerifyWarning(
+                RelationalResources.LogBoolWithDefaultWarning(new TestLogger<TestRelationalLoggingDefinitions>())
+                    .GenerateMessage("ImBool", "E"), model);
         }
 
         [ConditionalFact]
@@ -82,8 +86,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             entityA.FindProperty("Id").SetDefaultValue(1);
 
-            VerifyWarning(RelationalResources.LogKeyHasDefaultValue(
-                new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("Id", "A"), model);
+            VerifyWarning(
+                RelationalResources.LogKeyHasDefaultValue(
+                    new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("Id", "A"), model);
         }
 
         [ConditionalFact]
@@ -102,7 +107,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             entityA.AddKey(new[] { property });
             property.SetDefaultValue(1);
 
-            VerifyWarning(RelationalResources.LogKeyHasDefaultValue(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("P0", "A"), model);
+            VerifyWarning(
+                RelationalResources.LogKeyHasDefaultValue(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("P0", "A"),
+                model);
         }
 
         [ConditionalFact]
@@ -129,6 +136,33 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(
                 RelationalStrings.IncompatibleTableNoRelationship(
                     "Schema.Table", entityB.DisplayName(), entityA.DisplayName()),
+                model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_duplicate_table_names_when_no_key()
+        {
+            var model = CreateConventionlessModelBuilder().Model;
+
+            var entityA = model.AddEntityType(typeof(A));
+            entityA.AddProperty("Id", typeof(int));
+            entityA.IsKeyless = true;
+            AddProperties(entityA);
+
+            var entityB = model.AddEntityType(typeof(B));
+            entityB.AddProperty("Id", typeof(int));
+            entityB.IsKeyless = true;
+            AddProperties(entityB);
+            entityB.AddIgnored(nameof(B.A));
+            entityB.AddIgnored(nameof(B.AnotherA));
+            entityB.AddIgnored(nameof(B.ManyAs));
+
+            entityA.SetTableName("Table");
+            entityB.SetTableName("Table");
+
+            VerifyError(
+                RelationalStrings.IncompatibleTableNoRelationship(
+                    "Table", entityB.DisplayName(), entityA.DisplayName()),
                 model);
         }
 
@@ -184,6 +218,33 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 RelationalStrings.IncompatibleTableKeyNameMismatch(
                     "Table", nameof(B), nameof(A), "PK_Table", "{'Id'}", "Key", "{'Id'}"),
                 modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_incompatible_comments_with_shared_table()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasPrincipalKey<A>(a => a.Id).HasForeignKey<B>(b => b.Id);
+            modelBuilder.Entity<A>().ToTable("Table").HasComment("My comment");
+            modelBuilder.Entity<B>().ToTable("Table").HasComment("my comment");
+
+            VerifyError(
+                RelationalStrings.IncompatibleTableCommentMismatch(
+                    "Table", nameof(A), nameof(B), "My comment", "my comment"),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Passes_on_null_comments()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasPrincipalKey<A>(a => a.Id).HasForeignKey<B>(b => b.Id);
+            modelBuilder.Entity<A>().ToTable("Table").HasComment("My comment");
+            modelBuilder.Entity<B>().ToTable("Table");
+
+            Validate(modelBuilder.Model);
         }
 
         [ConditionalFact]
@@ -379,11 +440,25 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>();
-            modelBuilder.Entity<Dog>().Property(d => d.Type).HasColumnName("Id");
+            modelBuilder.Entity<Dog>().Property<int?>("OtherId").HasColumnName("Id");
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameNullabilityMismatch(
-                    nameof(Animal), nameof(Animal.Id), nameof(Dog), nameof(Dog.Type), nameof(Animal.Id), nameof(Animal)),
+                    nameof(Animal), nameof(Animal.Id), nameof(Dog), "OtherId", nameof(Animal.Id), nameof(Animal)),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_comments()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").HasComment("My comment");
+            modelBuilder.Entity<Dog>().Property(c => c.Breed).HasColumnName("Breed");
+
+            VerifyError(
+                RelationalStrings.DuplicateColumnNameCommentMismatch(
+                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "My comment", ""),
                 modelBuilder.Model);
         }
 
@@ -439,11 +514,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Animal>().Property<int>("FriendId");
             modelBuilder.Entity<Animal>().Property<string>("Shadow");
             modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey("FriendId", "Shadow").HasPrincipalKey(
-                p => new
-                {
-                    p.Id,
-                    p.Name
-                }).HasConstraintName("FK");
+                p => new { p.Id, p.Name }).HasConstraintName("FK");
             modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey("FriendId").HasConstraintName("FK");
 
             VerifyError(
@@ -468,17 +539,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     et.Property(c => c.Breed).HasColumnName("Breed");
                     et.HasOne<Person>().WithMany()
                         .HasForeignKey(
-                            c => new
-                            {
-                                c.Name,
-                                c.Breed
-                            })
+                            c => new { c.Name, c.Breed })
                         .HasPrincipalKey(
-                            p => new
-                            {
-                                p.Name,
-                                p.FavoriteBreed
-                            })
+                            p => new { p.Name, p.FavoriteBreed })
                         .HasConstraintName("FK");
                 });
             modelBuilder.Entity<Dog>(
@@ -487,17 +550,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     et.Property(c => c.Breed).HasColumnName("Breed");
                     et.HasOne<Person>().WithMany()
                         .HasForeignKey(
-                            d => new
-                            {
-                                d.Breed,
-                                d.Name
-                            })
+                            d => new { d.Breed, d.Name })
                         .HasPrincipalKey(
-                            p => new
-                            {
-                                p.FavoriteBreed,
-                                p.Name
-                            })
+                            p => new { p.FavoriteBreed, p.Name })
                         .HasConstraintName("FK");
                 });
 
@@ -517,27 +572,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(
-                c => new
-                {
-                    c.Name,
-                    c.Breed
-                }).HasPrincipalKey(
-                p => new
-                {
-                    p.Name,
-                    p.FavoriteBreed
-                }).HasConstraintName("FK");
+                c => new { c.Name, c.Breed }).HasPrincipalKey(
+                p => new { p.Name, p.FavoriteBreed }).HasConstraintName("FK");
             modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey(
-                d => new
-                {
-                    d.Name,
-                    d.Breed
-                }).HasPrincipalKey(
-                p => new
-                {
-                    p.Name,
-                    p.FavoriteBreed
-                }).HasConstraintName("FK");
+                d => new { d.Name, d.Breed }).HasPrincipalKey(
+                p => new { p.Name, p.FavoriteBreed }).HasConstraintName("FK");
             modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("DogBreed");
 
             VerifyError(
@@ -674,17 +713,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         .HasOne(a => a.FavoritePerson)
                         .WithMany()
                         .HasForeignKey(
-                            c => new
-                            {
-                                c.Name,
-                                c.Breed
-                            })
+                            c => new { c.Name, c.Breed })
                         .HasPrincipalKey(
-                            p => new
-                            {
-                                p.Name,
-                                p.FavoriteBreed
-                            })
+                            p => new { p.Name, p.FavoriteBreed })
                         .Metadata;
                 });
             modelBuilder.Entity<Dog>(
@@ -692,20 +723,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     et.Property(c => c.Breed).HasColumnName("Breed");
                     fk2 = et
-                        .HasOne(a => (Customer)a.FavoritePerson)
+                        .HasOne(a => (Employee)a.FavoritePerson)
                         .WithMany()
                         .HasForeignKey(
-                            c => new
-                            {
-                                c.Name,
-                                c.Breed
-                            })
+                            c => new { c.Name, c.Breed })
                         .HasPrincipalKey(
-                            p => new
-                            {
-                                p.Name,
-                                p.FavoriteBreed
-                            })
+                            p => new { p.Name, p.FavoriteBreed })
                         .Metadata;
                 });
 
@@ -736,17 +759,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         .HasOne<Person>()
                         .WithMany()
                         .HasForeignKey(
-                            c => new
-                            {
-                                c.Name,
-                                c.Breed
-                            })
+                            c => new { c.Name, c.Breed })
                         .HasPrincipalKey(
-                            p => new
-                            {
-                                p.Name,
-                                p.FavoriteBreed
-                            })
+                            p => new { p.Name, p.FavoriteBreed })
                         .HasConstraintName("FK")
                         .Metadata;
                 });
@@ -755,20 +770,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     et.Property(c => c.Breed).HasColumnName("Breed");
                     fk2 = et
-                        .HasOne<Customer>()
+                        .HasOne<Employee>()
                         .WithMany()
                         .HasForeignKey(
-                            c => new
-                            {
-                                c.Name,
-                                c.Breed
-                            })
+                            c => new { c.Name, c.Breed })
                         .HasPrincipalKey(
-                            p => new
-                            {
-                                p.Name,
-                                p.FavoriteBreed
-                            })
+                            p => new { p.Name, p.FavoriteBreed })
                         .HasConstraintName("FK")
                         .Metadata;
                 });
@@ -813,22 +820,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     et.Property(c => c.Breed).HasColumnName("Breed");
                     et.HasIndex(
-                        c => new
-                        {
-                            c.Name,
-                            c.Breed
-                        }).HasName("IX");
+                        c => new { c.Name, c.Breed }).HasName("IX");
                 });
             modelBuilder.Entity<Dog>(
                 et =>
                 {
                     et.Property(c => c.Breed).HasColumnName("Breed");
                     et.HasIndex(
-                        d => new
-                        {
-                            d.Breed,
-                            d.Name
-                        }).HasName("IX");
+                        d => new { d.Breed, d.Name }).HasName("IX");
                 });
 
             VerifyError(
@@ -847,17 +846,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().HasIndex(
-                c => new
-                {
-                    c.Name,
-                    c.Breed
-                }).HasName("IX");
+                c => new { c.Name, c.Breed }).HasName("IX");
             modelBuilder.Entity<Dog>().HasIndex(
-                d => new
-                {
-                    d.Name,
-                    d.Breed
-                }).HasName("IX");
+                d => new { d.Name, d.Breed }).HasName("IX");
             modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("DogBreed");
 
             VerifyError(
@@ -975,8 +966,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>().OwnsOne(a => a.FavoritePerson,
-                    pb => pb.Property<byte[]>("Version").IsRowVersion().HasColumnName("Version"));
+            modelBuilder.Entity<Cat>().OwnsOne(
+                a => a.FavoritePerson,
+                pb => pb.Property<byte[]>("Version").IsRowVersion().HasColumnName("Version"));
             modelBuilder.Entity<Dog>();
 
             Validate(modelBuilder.Model);
@@ -1038,43 +1030,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [ConditionalFact]
-        public virtual void Detects_function_with_invalid_parameter_type_but_translate_callback_does_not_throw()
-        {
-            var modelBuilder = CreateConventionalModelBuilder();
-
-            var methodInfo
-                = typeof(DbFunctionMetadataTests.TestMethods)
-                    .GetRuntimeMethod(
-                        nameof(DbFunctionMetadataTests.TestMethods.MethodF),
-                        new[] { typeof(DbFunctionMetadataTests.MyBaseContext) });
-
-            var dbFuncBuilder = modelBuilder.HasDbFunction(methodInfo);
-
-            dbFuncBuilder.HasTranslation(parameters => null);
-
-            Validate(modelBuilder.Model);
-        }
-
-        [ConditionalFact]
-        public virtual void Detects_function_with_invalid_parameter_type_but_no_translate_callback_throws()
-        {
-            var modelBuilder = CreateConventionalModelBuilder();
-
-            var methodInfo
-                = typeof(DbFunctionMetadataTests.TestMethods)
-                    .GetRuntimeMethod(
-                        nameof(DbFunctionMetadataTests.TestMethods.MethodF),
-                        new[] { typeof(DbFunctionMetadataTests.MyBaseContext) });
-
-            modelBuilder.HasDbFunction(methodInfo);
-
-            VerifyError(
-                RelationalStrings.DbFunctionInvalidParameterType(
-                    "context", methodInfo.DisplayName(), typeof(DbFunctionMetadataTests.MyBaseContext).ShortDisplayName()),
-                modelBuilder.Model);
-        }
-
         private static void GenerateMapping(IMutableProperty property)
             => property[CoreAnnotationNames.TypeMapping]
                 = new TestRelationalTypeMappingSource(
@@ -1126,7 +1081,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public string FavoriteBreed { get; set; }
         }
 
-        protected class Customer : Person
+        protected class Employee : Person
         {
         }
 

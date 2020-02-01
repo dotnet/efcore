@@ -18,10 +18,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new ImplicitServicesAndConfigBlogContext())
             {
                 context.Blogs.Add(
-                    new Blog
-                    {
-                        Name = "The Waffle Cart"
-                    });
+                    new Blog { Name = "The Waffle Cart" });
                 context.SaveChanges();
             }
 
@@ -57,10 +54,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new ImplicitServicesExplicitConfigBlogContext(optionsBuilder.Options))
             {
                 context.Blogs.Add(
-                    new Blog
-                    {
-                        Name = "The Waffle Cart"
-                    });
+                    new Blog { Name = "The Waffle Cart" });
                 context.SaveChanges();
             }
 
@@ -98,10 +92,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new ExplicitServicesImplicitConfigBlogContext(serviceProvider))
             {
                 context.Blogs.Add(
-                    new Blog
-                    {
-                        Name = "The Waffle Cart"
-                    });
+                    new Blog { Name = "The Waffle Cart" });
                 context.SaveChanges();
             }
 
@@ -148,10 +139,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new ExplicitServicesAndConfigBlogContext(optionsBuilder.Options))
             {
                 context.Blogs.Add(
-                    new Blog
-                    {
-                        Name = "The Waffle Cart"
-                    });
+                    new Blog { Name = "The Waffle Cart" });
                 context.SaveChanges();
             }
 
@@ -187,15 +175,10 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Throws<InvalidOperationException>(
                     () =>
                     {
-                        using (var context = new NoServicesAndNoConfigBlogContext())
-                        {
-                            context.Blogs.Add(
-                                new Blog
-                                {
-                                    Name = "The Waffle Cart"
-                                });
-                            context.SaveChanges();
-                        }
+                        using var context = new NoServicesAndNoConfigBlogContext();
+                        context.Blogs.Add(
+                            new Blog { Name = "The Waffle Cart" });
+                        context.SaveChanges();
                     }).Message);
         }
 
@@ -219,15 +202,10 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Throws<InvalidOperationException>(
                     () =>
                     {
-                        using (var context = new ImplicitConfigButNoServicesBlogContext(serviceProvider))
-                        {
-                            context.Blogs.Add(
-                                new Blog
-                                {
-                                    Name = "The Waffle Cart"
-                                });
-                            context.SaveChanges();
-                        }
+                        using var context = new ImplicitConfigButNoServicesBlogContext(serviceProvider);
+                        context.Blogs.Add(
+                            new Blog { Name = "The Waffle Cart" });
+                        context.SaveChanges();
                     }).Message);
         }
 
@@ -275,10 +253,7 @@ namespace Microsoft.EntityFrameworkCore
             public void Test()
             {
                 _context.Blogs.Add(
-                    new Blog
-                    {
-                        Name = "The Waffle Cart"
-                    });
+                    new Blog { Name = "The Waffle Cart" });
                 _context.SaveChanges();
 
                 var blog = _context.Blogs.SingleOrDefault();
@@ -336,10 +311,7 @@ namespace Microsoft.EntityFrameworkCore
             public void Test()
             {
                 _context.Blogs.Add(
-                    new Blog
-                    {
-                        Name = "The Waffle Cart"
-                    });
+                    new Blog { Name = "The Waffle Cart" });
                 _context.SaveChanges();
 
                 var blog = _context.Blogs.SingleOrDefault();
@@ -393,10 +365,7 @@ namespace Microsoft.EntityFrameworkCore
             public void Test()
             {
                 _context.Blogs.Add(
-                    new Blog
-                    {
-                        Name = "The Waffle Cart"
-                    });
+                    new Blog { Name = "The Waffle Cart" });
                 _context.SaveChanges();
 
                 var blog = _context.Blogs.SingleOrDefault();
@@ -460,10 +429,7 @@ namespace Microsoft.EntityFrameworkCore
                     _context.GetService<IDbContextOptions>());
 
                 _context.Blogs.Add(
-                    new Blog
-                    {
-                        Name = "The Waffle Cart"
-                    });
+                    new Blog { Name = "The Waffle Cart" });
                 _context.SaveChanges();
 
                 var blog = _context.Blogs.SingleOrDefault();
@@ -490,10 +456,7 @@ namespace Microsoft.EntityFrameworkCore
                     _context.GetService<IDbContextOptions>());
 
                 _context.Accounts.Add(
-                    new Account
-                    {
-                        Name = "Eeky Bear"
-                    });
+                    new Account { Name = "Eeky Bear" });
                 _context.SaveChanges();
 
                 var account = _context.Accounts.SingleOrDefault();

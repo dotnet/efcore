@@ -23,9 +23,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The name of the table to which the entity type is mapped. </returns>
         public static string GetTableName([NotNull] this IEntityType entityType) =>
             entityType.BaseType != null
-                ? entityType.RootType().GetTableName()
-                : (string)entityType[RelationalAnnotationNames.TableName]
-                  ?? GetDefaultTableName(entityType);
+                ? entityType.GetRootType().GetTableName()
+                : (string)entityType[RelationalAnnotationNames.TableName] ?? GetDefaultTableName(entityType);
 
         /// <summary>
         ///     Returns the default table name that would be used for this entity type.
@@ -41,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore
                 return ownership.PrincipalEntityType.GetTableName();
             }
 
-            return IdentifierHelpers.Truncate(
+            return Uniquifier.Truncate(
                 entityType.HasDefiningNavigation()
                     ? $"{entityType.DefiningEntityType.GetTableName()}_{entityType.DefiningNavigationName}"
                     : entityType.ShortName(),
@@ -87,9 +86,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The database schema that contains the mapped table. </returns>
         public static string GetSchema([NotNull] this IEntityType entityType) =>
             entityType.BaseType != null
-                ? entityType.RootType().GetSchema()
-                : (string)entityType[RelationalAnnotationNames.Schema]
-                  ?? GetDefaultSchema(entityType);
+                ? entityType.GetRootType().GetSchema()
+                : (string)entityType[RelationalAnnotationNames.Schema] ?? GetDefaultSchema(entityType);
 
         /// <summary>
         ///     Returns the default database schema that would be used for this entity type.
@@ -250,5 +248,65 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to get the check constraints for. </param>
         public static IEnumerable<ICheckConstraint> GetCheckConstraints([NotNull] this IEntityType entityType)
             => CheckConstraint.GetCheckConstraints(entityType);
+
+        /// <summary>
+        ///     Returns the comment for the column this property is mapped to.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> The comment for the column this property is mapped to. </returns>
+        public static string GetComment([NotNull] this IEntityType entityType)
+            => (string)entityType[RelationalAnnotationNames.Comment];
+
+        /// <summary>
+        ///     Configures a comment to be applied to the column this property is mapped to.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="comment"> The comment for the column. </param>
+        public static void SetComment([NotNull] this IMutableEntityType entityType, [CanBeNull] string comment)
+            => entityType.SetOrRemoveAnnotation(RelationalAnnotationNames.Comment, comment);
+
+        /// <summary>
+        ///     Configures a comment to be applied to the column this property is mapped to.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="comment"> The comment for the column. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void SetComment(
+            [NotNull] this IConventionEntityType entityType, [CanBeNull] string comment, bool fromDataAnnotation = false)
+            => entityType.SetOrRemoveAnnotation(RelationalAnnotationNames.Comment, comment, fromDataAnnotation);
+
+        /// <summary>
+        ///     Gets a value indicating whether the entity type is ignored by Migrations.
+        /// </summary>
+        /// <param name="entityType">The entity type.</param>
+        /// <returns>A value indicating whether the entity type is ignored by Migrations.</returns>
+        public static bool IsIgnoredByMigrations([NotNull] this IEntityType entityType)
+        {
+            if (entityType.BaseType != null)
+            {
+                return entityType.BaseType.IsIgnoredByMigrations();
+            }
+
+            if (entityType.GetDefiningQuery() != null)
+            {
+                return true;
+            }
+
+            var viewDefinition = entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinition);
+            if (viewDefinition == null)
+            {
+                var ownership = entityType.FindOwnership();
+                if (ownership != null
+                    && ownership.IsUnique
+                    && entityType.FindAnnotation(RelationalAnnotationNames.TableName) == null)
+                {
+                    return ownership.PrincipalEntityType.IsIgnoredByMigrations();
+                }
+
+                return false;
+            }
+
+            return viewDefinition.Value == null;
+        }
     }
 }

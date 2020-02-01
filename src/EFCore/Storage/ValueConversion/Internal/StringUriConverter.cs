@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -49,6 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
 
         private static Uri ConvertToUri(string value)
             => Uri.TryCreate(value, UriKind.RelativeOrAbsolute, out var result)
-                ? result : default;
+                ? result
+                : default;
     }
 }

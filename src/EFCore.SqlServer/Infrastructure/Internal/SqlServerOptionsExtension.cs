@@ -2,11 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Globalization;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
@@ -19,9 +17,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
     /// </summary>
     public class SqlServerOptionsExtension : RelationalOptionsExtension
     {
-        private long? _serviceProviderHash;
-        private bool? _rowNumberPaging;
-        private string _logFragment;
+        private DbContextOptionsExtensionInfo _info;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -44,8 +40,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
         protected SqlServerOptionsExtension([NotNull] SqlServerOptionsExtension copyFrom)
             : base(copyFrom)
         {
-            _rowNumberPaging = copyFrom._rowNumberPaging;
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override DbContextOptionsExtensionInfo Info
+            => _info ??= new ExtensionInfo(this);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -62,92 +66,42 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool? RowNumberPaging => _rowNumberPaging;
+        public override void ApplyServices(IServiceCollection services)
+            => services.AddEntityFrameworkSqlServer();
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual SqlServerOptionsExtension WithRowNumberPaging(bool rowNumberPaging)
+        private sealed class ExtensionInfo : RelationalExtensionInfo
         {
-            var clone = (SqlServerOptionsExtension)Clone();
+            private string _logFragment;
 
-            clone._rowNumberPaging = rowNumberPaging;
-
-            return clone;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override long GetServiceProviderHashCode()
-        {
-            if (_serviceProviderHash == null)
+            public ExtensionInfo(IDbContextOptionsExtension extension)
+                : base(extension)
             {
-                _serviceProviderHash = (base.GetServiceProviderHashCode() * 397) ^ (_rowNumberPaging?.GetHashCode() ?? 0L);
             }
 
-            return _serviceProviderHash.Value;
-        }
+            private new SqlServerOptionsExtension Extension
+                => (SqlServerOptionsExtension)base.Extension;
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
-        {
-            debugInfo["SqlServer:" + nameof(SqlServerDbContextOptionsBuilder.UseRowNumberForPaging)]
-                = (_rowNumberPaging?.GetHashCode() ?? 0L).ToString(CultureInfo.InvariantCulture);
-        }
+            public override bool IsDatabaseProvider => true;
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override bool ApplyServices(IServiceCollection services)
-        {
-            Check.NotNull(services, nameof(services));
-
-            services.AddEntityFrameworkSqlServer();
-
-            return true;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override string LogFragment
-        {
-            get
+            public override string LogFragment
             {
-                if (_logFragment == null)
+                get
                 {
-                    var builder = new StringBuilder();
-
-                    builder.Append(base.LogFragment);
-
-                    if (_rowNumberPaging == true)
+                    if (_logFragment == null)
                     {
-                        builder.Append("RowNumberPaging ");
+                        var builder = new StringBuilder();
+
+                        builder.Append(base.LogFragment);
+
+                        _logFragment = builder.ToString();
                     }
 
-                    _logFragment = builder.ToString();
+                    return _logFragment;
                 }
-
-                return _logFragment;
             }
+
+            public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+                => debugInfo["SqlServer"] = "1";
         }
     }
 }

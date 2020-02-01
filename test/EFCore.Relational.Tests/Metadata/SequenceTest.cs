@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Can_be_created_with_specified_values()
         {
-            var sequence = ((IMutableModel)new Model()).AddSequence("Foo", "Smoo");
+            var sequence = new Model().AddSequence("Foo", "Smoo");
             sequence.StartValue = 1729;
             sequence.IncrementBy = 11;
             sequence.MinValue = 2001;

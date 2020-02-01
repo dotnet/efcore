@@ -4,13 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
 {
-    public class SpatialData : IExpectedData
+    public class SpatialData : ISetSource
     {
         private readonly IReadOnlyList<PointEntity> _pointEntities;
         private readonly IReadOnlyList<GeoPointEntity> _geoPointEntities;
@@ -18,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
         private readonly IReadOnlyList<PolygonEntity> _polygonEntities;
         private readonly IReadOnlyList<MultiLineStringEntity> _multiLineStringEntities;
 
-        public SpatialData(IGeometryFactory factory)
+        public SpatialData(GeometryFactory factory)
         {
             _pointEntities = CreatePointEntities(factory);
             _geoPointEntities = CreateGeoPointEntities();
@@ -58,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
             throw new InvalidOperationException("Unknown entity type: " + typeof(TEntity));
         }
 
-        public static IReadOnlyList<PointEntity> CreatePointEntities(IGeometryFactory factory)
+        public static IReadOnlyList<PointEntity> CreatePointEntities(GeometryFactory factory)
         {
             var entities = new[]
             {
@@ -68,17 +67,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
                     Point = factory.CreatePoint(
                         new Coordinate(0, 0))
                 },
-                new PointEntity
-                {
-                    Id = Guid.Parse("67A54C9B-4C3B-4B27-8B4E-C0335E50E551"),
-                    Point = null
-                }
+                new PointEntity { Id = Guid.Parse("67A54C9B-4C3B-4B27-8B4E-C0335E50E551"), Point = null }
             };
 
             foreach (var entity in entities)
             {
                 entity.Geometry = entity.Point?.Copy();
-                entity.ConcretePoint = (Point)entity.Point?.Copy();
             }
 
             return entities;
@@ -89,59 +83,39 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
             {
                 new GeoPointEntity
                 {
-                    Id = Guid.Parse("67A54C9B-4C3B-4B27-8B4E-C0335E50E552"),
-                    Location = new GeoPoint(47.6233355, -122.34877)
+                    Id = Guid.Parse("67A54C9B-4C3B-4B27-8B4E-C0335E50E552"), Location = new GeoPoint(47.6233355, -122.34877)
                 },
                 new GeoPointEntity
                 {
-                    Id = Guid.Parse("67A54C9B-4C3B-4B27-8B4E-C0335E50E553"),
-                    Location = new GeoPoint(47.5978429, -122.3308366)
+                    Id = Guid.Parse("67A54C9B-4C3B-4B27-8B4E-C0335E50E553"), Location = new GeoPoint(47.5978429, -122.3308366)
                 }
             };
 
-        public static IReadOnlyList<LineStringEntity> CreateLineStringEntities(IGeometryFactory factory)
+        public static IReadOnlyList<LineStringEntity> CreateLineStringEntities(GeometryFactory factory)
             => new[]
             {
                 new LineStringEntity
                 {
                     Id = 1,
                     LineString = factory.CreateLineString(
-                        new[]
-                        {
-                            new Coordinate(0, 0),
-                            new Coordinate(1, 0)
-                        })
+                        new[] { new Coordinate(0, 0), new Coordinate(1, 0) })
                 },
-                new LineStringEntity
-                {
-                    Id = 2,
-                    LineString = null
-                }
+                new LineStringEntity { Id = 2, LineString = null }
             };
 
-        public static IReadOnlyList<PolygonEntity> CreatePolygonEntities(IGeometryFactory factory)
+        public static IReadOnlyList<PolygonEntity> CreatePolygonEntities(GeometryFactory factory)
             => new[]
             {
                 new PolygonEntity
                 {
                     Id = Guid.Parse("2F39AADE-4D8D-42D2-88CE-775C84AB83B1"),
                     Polygon = factory.CreatePolygon(
-                        new[]
-                        {
-                            new Coordinate(0, 0),
-                            new Coordinate(1, 0),
-                            new Coordinate(0, 1),
-                            new Coordinate(0, 0)
-                        })
+                        new[] { new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(0, 1), new Coordinate(0, 0) })
                 },
-                new PolygonEntity
-                {
-                    Id = Guid.Parse("F1B00CB9-862B-417B-955A-F1F7688B2AB5"),
-                    Polygon = null
-                }
+                new PolygonEntity { Id = Guid.Parse("F1B00CB9-862B-417B-955A-F1F7688B2AB5"), Polygon = null }
             };
 
-        public static IReadOnlyList<MultiLineStringEntity> CreateMultiLineStringEntities(IGeometryFactory factory)
+        public static IReadOnlyList<MultiLineStringEntity> CreateMultiLineStringEntities(GeometryFactory factory)
             => new[]
             {
                 new MultiLineStringEntity
@@ -151,24 +125,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
                         new[]
                         {
                             factory.CreateLineString(
-                                new[]
-                                {
-                                    new Coordinate(0, 0),
-                                    new Coordinate(0, 1)
-                                }),
+                                new[] { new Coordinate(0, 0), new Coordinate(0, 1) }),
                             factory.CreateLineString(
-                                new[]
-                                {
-                                    new Coordinate(1, 0),
-                                    new Coordinate(1, 1)
-                                })
+                                new[] { new Coordinate(1, 0), new Coordinate(1, 1) })
                         })
                 },
-                new MultiLineStringEntity
-                {
-                    Id = 2,
-                    MultiLineString = null
-                }
+                new MultiLineStringEntity { Id = 2, MultiLineString = null }
             };
     }
 }

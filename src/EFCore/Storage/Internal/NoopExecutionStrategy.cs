@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         public virtual TResult Execute<TState, TResult>(
             TState state, Func<DbContext, TState, TResult> operation, Func<DbContext, TState, ExecutionResult<TResult>> verifySucceeded)
-            => operation(Dependencies.CurrentDbContext.Context, state);
+            => operation(Dependencies.CurrentContext.Context, state);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -54,6 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public virtual Task<TResult> ExecuteAsync<TState, TResult>(
             TState state, Func<DbContext, TState, CancellationToken, Task<TResult>> operation, Func<DbContext, TState,
                 CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded, CancellationToken cancellationToken = default)
-            => operation(Dependencies.CurrentDbContext.Context, state, cancellationToken);
+            => operation(Dependencies.CurrentContext.Context, state, cancellationToken);
     }
 }

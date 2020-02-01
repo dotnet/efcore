@@ -56,7 +56,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 columns.Clear();
                 keys.Clear();
                 foreignKeys.Clear();
-                indexes.Clear();
 
                 foreach (var entityType in entityTypes)
                 {
@@ -73,11 +72,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             foreach (var entityType in model.GetEntityTypes())
             {
-                if (entityType.FindPrimaryKey() == null)
-                {
-                    continue;
-                }
-
                 var tableName = (Schema: entityType.GetSchema(), TableName: entityType.GetTableName());
                 if (!tables.TryGetValue(tableName, out var entityTypes))
                 {
@@ -93,14 +87,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     {
                         if (entityType[RelationalAnnotationNames.TableName] == null)
                         {
-                            var uniqueName = IdentifierHelpers.Uniquify(
+                            var uniqueName = Uniquifier.Uniquify(
                                 tableName.TableName, tables, n => (tableName.Schema, n), maxLength);
                             if (entityType.Builder.ToTable(uniqueName) != null)
                             {
-                                tables[(tableName.Schema, uniqueName)] = new List<IConventionEntityType>
-                                {
-                                    entityType
-                                };
+                                tables[(tableName.Schema, uniqueName)] = new List<IConventionEntityType> { entityType };
                                 continue;
                             }
                         }
@@ -110,15 +101,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                             var otherEntityType = entityTypes.First();
                             if (otherEntityType[RelationalAnnotationNames.TableName] == null)
                             {
-                                var uniqueName = IdentifierHelpers.Uniquify(
+                                var uniqueName = Uniquifier.Uniquify(
                                     tableName.TableName, tables, n => (tableName.Schema, n), maxLength);
                                 if (otherEntityType.Builder.ToTable(uniqueName) != null)
                                 {
                                     entityTypes.Remove(otherEntityType);
-                                    tables[(tableName.Schema, uniqueName)] = new List<IConventionEntityType>
-                                    {
-                                        otherEntityType
-                                    };
+                                    tables[(tableName.Schema, uniqueName)] = new List<IConventionEntityType> { otherEntityType };
                                 }
                             }
                         }
@@ -131,20 +119,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private static bool ShouldUniquify(IConventionEntityType entityType, ICollection<IConventionEntityType> entityTypes)
         {
-            var rootType = entityType.RootType();
-            var pkProperty = entityType.FindPrimaryKey().Properties[0];
-            var rootSharedTableType = pkProperty.FindSharedTableRootPrimaryKeyProperty()?.DeclaringEntityType;
+            var rootType = entityType.GetRootType();
+            var pkProperty = entityType.FindPrimaryKey()?.Properties[0];
+            var rootSharedTableType = pkProperty?.FindSharedTableRootPrimaryKeyProperty()?.DeclaringEntityType;
 
             foreach (var otherEntityType in entityTypes)
             {
                 if (rootSharedTableType == otherEntityType
-                    || rootType == otherEntityType.RootType())
+                    || rootType == otherEntityType.GetRootType())
                 {
                     return false;
                 }
 
-                var otherPkProperty = otherEntityType.FindPrimaryKey().Properties[0];
-                var otherRootSharedTableType = otherPkProperty.FindSharedTableRootPrimaryKeyProperty()?.DeclaringEntityType;
+                var otherPkProperty = otherEntityType.FindPrimaryKey()?.Properties[0];
+                var otherRootSharedTableType = otherPkProperty?.FindSharedTableRootPrimaryKeyProperty()?.DeclaringEntityType;
                 if (otherRootSharedTableType == entityType
                     || (otherRootSharedTableType == rootSharedTableType
                         && otherRootSharedTableType != null))
@@ -156,7 +144,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return true;
         }
 
-        private static void TryUniquifyColumnNames(IConventionEntityType entityType, Dictionary<string, IConventionProperty> properties, int maxLength)
+        private static void TryUniquifyColumnNames(
+            IConventionEntityType entityType, Dictionary<string, IConventionProperty> properties, int maxLength)
         {
             foreach (var property in entityType.GetDeclaredProperties())
             {
@@ -175,8 +164,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
 
                 var usePrefix = property.DeclaringEntityType != otherProperty.DeclaringEntityType
-                                || property.IsPrimaryKey()
-                                || otherProperty.IsPrimaryKey();
+                    || property.IsPrimaryKey()
+                    || otherProperty.IsPrimaryKey();
                 if (!property.IsPrimaryKey())
                 {
                     var newColumnName = TryUniquify(property, columnName, properties, usePrefix, maxLength);
@@ -200,7 +189,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private static string TryUniquify(
-            IConventionProperty property, string columnName, Dictionary<string, IConventionProperty> properties, bool usePrefix, int maxLength)
+            IConventionProperty property, string columnName, Dictionary<string, IConventionProperty> properties, bool usePrefix,
+            int maxLength)
         {
             if (property.Builder.CanSetColumnName(null))
             {
@@ -213,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     }
                 }
 
-                columnName = IdentifierHelpers.Uniquify(columnName, properties, maxLength);
+                columnName = Uniquifier.Uniquify(columnName, properties, maxLength);
                 property.Builder.HasColumnName(columnName);
                 properties[columnName] = property;
                 return columnName;
@@ -260,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             if (key.Builder.CanSetName(null))
             {
-                keyName = IdentifierHelpers.Uniquify(keyName, keys, maxLength);
+                keyName = Uniquifier.Uniquify(keyName, keys, maxLength);
                 key.Builder.HasName(keyName);
                 return keyName;
             }
@@ -268,7 +258,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return null;
         }
 
-        private static void TryUniquifyIndexNames(IConventionEntityType entityType, Dictionary<string, IConventionIndex> indexes, int maxLength)
+        private static void TryUniquifyIndexNames(
+            IConventionEntityType entityType, Dictionary<string, IConventionIndex> indexes, int maxLength)
         {
             foreach (var index in entityType.GetDeclaredIndexes())
             {
@@ -316,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             if (index.Builder.CanSetName(null))
             {
-                indexName = IdentifierHelpers.Uniquify(indexName, indexes, maxLength);
+                indexName = Uniquifier.Uniquify(indexName, indexes, maxLength);
                 index.Builder.HasName(indexName);
                 return indexName;
             }
@@ -375,7 +366,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             if (foreignKey.Builder.CanSetConstraintName(null))
             {
-                foreignKeyName = IdentifierHelpers.Uniquify(foreignKeyName, foreignKeys, maxLength);
+                foreignKeyName = Uniquifier.Uniquify(foreignKeyName, foreignKeys, maxLength);
                 foreignKey.Builder.HasConstraintName(foreignKeyName);
                 return foreignKeyName;
             }

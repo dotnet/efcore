@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -81,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 return this;
             }
-            
+
             public int CommandTextLength => Instance.Length;
         }
 
@@ -101,14 +100,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             public IReadOnlyList<IRelationalParameter> Parameters => _realRelationalCommand.Parameters;
 
-            public int ExecuteNonQuery(
-                IRelationalConnection connection,
-                IReadOnlyDictionary<string, object> parameterValues,
-                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
+            public int ExecuteNonQuery(RelationalCommandParameterObject parameterObject)
             {
+                var connection = parameterObject.Connection;
                 var errorNumber = PreExecution(connection);
 
-                var result = _realRelationalCommand.ExecuteNonQuery(connection, parameterValues, logger);
+                var result = _realRelationalCommand.ExecuteNonQuery(parameterObject);
                 if (errorNumber.HasValue)
                 {
                     connection.DbConnection.Close();
@@ -119,13 +116,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
 
             public Task<int> ExecuteNonQueryAsync(
-                IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues,
-                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
+                RelationalCommandParameterObject parameterObject,
                 CancellationToken cancellationToken = new CancellationToken())
             {
+                var connection = parameterObject.Connection;
                 var errorNumber = PreExecution(connection);
 
-                var result = _realRelationalCommand.ExecuteNonQueryAsync(connection, parameterValues, logger, cancellationToken);
+                var result = _realRelationalCommand.ExecuteNonQueryAsync(parameterObject, cancellationToken);
                 if (errorNumber.HasValue)
                 {
                     connection.DbConnection.Close();
@@ -135,14 +132,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 return result;
             }
 
-            public object ExecuteScalar(
-                IRelationalConnection connection,
-                IReadOnlyDictionary<string, object> parameterValues,
-                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
+            public object ExecuteScalar(RelationalCommandParameterObject parameterObject)
             {
+                var connection = parameterObject.Connection;
                 var errorNumber = PreExecution(connection);
 
-                var result = _realRelationalCommand.ExecuteScalar(connection, parameterValues, logger);
+                var result = _realRelationalCommand.ExecuteScalar(parameterObject);
                 if (errorNumber.HasValue)
                 {
                     connection.DbConnection.Close();
@@ -153,13 +148,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
 
             public async Task<object> ExecuteScalarAsync(
-                IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues,
-                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
+                RelationalCommandParameterObject parameterObject,
                 CancellationToken cancellationToken = new CancellationToken())
             {
+                var connection = parameterObject.Connection;
                 var errorNumber = PreExecution(connection);
 
-                var result = await _realRelationalCommand.ExecuteScalarAsync(connection, parameterValues, logger, cancellationToken);
+                var result = await _realRelationalCommand.ExecuteScalarAsync(parameterObject, cancellationToken);
                 if (errorNumber.HasValue)
                 {
                     connection.DbConnection.Close();
@@ -169,14 +164,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 return result;
             }
 
-            public RelationalDataReader ExecuteReader(
-                IRelationalConnection connection,
-                IReadOnlyDictionary<string, object> parameterValues,
-                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
+            public RelationalDataReader ExecuteReader(RelationalCommandParameterObject parameterObject)
             {
+                var connection = parameterObject.Connection;
                 var errorNumber = PreExecution(connection);
 
-                var result = _realRelationalCommand.ExecuteReader(connection, parameterValues, logger);
+                var result = _realRelationalCommand.ExecuteReader(parameterObject);
                 if (errorNumber.HasValue)
                 {
                     connection.DbConnection.Close();
@@ -188,13 +181,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
 
             public async Task<RelationalDataReader> ExecuteReaderAsync(
-                IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues,
-                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
+                RelationalCommandParameterObject parameterObject,
                 CancellationToken cancellationToken = new CancellationToken())
             {
+                var connection = parameterObject.Connection;
                 var errorNumber = PreExecution(connection);
 
-                var result = await _realRelationalCommand.ExecuteReaderAsync(connection, parameterValues, logger, cancellationToken);
+                var result = await _realRelationalCommand.ExecuteReaderAsync(parameterObject, cancellationToken);
                 if (errorNumber.HasValue)
                 {
                     connection.DbConnection.Close();

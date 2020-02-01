@@ -32,11 +32,12 @@ namespace Microsoft.EntityFrameworkCore
             where T : class, new()
         {
             var modelBuilder = new ModelBuilder(InMemoryConventionSetBuilder.Build());
-            modelBuilder.Entity<T>(eb =>
-            {
-                eb.Property<int>("Id");
-                eb.Property<string>("Name");
-            });
+            modelBuilder.Entity<T>(
+                eb =>
+                {
+                    eb.Property<int>("Id");
+                    eb.Property<string>("Name");
+                });
 
             var optionsBuilder = new DbContextOptionsBuilder()
                 .UseModel(modelBuilder.FinalizeModel())

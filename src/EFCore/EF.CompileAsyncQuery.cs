@@ -8,7 +8,6 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore
@@ -25,20 +24,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TContext, TResult>(
             [NotNull] Expression<Func<TContext, DbSet<TResult>>> queryExpression)
-            where TContext : DbContext
-            where TResult : class
-            => new CompiledAsyncEnumerableQuery<TContext, TResult>(queryExpression).Execute;
-
-        /// <summary>
-        ///     Creates a compiled query delegate that when invoked will execute the specified LINQ query.
-        /// </summary>
-        /// <typeparam name="TContext">The target DbContext type.</typeparam>
-        /// <typeparam name="TResult">The query result type.</typeparam>
-        /// <param name="queryExpression">The LINQ query expression.</param>
-        /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
-        [Obsolete("Use DbSet instead")]
-        public static Func<TContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TContext, TResult>(
-            [NotNull] Expression<Func<TContext, DbQuery<TResult>>> queryExpression)
             where TContext : DbContext
             where TResult : class
             => new CompiledAsyncEnumerableQuery<TContext, TResult>(queryExpression).Execute;

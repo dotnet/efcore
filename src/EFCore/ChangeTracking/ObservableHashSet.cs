@@ -174,8 +174,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </returns>
         public virtual HashSet<T>.Enumerator GetEnumerator() => _set.GetEnumerator();
 
+        /// <inheritdoc />
         IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
 
+        /// <inheritdoc />
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         /// <summary>

@@ -3,9 +3,9 @@
 
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             _observableCollection = observableCollection;
 
-            Debug.Assert(_observableCollection is INotifyCollectionChanged);
+            Check.DebugAssert(_observableCollection is INotifyCollectionChanged, "_observableCollection is not INotifyCollectionChanged");
 
             ((INotifyCollectionChanged)observableCollection).CollectionChanged += ObservableCollectionChanged;
         }

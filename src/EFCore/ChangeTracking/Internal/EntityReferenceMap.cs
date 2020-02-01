@@ -81,48 +81,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     switch (state)
                     {
                         case EntityState.Detached:
-                            if (_detachedReferenceMap == null)
-                            {
-                                _detachedReferenceMap =
-                                    new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
-                            }
-
+                            _detachedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
                             _detachedReferenceMap[mapKey] = entry;
                             break;
                         case EntityState.Unchanged:
-                            if (_unchangedReferenceMap == null)
-                            {
-                                _unchangedReferenceMap =
-                                    new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
-                            }
-
+                            _unchangedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
                             _unchangedReferenceMap[mapKey] = entry;
                             break;
                         case EntityState.Deleted:
-                            if (_deletedReferenceMap == null)
-                            {
-                                _deletedReferenceMap =
-                                    new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
-                            }
-
+                            _deletedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
                             _deletedReferenceMap[mapKey] = entry;
                             break;
                         case EntityState.Modified:
-                            if (_modifiedReferenceMap == null)
-                            {
-                                _modifiedReferenceMap =
-                                    new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
-                            }
-
+                            _modifiedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
                             _modifiedReferenceMap[mapKey] = entry;
                             break;
                         case EntityState.Added:
-                            if (_addedReferenceMap == null)
-                            {
-                                _addedReferenceMap =
-                                    new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
-                            }
-
+                            _addedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
                             _addedReferenceMap[mapKey] = entry;
                             break;
                     }
@@ -144,10 +119,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             entry = null;
             var found = _unchangedReferenceMap?.TryGetValue(entity, out entry) == true
-                        || _modifiedReferenceMap?.TryGetValue(entity, out entry) == true
-                        || _addedReferenceMap?.TryGetValue(entity, out entry) == true
-                        || _deletedReferenceMap?.TryGetValue(entity, out entry) == true
-                        || _detachedReferenceMap?.TryGetValue(entity, out entry) == true;
+                || _modifiedReferenceMap?.TryGetValue(entity, out entry) == true
+                || _addedReferenceMap?.TryGetValue(entity, out entry) == true
+                || _deletedReferenceMap?.TryGetValue(entity, out entry) == true
+                || _detachedReferenceMap?.TryGetValue(entity, out entry) == true;
 
             if (!found
                 && _hasSubMap
@@ -258,35 +233,35 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var returnAdded
                 = added
-                  && _addedReferenceMap != null
-                  && _addedReferenceMap.Count > 0;
+                && _addedReferenceMap != null
+                && _addedReferenceMap.Count > 0;
 
             var returnModified
                 = modified
-                  && _modifiedReferenceMap != null
-                  && _modifiedReferenceMap.Count > 0;
+                && _modifiedReferenceMap != null
+                && _modifiedReferenceMap.Count > 0;
 
             var returnDeleted
                 = deleted
-                  && _deletedReferenceMap != null
-                  && _deletedReferenceMap.Count > 0;
+                && _deletedReferenceMap != null
+                && _deletedReferenceMap.Count > 0;
 
             var returnUnchanged
                 = unchanged
-                  && _unchangedReferenceMap != null
-                  && _unchangedReferenceMap.Count > 0;
+                && _unchangedReferenceMap != null
+                && _unchangedReferenceMap.Count > 0;
 
             var hasDependentTypes
                 = _dependentTypeReferenceMap != null
-                  && _dependentTypeReferenceMap.Count > 0;
+                && _dependentTypeReferenceMap.Count > 0;
 
             if (!hasDependentTypes)
             {
                 var numberOfStates
                     = (returnAdded ? 1 : 0)
-                      + (returnModified ? 1 : 0)
-                      + (returnDeleted ? 1 : 0)
-                      + (returnUnchanged ? 1 : 0);
+                    + (returnModified ? 1 : 0)
+                    + (returnDeleted ? 1 : 0)
+                    + (returnUnchanged ? 1 : 0);
 
                 if (numberOfStates == 1)
                 {
@@ -294,14 +269,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         return _unchangedReferenceMap.Values;
                     }
+
                     if (returnAdded)
                     {
                         return _addedReferenceMap.Values;
                     }
+
                     if (returnModified)
                     {
                         return _modifiedReferenceMap.Values;
                     }
+
                     if (returnDeleted)
                     {
                         return _deletedReferenceMap.Values;
@@ -370,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     foreach (var entry in subMap.GetEntriesForState(added, modified, deleted, unchanged))
                     {
                         if ((entry.SharedIdentityEntry == null
-                             || entry.EntityState != EntityState.Deleted))
+                            || entry.EntityState != EntityState.Deleted))
                         {
                             yield return entry;
                         }

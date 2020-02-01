@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .BuildServiceProvider()
                 .GetRequiredService<IModelCodeGenerator>();
 
-            options.ModelNamespace = "TestNamespace";
+            options.ModelNamespace ??= "TestNamespace";
             options.ContextName = "TestDbContext";
             options.ConnectionString = "Initial Catalog=TestDatabase";
 

@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return this;
         }
 
-        private InternalKeyBuilder Builder => this.GetInfrastructure<InternalKeyBuilder>();
+        private InternalKeyBuilder Builder => this.GetInfrastructure();
 
         #region Hidden System.Object members
 

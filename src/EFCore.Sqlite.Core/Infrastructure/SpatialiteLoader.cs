@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -9,11 +9,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyModel;
-
 using RuntimeEnvironment = Microsoft.DotNet.PlatformAbstractions.RuntimeEnvironment;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -35,15 +35,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 _sharedLibraryExtension = ".dll";
                 _pathVariableName = "PATH";
             }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                _sharedLibraryExtension = ".dylib";
-                _pathVariableName = "DYLD_LIBRARY_PATH";
-            }
             else
             {
-                _sharedLibraryExtension = ".so";
-                _pathVariableName = "LD_LIBRARY_PATH";
+                // NB: The PATH trick we use won't work on Linux. Changing LD_LIBRARY_PATH has
+                //     no effect after the first library is loaded
+                _looked = true;
             }
         }
 
@@ -59,10 +55,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var opened = false;
             if (connection.State != ConnectionState.Open)
             {
-                // NB: If closed, LoadExtension won't throw immidiately
+                // NB: If closed, LoadExtension won't throw immediately
                 connection.Open();
                 opened = true;
             }
+
             try
             {
                 Load(connection);
@@ -103,11 +100,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
             else
             {
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = "SELECT load_extension('mod_spatialite');";
-                    command.ExecuteNonQuery();
-                }
+                using var command = connection.CreateCommand();
+                command.CommandText = "SELECT load_extension('mod_spatialite');";
+                command.ExecuteNonQuery();
             }
         }
 
@@ -131,9 +126,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             if (hasDependencyContext)
             {
-                var candidateAssets = new Dictionary<string, int>();
+                var candidateAssets = new Dictionary<(string, string), int>();
                 var rid = RuntimeEnvironment.GetRuntimeIdentifier();
-                var rids = DependencyContext.Default.RuntimeGraph.First(g => g.Runtime == rid).Fallbacks.ToList();
+                var rids = DependencyContext.Default.RuntimeGraph.FirstOrDefault(g => g.Runtime == rid)?.Fallbacks.ToList()
+                    ?? new List<string>();
                 rids.Insert(0, rid);
 
                 foreach (var library in DependencyContext.Default.RuntimeLibraries)
@@ -150,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 var fallbacks = rids.IndexOf(group.Runtime);
                                 if (fallbacks != -1)
                                 {
-                                    candidateAssets.Add(library.Path + "/" + file.Path, fallbacks);
+                                    candidateAssets.Add((library.Path, file.Path), fallbacks);
                                 }
                             }
                         }
@@ -158,27 +154,54 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 }
 
                 var assetPath = candidateAssets.OrderBy(p => p.Value)
-                    .Select(p => p.Key.Replace('/', Path.DirectorySeparatorChar)).FirstOrDefault();
-                if (assetPath != null)
+                    .Select(p => p.Key).FirstOrDefault();
+                if (assetPath != default)
                 {
-                    string assetFullPath = null;
-                    var probingDirectories = ((string)AppDomain.CurrentDomain.GetData("PROBING_DIRECTORIES"))
-                        .Split(Path.PathSeparator);
-                    foreach (var directory in probingDirectories)
+                    string assetDirectory = null;
+                    if (File.Exists(Path.Combine(AppContext.BaseDirectory, assetPath.Item2)))
                     {
-                        var candidateFullPath = Path.Combine(directory, assetPath);
-                        if (File.Exists(candidateFullPath))
+                        // NB: This enables framework-dependent deployments
+                        assetDirectory = Path.Combine(
+                            AppContext.BaseDirectory,
+                            Path.GetDirectoryName(assetPath.Item2.Replace('/', Path.DirectorySeparatorChar)));
+                    }
+                    else
+                    {
+                        string assetFullPath = null;
+                        var probingDirectories = ((string)AppDomain.CurrentDomain.GetData("PROBING_DIRECTORIES"))
+                            .Split(Path.PathSeparator);
+                        foreach (var directory in probingDirectories)
                         {
-                            assetFullPath = candidateFullPath;
+                            var candidateFullPath = Path.Combine(
+                                directory,
+                                (assetPath.Item1 + "/" + assetPath.Item2).Replace('/', Path.DirectorySeparatorChar));
+                            if (File.Exists(candidateFullPath))
+                            {
+                                assetFullPath = candidateFullPath;
+                            }
                         }
+
+                        Check.DebugAssert(assetFullPath != null, "assetFullPath is null");
+
+                        assetDirectory = Path.GetDirectoryName(assetFullPath);
                     }
 
-                    Debug.Assert(assetFullPath != null);
+                    Check.DebugAssert(assetDirectory != null, "assetDirectory is null");
 
-                    var assetDirectory = Path.GetDirectoryName(assetFullPath);
-
+                    // GetEnvironmentVariable can sometimes return null when there is a race condition
+                    // with another thread setting it. Therefore we do a bit of back off and retry here.
+                    // Note that the result can be null if no path is set on the system.
+                    var delay = 1;
                     var currentPath = Environment.GetEnvironmentVariable(_pathVariableName);
-                    if (!currentPath.Split(Path.PathSeparator).Any(
+                    while (currentPath == null && delay < 1000)
+                    {
+                        Thread.Sleep(delay);
+                        delay *= 2;
+                        currentPath = Environment.GetEnvironmentVariable(_pathVariableName);
+                    }
+
+                    if (currentPath == null
+                        || !currentPath.Split(Path.PathSeparator).Any(
                         p => string.Equals(
                             p.TrimEnd(Path.DirectorySeparatorChar),
                             assetDirectory,

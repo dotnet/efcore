@@ -17,8 +17,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
@@ -79,22 +79,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private static bool PaintAction(
             EntityEntryGraphNode<(EntityState TargetState, EntityState StoreGenTargetState, bool Force)> node)
         {
+            SetReferenceLoaded(node);
+
             var internalEntityEntry = node.GetInfrastructure();
             if (internalEntityEntry.EntityState != EntityState.Detached)
             {
                 return false;
             }
 
-            var nodeState = node.NodeState;
+            var (targetState, storeGenTargetState, force) = node.NodeState;
 
-            var keyValueState = internalEntityEntry.IsKeySet;
+            var (isGenerated, isSet) = internalEntityEntry.IsKeySet;
 
             internalEntityEntry.SetEntityState(
-                keyValueState.IsSet
-                    ? (keyValueState.IsGenerated ? nodeState.StoreGenTargetState : nodeState.TargetState)
+                isSet
+                    ? (isGenerated ? storeGenTargetState : targetState)
                     : EntityState.Added, // Key can only be not-set if it is store-generated
                 acceptChanges: true,
-                forceStateWhenUnknownKey: nodeState.Force ? (EntityState?)nodeState.TargetState : null);
+                forceStateWhenUnknownKey: force ? (EntityState?)targetState : null);
 
             return true;
         }
@@ -103,25 +105,38 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             EntityEntryGraphNode<(EntityState TargetState, EntityState StoreGenTargetState, bool Force)> node,
             CancellationToken cancellationToken)
         {
+            SetReferenceLoaded(node);
+
             var internalEntityEntry = node.GetInfrastructure();
             if (internalEntityEntry.EntityState != EntityState.Detached)
             {
                 return false;
             }
 
-            var nodeState = node.NodeState;
+            var (targetState, storeGenTargetState, force) = node.NodeState;
 
-            var keyValueState = internalEntityEntry.IsKeySet;
+            var (isGenerated, isSet) = internalEntityEntry.IsKeySet;
 
             await internalEntityEntry.SetEntityStateAsync(
-                keyValueState.IsSet
-                    ? (keyValueState.IsGenerated ? nodeState.StoreGenTargetState : nodeState.TargetState)
+                isSet
+                    ? (isGenerated ? storeGenTargetState : targetState)
                     : EntityState.Added, // Key can only be not-set if it is store-generated
                 acceptChanges: true,
-                forceStateWhenUnknownKey: nodeState.Force ? (EntityState?)nodeState.TargetState : null,
+                forceStateWhenUnknownKey: force ? (EntityState?)targetState : null,
                 cancellationToken: cancellationToken);
 
             return true;
+        }
+
+        private static void SetReferenceLoaded(
+            EntityEntryGraphNode<(EntityState TargetState, EntityState StoreGenTargetState, bool Force)> node)
+        {
+            var inboundNavigation = node.InboundNavigation;
+            if (inboundNavigation != null
+                && !inboundNavigation.IsCollection)
+            {
+                node.SourceEntry.GetInfrastructure().SetIsLoaded(inboundNavigation);
+            }
         }
     }
 }

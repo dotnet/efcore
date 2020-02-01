@@ -3,11 +3,13 @@
   <metadata>
     $CommonMetadataElements$
     <dependencies>
-      <group targetFramework=".NETStandard1.3" />
+      <group targetFramework=".NETStandard2.0" />
     </dependencies>
   </metadata>
 
   <files>
+    $CommonFileElements$
+    <file src="_._" target="lib\$targetFramework$\" />
     <file src="$OutputBinary$" target="analyzers\dotnet\cs\" />
     <file src="$OutputSymbol$" target="analyzers\dotnet\cs\" />
   </files>

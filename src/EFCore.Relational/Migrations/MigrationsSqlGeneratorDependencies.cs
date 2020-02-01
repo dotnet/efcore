@@ -28,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
@@ -55,29 +55,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         doing so can result in application failures when updating to a new Entity Framework Core release.
         ///     </para>
         /// </summary>
-        /// <param name="commandBuilderFactory"> The command builder factory. </param>
-        /// <param name="updateSqlGenerator"> High level SQL generator. </param>
-        /// <param name="sqlGenerationHelper"> Helpers for SQL generation. </param>
-        /// <param name="typeMappingSource"> The type mapper. </param>
-        /// <param name="logger"> A logger. </param>
         [EntityFrameworkInternal]
         public MigrationsSqlGeneratorDependencies(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] IUpdateSqlGenerator updateSqlGenerator,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IRelationalTypeMappingSource typeMappingSource,
+            [NotNull] ICurrentDbContext currentContext,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
         {
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
             Check.NotNull(updateSqlGenerator, nameof(updateSqlGenerator));
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
+            Check.NotNull(currentContext, nameof(currentContext));
             Check.NotNull(logger, nameof(logger));
 
             CommandBuilderFactory = commandBuilderFactory;
             SqlGenerationHelper = sqlGenerationHelper;
             UpdateSqlGenerator = updateSqlGenerator;
             TypeMappingSource = typeMappingSource;
+            CurrentContext = currentContext;
             Logger = logger;
         }
 
@@ -102,6 +100,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public IRelationalTypeMappingSource TypeMappingSource { get; }
 
         /// <summary>
+        ///     Contains the <see cref="DbContext" /> currently in use.
+        /// </summary>
+        public ICurrentDbContext CurrentContext { get; }
+
+        /// <summary>
         ///     A logger.
         /// </summary>
         public IDiagnosticsLogger<DbLoggerCategory.Database.Command> Logger { get; }
@@ -117,6 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 UpdateSqlGenerator,
                 SqlGenerationHelper,
                 TypeMappingSource,
+                CurrentContext,
                 Logger);
 
         /// <summary>
@@ -130,6 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 updateSqlGenerator,
                 SqlGenerationHelper,
                 TypeMappingSource,
+                CurrentContext,
                 Logger);
 
         /// <summary>
@@ -143,6 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 UpdateSqlGenerator,
                 sqlGenerationHelper,
                 TypeMappingSource,
+                CurrentContext,
                 Logger);
 
         /// <summary>
@@ -156,6 +162,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 UpdateSqlGenerator,
                 SqlGenerationHelper,
                 typeMappingSource,
+                CurrentContext,
+                Logger);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="currentContext"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public MigrationsSqlGeneratorDependencies With([NotNull] ICurrentDbContext currentContext)
+            => new MigrationsSqlGeneratorDependencies(
+                CommandBuilderFactory,
+                UpdateSqlGenerator,
+                SqlGenerationHelper,
+                TypeMappingSource,
+                currentContext,
                 Logger);
 
         /// <summary>
@@ -169,6 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 UpdateSqlGenerator,
                 SqlGenerationHelper,
                 TypeMappingSource,
+                CurrentContext,
                 logger);
     }
 }

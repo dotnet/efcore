@@ -16,9 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public interface ISqlGenerationHelper
@@ -32,6 +32,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The terminator to be used for batches of SQL statements.
         /// </summary>
         string BatchTerminator { get; }
+
+        /// <summary>
+        ///     The default single-line comment prefix.
+        /// </summary>
+        string SingleLineCommentToken { get; }
 
         /// <summary>
         ///     Generates a valid parameter name for the given candidate name.
@@ -98,5 +103,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="name"> The identifier to delimit. </param>
         /// <param name="schema"> The schema of the identifier. </param>
         void DelimitIdentifier([NotNull] StringBuilder builder, [NotNull] string name, [CanBeNull] string schema);
+
+        /// <summary>
+        ///     Generates a SQL comment.
+        /// </summary>
+        /// <param name="text"> The comment text. </param>
+        /// <returns> The generated SQL. </returns>
+        string GenerateComment([NotNull] string text);
     }
 }

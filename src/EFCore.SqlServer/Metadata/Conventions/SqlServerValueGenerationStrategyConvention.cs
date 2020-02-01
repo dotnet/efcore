@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     A convention that configures the default model <see cref="SqlServerValueGenerationStrategy"/> as
-    ///     <see cref="SqlServerValueGenerationStrategy.IdentityColumn"/>.
+    ///     A convention that configures the default model <see cref="SqlServerValueGenerationStrategy" /> as
+    ///     <see cref="SqlServerValueGenerationStrategy.IdentityColumn" />.
     /// </summary>
     public class SqlServerValueGenerationStrategyConvention : IModelInitializedConvention, IModelFinalizedConvention
     {
@@ -36,9 +36,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         /// <param name="modelBuilder"> The builder for the model. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessModelInitialized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        public virtual void ProcessModelInitialized(
+            IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
         {
-            modelBuilder.ForSqlServerHasValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
+            modelBuilder.HasValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
         }
 
         /// <summary>
@@ -54,10 +55,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 foreach (var property in entityType.GetDeclaredProperties())
                 {
                     // Needed for the annotation to show up in the model snapshot
-                    var strategy = property.GetSqlServerValueGenerationStrategy();
+                    var strategy = property.GetValueGenerationStrategy();
                     if (strategy != SqlServerValueGenerationStrategy.None)
                     {
-                        property.Builder.ForSqlServerHasValueGenerationStrategy(strategy);
+                        property.Builder.HasValueGenerationStrategy(strategy);
                     }
                 }
             }

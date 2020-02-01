@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         SupportsMemoryOptimized = 1 << 4,
         SupportsAttach = 1 << 5,
         SupportsHiddenColumns = 1 << 6,
-        IsNotTeamCity = 1 << 7,
-        SupportsFullTextSearch = 1 << 8
+        IsNotCI = 1 << 7,
+        SupportsFullTextSearch = 1 << 8,
+        SupportsOnlineIndexes = 1 << 9
     }
 }

@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
             var q = new List<Customer>().AsQueryable();
             var q2 = q.Include(c => c.Orders).ThenInclude(o => o.OrderDetails).ToList();
 
-            Assert.Equal(0, q2.Count);
+            Assert.Empty(q2);
         }
 
         [ConditionalFact]
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore
             var q = new List<Customer>().AsQueryable();
             var q2 = q.AsTracking().ToList();
 
-            Assert.Equal(0, q2.Count);
+            Assert.Empty(q2);
         }
 
         [ConditionalFact]
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore
             var q = new List<Customer>().AsQueryable();
             var q2 = q.AsNoTracking().ToList();
 
-            Assert.Equal(0, q2.Count);
+            Assert.Empty(q2);
         }
 
         // ReSharper disable MethodSupportsCancellation
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 var cancellationTokenPresent
                     = (_expectedMethodCall.Arguments[_expectedMethodCall.Arguments.Count - 1] is MemberExpression lastArgument)
-                      && (lastArgument.Type == typeof(CancellationToken));
+                    && (lastArgument.Type == typeof(CancellationToken));
 
                 if (cancellationTokenPresent)
                 {

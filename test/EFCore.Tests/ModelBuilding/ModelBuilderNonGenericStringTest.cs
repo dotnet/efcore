@@ -8,7 +8,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -34,8 +33,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(
                     CoreStrings.ClashingOwnedEntityType(typeof(CustomerDetails).FullName),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        modelBuilder.Entity<SpecialCustomer>().HasOne(c => c.Details)).Message);
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            modelBuilder.Entity<SpecialCustomer>().HasOne(c => c.Details)).Message);
             }
 
             //Shadow navigations not supported #3864
@@ -130,7 +130,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsMany<TRelatedEntity>(
                 Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression)
                 => new NonGenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(
-                    EntityTypeBuilder.OwnsMany(typeof(TRelatedEntity).FullName,
+                    EntityTypeBuilder.OwnsMany(
+                        typeof(TRelatedEntity).FullName,
                         navigationExpression.GetPropertyAccess().GetSimpleMemberName()));
 
             public override TestEntityTypeBuilder<TEntity> OwnsMany<TRelatedEntity>(

@@ -18,7 +18,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             Succeeded,
             ShowHelp,
             ShowVersion,
-            UnexpectedArgs,
+            UnexpectedArgs
         }
 
         // Indicates whether the parser should throw an exception when it runs into an unexpected argument.
@@ -46,7 +46,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public CommandOption OptionVersion { get; private set; }
         public List<CommandArgument> Arguments { get; }
         public List<string> RemainingArguments { get; }
-        public bool IsShowingInformation { get; protected set; }  // Is showing help or version?
+        public bool IsShowingInformation { get; protected set; } // Is showing help or version?
         public Func<int> Invoke { get; set; }
         public Func<string> LongVersionGetter { get; set; }
         public Func<string> ShortVersionGetter { get; set; }
@@ -59,7 +59,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public CommandLineApplication Command(string name, bool throwOnUnexpectedArg = true)
             => Command(name, _ => { }, throwOnUnexpectedArg);
 
-        public CommandLineApplication Command(string name, Action<CommandLineApplication> configuration,
+        public CommandLineApplication Command(
+            string name, Action<CommandLineApplication> configuration,
             bool throwOnUnexpectedArg = true)
         {
             var command = new CommandLineApplication(throwOnUnexpectedArg) { Name = name, Parent = this };
@@ -87,7 +88,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
             var lastArg = Arguments.LastOrDefault();
             if (lastArg?.MultipleValues == true)
             {
-                var message = string.Format("The last argument '{0}' accepts multiple values. No more argument can be added.",
+                var message = string.Format(
+                    "The last argument '{0}' accepts multiple values. No more argument can be added.",
                     lastArg.Name);
                 throw new InvalidOperationException(message);
             }
@@ -125,7 +127,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
                         command.ShowHelp();
                         return 0;
                     }
-                    else if (result == ParseOptionResult.ShowVersion)
+
+                    if (result == ParseOptionResult.ShowVersion)
                     {
                         command.ShowVersion();
                         return 0;
@@ -194,8 +197,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             if (option == null)
             {
-                if (isLongOption && string.IsNullOrEmpty(optionName)
-                    && !command._throwOnUnexpectedArg && AllowArgumentSeparator)
+                if (isLongOption
+                    && string.IsNullOrEmpty(optionName)
+                    && !command._throwOnUnexpectedArg
+                    && AllowArgumentSeparator)
                 {
                     // a stand-alone "--" is the argument separator, so skip it and
                     // handle the rest of the args as unexpected args
@@ -220,7 +225,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     if (!option.TryParse(optionComponents[1]))
                     {
                         command.ShowHint();
-                        throw new CommandParsingException(command,
+                        throw new CommandParsingException(
+                            command,
                             $"Unexpected value '{optionComponents[1]}' for option '{optionName}'");
                     }
                 }
@@ -271,24 +277,24 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return OptionHelp;
         }
 
-        public CommandOption VersionOption(string template,
-                                           string shortFormVersion,
-                                           string longFormVersion = null)
+        public CommandOption VersionOption(
+            string template,
+            string shortFormVersion,
+            string longFormVersion = null)
         {
             if (longFormVersion == null)
             {
                 return VersionOption(template, () => shortFormVersion);
             }
-            else
-            {
-                return VersionOption(template, () => shortFormVersion, () => longFormVersion);
-            }
+
+            return VersionOption(template, () => shortFormVersion, () => longFormVersion);
         }
 
         // Helper method that adds a version option
-        public CommandOption VersionOption(string template,
-                                           Func<string> shortFormVersionGetter,
-                                           Func<string> longFormVersionGetter = null)
+        public CommandOption VersionOption(
+            string template,
+            Func<string> shortFormVersionGetter,
+            Func<string> longFormVersionGetter = null)
         {
             // Version option is special because we stop parsing once we see it
             // So we store it separately for further use
@@ -304,7 +310,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             if (OptionHelp != null)
             {
-                Console.WriteLine(string.Format("Specify --{0} for a list of available options and commands.", OptionHelp.LongName));
+                Console.WriteLine("Specify --{0} for a list of available options and commands.", OptionHelp.LongName);
             }
         }
 
@@ -316,7 +322,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
             for (var cmd = this; cmd != null; cmd = cmd.Parent)
             {
                 cmd.IsShowingInformation = true;
-                if (cmd != this && cmd.Arguments.Count > 0)
+                if (cmd != this
+                    && cmd.Arguments.Count > 0)
                 {
                     var args = string.Join(" ", cmd.Arguments.Select(arg => arg.Name));
                     headerBuilder.Insert(usagePrefixLength, string.Format(" {0} {1}", cmd.Name, args));
@@ -329,7 +336,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             CommandLineApplication target;
 
-            if (commandName == null || string.Equals(Name, commandName, StringComparison.OrdinalIgnoreCase))
+            if (commandName == null
+                || string.Equals(Name, commandName, StringComparison.OrdinalIgnoreCase))
             {
                 target = this;
             }
@@ -426,7 +434,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 }
             }
 
-            if (target.AllowArgumentSeparator || target.HandleRemainingArguments)
+            if (target.AllowArgumentSeparator
+                || target.HandleRemainingArguments)
             {
                 if (target.AllowArgumentSeparator)
                 {
@@ -452,7 +461,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
             nameAndVersion.AppendLine(GetFullNameAndVersion());
             nameAndVersion.AppendLine();
 
-            Console.Write("{0}{1}{2}{3}{4}{5}", nameAndVersion, headerBuilder, argumentsBuilder, optionsBuilder, commandsBuilder, argumentSeparatorBuilder);
+            Console.Write(
+                "{0}{1}{2}{3}{4}{5}", nameAndVersion, headerBuilder, argumentsBuilder, optionsBuilder, commandsBuilder,
+                argumentSeparatorBuilder);
         }
 
         public void ShowVersion()
@@ -488,6 +499,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             {
                 maxLen = opt.Template.Length > maxLen ? opt.Template.Length : maxLen;
             }
+
             return maxLen;
         }
 
@@ -498,6 +510,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             {
                 maxLen = cmd.Name.Length > maxLen ? cmd.Name.Length : maxLen;
             }
+
             return maxLen;
         }
 
@@ -508,6 +521,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             {
                 maxLen = arg.Name.Length > maxLen ? arg.Name.Length : maxLen;
             }
+
             return maxLen;
         }
 
@@ -518,10 +532,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 command.ShowHint();
                 throw new CommandParsingException(command, $"Unrecognized {argTypeName} '{args[index]}'");
             }
-            else
-            {
-                command.RemainingArguments.Add(args[index]);
-            }
+
+            command.RemainingArguments.Add(args[index]);
         }
 
         private IEnumerable<string> ExpandResponseFiles(IEnumerable<string> args)
@@ -572,7 +584,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return File.ReadLines(fileName);
         }
 
-        private class CommandArgumentEnumerator : IEnumerator<CommandArgument>
+        private sealed class CommandArgumentEnumerator : IEnumerator<CommandArgument>
         {
             private readonly IEnumerator<CommandArgument> _enumerator;
 

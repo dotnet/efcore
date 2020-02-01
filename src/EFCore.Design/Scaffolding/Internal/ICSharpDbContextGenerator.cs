@@ -1,8 +1,10 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -22,9 +24,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         string WriteCode(
             [NotNull] IModel model,
-            [NotNull] string @namespace,
             [NotNull] string contextName,
             [NotNull] string connectionString,
+            [CanBeNull] string? contextNamespace,
+            [NotNull] string modelNamespace,
             bool useDataAnnotations,
             bool suppressConnectionStringWarning);
     }

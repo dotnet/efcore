@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
     /// <summary>
     ///     <para>
     ///         A service on the EF internal service provider that creates the <see cref="ConventionSet" />
-    ///         for the current database provider. This is combined with <see cref="IConventionSetCustomizer" />
+    ///         for the current database provider. This is combined with <see cref="IConventionSetPlugin" />
     ///         instances to produce the full convention set exposed by the <see cref="IConventionSetBuilder" />
     ///         service.
     ///     </para>

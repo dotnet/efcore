@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Transactions;
 using Xunit;
 
@@ -11,20 +12,23 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public abstract class TestStore : IDisposable
     {
-        private readonly bool _shared;
         private static readonly TestStoreIndex _globalTestStoreIndex = new TestStoreIndex();
         public IServiceProvider ServiceProvider { get; protected set; }
 
         protected TestStore(string name, bool shared)
         {
             Name = name;
-            _shared = shared;
+            Shared = shared;
         }
 
         public string Name { get; protected set; }
+        public bool Shared { get; }
 
         public virtual TestStore Initialize(
-            IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed = null, Action<DbContext> clean = null)
+            IServiceProvider serviceProvider,
+            Func<DbContext> createContext,
+            Action<DbContext> seed = null,
+            Action<DbContext> clean = null)
         {
             ServiceProvider = serviceProvider;
             if (createContext == null)
@@ -32,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 createContext = CreateDefaultContext;
             }
 
-            if (_shared)
+            if (Shared)
             {
                 GetTestStoreIndex(serviceProvider).CreateShared(GetType().Name + Name, () => Initialize(createContext, seed, clean));
             }
@@ -44,24 +48,43 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return this;
         }
 
-        public TestStore Initialize(
-            IServiceProvider serviceProvider, Func<TestStore, DbContext> createContext, Action<DbContext> seed = null, Action<DbContext> clean = null)
+        public virtual TestStore Initialize(
+            IServiceProvider serviceProvider,
+            Func<TestStore, DbContext> createContext,
+            Action<DbContext> seed = null,
+            Action<DbContext> clean = null)
             => Initialize(serviceProvider, () => createContext(this), seed, clean);
+
+        public virtual TestStore Initialize<TContext>(
+            IServiceProvider serviceProvider,
+            Func<TestStore, TContext> createContext,
+            Action<TContext> seed = null,
+            Action<TContext> clean = null)
+            where TContext : DbContext
+            => Initialize(
+                serviceProvider,
+                createContext,
+                seed == null ? (Action<DbContext>)null : c => seed((TContext)c),
+                clean == null ? (Action<DbContext>)null : c => clean((TContext)c));
 
         protected virtual void Initialize(Func<DbContext> createContext, Action<DbContext> seed, Action<DbContext> clean)
         {
-            using (var context = createContext())
-            {
-                clean?.Invoke(context);
+            using var context = createContext();
+            clean?.Invoke(context);
 
-                Clean(context);
+            Clean(context);
 
-                seed?.Invoke(context);
-            }
+            seed?.Invoke(context);
         }
 
         public abstract DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder);
         public abstract void Clean(DbContext context);
+
+        public virtual Task CleanAsync(DbContext context)
+        {
+            Clean(context);
+            return Task.CompletedTask;
+        }
 
         protected virtual DbContext CreateDefaultContext()
             => new DbContext(AddProviderOptions(new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options);
@@ -70,6 +93,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public virtual void Dispose()
         {
+        }
+
+        public virtual Task DisposeAsync()
+        {
+            Dispose();
+            return Task.CompletedTask;
         }
 
         private static readonly SemaphoreSlim _transactionSyncRoot = new SemaphoreSlim(1);

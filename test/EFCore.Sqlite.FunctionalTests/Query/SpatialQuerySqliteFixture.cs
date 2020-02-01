@@ -1,14 +1,15 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using GeoAPI.Geometries;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
+using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -37,9 +38,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.HasDbFunction(
                 typeof(GeoExtensions).GetMethod(nameof(GeoExtensions.Distance)),
                 b => b.HasTranslation(
-                    e => new SqlFunctionExpression(
+                    e => SqlFunctionExpression.Create(
                         "Distance",
-                        e,
+                        arguments: e,
+                        nullResultAllowed: true,
+                        argumentsPropagateNullability: e.Select(a => true).ToList(),
                         typeof(double),
                         null)));
         }
@@ -63,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
                 => mappingInfo.ClrType == typeof(GeoPoint)
-                    ? ((RelationalTypeMapping)base.FindMapping(typeof(IPoint))
+                    ? ((RelationalTypeMapping)base.FindMapping(typeof(Point))
                         .Clone(new GeoPointConverter()))
                     .Clone("geometry", null)
                     : base.FindMapping(mappingInfo);

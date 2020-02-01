@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -25,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
         /// </returns>
-        public static IMutableEntityType RootType([NotNull] this IMutableEntityType entityType)
-            => (IMutableEntityType)((IEntityType)entityType).RootType();
+        public static IMutableEntityType GetRootType([NotNull] this IMutableEntityType entityType)
+            => (IMutableEntityType)((IEntityType)entityType).GetRootType();
 
         /// <summary>
         ///     Gets all types in the model that derive from a given entity type.
@@ -261,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///      Gets the foreign keys declared on the given <see cref="IConventionEntityType" /> using the given properties.
+        ///     Gets the foreign keys declared on the given <see cref="IConventionEntityType" /> using the given properties.
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="properties"> The properties to find the foreign keys on. </param>
@@ -383,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to get navigation properties for. </param>
         /// <returns> All navigation properties on the given entity type. </returns>
         public static IEnumerable<IMutableNavigation> GetNavigations([NotNull] this IMutableEntityType entityType)
-        => ((EntityType)entityType).GetNavigations();
+            => ((EntityType)entityType).GetNavigations();
 
         /// <summary>
         ///     <para>
@@ -402,7 +404,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
-            return entityType.FindProperty(propertyInfo.GetSimpleMemberName());
+            return propertyInfo.IsIndexerProperty() ? null : entityType.FindProperty(propertyInfo.GetSimpleMemberName());
         }
 
         /// <summary>
@@ -464,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore
             => entityType.AddProperty(name, propertyType, null);
 
         /// <summary>
-        ///     Adds a property based on an indexer to this entity type.
+        ///     Adds an indexed property to this entity type.
         /// </summary>
         /// <param name="entityType"> The entity type to add the property to. </param>
         /// <param name="name"> The name of the property to add. </param>
@@ -472,8 +474,18 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The newly created property. </returns>
         public static IMutableProperty AddIndexedProperty(
             [NotNull] this IMutableEntityType entityType, [NotNull] string name, [NotNull] Type propertyType)
-            => Check.NotNull(entityType, nameof(entityType))
-                .AddProperty(name, propertyType, entityType.GetIndexerProperty());
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            var indexerPropertyInfo = entityType.FindIndexerPropertyInfo();
+            if (indexerPropertyInfo == null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.NonIndexerEntityType(name, entityType.DisplayName(), typeof(string).ShortDisplayName()));
+            }
+
+            return entityType.AddProperty(name, propertyType, indexerPropertyInfo);
+        }
 
         /// <summary>
         ///     Gets the index defined on the given property. Returns null if no index is defined.
@@ -510,25 +522,6 @@ namespace Microsoft.EntityFrameworkCore
             => ((EntityType)entityType).RemoveIndex(properties);
 
         /// <summary>
-        ///     <para>
-        ///         Sets the <see cref="PropertyAccessMode" /> to use for properties of all entity types
-        ///         in this model.
-        ///     </para>
-        ///     <para>
-        ///         Note that individual entity types can override this access mode, and individual properties of
-        ///         entity types can override the access mode set on the entity type. The value set here will
-        ///         be used for any property for which no override has been specified.
-        ///     </para>
-        /// </summary>
-        /// <param name="entityType"> The entity type to set the access mode for. </param>
-        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or <c>null</c> to clear the mode set.</param>
-        public static void SetPropertyAccessMode(
-            [NotNull] this IConventionEntityType entityType,
-            PropertyAccessMode? propertyAccessMode)
-            => Check.NotNull(entityType, nameof(entityType)).AsEntityType()
-                .SetPropertyAccessMode(propertyAccessMode, ConfigurationSource.Explicit);
-
-        /// <summary>
         ///     Sets the change tracking strategy to use for this entity type. This strategy indicates how the
         ///     context detects changes to properties for an instance of the entity type.
         /// </summary>
@@ -561,6 +554,13 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] LambdaExpression definingQuery)
             => Check.NotNull(entityType, nameof(entityType)).AsEntityType()
                 .SetDefiningQuery(definingQuery, ConfigurationSource.Explicit);
+
+        /// <summary>
+        ///     Returns the <see cref="IMutableProperty" /> that will be used for storing a discriminator value.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the discriminator property for. </param>
+        public static IMutableProperty GetDiscriminatorProperty([NotNull] this IMutableEntityType entityType)
+            => (IMutableProperty)((IEntityType)entityType).GetDiscriminatorProperty();
 
         /// <summary>
         ///     Sets the <see cref="IProperty" /> that will be used for storing a discriminator value.

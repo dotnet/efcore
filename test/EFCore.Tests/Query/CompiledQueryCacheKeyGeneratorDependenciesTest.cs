@@ -4,6 +4,7 @@
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class CompiledQueryCacheKeyGeneratorDependenciesTest

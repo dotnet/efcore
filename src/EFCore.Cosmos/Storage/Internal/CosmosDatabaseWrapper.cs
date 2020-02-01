@@ -1,24 +1,39 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Update.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {
+    /// <summary>
+    ///     <para>
+    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///         any release. You should only use it directly in your code with extreme caution and knowing that
+    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
+    ///     </para>
+    /// </summary>
     public class CosmosDatabaseWrapper : Database
     {
         private readonly Dictionary<IEntityType, DocumentSource> _documentCollections
@@ -27,10 +42,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         private readonly CosmosClientWrapper _cosmosClient;
         private readonly bool _sensitiveLoggingEnabled;
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public CosmosDatabaseWrapper(
-            DatabaseDependencies dependencies,
-            CosmosClientWrapper cosmosClient,
-            ILoggingOptions loggingOptions)
+            [NotNull] DatabaseDependencies dependencies,
+            [NotNull] CosmosClientWrapper cosmosClient,
+            [NotNull] ILoggingOptions loggingOptions)
             : base(dependencies)
         {
             _cosmosClient = cosmosClient;
@@ -41,6 +62,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             }
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override int SaveChanges(IList<IUpdateEntry> entries)
         {
             var rowsAffected = 0;
@@ -53,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 var entry = entries[i];
                 var entityType = entry.EntityType;
 
-                Debug.Assert(!entityType.IsAbstract());
+                Check.DebugAssert(!entityType.IsAbstract(), $"{entityType} is abstract");
 
                 if (!entityType.IsDocumentRoot())
                 {
@@ -87,6 +114,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             return rowsAffected;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override async Task<int> SaveChangesAsync(
             IList<IUpdateEntry> entries, CancellationToken cancellationToken = default)
         {
@@ -100,7 +133,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 var entry = entries[i];
                 var entityType = entry.EntityType;
 
-                Debug.Assert(!entityType.IsAbstract());
+                Check.DebugAssert(!entityType.IsAbstract(), $"{entityType} is abstract");
+
                 if (!entityType.IsDocumentRoot())
                 {
                     var root = GetRootDocument((InternalEntityEntry)entry);
@@ -157,13 +191,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             {
                 case EntityState.Added:
                     var newDocument = documentSource.CreateDocument(entry);
-                    newDocument["__partitionKey"] = "0";
-                    return _cosmosClient.CreateItem(collectionId, newDocument);
+
+                    return _cosmosClient.CreateItem(collectionId, newDocument, GetPartitionKey(entry));
                 case EntityState.Modified:
-                    var jObjectProperty = entityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
-                    var document = jObjectProperty != null
-                        ? (JObject)(entry.SharedIdentityEntry ?? entry).GetCurrentValue(jObjectProperty)
-                        : null;
+                    var document = documentSource.GetCurrentDocument(entry);
                     if (document != null)
                     {
                         if (documentSource.UpdateDocument(document, entry) == null)
@@ -174,16 +205,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     else
                     {
                         document = documentSource.CreateDocument(entry);
-                        document["__partitionKey"] = "0";
 
-                        document[entityType.GetDiscriminatorProperty().GetCosmosPropertyName()] =
-                            JToken.FromObject(entityType.GetDiscriminatorValue(), CosmosClientWrapper.Serializer);
+                        var propertyName = entityType.GetDiscriminatorProperty()?.GetJsonPropertyName();
+                        if (propertyName != null)
+                        {
+                            document[propertyName] =
+                                JToken.FromObject(entityType.GetDiscriminatorValue(), CosmosClientWrapper.Serializer);
+                        }
                     }
 
                     return _cosmosClient.ReplaceItem(
-                        collectionId, documentSource.GetId(entry.SharedIdentityEntry ?? entry), document);
+                        collectionId, documentSource.GetId(entry.SharedIdentityEntry ?? entry), document, GetPartitionKey(entry));
                 case EntityState.Deleted:
-                    return _cosmosClient.DeleteItem(collectionId, documentSource.GetId(entry));
+                    return _cosmosClient.DeleteItem(collectionId, documentSource.GetId(entry), GetPartitionKey(entry));
                 default:
                     return false;
             }
@@ -213,13 +247,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             {
                 case EntityState.Added:
                     var newDocument = documentSource.CreateDocument(entry);
-                    newDocument["__partitionKey"] = "0";
-                    return _cosmosClient.CreateItemAsync(collectionId, newDocument, cancellationToken);
+                    return _cosmosClient.CreateItemAsync(collectionId, newDocument, GetPartitionKey(entry), cancellationToken);
                 case EntityState.Modified:
-                    var jObjectProperty = entityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
-                    var document = jObjectProperty != null
-                        ? (JObject)(entry.SharedIdentityEntry ?? entry).GetCurrentValue(jObjectProperty)
-                        : null;
+                    var document = documentSource.GetCurrentDocument(entry);
                     if (document != null)
                     {
                         if (documentSource.UpdateDocument(document, entry) == null)
@@ -230,22 +260,33 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     else
                     {
                         document = documentSource.CreateDocument(entry);
-                        document["__partitionKey"] = "0";
 
-                        document[entityType.GetDiscriminatorProperty().GetCosmosPropertyName()] =
-                            JToken.FromObject(entityType.GetDiscriminatorValue(), CosmosClientWrapper.Serializer);
+                        var propertyName = entityType.GetDiscriminatorProperty()?.GetJsonPropertyName();
+                        if (propertyName != null)
+                        {
+                            document[propertyName] =
+                                JToken.FromObject(entityType.GetDiscriminatorValue(), CosmosClientWrapper.Serializer);
+                        }
                     }
 
                     return _cosmosClient.ReplaceItemAsync(
-                        collectionId, documentSource.GetId(entry.SharedIdentityEntry ?? entry), document, cancellationToken);
+                        collectionId, documentSource.GetId(entry.SharedIdentityEntry ?? entry), document, GetPartitionKey(entry),
+                        cancellationToken);
                 case EntityState.Deleted:
-                    return _cosmosClient.DeleteItemAsync(collectionId, documentSource.GetId(entry), cancellationToken);
+                    return _cosmosClient.DeleteItemAsync(
+                        collectionId, documentSource.GetId(entry), GetPartitionKey(entry), cancellationToken);
                 default:
                     return Task.FromResult(false);
             }
         }
 
-        public DocumentSource GetDocumentSource(IEntityType entityType)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual DocumentSource GetDocumentSource([NotNull] IEntityType entityType)
         {
             if (!_documentCollections.TryGetValue(entityType, out var documentSource))
             {
@@ -279,6 +320,25 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             }
 
             return principal.EntityType.IsDocumentRoot() ? principal : GetRootDocument(principal);
+        }
+
+        private static string GetPartitionKey(IUpdateEntry entry)
+        {
+            object partitionKey = null;
+            var partitionKeyPropertyName = entry.EntityType.GetPartitionKeyPropertyName();
+            if (partitionKeyPropertyName != null)
+            {
+                var partitionKeyProperty = entry.EntityType.FindProperty(partitionKeyPropertyName);
+                partitionKey = entry.GetCurrentValue(partitionKeyProperty);
+
+                var converter = partitionKeyProperty.GetTypeMapping().Converter;
+                if (converter != null)
+                {
+                    partitionKey = converter.ConvertToProvider(partitionKey);
+                }
+            }
+
+            return (string)partitionKey;
         }
     }
 }

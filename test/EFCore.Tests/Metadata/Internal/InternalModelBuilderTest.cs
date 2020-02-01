@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
             Assert.Equal(2, modelBuilder.Metadata.GetEntityTypes().Count());
-            Assert.Equal(1, orderEntityTypeBuilder.Metadata.GetForeignKeys().Count());
+            Assert.Single(orderEntityTypeBuilder.Metadata.GetForeignKeys());
         }
 
         [ConditionalFact]
@@ -252,10 +252,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 .PrimaryKey(new[] { Product.IdProperty }, ConfigurationSource.Convention);
 
             var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
-            orderEntityTypeBuilder.HasRelationship(typeof(Product), new[] { Order.ProductIdProperty }, ConfigurationSource.Convention).HasNavigation(
-                "Product",
-                pointsToPrincipal: true,
-                ConfigurationSource.Convention);
+            orderEntityTypeBuilder.HasRelationship(typeof(Product), new[] { Order.ProductIdProperty }, ConfigurationSource.Convention)
+                .HasNavigation(
+                    "Product",
+                    pointsToPrincipal: true,
+                    ConfigurationSource.Convention);
 
             Assert.NotNull(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
@@ -276,10 +277,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 .PrimaryKey(new[] { Product.IdProperty }, ConfigurationSource.Convention);
 
             var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
-            orderEntityTypeBuilder.HasRelationship(typeof(Product), new[] { Order.ProductIdProperty }, ConfigurationSource.Convention).HasNavigation(
-                "Order",
-                pointsToPrincipal: false,
-                ConfigurationSource.Convention);
+            orderEntityTypeBuilder.HasRelationship(typeof(Product), new[] { Order.ProductIdProperty }, ConfigurationSource.Convention)
+                .HasNavigation(
+                    "Order",
+                    pointsToPrincipal: false,
+                    ConfigurationSource.Convention);
 
             Assert.NotNull(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
@@ -348,7 +350,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static void Cleanup(InternalModelBuilder modelBuilder)
         {
             new ModelCleanupConvention(CreateDependencies())
-                .ProcessModelFinalized(modelBuilder,
+                .ProcessModelFinalized(
+                    modelBuilder,
                     new ConventionContext<IConventionModelBuilder>(modelBuilder.Metadata.ConventionDispatcher));
         }
 

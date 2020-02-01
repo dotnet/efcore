@@ -1,9 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.TestUtilities;
+
 namespace Microsoft.EntityFrameworkCore.SqlAzure.Model
 {
-    public class AdventureWorksContext : DbContext
+    public class AdventureWorksContext : PoolableDbContext
     {
         public AdventureWorksContext(DbContextOptions options)
             : base(options)
@@ -66,11 +68,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure.Model
                 entity =>
                 {
                     entity.HasKey(
-                            e => new
-                            {
-                                e.CustomerID,
-                                e.AddressID
-                            })
+                            e => new { e.CustomerID, e.AddressID })
                         .HasName("PK_CustomerAddress_CustomerID_AddressID");
 
                     entity.HasIndex(e => e.rowguid)
@@ -199,11 +197,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure.Model
                 entity =>
                 {
                     entity.HasKey(
-                            e => new
-                            {
-                                e.SalesOrderID,
-                                e.SalesOrderDetailID
-                            })
+                            e => new { e.SalesOrderID, e.SalesOrderDetailID })
                         .HasName("PK_SalesOrderDetail_SalesOrderID_SalesOrderDetailID");
 
                     entity.HasIndex(e => e.ProductID)
@@ -249,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure.Model
                         .HasName("AK_SalesOrderHeader_rowguid")
                         .IsUnique();
 
-                    entity.Property(e => e.SalesOrderID).ForSqlServerUseSequenceHiLo("SalesOrderNumber", "SalesLT");
+                    entity.Property(e => e.SalesOrderID).UseHiLo("SalesOrderNumber", "SalesLT");
 
                     entity.Property(e => e.CreditCardApprovalCode).HasColumnType("varchar(15)");
 

@@ -13,7 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that configures the properties of non-nullable types as required.
     /// </summary>
     public class NonNullableReferencePropertyConvention : NonNullableConventionBase,
-        IPropertyAddedConvention, IPropertyFieldChangedConvention
+        IPropertyAddedConvention,
+        IPropertyFieldChangedConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="NonNullableReferencePropertyConvention" />.
@@ -29,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             // If the model is spread across multiple assemblies, it may contain different NullableAttribute types as
             // the compiler synthesizes them for each assembly.
             if (propertyBuilder.Metadata.GetIdentifyingMemberInfo() is MemberInfo memberInfo
-                && IsNonNullable(memberInfo))
+                && IsNonNullableReferenceType(propertyBuilder.ModelBuilder, memberInfo))
             {
                 propertyBuilder.IsRequired(true);
             }

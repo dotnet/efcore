@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
@@ -20,9 +19,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public class EntityEntryGraphIterator : IEntityEntryGraphIterator
@@ -43,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             var internalEntityEntry = node.GetInfrastructure();
-            var navigations = ((EntityType)internalEntityEntry.EntityType).GetNavigations();
+            var navigations = internalEntityEntry.EntityType.GetNavigations();
             var stateManager = internalEntityEntry.StateManager;
 
             foreach (var navigation in navigations)
@@ -52,8 +51,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (navigationValue != null)
                 {
-                    var targetEntityType = navigation.GetTargetType();
-                    if (navigation.IsCollection())
+                    var targetEntityType = navigation.TargetEntityType;
+                    if (navigation.IsCollection)
                     {
                         foreach (var relatedEntity in ((IEnumerable)navigationValue).Cast<object>().ToList())
                         {
@@ -100,8 +99,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (navigationValue != null)
                 {
-                    var targetType = navigation.GetTargetType();
-                    if (navigation.IsCollection())
+                    var targetType = navigation.TargetEntityType;
+                    if (navigation.IsCollection)
                     {
                         foreach (var relatedEntity in ((IEnumerable)navigationValue).Cast<object>().ToList())
                         {

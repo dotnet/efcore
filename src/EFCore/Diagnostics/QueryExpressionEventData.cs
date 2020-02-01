@@ -5,7 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -21,12 +21,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="eventDefinition"> The event definition. </param>
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
         /// <param name="queryExpression"> The <see cref="Expression" />. </param>
-        /// <param name="expressionPrinter"> An <see cref="IExpressionPrinter" /> that can be used to render the <see cref="Expression" />. </param>
+        /// <param name="expressionPrinter"> An <see cref="ExpressionPrinter" /> that can be used to render the <see cref="Expression" />. </param>
         public QueryExpressionEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] Expression queryExpression,
-            [NotNull] IExpressionPrinter expressionPrinter)
+            [NotNull] ExpressionPrinter expressionPrinter)
             : base(eventDefinition, messageGenerator)
         {
             Expression = queryExpression;
@@ -39,8 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public virtual Expression Expression { get; }
 
         /// <summary>
-        ///     An <see cref="IExpressionPrinter" /> that can be used to render the <see cref="Expression" />.
+        ///     An <see cref="ExpressionPrinter" /> that can be used to render the <see cref="Expression" />.
         /// </summary>
-        public virtual IExpressionPrinter ExpressionPrinter { get; }
+        public virtual ExpressionPrinter ExpressionPrinter { get; }
     }
 }

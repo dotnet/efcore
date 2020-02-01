@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 {
@@ -30,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             var i = random.Next(_expressions.Count);
 
             var typeArgument = expression.Type.GetGenericArguments()[0];
-            var select = SelectMethodInfo.MakeGenericMethod(typeArgument, _expressions[i].type);
+            var select = QueryableMethods.Select.MakeGenericMethod(typeArgument, _expressions[i].type);
             var lambda = Expression.Lambda(_expressions[i].expression, Expression.Parameter(typeArgument, "prm"));
             var resultExpression = Expression.Call(select, expression, lambda);
 

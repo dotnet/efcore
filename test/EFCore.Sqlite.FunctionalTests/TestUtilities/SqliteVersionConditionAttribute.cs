@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
@@ -41,28 +42,25 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        public bool IsMet
+        public ValueTask<bool> IsMetAsync()
         {
-            get
+            if (Current == _skip)
             {
-                if (Current == _skip)
-                {
-                    return false;
-                }
-
-                if (_min == null
-                    && _max == null)
-                {
-                    return true;
-                }
-
-                if (_min == null)
-                {
-                    return Current <= _max;
-                }
-
-                return _max == null ? Current >= _min : Current <= _max && Current >= _min;
+                return new ValueTask<bool>(false);
             }
+
+            if (_min == null
+                && _max == null)
+            {
+                return new ValueTask<bool>(true);
+            }
+
+            if (_min == null)
+            {
+                return new ValueTask<bool>(Current <= _max);
+            }
+
+            return new ValueTask<bool>(_max == null ? Current >= _min : Current <= _max && Current >= _min);
         }
 
         private string _skipReason;
@@ -70,9 +68,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public string SkipReason
         {
             set => _skipReason = value;
-            get => _skipReason ??
-                   $"Test only runs for SQLite versions >= {Min ?? "Any"} and <= {Max ?? "Any"}"
-                   + (Skip == null ? "" : "and skipping on " + Skip);
+            get => _skipReason
+                ?? $"Test only runs for SQLite versions >= {Min ?? "Any"} and <= {Max ?? "Any"}"
+                + (Skip == null ? "" : "and skipping on " + Skip);
         }
     }
 }

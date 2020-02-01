@@ -25,7 +25,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     var optName = part.Substring(1);
 
                     // If there is only one char and it is not an English letter, it is a symbol option (e.g. "-?")
-                    if (optName.Length == 1 && !IsEnglishLetter(optName[0]))
+                    if (optName.Length == 1
+                        && !IsEnglishLetter(optName[0]))
                     {
                         SymbolName = optName;
                     }
@@ -34,11 +35,14 @@ namespace Microsoft.DotNet.Cli.CommandLine
                         ShortName = optName;
                     }
                 }
-                else if (part.StartsWith("<") && part.EndsWith(">"))
+                else if (part.StartsWith("<")
+                         && part.EndsWith(">"))
                 {
                     ValueName = part.Substring(1, part.Length - 2);
                 }
-                else if (optionType == CommandOptionType.MultipleValue && part.StartsWith("<") && part.EndsWith(">..."))
+                else if (optionType == CommandOptionType.MultipleValue
+                         && part.StartsWith("<")
+                         && part.EndsWith(">..."))
                 {
                     ValueName = part.Substring(1, part.Length - 5);
                 }
@@ -48,7 +52,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 }
             }
 
-            if (string.IsNullOrEmpty(LongName) && string.IsNullOrEmpty(ShortName) && string.IsNullOrEmpty(SymbolName))
+            if (string.IsNullOrEmpty(LongName)
+                && string.IsNullOrEmpty(ShortName)
+                && string.IsNullOrEmpty(SymbolName))
             {
                 throw new ArgumentException($"Invalid template pattern '{template}'", nameof(template));
             }
@@ -76,6 +82,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     {
                         return false;
                     }
+
                     Values.Add(value);
                     break;
                 case CommandOptionType.BoolValue:
@@ -100,18 +107,19 @@ namespace Microsoft.DotNet.Cli.CommandLine
                         Values.Add(value);
                         BoolValue = boolValue;
                     }
+
                     break;
                 case CommandOptionType.NoValue:
                     if (value != null)
                     {
                         return false;
                     }
+
                     // Add a value to indicate that this option was specified
                     Values.Add("on");
                     break;
-                default:
-                    break;
             }
+
             return true;
         }
 

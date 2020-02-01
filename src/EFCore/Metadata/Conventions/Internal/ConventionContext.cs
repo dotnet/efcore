@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using JetBrains.Annotations;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     /// <summary>
@@ -9,11 +11,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class ConventionContext<T> : IConventionContext<T>, IReadableConventionContext
+    public class ConventionContext<TMetadata> : IConventionContext<TMetadata>, IReadableConventionContext
     {
         private bool _stopProcessing;
         private readonly ConventionDispatcher _dispatcher;
-        private T _result;
+        private TMetadata _result;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -21,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public ConventionContext(ConventionDispatcher dispatcher)
+        public ConventionContext([NotNull] ConventionDispatcher dispatcher)
         {
             _dispatcher = dispatcher;
         }
@@ -32,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual T Result => _result;
+        public virtual TMetadata Result => _result;
 
         /// <summary>
         ///     Calling this will prevent further processing of the associated event by other conventions.
@@ -52,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     </para>
         /// </summary>
         /// <param name="result"> The new metadata object or <c>null</c>. </param>
-        public virtual void StopProcessing(T result)
+        public virtual void StopProcessing(TMetadata result)
         {
             _stopProcessing = true;
             _result = result;
@@ -68,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     </para>
         /// </summary>
         /// <param name="result"> The new metadata object. </param>
-        public virtual void StopProcessingIfChanged(T result)
+        public virtual void StopProcessingIfChanged(TMetadata result)
         {
             if (!Equals(Result, result))
             {
@@ -102,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void ResetState(T input)
+        public virtual void ResetState([CanBeNull] TMetadata input)
         {
             _stopProcessing = false;
             _result = input;

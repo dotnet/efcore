@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             var constructorInfo = typeof(CtorFixture).GetDeclaredConstructor(null);
 
             Assert.NotNull(constructorInfo);
-            Assert.Equal(0, constructorInfo.GetParameters().Length);
+            Assert.Empty(constructorInfo.GetParameters());
         }
 
         [ConditionalFact]
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             var constructorInfo = typeof(CtorFixture).GetDeclaredConstructor(new[] { typeof(int) });
 
             Assert.NotNull(constructorInfo);
-            Assert.Equal(1, constructorInfo.GetParameters().Length);
+            Assert.Single(constructorInfo.GetParameters());
         }
 
         [ConditionalFact]
@@ -361,9 +361,9 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         public void GetBaseTypes_return_all_base_types()
         {
             Assert.Equal(3, typeof(MultipleHierarchy).GetBaseTypes().Count());
-            Assert.True(typeof(MultipleHierarchy).GetBaseTypes().Contains(typeof(Some)));
-            Assert.True(typeof(MultipleHierarchy).GetBaseTypes().Contains(typeof(Base)));
-            Assert.True(typeof(MultipleHierarchy).GetBaseTypes().Contains(typeof(object)));
+            Assert.Contains(typeof(Some), typeof(MultipleHierarchy).GetBaseTypes());
+            Assert.Contains(typeof(Base), typeof(MultipleHierarchy).GetBaseTypes());
+            Assert.Contains(typeof(object), typeof(MultipleHierarchy).GetBaseTypes());
         }
 
         [ConditionalFact]

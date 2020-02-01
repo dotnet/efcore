@@ -83,29 +83,28 @@ namespace Microsoft.EntityFrameworkCore
                     eb =>
                     {
                         eb.HasKey(
-                            l => new
-                            {
-                                l.ProfileId
-                            });
+                            l => new { l.ProfileId });
                         eb.HasOne(d => d.Login).WithOne()
-                        .HasForeignKey<LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectlyDetails>(
-                            l => new
-                            {
-                                l.ProfileId,
-                                l.ProfileId1,
-                                l.ProfileId3,
-                                l.ProfileId4,
-                                l.ProfileId5,
-                                l.ProfileId6,
-                                l.ProfileId7,
-                                l.ProfileId8,
-                                l.ProfileId9,
-                                l.ProfileId10,
-                                l.ProfileId11,
-                                l.ProfileId12,
-                                l.ProfileId13,
-                                l.ProfileId14
-                            });
+                            .HasForeignKey<
+                                LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectlyDetails
+                            >(
+                                l => new
+                                {
+                                    l.ProfileId,
+                                    l.ProfileId1,
+                                    l.ProfileId3,
+                                    l.ProfileId4,
+                                    l.ProfileId5,
+                                    l.ProfileId6,
+                                    l.ProfileId7,
+                                    l.ProfileId8,
+                                    l.ProfileId9,
+                                    l.ProfileId10,
+                                    l.ProfileId11,
+                                    l.ProfileId12,
+                                    l.ProfileId13,
+                                    l.ProfileId14
+                                });
                     });
 
             modelBuilder.Entity<Profile>(

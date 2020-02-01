@@ -13,6 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    // Sealed for perf
     public sealed class ClrPropertyGetter<TEntity, TValue> : IClrPropertyGetter
         where TEntity : class
     {
@@ -38,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public object GetClrValue(object instance) => _getter((TEntity)instance);
+        public object GetClrValue(object entity) => _getter((TEntity)entity);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -47,6 +48,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool HasDefaultValue(object instance) => _hasDefaultValue((TEntity)instance);
+        public bool HasDefaultValue(object entity) => _hasDefaultValue((TEntity)entity);
     }
 }

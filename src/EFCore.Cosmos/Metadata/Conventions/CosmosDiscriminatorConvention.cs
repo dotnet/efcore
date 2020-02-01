@@ -1,19 +1,23 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
     ///     A convention that configures the discriminator value for entity types as the entity type name.
     /// </summary>
-    public class CosmosDiscriminatorConvention : DiscriminatorConvention, IEntityTypeAddedConvention
+    public class CosmosDiscriminatorConvention :
+        DiscriminatorConvention,
+        IForeignKeyOwnershipChangedConvention,
+        IForeignKeyRemovedConvention,
+        IEntityTypeAddedConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="CosmosDiscriminatorConvention" />.
@@ -29,16 +33,63 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions
         /// </summary>
         /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
-        public void ProcessEntityTypeAdded(
+        public virtual void ProcessEntityTypeAdded(
             IConventionEntityTypeBuilder entityTypeBuilder,
             IConventionContext<IConventionEntityTypeBuilder> context)
         {
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+            Check.NotNull(context, nameof(context));
+
             var entityType = entityTypeBuilder.Metadata;
-            if (entityTypeBuilder.Metadata.BaseType == null
-                && !entityTypeBuilder.Metadata.GetDerivedTypes().Any())
+            if (entityType.BaseType == null
+                && !entityType.GetDerivedTypes().Any()
+                && entityType.IsDocumentRoot())
             {
                 entityTypeBuilder.HasDiscriminator(typeof(string))
-                    .HasValue(entityType, entityType.ShortName());
+                    ?.HasValue(entityType, entityType.ShortName());
+            }
+        }
+
+        /// <summary>
+        ///     Called after the ownership value for a foreign key is changed.
+        /// </summary>
+        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessForeignKeyOwnershipChanged(
+            IConventionRelationshipBuilder relationshipBuilder,
+            IConventionContext<IConventionRelationshipBuilder> context)
+        {
+            Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
+            Check.NotNull(context, nameof(context));
+
+            var entityType = relationshipBuilder.Metadata.DeclaringEntityType;
+            if (relationshipBuilder.Metadata.IsOwnership
+                && !entityType.IsDocumentRoot()
+                && entityType.BaseType == null
+                && !entityType.GetDerivedTypes().Any())
+            {
+                entityType.Builder.HasNoDeclaredDiscriminator();
+            }
+        }
+
+        /// <summary>
+        ///     Called after a foreign key is removed.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <param name="foreignKey"> The removed foreign key. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessForeignKeyRemoved(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionForeignKey foreignKey,
+            IConventionContext<IConventionForeignKey> context)
+        {
+            var entityType = foreignKey.DeclaringEntityType;
+            if (foreignKey.IsOwnership
+                && !entityType.IsDocumentRoot()
+                && entityType.BaseType == null
+                && !entityType.GetDerivedTypes().Any())
+            {
+                entityType.Builder.HasNoDeclaredDiscriminator();
             }
         }
 
@@ -60,11 +111,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions
                 return;
             }
 
-            IConventionDiscriminatorBuilder discriminator;
+            IConventionDiscriminatorBuilder discriminator = null;
             var entityType = entityTypeBuilder.Metadata;
             if (newBaseType == null)
             {
-                discriminator = entityTypeBuilder.HasDiscriminator(typeof(string));
+                if (entityType.IsDocumentRoot())
+                {
+                    discriminator = entityTypeBuilder.HasDiscriminator(typeof(string));
+                }
             }
             else
             {

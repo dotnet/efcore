@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    internal class GearsOfWarQueryInMemoryTest : GearsOfWarQueryTestBase<GearsOfWarQueryInMemoryFixture>
+    public class GearsOfWarQueryInMemoryTest : GearsOfWarQueryTestBase<GearsOfWarQueryInMemoryFixture>
     {
         public GearsOfWarQueryInMemoryTest(GearsOfWarQueryInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -15,70 +15,72 @@ namespace Microsoft.EntityFrameworkCore.Query
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
-        [ConditionalTheory(Skip = "issue #12295")]
-        public override Task Double_order_by_on_nullable_bool_coming_from_optional_navigation(bool isAsync)
+        [ConditionalTheory(Skip = "issue #17386")]
+        public override Task Correlated_collection_order_by_constant_null_of_non_mapped_type(bool async)
         {
-            return base.Double_order_by_on_nullable_bool_coming_from_optional_navigation(isAsync);
+            return base.Correlated_collection_order_by_constant_null_of_non_mapped_type(async);
         }
 
-        [ConditionalTheory(Skip = "issue #13746")]
-        public override Task Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(bool isAsync)
+        [ConditionalTheory(Skip = "issue #17386")]
+        public override Task Client_side_equality_with_parameter_works_with_optional_navigations(bool async)
         {
-            return base.Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(isAsync);
+            return base.Client_side_equality_with_parameter_works_with_optional_navigations(async);
         }
 
-        [ConditionalTheory(Skip = "issue #15343")]
-        public override Task Negated_bool_ternary_inside_anonymous_type_in_projection(bool isAsync)
+        [ConditionalTheory(Skip = "issue #17386")]
+        public override Task Where_coalesce_with_anonymous_types(bool async)
         {
-            return base.Negated_bool_ternary_inside_anonymous_type_in_projection(isAsync);
+            return base.Where_coalesce_with_anonymous_types(async);
         }
 
-        [ConditionalTheory(Skip = "issue #15343")]
-        public override Task Optional_navigation_type_compensation_works_with_binary_expression(bool isAsync)
+        [ConditionalTheory(Skip = "issue #17386")]
+        public override Task Where_conditional_with_anonymous_type(bool async)
         {
-            return base.Optional_navigation_type_compensation_works_with_binary_expression(isAsync);
+            return base.Where_conditional_with_anonymous_type(async);
         }
 
-        [ConditionalTheory(Skip = "issue #15343")]
-        public override Task Complex_predicate_with_AndAlso_and_nullable_bool_property(bool isAsync)
+        [ConditionalTheory(Skip = "issue #17386")]
+        public override Task GetValueOrDefault_on_DateTimeOffset(bool async)
         {
-            return base.Complex_predicate_with_AndAlso_and_nullable_bool_property(isAsync);
+            return base.GetValueOrDefault_on_DateTimeOffset(async);
         }
 
-        [ConditionalTheory(Skip = "issue #15343")]
-        public override Task Optional_navigation_type_compensation_works_with_conditional_expression(bool isAsync)
+        [ConditionalFact(Skip = "issue #17537")]
+        public override void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result1()
         {
-            return base.Optional_navigation_type_compensation_works_with_conditional_expression(isAsync);
+            base.Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result1();
         }
 
-        [ConditionalTheory(Skip = "issue #15343")]
-        public override Task Optional_navigation_type_compensation_works_with_predicate_negated(bool isAsync)
+        [ConditionalFact(Skip = "issue #17537")]
+        public override void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result2()
         {
-            return base.Optional_navigation_type_compensation_works_with_predicate_negated(isAsync);
+            base.Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result2();
         }
 
-        [ConditionalTheory(Skip = "issue #15343")]
-        public override Task String_compare_with_null_conditional_argument(bool isAsync)
+        [ConditionalTheory(Skip = "issue #17540")]
+        public override Task
+            Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(bool async)
         {
-            return base.String_compare_with_null_conditional_argument(isAsync);
+            return base.Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(
+                async);
         }
 
-        [ConditionalTheory(Skip = "issue #15343")]
-        public override Task Optional_navigation_type_compensation_works_with_predicate2(bool isAsync)
+        [ConditionalTheory(Skip = "issue #18284")]
+        public override Task GroupBy_with_boolean_groupin_key_thru_navigation_access(bool async)
         {
-            return base.Optional_navigation_type_compensation_works_with_predicate2(isAsync);
+            return GroupBy_with_boolean_groupin_key_thru_navigation_access(async);
         }
 
-        [ConditionalTheory(Skip = "issue #15343")]
-        public override Task Where_required_navigation_on_derived_type(bool isAsync)
+        [ConditionalTheory(Skip = "issue #17620")]
+        public override Task Select_subquery_projecting_single_constant_inside_anonymous(bool async)
         {
-            return base.Where_required_navigation_on_derived_type(isAsync);
+            return base.Select_subquery_projecting_single_constant_inside_anonymous(async);
         }
 
-        [ConditionalTheory(Skip = "issue #15343")]
-        public override Task Optional_navigation_type_compensation_works_with_binary_and_expression(bool isAsync)
+        [ConditionalTheory(Skip = "issue #19683")]
+        public override Task Group_by_on_StartsWith_with_null_parameter_as_argument(bool async)
         {
-            return base.Optional_navigation_type_compensation_works_with_binary_and_expression(isAsync);
+            return base.Group_by_on_StartsWith_with_null_parameter_as_argument(async);
         }
     }
 }

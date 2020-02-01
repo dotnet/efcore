@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Property(e => e.Name)
                 .Metadata;
 
-            Assert.False(property.IsFixedLength());
+            Assert.Null(property.IsFixedLength());
 
             property.SetIsFixedLength(true);
 
@@ -30,6 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             property.SetIsFixedLength(false);
 
             Assert.False(property.IsFixedLength());
+
+            property.SetIsFixedLength(null);
+
+            Assert.Null(property.IsFixedLength());
         }
 
         [ConditionalFact]
@@ -382,7 +386,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var dbFunc = model.AddDbFunction(testMethod);
 
             Assert.NotNull(dbFunc);
-            Assert.Null(dbFunc.FunctionName);
+            Assert.NotNull(dbFunc.Name);
             Assert.Null(dbFunc.Schema);
         }
 

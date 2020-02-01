@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -21,8 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
     /// </summary>
     public class ServiceProviderCache
     {
-        private readonly ConcurrentDictionary<long, (IServiceProvider ServiceProvider, IDictionary<string, string> DebugInfo)> _configurations
-            = new ConcurrentDictionary<long, (IServiceProvider, IDictionary<string, string>)>();
+        private readonly ConcurrentDictionary<long, (IServiceProvider ServiceProvider, IDictionary<string, string> DebugInfo)>
+            _configurations
+                = new ConcurrentDictionary<long, (IServiceProvider, IDictionary<string, string>)>();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -60,6 +62,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 return internalServiceProvider;
             }
 
+            if (coreOptionsExtension?.ServiceProviderCachingEnabled == false)
+            {
+                return BuildServiceProvider().ServiceProvider;
+            }
+
+            var key = options.Extensions
+                .OrderBy(e => e.GetType().Name)
+                .Aggregate(0L, (t, e) => (t * 397) ^ ((long)e.GetType().GetHashCode() * 397) ^ e.Info.GetServiceProviderHashCode());
+
+            return _configurations.GetOrAdd(key, k => BuildServiceProvider()).ServiceProvider;
+
             (IServiceProvider ServiceProvider, IDictionary<string, string> DebugInfo) BuildServiceProvider()
             {
                 ValidateOptions(options);
@@ -67,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 var debugInfo = new Dictionary<string, string>();
                 foreach (var optionsExtension in options.Extensions)
                 {
-                    optionsExtension.PopulateDebugInfo(debugInfo);
+                    optionsExtension.Info.PopulateDebugInfo(debugInfo);
                 }
 
                 debugInfo = debugInfo.OrderBy(v => debugInfo.Keys).ToDictionary(d => d.Key, v => v.Value);
@@ -78,21 +91,25 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 var replacedServices = coreOptionsExtension?.ReplacedServices;
                 if (replacedServices != null)
                 {
-                    // For replaced services we use the service collection to obtain the lifetime of
-                    // the service to replace. The replaced services are added to a new collection, after
-                    // which provider and core services are applied. This ensures that any patching happens
-                    // to the replaced service.
                     var updatedServices = new ServiceCollection();
                     foreach (var descriptor in services)
                     {
-                        if (replacedServices.TryGetValue(descriptor.ServiceType, out var replacementType))
+                        if (replacedServices.TryGetValue((descriptor.ServiceType, descriptor.ImplementationType), out var replacementType))
                         {
-                            ((IList<ServiceDescriptor>) updatedServices).Add(
+                            ((IList<ServiceDescriptor>)updatedServices).Add(
                                 new ServiceDescriptor(descriptor.ServiceType, replacementType, descriptor.Lifetime));
+                        }
+                        else if (replacedServices.TryGetValue((descriptor.ServiceType, null), out replacementType))
+                        {
+                            ((IList<ServiceDescriptor>)updatedServices).Add(
+                                new ServiceDescriptor(descriptor.ServiceType, replacementType, descriptor.Lifetime));
+                        }
+                        else
+                        {
+                            ((IList<ServiceDescriptor>)updatedServices).Add(descriptor);
                         }
                     }
 
-                    ApplyServices(options, updatedServices);
                     services = updatedServices;
                 }
 
@@ -118,7 +135,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                             ScopedLoggerFactory.Create(scopedProvider, options),
                             scopedProvider.GetService<ILoggingOptions>(),
                             scopedProvider.GetService<DiagnosticSource>(),
-                            loggingDefinitions);
+                            loggingDefinitions,
+                            new NullDbContextLogger());
 
                         if (_configurations.Count == 0)
                         {
@@ -136,22 +154,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
                                     _configurations.Values.Select(e => e.ServiceProvider).ToList());
                             }
                         }
+
+                        var applicationServiceProvider = options.FindExtension<CoreOptionsExtension>()?.ApplicationServiceProvider;
+                        if (applicationServiceProvider?.GetService<IRegisteredServices>() != null)
+                        {
+                            logger.RedundantAddServicesCallWarning(serviceProvider);
+                        }
                     }
                 }
 
                 return (serviceProvider, debugInfo);
             }
-
-            if (coreOptionsExtension?.ServiceProviderCachingEnabled == false)
-            {
-                return BuildServiceProvider().ServiceProvider;
-            }
-
-            var key = options.Extensions
-                .OrderBy(e => e.GetType().Name)
-                .Aggregate(0L, (t, e) => (t * 397) ^ ((long)e.GetType().GetHashCode() * 397) ^ e.GetServiceProviderHashCode());
-
-            return _configurations.GetOrAdd(key, k => BuildServiceProvider()).ServiceProvider;
         }
 
         private static void ValidateOptions(IDbContextOptions options)
@@ -168,7 +181,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             foreach (var extension in options.Extensions)
             {
-                if (extension.ApplyServices(services))
+                extension.ApplyServices(services);
+
+                if (extension.Info.IsDatabaseProvider)
                 {
                     coreServicesAdded = true;
                 }

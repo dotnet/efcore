@@ -3,8 +3,8 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
@@ -49,14 +49,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         private void LocalDetectChanges()
         {
-            if (!Metadata.IsDependentToPrincipal())
+            if (!Metadata.IsOnDependent)
             {
                 var target = GetTargetEntry();
                 if (target != null)
                 {
                     var context = InternalEntry.StateManager.Context;
                     if (context.ChangeTracker.AutoDetectChangesEnabled
-                        && context.Model[ChangeDetector.SkipDetectChangesAnnotation] == null)
+                        && (string)context.Model[ChangeDetector.SkipDetectChangesAnnotation] != "true")
                     {
                         context.GetDependencies().ChangeDetector.DetectChanges(target);
                     }
@@ -87,6 +87,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         protected virtual InternalEntityEntry GetTargetEntry()
             => CurrentValue == null
                 ? null
-                : InternalEntry.StateManager.GetOrCreateEntry(CurrentValue, Metadata.GetTargetType());
+                : InternalEntry.StateManager.GetOrCreateEntry(CurrentValue, Metadata.TargetEntityType);
     }
 }

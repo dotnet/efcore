@@ -20,10 +20,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var sql = CreateHistoryRepository().GetCreateScript();
 
             Assert.Equal(
-                "CREATE TABLE \"__EFMigrationsHistory\" (" + EOL +
-                "    \"MigrationId\" TEXT NOT NULL CONSTRAINT \"PK___EFMigrationsHistory\" PRIMARY KEY," + EOL +
-                "    \"ProductVersion\" TEXT NOT NULL" + EOL +
-                ");" + EOL,
+                "CREATE TABLE \"__EFMigrationsHistory\" ("
+                + EOL
+                + "    \"MigrationId\" TEXT NOT NULL CONSTRAINT \"PK___EFMigrationsHistory\" PRIMARY KEY,"
+                + EOL
+                + "    \"ProductVersion\" TEXT NOT NULL"
+                + EOL
+                + ");"
+                + EOL,
                 sql);
         }
 
@@ -33,10 +37,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var sql = CreateHistoryRepository().GetCreateIfNotExistsScript();
 
             Assert.Equal(
-                "CREATE TABLE IF NOT EXISTS \"__EFMigrationsHistory\" (" + EOL +
-                "    \"MigrationId\" TEXT NOT NULL CONSTRAINT \"PK___EFMigrationsHistory\" PRIMARY KEY," + EOL +
-                "    \"ProductVersion\" TEXT NOT NULL" + EOL +
-                ");" + EOL,
+                "CREATE TABLE IF NOT EXISTS \"__EFMigrationsHistory\" ("
+                + EOL
+                + "    \"MigrationId\" TEXT NOT NULL CONSTRAINT \"PK___EFMigrationsHistory\" PRIMARY KEY,"
+                + EOL
+                + "    \"ProductVersion\" TEXT NOT NULL"
+                + EOL
+                + ");"
+                + EOL,
                 sql);
         }
 
@@ -46,8 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var sql = CreateHistoryRepository().GetDeleteScript("Migration1");
 
             Assert.Equal(
-                "DELETE FROM \"__EFMigrationsHistory\"" + EOL +
-                "WHERE \"MigrationId\" = 'Migration1';" + EOL,
+                "DELETE FROM \"__EFMigrationsHistory\"" + EOL + "WHERE \"MigrationId\" = 'Migration1';" + EOL,
                 sql);
         }
 
@@ -58,8 +65,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 new HistoryRow("Migration1", "7.0.0"));
 
             Assert.Equal(
-                "INSERT INTO \"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\")" + EOL +
-                "VALUES ('Migration1', '7.0.0');" + EOL,
+                "INSERT INTO \"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\")"
+                + EOL
+                + "VALUES ('Migration1', '7.0.0');"
+                + EOL,
                 sql);
         }
 

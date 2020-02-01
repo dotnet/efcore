@@ -22,6 +22,9 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     public static class EntityTypeExtensions
     {
+        public static IEnumerable<IEntityType> GetConcreteDerivedTypesInclusive([NotNull] this IEntityType entityType)
+            => entityType.GetDerivedTypesInclusive().Where(et => !et.IsAbstract());
+
         /// <summary>
         ///     Checks if this entity type represents an abstract type.
         /// </summary>
@@ -29,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> True if the type is abstract, false otherwise. </returns>
         [DebuggerStepThrough]
         public static bool IsAbstract([NotNull] this ITypeBase type)
-            => type.ClrType?.GetTypeInfo().IsAbstract ?? false;
+            => type.ClrType?.IsAbstract ?? false;
 
         /// <summary>
         ///     Gets the root base type for a given entity type.
@@ -38,11 +41,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
         /// </returns>
-        public static IEntityType RootType([NotNull] this IEntityType entityType)
+        public static IEntityType GetRootType([NotNull] this IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            return entityType.BaseType?.RootType() ?? entityType;
+            return entityType.BaseType?.GetRootType() ?? entityType;
         }
 
         /// <summary>
@@ -98,6 +101,26 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Returns the closest entity type that is a parent of both given entity types. If one of the given entities is
+        ///     a parent of the other, that parent is returned. Returns null if the two entity types aren't in the same hierarchy.
+        /// </summary>
+        /// <param name="entityType1"> An entity type.</param>
+        /// <param name="entityType2"> Another entity type.</param>
+        /// <returns>
+        ///     The closest common parent of <paramref name="entityType1" /> and <paramref name="entityType2" />,
+        ///     or null if they have not common parent.
+        /// </returns>
+        public static IEntityType GetClosestCommonParent([NotNull] this IEntityType entityType1, [NotNull] IEntityType entityType2)
+        {
+            Check.NotNull(entityType1, nameof(entityType1));
+            Check.NotNull(entityType2, nameof(entityType2));
+
+            return entityType1
+                .GetAllBaseTypesInclusiveAscending()
+                .FirstOrDefault(i => entityType2.GetAllBaseTypesInclusiveAscending().Any(j => j == i));
+        }
+
+        /// <summary>
         ///     Determines if an entity type derives from (but is not the same as) a given entity type.
         /// </summary>
         /// <param name="entityType"> The derived entity type. </param>
@@ -111,12 +134,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(baseType, nameof(baseType));
 
-            if (entityType == baseType)
-            {
-                return false;
-            }
-
-            return baseType.IsAssignableFrom(entityType);
+            return entityType == baseType ? false : baseType.IsAssignableFrom(entityType);
         }
 
         /// <summary>
@@ -141,15 +159,28 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Returns all base types of the given <see cref="IEntityType" />, including the type itself.
+        ///     Returns all base types of the given <see cref="IEntityType" />, including the type itself, top to bottom.
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> Base types. </returns>
         public static IEnumerable<IEntityType> GetAllBaseTypesInclusive([NotNull] this IEntityType entityType)
-            => new List<IEntityType>(entityType.GetAllBaseTypes())
+            => GetAllBaseTypesInclusiveAscending(entityType).Reverse();
+
+        /// <summary>
+        ///     Returns all base types of the given <see cref="IEntityType" />, including the type itself, bottom to top.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Base types. </returns>
+        public static IEnumerable<IEntityType> GetAllBaseTypesInclusiveAscending([NotNull] this IEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            while (entityType != null)
             {
-                entityType
-            };
+                yield return entityType;
+                entityType = entityType.BaseType;
+            }
+        }
 
         /// <summary>
         ///     <para>
@@ -261,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore
             => entityType.AsEntityType().GetDeclaredIndexes();
 
         private static string DisplayNameDefault(this ITypeBase type)
-            => type.ClrType != null
+            => type.ClrType != null && !type.IsSharedType
                 ? type.ClrType.ShortDisplayName()
                 : type.Name;
 
@@ -314,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore
         [DebuggerStepThrough]
         public static string ShortName([NotNull] this ITypeBase type)
         {
-            if (type.ClrType != null)
+            if (type.ClrType != null && !type.IsSharedType)
             {
                 return type.ClrType.ShortDisplayName();
             }
@@ -366,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to find the foreign keys on. </param>
         /// <returns> The foreign keys. </returns>
         public static IEnumerable<IForeignKey> FindForeignKeys([NotNull] this IEntityType entityType, [NotNull] IProperty property)
-            => entityType.FindForeignKeys(new[] { property });
+            => property.GetContainingForeignKeys();
 
         /// <summary>
         ///     Gets the foreign keys defined on the given properties. Only foreign keys that are defined on exactly the specified
@@ -382,13 +413,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotEmpty(properties, nameof(properties));
             Check.HasNoNulls(properties, nameof(properties));
 
-            foreach (var foreignKey in entityType.GetForeignKeys())
-            {
-                if (PropertyListComparer.Instance.Equals(foreignKey.Properties, properties))
-                {
-                    yield return foreignKey;
-                }
-            }
+            return entityType.GetForeignKeys()
+                .Where(foreignKey => PropertyListComparer.Instance.Equals(foreignKey.Properties, properties));
         }
 
         /// <summary>
@@ -411,10 +437,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] IEntityType principalEntityType)
             => Check.NotNull(entityType, nameof(entityType))
                 .FindForeignKey(
-                    new[]
-                    {
-                        property
-                    }, principalKey, principalEntityType);
+                    new[] { property }, principalKey, principalEntityType);
 
         /// <summary>
         ///     Gets all foreign keys that target a given entity type (i.e. foreign keys where the given entity type
@@ -488,7 +511,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             var definingNavigation = entityType.DefiningEntityType.FindNavigation(entityType.DefiningNavigationName);
-            return definingNavigation?.GetTargetType() == entityType ? definingNavigation : null;
+            return definingNavigation?.TargetEntityType == entityType ? definingNavigation : null;
         }
 
         /// <summary>
@@ -516,7 +539,9 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(memberInfo, nameof(memberInfo));
 
-            return entityType.FindProperty(memberInfo.GetSimpleMemberName());
+            return (memberInfo as PropertyInfo)?.IsIndexerProperty() == true
+                ? null
+                : entityType.FindProperty(memberInfo.GetSimpleMemberName());
         }
 
         /// <summary>
@@ -569,7 +594,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityType, nameof(entityType));
 
             return (ChangeTrackingStrategy?)entityType[CoreAnnotationNames.ChangeTrackingStrategy]
-                   ?? entityType.Model.GetChangeTrackingStrategy();
+                ?? entityType.Model.GetChangeTrackingStrategy();
         }
 
         /// <summary>
@@ -605,6 +630,7 @@ namespace Microsoft.EntityFrameworkCore
 
             return (LambdaExpression)entityType[CoreAnnotationNames.DefiningQuery];
         }
+
         /// <summary>
         ///     Returns the <see cref="IProperty" /> that will be used for storing a discriminator value.
         /// </summary>
@@ -613,7 +639,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (entityType.BaseType != null)
             {
-                return entityType.RootType().GetDiscriminatorProperty();
+                return entityType.GetRootType().GetDiscriminatorProperty();
             }
 
             var propertyName = (string)entityType[CoreAnnotationNames.DiscriminatorProperty];

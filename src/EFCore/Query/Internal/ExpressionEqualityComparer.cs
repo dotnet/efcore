@@ -7,7 +7,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 
 // ReSharper disable SwitchStatementMissingSomeCases
 // ReSharper disable ForCanBeConvertedToForeach
@@ -52,273 +51,236 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             unchecked
             {
-                var hashCode = (int)obj.NodeType;
+                var hash = new HashCode();
+                hash.Add(obj.NodeType);
+                hash.Add(obj.Type);
 
-                hashCode += (hashCode * 397) ^ obj.Type.GetHashCode();
-
-                switch (obj.NodeType)
+                switch (obj)
                 {
-                    case ExpressionType.Negate:
-                    case ExpressionType.NegateChecked:
-                    case ExpressionType.Not:
-                    case ExpressionType.Convert:
-                    case ExpressionType.ConvertChecked:
-                    case ExpressionType.ArrayLength:
-                    case ExpressionType.Quote:
-                    case ExpressionType.TypeAs:
-                    case ExpressionType.UnaryPlus:
-                    {
-                        var unaryExpression = (UnaryExpression)obj;
-
-                        if (unaryExpression.Method != null)
-                        {
-                            hashCode += hashCode * 397 ^ unaryExpression.Method.GetHashCode();
-                        }
-
-                        hashCode += (hashCode * 397) ^ GetHashCode(unaryExpression.Operand);
+                    case BinaryExpression binaryExpression:
+                        hash.Add(binaryExpression.Left, this);
+                        hash.Add(binaryExpression.Right, this);
+                        AddExpressionToHashIfNotNull(binaryExpression.Conversion);
+                        AddToHashIfNotNull(binaryExpression.Method);
 
                         break;
-                    }
-                    case ExpressionType.Add:
-                    case ExpressionType.AddChecked:
-                    case ExpressionType.Subtract:
-                    case ExpressionType.SubtractChecked:
-                    case ExpressionType.Multiply:
-                    case ExpressionType.MultiplyChecked:
-                    case ExpressionType.Divide:
-                    case ExpressionType.Modulo:
-                    case ExpressionType.And:
-                    case ExpressionType.AndAlso:
-                    case ExpressionType.Or:
-                    case ExpressionType.OrElse:
-                    case ExpressionType.LessThan:
-                    case ExpressionType.LessThanOrEqual:
-                    case ExpressionType.GreaterThan:
-                    case ExpressionType.GreaterThanOrEqual:
-                    case ExpressionType.Equal:
-                    case ExpressionType.NotEqual:
-                    case ExpressionType.Coalesce:
-                    case ExpressionType.ArrayIndex:
-                    case ExpressionType.RightShift:
-                    case ExpressionType.LeftShift:
-                    case ExpressionType.ExclusiveOr:
-                    case ExpressionType.Power:
-                    {
-                        var binaryExpression = (BinaryExpression)obj;
 
-                        hashCode += (hashCode * 397) ^ GetHashCode(binaryExpression.Left);
-                        hashCode += (hashCode * 397) ^ GetHashCode(binaryExpression.Right);
-
+                    case BlockExpression blockExpression:
+                        AddListToHash(blockExpression.Variables);
+                        AddListToHash(blockExpression.Expressions);
                         break;
-                    }
-                    case ExpressionType.TypeIs:
-                    {
-                        var typeBinaryExpression = (TypeBinaryExpression)obj;
 
-                        hashCode += (hashCode * 397) ^ GetHashCode(typeBinaryExpression.Expression);
-                        hashCode += (hashCode * 397) ^ typeBinaryExpression.TypeOperand.GetHashCode();
-
+                    case ConditionalExpression conditionalExpression:
+                        hash.Add(conditionalExpression.Test, this);
+                        hash.Add(conditionalExpression.IfTrue, this);
+                        hash.Add(conditionalExpression.IfFalse, this);
                         break;
-                    }
-                    case ExpressionType.Constant:
-                    {
-                        var constantExpression = (ConstantExpression)obj;
 
+                    case ConstantExpression constantExpression:
                         if (constantExpression.Value != null
                             && !(constantExpression.Value is IQueryable))
                         {
-                            hashCode += (hashCode * 397) ^ constantExpression.Value.GetHashCode();
+                            hash.Add(constantExpression.Value);
                         }
-
                         break;
-                    }
-                    case ExpressionType.Parameter:
-                    {
-                        var parameterExpression = (ParameterExpression)obj;
 
-                        hashCode += hashCode * 397;
-                        // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-                        if (parameterExpression.Name != null)
-                        {
-                            hashCode ^= parameterExpression.Name.GetHashCode();
-                        }
-
+                    case DefaultExpression defaultExpression:
+                        // Intentionally empty. No additional members
                         break;
-                    }
-                    case ExpressionType.MemberAccess:
-                    {
-                        var memberExpression = (MemberExpression)obj;
 
-                        hashCode += (hashCode * 397) ^ memberExpression.Member.GetHashCode();
-                        hashCode += (hashCode * 397) ^ GetHashCode(memberExpression.Expression);
-
+                    case GotoExpression gotoExpression:
+                        hash.Add(gotoExpression.Value, this);
+                        hash.Add(gotoExpression.Kind);
+                        hash.Add(gotoExpression.Target);
                         break;
-                    }
-                    case ExpressionType.Call:
-                    {
-                        var methodCallExpression = (MethodCallExpression)obj;
 
-                        hashCode += (hashCode * 397) ^ methodCallExpression.Method.GetHashCode();
-                        hashCode += (hashCode * 397) ^ GetHashCode(methodCallExpression.Object);
-                        hashCode += (hashCode * 397) ^ GetHashCode(methodCallExpression.Arguments);
-
+                    case IndexExpression indexExpression:
+                        hash.Add(indexExpression.Object, this);
+                        AddListToHash(indexExpression.Arguments);
+                        hash.Add(indexExpression.Indexer);
                         break;
-                    }
-                    case ExpressionType.Lambda:
-                    {
-                        var lambdaExpression = (LambdaExpression)obj;
 
-                        hashCode += (hashCode * 397) ^ lambdaExpression.ReturnType.GetHashCode();
-                        hashCode += (hashCode * 397) ^ GetHashCode(lambdaExpression.Body);
-                        hashCode += (hashCode * 397) ^ GetHashCode(lambdaExpression.Parameters);
-
+                    case InvocationExpression invocationExpression:
+                        hash.Add(invocationExpression.Expression, this);
+                        AddListToHash(invocationExpression.Arguments);
                         break;
-                    }
-                    case ExpressionType.New:
-                    {
-                        var newExpression = (NewExpression)obj;
 
-                        hashCode += (hashCode * 397) ^ (newExpression.Constructor?.GetHashCode() ?? 0);
+                    case LabelExpression labelExpression:
+                        AddExpressionToHashIfNotNull(labelExpression.DefaultValue);
+                        hash.Add(labelExpression.Target);
+                        break;
+
+                    case LambdaExpression lambdaExpression:
+                        hash.Add(lambdaExpression.Body, this);
+                        AddListToHash(lambdaExpression.Parameters);
+                        hash.Add(lambdaExpression.ReturnType);
+                        break;
+
+                    case ListInitExpression listInitExpression:
+                        hash.Add(listInitExpression.NewExpression, this);
+                        AddInitializersToHash(listInitExpression.Initializers);
+                        break;
+
+                    case LoopExpression loopExpression:
+                        hash.Add(loopExpression.Body, this);
+                        AddToHashIfNotNull(loopExpression.BreakLabel);
+                        AddToHashIfNotNull(loopExpression.ContinueLabel);
+                        break;
+
+                    case MemberExpression memberExpression:
+                        hash.Add(memberExpression.Expression, this);
+                        hash.Add(memberExpression.Member);
+                        break;
+
+                    case MemberInitExpression memberInitExpression:
+                        hash.Add(memberInitExpression.NewExpression, this);
+                        AddMemberBindingsToHash(memberInitExpression.Bindings);
+                        break;
+
+                    case MethodCallExpression methodCallExpression:
+                        hash.Add(methodCallExpression.Object, this);
+                        AddListToHash(methodCallExpression.Arguments);
+                        hash.Add(methodCallExpression.Method);
+                        break;
+
+                    case NewArrayExpression newArrayExpression:
+                        AddListToHash(newArrayExpression.Expressions);
+                        break;
+
+                    case NewExpression newExpression:
+                        AddListToHash(newExpression.Arguments);
+                        hash.Add(newExpression.Constructor);
 
                         if (newExpression.Members != null)
                         {
                             for (var i = 0; i < newExpression.Members.Count; i++)
                             {
-                                hashCode += (hashCode * 397) ^ newExpression.Members[i].GetHashCode();
+                                hash.Add(newExpression.Members[i]);
                             }
                         }
 
-                        hashCode += (hashCode * 397) ^ GetHashCode(newExpression.Arguments);
-
                         break;
-                    }
-                    case ExpressionType.NewArrayInit:
-                    case ExpressionType.NewArrayBounds:
-                    {
-                        var newArrayExpression = (NewArrayExpression)obj;
 
-                        hashCode += (hashCode * 397) ^ GetHashCode(newArrayExpression.Expressions);
-
+                    case ParameterExpression parameterExpression:
+                        AddToHashIfNotNull(parameterExpression.Name);
                         break;
-                    }
-                    case ExpressionType.Invoke:
-                    {
-                        var invocationExpression = (InvocationExpression)obj;
 
-                        hashCode += (hashCode * 397) ^ GetHashCode(invocationExpression.Expression);
-                        hashCode += (hashCode * 397) ^ GetHashCode(invocationExpression.Arguments);
-
+                    case RuntimeVariablesExpression runtimeVariablesExpression:
+                        AddListToHash(runtimeVariablesExpression.Variables);
                         break;
-                    }
-                    case ExpressionType.MemberInit:
-                    {
-                        var memberInitExpression = (MemberInitExpression)obj;
 
-                        hashCode += (hashCode * 397) ^ GetHashCode(memberInitExpression.NewExpression);
-
-                        for (var i = 0; i < memberInitExpression.Bindings.Count; i++)
+                    case SwitchExpression switchExpression:
+                        hash.Add(switchExpression.SwitchValue, this);
+                        AddExpressionToHashIfNotNull(switchExpression.DefaultBody);
+                        AddToHashIfNotNull(switchExpression.Comparison);
+                        for (var i = 0; i < switchExpression.Cases.Count; i++)
                         {
-                            var memberBinding = memberInitExpression.Bindings[i];
+                            var @case = switchExpression.Cases[i];
+                            hash.Add(@case.Body, this);
+                            AddListToHash(@case.TestValues);
+                        }
 
-                            hashCode += (hashCode * 397) ^ memberBinding.Member.GetHashCode();
-                            hashCode += (hashCode * 397) ^ (int)memberBinding.BindingType;
+                        break;
 
-                            switch (memberBinding.BindingType)
+                    case TryExpression tryExpression:
+                        hash.Add(tryExpression.Body, this);
+                        AddExpressionToHashIfNotNull(tryExpression.Fault);
+                        AddExpressionToHashIfNotNull(tryExpression.Finally);
+                        if (tryExpression.Handlers != null)
+                        {
+                            for (var i = 0; i < tryExpression.Handlers.Count; i++)
                             {
-                                case MemberBindingType.Assignment:
-                                    var memberAssignment = (MemberAssignment)memberBinding;
-                                    hashCode += (hashCode * 397) ^ GetHashCode(memberAssignment.Expression);
-                                    break;
-                                case MemberBindingType.ListBinding:
-                                    var memberListBinding = (MemberListBinding)memberBinding;
-                                    for (var j = 0; j < memberListBinding.Initializers.Count; j++)
-                                    {
-                                        hashCode += (hashCode * 397) ^ GetHashCode(memberListBinding.Initializers[j].Arguments);
-                                    }
-
-                                    break;
-                                default:
-                                    throw new NotImplementedException();
+                                var handler = tryExpression.Handlers[i];
+                                hash.Add(handler.Body, this);
+                                AddExpressionToHashIfNotNull(handler.Variable);
+                                AddExpressionToHashIfNotNull(handler.Filter);
+                                hash.Add(handler.Test);
                             }
                         }
-
                         break;
-                    }
-                    case ExpressionType.ListInit:
-                    {
-                        var listInitExpression = (ListInitExpression)obj;
 
-                        hashCode += (hashCode * 397) ^ GetHashCode(listInitExpression.NewExpression);
-
-                        for (var i = 0; i < listInitExpression.Initializers.Count; i++)
-                        {
-                            hashCode += (hashCode * 397) ^ GetHashCode(listInitExpression.Initializers[i].Arguments);
-                        }
-
+                    case TypeBinaryExpression typeBinaryExpression:
+                        hash.Add(typeBinaryExpression.Expression, this);
+                        hash.Add(typeBinaryExpression.TypeOperand);
                         break;
-                    }
-                    case ExpressionType.Conditional:
-                    {
-                        var conditionalExpression = (ConditionalExpression)obj;
 
-                        hashCode += (hashCode * 397) ^ GetHashCode(conditionalExpression.Test);
-                        hashCode += (hashCode * 397) ^ GetHashCode(conditionalExpression.IfTrue);
-                        hashCode += (hashCode * 397) ^ GetHashCode(conditionalExpression.IfFalse);
-
+                    case UnaryExpression unaryExpression:
+                        hash.Add(unaryExpression.Operand, this);
+                        AddToHashIfNotNull(unaryExpression.Method);
                         break;
-                    }
-                    case ExpressionType.Default:
-                    {
-                        hashCode += (hashCode * 397) ^ obj.Type.GetHashCode();
-                        break;
-                    }
-                    case ExpressionType.Extension:
-                    {
-                        if (obj is NullConditionalExpression nullConditionalExpression)
-                        {
-                            hashCode += (hashCode * 397) ^ GetHashCode(nullConditionalExpression.AccessOperation);
-                        }
-                        else if (obj is NullSafeEqualExpression nullConditionalEqualExpression)
-                        {
-                            hashCode += (hashCode * 397) ^ GetHashCode(nullConditionalEqualExpression.OuterKeyNullCheck);
-                            hashCode += (hashCode * 397) ^ GetHashCode(nullConditionalEqualExpression.EqualExpression);
-                        }
-                        else
-                        {
-                            hashCode += (hashCode * 397) ^ obj.GetHashCode();
-                        }
 
-                        break;
-                    }
-                    case ExpressionType.Index:
-                    {
-                        var indexExpression = (IndexExpression)obj;
-
-                        hashCode += (hashCode * 397) ^ (indexExpression.Indexer?.GetHashCode() ?? 0);
-                        hashCode += (hashCode * 397) ^ GetHashCode(indexExpression.Object);
-                        hashCode += (hashCode * 397) ^ GetHashCode(indexExpression.Arguments);
-
-                        break;
-                    }
                     default:
-                        throw new NotImplementedException();
+                        if (obj.NodeType == ExpressionType.Extension)
+                        {
+                            hash.Add(obj);
+                            break;
+                        }
+
+                        throw new NotImplementedException($"Unhandled expression node type: {obj.NodeType}");
                 }
 
-                return hashCode;
+                return hash.ToHashCode();
+
+                void AddToHashIfNotNull(object t)
+                {
+                    if (t != null)
+                    {
+                        hash.Add(t);
+                    }
+                }
+
+                void AddExpressionToHashIfNotNull(Expression t)
+                {
+                    if (t != null)
+                    {
+                        hash.Add(t, this);
+                    }
+                }
+
+                void AddListToHash<T>(IReadOnlyList<T> expressions)
+                    where T : Expression
+                {
+                    for (var i = 0; i < expressions.Count; i++)
+                    {
+                        hash.Add(expressions[i], this);
+                    }
+                }
+
+                void AddInitializersToHash(IReadOnlyList<ElementInit> initializers)
+                {
+                    for (var i = 0; i < initializers.Count; i++)
+                    {
+                        AddListToHash(initializers[i].Arguments);
+                        hash.Add(initializers[i].AddMethod);
+                    }
+                }
+
+                void AddMemberBindingsToHash(IReadOnlyList<MemberBinding> memberBindings)
+                {
+                    for (var i = 0; i < memberBindings.Count; i++)
+                    {
+                        var memberBinding = memberBindings[i];
+
+                        hash.Add(memberBinding.Member);
+                        hash.Add(memberBinding.BindingType);
+
+                        switch (memberBinding)
+                        {
+                            case MemberAssignment memberAssignment:
+                                hash.Add(memberAssignment.Expression, this);
+                                break;
+
+                            case MemberListBinding memberListBinding:
+                                AddInitializersToHash(memberListBinding.Initializers);
+                                break;
+
+                            case MemberMemberBinding memberMemberBinding:
+                                AddMemberBindingsToHash(memberMemberBinding.Bindings);
+                                break;
+                        }
+                    }
+                }
             }
-        }
-
-        private int GetHashCode<T>(IList<T> expressions)
-            where T : Expression
-        {
-            var hashCode = 0;
-
-            for (var i = 0; i < expressions.Count; i++)
-            {
-                hashCode += (hashCode * 397) ^ GetHashCode(expressions[i]);
-            }
-
-            return hashCode;
         }
 
         /// <summary>
@@ -329,198 +291,156 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual bool Equals(Expression x, Expression y) => new ExpressionComparer().Compare(x, y);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual bool SequenceEquals(IEnumerable<Expression> x, IEnumerable<Expression> y)
-        {
-            if (x == null
-                || y == null)
-            {
-                return false;
-            }
-
-            if (x.Count() != y.Count())
-            {
-                return false;
-            }
-
-            var comparer = new ExpressionComparer();
-
-            return x.Zip(y, (l, r) => comparer.Compare(l, r)).All(r => r);
-        }
-
-        private sealed class ExpressionComparer
+        private struct ExpressionComparer
         {
             private ScopedDictionary<ParameterExpression, ParameterExpression> _parameterScope;
 
-            public bool Compare(Expression a, Expression b)
+            public bool Compare(Expression left, Expression right)
             {
-                if (a == b)
+                if (left == right)
                 {
                     return true;
                 }
 
-                if (a == null
-                    || b == null)
+                if (left == null
+                    || right == null)
                 {
                     return false;
                 }
 
-                if (a.NodeType != b.NodeType)
+                if (left.NodeType != right.NodeType)
                 {
                     return false;
                 }
 
-                if (a.Type != b.Type)
+                if (left.Type != right.Type)
                 {
                     return false;
                 }
 
-                switch (a.NodeType)
+                switch (left)
                 {
-                    case ExpressionType.Negate:
-                    case ExpressionType.NegateChecked:
-                    case ExpressionType.Not:
-                    case ExpressionType.Convert:
-                    case ExpressionType.ConvertChecked:
-                    case ExpressionType.ArrayLength:
-                    case ExpressionType.Quote:
-                    case ExpressionType.TypeAs:
-                    case ExpressionType.UnaryPlus:
-                        return CompareUnary((UnaryExpression)a, (UnaryExpression)b);
-                    case ExpressionType.Add:
-                    case ExpressionType.AddChecked:
-                    case ExpressionType.Subtract:
-                    case ExpressionType.SubtractChecked:
-                    case ExpressionType.Multiply:
-                    case ExpressionType.MultiplyChecked:
-                    case ExpressionType.Divide:
-                    case ExpressionType.Modulo:
-                    case ExpressionType.And:
-                    case ExpressionType.AndAlso:
-                    case ExpressionType.Or:
-                    case ExpressionType.OrElse:
-                    case ExpressionType.LessThan:
-                    case ExpressionType.LessThanOrEqual:
-                    case ExpressionType.GreaterThan:
-                    case ExpressionType.GreaterThanOrEqual:
-                    case ExpressionType.Equal:
-                    case ExpressionType.NotEqual:
-                    case ExpressionType.Coalesce:
-                    case ExpressionType.ArrayIndex:
-                    case ExpressionType.RightShift:
-                    case ExpressionType.LeftShift:
-                    case ExpressionType.ExclusiveOr:
-                    case ExpressionType.Power:
-                        return CompareBinary((BinaryExpression)a, (BinaryExpression)b);
-                    case ExpressionType.TypeIs:
-                        return CompareTypeIs((TypeBinaryExpression)a, (TypeBinaryExpression)b);
-                    case ExpressionType.Conditional:
-                        return CompareConditional((ConditionalExpression)a, (ConditionalExpression)b);
-                    case ExpressionType.Constant:
-                        return CompareConstant((ConstantExpression)a, (ConstantExpression)b);
-                    case ExpressionType.Parameter:
-                        return CompareParameter((ParameterExpression)a, (ParameterExpression)b);
-                    case ExpressionType.MemberAccess:
-                        return CompareMemberAccess((MemberExpression)a, (MemberExpression)b);
-                    case ExpressionType.Call:
-                        return CompareMethodCall((MethodCallExpression)a, (MethodCallExpression)b);
-                    case ExpressionType.Lambda:
-                        return CompareLambda((LambdaExpression)a, (LambdaExpression)b);
-                    case ExpressionType.New:
-                        return CompareNew((NewExpression)a, (NewExpression)b);
-                    case ExpressionType.NewArrayInit:
-                    case ExpressionType.NewArrayBounds:
-                        return CompareNewArray((NewArrayExpression)a, (NewArrayExpression)b);
-                    case ExpressionType.Invoke:
-                        return CompareInvocation((InvocationExpression)a, (InvocationExpression)b);
-                    case ExpressionType.MemberInit:
-                        return CompareMemberInit((MemberInitExpression)a, (MemberInitExpression)b);
-                    case ExpressionType.ListInit:
-                        return CompareListInit((ListInitExpression)a, (ListInitExpression)b);
-                    case ExpressionType.Extension:
-                        return CompareExtension(a, b);
-                    case ExpressionType.Default:
-                        return CompareDefault((DefaultExpression)a, (DefaultExpression)b);
-                    case ExpressionType.Index:
-                        return CompareIndex((IndexExpression)a, (IndexExpression)b);
+                    case BinaryExpression leftBinary:
+                        return CompareBinary(leftBinary, (BinaryExpression)right);
+
+                    case BlockExpression leftBlock:
+                        return CompareBlock(leftBlock, (BlockExpression)right);
+
+                    case ConditionalExpression leftConditional:
+                        return CompareConditional(leftConditional, (ConditionalExpression)right);
+
+                    case ConstantExpression leftConstant:
+                        return CompareConstant(leftConstant, (ConstantExpression)right);
+
+                    case DefaultExpression _:
+                        // Intentionally empty. No additional members
+                        return true;
+
+                    case GotoExpression leftGoto:
+                        return CompareGoto(leftGoto, (GotoExpression)right);
+
+                    case IndexExpression leftIndex:
+                        return CompareIndex(leftIndex, (IndexExpression)right);
+
+                    case InvocationExpression leftInvocation:
+                        return CompareInvocation(leftInvocation, (InvocationExpression)right);
+
+                    case LabelExpression leftLabel:
+                        return CompareLabel(leftLabel, (LabelExpression)right);
+
+                    case LambdaExpression leftLambda:
+                        return CompareLambda(leftLambda, (LambdaExpression)right);
+
+                    case ListInitExpression leftListInit:
+                        return CompareListInit(leftListInit, (ListInitExpression)right);
+
+                    case LoopExpression leftLoop:
+                        return CompareLoop(leftLoop, (LoopExpression)right);
+
+                    case MemberExpression leftMember:
+                        return CompareMember(leftMember, (MemberExpression)right);
+
+                    case MemberInitExpression leftMemberInit:
+                        return CompareMemberInit(leftMemberInit, (MemberInitExpression)right);
+
+                    case MethodCallExpression leftMethodCall:
+                        return CompareMethodCall(leftMethodCall, (MethodCallExpression)right);
+
+                    case NewArrayExpression leftNewArray:
+                        return CompareNewArray(leftNewArray, (NewArrayExpression)right);
+
+                    case NewExpression leftNew:
+                        return CompareNew(leftNew, (NewExpression)right);
+
+                    case ParameterExpression leftParameter:
+                        return CompareParameter(leftParameter, (ParameterExpression)right);
+
+                    case RuntimeVariablesExpression leftRuntimeVariables:
+                        return CompareRuntimeVariables(leftRuntimeVariables, (RuntimeVariablesExpression)right);
+
+                    case SwitchExpression leftSwitch:
+                        return CompareSwitch(leftSwitch, (SwitchExpression)right);
+
+                    case TryExpression leftTry:
+                        return CompareTry(leftTry, (TryExpression)right);
+
+                    case TypeBinaryExpression leftTypeBinary:
+                        return CompareTypeBinary(leftTypeBinary, (TypeBinaryExpression)right);
+
+                    case UnaryExpression leftUnary:
+                        return CompareUnary(leftUnary, (UnaryExpression)right);
+
                     default:
-                        throw new NotImplementedException();
+                        if (left.NodeType == ExpressionType.Extension)
+                        {
+                            return left.Equals(right);
+                        }
+
+                        throw new NotImplementedException($"Unhandled expression node type: {left.NodeType}");
                 }
             }
-
-            private bool CompareDefault(DefaultExpression a, DefaultExpression b)
-                => a.Type == b.Type;
-
-            private bool CompareUnary(UnaryExpression a, UnaryExpression b)
-                => Equals(a.Method, b.Method)
-                   && a.IsLifted == b.IsLifted
-                   && a.IsLiftedToNull == b.IsLiftedToNull
-                   && Compare(a.Operand, b.Operand);
 
             private bool CompareBinary(BinaryExpression a, BinaryExpression b)
                 => Equals(a.Method, b.Method)
-                   && a.IsLifted == b.IsLifted
-                   && a.IsLiftedToNull == b.IsLiftedToNull
-                   && Compare(a.Left, b.Left)
-                   && Compare(a.Right, b.Right);
+                    && a.IsLifted == b.IsLifted
+                    && a.IsLiftedToNull == b.IsLiftedToNull
+                    && Compare(a.Left, b.Left)
+                    && Compare(a.Right, b.Right)
+                    && Compare(a.Conversion, b.Conversion);
 
-            private bool CompareTypeIs(TypeBinaryExpression a, TypeBinaryExpression b)
-                => a.TypeOperand == b.TypeOperand
-                   && Compare(a.Expression, b.Expression);
+            private bool CompareBlock(BlockExpression a, BlockExpression b)
+                => CompareExpressionList(a.Variables, b.Variables)
+                    && CompareExpressionList(a.Expressions, b.Expressions);
 
             private bool CompareConditional(ConditionalExpression a, ConditionalExpression b)
                 => Compare(a.Test, b.Test)
-                   && Compare(a.IfTrue, b.IfTrue)
-                   && Compare(a.IfFalse, b.IfFalse);
+                    && Compare(a.IfTrue, b.IfTrue)
+                    && Compare(a.IfFalse, b.IfFalse);
 
             private static bool CompareConstant(ConstantExpression a, ConstantExpression b)
-            {
-                if (a.Value == b.Value)
-                {
-                    return true;
-                }
+                => a.Value == b.Value
+                    || (a.Value != null
+                        && b.Value != null
+                        && (a.IsEntityQueryable() && b.IsEntityQueryable() && a.Value.GetType() == b.Value.GetType()
+                            || Equals(a.Value, b.Value)));
 
-                if (a.Value == null
-                    || b.Value == null)
-                {
-                    return false;
-                }
+            private bool CompareGoto(GotoExpression a, GotoExpression b)
+                => a.Kind == b.Kind
+                    && Equals(a.Target, b.Target)
+                    && Compare(a.Value, b.Value);
 
-                return a.IsEntityQueryable()
-                       && b.IsEntityQueryable()
-                       && a.Value.GetType() == b.Value.GetType()
-                    ? true
-                    : Equals(a.Value, b.Value);
-            }
+            private bool CompareIndex(IndexExpression a, IndexExpression b)
+                => Equals(a.Indexer, b.Indexer)
+                    && Compare(a.Object, b.Object)
+                    && CompareExpressionList(a.Arguments, b.Arguments);
 
-            private bool CompareParameter(ParameterExpression a, ParameterExpression b)
-            {
-                if (_parameterScope != null)
-                {
-                    if (_parameterScope.TryGetValue(a, out var mapped))
-                    {
-                        return mapped.Name == b.Name
-                               && mapped.Type == b.Type;
-                    }
-                }
+            private bool CompareInvocation(InvocationExpression a, InvocationExpression b)
+                => Compare(a.Expression, b.Expression)
+                    && CompareExpressionList(a.Arguments, b.Arguments);
 
-                return a.Name == b.Name
-                       && a.Type == b.Type;
-            }
-
-            private bool CompareMemberAccess(MemberExpression a, MemberExpression b)
-                => Equals(a.Member, b.Member)
-                   && Compare(a.Expression, b.Expression);
-
-            private bool CompareMethodCall(MethodCallExpression a, MethodCallExpression b)
-                => Equals(a.Method, b.Method)
-                   && Compare(a.Object, b.Object)
-                   && CompareExpressionList(a.Arguments, b.Arguments);
+            private bool CompareLabel(LabelExpression a, LabelExpression b)
+                => Equals(a.Target, b.Target)
+                    && Compare(a.DefaultValue, b.DefaultValue);
 
             private bool CompareLambda(LambdaExpression a, LambdaExpression b)
             {
@@ -559,25 +479,77 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
             }
 
+            private bool CompareListInit(ListInitExpression a, ListInitExpression b)
+                => Compare(a.NewExpression, b.NewExpression)
+                    && CompareElementInitList(a.Initializers, b.Initializers);
+
+            private bool CompareLoop(LoopExpression a, LoopExpression b)
+                => Equals(a.BreakLabel, b.BreakLabel)
+                    && Equals(a.ContinueLabel, b.ContinueLabel)
+                    && Compare(a.Body, b.Body);
+
+            private bool CompareMember(MemberExpression a, MemberExpression b)
+                => Equals(a.Member, b.Member)
+                    && Compare(a.Expression, b.Expression);
+
+            private bool CompareMemberInit(MemberInitExpression a, MemberInitExpression b)
+                => Compare(a.NewExpression, b.NewExpression)
+                    && CompareMemberBindingList(a.Bindings, b.Bindings);
+
+            private bool CompareMethodCall(MethodCallExpression a, MethodCallExpression b)
+                => Equals(a.Method, b.Method)
+                    && Compare(a.Object, b.Object)
+                    && CompareExpressionList(a.Arguments, b.Arguments);
+
+            private bool CompareNewArray(NewArrayExpression a, NewArrayExpression b)
+                => CompareExpressionList(a.Expressions, b.Expressions);
+
             private bool CompareNew(NewExpression a, NewExpression b)
                 => Equals(a.Constructor, b.Constructor)
-                   && CompareExpressionList(a.Arguments, b.Arguments)
-                   && CompareMemberList(a.Members, b.Members);
+                    && CompareExpressionList(a.Arguments, b.Arguments)
+                    && CompareMemberList(a.Members, b.Members);
+
+            private bool CompareParameter(ParameterExpression a, ParameterExpression b)
+                => _parameterScope != null
+                    && _parameterScope.TryGetValue(a, out var mapped)
+                    ? mapped.Name == b.Name
+                    : a.Name == b.Name;
+
+            private bool CompareRuntimeVariables(RuntimeVariablesExpression a, RuntimeVariablesExpression b)
+                => CompareExpressionList(a.Variables, b.Variables);
+
+            private bool CompareSwitch(SwitchExpression a, SwitchExpression b)
+                => Equals(a.Comparison, b.Comparison)
+                    && Compare(a.SwitchValue, b.SwitchValue)
+                    && Compare(a.DefaultBody, b.DefaultBody)
+                    && CompareSwitchCaseList(a.Cases, b.Cases);
+
+            private bool CompareTry(TryExpression a, TryExpression b)
+                => Compare(a.Body, b.Body)
+                    && Compare(a.Fault, b.Fault)
+                    && Compare(a.Finally, b.Finally)
+                    && CompareCatchBlockList(a.Handlers, b.Handlers);
+
+            private bool CompareTypeBinary(TypeBinaryExpression a, TypeBinaryExpression b)
+                => a.TypeOperand == b.TypeOperand
+                    && Compare(a.Expression, b.Expression);
+
+            private bool CompareUnary(UnaryExpression a, UnaryExpression b)
+                => Equals(a.Method, b.Method)
+                    && a.IsLifted == b.IsLifted
+                    && a.IsLiftedToNull == b.IsLiftedToNull
+                    && Compare(a.Operand, b.Operand);
 
             private bool CompareExpressionList(IReadOnlyList<Expression> a, IReadOnlyList<Expression> b)
             {
-                if (Equals(a, b))
+                if (ReferenceEquals(a, b))
                 {
                     return true;
                 }
 
                 if (a == null
-                    || b == null)
-                {
-                    return false;
-                }
-
-                if (a.Count != b.Count)
+                    || b == null
+                    || a.Count != b.Count)
                 {
                     return false;
                 }
@@ -593,7 +565,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return true;
             }
 
-            private static bool CompareMemberList(IReadOnlyList<MemberInfo> a, IReadOnlyList<MemberInfo> b)
+            private bool CompareMemberList(IReadOnlyList<MemberInfo> a, IReadOnlyList<MemberInfo> b)
             {
                 if (ReferenceEquals(a, b))
                 {
@@ -601,12 +573,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
 
                 if (a == null
-                    || b == null)
-                {
-                    return false;
-                }
-
-                if (a.Count != b.Count)
+                    || b == null
+                    || a.Count != b.Count)
                 {
                     return false;
                 }
@@ -622,42 +590,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return true;
             }
 
-            private bool CompareNewArray(NewArrayExpression a, NewArrayExpression b)
-                => CompareExpressionList(a.Expressions, b.Expressions);
-
-            private bool CompareExtension(Expression a, Expression b)
-            {
-                if (a is NullConditionalExpression nullConditionalExpressionA
-                    && b is NullConditionalExpression nullConditionalExpressionB)
-                {
-                    return Compare(
-                        nullConditionalExpressionA.AccessOperation,
-                        nullConditionalExpressionB.AccessOperation);
-                }
-
-                if (a is NullSafeEqualExpression nullConditionalEqualExpressionA
-                    && b is NullSafeEqualExpression nullConditionalEqualExpressionB)
-                {
-                    return Compare(
-                               nullConditionalEqualExpressionA.OuterKeyNullCheck,
-                               nullConditionalEqualExpressionB.OuterKeyNullCheck)
-                           && Compare(
-                               nullConditionalEqualExpressionA.EqualExpression,
-                               nullConditionalEqualExpressionB.EqualExpression);
-                }
-
-                return a.Equals(b);
-            }
-
-            private bool CompareInvocation(InvocationExpression a, InvocationExpression b)
-                => Compare(a.Expression, b.Expression)
-                   && CompareExpressionList(a.Arguments, b.Arguments);
-
-            private bool CompareMemberInit(MemberInitExpression a, MemberInitExpression b)
-                => Compare(a.NewExpression, b.NewExpression)
-                   && CompareBindingList(a.Bindings, b.Bindings);
-
-            private bool CompareBindingList(IReadOnlyList<MemberBinding> a, IReadOnlyList<MemberBinding> b)
+            private bool CompareMemberBindingList(IReadOnlyList<MemberBinding> a, IReadOnlyList<MemberBinding> b)
             {
                 if (ReferenceEquals(a, b))
                 {
@@ -665,12 +598,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
 
                 if (a == null
-                    || b == null)
-                {
-                    return false;
-                }
-
-                if (a.Count != b.Count)
+                    || b == null
+                    || a.Count != b.Count)
                 {
                     return false;
                 }
@@ -709,34 +638,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return false;
                 }
 
-                switch (a.BindingType)
+#pragma warning disable IDE0066 // Convert switch statement to expression
+                switch (a)
+#pragma warning restore IDE0066 // Convert switch statement to expression
                 {
-                    case MemberBindingType.Assignment:
-                        return CompareMemberAssignment((MemberAssignment)a, (MemberAssignment)b);
-                    case MemberBindingType.ListBinding:
-                        return CompareMemberListBinding((MemberListBinding)a, (MemberListBinding)b);
-                    case MemberBindingType.MemberBinding:
-                        return CompareMemberMemberBinding((MemberMemberBinding)a, (MemberMemberBinding)b);
+                    case MemberAssignment aMemberAssignment:
+                        return Compare(aMemberAssignment.Expression, ((MemberAssignment)b).Expression);
+
+                    case MemberListBinding aMemberListBinding:
+                        return CompareElementInitList(aMemberListBinding.Initializers, ((MemberListBinding)b).Initializers);
+
+                    case MemberMemberBinding aMemberMemberBinding:
+                        return CompareMemberBindingList(aMemberMemberBinding.Bindings, ((MemberMemberBinding)b).Bindings);
+
                     default:
-                        throw new NotImplementedException();
+                        throw new InvalidOperationException("Unhandled member binding type: " + a.BindingType);
                 }
             }
-
-            private bool CompareMemberAssignment(MemberAssignment a, MemberAssignment b)
-                => Equals(a.Member, b.Member)
-                   && Compare(a.Expression, b.Expression);
-
-            private bool CompareMemberListBinding(MemberListBinding a, MemberListBinding b)
-                => Equals(a.Member, b.Member)
-                   && CompareElementInitList(a.Initializers, b.Initializers);
-
-            private bool CompareMemberMemberBinding(MemberMemberBinding a, MemberMemberBinding b)
-                => Equals(a.Member, b.Member)
-                   && CompareBindingList(a.Bindings, b.Bindings);
-
-            private bool CompareListInit(ListInitExpression a, ListInitExpression b)
-                => Compare(a.NewExpression, b.NewExpression)
-                   && CompareElementInitList(a.Initializers, b.Initializers);
 
             private bool CompareElementInitList(IReadOnlyList<ElementInit> a, IReadOnlyList<ElementInit> b)
             {
@@ -746,12 +664,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
 
                 if (a == null
-                    || b == null)
-                {
-                    return false;
-                }
-
-                if (a.Count != b.Count)
+                    || b == null
+                    || a.Count != b.Count)
                 {
                     return false;
                 }
@@ -769,14 +683,69 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private bool CompareElementInit(ElementInit a, ElementInit b)
                 => Equals(a.AddMethod, b.AddMethod)
-                   && CompareExpressionList(a.Arguments, b.Arguments);
+                    && CompareExpressionList(a.Arguments, b.Arguments);
 
-            private bool CompareIndex(IndexExpression a, IndexExpression b)
-                => Equals(a.Indexer, b.Indexer)
-                   && Compare(a.Object, b.Object)
-                   && CompareExpressionList(a.Arguments, b.Arguments);
+            private bool CompareSwitchCaseList(IReadOnlyList<SwitchCase> a, IReadOnlyList<SwitchCase> b)
+            {
+                if (ReferenceEquals(a, b))
+                {
+                    return true;
+                }
 
-            private class ScopedDictionary<TKey, TValue>
+                if (a == null
+                    || b == null
+                    || a.Count != b.Count)
+                {
+                    return false;
+                }
+
+                for (int i = 0, n = a.Count; i < n; i++)
+                {
+                    if (!CompareSwitchCase(a[i], b[i]))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            private bool CompareSwitchCase(SwitchCase a, SwitchCase b)
+                => Compare(a.Body, b.Body)
+                    && CompareExpressionList(a.TestValues, b.TestValues);
+
+            private bool CompareCatchBlockList(IReadOnlyList<CatchBlock> a, IReadOnlyList<CatchBlock> b)
+            {
+                if (ReferenceEquals(a, b))
+                {
+                    return true;
+                }
+
+                if (a == null
+                    || b == null
+                    || a.Count != b.Count)
+                {
+                    return false;
+                }
+
+                for (int i = 0, n = a.Count; i < n; i++)
+                {
+                    if (!CompareCatchBlock(a[i], b[i]))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            private bool CompareCatchBlock(CatchBlock a, CatchBlock b)
+                => Equals(a.Test, b.Test)
+                    && Compare(a.Body, b.Body)
+                    && Compare(a.Filter, b.Filter)
+                    && Compare(a.Variable, b.Variable);
+
+            private sealed class ScopedDictionary<TKey, TValue>
             {
                 private readonly ScopedDictionary<TKey, TValue> _previous;
                 private readonly Dictionary<TKey, TValue> _map;

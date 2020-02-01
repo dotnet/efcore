@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 {
@@ -18,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
         public override Expression Apply(Expression expression, Random random)
         {
             var typeArgument = expression.Type.GetGenericArguments()[0];
-            var select = SelectMethodInfo.MakeGenericMethod(typeArgument, typeArgument);
+            var select = QueryableMethods.Select.MakeGenericMethod(typeArgument, typeArgument);
             var prm = Expression.Parameter(typeArgument, "prm");
             var lambda = Expression.Lambda(prm, prm);
             var resultExpression = Expression.Call(select, expression, lambda);

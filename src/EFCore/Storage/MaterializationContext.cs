@@ -1,10 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -28,9 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         internal static readonly PropertyInfo ContextProperty
             = typeof(MaterializationContext).GetProperty(nameof(Context));
 
-        internal static readonly ConstructorInfo ObsoleteConstructor
-            = typeof(MaterializationContext).GetConstructor(new[] { typeof(ValueBuffer) });
-
         /// <summary>
         ///     Creates a new <see cref="MaterializationContext" /> instance.
         /// </summary>
@@ -40,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             in ValueBuffer valueBuffer,
             [NotNull] DbContext context)
         {
-            Debug.Assert(context != null); // Hot path
+            Check.DebugAssert(context != null, "context is null"); // Hot path
 
             ValueBuffer = valueBuffer;
             Context = context;

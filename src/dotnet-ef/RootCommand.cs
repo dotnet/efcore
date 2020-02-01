@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -11,7 +11,6 @@ using System.Text.Json;
 using Microsoft.DotNet.Cli.CommandLine;
 using Microsoft.EntityFrameworkCore.Tools.Commands;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
-
 using EFCommand = Microsoft.EntityFrameworkCore.Tools.Commands.RootCommand;
 
 namespace Microsoft.EntityFrameworkCore.Tools
@@ -57,21 +56,22 @@ namespace Microsoft.EntityFrameworkCore.Tools
         protected override int Execute()
         {
             var commands = _args.TakeWhile(a => a[0] != '-').ToList();
-            if (_help.HasValue() || ShouldHelp(commands))
+            if (_help.HasValue()
+                || ShouldHelp(commands))
             {
                 return ShowHelp(_help.HasValue(), commands);
             }
 
-            var (projectFile, starupProjectFile) = ResolveProjects(
+            var (projectFile, startupProjectFile) = ResolveProjects(
                 _project.Value(),
                 _startupProject.Value());
 
             Reporter.WriteVerbose(Resources.UsingProject(projectFile));
-            Reporter.WriteVerbose(Resources.UsingStartupProject(starupProjectFile));
+            Reporter.WriteVerbose(Resources.UsingStartupProject(startupProjectFile));
 
             var project = Project.FromFile(projectFile, _msbuildprojectextensionspath.Value());
             var startupProject = Project.FromFile(
-                starupProjectFile,
+                startupProjectFile,
                 _msbuildprojectextensionspath.Value(),
                 _framework.Value(),
                 _configuration.Value(),
@@ -79,14 +79,16 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
             if (!_noBuild.HasValue())
             {
+                Reporter.WriteInformation(Resources.BuildStarted);
                 startupProject.Build();
+                Reporter.WriteInformation(Resources.BuildSucceeded);
             }
 
             string executable;
             var args = new List<string>();
 
             var toolsPath = Path.Combine(
-                Path.GetDirectoryName(typeof(Program).GetTypeInfo().Assembly.Location),
+                Path.GetDirectoryName(typeof(Program).Assembly.Location),
                 "tools");
 
             var targetDir = Path.GetFullPath(Path.Combine(startupProject.ProjectDir, startupProject.OutputPath));
@@ -221,17 +223,20 @@ namespace Microsoft.EntityFrameworkCore.Tools
                         : Resources.MultipleStartupProjects);
             }
 
-            if (projectPath != null && projects.Count == 0)
+            if (projectPath != null
+                && projects.Count == 0)
             {
                 throw new CommandException(Resources.NoProjectInDirectory(projectPath));
             }
 
-            if (startupProjectPath != null && startupProjects.Count == 0)
+            if (startupProjectPath != null
+                && startupProjects.Count == 0)
             {
                 throw new CommandException(Resources.NoProjectInDirectory(startupProjectPath));
             }
 
-            if (projectPath == null && startupProjectPath == null)
+            if (projectPath == null
+                && startupProjectPath == null)
             {
                 return projects.Count == 0
                     ? throw new CommandException(Resources.NoProject)
@@ -263,29 +268,26 @@ namespace Microsoft.EntityFrameworkCore.Tools
             }
 
             var projectFiles = Directory.EnumerateFiles(path, "*.*proj", SearchOption.TopDirectoryOnly)
-                    .Where(f => !string.Equals(Path.GetExtension(f), ".xproj", StringComparison.OrdinalIgnoreCase))
-                    .Take(2).ToList();
+                .Where(f => !string.Equals(Path.GetExtension(f), ".xproj", StringComparison.OrdinalIgnoreCase))
+                .Take(2).ToList();
 
             return projectFiles;
         }
 
         private static string GetVersion()
-            => typeof(RootCommand).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+            => typeof(RootCommand).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
                 .InformationalVersion;
 
         private static bool ShouldHelp(IReadOnlyList<string> commands)
             => commands.Count == 0
-                || (commands.Count == 1
-                    && (commands[0] == "database"
-                        || commands[0] == "dbcontext"
-                        || commands[0] == "migrations"));
+               || (commands.Count == 1
+                   && (commands[0] == "database"
+                       || commands[0] == "dbcontext"
+                       || commands[0] == "migrations"));
 
         private int ShowHelp(bool help, IEnumerable<string> commands)
         {
-            var app = new CommandLineApplication
-            {
-                Name = _command.Name
-            };
+            var app = new CommandLineApplication { Name = _command.Name };
 
             new EFCommand().Configure(app);
 

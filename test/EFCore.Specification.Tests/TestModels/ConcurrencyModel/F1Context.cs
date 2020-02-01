@@ -31,22 +31,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
         {
             foreach (var engineSupplier in new List<EngineSupplier>
             {
-                new EngineSupplier
-                {
-                    Name = "Mercedes"
-                },
-                new EngineSupplier
-                {
-                    Name = "Renault"
-                },
-                new EngineSupplier
-                {
-                    Name = "Ferrari"
-                },
-                new EngineSupplier
-                {
-                    Name = "Cosworth"
-                }
+                new EngineSupplier { Name = "Mercedes" },
+                new EngineSupplier { Name = "Renault" },
+                new EngineSupplier { Name = "Ferrari" },
+                new EngineSupplier { Name = "Cosworth" }
             })
             {
                 context.Add(engineSupplier);
@@ -56,41 +44,25 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
             var mercedesEngine = new Engine
             {
                 Name = "FO 108X",
-                StorageLocation = new Location
-                {
-                    Latitude = 47.64491,
-                    Longitude = -122.128101
-                },
+                StorageLocation = new Location { Latitude = 47.64491, Longitude = -122.128101 },
                 EngineSupplier = engineSuppliers.Single(s => s.Name == "Mercedes")
             };
             var renaultEngine = new Engine
             {
                 Name = "RS27-2010",
-                StorageLocation = new Location
-                {
-                    Latitude = 47.644199,
-                    Longitude = -122.127049
-                },
+                StorageLocation = new Location { Latitude = 47.644199, Longitude = -122.127049 },
                 EngineSupplier = engineSuppliers.Single(s => s.Name == "Renault")
             };
             var ferrariEngine = new Engine
             {
                 Name = "056",
-                StorageLocation = new Location
-                {
-                    Latitude = 47.64256,
-                    Longitude = -122.130609
-                },
+                StorageLocation = new Location { Latitude = 47.64256, Longitude = -122.130609 },
                 EngineSupplier = engineSuppliers.Single(s => s.Name == "Ferrari")
             };
             var cosworthEngine = new Engine
             {
                 Name = "CA2010",
-                StorageLocation = new Location
-                {
-                    Latitude = 47.644851,
-                    Longitude = -122.129781
-                },
+                StorageLocation = new Location { Latitude = 47.644851, Longitude = -122.129781 },
                 EngineSupplier = engineSuppliers.Single(s => s.Name == "Cosworth")
             };
 
@@ -112,10 +84,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Id = Team.McLaren,
                     Name = "Vodafone McLaren Mercedes",
                     Constructor = "McLaren",
-                    Chassis = new Chassis
-                    {
-                        Name = "MP4-25"
-                    },
+                    Chassis = new Chassis { Name = "MP4-25" },
                     Engine = mercedesEngine,
                     Tire = "Bridgestone",
                     Principal = "Martin Whitmarsh",
@@ -131,10 +100,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Id = Team.Mercedes,
                     Name = "Mercedes GP Petronas F1 Team",
                     Constructor = "Mercedes",
-                    Chassis = new Chassis
-                    {
-                        Name = "MGP W01"
-                    },
+                    Chassis = new Chassis { Name = "MGP W01" },
                     Engine = mercedesEngine,
                     Tire = "Bridgestone",
                     Principal = "Ross Brawn",
@@ -150,10 +116,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Id = Team.RedBull,
                     Name = "Red Bull Racing",
                     Constructor = "Red Bull",
-                    Chassis = new Chassis
-                    {
-                        Name = "RB6"
-                    },
+                    Chassis = new Chassis { Name = "RB6" },
                     Engine = renaultEngine,
                     Tire = "Bridgestone",
                     Principal = "Christian Horner",
@@ -169,10 +132,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Id = Team.Ferrari,
                     Name = "Scuderia Ferrari Marlboro",
                     Constructor = "Ferrari",
-                    Chassis = new Chassis
-                    {
-                        Name = "F10"
-                    },
+                    Chassis = new Chassis { Name = "F10" },
                     Engine = ferrariEngine,
                     Tire = "Bridgestone",
                     Principal = "Stefano Domenicali",
@@ -188,10 +148,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Id = Team.Williams,
                     Name = "AT&T Williams",
                     Constructor = "Williams",
-                    Chassis = new Chassis
-                    {
-                        Name = "FW32"
-                    },
+                    Chassis = new Chassis { Name = "FW32" },
                     Engine = cosworthEngine,
                     Tire = "Bridgestone",
                     Principal = "Frank Williams/Patrick Head",
@@ -207,10 +164,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Id = Team.Renault,
                     Name = "Renault F1 Team",
                     Constructor = "Renault",
-                    Chassis = new Chassis
-                    {
-                        Name = "R30"
-                    },
+                    Chassis = new Chassis { Name = "R30" },
                     Engine = renaultEngine,
                     Tire = "Bridgestone",
                     Principal = "Eric Boullier",
@@ -226,10 +180,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Id = Team.ForceIndia,
                     Name = "Force India F1 Team",
                     Constructor = "Force India",
-                    Chassis = new Chassis
-                    {
-                        Name = "VJM03"
-                    },
+                    Chassis = new Chassis { Name = "VJM03" },
                     Engine = mercedesEngine,
                     Tire = "Bridgestone",
                     Principal = "Vijay Mallya",
@@ -245,10 +196,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Id = Team.ToroRosso,
                     Name = "Scuderia Toro Rosso",
                     Constructor = "Toro Rosso",
-                    Chassis = new Chassis
-                    {
-                        Name = "STR5"
-                    },
+                    Chassis = new Chassis { Name = "STR5" },
                     Engine = ferrariEngine,
                     Tire = "Bridgestone",
                     Principal = "Franz Tost",
@@ -264,10 +212,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Id = Team.Lotus,
                     Name = "Lotus Racing",
                     Constructor = "Lotus",
-                    Chassis = new Chassis
-                    {
-                        Name = "T127"
-                    },
+                    Chassis = new Chassis { Name = "T127" },
                     Engine = cosworthEngine,
                     Tire = "Bridgestone",
                     Principal = "Tony Fernandes",
@@ -283,10 +228,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Id = Team.Hispania,
                     Name = "Hispania Racing F1 Team (HRT)",
                     Constructor = "HRT",
-                    Chassis = new Chassis
-                    {
-                        Name = "F110"
-                    },
+                    Chassis = new Chassis { Name = "F110" },
                     Engine = cosworthEngine,
                     Tire = "Bridgestone",
                     Principal = "Colin Kolles",
@@ -302,10 +244,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Id = Team.Sauber,
                     Name = "BMW Sauber F1 Team",
                     Constructor = "Sauber",
-                    Chassis = new Chassis
-                    {
-                        Name = "C29"
-                    },
+                    Chassis = new Chassis { Name = "C29" },
                     Engine = ferrariEngine,
                     Tire = "Bridgestone",
                     Principal = "Peter Sauber",
@@ -321,10 +260,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Id = Team.Vickers,
                     Name = "Vickers Racing",
                     Constructor = "Vickers",
-                    Chassis = new Chassis
-                    {
-                        Name = "VR-01"
-                    },
+                    Chassis = new Chassis { Name = "VR-01" },
                     Engine = cosworthEngine,
                     Tire = "Bridgestone",
                     Principal = "John Booth",
@@ -524,7 +460,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                 },
                 new TestDriver
                 {
-                    Name = "Marc Gené",
+                    Name = "Marc GenÃ©",
                     TeamId = Team.Ferrari,
                     CarNumber = null,
                     Championships = 0,
@@ -548,7 +484,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                 },
                 new Driver
                 {
-                    Name = "Nico Hülkenberg",
+                    Name = "Nico HÃ¼lkenberg",
                     TeamId = Team.Williams,
                     CarNumber = 10,
                     Championships = 0,
@@ -608,7 +544,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                 },
                 new TestDriver
                 {
-                    Name = "Jérôme d'Ambrosio",
+                    Name = "JÃ©rÃ´me d'Ambrosio",
                     TeamId = Team.Renault,
                     CarNumber = null,
                     Championships = 0,
@@ -668,7 +604,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                 },
                 new Driver
                 {
-                    Name = "Sébastien Buemi",
+                    Name = "SÃ©bastien Buemi",
                     TeamId = Team.ToroRosso,
                     CarNumber = 16,
                     Championships = 0,
@@ -851,27 +787,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                 context.Drivers.Add(driver);
             }
 
-            var shell = new Sponsor
-            {
-                Name = "Shell"
-            };
-            var vodafone = new TitleSponsor
-            {
-                Name = "Vodafone",
-                Details = new SponsorDetails
-                {
-                    Days = 10,
-                    Space = 50m
-                }
-            };
-            var bridgestone = new Sponsor
-            {
-                Name = "Bridgestone"
-            };
-            var fia = new Sponsor
-            {
-                Name = "FIA"
-            };
+            var shell = new Sponsor { Name = "Shell" };
+            var vodafone = new TitleSponsor { Name = "Vodafone", Details = new SponsorDetails { Days = 10, Space = 50m } };
+            var bridgestone = new Sponsor { Name = "Bridgestone" };
+            var fia = new Sponsor { Name = "FIA" };
 
             foreach (var sponsor in new List<Sponsor>
             {

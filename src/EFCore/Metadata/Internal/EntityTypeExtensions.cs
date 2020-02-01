@@ -1,9 +1,8 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -55,19 +54,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IEnumerable<IEntityType> GetAllBaseTypes([NotNull] this IEntityType entityType)
-        {
-            var baseTypes = new List<IEntityType>();
-            var currentEntityType = entityType;
-            while (currentEntityType.BaseType != null)
-            {
-                currentEntityType = currentEntityType.BaseType;
-                baseTypes.Add(currentEntityType);
-            }
+            => entityType.GetAllBaseTypesAscending().Reverse();
 
-            baseTypes.Reverse();
-
-            return baseTypes;
-        }
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static IEnumerable<IEntityType> GetAllBaseTypesAscending([NotNull] this IEntityType entityType)
+            => entityType.GetAllBaseTypesInclusiveAscending().Skip(1);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -228,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var changeTrackingStrategy = entityType.GetChangeTrackingStrategy();
 
             return changeTrackingStrategy == ChangeTrackingStrategy.Snapshot
-                   || changeTrackingStrategy == ChangeTrackingStrategy.ChangedNotifications;
+                || changeTrackingStrategy == ChangeTrackingStrategy.ChangedNotifications;
         }
 
         /// <summary>
@@ -302,7 +298,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static PropertyCounts CalculateCounts([NotNull] this EntityType entityType)
         {
-            Debug.Assert(entityType.Model.ConventionDispatcher == null, "Should not be called on a mutable model");
+            Check.DebugAssert(entityType.Model.IsReadonly, "Should not be called on a mutable model");
 
             var index = 0;
             var navigationIndex = 0;
@@ -342,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     index: navigationIndex++,
                     originalValueIndex: -1,
                     shadowIndex: navigation.IsShadowProperty() ? shadowIndex++ : -1,
-                    relationshipIndex: navigation.IsCollection() && isNotifying ? -1 : relationshipIndex++,
+                    relationshipIndex: ((INavigation)navigation).IsCollection && isNotifying ? -1 : relationshipIndex++,
                     storeGenerationIndex: -1);
 
                 navigation.PropertyIndexes = indexes;
@@ -384,8 +380,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IEnumerable<IEntityType> GetConcreteTypesInHierarchy([NotNull] this IEntityType entityType)
-            => entityType.GetDerivedTypesInclusive().Where(et => !et.IsAbstract());
+        public static IEnumerable<IEntityType> GetTypesInHierarchy([NotNull] this IEntityType entityType)
+            => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -395,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static bool IsSameHierarchy([NotNull] this IEntityType firstEntityType, [NotNull] IEntityType secondEntityType)
             => firstEntityType.IsAssignableFrom(secondEntityType)
-               || secondEntityType.IsAssignableFrom(firstEntityType);
+                || secondEntityType.IsAssignableFrom(firstEntityType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -471,7 +467,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 // ReSharper disable once AssignNullToNotNullAttribute
                 var property = (IPropertyBase)entityType.FindProperty(propertyName)
-                               ?? entityType.FindNavigation(propertyName);
+                    ?? entityType.FindNavigation(propertyName);
                 if (property != null)
                 {
                     yield return property;
@@ -485,7 +481,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string ToDebugString([NotNull] this IEntityType entityType, bool singleLine = true, [NotNull] string indent = "")
+        public static string ToDebugString(
+            [NotNull] this IEntityType entityType,
+            MetadataDebugStringOptions options,
+            [NotNull] string indent = "")
         {
             var builder = new StringBuilder();
 
@@ -514,7 +513,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append(" ChangeTrackingStrategy.").Append(entityType.GetChangeTrackingStrategy());
             }
 
-            if (!singleLine)
+            if ((options & MetadataDebugStringOptions.SingleLine) == 0)
             {
                 var properties = entityType.GetDeclaredProperties().ToList();
                 if (properties.Count != 0)
@@ -522,7 +521,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     builder.AppendLine().Append(indent).Append("  Properties: ");
                     foreach (var property in properties)
                     {
-                        builder.AppendLine().Append(property.ToDebugString(false, indent: indent + "    "));
+                        builder.AppendLine().Append(property.ToDebugString(options, indent + "    "));
                     }
                 }
 
@@ -532,7 +531,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     builder.AppendLine().Append(indent).Append("  Navigations: ");
                     foreach (var navigation in navigations)
                     {
-                        builder.AppendLine().Append(navigation.ToDebugString(false, indent + "    "));
+                        builder.AppendLine().Append(navigation.ToDebugString(options, indent + "    "));
                     }
                 }
 
@@ -542,7 +541,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     builder.AppendLine().Append(indent).Append("  Service properties: ");
                     foreach (var serviceProperty in serviceProperties)
                     {
-                        builder.AppendLine().Append(serviceProperty.ToDebugString(false, indent + "    "));
+                        builder.AppendLine().Append(serviceProperty.ToDebugString(options, indent + "    "));
                     }
                 }
 
@@ -552,7 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     builder.AppendLine().Append(indent).Append("  Keys: ");
                     foreach (var key in keys)
                     {
-                        builder.AppendLine().Append(key.ToDebugString(false, indent + "    "));
+                        builder.AppendLine().Append(key.ToDebugString(options, indent + "    "));
                     }
                 }
 
@@ -562,11 +561,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     builder.AppendLine().Append(indent).Append("  Foreign keys: ");
                     foreach (var fk in fks)
                     {
-                        builder.AppendLine().Append(fk.ToDebugString(false, indent + "    "));
+                        builder.AppendLine().Append(fk.ToDebugString(options, indent + "    "));
                     }
                 }
 
-                builder.Append(entityType.AnnotationsToDebugString(indent + "  "));
+                var indexes = entityType.GetDeclaredIndexes().ToList();
+                if (indexes.Count != 0)
+                {
+                    builder.AppendLine().Append(indent).Append("  Indexes: ");
+                    foreach (var index in indexes)
+                    {
+                        builder.AppendLine().Append(index.ToDebugString(options, indent + "    "));
+                    }
+                }
+
+                if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+                {
+                    builder.Append(entityType.AnnotationsToDebugString(indent: indent + "  "));
+                }
             }
 
             return builder.ToString();

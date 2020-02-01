@@ -2,11 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -16,9 +15,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             private readonly ISnapshot _values;
 
-            public SidecarValues(InternalEntityEntry entry)
+            public SidecarValues(ISnapshot valuesFactory)
             {
-                _values = ((EntityType)entry.EntityType).SidecarValuesFactory(entry);
+                _values = valuesFactory;
             }
 
             public bool TryGetValue(int index, out object value)
@@ -38,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public void SetValue(IProperty property, object value, int index)
             {
-                Debug.Assert(!IsEmpty);
+                Check.DebugAssert(!IsEmpty, "sidecar is empty");
 
                 if (value == null
                     && !property.ClrType.IsNullableType())
@@ -53,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             private static object SnapshotValue(IProperty property, object value)
             {
-                var comparer = property.GetValueComparer() ?? property.FindMapping()?.Comparer;
+                var comparer = property.GetValueComparer();
 
                 return comparer == null ? value : comparer.Snapshot(value);
             }

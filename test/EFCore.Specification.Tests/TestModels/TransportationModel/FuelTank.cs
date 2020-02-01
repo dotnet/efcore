@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+
 namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
 {
     public class FuelTank
@@ -14,13 +16,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
 
         public override bool Equals(object obj)
             => obj is FuelTank other
-               && VehicleName == other.VehicleName
-               && FuelType == other.FuelType
-               && Capacity == other.Capacity;
+                && VehicleName == other.VehicleName
+                && FuelType == other.FuelType
+                && Capacity == other.Capacity;
 
         public override int GetHashCode()
-            => (VehicleName.GetHashCode() * 397
-                ^ FuelType.GetHashCode()) * 397
-               ^ Capacity.GetHashCode();
+            => HashCode.Combine(VehicleName, FuelType, Capacity);
     }
 }

@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     A convention that configures the property as a concurrency token if a <see cref="TimestampAttribute"/> is applied to it.
+    ///     A convention that configures the property as a concurrency token if a <see cref="TimestampAttribute" /> is applied to it.
     /// </summary>
     public class TimestampAttributeConvention : PropertyAttributeConventionBase<TimestampAttribute>
     {

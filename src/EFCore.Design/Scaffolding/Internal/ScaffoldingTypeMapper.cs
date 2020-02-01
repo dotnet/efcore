@@ -6,6 +6,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     /// <summary>
@@ -37,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual TypeScaffoldingInfo FindMapping(
+        public virtual TypeScaffoldingInfo? FindMapping(
             string storeType,
             bool keyOrIndex,
             bool rowVersion)
@@ -80,7 +82,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         size: mapping.Size,
                         fixedLength: false);
 
-                    scaffoldFixedLength = fixedLengthMapping.IsFixedLength != byteArrayMapping.IsFixedLength ? (bool?)byteArrayMapping.IsFixedLength : null;
+                    scaffoldFixedLength = fixedLengthMapping.IsFixedLength != byteArrayMapping.IsFixedLength
+                        ? (bool?)byteArrayMapping.IsFixedLength
+                        : null;
 
                     // Check for size
                     var sizedMapping = _typeMappingSource.FindMapping(
@@ -128,15 +132,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         size: mapping.Size,
                         fixedLength: false);
 
-                    scaffoldFixedLength = fixedLengthMapping.IsFixedLength != stringMapping.IsFixedLength ? (bool?)stringMapping.IsFixedLength : null;
+                    scaffoldFixedLength = fixedLengthMapping.IsFixedLength != stringMapping.IsFixedLength
+                        ? (bool?)stringMapping.IsFixedLength
+                        : null;
 
-                    // Check for size
                     var sizedMapping = _typeMappingSource.FindMapping(
                         typeof(string),
                         null,
                         keyOrIndex,
                         unicode: mapping.IsUnicode,
-                        fixedLength: mapping.IsFixedLength);
+                        fixedLength: false); // Fixed length with no size is not valid
 
                     scaffoldMaxLength = sizedMapping.Size != stringMapping.Size ? stringMapping.Size : null;
                 }

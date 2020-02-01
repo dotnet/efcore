@@ -8,13 +8,13 @@ using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Query.Pipeline;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
-    ///     Base class for relation type mappings to NTS IGeometry and implementing types.
+    ///     Base class for relation type mappings to NTS Geometry and derived types.
     /// </summary>
     /// <typeparam name="TGeometry"> The geometry type. </typeparam>
     /// <typeparam name="TProvider"> The native type of the database provider. </typeparam>
@@ -40,14 +40,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="converter"> The converter to use when converting to and from database types. </param>
         protected RelationalGeometryTypeMapping(
             RelationalTypeMappingParameters parameters,
-            ValueConverter<TGeometry, TProvider> converter)
+            [CanBeNull] ValueConverter<TGeometry, TProvider> converter)
             : base(parameters)
         {
             SpatialConverter = converter;
         }
 
         /// <summary>
-        ///     The underlying IGeometry converter.
+        ///     The underlying Geometry converter.
         /// </summary>
         protected virtual ValueConverter<TGeometry, TProvider> SpatialConverter { get; }
 
@@ -151,14 +151,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Returns the Well-Known-Text (WKT) representation of the given object.
         /// </summary>
-        /// <param name="value"> The 'IGeometry' value. </param>
+        /// <param name="value"> The 'Geometry' value. </param>
         /// <returns> The WKT. </returns>
         protected abstract string AsText([NotNull] object value);
 
         /// <summary>
         ///     Returns the SRID representation of the given object.
         /// </summary>
-        /// <param name="value"> The 'IGeometry' value. </param>
+        /// <param name="value"> The 'Geometry' value. </param>
         /// <returns> The SRID. </returns>
         protected abstract int GetSrid([NotNull] object value);
     }

@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.IO;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -17,9 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public class RelationalSqlGenerationHelper : ISqlGenerationHelper
@@ -44,6 +46,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual string BatchTerminator => string.Empty;
 
         /// <summary>
+        ///     The default single-line comment prefix.
+        /// </summary>
+        public virtual string SingleLineCommentToken => "--";
+
+        /// <summary>
         ///     Generates a valid parameter name for the given candidate name.
         /// </summary>
         /// <param name="name">The candidate name for the parameter.</param>
@@ -51,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     A valid name based on the candidate name.
         /// </returns>
         public virtual string GenerateParameterName(string name)
-            => name.StartsWith("@")
+            => name.StartsWith("@", StringComparison.Ordinal)
                 ? name
                 : "@" + name;
 
@@ -139,9 +146,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         public virtual string DelimitIdentifier(string name, string schema)
             => (!string.IsNullOrEmpty(schema)
-                   ? DelimitIdentifier(schema) + "."
-                   : string.Empty)
-               + DelimitIdentifier(Check.NotEmpty(name, nameof(name)));
+                    ? DelimitIdentifier(schema) + "."
+                    : string.Empty)
+                + DelimitIdentifier(Check.NotEmpty(name, nameof(name)));
 
         /// <summary>
         ///     Writes the delimited SQL representation of an identifier (column name, table name, etc.).
@@ -158,6 +165,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
 
             DelimitIdentifier(builder, name);
+        }
+
+        /// <summary>
+        ///     Generates a SQL comment.
+        /// </summary>
+        /// <param name="text"> The comment text. </param>
+        /// <returns> The generated SQL. </returns>
+        public virtual string GenerateComment(string text)
+        {
+            Check.NotEmpty(text, nameof(text));
+
+            var builder = new StringBuilder();
+            using (var reader = new StringReader(text))
+            {
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    builder.Append(SingleLineCommentToken).Append(" ").AppendLine(line);
+                }
+            }
+
+            return builder.ToString();
         }
     }
 }

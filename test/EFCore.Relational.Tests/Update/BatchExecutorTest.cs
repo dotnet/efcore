@@ -22,27 +22,22 @@ namespace Microsoft.EntityFrameworkCore.Update
         [InlineData(false)]
         public async Task ExecuteAsync_calls_Commit_if_no_transaction(bool async)
         {
-            using (var context = new TestContext())
+            using var context = new TestContext();
+            var connection = SetupConnection(context);
+
+            context.Add(
+                new Foo { Id = "1" });
+
+            if (async)
             {
-                var connection = SetupConnection(context);
-
-                context.Add(
-                    new Foo
-                    {
-                        Id = "1"
-                    });
-
-                if (async)
-                {
-                    await context.SaveChangesAsync();
-                }
-                else
-                {
-                    context.SaveChanges();
-                }
-
-                Assert.Equal(1, connection.DbTransactions.Single().CommitCount);
+                await context.SaveChangesAsync();
             }
+            else
+            {
+                context.SaveChanges();
+            }
+
+            Assert.Equal(1, connection.DbTransactions.Single().CommitCount);
         }
 
         [ConditionalTheory]
@@ -50,39 +45,31 @@ namespace Microsoft.EntityFrameworkCore.Update
         [InlineData(false)]
         public async Task ExecuteAsync_does_not_call_Commit_if_existing_transaction(bool async)
         {
-            using (var context = new TestContext())
+            using var context = new TestContext();
+            var connection = SetupConnection(context);
+            var transaction = new FakeDbTransaction(connection);
+            context.Database.UseTransaction(transaction);
+
+            context.Add(
+                new Foo { Id = "1" });
+
+            if (async)
             {
-                var connection = SetupConnection(context);
-                var transaction = new FakeDbTransaction(connection);
-                context.Database.UseTransaction(transaction);
-
-                context.Add(
-                    new Foo
-                    {
-                        Id = "1"
-                    });
-
-                if (async)
-                {
-                    await context.SaveChangesAsync();
-                }
-                else
-                {
-                    context.SaveChanges();
-                }
-
-                Assert.Empty(connection.DbTransactions);
-                Assert.Equal(0, transaction.CommitCount);
+                await context.SaveChangesAsync();
             }
+            else
+            {
+                context.SaveChanges();
+            }
+
+            Assert.Empty(connection.DbTransactions);
+            Assert.Equal(0, transaction.CommitCount);
         }
 
         private static FakeDbConnection SetupConnection(TestContext context)
         {
             var dataReader = new FakeDbDataReader(
-                new[] { "RowsAffected" }, new List<object[]>
-                {
-                    new object[] { 1 }
-                });
+                new[] { "RowsAffected" }, new List<object[]> { new object[] { 1 } });
 
             var connection = new FakeDbConnection(
                 "A=B", new FakeCommandExecutor(

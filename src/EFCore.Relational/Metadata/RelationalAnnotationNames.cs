@@ -50,6 +50,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string Schema = Prefix + "Schema";
 
         /// <summary>
+        ///     The name for comment annotations.
+        /// </summary>
+        public const string Comment = Prefix + "Comment";
+
+        /// <summary>
         ///     The name for default schema annotations.
         /// </summary>
         public const string DefaultSchema = Prefix + "DefaultSchema";
@@ -88,5 +93,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     A flag indicating whether the property is constrained to fixed length values.
         /// </summary>
         public const string IsFixedLength = Prefix + "IsFixedLength";
+
+        /// <summary>
+        ///     The definition of a database view.
+        /// </summary>
+        public const string ViewDefinition = Prefix + "ViewDefinition";
     }
 }

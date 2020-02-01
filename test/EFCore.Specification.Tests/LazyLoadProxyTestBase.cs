@@ -25,6 +25,216 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TFixture Fixture { get; }
 
+        [ConditionalTheory] // Issue #13138
+        [InlineData(EntityState.Unchanged)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Deleted)]
+        public virtual void Lazy_load_one_to_one_reference_with_recursive_property(EntityState state)
+        {
+            using (var context = CreateContext(lazyLoadingEnabled: true))
+            {
+                var child = context.Set<WithRecursiveProperty>().Single();
+
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = state;
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                Assert.NotNull(child.Parent);
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+
+                var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+                Assert.Equal(parent.Id, child.IdLoadedFromParent);
+
+                Assert.Same(parent, child.Parent);
+                Assert.Same(child, parent.WithRecursiveProperty);
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Added, false)]
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Added, true)]
+        public virtual void Attached_references_to_principal_are_marked_as_loaded(EntityState state, bool lazy)
+        {
+            using var context = CreateContext(lazy);
+            var parent = context.CreateProxy<Parent>();
+            parent.Id = 707;
+            parent.AlternateId = "Root";
+
+            var singlePkToPk = context.CreateProxy<SinglePkToPk>();
+            singlePkToPk.Id = 707;
+            parent.SinglePkToPk = singlePkToPk;
+
+            var single = context.CreateProxy<Single>();
+            single.Id = 21;
+            parent.Single = single;
+
+            var singleAk = context.CreateProxy<SingleAk>();
+            singleAk.Id = 42;
+            parent.SingleAk = singleAk;
+
+            var singleShadowFk = context.CreateProxy<SingleShadowFk>();
+            singleShadowFk.Id = 62;
+            parent.SingleShadowFk = singleShadowFk;
+
+            var singleCompositeKey = context.CreateProxy<SingleCompositeKey>();
+            singleCompositeKey.Id = 62;
+            parent.SingleCompositeKey = singleCompositeKey;
+
+            context.Attach(parent);
+
+            if (state != EntityState.Unchanged)
+            {
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                context.Entry(parent.SinglePkToPk).State = state;
+                context.Entry(parent.Single).State = state;
+                context.Entry(parent.SingleAk).State = state;
+                context.Entry(parent.SingleShadowFk).State = state;
+                context.Entry(parent.SingleCompositeKey).State = state;
+                context.Entry(parent).State = state;
+
+                context.ChangeTracker.LazyLoadingEnabled = true;
+            }
+
+            Assert.True(context.Entry(parent).Reference(e => e.SinglePkToPk).IsLoaded);
+            Assert.True(context.Entry(parent).Reference(e => e.Single).IsLoaded);
+            Assert.True(context.Entry(parent).Reference(e => e.SingleAk).IsLoaded);
+            Assert.True(context.Entry(parent).Reference(e => e.SingleShadowFk).IsLoaded);
+            Assert.True(context.Entry(parent).Reference(e => e.SingleCompositeKey).IsLoaded);
+        }
+
+        [ConditionalTheory]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Added, false)]
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Added, true)]
+        public virtual void Attached_references_to_dependents_are_marked_as_loaded(EntityState state, bool lazy)
+        {
+            using var context = CreateContext(lazy);
+            var parent = context.CreateProxy<Parent>();
+            parent.Id = 707;
+            parent.AlternateId = "Root";
+
+            var singlePkToPk = context.CreateProxy<SinglePkToPk>();
+            singlePkToPk.Id = 707;
+            parent.SinglePkToPk = singlePkToPk;
+
+            var single = context.CreateProxy<Single>();
+            single.Id = 21;
+            parent.Single = single;
+
+            var singleAk = context.CreateProxy<SingleAk>();
+            singleAk.Id = 42;
+            parent.SingleAk = singleAk;
+
+            var singleShadowFk = context.CreateProxy<SingleShadowFk>();
+            singleShadowFk.Id = 62;
+            parent.SingleShadowFk = singleShadowFk;
+
+            var singleCompositeKey = context.CreateProxy<SingleCompositeKey>();
+            singleCompositeKey.Id = 62;
+            parent.SingleCompositeKey = singleCompositeKey;
+
+            context.Attach(parent);
+
+            if (state != EntityState.Unchanged)
+            {
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                context.Entry(parent.SinglePkToPk).State = state;
+                context.Entry(parent.Single).State = state;
+                context.Entry(parent.SingleAk).State = state;
+                context.Entry(parent.SingleShadowFk).State = state;
+                context.Entry(parent.SingleCompositeKey).State = state;
+                context.Entry(parent).State = state;
+
+                context.ChangeTracker.LazyLoadingEnabled = true;
+            }
+
+            Assert.True(context.Entry(parent.SinglePkToPk).Reference(e => e.Parent).IsLoaded);
+            Assert.True(context.Entry(parent.Single).Reference(e => e.Parent).IsLoaded);
+            Assert.True(context.Entry(parent.SingleAk).Reference(e => e.Parent).IsLoaded);
+            Assert.True(context.Entry(parent.SingleShadowFk).Reference(e => e.Parent).IsLoaded);
+            Assert.True(context.Entry(parent.SingleCompositeKey).Reference(e => e.Parent).IsLoaded);
+        }
+
+        [ConditionalTheory]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Added, false)]
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Added, true)]
+        public virtual void Attached_collections_are_not_marked_as_loaded(EntityState state, bool lazy)
+        {
+            using var context = CreateContext(lazy);
+            var parent = context.CreateProxy<Parent>();
+            parent.Id = 707;
+            parent.AlternateId = "Root";
+
+            var child1 = context.CreateProxy<Child>();
+            child1.Id = 11;
+            var child2 = context.CreateProxy<Child>();
+            child2.Id = 12;
+            parent.Children = new List<Child> { child1, child2 };
+
+            var childAk1 = context.CreateProxy<ChildAk>();
+            childAk1.Id = 31;
+            var childAk2 = context.CreateProxy<ChildAk>();
+            childAk2.Id = 32;
+            parent.ChildrenAk = new List<ChildAk> { childAk1, childAk2 };
+
+            var childShadowFk1 = context.CreateProxy<ChildShadowFk>();
+            childShadowFk1.Id = 51;
+            var childShadowFk2 = context.CreateProxy<ChildShadowFk>();
+            childShadowFk2.Id = 52;
+            parent.ChildrenShadowFk = new List<ChildShadowFk> { childShadowFk1, childShadowFk2 };
+
+            var childCompositeKey1 = context.CreateProxy<ChildCompositeKey>();
+            childCompositeKey1.Id = 51;
+            var childCompositeKey2 = context.CreateProxy<ChildCompositeKey>();
+            childCompositeKey2.Id = 52;
+            parent.ChildrenCompositeKey = new List<ChildCompositeKey> { childCompositeKey1, childCompositeKey2 };
+
+            context.Attach(parent);
+
+            if (state != EntityState.Unchanged)
+            {
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                foreach (var child in parent.Children.Cast<object>()
+                    .Concat(parent.ChildrenAk)
+                    .Concat(parent.ChildrenShadowFk)
+                    .Concat(parent.ChildrenCompositeKey))
+                {
+                    context.Entry(child).State = state;
+                }
+
+                context.Entry(parent).State = state;
+
+                context.ChangeTracker.LazyLoadingEnabled = true;
+            }
+
+            Assert.False(context.Entry(parent).Collection(e => e.Children).IsLoaded);
+            Assert.False(context.Entry(parent).Collection(e => e.ChildrenAk).IsLoaded);
+            Assert.False(context.Entry(parent).Collection(e => e.ChildrenShadowFk).IsLoaded);
+            Assert.False(context.Entry(parent).Collection(e => e.ChildrenCompositeKey).IsLoaded);
+        }
+
         [ConditionalTheory]
         [InlineData(EntityState.Unchanged, false, false)]
         [InlineData(EntityState.Modified, false, false)]
@@ -60,7 +270,8 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                            CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>()).GenerateMessage("Children", "ParentProxy"),
+                            CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
+                                .GenerateMessage("Children", "ParentProxy"),
                             "CoreEventId.LazyLoadOnDisposedContextWarning"),
                         Assert.Throws<InvalidOperationException>(
                             () => parent.Children).Message);
@@ -71,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
-                parent = parent ?? context.Set<Parent>().Single();
+                parent ??= context.Set<Parent>().Single();
 
                 ClearLog();
 
@@ -134,7 +345,8 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                            CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>()).GenerateMessage("Parent", "ChildProxy"),
+                            CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
+                                .GenerateMessage("Parent", "ChildProxy"),
                             "CoreEventId.LazyLoadOnDisposedContextWarning"),
                         Assert.Throws<InvalidOperationException>(
                             () => child.Parent).Message);
@@ -145,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
-                child = child ?? context.Set<Child>().Single(e => e.Id == 12);
+                child ??= context.Set<Child>().Single(e => e.Id == 12);
 
                 ClearLog();
 
@@ -210,7 +422,8 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                            CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>()).GenerateMessage("Parent", "SingleProxy"),
+                            CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
+                                .GenerateMessage("Parent", "SingleProxy"),
                             "CoreEventId.LazyLoadOnDisposedContextWarning"),
                         Assert.Throws<InvalidOperationException>(
                             () => single.Parent).Message);
@@ -221,7 +434,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
-                single = single ?? context.Set<Single>().Single();
+                single ??= context.Set<Single>().Single();
 
                 ClearLog();
 
@@ -286,7 +499,8 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                            CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>()).GenerateMessage("Single", "ParentProxy"),
+                            CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
+                                .GenerateMessage("Single", "ParentProxy"),
                             "CoreEventId.LazyLoadOnDisposedContextWarning"),
                         Assert.Throws<InvalidOperationException>(
                             () => parent.Single).Message);
@@ -297,7 +511,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
-                parent = parent ?? context.Set<Parent>().Single();
+                parent ??= context.Set<Parent>().Single();
 
                 ClearLog();
 
@@ -333,38 +547,36 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_one_to_one_PK_to_PK_reference_to_principal(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
-                var single = context.Set<SinglePkToPk>().Single();
+            var single = context.Set<SinglePkToPk>().Single();
 
-                ClearLog();
+            ClearLog();
 
-                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+            var referenceEntry = context.Entry(single).Reference(e => e.Parent);
 
-                context.Entry(single).State = state;
+            context.Entry(single).State = state;
 
-                Assert.False(referenceEntry.IsLoaded);
+            Assert.False(referenceEntry.IsLoaded);
 
-                changeDetector.DetectChangesCalled = false;
+            changeDetector.DetectChangesCalled = false;
 
-                Assert.NotNull(single.Parent);
+            Assert.NotNull(single.Parent);
 
-                Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+            Assert.Equal(2, context.ChangeTracker.Entries().Count());
 
-                var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-                Assert.Same(parent, single.Parent);
-                Assert.Same(single, parent.SinglePkToPk);
-            }
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.SinglePkToPk);
         }
 
         [ConditionalTheory]
@@ -373,38 +585,36 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_one_to_one_PK_to_PK_reference_to_dependent(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
-                var parent = context.Set<Parent>().Single();
+            var parent = context.Set<Parent>().Single();
 
-                ClearLog();
+            ClearLog();
 
-                var referenceEntry = context.Entry(parent).Reference(e => e.SinglePkToPk);
+            var referenceEntry = context.Entry(parent).Reference(e => e.SinglePkToPk);
 
-                context.Entry(parent).State = state;
+            context.Entry(parent).State = state;
 
-                Assert.False(referenceEntry.IsLoaded);
+            Assert.False(referenceEntry.IsLoaded);
 
-                changeDetector.DetectChangesCalled = false;
+            changeDetector.DetectChangesCalled = false;
 
-                Assert.NotNull(parent.SinglePkToPk);
+            Assert.NotNull(parent.SinglePkToPk);
 
-                Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+            Assert.Equal(2, context.ChangeTracker.Entries().Count());
 
-                var single = context.ChangeTracker.Entries<SinglePkToPk>().Single().Entity;
+            var single = context.ChangeTracker.Entries<SinglePkToPk>().Single().Entity;
 
-                Assert.Same(single, parent.SinglePkToPk);
-                Assert.Same(parent, single.Parent);
-            }
+            Assert.Same(single, parent.SinglePkToPk);
+            Assert.Same(parent, single.Parent);
         }
 
         [ConditionalTheory]
@@ -413,37 +623,35 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_many_to_one_reference_to_principal_null_FK(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
-                var child = context.CreateProxy<Child>();
-                child.Id = 767;
+            var child = context.CreateProxy<Child>();
+            child.Id = 767;
 
-                context.Attach(child);
+            context.Attach(child);
 
-                ClearLog();
+            ClearLog();
 
-                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+            var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
-                context.Entry(child).State = state;
+            context.Entry(child).State = state;
 
-                Assert.False(referenceEntry.IsLoaded);
+            Assert.False(referenceEntry.IsLoaded);
 
-                changeDetector.DetectChangesCalled = false;
+            changeDetector.DetectChangesCalled = false;
 
-                Assert.Null(child.Parent);
+            Assert.Null(child.Parent);
 
-                Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
-                Assert.Null(child.Parent);
-            }
+            Assert.Single(context.ChangeTracker.Entries());
+            Assert.Null(child.Parent);
         }
 
         [ConditionalTheory]
@@ -452,38 +660,36 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_one_to_one_reference_to_principal_null_FK(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
-                var single = context.CreateProxy<Single>();
-                single.Id = 767;
+            var single = context.CreateProxy<Single>();
+            single.Id = 767;
 
-                context.Attach(single);
+            context.Attach(single);
 
-                ClearLog();
+            ClearLog();
 
-                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+            var referenceEntry = context.Entry(single).Reference(e => e.Parent);
 
-                context.Entry(single).State = state;
+            context.Entry(single).State = state;
 
-                Assert.False(referenceEntry.IsLoaded);
+            Assert.False(referenceEntry.IsLoaded);
 
-                changeDetector.DetectChangesCalled = false;
+            changeDetector.DetectChangesCalled = false;
 
-                Assert.Null(single.Parent);
+            Assert.Null(single.Parent);
 
-                Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+            Assert.Single(context.ChangeTracker.Entries());
 
-                Assert.Null(single.Parent);
-            }
+            Assert.Null(single.Parent);
         }
 
         [ConditionalTheory]
@@ -492,46 +698,44 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_many_to_one_reference_to_principal_changed_non_found_FK(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
-                var child = context.CreateProxy<Child>();
-                child.Id = 767;
-                child.ParentId = 797;
+            var child = context.CreateProxy<Child>();
+            child.Id = 767;
+            child.ParentId = 797;
 
-                context.Attach(child);
+            context.Attach(child);
 
-                ClearLog();
+            ClearLog();
 
-                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+            var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
-                context.Entry(child).State = state;
+            context.Entry(child).State = state;
 
-                referenceEntry.IsLoaded = true;
+            referenceEntry.IsLoaded = true;
 
-                changeDetector.DetectChangesCalled = false;
+            changeDetector.DetectChangesCalled = false;
 
-                child.ParentId = 707;
+            child.ParentId = 707;
 
-                context.ChangeTracker.DetectChanges();
+            context.ChangeTracker.DetectChanges();
 
-                Assert.NotNull(child.Parent);
+            Assert.NotNull(child.Parent);
 
-                Assert.True(changeDetector.DetectChangesCalled);
+            Assert.True(changeDetector.DetectChangesCalled);
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+            Assert.Equal(2, context.ChangeTracker.Entries().Count());
 
-                var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-                Assert.Same(child, parent.Children.Single());
-                Assert.Same(parent, child.Parent);
-            }
+            Assert.Same(child, parent.Children.Single());
+            Assert.Same(parent, child.Parent);
         }
 
         [ConditionalTheory]
@@ -540,57 +744,52 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_many_to_one_reference_to_principal_changed_found_FK(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
-                var parent = context.CreateProxy<Parent>();
-                parent.Id = 797;
-                parent.AlternateId = "X";
+            var parent = context.CreateProxy<Parent>();
+            parent.Id = 797;
+            parent.AlternateId = "X";
 
-                var child = context.CreateProxy<Child>();
-                child.Id = 767;
+            var child = context.CreateProxy<Child>();
+            child.Id = 767;
 
-                child.ParentId = 797;
-                child.Parent = parent;
-                parent.Children = new List<Child>
-                {
-                    child
-                };
+            child.ParentId = 797;
+            child.Parent = parent;
+            parent.Children = new List<Child> { child };
 
-                context.Attach(child);
-                context.Attach(parent);
+            context.Attach(child);
+            context.Attach(parent);
 
-                ClearLog();
+            ClearLog();
 
-                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+            var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
-                context.Entry(child).State = state;
+            context.Entry(child).State = state;
 
-                referenceEntry.IsLoaded = true;
+            referenceEntry.IsLoaded = true;
 
-                changeDetector.DetectChangesCalled = false;
+            changeDetector.DetectChangesCalled = false;
 
-                child.ParentId = 707;
+            child.ParentId = 707;
 
-                context.ChangeTracker.DetectChanges();
+            context.ChangeTracker.DetectChanges();
 
-                Assert.NotNull(child.Parent);
+            Assert.NotNull(child.Parent);
 
-                Assert.True(changeDetector.DetectChangesCalled);
+            Assert.True(changeDetector.DetectChangesCalled);
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(3, context.ChangeTracker.Entries().Count());
+            Assert.Equal(3, context.ChangeTracker.Entries().Count());
 
-                var newParent = context.ChangeTracker.Entries<Parent>().Single(e => e.Entity.Id != parent.Id).Entity;
+            var newParent = context.ChangeTracker.Entries<Parent>().Single(e => e.Entity.Id != parent.Id).Entity;
 
-                Assert.Same(child, newParent.Children.Single());
-                Assert.Same(newParent, child.Parent);
-            }
+            Assert.Same(child, newParent.Children.Single());
+            Assert.Same(newParent, child.Parent);
         }
 
         [ConditionalTheory]
@@ -599,38 +798,36 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_collection_not_found(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
-                var parent = context.CreateProxy<Parent>();
-                parent.Id = 767;
-                parent.AlternateId = "NewRoot";
+            var parent = context.CreateProxy<Parent>();
+            parent.Id = 767;
+            parent.AlternateId = "NewRoot";
 
-                context.Attach(parent);
+            context.Attach(parent);
 
-                ClearLog();
+            ClearLog();
 
-                var collectionEntry = context.Entry(parent).Collection(e => e.Children);
+            var collectionEntry = context.Entry(parent).Collection(e => e.Children);
 
-                context.Entry(parent).State = state;
+            context.Entry(parent).State = state;
 
-                Assert.False(collectionEntry.IsLoaded);
+            Assert.False(collectionEntry.IsLoaded);
 
-                changeDetector.DetectChangesCalled = false;
+            changeDetector.DetectChangesCalled = false;
 
-                Assert.Empty(parent.Children);
+            Assert.Empty(parent.Children);
 
-                Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-                Assert.True(collectionEntry.IsLoaded);
+            Assert.True(collectionEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(0, parent.Children.Count());
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
-            }
+            Assert.Empty(parent.Children);
+            Assert.Single(context.ChangeTracker.Entries());
         }
 
         [ConditionalTheory]
@@ -639,38 +836,36 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_many_to_one_reference_to_principal_not_found(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
-                var child = context.CreateProxy<Child>();
-                child.Id = 767;
-                child.ParentId = 787;
+            var child = context.CreateProxy<Child>();
+            child.Id = 767;
+            child.ParentId = 787;
 
-                context.Attach(child);
+            context.Attach(child);
 
-                ClearLog();
+            ClearLog();
 
-                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+            var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
-                context.Entry(child).State = state;
+            context.Entry(child).State = state;
 
-                Assert.False(referenceEntry.IsLoaded);
+            Assert.False(referenceEntry.IsLoaded);
 
-                changeDetector.DetectChangesCalled = false;
+            changeDetector.DetectChangesCalled = false;
 
-                Assert.Null(child.Parent);
+            Assert.Null(child.Parent);
 
-                Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
-                Assert.Null(child.Parent);
-            }
+            Assert.Single(context.ChangeTracker.Entries());
+            Assert.Null(child.Parent);
         }
 
         [ConditionalTheory]
@@ -679,39 +874,37 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_one_to_one_reference_to_principal_not_found(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
-                var single = context.CreateProxy<Single>();
-                single.Id = 767;
-                single.ParentId = 787;
+            var single = context.CreateProxy<Single>();
+            single.Id = 767;
+            single.ParentId = 787;
 
-                context.Attach(single);
+            context.Attach(single);
 
-                ClearLog();
+            ClearLog();
 
-                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+            var referenceEntry = context.Entry(single).Reference(e => e.Parent);
 
-                context.Entry(single).State = state;
+            context.Entry(single).State = state;
 
-                Assert.False(referenceEntry.IsLoaded);
+            Assert.False(referenceEntry.IsLoaded);
 
-                changeDetector.DetectChangesCalled = false;
+            changeDetector.DetectChangesCalled = false;
 
-                Assert.Null(single.Parent);
+            Assert.Null(single.Parent);
 
-                Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+            Assert.Single(context.ChangeTracker.Entries());
 
-                Assert.Null(single.Parent);
-            }
+            Assert.Null(single.Parent);
         }
 
         [ConditionalTheory]
@@ -720,91 +913,37 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_one_to_one_reference_to_dependent_not_found(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
-                var parent = context.CreateProxy<Parent>();
-                parent.Id = 767;
-                parent.AlternateId = "NewRoot";
+            var parent = context.CreateProxy<Parent>();
+            parent.Id = 767;
+            parent.AlternateId = "NewRoot";
 
-                context.Attach(parent);
+            context.Attach(parent);
 
-                ClearLog();
+            ClearLog();
 
-                var referenceEntry = context.Entry(parent).Reference(e => e.Single);
+            var referenceEntry = context.Entry(parent).Reference(e => e.Single);
 
-                context.Entry(parent).State = state;
+            context.Entry(parent).State = state;
 
-                Assert.False(referenceEntry.IsLoaded);
+            Assert.False(referenceEntry.IsLoaded);
 
-                changeDetector.DetectChangesCalled = false;
+            changeDetector.DetectChangesCalled = false;
 
-                Assert.Null(parent.Single);
+            Assert.Null(parent.Single);
 
-                Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+            Assert.Single(context.ChangeTracker.Entries());
 
-                Assert.Null(parent.Single);
-            }
-        }
-
-        [ConditionalTheory]
-        [InlineData(EntityState.Unchanged, CascadeTiming.Immediate)]
-        [InlineData(EntityState.Modified, CascadeTiming.Immediate)]
-        [InlineData(EntityState.Deleted, CascadeTiming.Immediate)]
-        [InlineData(EntityState.Unchanged, CascadeTiming.Immediate)]
-        [InlineData(EntityState.Modified, CascadeTiming.Immediate)]
-        [InlineData(EntityState.Deleted, CascadeTiming.Immediate)]
-        public virtual void Lazy_load_collection_already_loaded(EntityState state, CascadeTiming cascadeDeleteTiming)
-        {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-
-                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
-
-                var parent = context.Set<Parent>().Include(e => e.Children).Single();
-
-                ClearLog();
-
-                var collectionEntry = context.Entry(parent).Collection(e => e.Children);
-
-                context.Entry(parent).State = state;
-
-                Assert.True(collectionEntry.IsLoaded);
-
-                changeDetector.DetectChangesCalled = false;
-
-                Assert.NotNull(parent.Children);
-
-                Assert.False(changeDetector.DetectChangesCalled);
-
-                Assert.True(collectionEntry.IsLoaded);
-
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
-
-                Assert.Equal(2, parent.Children.Count());
-
-                if (state == EntityState.Deleted
-                    && cascadeDeleteTiming == CascadeTiming.Immediate)
-                {
-                    Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Null(c));
-                }
-                else
-                {
-                    Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
-                }
-
-                Assert.Equal(3, context.ChangeTracker.Entries().Count());
-            }
+            Assert.Null(parent.Single);
         }
 
         [ConditionalTheory]
@@ -817,42 +956,94 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Unchanged, CascadeTiming.Never)]
         [InlineData(EntityState.Modified, CascadeTiming.Never)]
         [InlineData(EntityState.Deleted, CascadeTiming.Never)]
-        public virtual void Lazy_load_many_to_one_reference_to_principal_already_loaded(EntityState state, CascadeTiming cascadeDeleteTiming)
+        public virtual void Lazy_load_collection_already_loaded(EntityState state, CascadeTiming cascadeDeleteTiming)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+
+            var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
+            var parent = context.Set<Parent>().Include(e => e.Children).Single();
+
+            ClearLog();
+
+            var collectionEntry = context.Entry(parent).Collection(e => e.Children);
+
+            context.Entry(parent).State = state;
+
+            Assert.True(collectionEntry.IsLoaded);
+
+            changeDetector.DetectChangesCalled = false;
+
+            Assert.NotNull(parent.Children);
+
+            Assert.False(changeDetector.DetectChangesCalled);
+
+            Assert.True(collectionEntry.IsLoaded);
+
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
+
+            Assert.Equal(2, parent.Children.Count());
+
+            if (state == EntityState.Deleted
+                && cascadeDeleteTiming == CascadeTiming.Immediate)
             {
-                context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-
-                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
-
-                var child = context.Set<Child>().Include(e => e.Parent).Single(e => e.Id == 12);
-
-                ClearLog();
-
-                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
-
-                context.Entry(child).State = state;
-
-                Assert.True(referenceEntry.IsLoaded);
-
-                changeDetector.DetectChangesCalled = false;
-
-                Assert.NotNull(child.Parent);
-
-                Assert.False(changeDetector.DetectChangesCalled);
-
-                Assert.True(referenceEntry.IsLoaded);
-
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
-
-                Assert.Equal(2, context.ChangeTracker.Entries().Count());
-
-                var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
-
-                Assert.Same(parent, child.Parent);
-                Assert.Same(child, parent.Children.Single());
+                Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Null(c));
             }
+            else
+            {
+                Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
+            }
+
+            Assert.Equal(3, context.ChangeTracker.Entries().Count());
+        }
+
+        [ConditionalTheory]
+        [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Unchanged, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Modified, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Deleted, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Unchanged, CascadeTiming.Never)]
+        [InlineData(EntityState.Modified, CascadeTiming.Never)]
+        [InlineData(EntityState.Deleted, CascadeTiming.Never)]
+        public virtual void Lazy_load_many_to_one_reference_to_principal_already_loaded(
+            EntityState state, CascadeTiming cascadeDeleteTiming)
+        {
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+
+            var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
+            var child = context.Set<Child>().Include(e => e.Parent).Single(e => e.Id == 12);
+
+            ClearLog();
+
+            var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+            context.Entry(child).State = state;
+
+            Assert.True(referenceEntry.IsLoaded);
+
+            changeDetector.DetectChangesCalled = false;
+
+            Assert.NotNull(child.Parent);
+
+            Assert.False(changeDetector.DetectChangesCalled);
+
+            Assert.True(referenceEntry.IsLoaded);
+
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
+
+            Assert.Equal(2, context.ChangeTracker.Entries().Count());
+
+            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+            Assert.Same(parent, child.Parent);
+            Assert.Same(child, parent.Children.Single());
         }
 
         [ConditionalTheory]
@@ -861,38 +1052,36 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_one_to_one_reference_to_principal_already_loaded(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
-                var single = context.Set<Single>().Include(e => e.Parent).Single();
+            var single = context.Set<Single>().Include(e => e.Parent).Single();
 
-                ClearLog();
+            ClearLog();
 
-                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+            var referenceEntry = context.Entry(single).Reference(e => e.Parent);
 
-                context.Entry(single).State = state;
+            context.Entry(single).State = state;
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                changeDetector.DetectChangesCalled = false;
+            changeDetector.DetectChangesCalled = false;
 
-                Assert.NotNull(single.Parent);
+            Assert.NotNull(single.Parent);
 
-                Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+            Assert.Equal(2, context.ChangeTracker.Entries().Count());
 
-                var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-                Assert.Same(parent, single.Parent);
-                Assert.Same(single, parent.Single);
-            }
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.Single);
         }
 
         [ConditionalTheory]
@@ -908,49 +1097,47 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Lazy_load_one_to_one_reference_to_dependent_already_loaded(
             EntityState state, CascadeTiming cascadeDeleteTiming)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+
+            var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
+            var parent = context.Set<Parent>().Include(e => e.Single).Single();
+
+            ClearLog();
+
+            var referenceEntry = context.Entry(parent).Reference(e => e.Single);
+
+            context.Entry(parent).State = state;
+
+            Assert.True(referenceEntry.IsLoaded);
+
+            changeDetector.DetectChangesCalled = false;
+
+            Assert.NotNull(parent.Single);
+
+            Assert.False(changeDetector.DetectChangesCalled);
+
+            Assert.True(referenceEntry.IsLoaded);
+
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
+
+            Assert.Equal(2, context.ChangeTracker.Entries().Count());
+
+            var single = context.ChangeTracker.Entries<Single>().Single().Entity;
+
+            Assert.Same(single, parent.Single);
+
+            if (cascadeDeleteTiming == CascadeTiming.Immediate
+                && state == EntityState.Deleted)
             {
-                context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-
-                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
-
-                var parent = context.Set<Parent>().Include(e => e.Single).Single();
-
-                ClearLog();
-
-                var referenceEntry = context.Entry(parent).Reference(e => e.Single);
-
-                context.Entry(parent).State = state;
-
-                Assert.True(referenceEntry.IsLoaded);
-
-                changeDetector.DetectChangesCalled = false;
-
-                Assert.NotNull(parent.Single);
-
-                Assert.False(changeDetector.DetectChangesCalled);
-
-                Assert.True(referenceEntry.IsLoaded);
-
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
-
-                Assert.Equal(2, context.ChangeTracker.Entries().Count());
-
-                var single = context.ChangeTracker.Entries<Single>().Single().Entity;
-
-                Assert.Same(single, parent.Single);
-
-                if (cascadeDeleteTiming == CascadeTiming.Immediate
-                    && state == EntityState.Deleted)
-                {
-                    // No fixup to Deleted entity.
-                    Assert.Null(single.Parent);
-                }
-                else
-                {
-                    Assert.Same(parent, single.Parent);
-                }
+                // No fixup to Deleted entity.
+                Assert.Null(single.Parent);
+            }
+            else
+            {
+                Assert.Same(parent, single.Parent);
             }
         }
 
@@ -960,38 +1147,36 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_one_to_one_PK_to_PK_reference_to_principal_already_loaded(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
-                var single = context.Set<SinglePkToPk>().Include(e => e.Parent).Single();
+            var single = context.Set<SinglePkToPk>().Include(e => e.Parent).Single();
 
-                ClearLog();
+            ClearLog();
 
-                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+            var referenceEntry = context.Entry(single).Reference(e => e.Parent);
 
-                context.Entry(single).State = state;
+            context.Entry(single).State = state;
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                changeDetector.DetectChangesCalled = false;
+            changeDetector.DetectChangesCalled = false;
 
-                Assert.NotNull(single.Parent);
+            Assert.NotNull(single.Parent);
 
-                Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+            Assert.Equal(2, context.ChangeTracker.Entries().Count());
 
-                var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-                Assert.Same(parent, single.Parent);
-                Assert.Same(single, parent.SinglePkToPk);
-            }
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.SinglePkToPk);
         }
 
         [ConditionalTheory]
@@ -1000,38 +1185,36 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_one_to_one_PK_to_PK_reference_to_dependent_already_loaded(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
-                var parent = context.Set<Parent>().Include(e => e.SinglePkToPk).Single();
+            var parent = context.Set<Parent>().Include(e => e.SinglePkToPk).Single();
 
-                ClearLog();
+            ClearLog();
 
-                var referenceEntry = context.Entry(parent).Reference(e => e.SinglePkToPk);
+            var referenceEntry = context.Entry(parent).Reference(e => e.SinglePkToPk);
 
-                context.Entry(parent).State = state;
+            context.Entry(parent).State = state;
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                changeDetector.DetectChangesCalled = false;
+            changeDetector.DetectChangesCalled = false;
 
-                Assert.NotNull(parent.SinglePkToPk);
+            Assert.NotNull(parent.SinglePkToPk);
 
-                Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+            Assert.Equal(2, context.ChangeTracker.Entries().Count());
 
-                var single = context.ChangeTracker.Entries<SinglePkToPk>().Single().Entity;
+            var single = context.ChangeTracker.Entries<SinglePkToPk>().Single().Entity;
 
-                Assert.Same(single, parent.SinglePkToPk);
-                Assert.Same(parent, single.Parent);
-            }
+            Assert.Same(single, parent.SinglePkToPk);
+            Assert.Same(parent, single.Parent);
         }
 
         [ConditionalTheory]
@@ -1040,32 +1223,30 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_many_to_one_reference_to_principal_alternate_key(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var child = context.Set<ChildAk>().Single(e => e.Id == 32);
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var child = context.Set<ChildAk>().Single(e => e.Id == 32);
 
-                ClearLog();
+            ClearLog();
 
-                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+            var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
-                context.Entry(child).State = state;
+            context.Entry(child).State = state;
 
-                Assert.False(referenceEntry.IsLoaded);
+            Assert.False(referenceEntry.IsLoaded);
 
-                Assert.NotNull(child.Parent);
+            Assert.NotNull(child.Parent);
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+            Assert.Equal(2, context.ChangeTracker.Entries().Count());
 
-                var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-                Assert.Same(parent, child.Parent);
-                Assert.Same(child, parent.ChildrenAk.Single());
-            }
+            Assert.Same(parent, child.Parent);
+            Assert.Same(child, parent.ChildrenAk.Single());
         }
 
         [ConditionalTheory]
@@ -1074,32 +1255,30 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_one_to_one_reference_to_principal_alternate_key(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var single = context.Set<SingleAk>().Single();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var single = context.Set<SingleAk>().Single();
 
-                ClearLog();
+            ClearLog();
 
-                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+            var referenceEntry = context.Entry(single).Reference(e => e.Parent);
 
-                context.Entry(single).State = state;
+            context.Entry(single).State = state;
 
-                Assert.False(referenceEntry.IsLoaded);
+            Assert.False(referenceEntry.IsLoaded);
 
-                Assert.NotNull(single.Parent);
+            Assert.NotNull(single.Parent);
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+            Assert.Equal(2, context.ChangeTracker.Entries().Count());
 
-                var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-                Assert.Same(parent, single.Parent);
-                Assert.Same(single, parent.SingleAk);
-            }
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.SingleAk);
         }
 
         [ConditionalTheory]
@@ -1108,32 +1287,30 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_one_to_one_reference_to_dependent_alternate_key(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var parent = context.Set<Parent>().Single();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var parent = context.Set<Parent>().Single();
 
-                ClearLog();
+            ClearLog();
 
-                var referenceEntry = context.Entry(parent).Reference(e => e.SingleAk);
+            var referenceEntry = context.Entry(parent).Reference(e => e.SingleAk);
 
-                context.Entry(parent).State = state;
+            context.Entry(parent).State = state;
 
-                Assert.False(referenceEntry.IsLoaded);
+            Assert.False(referenceEntry.IsLoaded);
 
-                Assert.NotNull(parent.SingleAk);
+            Assert.NotNull(parent.SingleAk);
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+            Assert.Equal(2, context.ChangeTracker.Entries().Count());
 
-                var single = context.ChangeTracker.Entries<SingleAk>().Single().Entity;
+            var single = context.ChangeTracker.Entries<SingleAk>().Single().Entity;
 
-                Assert.Same(single, parent.SingleAk);
-                Assert.Same(parent, single.Parent);
-            }
+            Assert.Same(single, parent.SingleAk);
+            Assert.Same(parent, single.Parent);
         }
 
         [ConditionalTheory]
@@ -1142,31 +1319,29 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_many_to_one_reference_to_principal_null_FK_alternate_key(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var child = context.CreateProxy<ChildAk>();
-                child.Id = 767;
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var child = context.CreateProxy<ChildAk>();
+            child.Id = 767;
 
-                context.Attach(child);
+            context.Attach(child);
 
-                ClearLog();
+            ClearLog();
 
-                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+            var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
-                context.Entry(child).State = state;
+            context.Entry(child).State = state;
 
-                Assert.False(referenceEntry.IsLoaded);
+            Assert.False(referenceEntry.IsLoaded);
 
-                Assert.Null(child.Parent);
+            Assert.Null(child.Parent);
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
-                Assert.Null(child.Parent);
-            }
+            Assert.Single(context.ChangeTracker.Entries());
+            Assert.Null(child.Parent);
         }
 
         [ConditionalTheory]
@@ -1175,32 +1350,30 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_one_to_one_reference_to_principal_null_FK_alternate_key(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var single = context.CreateProxy<SingleAk>();
-                single.Id = 767;
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var single = context.CreateProxy<SingleAk>();
+            single.Id = 767;
 
-                context.Attach(single);
+            context.Attach(single);
 
-                ClearLog();
+            ClearLog();
 
-                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+            var referenceEntry = context.Entry(single).Reference(e => e.Parent);
 
-                context.Entry(single).State = state;
+            context.Entry(single).State = state;
 
-                Assert.False(referenceEntry.IsLoaded);
+            Assert.False(referenceEntry.IsLoaded);
 
-                Assert.Null(single.Parent);
+            Assert.Null(single.Parent);
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+            Assert.Single(context.ChangeTracker.Entries());
 
-                Assert.Null(single.Parent);
-            }
+            Assert.Null(single.Parent);
         }
 
         [ConditionalTheory]
@@ -1209,30 +1382,28 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_collection_shadow_fk(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var parent = context.Set<Parent>().Single();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var parent = context.Set<Parent>().Single();
 
-                ClearLog();
+            ClearLog();
 
-                var collectionEntry = context.Entry(parent).Collection(e => e.ChildrenShadowFk);
+            var collectionEntry = context.Entry(parent).Collection(e => e.ChildrenShadowFk);
 
-                context.Entry(parent).State = state;
+            context.Entry(parent).State = state;
 
-                Assert.False(collectionEntry.IsLoaded);
+            Assert.False(collectionEntry.IsLoaded);
 
-                Assert.NotNull(parent.ChildrenShadowFk);
+            Assert.NotNull(parent.ChildrenShadowFk);
 
-                Assert.True(collectionEntry.IsLoaded);
+            Assert.True(collectionEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(2, parent.ChildrenShadowFk.Count());
-                Assert.All(parent.ChildrenShadowFk.Select(e => e.Parent), c => Assert.Same(parent, c));
+            Assert.Equal(2, parent.ChildrenShadowFk.Count());
+            Assert.All(parent.ChildrenShadowFk.Select(e => e.Parent), c => Assert.Same(parent, c));
 
-                Assert.Equal(3, context.ChangeTracker.Entries().Count());
-            }
+            Assert.Equal(3, context.ChangeTracker.Entries().Count());
         }
 
         [ConditionalTheory]
@@ -1241,32 +1412,30 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_many_to_one_reference_to_principal_shadow_fk(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var child = context.Set<ChildShadowFk>().Single(e => e.Id == 52);
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var child = context.Set<ChildShadowFk>().Single(e => e.Id == 52);
 
-                ClearLog();
+            ClearLog();
 
-                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+            var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
-                context.Entry(child).State = state;
+            context.Entry(child).State = state;
 
-                Assert.False(referenceEntry.IsLoaded);
+            Assert.False(referenceEntry.IsLoaded);
 
-                Assert.NotNull(child.Parent);
+            Assert.NotNull(child.Parent);
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+            Assert.Equal(2, context.ChangeTracker.Entries().Count());
 
-                var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-                Assert.Same(parent, child.Parent);
-                Assert.Same(child, parent.ChildrenShadowFk.Single());
-            }
+            Assert.Same(parent, child.Parent);
+            Assert.Same(child, parent.ChildrenShadowFk.Single());
         }
 
         [ConditionalTheory]
@@ -1275,32 +1444,30 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_one_to_one_reference_to_principal_shadow_fk(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var single = context.Set<SingleShadowFk>().Single();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var single = context.Set<SingleShadowFk>().Single();
 
-                ClearLog();
+            ClearLog();
 
-                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+            var referenceEntry = context.Entry(single).Reference(e => e.Parent);
 
-                context.Entry(single).State = state;
+            context.Entry(single).State = state;
 
-                Assert.False(referenceEntry.IsLoaded);
+            Assert.False(referenceEntry.IsLoaded);
 
-                Assert.NotNull(single.Parent);
+            Assert.NotNull(single.Parent);
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+            Assert.Equal(2, context.ChangeTracker.Entries().Count());
 
-                var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-                Assert.Same(parent, single.Parent);
-                Assert.Same(single, parent.SingleShadowFk);
-            }
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.SingleShadowFk);
         }
 
         [ConditionalTheory]
@@ -1309,32 +1476,30 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_one_to_one_reference_to_dependent_shadow_fk(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var parent = context.Set<Parent>().Single();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var parent = context.Set<Parent>().Single();
 
-                ClearLog();
+            ClearLog();
 
-                var referenceEntry = context.Entry(parent).Reference(e => e.SingleShadowFk);
+            var referenceEntry = context.Entry(parent).Reference(e => e.SingleShadowFk);
 
-                context.Entry(parent).State = state;
+            context.Entry(parent).State = state;
 
-                Assert.False(referenceEntry.IsLoaded);
+            Assert.False(referenceEntry.IsLoaded);
 
-                Assert.NotNull(parent.SingleShadowFk);
+            Assert.NotNull(parent.SingleShadowFk);
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+            Assert.Equal(2, context.ChangeTracker.Entries().Count());
 
-                var single = context.ChangeTracker.Entries<SingleShadowFk>().Single().Entity;
+            var single = context.ChangeTracker.Entries<SingleShadowFk>().Single().Entity;
 
-                Assert.Same(single, parent.SingleShadowFk);
-                Assert.Same(parent, single.Parent);
-            }
+            Assert.Same(single, parent.SingleShadowFk);
+            Assert.Same(parent, single.Parent);
         }
 
         [ConditionalTheory]
@@ -1343,31 +1508,29 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_many_to_one_reference_to_principal_null_FK_shadow_fk(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var child = context.CreateProxy<ChildShadowFk>();
-                child.Id = 767;
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var child = context.CreateProxy<ChildShadowFk>();
+            child.Id = 767;
 
-                context.Attach(child);
+            context.Attach(child);
 
-                ClearLog();
+            ClearLog();
 
-                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+            var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
-                context.Entry(child).State = state;
+            context.Entry(child).State = state;
 
-                Assert.False(referenceEntry.IsLoaded);
+            Assert.False(referenceEntry.IsLoaded);
 
-                Assert.Null(child.Parent);
+            Assert.Null(child.Parent);
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
-                Assert.Null(child.Parent);
-            }
+            Assert.Single(context.ChangeTracker.Entries());
+            Assert.Null(child.Parent);
         }
 
         [ConditionalTheory]
@@ -1376,32 +1539,30 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_one_to_one_reference_to_principal_null_FK_shadow_fk(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var single = context.CreateProxy<SingleShadowFk>();
-                single.Id = 767;
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var single = context.CreateProxy<SingleShadowFk>();
+            single.Id = 767;
 
-                context.Attach(single);
+            context.Attach(single);
 
-                ClearLog();
+            ClearLog();
 
-                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+            var referenceEntry = context.Entry(single).Reference(e => e.Parent);
 
-                context.Entry(single).State = state;
+            context.Entry(single).State = state;
 
-                Assert.False(referenceEntry.IsLoaded);
+            Assert.False(referenceEntry.IsLoaded);
 
-                Assert.Null(single.Parent);
+            Assert.Null(single.Parent);
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+            Assert.Single(context.ChangeTracker.Entries());
 
-                Assert.Null(single.Parent);
-            }
+            Assert.Null(single.Parent);
         }
 
         [ConditionalTheory]
@@ -1410,30 +1571,28 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_collection_composite_key(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var parent = context.Set<Parent>().Single();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var parent = context.Set<Parent>().Single();
 
-                ClearLog();
+            ClearLog();
 
-                var collectionEntry = context.Entry(parent).Collection(e => e.ChildrenCompositeKey);
+            var collectionEntry = context.Entry(parent).Collection(e => e.ChildrenCompositeKey);
 
-                context.Entry(parent).State = state;
+            context.Entry(parent).State = state;
 
-                Assert.False(collectionEntry.IsLoaded);
+            Assert.False(collectionEntry.IsLoaded);
 
-                Assert.NotNull(parent.ChildrenCompositeKey);
+            Assert.NotNull(parent.ChildrenCompositeKey);
 
-                Assert.True(collectionEntry.IsLoaded);
+            Assert.True(collectionEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(2, parent.ChildrenCompositeKey.Count());
-                Assert.All(parent.ChildrenCompositeKey.Select(e => e.Parent), c => Assert.Same(parent, c));
+            Assert.Equal(2, parent.ChildrenCompositeKey.Count());
+            Assert.All(parent.ChildrenCompositeKey.Select(e => e.Parent), c => Assert.Same(parent, c));
 
-                Assert.Equal(3, context.ChangeTracker.Entries().Count());
-            }
+            Assert.Equal(3, context.ChangeTracker.Entries().Count());
         }
 
         [ConditionalTheory]
@@ -1442,32 +1601,30 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_many_to_one_reference_to_principal_composite_key(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var child = context.Set<ChildCompositeKey>().Single(e => e.Id == 52);
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var child = context.Set<ChildCompositeKey>().Single(e => e.Id == 52);
 
-                ClearLog();
+            ClearLog();
 
-                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+            var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
-                context.Entry(child).State = state;
+            context.Entry(child).State = state;
 
-                Assert.False(referenceEntry.IsLoaded);
+            Assert.False(referenceEntry.IsLoaded);
 
-                Assert.NotNull(child.Parent);
+            Assert.NotNull(child.Parent);
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+            Assert.Equal(2, context.ChangeTracker.Entries().Count());
 
-                var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-                Assert.Same(parent, child.Parent);
-                Assert.Same(child, parent.ChildrenCompositeKey.Single());
-            }
+            Assert.Same(parent, child.Parent);
+            Assert.Same(child, parent.ChildrenCompositeKey.Single());
         }
 
         [ConditionalTheory]
@@ -1476,32 +1633,30 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_one_to_one_reference_to_principal_composite_key(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var single = context.Set<SingleCompositeKey>().Single();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var single = context.Set<SingleCompositeKey>().Single();
 
-                ClearLog();
+            ClearLog();
 
-                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+            var referenceEntry = context.Entry(single).Reference(e => e.Parent);
 
-                context.Entry(single).State = state;
+            context.Entry(single).State = state;
 
-                Assert.False(referenceEntry.IsLoaded);
+            Assert.False(referenceEntry.IsLoaded);
 
-                Assert.NotNull(single.Parent);
+            Assert.NotNull(single.Parent);
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+            Assert.Equal(2, context.ChangeTracker.Entries().Count());
 
-                var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-                Assert.Same(parent, single.Parent);
-                Assert.Same(single, parent.SingleCompositeKey);
-            }
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.SingleCompositeKey);
         }
 
         [ConditionalTheory]
@@ -1510,32 +1665,30 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_one_to_one_reference_to_dependent_composite_key(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var parent = context.Set<Parent>().Single();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var parent = context.Set<Parent>().Single();
 
-                ClearLog();
+            ClearLog();
 
-                var referenceEntry = context.Entry(parent).Reference(e => e.SingleCompositeKey);
+            var referenceEntry = context.Entry(parent).Reference(e => e.SingleCompositeKey);
 
-                context.Entry(parent).State = state;
+            context.Entry(parent).State = state;
 
-                Assert.False(referenceEntry.IsLoaded);
+            Assert.False(referenceEntry.IsLoaded);
 
-                Assert.NotNull(parent.SingleCompositeKey);
+            Assert.NotNull(parent.SingleCompositeKey);
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+            Assert.Equal(2, context.ChangeTracker.Entries().Count());
 
-                var single = context.ChangeTracker.Entries<SingleCompositeKey>().Single().Entity;
+            var single = context.ChangeTracker.Entries<SingleCompositeKey>().Single().Entity;
 
-                Assert.Same(single, parent.SingleCompositeKey);
-                Assert.Same(parent, single.Parent);
-            }
+            Assert.Same(single, parent.SingleCompositeKey);
+            Assert.Same(parent, single.Parent);
         }
 
         [ConditionalTheory]
@@ -1544,32 +1697,30 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_many_to_one_reference_to_principal_null_FK_composite_key(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var child = context.CreateProxy<ChildCompositeKey>();
-                child.Id = 767;
-                child.ParentId = 567;
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var child = context.CreateProxy<ChildCompositeKey>();
+            child.Id = 767;
+            child.ParentId = 567;
 
-                context.Attach(child);
+            context.Attach(child);
 
-                ClearLog();
+            ClearLog();
 
-                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+            var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
-                context.Entry(child).State = state;
+            context.Entry(child).State = state;
 
-                Assert.False(referenceEntry.IsLoaded);
+            Assert.False(referenceEntry.IsLoaded);
 
-                Assert.Null(child.Parent);
+            Assert.Null(child.Parent);
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
-                Assert.Null(child.Parent);
-            }
+            Assert.Single(context.ChangeTracker.Entries());
+            Assert.Null(child.Parent);
         }
 
         [ConditionalTheory]
@@ -1578,168 +1729,151 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_one_to_one_reference_to_principal_null_FK_composite_key(EntityState state)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var single = context.CreateProxy<SingleCompositeKey>();
-                single.Id = 767;
-                single.ParentAlternateId = "Boot";
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var single = context.CreateProxy<SingleCompositeKey>();
+            single.Id = 767;
+            single.ParentAlternateId = "Boot";
 
-                context.Attach(single);
+            context.Attach(single);
 
-                ClearLog();
+            ClearLog();
 
-                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+            var referenceEntry = context.Entry(single).Reference(e => e.Parent);
 
-                context.Entry(single).State = state;
+            context.Entry(single).State = state;
 
-                Assert.False(referenceEntry.IsLoaded);
+            Assert.False(referenceEntry.IsLoaded);
 
-                Assert.Null(single.Parent);
+            Assert.Null(single.Parent);
 
-                Assert.True(referenceEntry.IsLoaded);
+            Assert.True(referenceEntry.IsLoaded);
 
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+            Assert.Single(context.ChangeTracker.Entries());
 
-                Assert.Null(single.Parent);
-            }
+            Assert.Null(single.Parent);
         }
 
         [ConditionalFact]
         public virtual void Lazy_load_collection_for_detached_is_no_op()
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var parent = context.Set<Parent>().Single();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var parent = context.Set<Parent>().Single();
 
-                context.Entry(parent).State = EntityState.Detached;
+            context.Entry(parent).State = EntityState.Detached;
 
-                Assert.Null(parent.Children);
-            }
+            Assert.Null(parent.Children);
         }
 
         [ConditionalFact]
         public virtual void Lazy_load_reference_to_principal_for_detached_is_no_op()
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var child = context.Set<Child>().Single(e => e.Id == 12);
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var child = context.Set<Child>().Single(e => e.Id == 12);
 
-                context.Entry(child).State = EntityState.Detached;
+            context.Entry(child).State = EntityState.Detached;
 
-                Assert.Null(child.Parent);
-            }
+            Assert.Null(child.Parent);
         }
 
         [ConditionalFact]
         public virtual void Lazy_load_reference_to_dependent_for_detached_is_no_op()
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var parent = context.Set<Parent>().Single();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var parent = context.Set<Parent>().Single();
 
-                context.Entry(parent).State = EntityState.Detached;
+            context.Entry(parent).State = EntityState.Detached;
 
-                Assert.Null(parent.Single);
-            }
+            Assert.Null(parent.Single);
         }
 
         [ConditionalFact]
         public virtual void Lazy_load_collection_for_no_tracking_throws()
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var parent = context.Set<Parent>().AsNoTracking().Single();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var parent = context.Set<Parent>().AsNoTracking().Single();
 
-                Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        CoreEventId.DetachedLazyLoadingWarning.ToString(),
-                        CoreResources.LogDetachedLazyLoading(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(Parent.Children), "ParentProxy"),
-                        "CoreEventId.DetachedLazyLoadingWarning"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => parent.Children).Message);
-            }
+            Assert.Equal(
+                CoreStrings.WarningAsErrorTemplate(
+                    CoreEventId.DetachedLazyLoadingWarning.ToString(),
+                    CoreResources.LogDetachedLazyLoading(new TestLogger<TestLoggingDefinitions>())
+                        .GenerateMessage(nameof(Parent.Children), "ParentProxy"),
+                    "CoreEventId.DetachedLazyLoadingWarning"),
+                Assert.Throws<InvalidOperationException>(
+                    () => parent.Children).Message);
         }
 
         [ConditionalFact]
         public virtual void Lazy_load_reference_to_principal_for_no_tracking_throws()
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var child = context.Set<Child>().AsNoTracking().Single(e => e.Id == 12);
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var child = context.Set<Child>().AsNoTracking().Single(e => e.Id == 12);
 
-                Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        CoreEventId.DetachedLazyLoadingWarning.ToString(),
-                        CoreResources.LogDetachedLazyLoading(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(Child.Parent), "ChildProxy"),
-                        "CoreEventId.DetachedLazyLoadingWarning"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => child.Parent).Message);
-            }
+            Assert.Equal(
+                CoreStrings.WarningAsErrorTemplate(
+                    CoreEventId.DetachedLazyLoadingWarning.ToString(),
+                    CoreResources.LogDetachedLazyLoading(new TestLogger<TestLoggingDefinitions>())
+                        .GenerateMessage(nameof(Child.Parent), "ChildProxy"),
+                    "CoreEventId.DetachedLazyLoadingWarning"),
+                Assert.Throws<InvalidOperationException>(
+                    () => child.Parent).Message);
         }
 
         [ConditionalFact]
         public virtual void Lazy_load_reference_to_dependent_for_no_tracking_throws()
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var parent = context.Set<Parent>().AsNoTracking().Single();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var parent = context.Set<Parent>().AsNoTracking().Single();
 
-                Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        CoreEventId.DetachedLazyLoadingWarning.ToString(),
-                        CoreResources.LogDetachedLazyLoading(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(Parent.Single), "ParentProxy"),
-                        "CoreEventId.DetachedLazyLoadingWarning"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => parent.Single).Message);
-            }
+            Assert.Equal(
+                CoreStrings.WarningAsErrorTemplate(
+                    CoreEventId.DetachedLazyLoadingWarning.ToString(),
+                    CoreResources.LogDetachedLazyLoading(new TestLogger<TestLoggingDefinitions>())
+                        .GenerateMessage(nameof(Parent.Single), "ParentProxy"),
+                    "CoreEventId.DetachedLazyLoadingWarning"),
+                Assert.Throws<InvalidOperationException>(
+                    () => parent.Single).Message);
         }
 
         [ConditionalFact]
         public virtual void Lazy_load_collection_for_no_tracking_does_not_throw_if_populated()
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var parent = context.Set<Parent>().Include(e => e.Children).AsNoTracking().Single();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var parent = context.Set<Parent>().Include(e => e.Children).AsNoTracking().Single();
 
-                Assert.Same(parent, parent.Children.First().Parent);
+            Assert.Same(parent, parent.Children.First().Parent);
 
-                ((ICollection<Child>)parent.Children).Clear();
+            ((ICollection<Child>)parent.Children).Clear();
 
-                Assert.Empty(parent.Children);
-            }
+            Assert.Empty(parent.Children);
         }
 
         [ConditionalFact]
         public virtual void Lazy_load_reference_to_principal_for_no_tracking_does_not_throw_if_populated()
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var child = context.Set<Child>().Include(e => e.Parent).AsNoTracking().Single(e => e.Id == 12);
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var child = context.Set<Child>().Include(e => e.Parent).AsNoTracking().Single(e => e.Id == 12);
 
-                Assert.NotNull(child.Parent);
+            Assert.NotNull(child.Parent);
 
-                child.Parent = null;
+            child.Parent = null;
 
-                Assert.Null(child.Parent);
-            }
+            Assert.Null(child.Parent);
         }
 
         [ConditionalFact]
         public virtual void Lazy_load_reference_to_dependent_for_no_does_not_throw_if_populated()
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var parent = context.Set<Parent>().Include(e => e.Single).AsNoTracking().Single();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var parent = context.Set<Parent>().Include(e => e.Single).AsNoTracking().Single();
 
-                Assert.Same(parent, parent.Single.Parent);
+            Assert.Same(parent, parent.Single.Parent);
 
-                parent.Single = null;
+            parent.Single = null;
 
-                Assert.Null(parent.Single);
-            }
+            Assert.Null(parent.Single);
         }
 
         [ConditionalTheory]
@@ -1751,48 +1885,44 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Deleted, false)]
         public virtual async Task Load_collection(EntityState state, bool async)
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            var parent = context.Set<Parent>().Single();
+
+            ClearLog();
+
+            var collectionEntry = context.Entry(parent).Collection(e => e.Children);
+
+            context.Entry(parent).State = state;
+
+            Assert.False(collectionEntry.IsLoaded);
+
+            if (async)
             {
-                var parent = context.Set<Parent>().Single();
-
-                ClearLog();
-
-                var collectionEntry = context.Entry(parent).Collection(e => e.Children);
-
-                context.Entry(parent).State = state;
-
-                Assert.False(collectionEntry.IsLoaded);
-
-                if (async)
-                {
-                    await collectionEntry.LoadAsync();
-                }
-                else
-                {
-                    collectionEntry.Load();
-                }
-
-                Assert.True(collectionEntry.IsLoaded);
-
-                RecordLog();
-                context.ChangeTracker.LazyLoadingEnabled = false;
-
-                Assert.Equal(2, parent.Children.Count());
-                Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
-
-                Assert.Equal(3, context.ChangeTracker.Entries().Count());
+                await collectionEntry.LoadAsync();
             }
+            else
+            {
+                collectionEntry.Load();
+            }
+
+            Assert.True(collectionEntry.IsLoaded);
+
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
+
+            Assert.Equal(2, parent.Children.Count());
+            Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
+
+            Assert.Equal(3, context.ChangeTracker.Entries().Count());
         }
 
-        [ConditionalFact(Skip = "issue #15285")]
+        [ConditionalFact]
         public virtual void Lazy_loading_finds_correct_entity_type_with_already_loaded_owned_types()
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var blogs = context.Set<Blog>().OrderBy(e => e.Host.HostName).ToList();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var blogs = context.Set<Blog>().OrderBy(e => e.Host.HostName).ToList();
 
-                VerifyBlogs(blogs);
-            }
+            VerifyBlogs(blogs);
         }
 
         private static void VerifyBlogs(List<Blog> blogs)
@@ -1811,103 +1941,129 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact(Skip = "issue #15285")]
+        [ConditionalFact]
         public virtual void Lazy_loading_finds_correct_entity_type_with_multiple_queries()
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var blogs = context.Set<Blog>().Where(_ => true);
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var blogs = context.Set<Blog>().Where(_ => true);
 
-                VerifyBlogs(blogs.ToList().OrderBy(e => e.Host.HostName).ToList());
-                Assert.Equal(12, context.ChangeTracker.Entries().Count());
+            VerifyBlogs(blogs.ToList().OrderBy(e => e.Host.HostName).ToList());
+            Assert.Equal(12, context.ChangeTracker.Entries().Count());
 
-                VerifyBlogs(blogs.ToList().OrderBy(e => e.Host.HostName).ToList());
-                Assert.Equal(12, context.ChangeTracker.Entries().Count());
-            }
+            VerifyBlogs(blogs.ToList().OrderBy(e => e.Host.HostName).ToList());
+            Assert.Equal(12, context.ChangeTracker.Entries().Count());
         }
 
-        [ConditionalFact(Skip = "issue #15285")]
+        [ConditionalFact]
         public virtual void Lazy_loading_finds_correct_entity_type_with_opaque_predicate_and_multiple_queries()
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                // ReSharper disable once ConvertToLocalFunction
-                bool opaquePredicate(Blog _) => true;
+            using var context = CreateContext(lazyLoadingEnabled: true);
 
-                var blogs = context.Set<Blog>().Where(opaquePredicate);
+            // ReSharper disable once ConvertToLocalFunction
+            bool opaquePredicate(Blog _) => true;
 
-                VerifyBlogs(blogs.ToList().OrderBy(e => e.Host.HostName).ToList());
-                Assert.Equal(12, context.ChangeTracker.Entries().Count());
+            var blogs = context.Set<Blog>().Where(opaquePredicate);
 
-                VerifyBlogs(blogs.ToList().OrderBy(e => e.Host.HostName).ToList());
-                Assert.Equal(12, context.ChangeTracker.Entries().Count());
-            }
+            VerifyBlogs(blogs.ToList().OrderBy(e => e.Host.HostName).ToList());
+            Assert.Equal(12, context.ChangeTracker.Entries().Count());
+
+            VerifyBlogs(blogs.ToList().OrderBy(e => e.Host.HostName).ToList());
+            Assert.Equal(12, context.ChangeTracker.Entries().Count());
         }
 
         [ConditionalFact]
         public virtual void Lazy_loading_finds_correct_entity_type_with_multiple_queries_using_Count()
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var blogs = context.Set<Blog>().Where(_ => true);
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var blogs = context.Set<Blog>().Where(_ => true);
 
-                Assert.Equal(3, blogs.Count());
-                Assert.Empty(context.ChangeTracker.Entries());
+            Assert.Equal(3, blogs.Count());
+            Assert.Empty(context.ChangeTracker.Entries());
 
-                Assert.Equal(3, blogs.Count());
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            Assert.Equal(3, blogs.Count());
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         [ConditionalFact]
         public virtual void Lazy_loading_shares_service__property_on_derived_types()
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
-            {
-                var parson = context.Set<Parson>().Single();
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var parson = context.Set<Parson>().Single();
 
-                Assert.Equal(2, parson.ParsonNoses.Count);
-                Assert.Equal(
-                    new[] { "Large", "Medium" },
-                    parson.ParsonNoses.Select(b => b.Size).OrderBy(h => h));
+            Assert.Equal(2, parson.ParsonNoses.Count);
+            Assert.Equal(
+                new[] { "Large", "Medium" },
+                parson.ParsonNoses.Select(b => b.Size).OrderBy(h => h));
 
-                var company = context.Set<Company>().Single();
+            var company = context.Set<Company>().Single();
 
-                Assert.Equal(2, company.CompanyNoses.Count);
-                Assert.Equal(
-                    new[] { "Large", "Small" },
-                    company.CompanyNoses.Select(b => b.Size).OrderBy(h => h));
+            Assert.Equal(2, company.CompanyNoses.Count);
+            Assert.Equal(
+                new[] { "Large", "Small" },
+                company.CompanyNoses.Select(b => b.Size).OrderBy(h => h));
 
-                var entity = context.Set<Entity>().ToList().Except(new Entity[] { parson, company }).Single();
+            var entity = context.Set<Entity>().ToList().Except(new Entity[] { parson, company }).Single();
 
-                Assert.Equal(3, entity.BaseNoses.Count);
-                Assert.Equal(
-                    new[] { "Large", "Medium", "Small" },
-                    entity.BaseNoses.Select(b => b.Size).OrderBy(h => h));
-            }
+            Assert.Equal(3, entity.BaseNoses.Count);
+            Assert.Equal(
+                new[] { "Large", "Medium", "Small" },
+                entity.BaseNoses.Select(b => b.Size).OrderBy(h => h));
         }
 
-        [ConditionalFact(Skip = "issue #15285")]
+        [ConditionalFact]
+        public virtual void Lazy_loading_handles_shadow_nullable_GUID_FK_in_TPH_model()
+        {
+            using var context = CreateContext(lazyLoadingEnabled: true);
+
+            var tribes = context.Set<Tribe>().ToList();
+
+            Assert.Single(tribes);
+            Assert.IsAssignableFrom<Quest>(tribes[0]);
+            Assert.Equal(new DateTime(1973, 9, 3), ((Quest)tribes[0]).Birthday);
+        }
+
+        [ConditionalFact]
         public virtual void Lazy_loading_finds_correct_entity_type_with_alternate_model()
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var person = context.Set<Pyrson>().Single();
+
+            Assert.NotNull(person.Name.FirstName);
+            Assert.NotNull(person.Name.LastName);
+            Assert.NotNull(person.Address);
+
+            var applicant = context.Set<Applicant>().Single();
+
+            Assert.NotNull(applicant.Name);
+
+            var address = context.Set<Address>().Single();
+
+            Assert.NotNull(address.Line1);
+            Assert.NotNull(address.Line2);
+
+            Assert.Same(address, person.Address);
+        }
+
+        [ConditionalFact]
+        public virtual void Top_level_projection_track_entities_before_passing_to_client_method()
+        {
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var query = (from p in context.Set<Parent>()
+                         select DtoFactory.CreateDto(p)).FirstOrDefault();
+
+            Assert.NotNull(((dynamic)query).Single);
+        }
+
+        private static class DtoFactory
+        {
+            public static object CreateDto(Parent parent)
             {
-                var person = context.Set<Pyrson>().Single();
-
-                Assert.NotNull(person.Name.FirstName);
-                Assert.NotNull(person.Name.LastName);
-                Assert.NotNull(person.Address);
-
-                var applicant = context.Set<Applicant>().Single();
-
-                Assert.NotNull(applicant.Name);
-
-                var address = context.Set<Address>().Single();
-
-                Assert.NotNull(address.Line1);
-                Assert.NotNull(address.Line2);
-
-                Assert.Same(address, person.Address);
+                return new
+                {
+                    parent.Id,
+                    parent.Single,
+                    parent.Single.ParentId
+                };
             }
         }
 
@@ -2023,8 +2179,33 @@ namespace Microsoft.EntityFrameworkCore
             public virtual SingleShadowFk SingleShadowFk { get; set; }
             public virtual IEnumerable<ChildCompositeKey> ChildrenCompositeKey { get; set; }
             public virtual SingleCompositeKey SingleCompositeKey { get; set; }
+            public virtual WithRecursiveProperty WithRecursiveProperty { get; set; }
         }
 
+        public class WithRecursiveProperty
+        {
+            private int _backing;
+
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int Id { get; set; }
+
+            public int? ParentId { get; set; }
+            public virtual Parent Parent { get; set; }
+
+            public int IdLoadedFromParent
+            {
+                get
+                {
+                    if (Parent != null)
+                    {
+                        _backing = Parent.Id;
+                    }
+
+                    return _backing;
+                }
+                set => _backing = value;
+            }
+        }
         public class Child
         {
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -2145,12 +2326,30 @@ namespace Microsoft.EntityFrameworkCore
 
         public class Parson : Entity
         {
+            public DateTime Birthday { set; get; }
+
             public virtual ICollection<Nose> ParsonNoses { get; set; }
         }
 
         public class Host
         {
             public string HostName { get; set; }
+        }
+
+        public abstract class Tribe
+        {
+            public Guid Id { get; set; }
+        }
+
+        public class Called : Tribe
+        {
+            public string Name { set; get; }
+        }
+
+        public class Quest : Tribe
+        {
+            public DateTime Birthday { set; get; }
+            public virtual Called Called { set; get; }
         }
 
         protected DbContext CreateContext(bool lazyLoadingEnabled = false)
@@ -2206,6 +2405,10 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
+                modelBuilder.Entity<Tribe>();
+                modelBuilder.Entity<Called>();
+                modelBuilder.Entity<Quest>();
+
                 modelBuilder.Entity<Entity>();
                 modelBuilder.Entity<Company>();
                 modelBuilder.Entity<Parson>();
@@ -2254,32 +2457,16 @@ namespace Microsoft.EntityFrameworkCore
                         b.HasMany(e => e.ChildrenCompositeKey)
                             .WithOne(e => e.Parent)
                             .HasPrincipalKey(
-                                e => new
-                                {
-                                    e.AlternateId,
-                                    e.Id
-                                })
+                                e => new { e.AlternateId, e.Id })
                             .HasForeignKey(
-                                e => new
-                                {
-                                    e.ParentAlternateId,
-                                    e.ParentId
-                                });
+                                e => new { e.ParentAlternateId, e.ParentId });
 
                         b.HasOne(e => e.SingleCompositeKey)
                             .WithOne(e => e.Parent)
                             .HasPrincipalKey<Parent>(
-                                e => new
-                                {
-                                    e.AlternateId,
-                                    e.Id
-                                })
+                                e => new { e.AlternateId, e.Id })
                             .HasForeignKey<SingleCompositeKey>(
-                                e => new
-                                {
-                                    e.ParentAlternateId,
-                                    e.ParentId
-                                });
+                                e => new { e.ParentAlternateId, e.ParentId });
                     });
 
                 modelBuilder.Entity<Blog>(
@@ -2363,148 +2550,57 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void Seed(DbContext context)
             {
+                context.Add(new Quest { Birthday = new DateTime(1973, 9, 3) });
+
                 context.Add(
                     new Parent
                     {
                         Id = 707,
                         AlternateId = "Root",
-                        Children = new List<Child>
-                        {
-                            new Child
-                            {
-                                Id = 11
-                            },
-                            new Child
-                            {
-                                Id = 12
-                            }
-                        },
-                        SinglePkToPk = new SinglePkToPk
-                        {
-                            Id = 707
-                        },
-                        Single = new Single
-                        {
-                            Id = 21
-                        },
-                        ChildrenAk = new List<ChildAk>
-                        {
-                            new ChildAk
-                            {
-                                Id = 31
-                            },
-                            new ChildAk
-                            {
-                                Id = 32
-                            }
-                        },
-                        SingleAk = new SingleAk
-                        {
-                            Id = 42
-                        },
-                        ChildrenShadowFk = new List<ChildShadowFk>
-                        {
-                            new ChildShadowFk
-                            {
-                                Id = 51
-                            },
-                            new ChildShadowFk
-                            {
-                                Id = 52
-                            }
-                        },
-                        SingleShadowFk = new SingleShadowFk
-                        {
-                            Id = 62
-                        },
+                        Children = new List<Child> { new Child { Id = 11 }, new Child { Id = 12 } },
+                        SinglePkToPk = new SinglePkToPk { Id = 707 },
+                        Single = new Single { Id = 21 },
+                        ChildrenAk = new List<ChildAk> { new ChildAk { Id = 31 }, new ChildAk { Id = 32 } },
+                        SingleAk = new SingleAk { Id = 42 },
+                        ChildrenShadowFk = new List<ChildShadowFk> { new ChildShadowFk { Id = 51 }, new ChildShadowFk { Id = 52 } },
+                        SingleShadowFk = new SingleShadowFk { Id = 62 },
                         ChildrenCompositeKey = new List<ChildCompositeKey>
                         {
-                            new ChildCompositeKey
-                            {
-                                Id = 51
-                            },
-                            new ChildCompositeKey
-                            {
-                                Id = 52
-                            }
+                            new ChildCompositeKey { Id = 51 }, new ChildCompositeKey { Id = 52 }
                         },
-                        SingleCompositeKey = new SingleCompositeKey
-                        {
-                            Id = 62
-                        }
+                        SingleCompositeKey = new SingleCompositeKey { Id = 62 },
+                        WithRecursiveProperty = new WithRecursiveProperty { Id = 8086 }
                     });
 
                 context.Add(
                     new Blog
                     {
-                        Writer = new Person
-                        {
-                            FirstName = "firstNameWriter0",
-                            LastName = "lastNameWriter0"
-                        },
-                        Reader = new Person
-                        {
-                            FirstName = "firstNameReader0",
-                            LastName = "lastNameReader0"
-                        },
-                        Host = new Host
-                        {
-                            HostName = "127.0.0.1"
-                        }
+                        Writer = new Person { FirstName = "firstNameWriter0", LastName = "lastNameWriter0" },
+                        Reader = new Person { FirstName = "firstNameReader0", LastName = "lastNameReader0" },
+                        Host = new Host { HostName = "127.0.0.1" }
                     });
 
                 context.Add(
                     new Blog
                     {
-                        Writer = new Person
-                        {
-                            FirstName = "firstNameWriter1",
-                            LastName = "lastNameWriter1"
-                        },
-                        Reader = new Person
-                        {
-                            FirstName = "firstNameReader1",
-                            LastName = "lastNameReader1"
-                        },
-                        Host = new Host
-                        {
-                            HostName = "127.0.0.2"
-                        }
+                        Writer = new Person { FirstName = "firstNameWriter1", LastName = "lastNameWriter1" },
+                        Reader = new Person { FirstName = "firstNameReader1", LastName = "lastNameReader1" },
+                        Host = new Host { HostName = "127.0.0.2" }
                     });
 
                 context.Add(
                     new Blog
                     {
-                        Writer = new Person
-                        {
-                            FirstName = "firstNameWriter2",
-                            LastName = "lastNameWriter2"
-                        },
-                        Reader = new Person
-                        {
-                            FirstName = "firstNameReader2",
-                            LastName = "lastNameReader2"
-                        },
-                        Host = new Host
-                        {
-                            HostName = "127.0.0.3"
-                        }
+                        Writer = new Person { FirstName = "firstNameWriter2", LastName = "lastNameWriter2" },
+                        Reader = new Person { FirstName = "firstNameReader2", LastName = "lastNameReader2" },
+                        Host = new Host { HostName = "127.0.0.3" }
                     });
 
-                var nose1 = new Nose
-                {
-                    Size = "Small"
-                };
+                var nose1 = new Nose { Size = "Small" };
 
-                var nose2 = new Nose
-                {
-                    Size = "Medium"
-                };
+                var nose2 = new Nose { Size = "Medium" };
 
-                var nose3 = new Nose
-                {
-                    Size = "Large"
-                };
+                var nose3 = new Nose { Size = "Large" };
 
                 context.Add(
                     new Entity
@@ -2518,24 +2614,10 @@ namespace Microsoft.EntityFrameworkCore
                     });
 
                 context.Add(
-                    new Parson
-                    {
-                        ParsonNoses = new List<Nose>
-                        {
-                            nose2,
-                            nose3
-                        }
-                    });
+                    new Parson { ParsonNoses = new List<Nose> { nose2, nose3 } });
 
                 context.Add(
-                    new Company
-                    {
-                        CompanyNoses = new List<Nose>
-                        {
-                            nose1,
-                            nose3
-                        }
-                    });
+                    new Company { CompanyNoses = new List<Nose> { nose1, nose3 } });
 
                 context.Add(
                     new Applicant(
@@ -2544,11 +2626,7 @@ namespace Microsoft.EntityFrameworkCore
                 context.Add(
                     new Pyrson(new FullName(FirstName.Create("Amila"), LastName.Create("Udayanga")))
                     {
-                        Address = new Address
-                        {
-                            Line1 = "Line1",
-                            Line2 = "Line2"
-                        }
+                        Address = new Address { Line1 = "Line1", Line2 = "Line2" }
                     });
 
                 context.SaveChanges();

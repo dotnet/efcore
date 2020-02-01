@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public class RelationalDataReader : IDisposable
+    public class RelationalDataReader : IDisposable, IAsyncDisposable
     {
         private readonly IRelationalConnection _connection;
         private readonly DbCommand _command;
@@ -102,28 +102,75 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (!_disposed)
             {
+                var interceptionResult = default(InterceptionResult);
                 try
                 {
                     _reader.Close(); // can throw
 
-                    _logger?.DataReaderDisposing(
-                        _connection,
-                        _command,
-                        _reader,
-                        _commandId,
-                        _reader.RecordsAffected,
-                        _readCount,
-                        _startTime,
-                        _stopwatch.Elapsed); // can throw
+                    if (_logger != null)
+                    {
+                        interceptionResult = _logger.DataReaderDisposing(
+                            _connection,
+                            _command,
+                            _reader,
+                            _commandId,
+                            _reader.RecordsAffected,
+                            _readCount,
+                            _startTime,
+                            _stopwatch.Elapsed); // can throw
+                    }
                 }
                 finally
                 {
                     _disposed = true;
 
-                    _reader.Dispose();
-                    _command.Parameters.Clear();
-                    _command.Dispose();
-                    _connection.Close();
+                    if (!interceptionResult.IsSuppressed)
+                    {
+                        _reader.Dispose();
+                        _command.Parameters.Clear();
+                        _command.Dispose();
+                        _connection.Close();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public virtual async ValueTask DisposeAsync()
+        {
+            if (!_disposed)
+            {
+                var interceptionResult = default(InterceptionResult);
+                try
+                {
+                    _reader.Close(); // can throw
+
+                    if (_logger != null)
+                    {
+                        interceptionResult = _logger.DataReaderDisposing(
+                            _connection,
+                            _command,
+                            _reader,
+                            _commandId,
+                            _reader.RecordsAffected,
+                            _readCount,
+                            _startTime,
+                            _stopwatch.Elapsed); // can throw
+                    }
+                }
+                finally
+                {
+                    _disposed = true;
+
+                    if (!interceptionResult.IsSuppressed)
+                    {
+                        await _reader.DisposeAsync();
+                        _command.Parameters.Clear();
+                        await _command.DisposeAsync();
+                        await _connection.CloseAsync();
+                    }
                 }
             }
         }

@@ -71,9 +71,9 @@ namespace Microsoft.EntityFrameworkCore
             AssertSql(
                 @"@__p_0='77'
 
-SELECT TOP(1) [e].[Id], [e].[Foo]
-FROM [IntKey] AS [e]
-WHERE [e].[Id] = @__p_0");
+SELECT TOP(1) [i].[Id], [i].[Foo]
+FROM [IntKey] AS [i]
+WHERE [i].[Id] = @__p_0");
         }
 
         public override void Returns_null_for_int_key_not_in_store()
@@ -83,9 +83,9 @@ WHERE [e].[Id] = @__p_0");
             AssertSql(
                 @"@__p_0='99'
 
-SELECT TOP(1) [e].[Id], [e].[Foo]
-FROM [IntKey] AS [e]
-WHERE [e].[Id] = @__p_0");
+SELECT TOP(1) [i].[Id], [i].[Foo]
+FROM [IntKey] AS [i]
+WHERE [i].[Id] = @__p_0");
         }
 
         public override void Find_nullable_int_key_tracked()
@@ -102,9 +102,9 @@ WHERE [e].[Id] = @__p_0");
             AssertSql(
                 @"@__p_0='77'
 
-SELECT TOP(1) [e].[Id], [e].[Foo]
-FROM [IntKey] AS [e]
-WHERE [e].[Id] = @__p_0");
+SELECT TOP(1) [i].[Id], [i].[Foo]
+FROM [IntKey] AS [i]
+WHERE [i].[Id] = @__p_0");
         }
 
         public override void Returns_null_for_nullable_int_key_not_in_store()
@@ -114,9 +114,9 @@ WHERE [e].[Id] = @__p_0");
             AssertSql(
                 @"@__p_0='99'
 
-SELECT TOP(1) [e].[Id], [e].[Foo]
-FROM [IntKey] AS [e]
-WHERE [e].[Id] = @__p_0");
+SELECT TOP(1) [i].[Id], [i].[Foo]
+FROM [IntKey] AS [i]
+WHERE [i].[Id] = @__p_0");
         }
 
         public override void Find_string_key_tracked()
@@ -133,9 +133,9 @@ WHERE [e].[Id] = @__p_0");
             AssertSql(
                 @"@__p_0='Cat' (Size = 450)
 
-SELECT TOP(1) [e].[Id], [e].[Foo]
-FROM [StringKey] AS [e]
-WHERE [e].[Id] = @__p_0");
+SELECT TOP(1) [s].[Id], [s].[Foo]
+FROM [StringKey] AS [s]
+WHERE [s].[Id] = @__p_0");
         }
 
         public override void Returns_null_for_string_key_not_in_store()
@@ -145,9 +145,9 @@ WHERE [e].[Id] = @__p_0");
             AssertSql(
                 @"@__p_0='Fox' (Size = 450)
 
-SELECT TOP(1) [e].[Id], [e].[Foo]
-FROM [StringKey] AS [e]
-WHERE [e].[Id] = @__p_0");
+SELECT TOP(1) [s].[Id], [s].[Foo]
+FROM [StringKey] AS [s]
+WHERE [s].[Id] = @__p_0");
         }
 
         public override void Find_composite_key_tracked()
@@ -165,9 +165,9 @@ WHERE [e].[Id] = @__p_0");
                 @"@__p_0='77'
 @__p_1='Dog' (Size = 450)
 
-SELECT TOP(1) [e].[Id1], [e].[Id2], [e].[Foo]
-FROM [CompositeKey] AS [e]
-WHERE ([e].[Id1] = @__p_0) AND ([e].[Id2] = @__p_1)");
+SELECT TOP(1) [c].[Id1], [c].[Id2], [c].[Foo]
+FROM [CompositeKey] AS [c]
+WHERE ([c].[Id1] = @__p_0) AND ([c].[Id2] = @__p_1)");
         }
 
         public override void Returns_null_for_composite_key_not_in_store()
@@ -178,9 +178,9 @@ WHERE ([e].[Id1] = @__p_0) AND ([e].[Id2] = @__p_1)");
                 @"@__p_0='77'
 @__p_1='Fox' (Size = 450)
 
-SELECT TOP(1) [e].[Id1], [e].[Id2], [e].[Foo]
-FROM [CompositeKey] AS [e]
-WHERE ([e].[Id1] = @__p_0) AND ([e].[Id2] = @__p_1)");
+SELECT TOP(1) [c].[Id1], [c].[Id2], [c].[Foo]
+FROM [CompositeKey] AS [c]
+WHERE ([c].[Id1] = @__p_0) AND ([c].[Id2] = @__p_1)");
         }
 
         public override void Find_base_type_tracked()
@@ -197,9 +197,9 @@ WHERE ([e].[Id1] = @__p_0) AND ([e].[Id2] = @__p_1)");
             AssertSql(
                 @"@__p_0='77'
 
-SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
-FROM [BaseType] AS [e]
-WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__p_0)");
+SELECT TOP(1) [b].[Id], [b].[Discriminator], [b].[Foo], [b].[Boo]
+FROM [BaseType] AS [b]
+WHERE [b].[Discriminator] IN (N'BaseType', N'DerivedType') AND ([b].[Id] = @__p_0)");
         }
 
         public override void Returns_null_for_base_type_not_in_store()
@@ -209,9 +209,9 @@ WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__p_
             AssertSql(
                 @"@__p_0='99'
 
-SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
-FROM [BaseType] AS [e]
-WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__p_0)");
+SELECT TOP(1) [b].[Id], [b].[Discriminator], [b].[Foo], [b].[Boo]
+FROM [BaseType] AS [b]
+WHERE [b].[Discriminator] IN (N'BaseType', N'DerivedType') AND ([b].[Id] = @__p_0)");
         }
 
         public override void Find_derived_type_tracked()
@@ -228,9 +228,9 @@ WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__p_
             AssertSql(
                 @"@__p_0='78'
 
-SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
-FROM [BaseType] AS [e]
-WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__p_0)");
+SELECT TOP(1) [b].[Id], [b].[Discriminator], [b].[Foo], [b].[Boo]
+FROM [BaseType] AS [b]
+WHERE ([b].[Discriminator] = N'DerivedType') AND ([b].[Id] = @__p_0)");
         }
 
         public override void Returns_null_for_derived_type_not_in_store()
@@ -240,9 +240,9 @@ WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__p_0)");
             AssertSql(
                 @"@__p_0='99'
 
-SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
-FROM [BaseType] AS [e]
-WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__p_0)");
+SELECT TOP(1) [b].[Id], [b].[Discriminator], [b].[Foo], [b].[Boo]
+FROM [BaseType] AS [b]
+WHERE ([b].[Discriminator] = N'DerivedType') AND ([b].[Id] = @__p_0)");
         }
 
         public override void Find_base_type_using_derived_set_tracked()
@@ -252,9 +252,9 @@ WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__p_0)");
             AssertSql(
                 @"@__p_0='88'
 
-SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
-FROM [BaseType] AS [e]
-WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__p_0)");
+SELECT TOP(1) [b].[Id], [b].[Discriminator], [b].[Foo], [b].[Boo]
+FROM [BaseType] AS [b]
+WHERE ([b].[Discriminator] = N'DerivedType') AND ([b].[Id] = @__p_0)");
         }
 
         public override void Find_base_type_using_derived_set_from_store()
@@ -264,9 +264,9 @@ WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__p_0)");
             AssertSql(
                 @"@__p_0='77'
 
-SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
-FROM [BaseType] AS [e]
-WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__p_0)");
+SELECT TOP(1) [b].[Id], [b].[Discriminator], [b].[Foo], [b].[Boo]
+FROM [BaseType] AS [b]
+WHERE ([b].[Discriminator] = N'DerivedType') AND ([b].[Id] = @__p_0)");
         }
 
         public override void Find_derived_type_using_base_set_tracked()
@@ -283,9 +283,9 @@ WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__p_0)");
             AssertSql(
                 @"@__p_0='78'
 
-SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
-FROM [BaseType] AS [e]
-WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__p_0)");
+SELECT TOP(1) [b].[Id], [b].[Discriminator], [b].[Foo], [b].[Boo]
+FROM [BaseType] AS [b]
+WHERE [b].[Discriminator] IN (N'BaseType', N'DerivedType') AND ([b].[Id] = @__p_0)");
         }
 
         public override void Find_shadow_key_tracked()
@@ -302,9 +302,9 @@ WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__p_
             AssertSql(
                 @"@__p_0='77'
 
-SELECT TOP(1) [e].[Id], [e].[Foo]
-FROM [ShadowKey] AS [e]
-WHERE [e].[Id] = @__p_0");
+SELECT TOP(1) [s].[Id], [s].[Foo]
+FROM [ShadowKey] AS [s]
+WHERE [s].[Id] = @__p_0");
         }
 
         public override void Returns_null_for_shadow_key_not_in_store()
@@ -314,9 +314,9 @@ WHERE [e].[Id] = @__p_0");
             AssertSql(
                 @"@__p_0='99'
 
-SELECT TOP(1) [e].[Id], [e].[Foo]
-FROM [ShadowKey] AS [e]
-WHERE [e].[Id] = @__p_0");
+SELECT TOP(1) [s].[Id], [s].[Foo]
+FROM [ShadowKey] AS [s]
+WHERE [s].[Id] = @__p_0");
         }
 
         private string Sql => Fixture.TestSqlLoggerFactory.Sql;

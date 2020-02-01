@@ -48,10 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = CreateModel().AddEntityType(typeof(Customer));
             var idProperty = entityType.AddProperty(Customer.IdProperty);
 
-            var customer = new Customer
-            {
-                Id = 7
-            };
+            var customer = new Customer { Id = 7 };
 
             new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, 77);
 
@@ -61,10 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [ConditionalFact]
         public void Delegate_setter_is_returned_for_property_type_and_name()
         {
-            var customer = new Customer
-            {
-                Id = 7
-            };
+            var customer = new Customer { Id = 7 };
 
             new ClrPropertySetterFactory().Create(typeof(Customer).GetAnyProperty("Id")).SetClrValue(customer, 77);
 
@@ -77,10 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = CreateModel().AddEntityType(typeof(Customer));
             var idProperty = entityType.AddProperty(Customer.IdProperty);
 
-            var customer = new Customer
-            {
-                Id = 7
-            };
+            var customer = new Customer { Id = 7 };
 
             new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, 1);
 
@@ -93,10 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = CreateModel().AddEntityType(typeof(Customer));
             var idProperty = entityType.AddProperty(Customer.ContentProperty);
 
-            var customer = new Customer
-            {
-                Id = 7
-            };
+            var customer = new Customer { Id = 7 };
 
             new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, "MyString");
 
@@ -109,10 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = CreateModel().AddEntityType(typeof(Customer));
             var idProperty = entityType.AddProperty(Customer.OptionalIntProperty);
 
-            var customer = new Customer
-            {
-                Id = 7
-            };
+            var customer = new Customer { Id = 7 };
 
             new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, 3);
 
@@ -125,10 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = CreateModel().AddEntityType(typeof(Customer));
             var idProperty = entityType.AddProperty(Customer.OptionalIntProperty);
 
-            var customer = new Customer
-            {
-                Id = 7
-            };
+            var customer = new Customer { Id = 7 };
 
             new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, null);
 
@@ -141,10 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = CreateModel().AddEntityType(typeof(Customer));
             var idProperty = entityType.AddProperty(Customer.FlagProperty);
 
-            var customer = new Customer
-            {
-                Id = 7
-            };
+            var customer = new Customer { Id = 7 };
 
             new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, Flag.One);
 
@@ -157,10 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = CreateModel().AddEntityType(typeof(Customer));
             var idProperty = entityType.AddProperty(Customer.OptionalFlagProperty);
 
-            var customer = new Customer
-            {
-                Id = 7
-            };
+            var customer = new Customer { Id = 7 };
 
             new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, Flag.Two);
 
@@ -253,6 +229,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 () => new ClrPropertySetterFactory().Create(property));
         }
 
+        [ConditionalFact]
+        public void Delegate_setter_can_set_index_properties()
+        {
+            var entityType = CreateModel().AddEntityType(typeof(IndexedClass));
+            var propertyA = entityType.AddIndexedProperty("PropertyA", typeof(string));
+            var propertyB = entityType.AddIndexedProperty("PropertyB", typeof(int));
+
+            var indexedClass = new IndexedClass { Id = 7 };
+
+            Assert.Equal("ValueA", indexedClass["PropertyA"]);
+            Assert.Equal(123, indexedClass["PropertyB"]);
+
+            new ClrPropertySetterFactory().Create(propertyA).SetClrValue(indexedClass, "UpdatedValue");
+            new ClrPropertySetterFactory().Create(propertyB).SetClrValue(indexedClass, 42);
+
+            Assert.Equal("UpdatedValue", indexedClass["PropertyA"]);
+            Assert.Equal(42, indexedClass["PropertyB"]);
+        }
+
         private IMutableModel CreateModel()
             => new Model();
 
@@ -281,13 +276,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class ConcreteEntity2 : ConcreteEntity1
         {
-            // ReSharper disable once RedundantOverridenMember
+            // ReSharper disable once RedundantOverriddenMember
             public override int VirtualPrivateProperty_Override => base.VirtualPrivateProperty_Override;
         }
 
         private class ConcreteEntity1 : BaseEntity
         {
-            // ReSharper disable once RedundantOverridenMember
+            // ReSharper disable once RedundantOverriddenMember
             public override int VirtualPrivateProperty_Override => base.VirtualPrivateProperty_Override;
         }
 
@@ -297,6 +292,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public virtual int VirtualPrivateProperty_NoOverride { get; private set; }
             public int PrivateProperty { get; private set; }
             public int NoSetterProperty { get; }
+        }
+
+        private class IndexedClass
+        {
+            private readonly Dictionary<string, object> _internalValues = new Dictionary<string, object>
+            {
+                {"PropertyA", "ValueA" },
+                {"PropertyB", 123 }
+            };
+
+            internal int Id { get; set; }
+            internal object this[string name] { get => _internalValues[name]; set => _internalValues[name] = value; }
         }
 
         #endregion

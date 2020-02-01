@@ -4,7 +4,6 @@
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -40,18 +39,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
             Check.NotNull(navigation, nameof(navigation));
 
-            if (!IsNonNullable(navigation)
-                || navigation.IsCollection())
+            var modelBuilder = relationshipBuilder.ModelBuilder;
+
+            if (!IsNonNullable(modelBuilder, navigation)
+                || navigation.IsCollection)
             {
                 return;
             }
 
-            if (!navigation.IsDependentToPrincipal())
+            if (!navigation.IsOnDependent)
             {
-                var inverse = navigation.FindInverse();
+                var inverse = navigation.Inverse;
                 if (inverse != null)
                 {
-                    if (IsNonNullable(inverse))
+                    if (IsNonNullable(modelBuilder, inverse))
                     {
                         Dependencies.Logger.NonNullableReferenceOnBothNavigations(navigation, inverse);
                         return;
@@ -61,6 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 if (!navigation.ForeignKey.IsUnique
                     || relationshipBuilder.Metadata.GetPrincipalEndConfigurationSource() != null)
                 {
+                    Dependencies.Logger.NonNullableReferenceOnDependent(navigation.ForeignKey.PrincipalToDependent);
                     return;
                 }
 
@@ -73,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     return;
                 }
 
-                Dependencies.Logger.NonNullableOnDependent(newRelationshipBuilder.Metadata.DependentToPrincipal);
+                Dependencies.Logger.NonNullableInverted(newRelationshipBuilder.Metadata.DependentToPrincipal);
                 relationshipBuilder = newRelationshipBuilder;
             }
 
@@ -82,9 +84,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             context.StopProcessingIfChanged(relationshipBuilder.Metadata.DependentToPrincipal);
         }
 
-        private bool IsNonNullable(IConventionNavigation navigation)
+        private bool IsNonNullable(IConventionModelBuilder modelBuilder, IConventionNavigation navigation)
             => navigation.DeclaringEntityType.HasClrType()
-               && navigation.DeclaringEntityType.GetRuntimeProperties().Find(navigation.Name) is PropertyInfo propertyInfo
-               && IsNonNullable(propertyInfo);
+                && navigation.DeclaringEntityType.GetRuntimeProperties().Find(navigation.Name) is PropertyInfo propertyInfo
+                && IsNonNullableReferenceType(modelBuilder, propertyInfo);
     }
 }

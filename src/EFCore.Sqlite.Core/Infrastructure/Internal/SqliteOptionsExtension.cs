@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
@@ -18,8 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
     /// </summary>
     public class SqliteOptionsExtension : RelationalOptionsExtension
     {
+        private DbContextOptionsExtensionInfo _info;
         private bool _loadSpatialite;
-        private string _logFragment;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -44,6 +43,15 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
         {
             _loadSpatialite = copyFrom._loadSpatialite;
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override DbContextOptionsExtensionInfo Info
+            => _info ??= new ExtensionInfo(this);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -83,52 +91,47 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override bool ApplyServices(IServiceCollection services)
+        public override void ApplyServices(IServiceCollection services)
+            => services.AddEntityFrameworkSqlite();
+
+        private sealed class ExtensionInfo : RelationalExtensionInfo
         {
-            Check.NotNull(services, nameof(services));
+            private string _logFragment;
 
-            services.AddEntityFrameworkSqlite();
-
-            return true;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
-        {
-            debugInfo["Sqlite"] = "1";
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override string LogFragment
-        {
-            get
+            public ExtensionInfo(IDbContextOptionsExtension extension)
+                : base(extension)
             {
-                if (_logFragment == null)
+            }
+
+            private new SqliteOptionsExtension Extension
+                => (SqliteOptionsExtension)base.Extension;
+
+            public override bool IsDatabaseProvider => true;
+
+            public override string LogFragment
+            {
+                get
                 {
-                    var builder = new StringBuilder();
-
-                    builder.Append(base.LogFragment);
-
-                    if (_loadSpatialite)
+                    if (_logFragment == null)
                     {
-                        builder.Append("LoadSpatialite ");
+                        var builder = new StringBuilder();
+
+                        builder.Append(base.LogFragment);
+
+                        if (Extension._loadSpatialite)
+                        {
+                            builder.Append("LoadSpatialite ");
+                        }
+
+                        _logFragment = builder.ToString();
                     }
 
-                    _logFragment = builder.ToString();
+                    return _logFragment;
                 }
-
-                return _logFragment;
             }
+
+            public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+                => debugInfo["Sqlite"] = "1";
         }
     }
 }

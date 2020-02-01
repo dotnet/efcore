@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 {
@@ -20,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
         public override bool IsValid(Expression expression)
             => IsQueryableResult(expression)
-               && HasValidPropertyToOrderBy(expression);
+                && HasValidPropertyToOrderBy(expression);
 
         public override Expression Apply(Expression expression, Random random)
         {
@@ -32,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
             var isDescending = random.Next(3) == 0;
             var orderBy = isDescending
-                ? OrderByDescendingMethodInfo.MakeGenericMethod(typeArgument, properties[i].PropertyType)
-                : OrderByMethodInfo.MakeGenericMethod(typeArgument, properties[i].PropertyType);
+                ? QueryableMethods.OrderByDescending.MakeGenericMethod(typeArgument, properties[i].PropertyType)
+                : QueryableMethods.OrderBy.MakeGenericMethod(typeArgument, properties[i].PropertyType);
 
             var prm = Expression.Parameter(typeArgument, "prm");
 
@@ -41,13 +42,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
             if (properties[i].PropertyType.IsValueType
                 && !(properties[i].PropertyType.IsGenericType
-                     && properties[i].PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>)))
+                    && properties[i].PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>)))
             {
                 var nullablePropertyType = typeof(Nullable<>).MakeGenericType(properties[i].PropertyType);
 
                 orderBy = isDescending
-                    ? OrderByDescendingMethodInfo.MakeGenericMethod(typeArgument, nullablePropertyType)
-                    : OrderByMethodInfo.MakeGenericMethod(typeArgument, nullablePropertyType);
+                    ? QueryableMethods.OrderByDescending.MakeGenericMethod(typeArgument, nullablePropertyType)
+                    : QueryableMethods.OrderBy.MakeGenericMethod(typeArgument, nullablePropertyType);
 
                 lambdaBody = Expression.Convert(lambdaBody, nullablePropertyType);
             }
@@ -55,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             if (typeArgument == typeof(string))
             {
                 // string.Length - make it nullable in case we access optional argument
-                orderBy = OrderByMethodInfo.MakeGenericMethod(typeArgument, typeof(int?));
+                orderBy = QueryableMethods.OrderBy.MakeGenericMethod(typeArgument, typeof(int?));
                 lambdaBody = Expression.Convert(lambdaBody, typeof(int?));
             }
 

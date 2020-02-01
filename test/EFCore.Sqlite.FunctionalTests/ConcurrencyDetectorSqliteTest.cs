@@ -6,8 +6,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    // TODO: See Tasklist#23
-    internal class ConcurrencyDetectorSqliteTest : ConcurrencyDetectorRelationalTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
+    public class ConcurrencyDetectorSqliteTest : ConcurrencyDetectorRelationalTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
     {
         public ConcurrencyDetectorSqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture)
             : base(fixture)

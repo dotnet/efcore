@@ -54,28 +54,20 @@ namespace Microsoft.EntityFrameworkCore
 
         private static void AddEntities(IServiceProvider serviceProvider, string name)
         {
-            using (var context = new BronieContext(serviceProvider, name))
+            using var context = new BronieContext(serviceProvider, name);
+            for (var i = 0; i < 10; i++)
             {
-                for (var i = 0; i < 10; i++)
-                {
-                    context.Add(
-                        new Pegasus
-                        {
-                            Name = "Rainbow Dash " + i
-                        });
-                    context.Add(
-                        new Pegasus
-                        {
-                            Name = "Fluttershy " + i
-                        });
-                }
-
-                context.SaveChanges();
+                context.Add(
+                    new Pegasus { Name = "Rainbow Dash " + i });
+                context.Add(
+                    new Pegasus { Name = "Fluttershy " + i });
             }
+
+            context.SaveChanges();
         }
 
         [ConditionalFact]
-        [PlatformSkipCondition(TestPlatform.Linux, SkipReason = "Test is flaky on CI.")]
+        [SqlServerCondition(SqlServerCondition.IsNotCI)]
         public void Can_use_sequence_end_to_end_on_multiple_databases()
         {
             var serviceProvider = new ServiceCollection()
@@ -87,12 +79,10 @@ namespace Microsoft.EntityFrameworkCore
 
             foreach (var dbName in new[] { dbOne, dbTwo })
             {
-                using (var context = new BronieContext(serviceProvider, dbName))
-                {
-                    context.Database.EnsureDeleted();
-                    Thread.Sleep(100);
-                    context.Database.EnsureCreatedResiliently();
-                }
+                using var context = new BronieContext(serviceProvider, dbName);
+                context.Database.EnsureDeleted();
+                Thread.Sleep(100);
+                context.Database.EnsureCreatedResiliently();
             }
 
             AddEntitiesToMultipleContexts(serviceProvider, dbOne, dbTwo);
@@ -108,17 +98,15 @@ namespace Microsoft.EntityFrameworkCore
 
             foreach (var dbName in new[] { dbOne, dbTwo })
             {
-                using (var context = new BronieContext(serviceProvider, dbName))
-                {
-                    var pegasuses = context.Pegasuses.ToList();
+                using var context = new BronieContext(serviceProvider, dbName);
+                var pegasuses = context.Pegasuses.ToList();
 
-                    for (var i = 0; i < 29; i++)
-                    {
-                        Assert.Equal(
-                            dbName.EndsWith("1", StringComparison.Ordinal) ? 3 : 0,
-                            pegasuses.Count(p => p.Name == "Rainbow Dash " + i));
-                        Assert.Equal(3, pegasuses.Count(p => p.Name == "Fluttershy " + i));
-                    }
+                for (var i = 0; i < 29; i++)
+                {
+                    Assert.Equal(
+                        dbName.EndsWith("1", StringComparison.Ordinal) ? 3 : 0,
+                        pegasuses.Count(p => p.Name == "Rainbow Dash " + i));
+                    Assert.Equal(3, pegasuses.Count(p => p.Name == "Fluttershy " + i));
                 }
             }
         }
@@ -128,35 +116,22 @@ namespace Microsoft.EntityFrameworkCore
             string dbName1,
             string dbName2)
         {
-            using (var context1 = new BronieContext(serviceProvider, dbName1))
+            using var context1 = new BronieContext(serviceProvider, dbName1);
+            using var context2 = new BronieContext(serviceProvider, dbName2);
+            for (var i = 0; i < 29; i++)
             {
-                using (var context2 = new BronieContext(serviceProvider, dbName2))
-                {
-                    for (var i = 0; i < 29; i++)
-                    {
-                        context1.Add(
-                            new Pegasus
-                            {
-                                Name = "Rainbow Dash " + i
-                            });
+                context1.Add(
+                    new Pegasus { Name = "Rainbow Dash " + i });
 
-                        context2.Add(
-                            new Pegasus
-                            {
-                                Name = "Fluttershy " + i
-                            });
+                context2.Add(
+                    new Pegasus { Name = "Fluttershy " + i });
 
-                        context1.Add(
-                            new Pegasus
-                            {
-                                Name = "Fluttershy " + i
-                            });
-                    }
-
-                    context1.SaveChanges();
-                    context2.SaveChanges();
-                }
+                context1.Add(
+                    new Pegasus { Name = "Fluttershy " + i });
             }
+
+            context1.SaveChanges();
+            context2.SaveChanges();
         }
 
         [ConditionalFact]
@@ -196,24 +171,16 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task AddEntitiesAsync(IServiceProvider serviceProvider, string databaseName)
         {
-            using (var context = new BronieContext(serviceProvider, databaseName))
+            using var context = new BronieContext(serviceProvider, databaseName);
+            for (var i = 0; i < 10; i++)
             {
-                for (var i = 0; i < 10; i++)
-                {
-                    await context.AddAsync(
-                        new Pegasus
-                        {
-                            Name = "Rainbow Dash " + i
-                        });
-                    await context.AddAsync(
-                        new Pegasus
-                        {
-                            Name = "Fluttershy " + i
-                        });
-                }
-
-                await context.SaveChangesAsync();
+                await context.AddAsync(
+                    new Pegasus { Name = "Rainbow Dash " + i });
+                await context.AddAsync(
+                    new Pegasus { Name = "Fluttershy " + i });
             }
+
+            await context.SaveChangesAsync();
         }
 
         [ConditionalFact]
@@ -299,26 +266,16 @@ namespace Microsoft.EntityFrameworkCore
 
         private static void AddEntitiesWithIds(IServiceProvider serviceProvider, int idOffset, string name)
         {
-            using (var context = new BronieContext(serviceProvider, name))
+            using var context = new BronieContext(serviceProvider, name);
+            for (var i = 1; i < 11; i++)
             {
-                for (var i = 1; i < 11; i++)
-                {
-                    context.Add(
-                        new Pegasus
-                        {
-                            Name = "Rainbow Dash " + i,
-                            Identifier = i * 100 + idOffset
-                        });
-                    context.Add(
-                        new Pegasus
-                        {
-                            Name = "Fluttershy " + i,
-                            Identifier = i * 100 + idOffset + 1
-                        });
-                }
-
-                context.SaveChanges();
+                context.Add(
+                    new Pegasus { Name = "Rainbow Dash " + i, Identifier = i * 100 + idOffset });
+                context.Add(
+                    new Pegasus { Name = "Fluttershy " + i, Identifier = i * 100 + idOffset + 1 });
             }
+
+            context.SaveChanges();
         }
 
         private class BronieContext : DbContext
@@ -345,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore
                     b =>
                     {
                         b.HasKey(e => e.Identifier);
-                        b.Property(e => e.Identifier).ForSqlServerUseSequenceHiLo();
+                        b.Property(e => e.Identifier).UseHiLo();
                     });
             }
         }
@@ -414,24 +371,16 @@ namespace Microsoft.EntityFrameworkCore
 
         private static void AddEntitiesNullable(IServiceProvider serviceProvider, string databaseName, bool useSequence)
         {
-            using (var context = new NullableBronieContext(serviceProvider, databaseName, useSequence))
+            using var context = new NullableBronieContext(serviceProvider, databaseName, useSequence);
+            for (var i = 0; i < 10; i++)
             {
-                for (var i = 0; i < 10; i++)
-                {
-                    context.Add(
-                        new Unicon
-                        {
-                            Name = "Twilight Sparkle " + i
-                        });
-                    context.Add(
-                        new Unicon
-                        {
-                            Name = "Rarity " + i
-                        });
-                }
-
-                context.SaveChanges();
+                context.Add(
+                    new Unicon { Name = "Twilight Sparkle " + i });
+                context.Add(
+                    new Unicon { Name = "Rarity " + i });
             }
+
+            context.SaveChanges();
         }
 
         private class NullableBronieContext : DbContext
@@ -462,11 +411,11 @@ namespace Microsoft.EntityFrameworkCore
                         b.HasKey(e => e.Identifier);
                         if (_useSequence)
                         {
-                            b.Property(e => e.Identifier).ForSqlServerUseSequenceHiLo();
+                            b.Property(e => e.Identifier).UseHiLo();
                         }
                         else
                         {
-                            b.Property(e => e.Identifier).ForSqlServerUseIdentityColumn();
+                            b.Property(e => e.Identifier).UseIdentityColumn();
                         }
                     });
             }

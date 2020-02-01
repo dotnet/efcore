@@ -27,20 +27,14 @@ namespace Microsoft.EntityFrameworkCore.Update
             var stateManager = CreateContextServices(CreateSimpleFKModel()).GetRequiredService<IStateManager>();
 
             var entry = stateManager.GetOrCreateEntry(
-                new FakeEntity
-                {
-                    Id = 42,
-                    Value = "Test"
-                });
+                new FakeEntity { Id = 42, Value = "Test" });
 
             entry.SetEntityState(EntityState.Added);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }, modelData).ToArray();
-            Assert.Equal(1, commandBatches.Length);
+            Assert.Single(commandBatches);
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
             var command = commandBatches.First().ModificationCommands.Single();
@@ -74,20 +68,14 @@ namespace Microsoft.EntityFrameworkCore.Update
             var stateManager = CreateContextServices(CreateSimpleFKModel()).GetRequiredService<IStateManager>();
 
             var entry = stateManager.GetOrCreateEntry(
-                new FakeEntity
-                {
-                    Id = 42,
-                    Value = "Test"
-                });
+                new FakeEntity { Id = 42, Value = "Test" });
 
             entry.SetEntityState(EntityState.Modified);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }, modelData).ToArray();
-            Assert.Equal(1, commandBatches.Length);
+            Assert.Single(commandBatches);
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
             var command = commandBatches.First().ModificationCommands.Single();
@@ -121,20 +109,14 @@ namespace Microsoft.EntityFrameworkCore.Update
             var stateManager = CreateContextServices(CreateSimpleFKModel()).GetRequiredService<IStateManager>();
 
             var entry = stateManager.GetOrCreateEntry(
-                new FakeEntity
-                {
-                    Id = 42,
-                    Value = "Test"
-                });
+                new FakeEntity { Id = 42, Value = "Test" });
 
             entry.SetEntityState(EntityState.Deleted);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }, modelData).ToArray();
-            Assert.Equal(1, commandBatches.Length);
+            Assert.Single(commandBatches);
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
             var command = commandBatches.First().ModificationCommands.Single();
@@ -159,22 +141,13 @@ namespace Microsoft.EntityFrameworkCore.Update
             var stateManager = configuration.GetRequiredService<IStateManager>();
 
             var entry = stateManager.GetOrCreateEntry(
-                new FakeEntity
-                {
-                    Id = 42,
-                    Value = "Test"
-                });
+                new FakeEntity { Id = 42, Value = "Test" });
             entry.SetEntityState(EntityState.Added);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var relatedEntry = stateManager.GetOrCreateEntry(
-                new RelatedFakeEntity
-                {
-                    Id = 42
-                });
+                new RelatedFakeEntity { Id = 42 });
             relatedEntry.SetEntityState(EntityState.Added);
 
             var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedEntry, entry }, modelData).ToArray();
@@ -191,22 +164,13 @@ namespace Microsoft.EntityFrameworkCore.Update
             var stateManager = configuration.GetRequiredService<IStateManager>();
 
             var entry = stateManager.GetOrCreateEntry(
-                new FakeEntity
-                {
-                    Id = 42,
-                    Value = "Test"
-                });
+                new FakeEntity { Id = 42, Value = "Test" });
             entry.SetEntityState(EntityState.Added);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var relatedEntry = stateManager.GetOrCreateEntry(
-                new RelatedFakeEntity
-                {
-                    Id = 42
-                });
+                new RelatedFakeEntity { Id = 42 });
             relatedEntry.SetEntityState(EntityState.Modified);
 
             var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedEntry, entry }, modelData).ToArray();
@@ -223,23 +187,14 @@ namespace Microsoft.EntityFrameworkCore.Update
             var stateManager = configuration.GetRequiredService<IStateManager>();
 
             var firstEntry = stateManager.GetOrCreateEntry(
-                new FakeEntity
-                {
-                    Id = 42,
-                    Value = "Test"
-                });
+                new FakeEntity { Id = 42, Value = "Test" });
             firstEntry.SetEntityState(EntityState.Added);
 
             var secondEntry = stateManager.GetOrCreateEntry(
-                new RelatedFakeEntity
-                {
-                    Id = 1
-                });
+                new RelatedFakeEntity { Id = 1 });
             secondEntry.SetEntityState(EntityState.Added);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { secondEntry, firstEntry }, modelData).ToArray();
 
@@ -255,35 +210,22 @@ namespace Microsoft.EntityFrameworkCore.Update
             var stateManager = configuration.GetRequiredService<IStateManager>();
 
             var previousParent = stateManager.GetOrCreateEntry(
-                new FakeEntity
-                {
-                    Id = 42,
-                    Value = "Test"
-                });
+                new FakeEntity { Id = 42, Value = "Test" });
             previousParent.SetEntityState(EntityState.Deleted);
 
             var newParent = stateManager.GetOrCreateEntry(
-                new FakeEntity
-                {
-                    Id = 3,
-                    Value = "Test"
-                });
+                new FakeEntity { Id = 3, Value = "Test" });
             newParent.SetEntityState(EntityState.Added);
 
             var relatedEntry = stateManager.GetOrCreateEntry(
-                new RelatedFakeEntity
-                {
-                    Id = 1,
-                    RelatedId = 3
-                });
+                new RelatedFakeEntity { Id = 1, RelatedId = 3 });
             relatedEntry.SetEntityState(EntityState.Modified);
             relatedEntry.SetOriginalValue(relatedEntry.EntityType.FindProperty("RelatedId"), 42);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedEntry, previousParent, newParent }, modelData).ToArray();
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedEntry, previousParent, newParent }, modelData)
+                .ToArray();
 
             Assert.Equal(
                 new[] { newParent, relatedEntry, previousParent },
@@ -297,32 +239,18 @@ namespace Microsoft.EntityFrameworkCore.Update
             var stateManager = configuration.GetRequiredService<IStateManager>();
 
             var parentEntity = stateManager.GetOrCreateEntry(
-                new FakeEntity
-                {
-                    Id = 1,
-                    Value = "Test"
-                });
+                new FakeEntity { Id = 1, Value = "Test" });
             parentEntity.SetEntityState(EntityState.Unchanged);
 
             var previousChild = stateManager.GetOrCreateEntry(
-                new RelatedFakeEntity
-                {
-                    Id = 42,
-                    RelatedId = 1
-                });
+                new RelatedFakeEntity { Id = 42, RelatedId = 1 });
             previousChild.SetEntityState(EntityState.Deleted);
 
             var newChild = stateManager.GetOrCreateEntry(
-                new RelatedFakeEntity
-                {
-                    Id = 23,
-                    RelatedId = 1
-                });
+                new RelatedFakeEntity { Id = 23, RelatedId = 1 });
             newChild.SetEntityState(EntityState.Added);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { newChild, previousChild }, modelData).ToArray();
 
@@ -338,48 +266,26 @@ namespace Microsoft.EntityFrameworkCore.Update
             var stateManager = configuration.GetRequiredService<IStateManager>();
 
             var parentEntity = stateManager.GetOrCreateEntry(
-                new FakeEntity
-                {
-                    Id = 1,
-                    Value = "Test"
-                });
+                new FakeEntity { Id = 1, Value = "Test" });
             parentEntity.SetEntityState(EntityState.Unchanged);
 
             var oldEntity = stateManager.GetOrCreateEntry(
-                new RelatedFakeEntity
-                {
-                    Id = 2,
-                    RelatedId = 1
-                });
+                new RelatedFakeEntity { Id = 2, RelatedId = 1 });
             oldEntity.SetEntityState(EntityState.Deleted);
 
             var oldChildEntity = stateManager.GetOrCreateEntry(
-                new AnotherFakeEntity
-                {
-                    Id = 3,
-                    AnotherId = 2
-                });
+                new AnotherFakeEntity { Id = 3, AnotherId = 2 });
             oldChildEntity.SetEntityState(EntityState.Deleted);
 
             var newEntity = stateManager.GetOrCreateEntry(
-                new RelatedFakeEntity
-                {
-                    Id = 4,
-                    RelatedId = 1
-                });
+                new RelatedFakeEntity { Id = 4, RelatedId = 1 });
             newEntity.SetEntityState(EntityState.Added);
 
             var newChildEntity = stateManager.GetOrCreateEntry(
-                new AnotherFakeEntity
-                {
-                    Id = 5,
-                    AnotherId = 4
-                });
+                new AnotherFakeEntity { Id = 5, AnotherId = 4 });
             newChildEntity.SetEntityState(EntityState.Added);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var sortedEntities = CreateCommandBatchPreparer()
                 .BatchCommands(new[] { newEntity, newChildEntity, oldEntity, oldChildEntity }, modelData)
@@ -399,39 +305,28 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var stateManager = configuration.GetRequiredService<IStateManager>();
 
-            var fakeEntity = new FakeEntity
-            {
-                Id = 42,
-                Value = "Test"
-            };
+            var fakeEntity = new FakeEntity { Id = 42, Value = "Test" };
             var entry = stateManager.GetOrCreateEntry(fakeEntity);
             entry.SetEntityState(EntityState.Added);
 
             var relatedEntry = stateManager.GetOrCreateEntry(
-                new RelatedFakeEntity
-                {
-                    Id = 42
-                });
+                new RelatedFakeEntity { Id = 42 });
             relatedEntry.SetEntityState(EntityState.Added);
 
             var factory = (TestModificationCommandBatchFactory)configuration.GetService<IModificationCommandBatchFactory>();
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var commandBatches = CreateCommandBatchPreparer(factory).BatchCommands(new[] { relatedEntry, entry }, modelData);
 
-            using (var commandBatchesEnumerator = commandBatches.GetEnumerator())
-            {
-                commandBatchesEnumerator.MoveNext();
+            using var commandBatchesEnumerator = commandBatches.GetEnumerator();
+            commandBatchesEnumerator.MoveNext();
 
-                Assert.Equal(1, factory.CreateCount);
+            Assert.Equal(1, factory.CreateCount);
 
-                commandBatchesEnumerator.MoveNext();
+            commandBatchesEnumerator.MoveNext();
 
-                Assert.Equal(2, factory.CreateCount);
-            }
+            Assert.Equal(2, factory.CreateCount);
         }
 
         [ConditionalFact]
@@ -442,19 +337,11 @@ namespace Microsoft.EntityFrameworkCore.Update
             var stateManager = configuration.GetRequiredService<IStateManager>();
 
             var fakeEntry = stateManager.GetOrCreateEntry(
-                new FakeEntity
-                {
-                    Id = 42,
-                    Value = "Test"
-                });
+                new FakeEntity { Id = 42, Value = "Test" });
             fakeEntry.SetEntityState(EntityState.Added);
 
             var relatedFakeEntry = stateManager.GetOrCreateEntry(
-                new RelatedFakeEntity
-                {
-                    Id = 1,
-                    RelatedId = 42
-                });
+                new RelatedFakeEntity { Id = 1, RelatedId = 42 });
             relatedFakeEntry.SetEntityState(EntityState.Added);
 
             var fakeEntry2 = stateManager.GetOrCreateEntry(
@@ -467,9 +354,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             fakeEntry2.SetEntityState(EntityState.Modified);
             fakeEntry2.SetOriginalValue(fakeEntry2.EntityType.FindProperty(nameof(FakeEntity.Value)), "Test");
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var sortedEntities = CreateCommandBatchPreparer()
                 .BatchCommands(new[] { fakeEntry, fakeEntry2, relatedFakeEntry }, modelData)
@@ -487,11 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var stateManager = configuration.GetRequiredService<IStateManager>();
 
             var entry = stateManager.GetOrCreateEntry(
-                new FakeEntity
-                {
-                    Id = 1,
-                    Value = "Test"
-                });
+                new FakeEntity { Id = 1, Value = "Test" });
             entry.SetEntityState(EntityState.Added);
 
             Assert.Equal(
@@ -510,24 +391,14 @@ namespace Microsoft.EntityFrameworkCore.Update
             var stateManager = configuration.GetRequiredService<IStateManager>();
 
             var fakeEntry = stateManager.GetOrCreateEntry(
-                new FakeEntity
-                {
-                    Id = 42,
-                    RelatedId = 1
-                });
+                new FakeEntity { Id = 42, RelatedId = 1 });
             fakeEntry.SetEntityState(EntityState.Added);
 
             var relatedFakeEntry = stateManager.GetOrCreateEntry(
-                new RelatedFakeEntity
-                {
-                    Id = 1,
-                    RelatedId = 42
-                });
+                new RelatedFakeEntity { Id = 1, RelatedId = 42 });
             relatedFakeEntry.SetEntityState(EntityState.Added);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var expectedCycle = sensitiveLogging
                 ? "FakeEntity { 'Id': 42 } [Added] <- ForeignKey { 'RelatedId': 42 } RelatedFakeEntity { 'Id': 1 } [Added] <- ForeignKey { 'RelatedId': 1 } FakeEntity { 'Id': 42 } [Added]"
@@ -550,19 +421,11 @@ namespace Microsoft.EntityFrameworkCore.Update
             var stateManager = configuration.GetRequiredService<IStateManager>();
 
             var fakeEntry = stateManager.GetOrCreateEntry(
-                new FakeEntity
-                {
-                    Id = 42,
-                    UniqueValue = "Test"
-                });
+                new FakeEntity { Id = 42, UniqueValue = "Test" });
             fakeEntry.SetEntityState(EntityState.Added);
 
             var relatedFakeEntry = stateManager.GetOrCreateEntry(
-                new RelatedFakeEntity
-                {
-                    Id = 1,
-                    RelatedId = 42
-                });
+                new RelatedFakeEntity { Id = 1, RelatedId = 42 });
             relatedFakeEntry.SetEntityState(EntityState.Added);
 
             var fakeEntry2 = stateManager.GetOrCreateEntry(
@@ -575,9 +438,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             fakeEntry2.SetEntityState(EntityState.Modified);
             fakeEntry2.SetOriginalValue(fakeEntry2.EntityType.FindProperty(nameof(FakeEntity.UniqueValue)), "Test");
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var expectedCycle = sensitiveLogging
                 ? "FakeEntity { 'Id': 42 } [Added] <- ForeignKey { 'RelatedId': 42 } RelatedFakeEntity { 'Id': 1 } [Added] <- ForeignKey { 'RelatedId': 1 } FakeEntity { 'Id': 2 } [Modified] <- Index { 'UniqueValue': Test } FakeEntity { 'Id': 42 } [Added]"
@@ -600,32 +461,18 @@ namespace Microsoft.EntityFrameworkCore.Update
             var stateManager = configuration.GetRequiredService<IStateManager>();
 
             var fakeEntry = stateManager.GetOrCreateEntry(
-                new FakeEntity
-                {
-                    Id = 1,
-                    RelatedId = 2
-                });
+                new FakeEntity { Id = 1, RelatedId = 2 });
             fakeEntry.SetEntityState(EntityState.Deleted);
 
             var relatedFakeEntry = stateManager.GetOrCreateEntry(
-                new RelatedFakeEntity
-                {
-                    Id = 2,
-                    RelatedId = 1
-                });
+                new RelatedFakeEntity { Id = 2, RelatedId = 1 });
             relatedFakeEntry.SetEntityState(EntityState.Deleted);
 
             var anotherFakeEntry = stateManager.GetOrCreateEntry(
-                new AnotherFakeEntity
-                {
-                    Id = 3,
-                    AnotherId = 2
-                });
+                new AnotherFakeEntity { Id = 3, AnotherId = 2 });
             anotherFakeEntry.SetEntityState(EntityState.Deleted);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var expectedCycle = sensitiveLogging
                 ? "FakeEntity { 'Id': 1 } [Deleted] ForeignKey { 'RelatedId': 2 } <- RelatedFakeEntity { 'Id': 2 } [Deleted] ForeignKey { 'RelatedId': 1 } <- FakeEntity { 'Id': 1 } [Deleted]"
@@ -647,25 +494,15 @@ namespace Microsoft.EntityFrameworkCore.Update
             var stateManager = configuration.GetRequiredService<IStateManager>();
 
             var fakeEntry = stateManager.GetOrCreateEntry(
-                new FakeEntity
-                {
-                    Id = 1,
-                    UniqueValue = "Test"
-                });
+                new FakeEntity { Id = 1, UniqueValue = "Test" });
             fakeEntry.SetEntityState(EntityState.Deleted);
 
             var fakeEntry2 = stateManager.GetOrCreateEntry(
-                new FakeEntity
-                {
-                    Id = 2,
-                    UniqueValue = "Test2"
-                });
+                new FakeEntity { Id = 2, UniqueValue = "Test2" });
             fakeEntry2.SetEntityState(EntityState.Modified);
             fakeEntry2.SetOriginalValue(fakeEntry.EntityType.FindProperty(nameof(FakeEntity.UniqueValue)), "Test");
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var batches = CreateCommandBatchPreparer(updateAdapter: modelData)
                 .BatchCommands(new[] { fakeEntry, fakeEntry2 }, modelData).ToArray();
@@ -679,28 +516,19 @@ namespace Microsoft.EntityFrameworkCore.Update
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
             var stateManager = currentDbContext.GetDependencies().StateManager;
 
-            var first = new FakeEntity
-            {
-                Id = 42,
-                Value = "Test"
-            };
+            var first = new FakeEntity { Id = 42, Value = "Test" };
             var firstEntry = stateManager.GetOrCreateEntry(first);
             firstEntry.SetEntityState(EntityState.Added);
-            var second = new RelatedFakeEntity
-            {
-                Id = 42
-            };
+            var second = new RelatedFakeEntity { Id = 42 };
             var secondEntry = stateManager.GetOrCreateEntry(second);
             secondEntry.SetEntityState(EntityState.Added);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var commandBatches = CreateCommandBatchPreparer(updateAdapter: modelData)
                 .BatchCommands(new[] { firstEntry, secondEntry }, modelData)
                 .ToArray();
-            Assert.Equal(1, commandBatches.Length);
+            Assert.Single(commandBatches);
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
             var command = commandBatches.First().ModificationCommands.Single();
@@ -744,24 +572,18 @@ namespace Microsoft.EntityFrameworkCore.Update
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
             var stateManager = currentDbContext.GetDependencies().StateManager;
 
-            var entity = new FakeEntity
-            {
-                Id = 42,
-                Value = "Null"
-            };
+            var entity = new FakeEntity { Id = 42, Value = "Null" };
             var entry = stateManager.GetOrCreateEntry(entity);
 
             entry.SetEntityState(EntityState.Modified);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var commandBatches = CreateCommandBatchPreparer(updateAdapter: modelData)
                 .BatchCommands(new[] { entry }, modelData)
                 .ToArray();
 
-            Assert.Equal(1, commandBatches.Length);
+            Assert.Single(commandBatches);
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
             var command = commandBatches.First().ModificationCommands.Single();
@@ -805,28 +627,19 @@ namespace Microsoft.EntityFrameworkCore.Update
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
             var stateManager = currentDbContext.GetDependencies().StateManager;
 
-            var first = new FakeEntity
-            {
-                Id = 42,
-                Value = "Test"
-            };
+            var first = new FakeEntity { Id = 42, Value = "Test" };
             var firstEntry = stateManager.GetOrCreateEntry(first);
             firstEntry.SetEntityState(EntityState.Deleted);
-            var second = new RelatedFakeEntity
-            {
-                Id = 42
-            };
+            var second = new RelatedFakeEntity { Id = 42 };
             var secondEntry = stateManager.GetOrCreateEntry(second);
             secondEntry.SetEntityState(EntityState.Deleted);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var commandBatches = CreateCommandBatchPreparer(updateAdapter: modelData)
                 .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray();
 
-            Assert.Equal(1, commandBatches.Length);
+            Assert.Single(commandBatches);
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
             var command = commandBatches.First().ModificationCommands.Single();
@@ -836,7 +649,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             var columnMod = command.ColumnModifications[0];
 
             Assert.Equal(nameof(FakeEntity.Id), columnMod.ColumnName);
-            Assert.Equal(first.Id, columnMod.Value);
+            Assert.False(columnMod.UseCurrentValueParameter);
+            Assert.True(columnMod.UseOriginalValueParameter);
             Assert.Equal(first.Id, columnMod.OriginalValue);
             Assert.True(columnMod.IsCondition);
             Assert.True(columnMod.IsKey);
@@ -862,23 +676,14 @@ namespace Microsoft.EntityFrameworkCore.Update
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
             var stateManager = currentDbContext.GetDependencies().StateManager;
 
-            var first = new FakeEntity
-            {
-                Id = 42,
-                Value = "Test"
-            };
+            var first = new FakeEntity { Id = 42, Value = "Test" };
             var firstEntry = stateManager.GetOrCreateEntry(first);
             firstEntry.SetEntityState(EntityState.Added);
-            var second = new RelatedFakeEntity
-            {
-                Id = 42
-            };
+            var second = new RelatedFakeEntity { Id = 42 };
             var secondEntry = stateManager.GetOrCreateEntry(second);
             secondEntry.SetEntityState(EntityState.Deleted);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             if (sensitiveLogging)
             {
@@ -912,17 +717,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
             var stateManager = currentDbContext.GetDependencies().StateManager;
 
-            var first = new FakeEntity
-            {
-                Id = 42,
-                Value = "Test"
-            };
+            var first = new FakeEntity { Id = 42, Value = "Test" };
             var firstEntry = stateManager.GetOrCreateEntry(first);
             firstEntry.SetEntityState(EntityState.Modified);
-            var second = new RelatedFakeEntity
-            {
-                Id = 42
-            };
+            var second = new RelatedFakeEntity { Id = 42 };
             var secondEntry = stateManager.GetOrCreateEntry(second);
             secondEntry.SetEntityState(EntityState.Modified);
 
@@ -937,9 +735,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 new EntityEntry<RelatedFakeEntity>(secondEntry).Property(e => e.RelatedId).OriginalValue = 2;
             }
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             if (useCurrentValues)
             {
@@ -947,8 +743,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                 {
                     Assert.Equal(
                         RelationalStrings.ConflictingRowValuesSensitive(
-                             nameof(FakeEntity), nameof(RelatedFakeEntity),
-                             "{Id: 42}", "{RelatedId: 1}", "{RelatedId: 2}", "{'RelatedId'}"),
+                            nameof(FakeEntity), nameof(RelatedFakeEntity),
+                            "{Id: 42}", "{RelatedId: 1}", "{RelatedId: 2}", "{'RelatedId'}"),
                         Assert.Throws<InvalidOperationException>(
                             () => CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: true)
                                 .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray()).Message);
@@ -980,7 +776,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 {
                     Assert.Equal(
                         RelationalStrings.ConflictingOriginalRowValues(
-                             nameof(FakeEntity), nameof(RelatedFakeEntity),
+                            nameof(FakeEntity), nameof(RelatedFakeEntity),
                             "{'RelatedId'}", "{'RelatedId'}", "{'RelatedId'}"),
                         Assert.Throws<InvalidOperationException>(
                             () => CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: false)
@@ -989,52 +785,74 @@ namespace Microsoft.EntityFrameworkCore.Update
             }
         }
 
-        [InlineData(EntityState.Added, true)]
-        [InlineData(EntityState.Added, false)]
-        [InlineData(EntityState.Deleted, true)]
-        [InlineData(EntityState.Deleted, false)]
-        [ConditionalTheory]
-        public void BatchCommands_throws_on_incomplete_updates_for_shared_table_no_principal(EntityState state, bool sensitiveLogging)
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Deleted)]
+        [ConditionalTheory(Skip = "Issue #17947")]
+        public void BatchCommands_creates_batch_on_incomplete_updates_for_shared_table_no_principal(EntityState state)
         {
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
             var stateManager = currentDbContext.GetDependencies().StateManager;
 
-            var first = new DerivedRelatedFakeEntity
-            {
-                Id = 42
-            };
+            var first = new DerivedRelatedFakeEntity { Id = 42 };
             var firstEntry = stateManager.GetOrCreateEntry(first);
             firstEntry.SetEntityState(state);
 
-            var second = new AnotherFakeEntity
-            {
-                Id = 42
-            };
+            var second = new AnotherFakeEntity { Id = 42 };
             var secondEntry = stateManager.GetOrCreateEntry(second);
             secondEntry.SetEntityState(state);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
-            if (sensitiveLogging)
-            {
-                Assert.Equal(
-                    RelationalStrings.SharedRowEntryCountMismatchSensitive(
-                        nameof(DerivedRelatedFakeEntity), nameof(FakeEntity), nameof(FakeEntity), "{Id: 42}", state),
-                    Assert.Throws<InvalidOperationException>(
-                        () => CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: true)
-                            .BatchCommands(new[] { firstEntry }, modelData).ToArray()).Message);
-            }
-            else
-            {
-                Assert.Equal(
-                    RelationalStrings.SharedRowEntryCountMismatch(
-                        nameof(DerivedRelatedFakeEntity), nameof(FakeEntity), nameof(FakeEntity), state),
-                    Assert.Throws<InvalidOperationException>(
-                        () => CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: false)
-                            .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray()).Message);
-            }
+            var commandBatches = CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: true)
+                .BatchCommands(new[] { firstEntry }, modelData).ToArray();
+
+            Assert.Single(commandBatches);
+            Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
+
+            var command = commandBatches.First().ModificationCommands.Single();
+            Assert.Equal(EntityState.Modified, command.EntityState);
+            Assert.Equal(4, command.ColumnModifications.Count);
+
+            var columnMod = command.ColumnModifications[0];
+
+            Assert.Equal(nameof(DerivedRelatedFakeEntity.Id), columnMod.ColumnName);
+            Assert.True(columnMod.UseOriginalValueParameter);
+            Assert.False(columnMod.UseCurrentValueParameter);
+            Assert.Equal(first.Id, columnMod.OriginalValue);
+            Assert.True(columnMod.IsCondition);
+            Assert.True(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.False(columnMod.IsWrite);
+
+            columnMod = command.ColumnModifications[1];
+
+            Assert.Equal("Discriminator", columnMod.ColumnName);
+            Assert.Equal(nameof(DerivedRelatedFakeEntity), columnMod.Value);
+            Assert.Equal(nameof(DerivedRelatedFakeEntity), columnMod.OriginalValue);
+            Assert.True(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.True(columnMod.IsWrite);
+
+            columnMod = command.ColumnModifications[2];
+
+            Assert.Equal(nameof(DerivedRelatedFakeEntity.RelatedId), columnMod.ColumnName);
+            Assert.Equal(first.RelatedId, columnMod.Value);
+            Assert.Equal(first.RelatedId, columnMod.OriginalValue);
+            Assert.True(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.True(columnMod.IsWrite);
+
+            columnMod = command.ColumnModifications[3];
+
+            Assert.Equal(nameof(AnotherFakeEntity.AnotherId), columnMod.ColumnName);
+            Assert.Equal(second.AnotherId, columnMod.Value);
+            Assert.Equal(second.AnotherId, columnMod.OriginalValue);
+            Assert.False(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.True(columnMod.IsWrite);
         }
 
         [InlineData(EntityState.Added)]
@@ -1045,79 +863,79 @@ namespace Microsoft.EntityFrameworkCore.Update
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
             var stateManager = currentDbContext.GetDependencies().StateManager;
 
-            var first = new FakeEntity
-            {
-                Id = 42
-            };
+            var first = new FakeEntity { Id = 42 };
             var firstEntry = stateManager.GetOrCreateEntry(first);
             firstEntry.SetEntityState(state);
 
-            var second = new DerivedRelatedFakeEntity
-            {
-                Id = 42
-            };
+            var second = new DerivedRelatedFakeEntity { Id = 42 };
             var secondEntry = stateManager.GetOrCreateEntry(second);
             secondEntry.SetEntityState(state);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var batches = CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: false)
-                            .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray();
+                .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray();
 
-            Assert.Equal(1, batches.Length);
+            Assert.Single(batches);
         }
 
-        [InlineData(EntityState.Added, true)]
-        [InlineData(EntityState.Added, false)]
-        [InlineData(EntityState.Deleted, true)]
-        [InlineData(EntityState.Deleted, false)]
-        [ConditionalTheory]
-        public void BatchCommands_throws_on_incomplete_updates_for_shared_table_no_middle_dependent(
-            EntityState state, bool sensitiveLogging)
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Deleted)]
+        [ConditionalTheory(Skip = "Issue #17947")]
+        public void BatchCommands_creates_batch_on_incomplete_updates_for_shared_table_no_middle_dependent(EntityState state)
         {
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
             var stateManager = currentDbContext.GetDependencies().StateManager;
 
-            var first = new FakeEntity
-            {
-                Id = 42
-            };
+            var first = new FakeEntity { Id = 42 };
             var firstEntry = stateManager.GetOrCreateEntry(first);
             firstEntry.SetEntityState(state);
 
-            var second = new AnotherFakeEntity
-            {
-                Id = 42
-            };
+            var second = new AnotherFakeEntity { Id = 42 };
             var secondEntry = stateManager.GetOrCreateEntry(second);
             secondEntry.SetEntityState(state);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
-            if (sensitiveLogging)
-            {
-                Assert.Equal(
-                    RelationalStrings.SharedRowEntryCountMismatchSensitive(
-                        nameof(AnotherFakeEntity), nameof(FakeEntity), nameof(DerivedRelatedFakeEntity), "{Id: 42}", state),
-                    Assert.Throws<InvalidOperationException>(
-                        () =>
-                            CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: true)
-                                .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray()).Message);
-            }
-            else
-            {
-                Assert.Equal(
-                    RelationalStrings.SharedRowEntryCountMismatch(
-                        nameof(AnotherFakeEntity), nameof(FakeEntity), nameof(DerivedRelatedFakeEntity), state),
-                    Assert.Throws<InvalidOperationException>(
-                        () =>
-                            CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: false)
-                                .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray()).Message);
-            }
+            var commandBatches = CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: true)
+                .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray();
+
+            Assert.Equal(2, commandBatches.Length);
+            Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
+
+            var command = commandBatches.First().ModificationCommands.Single();
+            Assert.Equal(EntityState.Modified, command.EntityState);
+            Assert.Equal(3, command.ColumnModifications.Count);
+
+            var columnMod = command.ColumnModifications[0];
+
+            Assert.Equal(nameof(DerivedRelatedFakeEntity.Id), columnMod.ColumnName);
+            Assert.Equal(first.Id, columnMod.Value);
+            Assert.Equal(first.Id, columnMod.OriginalValue);
+            Assert.True(columnMod.IsCondition);
+            Assert.True(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.False(columnMod.IsWrite);
+
+            columnMod = command.ColumnModifications[1];
+
+            Assert.Equal(nameof(DerivedRelatedFakeEntity.RelatedId), columnMod.ColumnName);
+            Assert.Equal(first.RelatedId, columnMod.Value);
+            Assert.Equal(first.RelatedId, columnMod.OriginalValue);
+            Assert.True(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.True(columnMod.IsWrite);
+
+            columnMod = command.ColumnModifications[2];
+
+            Assert.Equal(nameof(AnotherFakeEntity.AnotherId), columnMod.ColumnName);
+            Assert.Equal(second.AnotherId, columnMod.Value);
+            Assert.Equal(second.AnotherId, columnMod.OriginalValue);
+            Assert.False(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.True(columnMod.IsWrite);
         }
 
         private static IServiceProvider CreateContextServices(IModel model)

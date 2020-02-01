@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -17,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
     public static class ConventionModelExtensions
     {
         /// <summary>
-        ///     Gets the entity that maps the given entity class. Returns null if no entity type with the given name is found.
+        ///     Gets the entity that maps the given entity class. Returns <c>null</c> if no entity type with the given name is found.
         /// </summary>
         /// <param name="model"> The model to find the entity type in. </param>
         /// <param name="type"> The type to find the corresponding entity type for. </param>
@@ -27,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Gets the entity type for the given name, defining navigation name
-        ///     and the defining entity type. Returns null if no matching entity type is found.
+        ///     and the defining entity type. Returns <c>null</c> if no matching entity type is found.
         /// </summary>
         /// <param name="model"> The model to find the entity type in. </param>
         /// <param name="type"> The type of the entity type to find. </param>
@@ -40,6 +41,27 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] string definingNavigationName,
             [NotNull] IConventionEntityType definingEntityType)
             => (IConventionEntityType)((IModel)model).FindEntityType(type, definingNavigationName, definingEntityType);
+
+        /// <summary>
+        ///     Gets the entity types matching the given type.
+        /// </summary>
+        /// <param name="model"> The model to find the entity type in. </param>
+        /// <param name="type"> The type of the entity type to find. </param>
+        /// <returns> The entity types found. </returns>
+        [DebuggerStepThrough]
+        public static IReadOnlyCollection<IConventionEntityType> GetEntityTypes([NotNull] this IConventionModel model, [NotNull] Type type)
+            => ((Model)model).GetEntityTypes(type);
+
+        /// <summary>
+        ///     Gets the entity types matching the given name.
+        /// </summary>
+        /// <param name="model"> The model to find the entity type in. </param>
+        /// <param name="name"> The name of the entity type to find. </param>
+        /// <returns> The entity types found. </returns>
+        [DebuggerStepThrough]
+        public static IReadOnlyCollection<IConventionEntityType> GetEntityTypes(
+            [NotNull] this IConventionModel model, [NotNull] string name)
+            => ((Model)model).GetEntityTypes(name);
 
         /// <summary>
         ///     Removes an entity type without a defining navigation from the model.
@@ -223,10 +245,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     Indicates whether the given entity type name is ignored.
         /// </summary>
         /// <param name="model"> The model to check for ignored type. </param>
-        /// <param name="name"> The name of the entity type that could be ignored. </param>
+        /// <param name="typeName"> The name of the entity type that could be ignored. </param>
         /// <returns> <c>true</c> if the given entity type name is ignored. </returns>
-        public static bool IsIgnored([NotNull] this IConventionModel model, [NotNull] string name)
-            => model.FindIgnoredConfigurationSource(name) != null;
+        public static bool IsIgnored([NotNull] this IConventionModel model, [NotNull] string typeName)
+            => model.FindIgnoredConfigurationSource(typeName) != null;
 
         /// <summary>
         ///     Indicates whether the given entity type is ignored.
@@ -272,5 +294,14 @@ namespace Microsoft.EntityFrameworkCore
             => Check.NotNull((Model)model, nameof(model)).AddIgnored(
                 Check.NotNull(clrType, nameof(clrType)),
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     Forces post-processing on the model such that it is ready for use by the runtime. This post
+        ///     processing happens automatically when using <see cref="DbContext.OnModelCreating" />; this method allows it to be run
+        ///     explicitly in cases where the automatic execution is not possible.
+        /// </summary>
+        /// <param name="model"> The model to finalize. </param>
+        /// <returns> The finalized <see cref="IModel" />. </returns>
+        public static IModel FinalizeModel([NotNull] this IConventionModel model) => ((Model)model).FinalizeModel();
     }
 }

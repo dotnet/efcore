@@ -1,9 +1,11 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Scaffolding;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 {
@@ -32,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
         /// </summary>
         public override MethodCallCodeFragment GenerateUseProvider(
             string connectionString,
-            MethodCallCodeFragment providerOptions)
+            MethodCallCodeFragment? providerOptions)
             => new MethodCallCodeFragment(
                 nameof(SqlServerDbContextOptionsExtensions.UseSqlServer),
                 providerOptions == null

@@ -1,10 +1,12 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
 {
@@ -23,10 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static string DisplayName([NotNull] this DatabaseColumn column)
-        {
-            var tablePrefix = column.Table?.DisplayName();
-            return (!string.IsNullOrEmpty(tablePrefix) ? tablePrefix + "." : "") + column.Name;
-        }
+            => column.Table.DisplayName() + "." + column.Name;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

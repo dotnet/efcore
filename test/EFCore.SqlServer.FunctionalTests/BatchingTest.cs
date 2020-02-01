@@ -156,11 +156,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     for (var i = 1; i < 4; i++)
                     {
-                        var blog = new Blog
-                        {
-                            Id = Guid.NewGuid(),
-                            Owner = owner
-                        };
+                        var blog = new Blog { Id = Guid.NewGuid(), Owner = owner };
 
                         context.Set<Blog>().Add(blog);
                         expectedBlogs.Add(blog);
@@ -172,8 +168,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Contains(
                         minBatchSize == 3
-                            ? RelationalResources.LogBatchReadyForExecution(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(3)
-                            : RelationalResources.LogBatchSmallerThanMinBatchSize(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(3, 4),
+                            ? RelationalResources.LogBatchReadyForExecution(new TestLogger<SqlServerLoggingDefinitions>())
+                                .GenerateMessage(3)
+                            : RelationalResources.LogBatchSmallerThanMinBatchSize(new TestLogger<SqlServerLoggingDefinitions>())
+                                .GenerateMessage(3, 4),
                         Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
 
                     Assert.Equal(minBatchSize <= 3 ? 2 : 4, Fixture.TestSqlLoggerFactory.SqlStatements.Count);

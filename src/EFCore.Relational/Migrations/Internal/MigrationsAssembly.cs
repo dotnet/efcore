@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var assemblyName = RelationalOptionsExtension.Extract(options)?.MigrationsAssembly;
             Assembly = assemblyName == null
-                ? _contextType.GetTypeInfo().Assembly
+                ? _contextType.Assembly
                 : Assembly.Load(new AssemblyName(assemblyName));
 
             _idGenerator = idGenerator;
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     var items
                         = from t in Assembly.GetConstructibleTypes()
                           where t.IsSubclassOf(typeof(Migration))
-                                && t.GetCustomAttribute<DbContextAttribute>()?.ContextType == _contextType
+                              && t.GetCustomAttribute<DbContextAttribute>()?.ContextType == _contextType
                           let id = t.GetCustomAttribute<MigrationAttribute>()?.Id
                           orderby id
                           select (id, t);
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             => _modelSnapshot
                 ??= (from t in Assembly.GetConstructibleTypes()
                      where t.IsSubclassOf(typeof(ModelSnapshot))
-                           && t.GetCustomAttribute<DbContextAttribute>()?.ContextType == _contextType
+                         && t.GetCustomAttribute<DbContextAttribute>()?.ContextType == _contextType
                      select (ModelSnapshot)Activator.CreateInstance(t.AsType()))
                 .FirstOrDefault();
 

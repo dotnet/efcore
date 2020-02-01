@@ -41,7 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(typeof(TNumber), typeof(byte[]), i => new NumberToBytesConverter<TNumber>(i.MappingHints), _defaultHints);
+            = new ValueConverterInfo(
+                typeof(TNumber), typeof(byte[]), i => new NumberToBytesConverter<TNumber>(i.MappingHints), _defaultHints);
 
         private static Expression<Func<TNumber, byte[]>> ToBytes()
         {
@@ -178,18 +179,18 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             return type == typeof(decimal)
                 ? 16
                 : (type == typeof(long)
-                   || type == typeof(ulong)
-                   || type == typeof(double)
-                    ? 8
-                    : (type == typeof(int)
-                       || type == typeof(uint)
-                       || type == typeof(float)
-                        ? 4
-                        : (type == typeof(short)
-                           || type == typeof(ushort)
-                           || type == typeof(char)
-                            ? 2
-                            : 1)));
+                    || type == typeof(ulong)
+                    || type == typeof(double)
+                        ? 8
+                        : (type == typeof(int)
+                            || type == typeof(uint)
+                            || type == typeof(float)
+                                ? 4
+                                : (type == typeof(short)
+                                    || type == typeof(ushort)
+                                    || type == typeof(char)
+                                        ? 2
+                                        : 1)));
         }
 
         private static byte[] EnsureEndianInt(byte[] bytes)
@@ -222,20 +223,23 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 
         private static decimal BytesToDecimal(byte[] bytes)
         {
+            var gotBytes = bytes;
             if (BitConverter.IsLittleEndian)
             {
-                Array.Reverse(bytes, 0, 4);
-                Array.Reverse(bytes, 4, 4);
-                Array.Reverse(bytes, 8, 4);
-                Array.Reverse(bytes, 12, 4);
+                gotBytes = new byte[16];
+                Array.Copy(bytes, gotBytes, 16);
+                Array.Reverse(gotBytes, 0, 4);
+                Array.Reverse(gotBytes, 4, 4);
+                Array.Reverse(gotBytes, 8, 4);
+                Array.Reverse(gotBytes, 12, 4);
             }
 
-            var specialBits = BitConverter.ToUInt32(bytes, 0);
+            var specialBits = BitConverter.ToUInt32(gotBytes, 0);
 
             return new decimal(
-                BitConverter.ToInt32(bytes, 12),
-                BitConverter.ToInt32(bytes, 8),
-                BitConverter.ToInt32(bytes, 4),
+                BitConverter.ToInt32(gotBytes, 12),
+                BitConverter.ToInt32(gotBytes, 8),
+                BitConverter.ToInt32(gotBytes, 4),
                 (specialBits & 0x80000000) != 0,
                 (byte)((specialBits & 0x00FF0000) >> 16));
         }

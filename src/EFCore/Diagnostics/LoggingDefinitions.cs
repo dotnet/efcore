@@ -401,6 +401,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
+        public EventDefinitionBase LogCollectionWithoutComparer;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
         public EventDefinitionBase LogExecutionStrategyRetrying;
 
         /// <summary>
@@ -437,6 +446,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
+        public EventDefinitionBase LogRedundantAddServicesCall;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
         public EventDefinitionBase LogRedundantIndexRemoved;
 
         /// <summary>
@@ -455,6 +473,24 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
+        public EventDefinitionBase LogRequiredAttributeInverted;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public EventDefinitionBase LogNonNullableInverted;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
         public EventDefinitionBase LogRequiredAttributeOnDependent;
 
         /// <summary>
@@ -464,7 +500,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public EventDefinitionBase LogNonNullableOnDependent;
+        public EventDefinitionBase LogNonNullableReferenceOnDependent;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -492,6 +528,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         [EntityFrameworkInternal]
         public EventDefinitionBase LogForeignKeyAttributesOnBothNavigations;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public EventDefinitionBase LogRequiredAttributeOnCollection;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

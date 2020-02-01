@@ -33,10 +33,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             entities.Add(
-                new Darwin
-                {
-                    Id = 1777
-                });
+                new Darwin { Id = 1777 });
 
             for (var i = 0; i < 2; i++)
             {
@@ -113,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<Gumball>(
                     b =>
                     {
-                        b.Property(e => e.Id).ForSqlServerUseIdentityColumn();
+                        b.Property(e => e.Id).UseIdentityColumn();
                         b.Property(e => e.Identity).HasDefaultValue("Banana Joe");
                         b.Property(e => e.IdentityReadOnlyBeforeSave).HasDefaultValue("Doughnut Sheriff");
                         b.Property(e => e.IdentityReadOnlyAfterSave).HasDefaultValue("Anton");

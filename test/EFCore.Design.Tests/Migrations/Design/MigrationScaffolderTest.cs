@@ -51,10 +51,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             var currentContext = new CurrentDbContext(new TContext());
             var idGenerator = new MigrationsIdGenerator();
+            var sqlServerTypeMappingSource = new SqlServerTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
             var code = new CSharpHelper(
-                new SqlServerTypeMappingSource(
-                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()));
+                sqlServerTypeMappingSource);
             var reporter = new TestOperationReporter();
             var migrationAssembly
                 = new MigrationsAssembly(
@@ -84,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         new[]
                         {
                             new CSharpMigrationsGenerator(
-                                new MigrationsCodeGeneratorDependencies(),
+                                new MigrationsCodeGeneratorDependencies(sqlServerTypeMappingSource),
                                 new CSharpMigrationsGeneratorDependencies(
                                     code,
                                     new CSharpMigrationOperationGenerator(
@@ -92,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                                             code)),
                                     new CSharpSnapshotGenerator(
                                         new CSharpSnapshotGeneratorDependencies(
-                                            code))))
+                                            code, sqlServerTypeMappingSource))))
                         }),
                     historyRepository,
                     reporter,
@@ -107,6 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         services.GetRequiredService<IMigrationCommandExecutor>(),
                         services.GetRequiredService<IRelationalConnection>(),
                         services.GetRequiredService<ISqlGenerationHelper>(),
+                        services.GetRequiredService<ICurrentDbContext>(),
                         services.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Migrations>>(),
                         services.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>(),
                         services.GetRequiredService<IDatabaseProvider>())));

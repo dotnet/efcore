@@ -14,16 +14,16 @@ namespace Microsoft.EntityFrameworkCore.Update
 {
     /// <summary>
     ///     <para>
-    ///         A a base class for the <see cref="IUpdateSqlGenerator" /> service that is typically inherited from
+    ///         A base class for the <see cref="IUpdateSqlGenerator" /> service that is typically inherited from
     ///         by database providers.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers; it is generally not used in application code.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
@@ -88,7 +88,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="command"> The command that represents the delete operation. </param>
         /// <param name="commandPosition"> The ordinal of this command in the batch. </param>
         /// <returns> The <see cref="ResultSetMapping" /> for the command. </returns>
-        public virtual ResultSetMapping AppendUpdateOperation(StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
+        public virtual ResultSetMapping AppendUpdateOperation(
+            StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotNull(command, nameof(command));
@@ -120,7 +121,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="command"> The command that represents the delete operation. </param>
         /// <param name="commandPosition"> The ordinal of this command in the batch. </param>
         /// <returns> The <see cref="ResultSetMapping" /> for the command. </returns>
-        public virtual ResultSetMapping AppendDeleteOperation(StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
+        public virtual ResultSetMapping AppendDeleteOperation(
+            StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotNull(command, nameof(command));
@@ -599,7 +601,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var mapping = property != null
                 ? Dependencies.TypeMappingSource.FindMapping(property)
                 : null;
-            mapping = mapping ?? Dependencies.TypeMappingSource.GetMappingForValue(value);
+            mapping ??= Dependencies.TypeMappingSource.GetMappingForValue(value);
             commandStringBuilder.Append(mapping.GenerateProviderValueSqlLiteral(value));
         }
     }

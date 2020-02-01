@@ -68,11 +68,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(operation, nameof(operation));
 
             strategy.Execute(
-                new
-                {
-                    operation,
-                    state
-                }, s =>
+                new { operation, state }, s =>
                 {
                     s.operation(s.state);
                     return true;
@@ -205,11 +201,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(operation, nameof(operation));
 
             return strategy.ExecuteAsync(
-                new
-                {
-                    operation,
-                    state
-                }, async (t, ct) =>
+                new { operation, state }, async (t, ct) =>
                 {
                     await t.operation(t.state);
                     return true;
@@ -241,11 +233,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(operation, nameof(operation));
 
             return strategy.ExecuteAsync(
-                new
-                {
-                    operation,
-                    state
-                }, async (t, ct) =>
+                new { operation, state }, async (t, ct) =>
                 {
                     await t.operation(t.state, ct);
                     return true;
@@ -277,11 +265,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(operation, nameof(operation));
 
             return strategy.ExecuteAsync(
-                new
-                {
-                    operation,
-                    state
-                }, (t, ct) => t.operation(t.state), default);
+                new { operation, state }, (t, ct) => t.operation(t.state), default);
         }
 
         /// <summary>
@@ -299,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IExecutionStrategy strategy,
             [CanBeNull] TState state,
             [NotNull] Func<TState, TResult> operation)
-            => strategy.Execute(operation, verifySucceeded: null, state: state);
+            => strategy.Execute(state, operation,  verifySucceeded: null);
 
         /// <summary>
         ///     Executes the specified asynchronous operation and returns the result.
@@ -346,9 +330,9 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         public static TResult Execute<TState, TResult>(
             [NotNull] this IExecutionStrategy strategy,
+            [CanBeNull] TState state,
             [NotNull] Func<TState, TResult> operation,
-            [CanBeNull] Func<TState, ExecutionResult<TResult>> verifySucceeded,
-            [CanBeNull] TState state)
+            [CanBeNull] Func<TState, ExecutionResult<TResult>> verifySucceeded)
             => Check.NotNull(strategy, nameof(strategy)).Execute(
                 state,
                 (c, s) => operation(s),
@@ -745,7 +729,7 @@ namespace Microsoft.EntityFrameworkCore
                 async (c, s, ct) =>
                 {
                     Check.NotNull(beginTransaction, nameof(beginTransaction));
-                    using (var transaction = await beginTransaction(c, cancellationToken))
+                    await using (var transaction = await beginTransaction(c, cancellationToken))
                     {
                         s.CommitFailed = false;
                         s.Result = await s.Operation(s.State, ct);
@@ -756,7 +740,7 @@ namespace Microsoft.EntityFrameworkCore
                     return s.Result;
                 }, async (c, s, ct) => new ExecutionResult<TResult>(s.CommitFailed && await s.VerifySucceeded(s.State, ct), s.Result));
 
-        private class ExecutionState<TState, TResult>
+        private sealed class ExecutionState<TState, TResult>
         {
             public ExecutionState(
                 Func<TState, TResult> operation,
@@ -775,7 +759,7 @@ namespace Microsoft.EntityFrameworkCore
             public bool CommitFailed { get; set; }
         }
 
-        private class ExecutionStateAsync<TState, TResult>
+        private sealed class ExecutionStateAsync<TState, TResult>
         {
             public ExecutionStateAsync(
                 Func<TState, CancellationToken, Task<TResult>> operation,

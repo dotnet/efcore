@@ -6,7 +6,6 @@ using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -57,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore
                     .AppendJoin(key.Properties.Select(p => p.GetColumnName()), "_");
             }
 
-            return IdentifierHelpers.Truncate(builder.ToString(), key.DeclaringEntityType.Model.GetMaxIdentifierLength());
+            return Uniquifier.Truncate(builder.ToString(), key.DeclaringEntityType.Model.GetMaxIdentifierLength());
         }
 
         /// <summary>

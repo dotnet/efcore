@@ -17,17 +17,21 @@ namespace Microsoft.EntityFrameworkCore
                 .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
-            using (var context = new Context(serviceProvider, TestStore.Name))
-            {
-                context.Database.EnsureCreatedResiliently();
+            using var context = new Context(serviceProvider, TestStore.Name);
+            context.Database.EnsureCreatedResiliently();
 
-                var entity = context.Add(new Entity { P1 = 20, P2 = 30, P3 = 80 }).Entity;
+            var entity = context.Add(
+                new Entity
+                {
+                    P1 = 20,
+                    P2 = 30,
+                    P3 = 80
+                }).Entity;
 
-                context.SaveChanges();
+            context.SaveChanges();
 
-                Assert.Equal(50, entity.P4);
-                Assert.Equal(100, entity.P5);
-            }
+            Assert.Equal(50, entity.P4);
+            Assert.Equal(100, entity.P5);
         }
 
         [ConditionalFact]
@@ -37,17 +41,15 @@ namespace Microsoft.EntityFrameworkCore
                 .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
-            using (var context = new Context(serviceProvider, TestStore.Name))
-            {
-                context.Database.EnsureCreatedResiliently();
+            using var context = new Context(serviceProvider, TestStore.Name);
+            context.Database.EnsureCreatedResiliently();
 
-                var entity = context.Add(new Entity { P1 = 20, P2 = 30 }).Entity;
+            var entity = context.Add(new Entity { P1 = 20, P2 = 30 }).Entity;
 
-                context.SaveChanges();
+            context.SaveChanges();
 
-                Assert.Equal(50, entity.P4);
-                Assert.Null(entity.P5);
-            }
+            Assert.Equal(50, entity.P4);
+            Assert.Null(entity.P5);
         }
 
         private class Context : DbContext
@@ -137,15 +139,13 @@ namespace Microsoft.EntityFrameworkCore
                 .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
-            using (var context = new NullableContext(serviceProvider, TestStore.Name))
-            {
-                context.Database.EnsureCreatedResiliently();
+            using var context = new NullableContext(serviceProvider, TestStore.Name);
+            context.Database.EnsureCreatedResiliently();
 
-                var entity = context.EnumItems.Add(new EnumItem { FlagEnum = FlagEnum.AValue, OptionalFlagEnum = FlagEnum.BValue }).Entity;
-                context.SaveChanges();
+            var entity = context.EnumItems.Add(new EnumItem { FlagEnum = FlagEnum.AValue, OptionalFlagEnum = FlagEnum.BValue }).Entity;
+            context.SaveChanges();
 
-                Assert.Equal(FlagEnum.AValue | FlagEnum.BValue, entity.CalculatedFlagEnum);
-            }
+            Assert.Equal(FlagEnum.AValue | FlagEnum.BValue, entity.CalculatedFlagEnum);
         }
 
         public ComputedColumnTest()

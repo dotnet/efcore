@@ -60,7 +60,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
             => (long)Convert.ChangeType(
                 _rawSqlCommandBuilder
                     .Build(_sqlGenerator.GenerateNextSequenceValueOperation(_sequence.Name, _sequence.Schema))
-                    .ExecuteScalar(_connection, null, _commandLogger),
+                    .ExecuteScalar(
+                        new RelationalCommandParameterObject(
+                            _connection,
+                            parameterValues: null,
+                            readerColumns: null,
+                            context: null,
+                            _commandLogger)),
                 typeof(long),
                 CultureInfo.InvariantCulture);
 
@@ -74,7 +80,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
             => (long)Convert.ChangeType(
                 await _rawSqlCommandBuilder
                     .Build(_sqlGenerator.GenerateNextSequenceValueOperation(_sequence.Name, _sequence.Schema))
-                    .ExecuteScalarAsync(_connection, null, _commandLogger, cancellationToken: cancellationToken),
+                    .ExecuteScalarAsync(
+                        new RelationalCommandParameterObject(
+                            _connection,
+                            parameterValues: null,
+                            readerColumns: null,
+                            context: null,
+                            _commandLogger),
+                        cancellationToken),
                 typeof(long),
                 CultureInfo.InvariantCulture);
 

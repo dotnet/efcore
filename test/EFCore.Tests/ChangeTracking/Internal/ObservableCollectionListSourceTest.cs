@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public void ObservableCollectionListSource_exposes_ObservableCollection_parameterless_constructor()
         {
             var ols = new ObservableCollectionListSource<FakeEntity>();
-            Assert.Equal(0, ols.Count);
+            Assert.Empty(ols);
         }
 
         [ConditionalFact]
@@ -27,11 +27,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [ConditionalFact]
         public void ObservableCollectionListSource_exposes_ObservableCollection_List_constructor()
         {
-            var entities = new List<FakeEntity>
-            {
-                new FakeEntity(),
-                new FakeEntity()
-            };
+            var entities = new List<FakeEntity> { new FakeEntity(), new FakeEntity() };
             var ols = new ObservableCollectionListSource<FakeEntity>(entities);
             Assert.Equal(2, ols.Count);
         }
@@ -45,11 +41,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [ConditionalFact]
         public void ObservableCollectionListSource_GetList_returns_BindingList_attached_to_the_ObservableCollection()
         {
-            var ols = new ObservableCollectionListSource<FakeEntity>
-            {
-                new FakeEntity(),
-                new FakeEntity()
-            };
+            var ols = new ObservableCollectionListSource<FakeEntity> { new FakeEntity(), new FakeEntity() };
             var bindingList = ((IListSource)ols).GetList();
 
             Assert.Equal(2, bindingList.Count);

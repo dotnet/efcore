@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -62,14 +62,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     throw new InvalidOperationException(
                         CoreStrings.NavigationIsProperty(
                             name, internalEntry.EntityType.DisplayName(),
-                            nameof(ChangeTracking.EntityEntry.Reference), nameof(ChangeTracking.EntityEntry.Collection), nameof(ChangeTracking.EntityEntry.Property)));
+                            nameof(ChangeTracking.EntityEntry.Reference), nameof(ChangeTracking.EntityEntry.Collection),
+                            nameof(ChangeTracking.EntityEntry.Property)));
                 }
 
                 throw new InvalidOperationException(CoreStrings.PropertyNotFound(name, internalEntry.EntityType.DisplayName()));
             }
 
             if (collection
-                && !navigation.IsCollection())
+                && !navigation.IsCollection)
             {
                 throw new InvalidOperationException(
                     CoreStrings.CollectionIsReference(
@@ -78,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
 
             if (!collection
-                && navigation.IsCollection())
+                && navigation.IsCollection)
             {
                 throw new InvalidOperationException(
                     CoreStrings.ReferenceIsCollection(
@@ -127,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </returns>
         public virtual Task LoadAsync(CancellationToken cancellationToken = default)
             => IsLoaded
-                ? Task.FromResult(0)
+                ? Task.CompletedTask
                 : TargetFinder.LoadAsync(Metadata, InternalEntry, cancellationToken);
 
         /// <summary>
@@ -174,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         private IEntityFinder TargetFinder
-            => InternalEntry.StateManager.CreateEntityFinder(Metadata.GetTargetType());
+            => InternalEntry.StateManager.CreateEntityFinder(Metadata.TargetEntityType);
 
         /// <summary>
         ///     Gets or sets a value indicating whether any of foreign key property values associated
@@ -185,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             get
             {
-                if (Metadata.IsDependentToPrincipal())
+                if (Metadata.IsOnDependent)
                 {
                     return AnyFkPropertiesModified(InternalEntry);
                 }
@@ -193,13 +194,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 var navigationValue = CurrentValue;
 
                 return navigationValue != null
-                       && (Metadata.IsCollection()
-                           ? ((IEnumerable)navigationValue).OfType<object>().Any(CollectionContainsNewOrChangedRelationships)
-                           : AnyFkPropertiesModified(navigationValue));
+                    && (Metadata.IsCollection
+                        ? ((IEnumerable)navigationValue).OfType<object>().Any(CollectionContainsNewOrChangedRelationships)
+                        : AnyFkPropertiesModified(navigationValue));
             }
             set
             {
-                if (Metadata.IsDependentToPrincipal())
+                if (Metadata.IsOnDependent)
                 {
                     SetFkPropertiesModified(InternalEntry, value);
                 }
@@ -208,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     var navigationValue = CurrentValue;
                     if (navigationValue != null)
                     {
-                        if (Metadata.IsCollection())
+                        if (Metadata.IsCollection)
                         {
                             foreach (var relatedEntity in (IEnumerable)navigationValue)
                             {
@@ -226,25 +227,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         private bool CollectionContainsNewOrChangedRelationships(object relatedEntity)
         {
-            var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.GetTargetType());
+            var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.TargetEntityType);
 
             return relatedEntry != null
-                   && (relatedEntry.EntityState == EntityState.Added
-                       || relatedEntry.EntityState == EntityState.Deleted
-                       || Metadata.ForeignKey.Properties.Any(relatedEntry.IsModified));
+                && (relatedEntry.EntityState == EntityState.Added
+                    || relatedEntry.EntityState == EntityState.Deleted
+                    || Metadata.ForeignKey.Properties.Any(relatedEntry.IsModified));
         }
 
         private bool AnyFkPropertiesModified(object relatedEntity)
         {
-            var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.GetTargetType());
+            var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.TargetEntityType);
 
             return relatedEntry != null
-                   && Metadata.ForeignKey.Properties.Any(relatedEntry.IsModified);
+                && Metadata.ForeignKey.Properties.Any(relatedEntry.IsModified);
         }
 
         private void SetFkPropertiesModified(object relatedEntity, bool modified)
         {
-            var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.GetTargetType());
+            var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.TargetEntityType);
             if (relatedEntry != null)
             {
                 SetFkPropertiesModified(relatedEntry, modified);

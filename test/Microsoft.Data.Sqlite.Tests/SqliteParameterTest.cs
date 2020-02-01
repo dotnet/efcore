@@ -13,14 +13,6 @@ namespace Microsoft.Data.Sqlite
     public class SqliteParameterTest
     {
         [Fact]
-        public void Ctor_validates_arguments()
-        {
-            var ex = Assert.Throws<ArgumentNullException>(() => new SqliteParameter(null, 1));
-
-            Assert.Equal("name", ex.ParamName);
-        }
-
-        [Fact]
         public void Ctor_sets_name_and_value()
         {
             var result = new SqliteParameter("@Parameter", 1);
@@ -77,20 +69,9 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void ParameterName_validates_value()
-        {
-            var ex = Assert.Throws<ArgumentNullException>(() => new SqliteParameter().ParameterName = null);
-            Assert.Equal("value", ex.ParamName);
-        }
-
-        [Fact]
         public void ResetDbType_works()
         {
-            var parameter = new SqliteParameter
-            {
-                DbType = DbType.Int64,
-                SqliteType = SqliteType.Integer
-            };
+            var parameter = new SqliteParameter { DbType = DbType.Int64, SqliteType = SqliteType.Integer };
 
             parameter.ResetDbType();
 
@@ -101,11 +82,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void ResetSqliteType_works()
         {
-            var parameter = new SqliteParameter
-            {
-                DbType = DbType.Int64,
-                SqliteType = SqliteType.Integer
-            };
+            var parameter = new SqliteParameter { DbType = DbType.Int64, SqliteType = SqliteType.Integer };
 
             parameter.ResetSqliteType();
 

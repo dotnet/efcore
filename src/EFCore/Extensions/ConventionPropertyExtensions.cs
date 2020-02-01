@@ -73,6 +73,14 @@ namespace Microsoft.EntityFrameworkCore
             => ((Property)property).GetContainingKeys();
 
         /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for <see cref="PropertyExtensions.FindTypeMapping(IProperty)" />.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for <see cref="PropertyExtensions.FindTypeMapping(IProperty)" />. </returns>
+        public static ConfigurationSource? GetTypeMappingConfigurationSource([NotNull] this IConventionProperty property)
+            => property.FindAnnotation(CoreAnnotationNames.TypeMapping)?.GetConfigurationSource();
+
+        /// <summary>
         ///     Sets the maximum length of data that is allowed in this property. For example, if the property is a <see cref="string" /> '
         ///     then this is the maximum number of characters.
         /// </summary>
@@ -298,19 +306,20 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="comparer"> The comparer, or <c>null</c> to remove any previously set comparer. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        [Obsolete("Use SetKeyValueComparer. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
         public static void SetStructuralValueComparer(
             [NotNull] this IConventionProperty property,
             [CanBeNull] ValueComparer comparer,
             bool fromDataAnnotation = false)
-            => property.AsProperty().SetStructuralValueComparer(
-                comparer, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+            => property.SetKeyValueComparer(comparer, fromDataAnnotation);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="PropertyExtensions.GetStructuralValueComparer" />.
         /// </summary>
         /// <param name="property"> The property to find configuration source for. </param>
         /// <returns> The configuration source for <see cref="PropertyExtensions.GetStructuralValueComparer" />. </returns>
+        [Obsolete("Use GetKeyValueComparerConfigurationSource. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
         public static ConfigurationSource? GetStructuralValueComparerConfigurationSource([NotNull] this IConventionProperty property)
-            => property.FindAnnotation(CoreAnnotationNames.StructuralValueComparer)?.GetConfigurationSource();
+            => property.GetKeyValueComparerConfigurationSource();
     }
 }

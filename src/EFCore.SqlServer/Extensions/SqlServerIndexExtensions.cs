@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> <c>true</c> if the index is clustered. </returns>
-        public static bool? GetSqlServerIsClustered([NotNull] this IIndex index)
+        public static bool? IsClustered([NotNull] this IIndex index)
             => (bool?)index[SqlServerAnnotationNames.Clustered];
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="value"> The value to set. </param>
         /// <param name="index"> The index. </param>
-        public static void SetSqlServerIsClustered([NotNull] this IMutableIndex index, bool? value)
+        public static void SetIsClustered([NotNull] this IMutableIndex index, bool? value)
             => index.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.Clustered,
                 value);
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="value"> The value to set. </param>
         /// <param name="index"> The index. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetSqlServerIsClustered(
+        public static void SetIsClustered(
             [NotNull] this IConventionIndex index, bool? value, bool fromDataAnnotation = false)
             => index.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.Clustered,
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The <see cref="ConfigurationSource" /> for whether the index is clustered. </returns>
-        public static ConfigurationSource? GetSqlServerIsClusteredConfigurationSource([NotNull] this IConventionIndex property)
+        public static ConfigurationSource? GetIsClusteredConfigurationSource([NotNull] this IConventionIndex property)
             => property.FindAnnotation(SqlServerAnnotationNames.Clustered)?.GetConfigurationSource();
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> The included property names, or <c>null</c> if they have not been specified. </returns>
-        public static IReadOnlyList<string> GetSqlServerIncludeProperties([NotNull] this IIndex index)
+        public static IReadOnlyList<string> GetIncludeProperties([NotNull] this IIndex index)
             => (string[])index[SqlServerAnnotationNames.Include];
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <param name="properties"> The value to set. </param>
-        public static void SetSqlServerIncludeProperties([NotNull] this IMutableIndex index, [NotNull] IReadOnlyList<string> properties)
+        public static void SetIncludeProperties([NotNull] this IMutableIndex index, [NotNull] IReadOnlyList<string> properties)
             => index.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.Include,
                 properties);
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <param name="properties"> The value to set. </param>
-        public static void SetSqlServerIncludeProperties(
+        public static void SetIncludeProperties(
             [NotNull] this IConventionIndex index, [NotNull] IReadOnlyList<string> properties, bool fromDataAnnotation = false)
             => index.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.Include,
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> The <see cref="ConfigurationSource" /> for the included property names. </returns>
-        public static ConfigurationSource? GetSqlServerIncludePropertiesConfigurationSource([NotNull] this IConventionIndex index)
+        public static ConfigurationSource? GetIncludePropertiesConfigurationSource([NotNull] this IConventionIndex index)
             => index.FindAnnotation(SqlServerAnnotationNames.Include)?.GetConfigurationSource();
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> <c>true</c> if the index is online. </returns>
-        public static bool? GetSqlServerIsCreatedOnline([NotNull] this IIndex index)
+        public static bool? IsCreatedOnline([NotNull] this IIndex index)
             => (bool?)index[SqlServerAnnotationNames.CreatedOnline];
 
         /// <summary>
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <param name="createdOnline"> The value to set. </param>
-        public static void SetSqlServerIsCreatedOnline([NotNull] this IMutableIndex index, bool? createdOnline)
+        public static void SetIsCreatedOnline([NotNull] this IMutableIndex index, bool? createdOnline)
             => index.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.CreatedOnline,
                 createdOnline);
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <param name="createdOnline"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetSqlServerIsCreatedOnline(
+        public static void SetIsCreatedOnline(
             [NotNull] this IConventionIndex index, bool? createdOnline, bool fromDataAnnotation = false)
             => index.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.CreatedOnline,
@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> The <see cref="ConfigurationSource" /> for whether the index is online. </returns>
-        public static ConfigurationSource? GetSqlServerIsCreatedOnlineConfigurationSource([NotNull] this IConventionIndex index)
+        public static ConfigurationSource? GetIsCreatedOnlineConfigurationSource([NotNull] this IConventionIndex index)
             => index.FindAnnotation(SqlServerAnnotationNames.CreatedOnline)?.GetConfigurationSource();
     }
 }

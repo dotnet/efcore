@@ -26,19 +26,19 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 });
 
             Assert.Equal(
-                "Good " +
-                "Good\\ " +
-                "\"Needs quotes\" " +
-                "\"Needs escaping\\\\\" " +
-                "\"Needs escaping\\\\\\\\\" " +
-                "\"Needs \\\"escaping\\\"\" " +
-                "\"Needs \\\\\\\"escaping\\\"\" " +
-                "\"Needs escaping\\\\\\\\too\"",
+                "Good "
+                + "Good\\ "
+                + "\"Needs quotes\" "
+                + "\"Needs escaping\\\\\" "
+                + "\"Needs escaping\\\\\\\\\" "
+                + "\"Needs \\\"escaping\\\"\" "
+                + "\"Needs \\\\\\\"escaping\\\"\" "
+                + "\"Needs escaping\\\\\\\\too\"",
                 result);
         }
 
         private static string ToArguments(IReadOnlyList<string> args)
-            => (string)typeof(Exe).GetTypeInfo().GetMethod("ToArguments", BindingFlags.Static | BindingFlags.NonPublic)
+            => (string)typeof(Exe).GetMethod("ToArguments", BindingFlags.Static | BindingFlags.NonPublic)
                 .Invoke(null, new object[] { args });
     }
 }

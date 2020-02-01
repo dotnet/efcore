@@ -18,11 +18,16 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void All_test_bases_must_be_implemented()
         {
-            var concreteTests = TargetAssembly.GetTypes().Where(c => c.BaseType != typeof(object) && !c.IsAbstract).ToList();
+            var concreteTests = TargetAssembly.GetTypes().Where(
+                    c =>
+                        c.BaseType != typeof(object)
+                        && !c.IsAbstract
+                        && (c.IsPublic || c.IsNestedPublic))
+                .ToList();
             var nonImplementedBases
                 = (from baseType in GetBaseTestClasses()
                    where !IgnoredTestBases.Contains(baseType)
-                         && !concreteTests.Any(c => Implements(c, baseType))
+                       && !concreteTests.Any(c => Implements(c, baseType))
                    select baseType.FullName)
                 .ToList();
 
@@ -35,8 +40,7 @@ namespace Microsoft.EntityFrameworkCore
             => typeof(ComplianceTestBase).Assembly.ExportedTypes.Where(t => t.Name.Contains("TestBase"));
 
         private static bool Implements(Type type, Type interfaceOrBaseType)
-            => (type.IsPublic || type.IsNestedPublic) &&
-               interfaceOrBaseType.IsGenericTypeDefinition
+            => (type.IsPublic || type.IsNestedPublic) && interfaceOrBaseType.IsGenericTypeDefinition
                 ? GetGenericTypeImplementations(type, interfaceOrBaseType).Any()
                 : interfaceOrBaseType.IsAssignableFrom(type);
 
@@ -45,19 +49,19 @@ namespace Microsoft.EntityFrameworkCore
             var typeInfo = type.GetTypeInfo();
             if (!typeInfo.IsGenericTypeDefinition)
             {
-                var baseTypes = interfaceOrBaseType.GetTypeInfo().IsInterface
+                var baseTypes = interfaceOrBaseType.IsInterface
                     ? typeInfo.ImplementedInterfaces
                     : GetBaseTypes(type);
                 foreach (var baseType in baseTypes)
                 {
-                    if (baseType.GetTypeInfo().IsGenericType
+                    if (baseType.IsGenericType
                         && baseType.GetGenericTypeDefinition() == interfaceOrBaseType)
                     {
                         yield return baseType;
                     }
                 }
 
-                if (type.GetTypeInfo().IsGenericType
+                if (type.IsGenericType
                     && type.GetGenericTypeDefinition() == interfaceOrBaseType)
                 {
                     yield return type;
@@ -67,13 +71,13 @@ namespace Microsoft.EntityFrameworkCore
 
         private static IEnumerable<Type> GetBaseTypes(Type type)
         {
-            type = type.GetTypeInfo().BaseType;
+            type = type.BaseType;
 
             while (type != null)
             {
                 yield return type;
 
-                type = type.GetTypeInfo().BaseType;
+                type = type.BaseType;
             }
         }
     }

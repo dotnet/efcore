@@ -4,16 +4,17 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
     /// <summary>
     ///     A <see cref="MigrationOperation" /> for deleting seed data from an existing table.
     /// </summary>
+    [DebuggerDisplay("DELETE FROM {Table}")]
     public class DeleteDataOperation : MigrationOperation
     {
         /// <summary>
@@ -44,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <returns> The commands that correspond to this operation. </returns>
         public virtual IEnumerable<ModificationCommand> GenerateModificationCommands([CanBeNull] IModel model)
         {
-            Debug.Assert(
+            Check.DebugAssert(
                 KeyColumns.Length == KeyValues.GetLength(1),
                 $"The number of key values doesn't match the number of keys (${KeyColumns.Length})");
 

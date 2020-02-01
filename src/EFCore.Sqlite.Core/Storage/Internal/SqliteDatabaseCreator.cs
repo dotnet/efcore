@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.IO;
 using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
@@ -17,8 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
@@ -58,7 +59,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             Dependencies.Connection.Open();
 
             _rawSqlCommandBuilder.Build("PRAGMA journal_mode = 'wal';")
-                .ExecuteNonQuery(Dependencies.Connection, null, Dependencies.CommandLogger);
+                .ExecuteNonQuery(
+                    new RelationalCommandParameterObject(
+                        Dependencies.Connection,
+                        null,
+                        null,
+                        null,
+                        Dependencies.CommandLogger));
 
             Dependencies.Connection.Close();
         }
@@ -71,6 +78,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// </summary>
         public override bool Exists()
         {
+            var connectionOptions = new SqliteConnectionStringBuilder(_connection.GetCheckedConnectionString());
+            if (connectionOptions.DataSource.Equals(":memory:", StringComparison.OrdinalIgnoreCase)
+                || connectionOptions.Mode == SqliteOpenMode.Memory)
+            {
+                return true;
+            }
+
             using (var readOnlyConnection = _connection.CreateReadOnlyConnection())
             {
                 try
@@ -96,7 +110,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         {
             var count = (long)_rawSqlCommandBuilder
                 .Build("SELECT COUNT(*) FROM \"sqlite_master\" WHERE \"type\" = 'table' AND \"rootpage\" IS NOT NULL;")
-                .ExecuteScalar(Dependencies.Connection, null, Dependencies.CommandLogger);
+                .ExecuteScalar(
+                    new RelationalCommandParameterObject(
+                        Dependencies.Connection,
+                        null,
+                        null,
+                        null,
+                        Dependencies.CommandLogger));
 
             return count != 0;
         }

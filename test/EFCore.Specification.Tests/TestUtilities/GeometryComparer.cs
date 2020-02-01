@@ -3,11 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using GeoAPI.Geometries;
+using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
-    public class GeometryComparer : IEqualityComparer<IGeometry>
+    public class GeometryComparer : IEqualityComparer<Geometry>
     {
         public static GeometryComparer Instance { get; } = new GeometryComparer();
 
@@ -15,10 +15,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
         }
 
-        public bool Equals(IGeometry x, IGeometry y)
-            => x == null ? y == null : x.Normalized().EqualsExact(y.Normalized(), tolerance: 0.1);
+        public bool Equals(Geometry x, Geometry y)
+            => (x == null && y == null)
+                || (x != null
+                    && y != null
+                    && x.Normalized().EqualsExact(y.Normalized(), tolerance: 0.1));
 
-        public int GetHashCode(IGeometry obj)
+        public int GetHashCode(Geometry obj)
             => throw new NotImplementedException();
     }
 }

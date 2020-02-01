@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net461;netcoreapp2.0;netcoreapp2.1;netcoreapp2.2;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks Condition=" '$(Configuration)' == 'Release' Or '$(Configuration)' == 'Debug' ">netcoreapp3.1</TargetFrameworks>
+    <RootNamespace>Microsoft.EntityFrameworkCore.Benchmarks</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$(Configuration.StartsWith('Release'))">
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EF.Benchmarks.Shared\EF.Benchmarks.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' == 'Release' Or '$(Configuration)' == 'Debug' ">
+    <ProjectReference Include="..\..\src\EFCore.Relational\EFCore.Relational.csproj" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion)" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' == 'Release22' Or '$(Configuration)' == 'Debug22' ">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.2.4" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' == 'Release21' Or '$(Configuration)' == 'Debug21' ">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.1.11" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' == 'Release20' Or '$(Configuration)' == 'Debug20' ">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.0.3" />
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release22' Or '$(Configuration)' == 'Release21' Or '$(Configuration)' == 'Release20' Or '$(Configuration)' == 'Debug22' Or '$(Configuration)' == 'Debug21' Or '$(Configuration)' == 'Debug20'">
+    <DefineConstants>$(DefineConstants);OLD_FROM_SQL</DefineConstants>
+  </PropertyGroup>
+
+</Project>

@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -120,6 +120,12 @@
   <data name="ModificationCommandInvalidEntityState" xml:space="preserve">
     <value>Cannot save changes for an entity in state '{entityState}'.</value>
   </data>
+  <data name="NoDbCommand" xml:space="preserve">
+    <value>Cannot create a 'DbCommand' for a non-relational query.</value>
+  </data>
+  <data name="CannotChangeWhenOpen" xml:space="preserve">
+    <value>The 'DbConnection' is currently in use. The connection can only be changed when the existing connection is not being used.</value>
+  </data>
   <data name="UpdateConcurrencyException" xml:space="preserve">
     <value>Database operation expected to affect {expectedRows} row(s) but actually affected {actualRows} row(s). Data may have been modified or deleted since entities were loaded. See http://go.microsoft.com/fwlink/?LinkId=527962 for information on understanding and handling optimistic concurrency exceptions.</value>
   </data>
@@ -177,9 +183,13 @@
     <value>An error occurred using the connection to database '{database}' on server '{server}'.</value>
     <comment>Error RelationalEventId.ConnectionError string string</comment>
   </data>
+  <data name="LogBeganTransaction" xml:space="preserve">
+    <value>Began transaction with isolation level '{isolationLevel}'.</value>
+    <comment>Debug RelationalEventId.TransactionStarted string</comment>
+  </data>
   <data name="LogBeginningTransaction" xml:space="preserve">
     <value>Beginning transaction with isolation level '{isolationLevel}'.</value>
-    <comment>Debug RelationalEventId.TransactionStarted string</comment>
+    <comment>Debug RelationalEventId.TransactionStarting string</comment>
   </data>
   <data name="LogUsingTransaction" xml:space="preserve">
     <value>Using an existing transaction with isolation level '{isolationLevel}'.</value>
@@ -187,10 +197,18 @@
   </data>
   <data name="LogCommittingTransaction" xml:space="preserve">
     <value>Committing transaction.</value>
+    <comment>Debug RelationalEventId.TransactionCommitting</comment>
+  </data>
+  <data name="LogCommittedTransaction" xml:space="preserve">
+    <value>Committing transaction.</value>
     <comment>Debug RelationalEventId.TransactionCommitted</comment>
   </data>
-  <data name="LogRollingbackTransaction" xml:space="preserve">
+  <data name="LogRollingBackTransaction" xml:space="preserve">
     <value>Rolling back transaction.</value>
+    <comment>Debug RelationalEventId.TransactionRollingBack</comment>
+  </data>
+  <data name="LogRolledBackTransaction" xml:space="preserve">
+    <value>Rolled back transaction.</value>
     <comment>Debug RelationalEventId.TransactionRolledBack</comment>
   </data>
   <data name="LogDisposingTransaction" xml:space="preserve">
@@ -226,9 +244,6 @@
   <data name="InvalidMaxBatchSize" xml:space="preserve">
     <value>The specified MaxBatchSize value is not valid. It must be a positive number.</value>
   </data>
-  <data name="UnableToDiscriminate" xml:space="preserve">
-    <value>Unable to materialize entity of type '{entityType}'. No discriminators were matched.</value>
-  </data>
   <data name="LogAmbientTransaction" xml:space="preserve">
     <value>An ambient transaction has been detected. The current provider does not support ambient transactions. See http://go.microsoft.com/fwlink/?LinkId=800142</value>
     <comment>Warning RelationalEventId.AmbientTransactionWarning</comment>
@@ -240,9 +255,6 @@
   <data name="LogQueryPossibleExceptionWithAggregateOperatorWarning" xml:space="preserve">
     <value>Possible unintended use of a potentially throwing aggregate method (Min, Max, Average) in a subquery. Client evaluation will be used and operator will throw if no data exists. Changing the subquery result type to a nullable type will allow full translation.</value>
     <comment>Warning RelationalEventId.QueryPossibleExceptionWithAggregateOperatorWarning</comment>
-  </data>
-  <data name="StoredProcedureIncludeNotSupported" xml:space="preserve">
-    <value>The Include operation is not supported when calling a stored procedure.</value>
   </data>
   <data name="LogGeneratingDown" xml:space="preserve">
     <value>Generating down script for migration '{migration}'.</value>
@@ -278,16 +290,15 @@
   <data name="IncompatibleTableKeyNameMismatch" xml:space="preserve">
     <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the name '{keyName}' of the primary key {primaryKey} does not match the name '{otherName}' of the primary key {otherPrimaryKey}.</value>
   </data>
+  <data name="IncompatibleTableCommentMismatch" xml:space="preserve">
+    <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the comment '{comment}' does not match the comment '{otherComment}'.</value>
+  </data>
   <data name="IncompatibleTableNoRelationship" xml:space="preserve">
     <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and there is no relationship between their primary keys.</value>
   </data>
   <data name="LogKeyHasDefaultValue" xml:space="preserve">
-    <value>Property '{property}' on entity type '{entityType}' is part of a primary or alternate key but has a constant default value set. Constant default values are not useful for primary or alternate keys since these properties must always have non-null unqiue values.</value>
+    <value>Property '{property}' on entity type '{entityType}' is part of a primary or alternate key but has a constant default value set. Constant default values are not useful for primary or alternate keys since these properties must always have non-null unique values.</value>
     <comment>Warning RelationalEventId.ModelValidationKeyDefaultValueWarning string string</comment>
-  </data>
-  <data name="LogClientEvalWarning" xml:space="preserve">
-    <value>The LINQ expression '{expression}' could not be translated and will be evaluated locally.</value>
-    <comment>Warning RelationalEventId.QueryClientEvaluationWarning object</comment>
   </data>
   <data name="MissingParameterValue" xml:space="preserve">
     <value>No value provided for required parameter '{parameter}'.</value>
@@ -295,13 +306,21 @@
   <data name="ParameterNotObjectArray" xml:space="preserve">
     <value>Cannot use the value provided for parameter '{parameter}' because it isn't assignable to type object[].</value>
   </data>
+  <data name="LogCommandCreating" xml:space="preserve">
+    <value>Creating DbCommand for '{executionType}'.</value>
+    <comment>Debug RelationalEventId.CommandCreating string</comment>
+  </data>
+  <data name="LogCommandCreated" xml:space="preserve">
+    <value>Created DbCommand for '{executionType}' ({elapsed}ms).</value>
+    <comment>Debug RelationalEventId.CommandCreated string int</comment>
+  </data>
   <data name="LogExecutingCommand" xml:space="preserve">
     <value>Executing DbCommand [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
     <comment>Debug RelationalEventId.CommandExecuting string System.Data.CommandType int string string</comment>
   </data>
   <data name="LogExecutedCommand" xml:space="preserve">
     <value>Executed DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
-    <comment>Debug RelationalEventId.CommandExecuted string string System.Data.CommandType int string string</comment>
+    <comment>Information RelationalEventId.CommandExecuted string string System.Data.CommandType int string string</comment>
   </data>
   <data name="LogCommandFailed" xml:space="preserve">
     <value>Failed executing DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
@@ -349,6 +368,9 @@
   <data name="DuplicateColumnNameDefaultSqlMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different default values ('{value1}' and '{value2}').</value>
   </data>
+  <data name="DuplicateColumnNameCommentMismatch" xml:space="preserve">
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different comments ('{comment1}' and '{comment2}').</value>
+  </data>
   <data name="ConflictingColumnServerGeneration" xml:space="preserve">
     <value>{conflictingConfiguration} cannot be set for '{property}' at the same time as {existingConfiguration}. Remove one of these values.</value>
   </data>
@@ -382,9 +404,6 @@
   <data name="UnsupportedPropertyType" xml:space="preserve">
     <value>No mapping to a relational type can be found for property '{entity}.{property}' with the CLR type '{clrType}'.</value>
   </data>
-  <data name="NoElements" xml:space="preserve">
-    <value>Sequence contains no elements.</value>
-  </data>
   <data name="LogConnectionErrorAsDebug" xml:space="preserve">
     <value>An error occurred using the connection to database '{database}' on server '{server}'.</value>
     <comment>Debug RelationalEventId.ConnectionError string string</comment>
@@ -403,6 +422,9 @@
   </data>
   <data name="DbFunctionInvalidParameterType" xml:space="preserve">
     <value>The parameter '{parameter}' for the DbFunction '{function}' has an invalid type '{type}'. Ensure the parameter type can be mapped by the current provider.</value>
+  </data>
+  <data name="DbFunctionInvalidParameterName" xml:space="preserve">
+    <value>The DbFunction '{function}' does not have a parameter named '{parameter}'.</value>
   </data>
   <data name="DbFunctionGenericMethodNotSupported" xml:space="preserve">
     <value>The DbFunction '{function}' is generic. Generic methods are not supported.</value>
@@ -474,5 +496,11 @@
   </data>
   <data name="PendingAmbientTransaction" xml:space="preserve">
     <value>This connection was used with an ambient transaction. The original ambient transaction needs to be completed before this connection can be used outside of it.</value>
+  </data>
+  <data name="SetOperationNotWithinEntityTypeHierarchy" xml:space="preserve">
+    <value>Set operations (Union, Concat, Intersect, Except) are only supported over entity types within the same type hierarchy.</value>
+  </data>
+  <data name="FromSqlNonComposable" xml:space="preserve">
+    <value>FromSqlRaw or FromSqlInterpolated was called with non-composable SQL and with a query composing over it. Consider calling `AsEnumerable` after the FromSqlRaw or FromSqlInterpolated method to perform the composition on the client side.</value>
   </data>
 </root>

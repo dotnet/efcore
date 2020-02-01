@@ -8,7 +8,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
@@ -99,14 +98,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return compiledQuery(queryContext);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual Func<QueryContext, TResult> CompileQueryCore<TResult>(
-            IDatabase database,
-            Expression query,
-            IModel model,
+            [NotNull] IDatabase database,
+            [NotNull] Expression query,
+            [NotNull] IModel model,
             bool async)
-        {
-            return database.CompileQuery<TResult>(query, async);
-        }
+            => database.CompileQuery<TResult>(query, async);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -120,10 +123,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             query = ExtractParameters(query, _queryContextFactory.Create(), _logger, parameterize: false);
 
-            //return CompileQueryCore<TResult>(query, _model, _queryModelGenerator, _database, _logger, _contextType);
-            throw new NotImplementedException();
+            return CompileQueryCore<TResult>(_database, query, _model, false);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual TResult ExecuteAsync<TResult>(Expression query, CancellationToken cancellationToken = default)
         {
             Check.NotNull(query, nameof(query));
@@ -155,8 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             query = ExtractParameters(query, _queryContextFactory.Create(), _logger, parameterize: false);
 
-            //return CompileAsyncQueryCore<TResult>(query, _queryModelGenerator, _database);
-            throw new NotImplementedException();
+            return CompileQueryCore<TResult>(_database, query, _model, true);
         }
 
         /// <summary>
@@ -176,6 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _evaluatableExpressionFilter,
                 parameterValues,
                 _contextType,
+                _model,
                 logger,
                 parameterize,
                 generateContextAccessors);

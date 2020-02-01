@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -20,9 +22,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public class SqlServerMigrationsAnnotationProvider : MigrationsAnnotationProvider
@@ -42,7 +44,48 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override IEnumerable<IAnnotation> For(IModel model) => ForRemove(model);
+        public override IEnumerable<IAnnotation> For(IModel model)
+        {
+            var maxSize = model.GetDatabaseMaxSize();
+            var serviceTier = model.GetServiceTierSql();
+            var performanceLevel = model.GetPerformanceLevelSql();
+            if (maxSize != null
+                || serviceTier != null
+                || performanceLevel != null)
+            {
+                var options = new StringBuilder();
+
+                if (maxSize != null)
+                {
+                    options.Append("MAXSIZE = ");
+                    options.Append(maxSize);
+                    options.Append(", ");
+                }
+
+                if (serviceTier != null)
+                {
+                    options.Append("EDITION = ");
+                    options.Append(serviceTier);
+                    options.Append(", ");
+                }
+
+                if (performanceLevel != null)
+                {
+                    options.Append("SERVICE_OBJECTIVE = ");
+                    options.Append(performanceLevel);
+                    options.Append(", ");
+                }
+
+                options.Remove(options.Length - 2, 2);
+
+                yield return new Annotation(SqlServerAnnotationNames.EditionOptions, options.ToString());
+            }
+
+            foreach (var annotationForRemove in ForRemove(model))
+            {
+                yield return annotationForRemove;
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -60,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         /// </summary>
         public override IEnumerable<IAnnotation> For(IKey key)
         {
-            var isClustered = key.GetSqlServerIsClustered();
+            var isClustered = key.IsClustered();
             if (isClustered.HasValue)
             {
                 yield return new Annotation(
@@ -77,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         /// </summary>
         public override IEnumerable<IAnnotation> For(IIndex index)
         {
-            var isClustered = index.GetSqlServerIsClustered();
+            var isClustered = index.IsClustered();
             if (isClustered.HasValue)
             {
                 yield return new Annotation(
@@ -85,15 +128,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
                     isClustered.Value);
             }
 
-            var includeProperties = index.GetSqlServerIncludeProperties();
+            var includeProperties = index.GetIncludeProperties();
             if (includeProperties != null)
             {
+                var includeColumns = (IReadOnlyList<string>)includeProperties
+                    .Select(p => index.DeclaringEntityType.FindProperty(p).GetColumnName())
+                    .ToArray();
+
                 yield return new Annotation(
                     SqlServerAnnotationNames.Include,
-                    includeProperties);
+                    includeColumns);
             }
 
-            var isOnline = index.GetSqlServerIsCreatedOnline();
+            var isOnline = index.IsCreatedOnline();
             if (isOnline.HasValue)
             {
                 yield return new Annotation(
@@ -110,29 +157,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         /// </summary>
         public override IEnumerable<IAnnotation> For(IProperty property)
         {
-            if (property.GetSqlServerValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn)
+            if (property.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn)
             {
+                var seed = property.GetIdentitySeed();
+                var increment = property.GetIdentityIncrement();
+
                 yield return new Annotation(
-                    SqlServerAnnotationNames.ValueGenerationStrategy,
-                    SqlServerValueGenerationStrategy.IdentityColumn);
-
-                var seed = property.GetSqlServerIdentitySeed();
-                if (seed.HasValue)
-                {
-                    yield return new Annotation(
-                        SqlServerAnnotationNames.IdentitySeed,
-                        seed.Value);
-                }
-
-                var increment = property.GetSqlServerIdentityIncrement();
-                if (increment.HasValue)
-                {
-                    yield return new Annotation(
-                        SqlServerAnnotationNames.IdentityIncrement,
-                        increment.Value);
-                }
+                    SqlServerAnnotationNames.Identity,
+                    string.Format(CultureInfo.InvariantCulture, "{0}, {1}", seed ?? 1, increment ?? 1));
             }
-
         }
 
         /// <summary>
@@ -143,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         /// </summary>
         public override IEnumerable<IAnnotation> ForRemove(IModel model)
         {
-            if (model.GetEntityTypes().Any(e => e.BaseType == null && e.GetSqlServerIsMemoryOptimized()))
+            if (model.GetEntityTypes().Any(e => e.BaseType == null && e.IsMemoryOptimized()))
             {
                 yield return new Annotation(
                     SqlServerAnnotationNames.MemoryOptimized,
@@ -168,6 +201,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         }
 
         private static bool IsMemoryOptimized(IEntityType entityType)
-            => entityType.GetAllBaseTypesInclusive().Any(t => t.GetSqlServerIsMemoryOptimized());
+            => entityType.GetAllBaseTypesInclusive().Any(t => t.IsMemoryOptimized());
     }
 }

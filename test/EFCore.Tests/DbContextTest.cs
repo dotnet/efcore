@@ -34,11 +34,9 @@ namespace Microsoft.EntityFrameworkCore
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .UseInternalServiceProvider(InMemoryTestHelpers.Instance.CreateServiceProvider());
 
-            using (var context = new DbContext(optionsBuilder.Options))
-            {
-                var ex = Assert.Throws<InvalidOperationException>(() => context.Set<Category>().Local);
-                Assert.Equal(CoreStrings.InvalidSetType(nameof(Category)), ex.Message);
-            }
+            using var context = new DbContext(optionsBuilder.Options);
+            var ex = Assert.Throws<InvalidOperationException>(() => context.Set<Category>().Local);
+            Assert.Equal(CoreStrings.InvalidSetType(nameof(Category)), ex.Message);
         }
 
         [ConditionalFact]
@@ -48,28 +46,22 @@ namespace Microsoft.EntityFrameworkCore
                 InMemoryTestHelpers.Instance.CreateServiceProvider(
                     new ServiceCollection().AddScoped<IChangeDetector, ChangeDetectorProxy>());
 
-            using (var context = new ButTheHedgehogContext(provider))
-            {
-                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+            using var context = new ButTheHedgehogContext(provider);
+            var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
-                changeDetector.DetectChangesCalled = false;
+            changeDetector.DetectChangesCalled = false;
 
-                var entry = context.Attach(
-                    new Product
-                    {
-                        Id = 1,
-                        Name = "Little Hedgehogs"
-                    });
+            var entry = context.Attach(
+                new Product { Id = 1, Name = "Little Hedgehogs" });
 
-                entry.Entity.Name = "Big Hedgehogs";
+            entry.Entity.Name = "Big Hedgehogs";
 
-                Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-                var _ = context.Set<Product>().Local;
+            var _ = context.Set<Product>().Local;
 
-                Assert.True(changeDetector.DetectChangesCalled);
-                Assert.Equal(EntityState.Modified, entry.State);
-            }
+            Assert.True(changeDetector.DetectChangesCalled);
+            Assert.Equal(EntityState.Modified, entry.State);
         }
 
         [ConditionalFact]
@@ -79,35 +71,29 @@ namespace Microsoft.EntityFrameworkCore
                 InMemoryTestHelpers.Instance.CreateServiceProvider(
                     new ServiceCollection().AddScoped<IChangeDetector, ChangeDetectorProxy>());
 
-            using (var context = new ButTheHedgehogContext(provider))
-            {
-                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+            using var context = new ButTheHedgehogContext(provider);
+            var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
-                context.ChangeTracker.AutoDetectChangesEnabled = false;
+            context.ChangeTracker.AutoDetectChangesEnabled = false;
 
-                changeDetector.DetectChangesCalled = false;
+            changeDetector.DetectChangesCalled = false;
 
-                var entry = context.Attach(
-                    new Product
-                    {
-                        Id = 1,
-                        Name = "Little Hedgehogs"
-                    });
+            var entry = context.Attach(
+                new Product { Id = 1, Name = "Little Hedgehogs" });
 
-                entry.Entity.Name = "Big Hedgehogs";
+            entry.Entity.Name = "Big Hedgehogs";
 
-                Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-                var _ = context.Set<Product>().Local;
+            var _ = context.Set<Product>().Local;
 
-                Assert.False(changeDetector.DetectChangesCalled);
-                Assert.Equal(EntityState.Unchanged, entry.State);
+            Assert.False(changeDetector.DetectChangesCalled);
+            Assert.Equal(EntityState.Unchanged, entry.State);
 
-                context.ChangeTracker.DetectChanges();
+            context.ChangeTracker.DetectChanges();
 
-                Assert.True(changeDetector.DetectChangesCalled);
-                Assert.Equal(EntityState.Modified, entry.State);
-            }
+            Assert.True(changeDetector.DetectChangesCalled);
+            Assert.Equal(EntityState.Modified, entry.State);
         }
 
         [ConditionalFact]
@@ -122,11 +108,9 @@ namespace Microsoft.EntityFrameworkCore
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .UseInternalServiceProvider(InMemoryTestHelpers.Instance.CreateServiceProvider())
                 .UseModel(model.FinalizeModel());
-            using (var context = new DbContext(optionsBuilder.Options))
-            {
-                var ex = Assert.Throws<InvalidOperationException>(() => context.Set<User>().Local);
-                Assert.Equal(CoreStrings.InvalidSetTypeWeak(nameof(User)), ex.Message);
-            }
+            using var context = new DbContext(optionsBuilder.Options);
+            var ex = Assert.Throws<InvalidOperationException>(() => context.Set<User>().Local);
+            Assert.Equal(CoreStrings.InvalidSetTypeWeak(nameof(User)), ex.Message);
         }
 
         [ConditionalFact]
@@ -139,21 +123,19 @@ namespace Microsoft.EntityFrameworkCore
             var model = new ModelBuilder(new ConventionSet()).Entity<User>().Metadata.Model;
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider(services);
 
-            using (var context = new DbContext(
+            using var context = new DbContext(
                 new DbContextOptionsBuilder()
                     .UseInternalServiceProvider(serviceProvider)
                     .UseInMemoryDatabase(Guid.NewGuid().ToString())
                     .UseModel(model.FinalizeModel())
-                    .Options))
-            {
-                var changeDetector = (FakeChangeDetector)context.GetService<IChangeDetector>();
+                    .Options);
+            var changeDetector = (FakeChangeDetector)context.GetService<IChangeDetector>();
 
-                Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-                context.SaveChanges();
+            context.SaveChanges();
 
-                Assert.True(changeDetector.DetectChangesCalled);
-            }
+            Assert.True(changeDetector.DetectChangesCalled);
         }
 
         [ConditionalFact]
@@ -164,17 +146,15 @@ namespace Microsoft.EntityFrameworkCore
 
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider(services);
 
-            using (var context = new EarlyLearningCenter(serviceProvider))
-            {
-                Assert.Equal(
-                    "entity",
-                    // ReSharper disable once AssignNullToNotNullAttribute
-                    Assert.Throws<ArgumentNullException>(() => context.Entry(null)).ParamName);
-                Assert.Equal(
-                    "entity",
-                    // ReSharper disable once AssignNullToNotNullAttribute
-                    Assert.Throws<ArgumentNullException>(() => context.Entry<Random>(null)).ParamName);
-            }
+            using var context = new EarlyLearningCenter(serviceProvider);
+            Assert.Equal(
+                "entity",
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Assert.Throws<ArgumentNullException>(() => context.Entry(null)).ParamName);
+            Assert.Equal(
+                "entity",
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Assert.Throws<ArgumentNullException>(() => context.Entry<Random>(null)).ParamName);
         }
 
         private class FakeChangeDetector : IChangeDetector
@@ -217,13 +197,7 @@ namespace Microsoft.EntityFrameworkCore
                 context.Database.EnsureDeleted();
 
                 context.AddRange(
-                    new User
-                    {
-                        Id = 3
-                    }, new User
-                    {
-                        Id = 4
-                    });
+                    new User { Id = 3 }, new User { Id = 4 });
                 context.SaveChanges();
             }
 
@@ -233,14 +207,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     new Question
                     {
-                        Author = context.Users.First(),
-                        Answers = new List<Answer>
-                        {
-                            new Answer
-                            {
-                                Author = context.Users.Last()
-                            }
-                        }
+                        Author = context.Users.First(), Answers = new List<Answer> { new Answer { Author = context.Users.Last() } }
                     }
                 };
 
@@ -306,30 +273,28 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Context_can_build_model_using_DbSet_properties()
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
-            {
-                Assert.Equal(
-                    new[] { typeof(Category).FullName, typeof(Product).FullName, typeof(TheGu).FullName },
-                    context.Model.GetEntityTypes().Select(e => e.Name).ToArray());
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            Assert.Equal(
+                new[] { typeof(Category).FullName, typeof(Product).FullName, typeof(TheGu).FullName },
+                context.Model.GetEntityTypes().Select(e => e.Name).ToArray());
 
-                var categoryType = context.Model.FindEntityType(typeof(Category));
-                Assert.Equal("Id", categoryType.FindPrimaryKey().Properties.Single().Name);
-                Assert.Equal(
-                    new[] { "Id", "Name" },
-                    categoryType.GetProperties().Select(p => p.Name).ToArray());
+            var categoryType = context.Model.FindEntityType(typeof(Category));
+            Assert.Equal("Id", categoryType.FindPrimaryKey().Properties.Single().Name);
+            Assert.Equal(
+                new[] { "Id", "Name" },
+                categoryType.GetProperties().Select(p => p.Name).ToArray());
 
-                var productType = context.Model.FindEntityType(typeof(Product));
-                Assert.Equal("Id", productType.FindPrimaryKey().Properties.Single().Name);
-                Assert.Equal(
-                    new[] { "Id", "CategoryId", "Name", "Price" },
-                    productType.GetProperties().Select(p => p.Name).ToArray());
+            var productType = context.Model.FindEntityType(typeof(Product));
+            Assert.Equal("Id", productType.FindPrimaryKey().Properties.Single().Name);
+            Assert.Equal(
+                new[] { "Id", "CategoryId", "Name", "Price" },
+                productType.GetProperties().Select(p => p.Name).ToArray());
 
-                var guType = context.Model.FindEntityType(typeof(TheGu));
-                Assert.Equal("Id", guType.FindPrimaryKey().Properties.Single().Name);
-                Assert.Equal(
-                    new[] { "Id", "ShirtColor" },
-                    guType.GetProperties().Select(p => p.Name).ToArray());
-            }
+            var guType = context.Model.FindEntityType(typeof(TheGu));
+            Assert.Equal("Id", guType.FindPrimaryKey().Properties.Single().Name);
+            Assert.Equal(
+                new[] { "Id", "ShirtColor" },
+                guType.GetProperties().Select(p => p.Name).ToArray());
         }
 
         [ConditionalFact]
@@ -338,26 +303,22 @@ namespace Microsoft.EntityFrameworkCore
             IMutableModel model = new Model();
             model.AddEntityType(typeof(TheGu));
 
-            using (var context = new EarlyLearningCenter(
+            using var context = new EarlyLearningCenter(
                 InMemoryTestHelpers.Instance.CreateServiceProvider(),
-                new DbContextOptionsBuilder().UseModel(model.FinalizeModel()).Options))
-            {
-                Assert.Equal(
-                    new[] { typeof(TheGu).FullName },
-                    context.Model.GetEntityTypes().Select(e => e.Name).ToArray());
-            }
+                new DbContextOptionsBuilder().UseModel(model.FinalizeModel()).Options);
+            Assert.Equal(
+                new[] { typeof(TheGu).FullName },
+                context.Model.GetEntityTypes().Select(e => e.Name).ToArray());
         }
 
         [ConditionalFact]
         public void Context_initializes_all_DbSet_properties_with_setters()
         {
-            using (var context = new ContextWithSets())
-            {
-                Assert.NotNull(context.Products);
-                Assert.NotNull(context.Categories);
-                Assert.NotNull(context.GetGus());
-                Assert.Null(context.NoSetter);
-            }
+            using var context = new ContextWithSets();
+            Assert.NotNull(context.Products);
+            Assert.NotNull(context.Categories);
+            Assert.NotNull(context.GetGus());
+            Assert.Null(context.NoSetter);
         }
 
         private class ContextWithSets : DbContext
@@ -381,12 +342,10 @@ namespace Microsoft.EntityFrameworkCore
                 .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
-            using (var context = new UseModelInOnModelCreatingContext(serviceProvider))
-            {
-                Assert.Equal(
-                    CoreStrings.RecursiveOnModelCreating,
-                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
-            }
+            using var context = new UseModelInOnModelCreatingContext(serviceProvider);
+            Assert.Equal(
+                CoreStrings.RecursiveOnModelCreating,
+                Assert.Throws<InvalidOperationException>(() => context.Model).Message);
         }
 
         private class UseModelInOnModelCreatingContext : DbContext
@@ -419,12 +378,10 @@ namespace Microsoft.EntityFrameworkCore
                 .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
-            using (var context = new UseInOnModelCreatingContext(serviceProvider))
-            {
-                Assert.Equal(
-                    CoreStrings.RecursiveOnModelCreating,
-                    Assert.Throws<InvalidOperationException>(() => context.Products.ToList()).Message);
-            }
+            using var context = new UseInOnModelCreatingContext(serviceProvider);
+            Assert.Equal(
+                CoreStrings.RecursiveOnModelCreating,
+                Assert.Throws<InvalidOperationException>(() => context.Products.ToList()).Message);
         }
 
         private class UseInOnModelCreatingContext : DbContext
@@ -455,12 +412,10 @@ namespace Microsoft.EntityFrameworkCore
                 .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
-            using (var context = new UseInOnConfiguringContext(serviceProvider))
-            {
-                Assert.Equal(
-                    CoreStrings.RecursiveOnConfiguring,
-                    Assert.Throws<InvalidOperationException>(() => context.Products.ToList()).Message);
-            }
+            using var context = new UseInOnConfiguringContext(serviceProvider);
+            Assert.Equal(
+                CoreStrings.RecursiveOnConfiguring,
+                Assert.Throws<InvalidOperationException>(() => context.Products.ToList()).Message);
         }
 
         private class UseInOnConfiguringContext : DbContext
@@ -497,11 +452,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.True(context.ChangeTracker.AutoDetectChangesEnabled);
 
                 var product = context.Add(
-                    new Product
-                    {
-                        Id = 1,
-                        Name = "Little Hedgehogs"
-                    }).Entity;
+                    new Product { Id = 1, Name = "Little Hedgehogs" }).Entity;
 
                 if (async)
                 {
@@ -543,11 +494,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.False(context.ChangeTracker.AutoDetectChangesEnabled);
 
                 var product = context.Add(
-                    new Product
-                    {
-                        Id = 1,
-                        Name = "Little Hedgehogs"
-                    }).Entity;
+                    new Product { Id = 1, Name = "Little Hedgehogs" }).Entity;
 
                 if (async)
                 {
@@ -598,30 +545,24 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true)]
         public void Entry_calls_DetectChanges_by_default(bool useGenericOverload)
         {
-            using (var context = new ButTheHedgehogContext(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new ButTheHedgehogContext(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var entry = context.Attach(
+                new Product { Id = 1, Name = "Little Hedgehogs" });
+
+            entry.Entity.Name = "Cracked Cookies";
+
+            Assert.Equal(EntityState.Unchanged, entry.State);
+
+            if (useGenericOverload)
             {
-                var entry = context.Attach(
-                    new Product
-                    {
-                        Id = 1,
-                        Name = "Little Hedgehogs"
-                    });
-
-                entry.Entity.Name = "Cracked Cookies";
-
-                Assert.Equal(EntityState.Unchanged, entry.State);
-
-                if (useGenericOverload)
-                {
-                    context.Entry(entry.Entity);
-                }
-                else
-                {
-                    context.Entry((object)entry.Entity);
-                }
-
-                Assert.Equal(EntityState.Modified, entry.State);
+                context.Entry(entry.Entity);
             }
+            else
+            {
+                context.Entry((object)entry.Entity);
+            }
+
+            Assert.Equal(EntityState.Modified, entry.State);
         }
 
         [ConditionalTheory]
@@ -629,32 +570,26 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true)]
         public void Auto_DetectChanges_for_Entry_can_be_switched_off(bool useGenericOverload)
         {
-            using (var context = new ButTheHedgehogContext(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new ButTheHedgehogContext(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            context.ChangeTracker.AutoDetectChangesEnabled = false;
+
+            var entry = context.Attach(
+                new Product { Id = 1, Name = "Little Hedgehogs" });
+
+            entry.Entity.Name = "Cracked Cookies";
+
+            Assert.Equal(EntityState.Unchanged, entry.State);
+
+            if (useGenericOverload)
             {
-                context.ChangeTracker.AutoDetectChangesEnabled = false;
-
-                var entry = context.Attach(
-                    new Product
-                    {
-                        Id = 1,
-                        Name = "Little Hedgehogs"
-                    });
-
-                entry.Entity.Name = "Cracked Cookies";
-
-                Assert.Equal(EntityState.Unchanged, entry.State);
-
-                if (useGenericOverload)
-                {
-                    context.Entry(entry.Entity);
-                }
-                else
-                {
-                    context.Entry((object)entry.Entity);
-                }
-
-                Assert.Equal(EntityState.Unchanged, entry.State);
+                context.Entry(entry.Entity);
             }
+            else
+            {
+                context.Entry((object)entry.Entity);
+            }
+
+            Assert.Equal(EntityState.Unchanged, entry.State);
         }
 
         [ConditionalFact]
@@ -663,231 +598,79 @@ namespace Microsoft.EntityFrameworkCore
             var provider =
                 InMemoryTestHelpers.Instance.CreateServiceProvider(
                     new ServiceCollection().AddScoped<IChangeDetector, ChangeDetectorProxy>());
-            using (var context = new ButTheHedgehogContext(provider))
-            {
-                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+            using var context = new ButTheHedgehogContext(provider);
+            var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
-                var id = 1;
+            var id = 1;
 
-                changeDetector.DetectChangesCalled = false;
+            changeDetector.DetectChangesCalled = false;
 
-                context.Add(
-                    new Product
-                    {
-                        Id = id++,
-                        Name = "Little Hedgehogs"
-                    });
-                context.Add(
-                    (object)new Product
-                    {
-                        Id = id++,
-                        Name = "Little Hedgehogs"
-                    });
-                context.AddRange(
-                    new Product
-                    {
-                        Id = id++,
-                        Name = "Little Hedgehogs"
-                    });
-                context.AddRange(
-                    new Product
-                    {
-                        Id = id++,
-                        Name = "Little Hedgehogs"
-                    });
-                context.AddRange(
-                    new List<Product>
-                    {
-                        new Product
-                        {
-                            Id = id++,
-                            Name = "Little Hedgehogs"
-                        }
-                    });
-                context.AddRange(
-                    new List<object>
-                    {
-                        new Product
-                        {
-                            Id = id++,
-                            Name = "Little Hedgehogs"
-                        }
-                    });
-                await context.AddAsync(
-                    new Product
-                    {
-                        Id = id++,
-                        Name = "Little Hedgehogs"
-                    });
-                await context.AddAsync(
-                    (object)new Product
-                    {
-                        Id = id++,
-                        Name = "Little Hedgehogs"
-                    });
-                await context.AddRangeAsync(
-                    new Product
-                    {
-                        Id = id++,
-                        Name = "Little Hedgehogs"
-                    });
-                await context.AddRangeAsync(
-                    new Product
-                    {
-                        Id = id++,
-                        Name = "Little Hedgehogs"
-                    });
-                await context.AddRangeAsync(
-                    new List<Product>
-                    {
-                        new Product
-                        {
-                            Id = id++,
-                            Name = "Little Hedgehogs"
-                        }
-                    });
-                await context.AddRangeAsync(
-                    new List<object>
-                    {
-                        new Product
-                        {
-                            Id = id++,
-                            Name = "Little Hedgehogs"
-                        }
-                    });
-                context.Attach(
-                    new Product
-                    {
-                        Id = id++,
-                        Name = "Little Hedgehogs"
-                    });
-                context.Attach(
-                    (object)new Product
-                    {
-                        Id = id++,
-                        Name = "Little Hedgehogs"
-                    });
-                context.AttachRange(
-                    new Product
-                    {
-                        Id = id++,
-                        Name = "Little Hedgehogs"
-                    });
-                context.AttachRange(
-                    new Product
-                    {
-                        Id = id++,
-                        Name = "Little Hedgehogs"
-                    });
-                context.AttachRange(
-                    new List<Product>
-                    {
-                        new Product
-                        {
-                            Id = id++,
-                            Name = "Little Hedgehogs"
-                        }
-                    });
-                context.AttachRange(
-                    new List<object>
-                    {
-                        new Product
-                        {
-                            Id = id++,
-                            Name = "Little Hedgehogs"
-                        }
-                    });
-                context.Update(
-                    new Product
-                    {
-                        Id = id++,
-                        Name = "Little Hedgehogs"
-                    });
-                context.Update(
-                    (object)new Product
-                    {
-                        Id = id++,
-                        Name = "Little Hedgehogs"
-                    });
-                context.UpdateRange(
-                    new Product
-                    {
-                        Id = id++,
-                        Name = "Little Hedgehogs"
-                    });
-                context.UpdateRange(
-                    new Product
-                    {
-                        Id = id++,
-                        Name = "Little Hedgehogs"
-                    });
-                context.UpdateRange(
-                    new List<Product>
-                    {
-                        new Product
-                        {
-                            Id = id++,
-                            Name = "Little Hedgehogs"
-                        }
-                    });
-                context.UpdateRange(
-                    new List<object>
-                    {
-                        new Product
-                        {
-                            Id = id++,
-                            Name = "Little Hedgehogs"
-                        }
-                    });
-                context.Remove(
-                    new Product
-                    {
-                        Id = id++,
-                        Name = "Little Hedgehogs"
-                    });
-                context.Remove(
-                    (object)new Product
-                    {
-                        Id = id++,
-                        Name = "Little Hedgehogs"
-                    });
-                context.RemoveRange(
-                    new Product
-                    {
-                        Id = id++,
-                        Name = "Little Hedgehogs"
-                    });
-                context.RemoveRange(
-                    new Product
-                    {
-                        Id = id++,
-                        Name = "Little Hedgehogs"
-                    });
-                context.RemoveRange(
-                    new List<Product>
-                    {
-                        new Product
-                        {
-                            Id = id++,
-                            Name = "Little Hedgehogs"
-                        }
-                    });
-                context.RemoveRange(
-                    new List<object>
-                    {
-                        new Product
-                        {
-                            Id = id,
-                            Name = "Little Hedgehogs"
-                        }
-                    });
+            context.Add(
+                new Product { Id = id++, Name = "Little Hedgehogs" });
+            context.Add(
+                (object)new Product { Id = id++, Name = "Little Hedgehogs" });
+            context.AddRange(
+                new Product { Id = id++, Name = "Little Hedgehogs" });
+            context.AddRange(
+                new Product { Id = id++, Name = "Little Hedgehogs" });
+            context.AddRange(
+                new List<Product> { new Product { Id = id++, Name = "Little Hedgehogs" } });
+            context.AddRange(
+                new List<object> { new Product { Id = id++, Name = "Little Hedgehogs" } });
+            await context.AddAsync(
+                new Product { Id = id++, Name = "Little Hedgehogs" });
+            await context.AddAsync(
+                (object)new Product { Id = id++, Name = "Little Hedgehogs" });
+            await context.AddRangeAsync(
+                new Product { Id = id++, Name = "Little Hedgehogs" });
+            await context.AddRangeAsync(
+                new Product { Id = id++, Name = "Little Hedgehogs" });
+            await context.AddRangeAsync(
+                new List<Product> { new Product { Id = id++, Name = "Little Hedgehogs" } });
+            await context.AddRangeAsync(
+                new List<object> { new Product { Id = id++, Name = "Little Hedgehogs" } });
+            context.Attach(
+                new Product { Id = id++, Name = "Little Hedgehogs" });
+            context.Attach(
+                (object)new Product { Id = id++, Name = "Little Hedgehogs" });
+            context.AttachRange(
+                new Product { Id = id++, Name = "Little Hedgehogs" });
+            context.AttachRange(
+                new Product { Id = id++, Name = "Little Hedgehogs" });
+            context.AttachRange(
+                new List<Product> { new Product { Id = id++, Name = "Little Hedgehogs" } });
+            context.AttachRange(
+                new List<object> { new Product { Id = id++, Name = "Little Hedgehogs" } });
+            context.Update(
+                new Product { Id = id++, Name = "Little Hedgehogs" });
+            context.Update(
+                (object)new Product { Id = id++, Name = "Little Hedgehogs" });
+            context.UpdateRange(
+                new Product { Id = id++, Name = "Little Hedgehogs" });
+            context.UpdateRange(
+                new Product { Id = id++, Name = "Little Hedgehogs" });
+            context.UpdateRange(
+                new List<Product> { new Product { Id = id++, Name = "Little Hedgehogs" } });
+            context.UpdateRange(
+                new List<object> { new Product { Id = id++, Name = "Little Hedgehogs" } });
+            context.Remove(
+                new Product { Id = id++, Name = "Little Hedgehogs" });
+            context.Remove(
+                (object)new Product { Id = id++, Name = "Little Hedgehogs" });
+            context.RemoveRange(
+                new Product { Id = id++, Name = "Little Hedgehogs" });
+            context.RemoveRange(
+                new Product { Id = id++, Name = "Little Hedgehogs" });
+            context.RemoveRange(
+                new List<Product> { new Product { Id = id++, Name = "Little Hedgehogs" } });
+            context.RemoveRange(
+                new List<object> { new Product { Id = id, Name = "Little Hedgehogs" } });
 
-                Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-                context.ChangeTracker.DetectChanges();
+            context.ChangeTracker.DetectChanges();
 
-                Assert.True(changeDetector.DetectChangesCalled);
-            }
+            Assert.True(changeDetector.DetectChangesCalled);
         }
 
         private class ChangeDetectorProxy : ChangeDetector
@@ -916,11 +699,21 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
-        public async Task It_throws_object_disposed_exception()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task It_throws_object_disposed_exception(bool async)
         {
             var context = new DbContext(new DbContextOptions<DbContext>());
-            context.Dispose();
+
+            if (async)
+            {
+                await context.DisposeAsync();
+            }
+            else
+            {
+                context.Dispose();
+            }
 
             // methods (tests all paths)
             Assert.Throws<ObjectDisposedException>(() => context.Add(new object()));
@@ -934,11 +727,11 @@ namespace Microsoft.EntityFrameworkCore
             await Assert.ThrowsAsync<ObjectDisposedException>(() => context.FindAsync(typeof(Random), 77).AsTask());
 
             var methodCount = typeof(DbContext).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).Count();
-            var expectedMethodCount = 41;
+            var expectedMethodCount = 42;
             Assert.True(
                 methodCount == expectedMethodCount,
-                userMessage: $"Expected {expectedMethodCount} methods on DbContext but found {methodCount}. " +
-                             "Update test to ensure all methods throw ObjectDisposedException after dispose.");
+                userMessage: $"Expected {expectedMethodCount} methods on DbContext but found {methodCount}. "
+                + "Update test to ensure all methods throw ObjectDisposedException after dispose.");
 
             // getters
             Assert.Throws<ObjectDisposedException>(() => context.ChangeTracker);
@@ -947,6 +740,7 @@ namespace Microsoft.EntityFrameworkCore
             var expectedProperties = new List<string>
             {
                 nameof(DbContext.ChangeTracker),
+                nameof(DbContext.ContextId), // By-design, does not throw for disposed context
                 nameof(DbContext.Database),
                 nameof(DbContext.Model)
             };
@@ -958,8 +752,8 @@ namespace Microsoft.EntityFrameworkCore
                         .Select(p => p.Name)
                         .OrderBy(s => s)
                         .ToList()),
-                userMessage: "Unexpected properties on DbContext. " +
-                             "Update test to ensure all getters throw ObjectDisposedException after dispose.");
+                userMessage: "Unexpected properties on DbContext. "
+                + "Update test to ensure all getters throw ObjectDisposedException after dispose.");
 
             Assert.Throws<ObjectDisposedException>(() => ((IInfrastructure<IServiceProvider>)context).Instance);
         }
@@ -1041,21 +835,10 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new NullShadowKeyContext())
             {
-                var assembly = new TestAssembly
-                {
-                    Name = "Assembly1"
-                };
-                var testClass = new TestClass
-                {
-                    Assembly = assembly,
-                    Name = "Class1"
-                };
+                var assembly = new TestAssembly { Name = "Assembly1" };
+                var testClass = new TestClass { Assembly = assembly, Name = "Class1" };
                 var test = context.Tests.Add(
-                    new Test
-                    {
-                        Class = testClass,
-                        Name = "Test1"
-                    }).Entity;
+                    new Test { Class = testClass, Name = "Test1" }).Entity;
 
                 context.SaveChanges();
 

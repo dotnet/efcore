@@ -10,10 +10,10 @@ using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     A convention that configures store value generation as <see cref="ValueGenerated.OnAdd"/> on properties that are
+    ///     A convention that configures store value generation as <see cref="ValueGenerated.OnAdd" /> on properties that are
     ///     part of the primary key and not part of any foreign keys, were configured to have a database default value
-    ///     or were configured to use a <see cref="SqlServerValueGenerationStrategy"/>.
-    ///     It also configures properties as <see cref="ValueGenerated.OnAddOrUpdate"/> if they were configured as computed columns.
+    ///     or were configured to use a <see cref="SqlServerValueGenerationStrategy" />.
+    ///     It also configures properties as <see cref="ValueGenerated.OnAddOrUpdate" /> if they were configured as computed columns.
     /// </summary>
     public class SqlServerValueGenerationConvention : RelationalValueGenerationConvention
     {
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="property"> The property. </param>
         /// <returns> The store value generation strategy to set for the given property. </returns>
         protected override ValueGenerated? GetValueGenerated(IConventionProperty property)
-            => GetValueGenerated((IProperty)property);
+            => GetValueGenerated(property);
 
         /// <summary>
         ///     Returns the store value generation strategy to set for the given property.
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <returns> The store value generation strategy to set for the given property. </returns>
         public static new ValueGenerated? GetValueGenerated([NotNull] IProperty property)
             => RelationalValueGenerationConvention.GetValueGenerated(property)
-                ?? (property.GetSqlServerValueGenerationStrategy() != SqlServerValueGenerationStrategy.None
+                ?? (property.GetValueGenerationStrategy() != SqlServerValueGenerationStrategy.None
                     ? ValueGenerated.OnAdd
                     : (ValueGenerated?)null);
     }

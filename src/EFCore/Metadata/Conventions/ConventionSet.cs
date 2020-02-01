@@ -122,9 +122,45 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual IList<INavigationAddedConvention> NavigationAddedConventions { get; } = new List<INavigationAddedConvention>();
 
         /// <summary>
+        ///     Conventions to run when an annotation is changed on a navigation property.
+        /// </summary>
+        public virtual IList<INavigationAnnotationChangedConvention> NavigationAnnotationChangedConventions { get; }
+            = new List<INavigationAnnotationChangedConvention>();        
+
+        /// <summary>
         ///     Conventions to run when a navigation property is removed.
         /// </summary>
         public virtual IList<INavigationRemovedConvention> NavigationRemovedConventions { get; } = new List<INavigationRemovedConvention>();
+
+        /// <summary>
+        ///     Conventions to run when a skip navigation property is added.
+        /// </summary>
+        public virtual IList<ISkipNavigationAddedConvention> SkipNavigationAddedConventions { get; }
+            = new List<ISkipNavigationAddedConvention>();
+
+        /// <summary>
+        ///     Conventions to run when an annotation is changed on a skip navigation property.
+        /// </summary>
+        public virtual IList<ISkipNavigationAnnotationChangedConvention> SkipNavigationAnnotationChangedConventions { get; }
+            = new List<ISkipNavigationAnnotationChangedConvention>();
+
+        /// <summary>
+        ///     Conventions to run when a skip navigation foreign key is changed.
+        /// </summary>
+        public virtual IList<ISkipNavigationForeignKeyChangedConvention> SkipNavigationForeignKeyChangedConventions { get; }
+            = new List<ISkipNavigationForeignKeyChangedConvention>();
+
+        /// <summary>
+        ///     Conventions to run when a skip navigation inverse is changed.
+        /// </summary>
+        public virtual IList<ISkipNavigationInverseChangedConvention> SkipNavigationInverseChangedConventions { get; }
+            = new List<ISkipNavigationInverseChangedConvention>();
+
+        /// <summary>
+        ///     Conventions to run when a skip navigation property is removed.
+        /// </summary>
+        public virtual IList<ISkipNavigationRemovedConvention> SkipNavigationRemovedConventions { get; }
+            = new List<ISkipNavigationRemovedConvention>();
 
         /// <summary>
         ///     Conventions to run when a key is added.
@@ -186,6 +222,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         public virtual IList<IPropertyAnnotationChangedConvention> PropertyAnnotationChangedConventions { get; }
             = new List<IPropertyAnnotationChangedConvention>();
+
+        /// <summary>
+        ///     Conventions to run when a property is removed.
+        /// </summary>
+        public virtual IList<IPropertyRemovedConvention> PropertyRemovedConventions { get; } = new List<IPropertyRemovedConvention>();
 
         /// <summary>
         ///     Replaces an existing convention with a derived convention.

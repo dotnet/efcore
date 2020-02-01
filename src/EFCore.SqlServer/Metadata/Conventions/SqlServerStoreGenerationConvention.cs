@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
     ///     A convention that ensures that properties aren't configured to have a default value, as computed column
-    ///     or using a <see cref="SqlServerValueGenerationStrategy"/> at the same time.
+    ///     or using a <see cref="SqlServerValueGenerationStrategy" /> at the same time.
     /// </summary>
     public class SqlServerStoreGenerationConvention : StoreGenerationConvention
     {
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             switch (name)
             {
                 case RelationalAnnotationNames.DefaultValue:
-                    if (propertyBuilder.ForSqlServerHasValueGenerationStrategy(null, fromDataAnnotation) == null
+                    if (propertyBuilder.HasValueGenerationStrategy(null, fromDataAnnotation) == null
                         && propertyBuilder.HasDefaultValue(null, fromDataAnnotation) != null)
                     {
                         context.StopProcessing();
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                     break;
                 case RelationalAnnotationNames.DefaultValueSql:
-                    if (propertyBuilder.ForSqlServerHasValueGenerationStrategy(null, fromDataAnnotation) == null
+                    if (propertyBuilder.HasValueGenerationStrategy(null, fromDataAnnotation) == null
                         && propertyBuilder.HasDefaultValueSql(null, fromDataAnnotation) != null)
                     {
                         context.StopProcessing();
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                     break;
                 case RelationalAnnotationNames.ComputedColumnSql:
-                    if (propertyBuilder.ForSqlServerHasValueGenerationStrategy(null, fromDataAnnotation) == null
+                    if (propertyBuilder.HasValueGenerationStrategy(null, fromDataAnnotation) == null
                         && propertyBuilder.HasComputedColumnSql(null, fromDataAnnotation) != null)
                     {
                         context.StopProcessing();
@@ -83,9 +83,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     break;
                 case SqlServerAnnotationNames.ValueGenerationStrategy:
                     if ((propertyBuilder.HasDefaultValue(null, fromDataAnnotation) == null
-                         | propertyBuilder.HasDefaultValueSql(null, fromDataAnnotation) == null
-                         | propertyBuilder.HasComputedColumnSql(null, fromDataAnnotation) == null)
-                        && propertyBuilder.ForSqlServerHasValueGenerationStrategy(null, fromDataAnnotation) != null)
+                            | propertyBuilder.HasDefaultValueSql(null, fromDataAnnotation) == null
+                            | propertyBuilder.HasComputedColumnSql(null, fromDataAnnotation) == null)
+                        && propertyBuilder.HasValueGenerationStrategy(null, fromDataAnnotation) != null)
                     {
                         context.StopProcessing();
                         return;
@@ -99,8 +99,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         protected override void Validate(IConventionProperty property)
         {
-            if (property.GetSqlServerValueGenerationStrategyConfigurationSource() != null
-                && property.GetSqlServerValueGenerationStrategy() != SqlServerValueGenerationStrategy.None)
+            if (property.GetValueGenerationStrategyConfigurationSource() != null
+                && property.GetValueGenerationStrategy() != SqlServerValueGenerationStrategy.None)
             {
                 if (property.GetDefaultValue() != null)
                 {
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                             "SqlServerValueGenerationStrategy", property.Name, "DefaultValue"));
                 }
 
-                if(property.GetDefaultValueSql() != null)
+                if (property.GetDefaultValueSql() != null)
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.ConflictingColumnServerGeneration(

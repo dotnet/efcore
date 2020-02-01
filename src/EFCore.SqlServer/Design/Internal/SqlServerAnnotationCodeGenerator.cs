@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
             }
 
             return annotation.Name == SqlServerAnnotationNames.ValueGenerationStrategy
-                   && (SqlServerValueGenerationStrategy)annotation.Value == SqlServerValueGenerationStrategy.IdentityColumn;
+                && (SqlServerValueGenerationStrategy)annotation.Value == SqlServerValueGenerationStrategy.IdentityColumn;
         }
 
         /// <summary>
@@ -58,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
         public override MethodCallCodeFragment GenerateFluentApi(IKey key, IAnnotation annotation)
             => annotation.Name == SqlServerAnnotationNames.Clustered
                 ? (bool)annotation.Value == false
-                    ? new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.ForSqlServerIsClustered), false)
-                    : new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.ForSqlServerIsClustered))
+                    ? new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.IsClustered), false)
+                    : new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.IsClustered))
                 : null;
 
         /// <summary>
@@ -73,13 +73,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
             if (annotation.Name == SqlServerAnnotationNames.Clustered)
             {
                 return (bool)annotation.Value == false
-                    ? new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.ForSqlServerIsClustered), false)
-                    : new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.ForSqlServerIsClustered));
+                    ? new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.IsClustered), false)
+                    : new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.IsClustered));
             }
 
             if (annotation.Name == SqlServerAnnotationNames.Include)
             {
-                return new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.ForSqlServerInclude), annotation.Value);
+                return new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.IncludeProperties), annotation.Value);
             }
 
             return null;

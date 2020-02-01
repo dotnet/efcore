@@ -1,8 +1,10 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
 using JetBrains.Annotations;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
 {
@@ -21,6 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static string DisplayName([NotNull] this DatabaseForeignKey foreignKey)
-            => foreignKey.Table?.DisplayName() + "(" + string.Join(",", foreignKey.Columns.Select(f => f.Name)) + ")";
+            => foreignKey.Table.DisplayName() + "(" + string.Join(",", foreignKey.Columns.Select(f => f.Name)) + ")";
     }
 }

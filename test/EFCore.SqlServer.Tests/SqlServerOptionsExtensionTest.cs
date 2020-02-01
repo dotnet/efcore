@@ -2,10 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,46 +18,7 @@ namespace Microsoft.EntityFrameworkCore
 
             new SqlServerOptionsExtension().ApplyServices(services);
 
-            Assert.True(services.Any(sd => sd.ServiceType == typeof(ISqlServerConnection)));
-        }
-
-        [ConditionalFact]
-        public void Changing_RowNumberPagingEnabled_causes_new_service_provider_to_be_built()
-        {
-            ISqlServerOptions singletonOptions;
-
-            using (var context = new ChangedRowNumberContext(rowNumberPagingEnabled: false, setInternalServiceProvider: false))
-            {
-                _ = context.Model;
-                singletonOptions = context.GetService<ISqlServerOptions>();
-                Assert.False(singletonOptions.RowNumberPagingEnabled);
-            }
-
-            using (var context = new ChangedRowNumberContext(rowNumberPagingEnabled: true, setInternalServiceProvider: false))
-            {
-                _ = context.Model;
-                var newOptions = context.GetService<ISqlServerOptions>();
-                Assert.True(newOptions.RowNumberPagingEnabled);
-                Assert.NotSame(newOptions, singletonOptions);
-            }
-        }
-
-        [ConditionalFact]
-        public void Changing_RowNumberPagingEnabled_when_UseInternalServiceProvider_throws()
-        {
-            using (var context = new ChangedRowNumberContext(rowNumberPagingEnabled: false, setInternalServiceProvider: true))
-            {
-                _ = context.Model;
-            }
-
-            using (var context = new ChangedRowNumberContext(rowNumberPagingEnabled: true, setInternalServiceProvider: true))
-            {
-                Assert.Equal(
-                    CoreStrings.SingletonOptionChanged(
-                        nameof(SqlServerDbContextOptionsBuilder.UseRowNumberForPaging),
-                        nameof(DbContextOptionsBuilder.UseInternalServiceProvider)),
-                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
-            }
+            Assert.Contains(services, sd => sd.ServiceType == typeof(ISqlServerConnection));
         }
 
         private class ChangedRowNumberContext : DbContext
@@ -71,12 +28,10 @@ namespace Microsoft.EntityFrameworkCore
                     .AddEntityFrameworkSqlServer()
                     .BuildServiceProvider();
 
-            private readonly bool _rowNumberPagingEnabled;
             private readonly bool _setInternalServiceProvider;
 
-            public ChangedRowNumberContext(bool rowNumberPagingEnabled, bool setInternalServiceProvider)
+            public ChangedRowNumberContext(bool setInternalServiceProvider)
             {
-                _rowNumberPagingEnabled = rowNumberPagingEnabled;
                 _setInternalServiceProvider = setInternalServiceProvider;
             }
 
@@ -87,16 +42,7 @@ namespace Microsoft.EntityFrameworkCore
                     optionsBuilder.UseInternalServiceProvider(_serviceProvider);
                 }
 
-                optionsBuilder
-                    .UseSqlServer(
-                        "Database=Maltesers",
-                        b =>
-                        {
-                            if (_rowNumberPagingEnabled)
-                            {
-                                b.UseRowNumberForPaging();
-                            }
-                        });
+                optionsBuilder.UseSqlServer("Database=Maltesers");
             }
         }
     }

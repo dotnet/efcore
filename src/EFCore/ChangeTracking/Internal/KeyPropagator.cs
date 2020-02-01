@@ -1,13 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual InternalEntityEntry PropagateValue(InternalEntityEntry entry, IProperty property)
         {
-            Debug.Assert(property.IsForeignKey());
+            Check.DebugAssert(property.IsForeignKey(), $"property {property} is not part of an FK");
 
             var principalEntry = TryPropagateValue(entry, property);
             if (principalEntry == null
@@ -71,6 +71,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         entry[property] = value;
                     }
+
+                    entry.MarkUnknown(property);
                 }
             }
 
@@ -88,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             IProperty property,
             CancellationToken cancellationToken = default)
         {
-            Debug.Assert(property.IsForeignKey());
+            Check.DebugAssert(property.IsForeignKey(), $"property {property} is not part of an FK");
 
             var principalEntry = TryPropagateValue(entry, property);
             if (principalEntry == null
@@ -108,6 +110,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         entry[property] = value;
                     }
+
+                    entry.MarkUnknown(property);
                 }
             }
 
@@ -176,7 +180,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var generationProperty = property.GetGenerationProperty();
 
-            return generationProperty != null ? _valueGeneratorSelector.Select(generationProperty, generationProperty.DeclaringEntityType) : null;
+            return generationProperty != null
+                ? _valueGeneratorSelector.Select(generationProperty, generationProperty.DeclaringEntityType)
+                : null;
         }
     }
 }

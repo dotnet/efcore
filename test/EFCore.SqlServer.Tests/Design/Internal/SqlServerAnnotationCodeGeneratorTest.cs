@@ -21,14 +21,14 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 x =>
                 {
                     x.Property<int>("Id");
-                    x.HasKey("Id").ForSqlServerIsClustered();
+                    x.HasKey("Id").IsClustered();
                 });
             var key = modelBuilder.Model.FindEntityType("Post").GetKeys().Single();
             var annotation = key.FindAnnotation(SqlServerAnnotationNames.Clustered);
 
             var result = generator.GenerateFluentApi(key, annotation);
 
-            Assert.Equal("ForSqlServerIsClustered", result.Method);
+            Assert.Equal("IsClustered", result.Method);
 
             Assert.Equal(0, result.Arguments.Count);
         }
@@ -43,14 +43,14 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 x =>
                 {
                     x.Property<int>("Id");
-                    x.HasKey("Id").ForSqlServerIsClustered(false);
+                    x.HasKey("Id").IsClustered(false);
                 });
             var key = modelBuilder.Model.FindEntityType("Post").GetKeys().Single();
             var annotation = key.FindAnnotation(SqlServerAnnotationNames.Clustered);
 
             var result = generator.GenerateFluentApi(key, annotation);
 
-            Assert.Equal("ForSqlServerIsClustered", result.Method);
+            Assert.Equal("IsClustered", result.Method);
 
             Assert.Equal(1, result.Arguments.Count);
             Assert.Equal(false, result.Arguments[0]);
@@ -67,14 +67,14 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 {
                     x.Property<int>("Id");
                     x.Property<string>("Name");
-                    x.HasIndex("Name").ForSqlServerIsClustered();
+                    x.HasIndex("Name").IsClustered();
                 });
             var index = modelBuilder.Model.FindEntityType("Post").GetIndexes().Single();
             var annotation = index.FindAnnotation(SqlServerAnnotationNames.Clustered);
 
             var result = generator.GenerateFluentApi(index, annotation);
 
-            Assert.Equal("ForSqlServerIsClustered", result.Method);
+            Assert.Equal("IsClustered", result.Method);
 
             Assert.Equal(0, result.Arguments.Count);
         }
@@ -90,14 +90,14 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 {
                     x.Property<int>("Id");
                     x.Property<string>("Name");
-                    x.HasIndex("Name").ForSqlServerIsClustered(false);
+                    x.HasIndex("Name").IsClustered(false);
                 });
             var index = modelBuilder.Model.FindEntityType("Post").GetIndexes().Single();
             var annotation = index.FindAnnotation(SqlServerAnnotationNames.Clustered);
 
             var result = generator.GenerateFluentApi(index, annotation);
 
-            Assert.Equal("ForSqlServerIsClustered", result.Method);
+            Assert.Equal("IsClustered", result.Method);
 
             Assert.Equal(1, result.Arguments.Count);
             Assert.Equal(false, result.Arguments[0]);
@@ -115,14 +115,14 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     x.Property<int>("Id");
                     x.Property<string>("FirstName");
                     x.Property<string>("LastName");
-                    x.HasIndex("LastName").ForSqlServerInclude("FirstName");
+                    x.HasIndex("LastName").IncludeProperties("FirstName");
                 });
             var index = modelBuilder.Model.FindEntityType("Post").GetIndexes().Single();
             var annotation = index.FindAnnotation(SqlServerAnnotationNames.Include);
 
             var result = generator.GenerateFluentApi(index, annotation);
 
-            Assert.Equal("ForSqlServerInclude", result.Method);
+            Assert.Equal("IncludeProperties", result.Method);
 
             Assert.Equal(1, result.Arguments.Count);
             var properties = Assert.IsType<string[]>(result.Arguments[0]);

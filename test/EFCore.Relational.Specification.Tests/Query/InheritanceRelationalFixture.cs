@@ -23,14 +23,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             modelBuilder.Entity<Animal>().Property(e => e.Species).HasMaxLength(100);
 
-            modelBuilder.Entity<Coke>().Property(e => e.Carbination).HasColumnName("CokeCO2");
+            modelBuilder.Entity<Coke>().Property(e => e.Carbonation).HasColumnName("CokeCO2");
             modelBuilder.Entity<Coke>().Property(e => e.SugarGrams).HasColumnName("SugarGrams");
             modelBuilder.Entity<Coke>().Property(e => e.CaffeineGrams).HasColumnName("CaffeineGrams");
-            modelBuilder.Entity<Lilt>().Property(e => e.Carbination).HasColumnName("LiltCO2");
+            modelBuilder.Entity<Lilt>().Property(e => e.Carbonation).HasColumnName("LiltCO2");
             modelBuilder.Entity<Lilt>().Property(e => e.SugarGrams).HasColumnName("SugarGrams");
             modelBuilder.Entity<Tea>().Property(e => e.CaffeineGrams).HasColumnName("CaffeineGrams");
 
-            modelBuilder.Entity<AnimalQuery>().HasNoKey().ToTable("Animal");
+            modelBuilder.Entity<AnimalQuery>().HasNoKey().ToQuery(
+                () => context.Set<AnimalQuery>().FromSqlRaw("SELECT * FROM Animal"));
             modelBuilder.Entity<KiwiQuery>().HasDiscriminator().HasValue("Kiwi");
             modelBuilder.Entity<EagleQuery>().HasDiscriminator().HasValue("Eagle");
         }

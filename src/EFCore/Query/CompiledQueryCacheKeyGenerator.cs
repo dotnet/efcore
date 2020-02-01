@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -20,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         not used in application code.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
@@ -59,11 +60,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="query"> The query to get the cache key for. </param>
         /// <param name="async"> A value indicating whether the query will be executed asynchronously. </param>
         /// <returns> The cache key. </returns>
-        protected CompiledQueryCacheKey GenerateCacheKeyCore([NotNull] Expression query, bool async)
+        protected CompiledQueryCacheKey GenerateCacheKeyCore([NotNull] Expression query, bool async) // Intentionally non-virtual
             => new CompiledQueryCacheKey(
                 Check.NotNull(query, nameof(query)),
                 Dependencies.Model,
-                Dependencies.Context.Context.ChangeTracker.QueryTrackingBehavior,
+                Dependencies.CurrentContext.Context.ChangeTracker.QueryTrackingBehavior,
                 async);
 
         /// <summary>
@@ -122,9 +123,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var other = (CompiledQueryCacheKey)obj;
 
                 return ReferenceEquals(_model, other._model)
-                       && _queryTrackingBehavior == other._queryTrackingBehavior
-                       && _async == other._async
-                       && ExpressionEqualityComparer.Instance.Equals(_query, other._query);
+                    && _queryTrackingBehavior == other._queryTrackingBehavior
+                    && _async == other._async
+                    && ExpressionEqualityComparer.Instance.Equals(_query, other._query);
             }
 
             /// <summary>
@@ -135,14 +136,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             /// </returns>
             public override int GetHashCode()
             {
-                unchecked
-                {
-                    var hashCode = ExpressionEqualityComparer.Instance.GetHashCode(_query);
-                    hashCode = (hashCode * 397) ^ _model.GetHashCode();
-                    hashCode = (hashCode * 397) ^ (int)_queryTrackingBehavior;
-                    hashCode = (hashCode * 397) ^ _async.GetHashCode();
-                    return hashCode;
-                }
+                var hash = new HashCode();
+                hash.Add(_query, ExpressionEqualityComparer.Instance);
+                hash.Add(_model);
+                hash.Add(_queryTrackingBehavior);
+                hash.Add(_async);
+                return hash.ToHashCode();
             }
         }
     }

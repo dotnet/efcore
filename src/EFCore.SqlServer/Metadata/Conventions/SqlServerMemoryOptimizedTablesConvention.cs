@@ -55,13 +55,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 var memoryOptimized = annotation?.Value as bool? == true;
                 foreach (var key in entityTypeBuilder.Metadata.GetDeclaredKeys())
                 {
-                    key.Builder.ForSqlServerIsClustered(memoryOptimized ? false : (bool?)null);
+                    key.Builder.IsClustered(memoryOptimized ? false : (bool?)null);
                 }
 
                 foreach (var index in
                     entityTypeBuilder.Metadata.GetDerivedTypesInclusive().SelectMany(et => et.GetDeclaredIndexes()))
                 {
-                    index.Builder.ForSqlServerIsClustered(memoryOptimized ? false : (bool?)null);
+                    index.Builder.IsClustered(memoryOptimized ? false : (bool?)null);
                 }
             }
         }
@@ -73,9 +73,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessKeyAdded(IConventionKeyBuilder keyBuilder, IConventionContext<IConventionKeyBuilder> context)
         {
-            if (keyBuilder.Metadata.DeclaringEntityType.GetSqlServerIsMemoryOptimized())
+            if (keyBuilder.Metadata.DeclaringEntityType.IsMemoryOptimized())
             {
-                keyBuilder.ForSqlServerIsClustered(false);
+                keyBuilder.IsClustered(false);
             }
         }
 
@@ -86,9 +86,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessIndexAdded(IConventionIndexBuilder indexBuilder, IConventionContext<IConventionIndexBuilder> context)
         {
-            if (indexBuilder.Metadata.DeclaringEntityType.GetAllBaseTypesInclusive().Any(et => et.GetSqlServerIsMemoryOptimized()))
+            if (indexBuilder.Metadata.DeclaringEntityType.GetAllBaseTypesInclusive().Any(et => et.IsMemoryOptimized()))
             {
-                indexBuilder.ForSqlServerIsClustered(false);
+                indexBuilder.IsClustered(false);
             }
         }
     }

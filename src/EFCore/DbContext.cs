@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -47,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore
     /// </remarks>
     public class DbContext :
         IDisposable,
+        IAsyncDisposable,
         IInfrastructure<IServiceProvider>,
         IDbContextDependencies,
         IDbSetCache,
@@ -64,6 +64,9 @@ namespace Microsoft.EntityFrameworkCore
         private IDbContextPool _dbContextPool;
         private bool _initializing;
         private bool _disposed;
+
+        private readonly Guid _contextId = Guid.NewGuid();
+        private int _lease;
 
         /// <summary>
         ///     <para>
@@ -89,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(options, nameof(options));
 
-            if (!options.ContextType.GetTypeInfo().IsAssignableFrom(GetType().GetTypeInfo()))
+            if (!options.ContextType.IsAssignableFrom(GetType()))
             {
                 throw new InvalidOperationException(CoreStrings.NonGenericOptions(GetType().ShortDisplayName()));
             }
@@ -118,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 CheckDisposed();
 
-                return _database ?? (_database = new DatabaseFacade(this));
+                return _database ??= new DatabaseFacade(this);
             }
         }
 
@@ -126,8 +129,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Provides access to information and operations for entity instances this context is tracking.
         /// </summary>
         public virtual ChangeTracker ChangeTracker
-            => _changeTracker
-               ?? (_changeTracker = InternalServiceProvider.GetRequiredService<IChangeTrackerFactory>().Create());
+            => _changeTracker ??= InternalServiceProvider.GetRequiredService<IChangeTrackerFactory>().Create();
 
         /// <summary>
         ///     The metadata about the shape of entities, the relationships between them, and how they map to the database.
@@ -136,6 +138,18 @@ namespace Microsoft.EntityFrameworkCore
         {
             [DebuggerStepThrough] get => DbContextDependencies.Model;
         }
+
+        /// <summary>
+        ///     <para>
+        ///         A unique identifier for the context instance and pool lease, if any.
+        ///     </para>
+        ///     <para>
+        ///         This identifier is primarily intended as a correlation ID for logging and debugging such
+        ///         that it is easy to identify that multiple events are using the same or different context instances.
+        ///     </para>
+        /// </summary>
+        public virtual DbContextId ContextId
+            => new DbContextId(_contextId, _lease);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -207,7 +221,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        IDiagnosticsLogger<DbLoggerCategory.Infrastructure> IDbContextDependencies.InfrastructureLogger => DbContextDependencies.InfrastructureLogger;
+        IDiagnosticsLogger<DbLoggerCategory.Infrastructure> IDbContextDependencies.InfrastructureLogger
+            => DbContextDependencies.InfrastructureLogger;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -242,16 +257,6 @@ namespace Microsoft.EntityFrameworkCore
         public virtual DbSet<TEntity> Set<TEntity>()
             where TEntity : class
             => (DbSet<TEntity>)((IDbSetCache)this).GetOrAddSet(DbContextDependencies.SetSource, typeof(TEntity));
-
-        /// <summary>
-        ///     Creates a <see cref="DbSet{TQuery}" /> that can be used to query instances of <typeparamref name="TQuery" />.
-        /// </summary>
-        /// <typeparam name="TQuery"> The type of query for which a DbQuery should be returned. </typeparam>
-        /// <returns> A DbQuery for the given keyless entity type. </returns>
-        [Obsolete("Use Set() for entity types without keys")]
-        public virtual IQueryable<TQuery> Query<TQuery>()
-            where TQuery : class
-            => Set<TQuery>().AsNoTracking();
 
         private IEntityFinder Finder(Type type)
         {
@@ -336,7 +341,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 CheckDisposed();
 
-                return _dbContextDependencies ?? (_dbContextDependencies = InternalServiceProvider.GetRequiredService<IDbContextDependencies>());
+                return _dbContextDependencies ??= InternalServiceProvider.GetRequiredService<IDbContextDependencies>();
             }
         }
 
@@ -478,7 +483,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (ChangeTracker.AutoDetectChangesEnabled)
             {
-                 entry.DetectChanges();
+                entry.DetectChanges();
             }
         }
 
@@ -575,11 +580,24 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         void IDbContextPoolable.SetPool(IDbContextPool contextPool)
         {
             _dbContextPool = contextPool;
+            _lease = 1;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         DbContextPoolConfigurationSnapshot IDbContextPoolable.SnapshotConfiguration()
             => new DbContextPoolConfigurationSnapshot(
                 _changeTracker?.AutoDetectChangesEnabled,
@@ -589,16 +607,23 @@ namespace Microsoft.EntityFrameworkCore
                 _changeTracker?.CascadeDeleteTiming,
                 _changeTracker?.DeleteOrphansTiming);
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         void IDbContextPoolable.Resurrect(DbContextPoolConfigurationSnapshot configurationSnapshot)
         {
             _disposed = false;
+            ++_lease;
 
             if (configurationSnapshot.AutoDetectChangesEnabled != null)
             {
-                Debug.Assert(configurationSnapshot.QueryTrackingBehavior.HasValue);
-                Debug.Assert(configurationSnapshot.LazyLoadingEnabled.HasValue);
-                Debug.Assert(configurationSnapshot.CascadeDeleteTiming.HasValue);
-                Debug.Assert(configurationSnapshot.DeleteOrphansTiming.HasValue);
+                Check.DebugAssert(configurationSnapshot.QueryTrackingBehavior.HasValue, "!configurationSnapshot.QueryTrackingBehavior.HasValue");
+                Check.DebugAssert(configurationSnapshot.LazyLoadingEnabled.HasValue, "!configurationSnapshot.LazyLoadingEnabled.HasValue");
+                Check.DebugAssert(configurationSnapshot.CascadeDeleteTiming.HasValue, "!configurationSnapshot.CascadeDeleteTiming.HasValue");
+                Check.DebugAssert(configurationSnapshot.DeleteOrphansTiming.HasValue, "!configurationSnapshot.DeleteOrphansTiming.HasValue");
 
                 ChangeTracker.AutoDetectChangesEnabled = configurationSnapshot.AutoDetectChangesEnabled.Value;
                 ChangeTracker.QueryTrackingBehavior = configurationSnapshot.QueryTrackingBehavior.Value;
@@ -615,11 +640,44 @@ namespace Microsoft.EntityFrameworkCore
             {
                 _database.AutoTransactionsEnabled
                     = configurationSnapshot.AutoTransactionsEnabled == null
-                      || configurationSnapshot.AutoTransactionsEnabled.Value;
+                    || configurationSnapshot.AutoTransactionsEnabled.Value;
             }
         }
 
-        void IDbContextPoolable.ResetState()
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        void IResettableService.ResetState()
+        {
+            foreach (var service in GetResettableServices())
+            {
+                service.ResetState();
+            }
+
+            _disposed = true;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        async Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
+        {
+            foreach (var service in GetResettableServices())
+            {
+                await service.ResetStateAsync(cancellationToken);
+            }
+
+            _disposed = true;
+        }
+
+        private IEnumerable<IResettableService> GetResettableServices()
         {
             var resettableServices
                 = _contextServices?.InternalServiceProvider?
@@ -629,7 +687,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 foreach (var service in resettableServices)
                 {
-                    service.ResetState();
+                    yield return service;
                 }
             }
 
@@ -639,18 +697,24 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     if (set is IResettableService resettable)
                     {
-                        resettable.ResetState();
+                        yield return resettable;
                     }
                 }
             }
-
-            _disposed = true;
         }
 
         /// <summary>
         ///     Releases the allocated resources for this context.
         /// </summary>
         public virtual void Dispose()
+        {
+            if (DisposeSync())
+            {
+                _serviceScope?.Dispose();
+            }
+        }
+
+        private bool DisposeSync()
         {
             if (_dbContextPool == null
                 && !_disposed)
@@ -661,12 +725,21 @@ namespace Microsoft.EntityFrameworkCore
 
                 _dbContextDependencies?.StateManager.Unsubscribe();
 
-                _serviceScope?.Dispose();
                 _dbContextDependencies = null;
                 _changeTracker = null;
                 _database = null;
+
+                return true;
             }
+
+            return false;
         }
+
+        /// <summary>
+        ///     Releases the allocated resources for this context.
+        /// </summary>
+        public virtual ValueTask DisposeAsync()
+            => DisposeSync() ? _serviceScope.DisposeAsyncIfAvailable() : default;
 
         /// <summary>
         ///     Gets an <see cref="EntityEntry{TEntity}" /> for the given entity. The entry provides
@@ -839,7 +912,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Unchanged"/>.
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Unchanged" />.
         ///     </para>
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
@@ -882,7 +955,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Modified"/>.
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Modified" />.
         ///     </para>
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
@@ -1043,7 +1116,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Unchanged"/>.
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Unchanged" />.
         ///     </para>
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
@@ -1084,7 +1157,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Modified"/>.
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Modified" />.
         ///     </para>
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
@@ -1215,7 +1288,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Unchanged"/>.
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Unchanged" />.
         ///     </para>
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
@@ -1252,7 +1325,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Modified"/>.
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Modified" />.
         ///     </para>
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
@@ -1370,7 +1443,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Unchanged"/>.
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Unchanged" />.
         ///     </para>
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
@@ -1407,7 +1480,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Modified"/>.
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Modified" />.
         ///     </para>
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
@@ -1509,7 +1582,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual ValueTask<object> FindAsync([NotNull] Type entityType, [CanBeNull] object[] keyValues, CancellationToken cancellationToken)
+        public virtual ValueTask<object> FindAsync(
+            [NotNull] Type entityType, [CanBeNull] object[] keyValues, CancellationToken cancellationToken)
         {
             CheckDisposed();
 

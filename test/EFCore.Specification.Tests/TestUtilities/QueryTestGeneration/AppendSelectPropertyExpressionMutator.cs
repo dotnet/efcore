@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 {
@@ -19,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
         public override bool IsValid(Expression expression)
             => IsQueryableResult(expression)
-               && HasValidPropertyToSelect(expression);
+                && HasValidPropertyToSelect(expression);
 
         public override Expression Apply(Expression expression, Random random)
         {
@@ -29,24 +30,24 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
             var i = random.Next(properties.Count);
 
-            var select = SelectMethodInfo.MakeGenericMethod(typeArgument, properties[i].PropertyType);
+            var select = QueryableMethods.Select.MakeGenericMethod(typeArgument, properties[i].PropertyType);
             var prm = Expression.Parameter(typeArgument, "prm");
 
             var lambdaBody = (Expression)Expression.Property(prm, properties[i]);
 
             if (properties[i].PropertyType.IsValueType
                 && !(properties[i].PropertyType.IsGenericType
-                     && properties[i].PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>)))
+                    && properties[i].PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>)))
             {
                 var nullablePropertyType = typeof(Nullable<>).MakeGenericType(properties[i].PropertyType);
-                select = SelectMethodInfo.MakeGenericMethod(typeArgument, nullablePropertyType);
+                select = QueryableMethods.Select.MakeGenericMethod(typeArgument, nullablePropertyType);
                 lambdaBody = Expression.Convert(lambdaBody, nullablePropertyType);
             }
 
             if (typeArgument == typeof(string))
             {
                 // string.Length - make it nullable in case we access optional argument
-                select = SelectMethodInfo.MakeGenericMethod(typeArgument, typeof(int?));
+                select = QueryableMethods.Select.MakeGenericMethod(typeArgument, typeof(int?));
                 lambdaBody = Expression.Convert(lambdaBody, typeof(int?));
             }
 

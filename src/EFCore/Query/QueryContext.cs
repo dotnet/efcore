@@ -7,9 +7,8 @@ using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -18,13 +17,13 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// <summary>
     ///     The principal data structure used by a compiled query during execution.
     /// </summary>
-    public class QueryContext : IParameterValues
+    public abstract class QueryContext : IParameterValues
     {
         private readonly IDictionary<string, object> _parameterValues = new Dictionary<string, object>();
 
         /// <summary>
         ///     <para>
-        ///         Creates a new <see cref="QueryContext"/> instance.
+        ///         Creates a new <see cref="QueryContext" /> instance.
         ///     </para>
         ///     <para>
         ///         This type is typically used by database providers (and other extensions). It is generally
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     </para>
         /// </summary>
         /// <param name="dependencies"> The dependencies to use. </param>
-        public QueryContext(
+        protected QueryContext(
             [NotNull] QueryContextDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -43,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Gets the current DbContext.
         /// </summary>
-        public virtual DbContext Context => Dependencies.CurrentDbContext.Context;
+        public virtual DbContext Context => Dependencies.CurrentContext.Context;
 
         /// <summary>
         ///     Parameter object containing dependencies for this service.
@@ -51,13 +50,27 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual QueryContextDependencies Dependencies { get; }
 
         /// <summary>
-        ///     The state manager.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        /// <value>
-        ///     The state manager.
-        /// </value>
+        [EntityFrameworkInternal]
         public virtual IStateManager StateManager
             => Dependencies.StateManager;
+
+        /// <summary>
+        ///     Sets the navigation as loaded.
+        /// </summary>
+        /// <param name="entity"> The entity instance. </param>
+        /// <param name="navigation"> The navigation property. </param>
+        public virtual void SetNavigationIsLoaded([NotNull] object entity, [NotNull] INavigation navigation)
+        {
+            Check.NotNull(entity, nameof(entity));
+            Check.NotNull(navigation, nameof(navigation));
+
+            Dependencies.StateManager.TryGetEntry(entity).SetIsLoaded(navigation);
+        }
 
         /// <summary>
         ///     The query provider.
@@ -67,6 +80,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </value>
         public virtual IQueryProvider QueryProvider
             => Dependencies.QueryProvider;
+
+        /// <summary>
+        ///     The execution strategy factory.
+        /// </summary>
+        /// <value>
+        ///     The execution strategy factory.
+        /// </value>
+        public virtual IExecutionStrategyFactory ExecutionStrategyFactory
+            => Dependencies.ExecutionStrategyFactory;
 
         /// <summary>
         ///     Gets the concurrency detector.
@@ -122,46 +144,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Sets a parameter value.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        /// <param name="name"> The name. </param>
-        /// <param name="value"> The value. </param>
-        public virtual void SetParameter(string name, object value)
-        {
-            Check.NotEmpty(name, nameof(name));
-
-            _parameterValues[name] = value;
-        }
-
-        /// <summary>
-        ///     Removes a parameter by name.
-        /// </summary>
-        /// <param name="name"> The name. </param>
-        /// <returns>
-        ///     The parameter value.
-        /// </returns>
-        public virtual object RemoveParameter(string name)
-        {
-            Check.NotEmpty(name, nameof(name));
-
-            var value = _parameterValues[name];
-
-            _parameterValues.Remove(name);
-
-            return value;
-        }
-
-        /// <summary>
-        ///     Notify the state manager that a tracking query is starting.
-        /// </summary>
-        public virtual void BeginTrackingQuery() => StateManager.BeginTrackingQuery();
-
-        public virtual void StartTracking(
-            IEntityType entityType,
-            object entity,
+        [EntityFrameworkInternal]
+        public virtual InternalEntityEntry StartTracking(
+            [NotNull] IEntityType entityType,
+            [NotNull] object entity,
             ValueBuffer valueBuffer)
-        {
-            StateManager.StartTrackingFromQuery(entityType, entity, valueBuffer, handledForeignKeys: null);
-        }
+            => StateManager.StartTrackingFromQuery(entityType, entity, valueBuffer);
     }
 }

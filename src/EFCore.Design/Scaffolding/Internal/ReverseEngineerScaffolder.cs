@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -14,6 +14,8 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -50,7 +52,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotNull(databaseModelFactory, nameof(databaseModelFactory));
             Check.NotNull(scaffoldingModelFactory, nameof(scaffoldingModelFactory));
             Check.NotNull(modelCodeGeneratorSelector, nameof(modelCodeGeneratorSelector));
+            Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
             Check.NotNull(cSharpHelper, nameof(cSharpHelper));
+            Check.NotNull(connectionStringResolver, nameof(connectionStringResolver));
 
             _databaseModelFactory = databaseModelFactory;
             _factory = scaffoldingModelFactory;
@@ -98,7 +102,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 codeOptions.SuppressConnectionStringWarning = true;
             }
-            else if (codeOptions.ConnectionString == null)
+
+            if (codeOptions.ConnectionString == null)
             {
                 codeOptions.ConnectionString = connectionString;
             }

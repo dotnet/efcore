@@ -21,16 +21,12 @@ namespace Microsoft.EntityFrameworkCore
                     eb =>
                     {
                         eb.HasKey(
-                            l => new
-                            {
-                                l.ProfileId
-                            })
+                                l => new { l.ProfileId })
                             .HasName("PK_LoginDetails");
 
                         eb.HasOne(d => d.Login).WithOne()
-                          .HasConstraintName("FK_LoginDetails_Login");
+                            .HasConstraintName("FK_LoginDetails_Login");
                     });
-
         }
     }
 }

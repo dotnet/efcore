@@ -23,6 +23,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionTypeBase DeclaringType { get; }
 
         /// <summary>
+        ///     Returns the configuration source for this property.
+        /// </summary>
+        /// <returns> The configuration source. </returns>
+        ConfigurationSource GetConfigurationSource();
+
+        /// <summary>
         ///     <para>
         ///         Sets the <see cref="FieldInfo" /> for the underlying CLR field that this property should use.
         ///     </para>

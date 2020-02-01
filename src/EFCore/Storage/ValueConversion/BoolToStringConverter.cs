@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             var testChar = trueValue.ToUpperInvariant()[0];
 
             return v => !string.IsNullOrEmpty(v)
-                        && v.ToUpperInvariant()[0] == testChar;
+                && v.ToUpperInvariant()[0] == testChar;
         }
     }
 }

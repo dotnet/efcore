@@ -59,9 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             catch
             {
                 var methodCallLine = Environment.StackTrace.Split(
-                        new[] { _eol },
-                        StringSplitOptions.RemoveEmptyEntries)[3]
-                    .Substring(6);
+                    new[] { _eol },
+                    StringSplitOptions.RemoveEmptyEntries)[3].Substring(6);
 
                 var testName = methodCallLine.Substring(0, methodCallLine.IndexOf(')') + 1);
                 var lineIndex = methodCallLine.LastIndexOf("line", StringComparison.Ordinal);
@@ -71,14 +70,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
 
                 var currentDirectory = Directory.GetCurrentDirectory();
                 var logFile = currentDirectory.Substring(
-                                  0,
-                                  currentDirectory.LastIndexOf("\\test\\", StringComparison.Ordinal) + 1)
-                              + "QueryBaseline.cs";
+                        0,
+                        currentDirectory.LastIndexOf("\\artifacts\\", StringComparison.Ordinal) + 1)
+                    + "QueryBaseline.txt";
 
                 var testInfo = testName + " : " + lineNumber + FileNewLine;
 
                 var newBaseLine = $@"            AssertSql(
-                {string.Join("," + indent + "//" + indent, SqlStatements.Take(9).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))});";
+                {string.Join("," + indent + "//" + indent, SqlStatements.Take(9).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))});
+
+";
 
                 if (SqlStatements.Count > 9)
                 {

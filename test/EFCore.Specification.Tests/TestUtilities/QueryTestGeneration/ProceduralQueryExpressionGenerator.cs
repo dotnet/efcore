@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 {
@@ -123,31 +123,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
             // -------------------------------------------------------------- actual product bugs --------------------------------------------------------------
 
-            AddExpectedFailure("Default_if_empty_top_level", "Object reference not set to an instance of an object."); // 12567
-            AddExpectedFailure("Default_if_empty_top_level_positive", "Object reference not set to an instance of an object."); // 12567
-            AddExpectedFailure("Default_if_empty_top_level_projection", "Object reference not set to an instance of an object."); // 12567
-
             AddExpectedFailure("Except_simple", "cannot be used for"); // 12568
             AddExpectedFailure("Except_dbset", "cannot be used for"); // 12568
             AddExpectedFailure("Except_nested", "cannot be used for"); // 12568
 
-            AddExpectedFailure("GroupBy_aggregate_Pushdown", "Invalid column name 'c'."); // 12569
             AddExpectedFailure("GroupBy_with_orderby_take_skip_distinct", "Invalid column name 'c'."); // 12569
-
-            AddExpectedFailure(
-                "Default_if_empty_top_level_arg",
-                "Expression of type 'Microsoft.EntityFrameworkCore.TestModels.Northwind.Employee' cannot be used for parameter of type"); // 12572
-
-            AddExpectedFailure(
-                "GroupBy_Select_First_GroupBy",
-                "Query source (from Customer c in [g]) has already been associated with an expression."); // 12573
-
-            AddExpectedFailure("Join_Customers_Orders_Skip_Take", "Object reference not set to an instance of an object."); // 12574
-            AddExpectedFailure(
-                "Join_Customers_Orders_Projection_With_String_Concat_Skip_Take",
-                "Object reference not set to an instance of an object."); // 12574
-            AddExpectedFailure(
-                "Join_Customers_Orders_Orders_Skip_Take_Same_Properties", "Object reference not set to an instance of an object."); // 12574
 
             AddExpectedFailure(
                 "SelectMany_navigation_property",
@@ -175,15 +155,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                 "The property '' on entity type 'Level3' could not be found. Ensure that the property exists and has been included in the model."); // 12575
 
             AddExpectedFailure(
-                "GroupBy_with_orderby_take_skip_distinct",
-                "Unable to cast object of type 'Remotion.Linq.Clauses.ResultOperators.DistinctResultOperator' to type 'Remotion.Linq.Clauses.ResultOperators.GroupResultOperator'."); // 12576
-            AddExpectedFailure(
-                "GroupBy_Distinct",
-                "Unable to cast object of type 'Remotion.Linq.Clauses.ResultOperators.DistinctResultOperator' to type 'Remotion.Linq.Clauses.ResultOperators.GroupResultOperator'."); // 12576
-
-            AddExpectedFailure("Correlated_collections_naked_navigation_with_ToList", "Rewriting child expression from type"); // 12579
-
-            AddExpectedFailure(
                 "Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault",
                 "Only one expression can be specified in the select list when the subquery is not introduced with EXISTS."); // 12580
 
@@ -205,40 +176,19 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                 "Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault",
                 "Object reference not set to an instance of an object."); // 12597
 
-            AddExpectedFailure(
-                "Order_by_length_twice",
-                "Unable to cast object of type 'System.Linq.Expressions.PropertyExpression' to type 'Remotion.Linq.Clauses.Expressions.QuerySourceReferenceExpression'."); // 12598
-
-            AddExpectedFailure(
-                "GroupBy_Shadow3",
-                "Column 'Employees.Title' is invalid in the select list because it is not contained in either an aggregate function or the GROUP BY clause."); // 12598
-
             AddExpectedFailure("GroupBy_Shadow", "Unable to cast object of type 'System.String' to type"); // 12601
             AddExpectedFailure(
                 "Collection_select_nav_prop_first_or_default_then_nav_prop_nested_using_property_method",
                 "Unable to cast object of type 'System.String' to type"); // 12601
 
-            AddExpectedFailure("GroupBy_Shadow", "Value does not fall within the expected range."); // 12640
-            AddExpectedFailure("GroupBy_Shadow3", "Value does not fall within the expected range."); // 12640
-            AddExpectedFailure("GroupBy_SelectMany", "Value does not fall within the expected range."); // 12640
-
-            AddExpectedFailure("GroupBy_with_orderby_take_skip_distinct", "_TrackGroupedEntities"); // 12641
-
-            AddExpectedFailure(
-                "Select_collection_navigation_simple",
-                "Index was out of range. Must be non-negative and less than the size of the collection."); // 12643
-            AddExpectedFailure(
-                "Correlated_collections_nested_with_custom_ordering",
-                "Index was out of range. Must be non-negative and less than the size of the collection."); // 12643
-            AddExpectedFailure(
-                "Correlated_collections_multiple_nested_complex_collections",
-                "Index was out of range. Must be non-negative and less than the size of the collection."); // 12643
+            AddExpectedFailure("GroupBy_Shadow", "Value does not fall within the expected range."); // 12088
+            AddExpectedFailure("GroupBy_Shadow3", "Value does not fall within the expected range."); // 12088
+            AddExpectedFailure("GroupBy_SelectMany", "Value does not fall within the expected range."); // 12088
 
             AddExpectedFailure("GroupJoin_GroupBy_Aggregate_5", "Incorrect syntax near '+'."); // 12656
             AddExpectedFailure("GroupBy_Key_as_part_of_element_selector", "Incorrect syntax near '+'."); // 12656
             AddExpectedFailure("GroupBy_Property_Select_Key_Min", "Incorrect syntax near '+'."); // 12656
             AddExpectedFailure("GroupBy_Property_Include_Aggregate_with_anonymous_selector", "Incorrect syntax near '+'."); // 12656
-            AddExpectedFailure("GroupBy_aggregate_Pushdown", "Incorrect syntax near '+'."); // 12656
             AddExpectedFailure("GroupBy_anonymous_with_alias_Select_Key_Sum", "Incorrect syntax near '+'."); // 12656
             AddExpectedFailure("GroupBy_Property_Select_Key_LongCount", "Incorrect syntax near '+'."); // 12656
             AddExpectedFailure("GroupBy_filter_count_OrderBy_count_Select_sum", "Incorrect syntax near '+'."); // 12656
@@ -251,32 +201,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             AddExpectedFailure("Collection_select_nav_prop_sum", "Nullable object must have a value."); // 12657
 
             AddExpectedFailure("Simple_owned_level1_level2_GroupBy_Having_Count", "Incorrect syntax near '+'."); // 12658
-
-            AddExpectedFailure("Join_navigation_translated_to_subquery_composite_key", "Invalid column name 'Note'."); // 12786
-            AddExpectedFailure("Join_on_entity_qsre_keys_inner_key_is_navigation_composite_key", "Invalid column name 'Note'."); // 12786
-            AddExpectedFailure("Join_on_entity_qsre_keys_inner_key_is_navigation", "Invalid column name 'Nickname'."); // 12786
-            AddExpectedFailure("Client_method_on_collection_navigation_in_outer_join_key", "Invalid column name 'Nickname'."); // 12786
-
-            AddExpectedFailure(
-                "Join_navigation_translated_to_subquery_deeply_nested_non_key_join", "Parameter name: tableExpression"); // 12787
-            AddExpectedFailure("Join_on_entity_qsre_keys_inner_key_is_nested_navigation", "Parameter name: tableExpression"); // 12787
-            AddExpectedFailure("Join_navigation_translated_to_subquery_deeply_nested_required", "Parameter name: tableExpression"); // 12787
-            AddExpectedFailure("Join_navigation_translated_to_subquery_nested", "Parameter name: tableExpression"); // 12787
-            AddExpectedFailure("Query_source_materialization_bug_4547", "Parameter name: tableExpression"); // 12787
-            AddExpectedFailure("GroupJoin_with_complex_subquery_and_LOJ_gets_flattened", "Parameter name: tableExpression"); // 12787
-            AddExpectedFailure("GroupJoin_with_complex_subquery_and_LOJ_gets_flattened2", "Parameter name: tableExpression"); // 12787
-
-            AddExpectedFailure("SelectMany_with_Include1", "must be reducible node"); // 12794
-            AddExpectedFailure("Multiple_SelectMany_with_Include", "must be reducible node"); // 12794
-            AddExpectedFailure("SelectMany_with_Include_ThenInclude", "must be reducible node"); // 12794
-            AddExpectedFailure("Include_after_SelectMany_and_reference_navigation", "must be reducible node"); // 12794
-            AddExpectedFailure("Include_after_multiple_SelectMany_and_reference_navigation", "must be reducible node"); // 12794
-            AddExpectedFailure("Include_after_SelectMany_and_multiple_reference_navigations", "must be reducible node"); // 12794
-            AddExpectedFailure("Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result4", "must be reducible node"); // 12794
-            AddExpectedFailure("Include_with_join_collection2", "must be reducible node"); // 12794
-            AddExpectedFailure("Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_conditional_result", "must be reducible node"); // 12794
-            AddExpectedFailure("Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result3", "must be reducible node"); // 12794
-            AddExpectedFailure("Include_with_join_and_inheritance3", "must be reducible node"); // 12794
 
             AddExpectedFailure("Join_GroupBy_Aggregate", "must be reducible node"); // 12799
             AddExpectedFailure("GroupJoin_GroupBy_Aggregate_2", "must be reducible node"); // 12799
@@ -308,19 +232,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
             AddExpectedFailure(
                 "Join_navigation_translated_to_subquery_non_key_join", "Index was outside the bounds of the array."); // 12804
-
-            AddExpectedFailure("OrderBy_Skip_GroupBy_Aggregate", "Value does not fall within the expected range."); // 12805
-            AddExpectedFailure("OrderBy_Skip_Take_GroupBy_Aggregate", "Value does not fall within the expected range."); // 12805
-            AddExpectedFailure("GroupJoin_complex_GroupBy_Aggregate", "Value does not fall within the expected range."); // 12805
-            AddExpectedFailure("OrderBy_GroupBy_SelectMany", "Value does not fall within the expected range."); // 12805
-
-            AddExpectedFailure(
-                "GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_inner",
-                "Invalid column name 'Level1_Optional_Id'."); // 12806
-
-            AddExpectedFailure(
-                "Let_group_by_nav_prop",
-                "A column has been specified more than once in the order by list. Columns in the order by list must be unique."); // 12816
 
             AddExpectedFailure(
                 "Select_expression_references_are_updated_correctly_with_subquery",
@@ -384,60 +295,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             AddExpectedFailure("Where_Join_Exists", "Conversion failed when converting date and/or time from character string."); // 12797
 
             AddExpectedFailure(
-                "Parameter_extraction_short_circuits_1",
-                "An exception was thrown while attempting to evaluate the LINQ query parameter expression"); // 12820
-            AddExpectedFailure(
-                "Parameter_extraction_short_circuits_3",
-                "An exception was thrown while attempting to evaluate the LINQ query parameter expression"); // 12820
-
-            AddExpectedFailure("Include_with_join_reference2", "Invalid column name '"); // 12827
-            AddExpectedFailure("Include_with_join_and_inheritance1", "Invalid column name '"); // 12827
-            AddExpectedFailure("Include_with_join_and_inheritance3", "Invalid column name '"); // 12827
-
-            AddExpectedFailure(
                 "Entity_equality_local",
                 "has already been declared. Variable names must be unique within a query batch or stored procedure."); // 12871
             AddExpectedFailure(
                 "Where_poco_closure",
                 "has already been declared. Variable names must be unique within a query batch or stored procedure."); // 12871
-
-            AddExpectedFailure(
-                "Default_if_empty_top_level_positive", "Operation is not valid due to the current state of the object."); // 12872
-            AddExpectedFailure("Default_if_empty_top_level", "Operation is not valid due to the current state of the object."); // 12872
-
-            AddExpectedFailure("QueryType_with_defining_query", "Object reference not set to an instance of an object."); // 12873
-
-            AddExpectedFailure(
-                "QueryType_with_included_navs_multi_level", "Object reference not set to an instance of an object."); // 12874
-
-            AddExpectedFailure(
-                "Include_with_concat",
-                ", but it has items of type 'Microsoft.EntityFrameworkCore.Query.Internal.AnonymousObject'."); // 12889
-            AddExpectedFailure(
-                "Concat_with_groupings",
-                ", but it has items of type 'Microsoft.EntityFrameworkCore.Query.Internal.AnonymousObject'."); // 12889
-            AddExpectedFailure(
-                "Union_dbset", ", but it has items of type 'Microsoft.EntityFrameworkCore.Query.Internal.AnonymousObject'."); // 12889
-            AddExpectedFailure(
-                "Concat_nested", ", but it has items of type 'Microsoft.EntityFrameworkCore.Query.Internal.AnonymousObject'."); // 12889
-            AddExpectedFailure(
-                "Union_simple", ", but it has items of type 'Microsoft.EntityFrameworkCore.Query.Internal.AnonymousObject'."); // 12889
-            AddExpectedFailure(
-                "Union_nested", ", but it has items of type 'Microsoft.EntityFrameworkCore.Query.Internal.AnonymousObject'."); // 12889
-            AddExpectedFailure(
-                "Where_subquery_concat_order_by_firstordefault_boolean",
-                ", but it has items of type 'Microsoft.EntityFrameworkCore.Query.Internal.AnonymousObject'."); // 12889
-
-            AddExpectedFailure("Select_null_propagation_negative1", "Specified cast is not valid."); // 12958
-            AddExpectedFailure("Select_null_propagation_negative2", "Specified cast is not valid."); // 12958
-            AddExpectedFailure("Select_null_propagation_negative3", "Specified cast is not valid."); // 12958
-            AddExpectedFailure("Select_null_propagation_negative4", "Specified cast is not valid."); // 12958
-            AddExpectedFailure("Select_null_propagation_negative5", "Specified cast is not valid."); // 12958
-            AddExpectedFailure("Select_null_propagation_negative6", "Specified cast is not valid."); // 12958
-            AddExpectedFailure("Select_null_propagation_negative7", "Specified cast is not valid."); // 12958
-
-            AddExpectedFailure("DefaultIfEmpty_in_subquery", "' is not defined for type '"); // 12960
-            AddExpectedFailure("SelectMany_Joined_DefaultIfEmpty2", "' is not defined for type '"); // 12960
         }
 
         private static void AddExpectedFailure(string testName, string expectedException)
@@ -480,7 +342,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             }
 
             // printed just for debugging purposes
-            var queryString = new ExpressionPrinter().PrintDebug(newExpression, printConnections: false);
+            var queryString = newExpression.Print();
 
             try
             {
@@ -502,18 +364,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                     @"Error generated for warning 'Microsoft.EntityFrameworkCore.Query.IncludeIgnoredWarning"))
                 {
                 }
-                else if (exception.Message.Contains(@"The expected type was 'System.Int64' but the actual value was of type")) // 12570
-                {
-                }
-                else if (exception.Message.Contains(
-                             @"The expected type was 'System.UInt32' but the actual value was of type 'System.Int32'")
-                         || exception.Message.Contains(
-                             @"The expected type was 'System.Nullable`1[System.UInt32]' but the actual value was of type 'System.Int32'.")
-                ) // 13753
-                {
-                }
                 else if (exception.Message
-                         == @"The binary operator NotEqual is not defined for the types 'Microsoft.EntityFrameworkCore.Storage.ValueBuffer' and 'Microsoft.EntityFrameworkCore.Storage.ValueBuffer'."
+                    == @"The binary operator NotEqual is not defined for the types 'Microsoft.EntityFrameworkCore.Storage.ValueBuffer' and 'Microsoft.EntityFrameworkCore.Storage.ValueBuffer'."
                 ) // 12788
                 {
                 }

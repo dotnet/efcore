@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -167,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (value != null)
             {
-                if (!property.ClrType.GetTypeInfo().IsAssignableFrom(value.GetType().GetTypeInfo()))
+                if (!property.ClrType.IsAssignableFrom(value.GetType()))
                 {
                     throw new InvalidCastException(
                         CoreStrings.InvalidType(

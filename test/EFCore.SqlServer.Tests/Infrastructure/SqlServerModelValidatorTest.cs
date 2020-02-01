@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Cat>(
                 cb =>
                 {
-                    cb.Property(c => c.Identity).ForSqlServerUseIdentityColumn();
+                    cb.Property(c => c.Identity).UseIdentityColumn();
                     cb.Property(c => c.Identity).HasColumnName(nameof(Cat.Identity));
                 });
             modelBuilder.Entity<Dog>(
@@ -148,7 +148,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
-            modelBuilder.Entity<A>().ToTable("Table").ForSqlServerIsMemoryOptimized();
+
+            modelBuilder.Entity<A>().ToTable("Table").IsMemoryOptimized();
+
             modelBuilder.Entity<B>().ToTable("Table");
 
             VerifyError(
@@ -162,10 +164,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
+
             modelBuilder.Entity<A>().ToTable("Table")
-                .HasKey(a => a.Id).ForSqlServerIsClustered();
+                .HasKey(a => a.Id).IsClustered();
             modelBuilder.Entity<B>().ToTable("Table")
-                .HasKey(b => b.Id).ForSqlServerIsClustered(false);
+                .HasKey(b => b.Id).IsClustered(false);
 
             VerifyError(
                 SqlServerStrings.DuplicateKeyMismatchedClustering("{'Id'}", nameof(B), "{'Id'}", nameof(A), "Table", "PK_Table"),
@@ -178,7 +181,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>().Property<decimal>("Price");
 
-            VerifyWarning(SqlServerResources.LogDefaultDecimalTypeColumn(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("Price", nameof(Animal)), modelBuilder.Model);
+            VerifyWarning(
+                SqlServerResources.LogDefaultDecimalTypeColumn(new TestLogger<SqlServerLoggingDefinitions>())
+                    .GenerateMessage("Price", nameof(Animal)), modelBuilder.Model);
         }
 
         [ConditionalFact]
@@ -187,7 +192,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>().Property<decimal?>("Price");
 
-            VerifyWarning(SqlServerResources.LogDefaultDecimalTypeColumn(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("Price", nameof(Animal)), modelBuilder.Model);
+            VerifyWarning(
+                SqlServerResources.LogDefaultDecimalTypeColumn(new TestLogger<SqlServerLoggingDefinitions>())
+                    .GenerateMessage("Price", nameof(Animal)), modelBuilder.Model);
         }
 
         [ConditionalFact]
@@ -195,9 +202,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(d => d.Id).ValueGeneratedNever();
-            modelBuilder.Entity<Dog>().Property<byte>("Bite").ForSqlServerUseIdentityColumn();
+            modelBuilder.Entity<Dog>().Property<byte>("Bite").UseIdentityColumn();
 
-            VerifyWarning(SqlServerResources.LogByteIdentityColumn(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("Bite", nameof(Dog)), modelBuilder.Model);
+            VerifyWarning(
+                SqlServerResources.LogByteIdentityColumn(new TestLogger<SqlServerLoggingDefinitions>())
+                    .GenerateMessage("Bite", nameof(Dog)), modelBuilder.Model);
         }
 
         [ConditionalFact]
@@ -205,9 +214,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(d => d.Id).ValueGeneratedNever();
-            modelBuilder.Entity<Dog>().Property<byte?>("Bite").ForSqlServerUseIdentityColumn();
+            modelBuilder.Entity<Dog>().Property<byte?>("Bite").UseIdentityColumn();
 
-            VerifyWarning(SqlServerResources.LogByteIdentityColumn(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("Bite", nameof(Dog)), modelBuilder.Model);
+            VerifyWarning(
+                SqlServerResources.LogByteIdentityColumn(new TestLogger<SqlServerLoggingDefinitions>())
+                    .GenerateMessage("Bite", nameof(Dog)), modelBuilder.Model);
         }
 
         [ConditionalFact]
@@ -215,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(d => d.Id).ValueGeneratedNever();
-            modelBuilder.Entity<Dog>().Property(c => c.Type).ForSqlServerUseIdentityColumn();
+            modelBuilder.Entity<Dog>().Property(c => c.Type).UseIdentityColumn();
 
             Validate(modelBuilder.Model);
         }
@@ -225,8 +236,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(d => d.Id).ValueGeneratedNever();
-            modelBuilder.Entity<Dog>().Property(c => c.Type).ForSqlServerUseIdentityColumn();
-            modelBuilder.Entity<Dog>().Property<int?>("Tag").ForSqlServerUseIdentityColumn();
+
+            modelBuilder.Entity<Dog>().Property(c => c.Type).UseIdentityColumn();
+            modelBuilder.Entity<Dog>().Property<int?>("Tag").UseIdentityColumn();
 
             VerifyError(SqlServerStrings.MultipleIdentityColumns("'Dog.Tag', 'Dog.Type'", nameof(Dog)), modelBuilder.Model);
         }
@@ -235,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public void Detects_non_key_SequenceHiLo()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Dog>().Property(c => c.Type).ForSqlServerUseSequenceHiLo();
+            modelBuilder.Entity<Dog>().Property(c => c.Type).UseHiLo();
 
             VerifyError(SqlServerStrings.NonKeyValueGeneration(nameof(Dog.Type), nameof(Dog)), modelBuilder.Model);
         }
@@ -244,7 +256,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public void Passes_for_non_key_identity_on_model()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.ForSqlServerUseIdentityColumns();
+
+            modelBuilder.UseIdentityColumns();
+
             modelBuilder.Entity<Dog>().Property(c => c.Id).ValueGeneratedNever();
             modelBuilder.Entity<Dog>().Property(c => c.Type).ValueGeneratedOnAdd();
 
@@ -255,7 +269,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public void Passes_for_non_key_SequenceHiLo_on_model()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.ForSqlServerUseSequenceHiLo();
+
+            modelBuilder.UseHiLo();
+
             modelBuilder.Entity<Dog>().Property(c => c.Type).ValueGeneratedOnAdd();
 
             Validate(modelBuilder.Model);
@@ -277,7 +293,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ConfigureProperty(propertyBuilder.Metadata, firstConfiguration, "1");
             ConfigureProperty(propertyBuilder.Metadata, secondConfiguration, "2");
 
-            VerifyError(RelationalStrings.ConflictingColumnServerGeneration(firstConfiguration, "NullableInt", secondConfiguration), modelBuilder.Model);
+            VerifyError(
+                RelationalStrings.ConflictingColumnServerGeneration(firstConfiguration, "NullableInt", secondConfiguration),
+                modelBuilder.Model);
         }
 
         protected virtual void ConfigureProperty(IMutableProperty property, string configuration, string value)
@@ -294,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     property.SetComputedColumnSql(value);
                     break;
                 case "SqlServerValueGenerationStrategy":
-                    property.SetSqlServerValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
+                    property.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
                     break;
                 default:
                     throw new NotImplementedException();
@@ -306,7 +324,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(c => c.Type);
-            modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).ForSqlServerInclude(nameof(Dog.Type), "Tag");
+
+            modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).IncludeProperties(nameof(Dog.Type), "Tag");
 
             VerifyError(SqlServerStrings.IncludePropertyNotFound(nameof(Dog), "Tag"), modelBuilder.Model);
         }
@@ -316,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(c => c.Type);
-            modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).ForSqlServerInclude(nameof(Dog.Type), nameof(Dog.Type));
+            modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).IncludeProperties(nameof(Dog.Type), nameof(Dog.Type));
 
             VerifyError(SqlServerStrings.IncludePropertyDuplicated(nameof(Dog), nameof(Dog.Type)), modelBuilder.Model);
         }
@@ -326,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(c => c.Type);
-            modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).ForSqlServerInclude(nameof(Dog.Name));
+            modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).IncludeProperties(nameof(Dog.Name));
 
             VerifyError(SqlServerStrings.IncludePropertyInIndex(nameof(Dog), nameof(Dog.Name)), modelBuilder.Model);
         }
@@ -336,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(c => c.Type);
-            modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).ForSqlServerIsCreatedOnline();
+            modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).IsCreatedOnline();
 
             Validate(modelBuilder.Model);
         }

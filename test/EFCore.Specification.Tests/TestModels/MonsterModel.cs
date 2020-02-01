@@ -344,6 +344,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
     public enum LicenseState
     {
+        Default = 0,
         Active = 1,
         Suspended = 2,
         Revoked = 3
@@ -371,6 +372,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
     public enum PhoneType
     {
+        Default = 0,
         Cell = 1,
         Land = 2,
         Satellite = 3

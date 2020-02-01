@@ -78,12 +78,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             if (mapping == null)
             {
-                mapping = property?.FindRelationalMapping()
-                          ?? typeMappingSource?.GetMapping(modelClrType);
+                mapping = property?.GetRelationalTypeMapping()
+                    ?? typeMappingSource?.GetMapping(modelClrType);
             }
 
             ProviderClrType = mapping?.Converter?.ProviderClrType
-                              ?? modelClrType;
+                ?? modelClrType;
 
             ModelClrType = modelClrType;
             Mapping = mapping;
@@ -130,11 +130,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> <c>True</c> if the specified object is equal to the current object; otherwise, <c>false</c>. </returns>
         protected virtual bool Equals([NotNull] TypeMaterializationInfo other)
             => ProviderClrType == other.ProviderClrType
-               && ModelClrType == other.ModelClrType
-               && Equals(Mapping, other.Mapping)
-               && Equals(Property, other.Property)
-               && Index == other.Index
-               && IsFromLeftOuterJoin == other.IsFromLeftOuterJoin;
+                && ModelClrType == other.ModelClrType
+                && Equals(Mapping, other.Mapping)
+                && Equals(Property, other.Property)
+                && Index == other.Index
+                && IsFromLeftOuterJoin == other.IsFromLeftOuterJoin;
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
@@ -143,26 +143,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> <c>True</c> if the specified object is equal to the current object; otherwise, <c>false</c>. </returns>
         public override bool Equals(object obj)
             => !(obj is null)
-               && (ReferenceEquals(this, obj)
-                   || obj.GetType() == GetType()
-                   && Equals((TypeMaterializationInfo)obj));
+                && (ReferenceEquals(this, obj)
+                    || obj.GetType() == GetType()
+                    && Equals((TypeMaterializationInfo)obj));
 
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
         /// <returns> A hash code for the current object. </returns>
         public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = ProviderClrType.GetHashCode();
-                hashCode = (hashCode * 397) ^ ModelClrType.GetHashCode();
-                hashCode = (hashCode * 397) ^ (Mapping?.GetHashCode() ?? 0);
-                hashCode = (hashCode * 397) ^ (Property?.GetHashCode() ?? 0);
-                hashCode = (hashCode * 397) ^ Index;
-                hashCode = (hashCode * 397) ^ (IsFromLeftOuterJoin?.GetHashCode() ?? 0);
-                return hashCode;
-            }
-        }
+            => HashCode.Combine(ProviderClrType, ModelClrType, Mapping, Property, Index, IsFromLeftOuterJoin);
     }
 }

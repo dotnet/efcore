@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     A convention that configures the entity type key based on the <see cref="KeyAttribute"/> specified on a property.
+    ///     A convention that configures the entity type key based on the <see cref="KeyAttribute" /> specified on a property.
     /// </summary>
     public class KeyAttributeConvention : PropertyAttributeConventionBase<KeyAttribute>, IModelFinalizedConvention
     {
@@ -49,10 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var entityTypeBuilder = entityType.Builder;
             var currentKey = entityTypeBuilder.Metadata.FindPrimaryKey();
-            var properties = new List<string>
-            {
-                propertyBuilder.Metadata.Name
-            };
+            var properties = new List<string> { propertyBuilder.Metadata.Name };
 
             if (currentKey != null
                 && entityType.GetPrimaryKeyConfigurationSource() == ConfigurationSource.DataAnnotation)

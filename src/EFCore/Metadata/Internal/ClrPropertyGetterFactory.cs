@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -25,24 +23,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public override IClrPropertyGetter Create(IPropertyBase property)
+            => property as IClrPropertyGetter ?? Create(property.GetMemberInfo(forMaterialization: false, forSet: false), property);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override IClrPropertyGetter CreateGeneric<TEntity, TValue, TNonNullableEnumValue>(
-            PropertyInfo propertyInfo, IPropertyBase propertyBase)
+            MemberInfo memberInfo, IPropertyBase propertyBase)
         {
-            var memberInfo = propertyBase?.GetMemberInfo(forConstruction: false, forSet: false)
-                             ?? propertyInfo.FindGetterProperty();
-
-            if (memberInfo == null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.NoGetter(propertyInfo.Name, propertyInfo.DeclaringType.ShortDisplayName(), nameof(PropertyAccessMode)));
-            }
-
             var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
 
             Expression readExpression;
-            if (memberInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity).GetTypeInfo()))
+            if (memberInfo.DeclaringType.IsAssignableFrom(typeof(TEntity)))
             {
-                readExpression = Expression.MakeMemberAccess(entityParameter, memberInfo);
+                readExpression = CreateMemberAccess(entityParameter);
             }
             else
             {
@@ -50,10 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var converted = Expression.Variable(memberInfo.DeclaringType, "converted");
 
                 readExpression = Expression.Block(
-                    new[]
-                    {
-                        converted
-                    },
+                    new[] { converted },
                     new List<Expression>
                     {
                         Expression.Assign(
@@ -62,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         Expression.Condition(
                             Expression.ReferenceEqual(converted, Expression.Constant(null)),
                             Expression.Default(memberInfo.GetMemberType()),
-                            Expression.MakeMemberAccess(converted, memberInfo))
+                            CreateMemberAccess(converted))
                     });
             }
 
@@ -81,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         Expression.Constant(null, readExpression.Type));
             }
             else if (readExpression.Type.IsGenericType
-                     && readExpression.Type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                && readExpression.Type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 hasDefaultValueExpression
                     = Expression.Not(
@@ -93,13 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 var property = propertyBase as IProperty;
                 var comparer = property?.GetValueComparer()
-                               ?? property?.FindMapping()?.Comparer
-                               ?? (ValueComparer)Activator.CreateInstance(
-                                   typeof(ValueComparer<>).MakeGenericType(typeof(TValue)),
-                                   new object[]
-                                   {
-                                       false
-                                   });
+                    ?? ValueComparer.CreateDefault(typeof(TValue), favorStructuralComparisons: false);
 
                 hasDefaultValueExpression = comparer.ExtractEqualsBody(
                     comparer.Type != typeof(TValue)
@@ -111,6 +100,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return new ClrPropertyGetter<TEntity, TValue>(
                 Expression.Lambda<Func<TEntity, TValue>>(readExpression, entityParameter).Compile(),
                 Expression.Lambda<Func<TEntity, bool>>(hasDefaultValueExpression, entityParameter).Compile());
+
+            Expression CreateMemberAccess(Expression parameter)
+            {
+                return propertyBase?.IsIndexerProperty() == true
+                    ? Expression.MakeIndex(
+                        parameter, (PropertyInfo)memberInfo, new List<Expression>() { Expression.Constant(propertyBase.Name) })
+                    : (Expression)Expression.MakeMemberAccess(parameter, memberInfo);
+            }
         }
     }
 }

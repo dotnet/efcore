@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
@@ -40,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            if (!collectionType.GetTypeInfo().IsAbstract)
+            if (!collectionType.IsAbstract)
             {
                 var constructor = collectionType.GetDeclaredConstructor(null);
                 if (constructor?.IsPublic == true)
@@ -49,23 +48,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            if (typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(entityType.GetTypeInfo()))
+            if (typeof(INotifyPropertyChanged).IsAssignableFrom(entityType))
             {
                 var observableHashSetOfT = typeof(ObservableHashSet<>).MakeGenericType(elementType);
-                if (collectionType.GetTypeInfo().IsAssignableFrom(observableHashSetOfT.GetTypeInfo()))
+                if (collectionType.IsAssignableFrom(observableHashSetOfT))
                 {
                     return observableHashSetOfT;
                 }
             }
 
             var hashSetOfT = typeof(HashSet<>).MakeGenericType(elementType);
-            if (collectionType.GetTypeInfo().IsAssignableFrom(hashSetOfT.GetTypeInfo()))
+            if (collectionType.IsAssignableFrom(hashSetOfT))
             {
                 return hashSetOfT;
             }
 
             var listOfT = typeof(List<>).MakeGenericType(elementType);
-            return collectionType.GetTypeInfo().IsAssignableFrom(listOfT.GetTypeInfo()) ? listOfT : null;
+            return collectionType.IsAssignableFrom(listOfT) ? listOfT : null;
         }
     }
 }

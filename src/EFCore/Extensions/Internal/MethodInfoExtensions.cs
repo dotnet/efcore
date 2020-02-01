@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
@@ -26,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static bool MethodIsClosedFormOf(
             [NotNull] this MethodInfo methodInfo, [NotNull] MethodInfo genericMethod)
             => methodInfo.IsGenericMethod
-               && Equals(
-                   methodInfo.GetGenericMethodDefinition(),
-                   genericMethod);
+                && Equals(
+                    methodInfo.GetGenericMethodDefinition(),
+                    genericMethod);
     }
 }

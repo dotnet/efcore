@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public IReadOnlyList<string> Parameters => ((TestSqlLogger)Logger).Parameters;
         public string Sql => string.Join(_eol + _eol, SqlStatements);
 
-        public void AssertBaseline(string[] expected, bool assertOrder = true)
+        public void AssertBaseline(string[] expected)
         {
             if (_proceduralQueryGeneration)
             {
@@ -44,29 +44,16 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             try
             {
-                if (assertOrder)
+                for (var i = 0; i < expected.Length; i++)
                 {
-                    for (var i = 0; i < expected.Length; i++)
-                    {
-                        Assert.Equal(expected[i], SqlStatements[i], ignoreLineEndingDifferences: true);
-                    }
-                }
-                else
-                {
-                    foreach (var expectedFragment in expected)
-                    {
-                        var normalizedExpectedFragment = expectedFragment.Replace("\r", string.Empty).Replace("\n", _eol);
-                        Assert.Contains(
-                            normalizedExpectedFragment,
-                            SqlStatements);
-                    }
+                    Assert.Equal(expected[i], SqlStatements[i], ignoreLineEndingDifferences: true);
                 }
             }
             catch
             {
                 var methodCallLine = Environment.StackTrace.Split(
-                        new[] { _eol },
-                        StringSplitOptions.RemoveEmptyEntries)[3].Substring(6);
+                    new[] { _eol },
+                    StringSplitOptions.RemoveEmptyEntries)[3].Substring(6);
 
                 var testName = methodCallLine.Substring(0, methodCallLine.IndexOf(')') + 1);
                 var lineIndex = methodCallLine.LastIndexOf("line", StringComparison.Ordinal);
@@ -76,9 +63,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var currentDirectory = Directory.GetCurrentDirectory();
                 var logFile = currentDirectory.Substring(
-                                  0,
-                                  currentDirectory.LastIndexOf("\\artifacts\\", StringComparison.Ordinal) + 1)
-                              + "QueryBaseline.cs";
+                        0,
+                        currentDirectory.LastIndexOf("\\artifacts\\", StringComparison.Ordinal) + 1)
+                    + "QueryBaseline.txt";
 
                 var testInfo = testName + " : " + lineNumber + FileNewLine;
 
@@ -97,9 +84,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var contents = testInfo + newBaseLine + FileNewLine + FileNewLine;
 
-                //File.AppendAllText(logFile, contents);
+                File.AppendAllText(logFile, contents);
 
-                //throw;
+                throw;
             }
         }
 
@@ -124,15 +111,16 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 LogLevel logLevel, EventId eventId, string message, TState state, Exception exception)
             {
                 if ((eventId.Id == RelationalEventId.CommandExecuted.Id
-                     || eventId.Id == RelationalEventId.CommandError.Id
-                     || eventId.Id == RelationalEventId.CommandExecuting.Id))
+                    || eventId.Id == RelationalEventId.CommandError.Id
+                    || eventId.Id == RelationalEventId.CommandExecuting.Id))
                 {
                     if (_shouldLogCommands)
                     {
                         base.UnsafeLog(logLevel, eventId, message, state, exception);
                     }
 
-                    if (message != null
+                    if (!IsRecordingSuspended
+                        && message != null
                         && eventId.Id != RelationalEventId.CommandExecuting.Id)
                     {
                         var structure = (IReadOnlyList<KeyValuePair<string, object>>)state;

@@ -11,7 +11,6 @@ using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -97,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
         [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
         [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
-        public void Non_notifying_collections_not_acceotable_when_noitification_tracking(
+        public void Non_notifying_collections_not_acceptable_when_notification_tracking(
             ChangeTrackingStrategy changeTrackingStrategy)
         {
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry<FullNotificationEntity>(
@@ -147,10 +146,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public void Entry_subscribes_to_INotifyCollectionChanged_for_Replace()
         {
             var item1 = new ChangedOnlyNotificationEntity();
-            var collection = new ObservableCollection<ChangedOnlyNotificationEntity>
-            {
-                item1
-            };
+            var collection = new ObservableCollection<ChangedOnlyNotificationEntity> { item1 };
             var testListener = SetupTestCollectionListener(collection);
 
             var item2 = new ChangedOnlyNotificationEntity();
@@ -166,11 +162,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var item1 = new ChangedOnlyNotificationEntity();
             var item2 = new ChangedOnlyNotificationEntity();
-            var collection = new ObservableCollection<ChangedOnlyNotificationEntity>
-            {
-                item1,
-                item2
-            };
+            var collection = new ObservableCollection<ChangedOnlyNotificationEntity> { item1, item2 };
             var testListener = SetupTestCollectionListener(collection);
 
             collection.Move(0, 1);
@@ -183,11 +175,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var item1 = new ChangedOnlyNotificationEntity();
             var item2 = new ChangedOnlyNotificationEntity();
-            var collection = new ObservableCollection<ChangedOnlyNotificationEntity>
-            {
-                item1,
-                item2
-            };
+            var collection = new ObservableCollection<ChangedOnlyNotificationEntity> { item1, item2 };
             var testListener = SetupTestCollectionListener(collection);
 
             Assert.Equal(
@@ -202,11 +190,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var item1 = new ChangedOnlyNotificationEntity();
             var item2 = new ChangedOnlyNotificationEntity();
-            var collection = new ObservableHashSet<ChangedOnlyNotificationEntity>
-            {
-                item1,
-                item2
-            };
+            var collection = new ObservableHashSet<ChangedOnlyNotificationEntity> { item1, item2 };
             var testListener = SetupTestCollectionListener(collection);
 
             collection.Clear();
@@ -237,10 +221,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 .OfType<TestNavigationListener>()
                 .Single();
 
-            var entity = new FullNotificationEntity
-            {
-                RelatedCollection = collection
-            };
+            var entity = new FullNotificationEntity { RelatedCollection = collection };
             var entry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(entity);
             entry.SetEntityState(EntityState.Unchanged);
 
@@ -361,10 +342,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             for (var i = 0; i < 10; i++)
             {
                 entities.Add(
-                    new FullNotificationEntity
-                    {
-                        Id = i + 1
-                    });
+                    new FullNotificationEntity { Id = i + 1 });
                 entries.Add(contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(entities[i]));
                 entries[i].SetEntityState(EntityState.Unchanged);
             }
@@ -420,11 +398,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             for (var i = 0; i < 10; i++)
             {
                 entities.Add(
-                    new FullNotificationEntity
-                    {
-                        Id = i + 1,
-                        RelatedCollection = new ObservableHashSet<ChangedOnlyNotificationEntity>()
-                    });
+                    new FullNotificationEntity { Id = i + 1, RelatedCollection = new ObservableHashSet<ChangedOnlyNotificationEntity>() });
                 entries.Add(contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(entities[i]));
                 entries[i].SetEntityState(EntityState.Unchanged);
             }
@@ -470,10 +444,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             for (var i = 0; i < 10; i++)
             {
                 entities.Add(
-                    new FullNotificationEntity
-                    {
-                        Id = i + 1
-                    });
+                    new FullNotificationEntity { Id = i + 1 });
                 entries.Add(context.Add(entities[i]));
                 entries[i].State = EntityState.Unchanged;
             }
@@ -542,7 +513,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 InternalEntityEntry entry, INavigation navigation, IEnumerable<object> added, IEnumerable<object> removed)
                 => CollectionChanged.Add(Tuple.Create(entry, navigation, added, removed));
 
-            public void TrackedFromQuery(InternalEntityEntry entry, ISet<IForeignKey> handledForeignKeys)
+            public void TrackedFromQuery(InternalEntityEntry entry)
             {
             }
 
@@ -555,7 +526,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             public void KeyPropertyChanged(
-                InternalEntityEntry entry, IProperty property, IReadOnlyList<IKey> containingPrincipalKeys, IReadOnlyList<IForeignKey> containingForeignKeys,
+                InternalEntityEntry entry, IProperty property, IReadOnlyList<IKey> containingPrincipalKeys,
+                IReadOnlyList<IForeignKey> containingForeignKeys,
                 object oldValue, object newValue)
             {
             }

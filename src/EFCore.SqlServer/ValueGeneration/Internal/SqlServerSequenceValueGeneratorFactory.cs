@@ -51,52 +51,62 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
 
             if (type == typeof(long))
             {
-                return new SqlServerSequenceHiLoValueGenerator<long>(rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
+                return new SqlServerSequenceHiLoValueGenerator<long>(
+                    rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
             }
 
             if (type == typeof(int))
             {
-                return new SqlServerSequenceHiLoValueGenerator<int>(rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
+                return new SqlServerSequenceHiLoValueGenerator<int>(
+                    rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
             }
 
             if (type == typeof(decimal))
             {
-                return new SqlServerSequenceHiLoValueGenerator<decimal>(rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
+                return new SqlServerSequenceHiLoValueGenerator<decimal>(
+                    rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
             }
 
             if (type == typeof(short))
             {
-                return new SqlServerSequenceHiLoValueGenerator<short>(rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
+                return new SqlServerSequenceHiLoValueGenerator<short>(
+                    rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
             }
 
             if (type == typeof(byte))
             {
-                return new SqlServerSequenceHiLoValueGenerator<byte>(rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
+                return new SqlServerSequenceHiLoValueGenerator<byte>(
+                    rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
             }
 
             if (type == typeof(char))
             {
-                return new SqlServerSequenceHiLoValueGenerator<char>(rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
+                return new SqlServerSequenceHiLoValueGenerator<char>(
+                    rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
             }
 
             if (type == typeof(ulong))
             {
-                return new SqlServerSequenceHiLoValueGenerator<ulong>(rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
+                return new SqlServerSequenceHiLoValueGenerator<ulong>(
+                    rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
             }
 
             if (type == typeof(uint))
             {
-                return new SqlServerSequenceHiLoValueGenerator<uint>(rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
+                return new SqlServerSequenceHiLoValueGenerator<uint>(
+                    rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
             }
 
             if (type == typeof(ushort))
             {
-                return new SqlServerSequenceHiLoValueGenerator<ushort>(rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
+                return new SqlServerSequenceHiLoValueGenerator<ushort>(
+                    rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
             }
 
             if (type == typeof(sbyte))
             {
-                return new SqlServerSequenceHiLoValueGenerator<sbyte>(rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
+                return new SqlServerSequenceHiLoValueGenerator<sbyte>(
+                    rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
             }
 
             throw new ArgumentException(

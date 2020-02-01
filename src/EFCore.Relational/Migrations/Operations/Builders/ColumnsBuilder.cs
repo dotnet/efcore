@@ -44,6 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <param name="defaultValueSql"> The SQL expression to use for the column's default constraint. </param>
         /// <param name="computedColumnSql"> The SQL expression to use to compute the column value. </param>
         /// <param name="fixedLength"> Indicates whether or not the column is constrained to fixed-length data. </param>
+        /// <param name="comment"> A comment to be applied to the table. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual OperationBuilder<AddColumnOperation> Column<T>(
             [CanBeNull] string type = null,
@@ -55,7 +56,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
             [CanBeNull] object defaultValue = null,
             [CanBeNull] string defaultValueSql = null,
             [CanBeNull] string computedColumnSql = null,
-            bool? fixedLength = null)
+            bool? fixedLength = null,
+            [CanBeNull] string comment = null)
         {
             var operation = new AddColumnOperation
             {
@@ -71,7 +73,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
                 DefaultValue = defaultValue,
                 DefaultValueSql = defaultValueSql,
                 ComputedColumnSql = computedColumnSql,
-                IsFixedLength = fixedLength
+                IsFixedLength = fixedLength,
+                Comment = comment
             };
             _createTableOperation.Columns.Add(operation);
 

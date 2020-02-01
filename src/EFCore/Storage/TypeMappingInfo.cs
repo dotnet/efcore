@@ -235,12 +235,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> <c>True</c> if they represent the same mapping; <c>false</c> otherwise. </returns>
         public bool Equals(TypeMappingInfo other)
             => ClrType == other.ClrType
-               && IsKeyOrIndex == other.IsKeyOrIndex
-               && Size == other.Size
-               && IsUnicode == other.IsUnicode
-               && IsRowVersion == other.IsRowVersion
-               && Precision == other.Precision
-               && Scale == other.Scale;
+                && IsKeyOrIndex == other.IsKeyOrIndex
+                && Size == other.Size
+                && IsUnicode == other.IsUnicode
+                && IsRowVersion == other.IsRowVersion
+                && Precision == other.Precision
+                && Scale == other.Scale;
 
         /// <summary>
         ///     Compares this <see cref="TypeMappingInfo" /> to another to check if they represent the same mapping.
@@ -249,23 +249,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> <c>True</c> if they represent the same mapping; <c>false</c> otherwise. </returns>
         public override bool Equals(object obj)
             => obj != null
-               && obj.GetType() == GetType()
-               && Equals((TypeMappingInfo)obj);
+                && obj.GetType() == GetType()
+                && Equals((TypeMappingInfo)obj);
 
         /// <summary>
         ///     Returns a hash code for this object.
         /// </summary>
         /// <returns> The hash code. </returns>
         public override int GetHashCode()
-        {
-            var hashCode = ClrType?.GetHashCode() ?? 0;
-            hashCode = (hashCode * 397) ^ IsKeyOrIndex.GetHashCode();
-            hashCode = (hashCode * 397) ^ (Size?.GetHashCode() ?? 0);
-            hashCode = (hashCode * 397) ^ (IsUnicode?.GetHashCode() ?? 0);
-            hashCode = (hashCode * 397) ^ (IsRowVersion?.GetHashCode() ?? 0);
-            hashCode = (hashCode * 397) ^ (Scale?.GetHashCode() ?? 0);
-            hashCode = (hashCode * 397) ^ (Precision?.GetHashCode() ?? 0);
-            return hashCode;
-        }
+            => HashCode.Combine(ClrType, IsKeyOrIndex, Size, IsUnicode, IsRowVersion, Scale, Precision);
     }
 }

@@ -18,28 +18,24 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        [ConditionalFact(Skip = "Issue#15704")]
+        [ConditionalFact]
         public virtual void FromSql_on_root()
         {
-            using (var context = CreateContext())
-            {
-                context.Set<Animal>().FromSqlRaw(NormalizeDelimetersInRawString("select * from [Animal]")).ToList();
-            }
+            using var context = CreateContext();
+            context.Set<Animal>().FromSqlRaw(NormalizeDelimitersInRawString("select * from [Animal]")).ToList();
         }
 
-        [ConditionalFact(Skip = "Issue#15704")]
+        [ConditionalFact]
         public virtual void FromSql_on_derived()
         {
-            using (var context = CreateContext())
-            {
-                context.Set<Eagle>().FromSqlRaw(NormalizeDelimetersInRawString("select * from [Animal]")).ToList();
-            }
+            using var context = CreateContext();
+            context.Set<Eagle>().FromSqlRaw(NormalizeDelimitersInRawString("select * from [Animal]")).ToList();
         }
 
-        private string NormalizeDelimetersInRawString(string sql)
-            => ((RelationalTestStore)Fixture.TestStore).NormalizeDelimetersInRawString(sql);
+        private string NormalizeDelimitersInRawString(string sql)
+            => ((RelationalTestStore)Fixture.TestStore).NormalizeDelimitersInRawString(sql);
 
-        private FormattableString NormalizeDelimetersInInterpolatedString(FormattableString sql)
-            => ((RelationalTestStore)Fixture.TestStore).NormalizeDelimetersInInterpolatedString(sql);
+        private FormattableString NormalizeDelimitersInInterpolatedString(FormattableString sql)
+            => ((RelationalTestStore)Fixture.TestStore).NormalizeDelimitersInInterpolatedString(sql);
     }
 }

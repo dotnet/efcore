@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -75,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     var posts = blogs[0].Posts.OrderBy(e => e.Title).ToList();
 
-                    Assert.Equal(1, posts.Count);
+                    Assert.Single(posts);
 
                     Assert.StartsWith("Baxter", posts[0].Title);
                     Assert.StartsWith("With dog", posts[0].Content);
@@ -98,15 +97,11 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void Query_with_keyless_type()
         {
-            using (var context = CreateContext())
-            {
-#pragma warning disable CS0618 // Type or member is obsolete
-                var blogs = context.Query<BlogQuery>().ToList();
-#pragma warning restore CS0618 // Type or member is obsolete
+            using var context = CreateContext();
+            var blogs = context.Set<BlogQuery>().ToList();
 
-                Assert.Equal(1, blogs.Count);
-                Assert.Equal("Puppies", blogs[0].Title);
-            }
+            Assert.Single(blogs);
+            Assert.Equal("Puppies", blogs[0].Title);
         }
 
         [ConditionalFact]
@@ -208,18 +203,9 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                var entityWithBase = new HasContextProperty<DbContext>
-                {
-                    Id = id1
-                };
-                var entityWithDerived = new HasContextProperty<WithConstructorsContext>
-                {
-                    Id = id2
-                };
-                var entityWithOther = new HasContextProperty<OtherContext>
-                {
-                    Id = id3
-                };
+                var entityWithBase = new HasContextProperty<DbContext> { Id = id1 };
+                var entityWithDerived = new HasContextProperty<WithConstructorsContext> { Id = id2 };
+                var entityWithOther = new HasContextProperty<OtherContext> { Id = id3 };
 
                 context.Attach(entityWithBase);
                 context.Attach(entityWithDerived);
@@ -234,23 +220,19 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void Query_with_EntityType_injected()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Same(
-                    context.Model.FindEntityType(typeof(HasEntityType)),
-                    context.Set<HasEntityType>().Single().GetEntityType());
-            }
+            using var context = CreateContext();
+            Assert.Same(
+                context.Model.FindEntityType(typeof(HasEntityType)),
+                context.Set<HasEntityType>().Single().GetEntityType());
         }
 
         [ConditionalFact]
         public virtual void Query_with_EntityType_injected_into_property()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Same(
-                    context.Model.FindEntityType(typeof(HasEntityTypeProperty)),
-                    context.Set<HasEntityTypeProperty>().Single().EntityType);
-            }
+            using var context = CreateContext();
+            Assert.Same(
+                context.Model.FindEntityType(typeof(HasEntityTypeProperty)),
+                context.Set<HasEntityTypeProperty>().Single().EntityType);
         }
 
         [ConditionalFact]
@@ -290,10 +272,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                var entity = new HasEntityTypeProperty
-                {
-                    Id = id
-                };
+                var entity = new HasEntityTypeProperty { Id = id };
 
                 context.Attach(entity);
 
@@ -304,23 +283,19 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void Query_with_StateManager_injected()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Same(
-                    context.GetService<IStateManager>(),
-                    context.Set<HasStateManager>().Single().GetStateManager());
-            }
+            using var context = CreateContext();
+            Assert.Same(
+                context.GetService<IStateManager>(),
+                context.Set<HasStateManager>().Single().GetStateManager());
         }
 
         [ConditionalFact]
         public virtual void Query_with_StateManager_injected_into_property()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Same(
-                    context.GetService<IStateManager>(),
-                    context.Set<HasStateManagerProperty>().Single().StateManager);
-            }
+            using var context = CreateContext();
+            Assert.Same(
+                context.GetService<IStateManager>(),
+                context.Set<HasStateManagerProperty>().Single().StateManager);
         }
 
         [ConditionalFact]
@@ -360,10 +335,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                var entity = new HasStateManagerProperty
-                {
-                    Id = id
-                };
+                var entity = new HasStateManagerProperty { Id = id };
 
                 context.Attach(entity);
 
@@ -374,138 +346,118 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void Query_with_loader_injected_for_reference()
         {
-            using (var context = CreateContext())
-            {
-                var post = context.Set<LazyPost>().OrderBy(e => e.Id).First();
+            using var context = CreateContext();
+            var post = context.Set<LazyPost>().OrderBy(e => e.Id).First();
 
-                Assert.NotNull(post.LazyBlog);
-                Assert.Contains(post, post.LazyBlog.LazyPosts);
-            }
+            Assert.NotNull(post.LazyBlog);
+            Assert.Contains(post, post.LazyBlog.LazyPosts);
         }
 
         [ConditionalFact]
         public virtual void Query_with_loader_injected_for_collections()
         {
-            using (var context = CreateContext())
-            {
-                var blog = context.Set<LazyBlog>().Single();
+            using var context = CreateContext();
+            var blog = context.Set<LazyBlog>().Single();
 
-                Assert.Equal(2, blog.LazyPosts.Count());
-                Assert.Same(blog, blog.LazyPosts.First().LazyBlog);
-                Assert.Same(blog, blog.LazyPosts.Skip(1).First().LazyBlog);
-            }
+            Assert.Equal(2, blog.LazyPosts.Count());
+            Assert.Same(blog, blog.LazyPosts.First().LazyBlog);
+            Assert.Same(blog, blog.LazyPosts.Skip(1).First().LazyBlog);
         }
 
         [ConditionalFact]
         public virtual async Task Query_with_loader_injected_for_reference_async()
         {
-            using (var context = CreateContext())
-            {
-                var post = await context.Set<LazyAsyncPost>().OrderBy(e => e.Id).FirstAsync();
+            using var context = CreateContext();
+            var post = await context.Set<LazyAsyncPost>().OrderBy(e => e.Id).FirstAsync();
 
-                var loaded = await post.LoadBlogAsync();
+            var loaded = await post.LoadBlogAsync();
 
-                Assert.NotNull(loaded);
-                Assert.Same(loaded, post.LazyAsyncBlog);
-                Assert.Contains(post, post.LazyAsyncBlog.LazyAsyncPosts);
-            }
+            Assert.NotNull(loaded);
+            Assert.Same(loaded, post.LazyAsyncBlog);
+            Assert.Contains(post, post.LazyAsyncBlog.LazyAsyncPosts);
         }
 
         [ConditionalFact]
         public virtual async Task Query_with_loader_injected_for_collections_async()
         {
-            using (var context = CreateContext())
-            {
-                var blog = await context.Set<LazyAsyncBlog>().SingleAsync();
+            using var context = CreateContext();
+            var blog = await context.Set<LazyAsyncBlog>().SingleAsync();
 
-                var loaded = await blog.LoadPostsAsync();
+            var loaded = await blog.LoadPostsAsync();
 
-                Assert.Same(loaded, blog.LazyAsyncPosts);
-                Assert.Equal(2, blog.LazyAsyncPosts.Count());
-                Assert.Same(blog, blog.LazyAsyncPosts.First().LazyAsyncBlog);
-                Assert.Same(blog, blog.LazyAsyncPosts.Skip(1).First().LazyAsyncBlog);
-            }
+            Assert.Same(loaded, blog.LazyAsyncPosts);
+            Assert.Equal(2, blog.LazyAsyncPosts.Count());
+            Assert.Same(blog, blog.LazyAsyncPosts.First().LazyAsyncBlog);
+            Assert.Same(blog, blog.LazyAsyncPosts.Skip(1).First().LazyAsyncBlog);
         }
 
         [ConditionalFact]
         public virtual void Query_with_POCO_loader_injected_for_reference()
         {
-            using (var context = CreateContext())
-            {
-                var post = context.Set<LazyPocoPost>().OrderBy(e => e.Id).First();
+            using var context = CreateContext();
+            var post = context.Set<LazyPocoPost>().OrderBy(e => e.Id).First();
 
-                Assert.NotNull(post.LazyPocoBlog);
-                Assert.Contains(post, post.LazyPocoBlog.LazyPocoPosts);
-            }
+            Assert.NotNull(post.LazyPocoBlog);
+            Assert.Contains(post, post.LazyPocoBlog.LazyPocoPosts);
         }
 
         [ConditionalFact]
         public virtual void Query_with_POCO_loader_injected_for_collections()
         {
-            using (var context = CreateContext())
-            {
-                var blog = context.Set<LazyPocoBlog>().Single();
+            using var context = CreateContext();
+            var blog = context.Set<LazyPocoBlog>().Single();
 
-                Assert.Equal(2, blog.LazyPocoPosts.Count());
-                Assert.Same(blog, blog.LazyPocoPosts.First().LazyPocoBlog);
-                Assert.Same(blog, blog.LazyPocoPosts.Skip(1).First().LazyPocoBlog);
-            }
+            Assert.Equal(2, blog.LazyPocoPosts.Count());
+            Assert.Same(blog, blog.LazyPocoPosts.First().LazyPocoBlog);
+            Assert.Same(blog, blog.LazyPocoPosts.Skip(1).First().LazyPocoBlog);
         }
 
         [ConditionalFact]
         public virtual async Task Query_with_loader_delegate_injected_for_reference_async()
         {
-            using (var context = CreateContext())
-            {
-                var post = await context.Set<LazyAsyncPocoPost>().OrderBy(e => e.Id).FirstAsync();
+            using var context = CreateContext();
+            var post = await context.Set<LazyAsyncPocoPost>().OrderBy(e => e.Id).FirstAsync();
 
-                var loaded = await post.LoadBlogAsync();
+            var loaded = await post.LoadBlogAsync();
 
-                Assert.NotNull(loaded);
-                Assert.Same(loaded, post.LazyAsyncPocoBlog);
-                Assert.Contains(post, post.LazyAsyncPocoBlog.LazyAsyncPocoPosts);
-            }
+            Assert.NotNull(loaded);
+            Assert.Same(loaded, post.LazyAsyncPocoBlog);
+            Assert.Contains(post, post.LazyAsyncPocoBlog.LazyAsyncPocoPosts);
         }
 
         [ConditionalFact]
         public virtual async Task Query_with_loader_delegate_injected_for_collections_async()
         {
-            using (var context = CreateContext())
-            {
-                var blog = await context.Set<LazyAsyncPocoBlog>().SingleAsync();
+            using var context = CreateContext();
+            var blog = await context.Set<LazyAsyncPocoBlog>().SingleAsync();
 
-                var loaded = await blog.LoadPostsAsync();
+            var loaded = await blog.LoadPostsAsync();
 
-                Assert.Same(loaded, blog.LazyAsyncPocoPosts);
-                Assert.Equal(2, blog.LazyAsyncPocoPosts.Count());
-                Assert.Same(blog, blog.LazyAsyncPocoPosts.First().LazyAsyncPocoBlog);
-                Assert.Same(blog, blog.LazyAsyncPocoPosts.Skip(1).First().LazyAsyncPocoBlog);
-            }
+            Assert.Same(loaded, blog.LazyAsyncPocoPosts);
+            Assert.Equal(2, blog.LazyAsyncPocoPosts.Count());
+            Assert.Same(blog, blog.LazyAsyncPocoPosts.First().LazyAsyncPocoBlog);
+            Assert.Same(blog, blog.LazyAsyncPocoPosts.Skip(1).First().LazyAsyncPocoBlog);
         }
 
         [ConditionalFact]
         public virtual void Query_with_loader_injected_into_property_for_reference()
         {
-            using (var context = CreateContext())
-            {
-                var post = context.Set<LazyPropertyPost>().OrderBy(e => e.Id).First();
+            using var context = CreateContext();
+            var post = context.Set<LazyPropertyPost>().OrderBy(e => e.Id).First();
 
-                Assert.NotNull(post.LazyPropertyBlog);
-                Assert.Contains(post, post.LazyPropertyBlog.LazyPropertyPosts);
-            }
+            Assert.NotNull(post.LazyPropertyBlog);
+            Assert.Contains(post, post.LazyPropertyBlog.LazyPropertyPosts);
         }
 
         [ConditionalFact]
         public virtual void Query_with_loader_injected_into_property_for_collections()
         {
-            using (var context = CreateContext())
-            {
-                var blog = context.Set<LazyPropertyBlog>().Single();
+            using var context = CreateContext();
+            var blog = context.Set<LazyPropertyBlog>().Single();
 
-                Assert.Equal(2, blog.LazyPropertyPosts.Count());
-                Assert.Same(blog, blog.LazyPropertyPosts.First().LazyPropertyBlog);
-                Assert.Same(blog, blog.LazyPropertyPosts.Skip(1).First().LazyPropertyBlog);
-            }
+            Assert.Equal(2, blog.LazyPropertyPosts.Count());
+            Assert.Same(blog, blog.LazyPropertyPosts.First().LazyPropertyBlog);
+            Assert.Same(blog, blog.LazyPropertyPosts.Skip(1).First().LazyPropertyBlog);
         }
 
         [ConditionalFact]
@@ -521,11 +473,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                var post = new LazyPropertyPost
-                {
-                    Id = id,
-                    LazyPropertyBlogId = fk
-                };
+                var post = new LazyPropertyPost { Id = id, LazyPropertyBlogId = fk };
                 Assert.Null(post.GetLoader());
 
                 context.Attach(post);
@@ -538,7 +486,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void Detatching_entity_resets_lazy_loader_so_it_can_be_reattached()
+        public virtual void Detaching_entity_resets_lazy_loader_so_it_can_be_reattached()
         {
             LazyPropertyPost post;
             using (var context = CreateContext())
@@ -568,26 +516,22 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void Query_with_loader_injected_into_field_for_reference()
         {
-            using (var context = CreateContext())
-            {
-                var post = context.Set<LazyFieldPost>().OrderBy(e => e.Id).First();
+            using var context = CreateContext();
+            var post = context.Set<LazyFieldPost>().OrderBy(e => e.Id).First();
 
-                Assert.NotNull(post.LazyFieldBlog);
-                Assert.Contains(post, post.LazyFieldBlog.LazyFieldPosts);
-            }
+            Assert.NotNull(post.LazyFieldBlog);
+            Assert.Contains(post, post.LazyFieldBlog.LazyFieldPosts);
         }
 
         [ConditionalFact]
         public virtual void Query_with_loader_injected_into_field_for_collections()
         {
-            using (var context = CreateContext())
-            {
-                var blog = context.Set<LazyFieldBlog>().Single();
+            using var context = CreateContext();
+            var blog = context.Set<LazyFieldBlog>().Single();
 
-                Assert.Equal(2, blog.LazyFieldPosts.Count());
-                Assert.Same(blog, blog.LazyFieldPosts.First().LazyFieldBlog);
-                Assert.Same(blog, blog.LazyFieldPosts.Skip(1).First().LazyFieldBlog);
-            }
+            Assert.Equal(2, blog.LazyFieldPosts.Count());
+            Assert.Same(blog, blog.LazyFieldPosts.First().LazyFieldBlog);
+            Assert.Same(blog, blog.LazyFieldPosts.Skip(1).First().LazyFieldBlog);
         }
 
         [ConditionalFact]
@@ -603,11 +547,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                var post = new LazyFieldPost
-                {
-                    Id = id,
-                    LazyFieldBlogId = fk
-                };
+                var post = new LazyFieldPost { Id = id, LazyFieldBlogId = fk };
                 Assert.Null(post.GetLoader());
 
                 context.Attach(post);
@@ -620,7 +560,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void Detatching_entity_resets_lazy_loader_field_so_it_can_be_reattached()
+        public virtual void Detaching_entity_resets_lazy_loader_field_so_it_can_be_reattached()
         {
             LazyFieldPost post;
             using (var context = CreateContext())
@@ -660,11 +600,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                var post = new LazyPcsPost
-                {
-                    Id = id,
-                    LazyPcsBlogId = fk
-                };
+                var post = new LazyPcsPost { Id = id, LazyPcsBlogId = fk };
                 Assert.Null(post.GetLoader());
 
                 context.Attach(post);
@@ -677,7 +613,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void Detatching_entity_resets_lazy_loader_delegate_so_it_can_be_reattached()
+        public virtual void Detaching_entity_resets_lazy_loader_delegate_so_it_can_be_reattached()
         {
             LazyPcsPost post;
             using (var context = CreateContext())
@@ -707,115 +643,99 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void Query_with_loader_delegate_injected_into_property_for_reference()
         {
-            using (var context = CreateContext())
-            {
-                var post = context.Set<LazyPsPost>().OrderBy(e => e.Id).First();
+            using var context = CreateContext();
+            var post = context.Set<LazyPsPost>().OrderBy(e => e.Id).First();
 
-                Assert.NotNull(post.LazyPsBlog);
-                Assert.Contains(post, post.LazyPsBlog.LazyPsPosts);
-            }
+            Assert.NotNull(post.LazyPsBlog);
+            Assert.Contains(post, post.LazyPsBlog.LazyPsPosts);
         }
 
         [ConditionalFact]
         public virtual void Query_with_loader_delgate_injected_into_property_for_collections()
         {
-            using (var context = CreateContext())
-            {
-                var blog = context.Set<LazyPsBlog>().Single();
+            using var context = CreateContext();
+            var blog = context.Set<LazyPsBlog>().Single();
 
-                Assert.Equal(2, blog.LazyPsPosts.Count());
-                Assert.Same(blog, blog.LazyPsPosts.First().LazyPsBlog);
-                Assert.Same(blog, blog.LazyPsPosts.Skip(1).First().LazyPsBlog);
-            }
+            Assert.Equal(2, blog.LazyPsPosts.Count());
+            Assert.Same(blog, blog.LazyPsPosts.First().LazyPsBlog);
+            Assert.Same(blog, blog.LazyPsPosts.Skip(1).First().LazyPsBlog);
         }
 
         [ConditionalFact]
         public virtual async Task Query_with_loader_delegate_injected_into_property_for_reference_async()
         {
-            using (var context = CreateContext())
-            {
-                var post = await context.Set<LazyAsyncPsPost>().OrderBy(e => e.Id).FirstAsync();
+            using var context = CreateContext();
+            var post = await context.Set<LazyAsyncPsPost>().OrderBy(e => e.Id).FirstAsync();
 
-                var loaded = await post.LoadBlogAsync();
+            var loaded = await post.LoadBlogAsync();
 
-                Assert.NotNull(loaded);
-                Assert.Same(loaded, post.LazyAsyncPsBlog);
-                Assert.Contains(post, post.LazyAsyncPsBlog.LazyAsyncPsPosts);
-            }
+            Assert.NotNull(loaded);
+            Assert.Same(loaded, post.LazyAsyncPsBlog);
+            Assert.Contains(post, post.LazyAsyncPsBlog.LazyAsyncPsPosts);
         }
 
         [ConditionalFact]
         public virtual async Task Query_with_loader_delegate_injected_into_property_for_collections_async()
         {
-            using (var context = CreateContext())
-            {
-                var blog = await context.Set<LazyAsyncPsBlog>().SingleAsync();
+            using var context = CreateContext();
+            var blog = await context.Set<LazyAsyncPsBlog>().SingleAsync();
 
-                var loaded = await blog.LoadPostsAsync();
+            var loaded = await blog.LoadPostsAsync();
 
-                Assert.Same(loaded, blog.LazyAsyncPsPosts);
-                Assert.Equal(2, blog.LazyAsyncPsPosts.Count());
-                Assert.Same(blog, blog.LazyAsyncPsPosts.First().LazyAsyncPsBlog);
-                Assert.Same(blog, blog.LazyAsyncPsPosts.Skip(1).First().LazyAsyncPsBlog);
-            }
+            Assert.Same(loaded, blog.LazyAsyncPsPosts);
+            Assert.Equal(2, blog.LazyAsyncPsPosts.Count());
+            Assert.Same(blog, blog.LazyAsyncPsPosts.First().LazyAsyncPsBlog);
+            Assert.Same(blog, blog.LazyAsyncPsPosts.Skip(1).First().LazyAsyncPsBlog);
         }
 
         [ConditionalFact]
         public virtual void Query_with_loader_injected_into_property_via_constructor_for_reference()
         {
-            using (var context = CreateContext())
-            {
-                var post = context.Set<LazyPcPost>().OrderBy(e => e.Id).First();
+            using var context = CreateContext();
+            var post = context.Set<LazyPcPost>().OrderBy(e => e.Id).First();
 
-                Assert.False(post.LoaderSetterCalled);
+            Assert.False(post.LoaderSetterCalled);
 
-                Assert.NotNull(post.LazyPcBlog);
-                Assert.Contains(post, post.LazyPcBlog.LazyPcPosts);
-            }
+            Assert.NotNull(post.LazyPcBlog);
+            Assert.Contains(post, post.LazyPcBlog.LazyPcPosts);
         }
 
         [ConditionalFact]
         public virtual void Query_with_loader_injected_into_property_via_constructor_for_collections()
         {
-            using (var context = CreateContext())
-            {
-                var blog = context.Set<LazyPcBlog>().Single();
+            using var context = CreateContext();
+            var blog = context.Set<LazyPcBlog>().Single();
 
-                Assert.False(blog.LoaderSetterCalled);
+            Assert.False(blog.LoaderSetterCalled);
 
-                Assert.Equal(2, blog.LazyPcPosts.Count());
-                Assert.Same(blog, blog.LazyPcPosts.First().LazyPcBlog);
-                Assert.Same(blog, blog.LazyPcPosts.Skip(1).First().LazyPcBlog);
-            }
+            Assert.Equal(2, blog.LazyPcPosts.Count());
+            Assert.Same(blog, blog.LazyPcPosts.First().LazyPcBlog);
+            Assert.Same(blog, blog.LazyPcPosts.Skip(1).First().LazyPcBlog);
         }
 
         [ConditionalFact]
         public virtual void Query_with_loader_delegate_injected_into_property_via_constructor_for_reference()
         {
-            using (var context = CreateContext())
-            {
-                var post = context.Set<LazyPcsPost>().OrderBy(e => e.Id).First();
+            using var context = CreateContext();
+            var post = context.Set<LazyPcsPost>().OrderBy(e => e.Id).First();
 
-                Assert.False(post.LoaderSetterCalled);
+            Assert.False(post.LoaderSetterCalled);
 
-                Assert.NotNull(post.LazyPcsBlog);
-                Assert.Contains(post, post.LazyPcsBlog.LazyPcsPosts);
-            }
+            Assert.NotNull(post.LazyPcsBlog);
+            Assert.Contains(post, post.LazyPcsBlog.LazyPcsPosts);
         }
 
         [ConditionalFact]
         public virtual void Query_with_loader_delegate_injected_into_property_via_constructor_for_collections()
         {
-            using (var context = CreateContext())
-            {
-                var blog = context.Set<LazyPcsBlog>().Single();
+            using var context = CreateContext();
+            var blog = context.Set<LazyPcsBlog>().Single();
 
-                Assert.False(blog.LoaderSetterCalled);
+            Assert.False(blog.LoaderSetterCalled);
 
-                Assert.Equal(2, blog.LazyPcsPosts.Count());
-                Assert.Same(blog, blog.LazyPcsPosts.First().LazyPcsBlog);
-                Assert.Same(blog, blog.LazyPcsPosts.Skip(1).First().LazyPcsBlog);
-            }
+            Assert.Equal(2, blog.LazyPcsPosts.Count());
+            Assert.Same(blog, blog.LazyPcsPosts.First().LazyPcsBlog);
+            Assert.Same(blog, blog.LazyPcsPosts.Skip(1).First().LazyPcsBlog);
         }
 
         protected class Blog
@@ -929,7 +849,6 @@ namespace Microsoft.EntityFrameworkCore
             where TContext : DbContext
         {
             private TContext _context;
-            // ReSharper disable once ConvertToAutoProperty
             private bool _setterCalled;
 
             public HasContextPc()
@@ -958,7 +877,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
-            // ReSharper disable once ConvertToAutoProperty
+            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
             public bool SetterCalled => _setterCalled;
 
             public TContext GetContext() => Context;
@@ -1059,8 +978,8 @@ namespace Microsoft.EntityFrameworkCore
         protected class HasStateManagerPc
         {
             private IStateManager _stateManager;
-            // ReSharper disable once ConvertToAutoProperty
             private bool _setterCalled;
+            // ReSharper disable once ConvertToAutoProperty
 
             public HasStateManagerPc()
             {
@@ -1085,7 +1004,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
-            // ReSharper disable once ConvertToAutoProperty
+            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
             public bool SetterCalled => _setterCalled;
 
             public IStateManager GetStateManager() => StateManager;
@@ -1178,7 +1097,9 @@ namespace Microsoft.EntityFrameworkCore
             private ICollection<LazyFieldPost> _lazyFieldPosts = new List<LazyFieldPost>();
 
 #pragma warning disable 649
+#pragma warning disable IDE0044 // Add readonly modifier
             private ILazyLoader _loader;
+#pragma warning restore IDE0044 // Add readonly modifier
 #pragma warning restore 649
 
             public int Id { get; set; }
@@ -1195,7 +1116,9 @@ namespace Microsoft.EntityFrameworkCore
             private LazyFieldBlog _lazyFieldBlog;
 
 #pragma warning disable 649
+#pragma warning disable IDE0044 // Add readonly modifier
             private ILazyLoader _loader;
+#pragma warning restore IDE0044 // Add readonly modifier
 #pragma warning restore 649
 
             public int Id { get; set; }
@@ -1623,11 +1546,12 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.Title);
                     });
 
-                modelBuilder.Entity<BlogQuery>(b =>
-                {
-                    b.HasNoKey();
-                    b.Property(e => e.Title);
-                });
+                modelBuilder.Entity<BlogQuery>(
+                    b =>
+                    {
+                        b.HasNoKey();
+                        b.Property(e => e.Title);
+                    });
 
                 modelBuilder.Entity<Post>(
                     b =>
@@ -1673,14 +1597,14 @@ namespace Microsoft.EntityFrameworkCore
                 var bindingFactories = context.GetService<IParameterBindingFactories>();
 
                 var blogServiceProperty = modelBuilder.Entity<LazyFieldBlog>().Metadata.AddServiceProperty(
-                    typeof(LazyFieldBlog).GetTypeInfo().GetRuntimeFields().Single(f => f.Name == "_loader"));
+                    typeof(LazyFieldBlog).GetRuntimeFields().Single(f => f.Name == "_loader"));
 
                 blogServiceProperty.ParameterBinding =
                     (ServiceParameterBinding)bindingFactories.FindFactory(typeof(ILazyLoader), "_loader")
                         .Bind(blogServiceProperty.DeclaringEntityType, typeof(ILazyLoader), "_loader");
 
                 var postServiceProperty = modelBuilder.Entity<LazyFieldPost>().Metadata.AddServiceProperty(
-                    typeof(LazyFieldPost).GetTypeInfo().GetRuntimeFields().Single(f => f.Name == "_loader"));
+                    typeof(LazyFieldPost).GetRuntimeFields().Single(f => f.Name == "_loader"));
 
                 postServiceProperty.ParameterBinding =
                     (ServiceParameterBinding)bindingFactories.FindFactory(typeof(ILazyLoader), "_loader")

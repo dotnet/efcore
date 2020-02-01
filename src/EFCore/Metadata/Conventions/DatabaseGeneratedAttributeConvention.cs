@@ -10,10 +10,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     A convention that that configures a property as <see cref="ValueGenerated.OnAdd"/> if
-    ///     <see cref="DatabaseGeneratedOption.Identity"/> is specified, <see cref="ValueGenerated.OnAddOrUpdate"/> if
-    ///     <see cref="DatabaseGeneratedOption.Computed"/> is specified or <see cref="ValueGenerated.Never"/> if
-    ///     <see cref="DatabaseGeneratedOption.None"/> is specified using a <see cref="DatabaseGeneratedAttribute"/>.
+    ///     A convention that configures a property as <see cref="ValueGenerated.OnAdd" /> if
+    ///     <see cref="DatabaseGeneratedOption.Identity" /> is specified, <see cref="ValueGenerated.OnAddOrUpdate" /> if
+    ///     <see cref="DatabaseGeneratedOption.Computed" /> is specified or <see cref="ValueGenerated.Never" /> if
+    ///     <see cref="DatabaseGeneratedOption.None" /> is specified using a <see cref="DatabaseGeneratedAttribute" />.
     /// </summary>
     public class DatabaseGeneratedAttributeConvention : PropertyAttributeConventionBase<DatabaseGeneratedAttribute>
     {

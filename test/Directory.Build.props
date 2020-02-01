@@ -1,0 +1,8 @@
+<Project>
+  <Import Project="..\Directory.Build.props" />
+
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);xUnit1003;xUnit1004;xUnit1010;xUnit1013</NoWarn>
+  </PropertyGroup>
+
+</Project>

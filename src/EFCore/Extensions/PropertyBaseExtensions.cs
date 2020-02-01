@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -16,6 +17,50 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     public static class PropertyBaseExtensions
     {
+        /// <summary>
+        ///     <para>
+        ///         Gets the <see cref="PropertyInfo" /> or <see cref="FieldInfo" /> that should be used to
+        ///         get or set a value for the given property.
+        ///     </para>
+        ///     <para>
+        ///         Note that it is an error to call this method for a shadow property (<see cref="IsShadowProperty" />) since
+        ///         such a property has no associated <see cref="MemberInfo" />.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyBase"> The property. </param>
+        /// <param name="forMaterialization"> If true, then the member to use for query materialization will be returned. </param>
+        /// <param name="forSet">
+        ///     If true, then the member to use for setting the property value will be returned, otherwise
+        ///     the member to use for getting the property value will be returned.
+        /// </param>
+        /// <returns> The <see cref="MemberInfo" /> to use. </returns>
+        public static MemberInfo GetMemberInfo(
+            [NotNull] this IPropertyBase propertyBase,
+            bool forMaterialization,
+            bool forSet)
+        {
+            if (propertyBase.TryGetMemberInfo(forMaterialization, forSet, out var memberInfo, out var errorMessage))
+            {
+                return memberInfo;
+            }
+
+            throw new InvalidOperationException(errorMessage);
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Gets a <see cref="IClrPropertyGetter" /> for reading the value of this property.
+        ///     </para>
+        ///     <para>
+        ///         Note that it is an error to call this method for a shadow property (<see cref="IsShadowProperty" />) since
+        ///         such a property has no associated <see cref="MemberInfo" />.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyBase"> The property. </param>
+        /// <returns> The accessor. </returns>
+        public static IClrPropertyGetter GetGetter([NotNull] this IPropertyBase propertyBase)
+            => propertyBase.AsPropertyBase().Getter;
+
         /// <summary>
         ///     Gets the name of the backing field for this property, or <c>null</c> if the backing field
         ///     is not known.
@@ -38,36 +83,15 @@ namespace Microsoft.EntityFrameworkCore
             => Check.NotNull(property, nameof(property)).GetIdentifyingMemberInfo() == null;
 
         /// <summary>
-        ///     Gets a value indicating whether this is an indexed property. An indexed property is one that does not have a
-        ///     corresponding property in the entity class, rather the entity class has an indexer which takes the name
-        ///     of the property as argument and returns an object.
+        ///     Gets a value indicating whether this is an indexer property. An indexer property is one that is accessed through
+        ///     an indexer on the entity class.
         /// </summary>
         /// <param name="property"> The property to check. </param>
         /// <returns>
-        ///     <c>True</c> if the property is an indexed property, otherwise <c>false</c>.
+        ///     <c>True</c> if the property is an indexer property, otherwise <c>false</c>.
         /// </returns>
-        public static bool IsIndexedProperty([NotNull] this IPropertyBase property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            var propertyInfo = property.PropertyInfo;
-            return propertyInfo != null
-                   && propertyInfo.IsEFIndexerProperty();
-        }
-
-        /// <summary>
-        ///     <para>
-        ///         Gets the <see cref="PropertyAccessMode" /> being used for this property.
-        ///         <c>null</c> indicates that the default property access mode is being used.
-        ///     </para>
-        /// </summary>
-        /// <param name="propertyBase"> The property for which to get the access mode. </param>
-        /// <returns> The access mode being used, or <c>null</c> if the default access mode is being used. </returns>
-        public static PropertyAccessMode GetPropertyAccessMode(
-            [NotNull] this IPropertyBase propertyBase)
-            => (PropertyAccessMode)(Check.NotNull(propertyBase, nameof(propertyBase))[CoreAnnotationNames.PropertyAccessMode]
-                                    ?? (propertyBase is INavigation
-                                        ? propertyBase.DeclaringType.GetNavigationAccessMode()
-                                        : propertyBase.DeclaringType.GetPropertyAccessMode()));
+        public static bool IsIndexerProperty([NotNull] this IPropertyBase property)
+            => Check.NotNull(property, nameof(property)).GetIdentifyingMemberInfo() is PropertyInfo propertyInfo
+                && propertyInfo == property.DeclaringType.FindIndexerPropertyInfo();
     }
 }

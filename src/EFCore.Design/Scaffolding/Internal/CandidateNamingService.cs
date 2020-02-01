@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -8,6 +8,8 @@ using System.Text;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -26,9 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string GenerateCandidateIdentifier(DatabaseTable originalTable)
-        {
-            return GenerateCandidateIdentifier(originalTable.Name);
-        }
+            => GenerateCandidateIdentifier(originalTable.Name);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -37,9 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string GenerateCandidateIdentifier(DatabaseColumn originalColumn)
-        {
-            return GenerateCandidateIdentifier(originalColumn.Name);
-        }
+            => GenerateCandidateIdentifier(originalColumn.Name);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -76,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             return allForeignKeysBetweenDependentAndPrincipal?.Count() > 1
                 ? foreignKey.DeclaringEntityType.ShortName()
-                       + dependentEndNavigationPropertyName
+                  + dependentEndNavigationPropertyName
                 : foreignKey.DeclaringEntityType.ShortName();
         }
 
@@ -157,8 +155,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private static string StripId(string commonPrefix)
         {
             return commonPrefix.Length > 2
-                && commonPrefix.EndsWith("id", StringComparison.OrdinalIgnoreCase)
-                ? commonPrefix.Substring(0, commonPrefix.Length - 2)
+                   && commonPrefix.EndsWith("id", StringComparison.OrdinalIgnoreCase)
+                ? commonPrefix[..^2]
                 : commonPrefix;
         }
     }

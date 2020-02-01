@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
 
         /// <summary>
-        ///     Creates a new instance of <see cref="SqlServerDbFunctionAttributeConvention" />.
+        ///     Creates a new instance of <see cref="SqlServerIndexConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var index = indexBuilder.Metadata;
             if (index.IsUnique
-                && index.GetSqlServerIsClustered() != true
+                && index.IsClustered() != true
                 && index.Properties
                     .Any(property => property.IsColumnNullable()))
             {

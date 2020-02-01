@@ -18,9 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public class SqliteTypeMappingSource : RelationalTypeMappingSource
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsSpatialiteType(string columnType)
+        public static bool IsSpatialiteType([NotNull] string columnType)
             => _spatialiteTypes.Contains(columnType);
 
         /// <summary>
@@ -127,27 +127,45 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
 
             mapping = base.FindMapping(mappingInfo);
 
-            return mapping != null
-                ? mapping
-                : storeTypeName != null
-                    ? storeTypeName.Length != 0
-                        ? _typeRules.Select(r => r(storeTypeName)).FirstOrDefault(r => r != null) ?? _blob
-                        : _blob // This may seem odd, but it's okay because we are matching SQLite's loose typing.
-                    : null;
+            if (mapping == null
+                && storeTypeName != null)
+            {
+                var affinityTypeMapping = _typeRules.Select(r => r(storeTypeName)).FirstOrDefault(r => r != null);
+
+                if (affinityTypeMapping == null)
+                {
+                    return _blob;
+                }
+
+                if (clrType == null
+                    || affinityTypeMapping.ClrType.UnwrapNullableType() == clrType)
+                {
+                    return affinityTypeMapping;
+                }
+            }
+
+            return mapping;
         }
 
         private readonly Func<string, RelationalTypeMapping>[] _typeRules =
         {
-            name => Contains(name, "INT") ? _integer : null, name => Contains(name, "CHAR")
-                                                                     || Contains(name, "CLOB")
-                                                                     || Contains(name, "TEXT")
-                ? _text
+            name => Contains(name, "INT")
+                ? _integer
                 : null,
-            name => Contains(name, "BLOB") ? _blob : null, name => Contains(name, "REAL")
-                                                                   || Contains(name, "FLOA")
-                                                                   || Contains(name, "DOUB")
-                ? _real
-                : null
+            name => Contains(name, "CHAR")
+                || Contains(name, "CLOB")
+                || Contains(name, "TEXT")
+                    ? _text
+                    : null,
+            name => Contains(name, "BLOB")
+                || Contains(name, "BIN")
+                    ? _blob
+                    : null,
+            name => Contains(name, "REAL")
+                || Contains(name, "FLOA")
+                || Contains(name, "DOUB")
+                    ? _real
+                    : null
         };
 
         private static bool Contains(string haystack, string needle)

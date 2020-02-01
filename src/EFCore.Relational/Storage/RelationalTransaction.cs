@@ -4,6 +4,8 @@
 using System;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -33,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="connection"> The connection to the database. </param>
         /// <param name="transaction"> The underlying <see cref="DbTransaction" />. </param>
+        /// <param name="transactionId"> The correlation ID for the transaction. </param>
         /// <param name="logger"> The logger to write to. </param>
         /// <param name="transactionOwned">
         ///     A value indicating whether the transaction is owned by this class (i.e. if it can be disposed when this class is disposed).
@@ -40,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public RelationalTransaction(
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
+            Guid transactionId,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger,
             bool transactionOwned)
         {
@@ -53,6 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
 
             Connection = connection;
+            TransactionId = transactionId;
 
             _dbTransaction = transaction;
             Logger = logger;
@@ -73,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     A correlation ID that allows this transaction to be identified and
         ///     correlated across multiple database calls.
         /// </summary>
-        public virtual Guid TransactionId { get; } = Guid.NewGuid();
+        public virtual Guid TransactionId { get; }
 
         /// <summary>
         ///     Commits all changes made to the database in the current transaction.
@@ -85,7 +90,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             try
             {
-                _dbTransaction.Commit();
+                var interceptionResult = Logger.TransactionCommitting(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime);
+
+                if (!interceptionResult.IsSuppressed)
+                {
+                    _dbTransaction.Commit();
+                }
 
                 Logger.TransactionCommitted(
                     Connection,
@@ -104,6 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     e,
                     startTime,
                     stopwatch.Elapsed);
+
                 throw;
             }
 
@@ -120,7 +135,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             try
             {
-                _dbTransaction.Rollback();
+                var interceptionResult = Logger.TransactionRollingBack(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime);
+
+                if (!interceptionResult.IsSuppressed)
+                {
+                    _dbTransaction.Rollback();
+                }
 
                 Logger.TransactionRolledBack(
                     Connection,
@@ -139,10 +163,111 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     e,
                     startTime,
                     stopwatch.Elapsed);
+
                 throw;
             }
 
             ClearTransaction();
+        }
+
+        /// <summary>
+        ///     Commits all changes made to the database in the current transaction asynchronously.
+        /// </summary>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
+        public virtual async Task CommitAsync(CancellationToken cancellationToken = default)
+        {
+            var startTime = DateTimeOffset.UtcNow;
+            var stopwatch = Stopwatch.StartNew();
+
+            try
+            {
+                var interceptionResult = await Logger.TransactionCommittingAsync(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime,
+                    cancellationToken);
+
+                if (!interceptionResult.IsSuppressed)
+                {
+                    await _dbTransaction.CommitAsync(cancellationToken);
+                }
+
+                await Logger.TransactionCommittedAsync(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime,
+                    stopwatch.Elapsed,
+                    cancellationToken);
+            }
+            catch (Exception e)
+            {
+                await Logger.TransactionErrorAsync(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    "Commit",
+                    e,
+                    startTime,
+                    stopwatch.Elapsed,
+                    cancellationToken);
+
+                throw;
+            }
+
+            await ClearTransactionAsync(cancellationToken);
+        }
+
+        /// <summary>
+        ///     Discards all changes made to the database in the current transaction asynchronously.
+        /// </summary>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
+        public virtual async Task RollbackAsync(CancellationToken cancellationToken = default)
+        {
+            var startTime = DateTimeOffset.UtcNow;
+            var stopwatch = Stopwatch.StartNew();
+
+            try
+            {
+                var interceptionResult = await Logger.TransactionRollingBackAsync(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime,
+                    cancellationToken);
+
+                if (!interceptionResult.IsSuppressed)
+                {
+                    await _dbTransaction.RollbackAsync(cancellationToken);
+                }
+
+                await Logger.TransactionRolledBackAsync(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime,
+                    stopwatch.Elapsed,
+                    cancellationToken);
+            }
+            catch (Exception e)
+            {
+                await Logger.TransactionErrorAsync(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    "Rollback",
+                    e,
+                    startTime,
+                    stopwatch.Elapsed,
+                    cancellationToken);
+
+                throw;
+            }
+
+            await ClearTransactionAsync(cancellationToken);
         }
 
         /// <summary>
@@ -170,11 +295,37 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public virtual async ValueTask DisposeAsync()
+        {
+            if (!_disposed)
+            {
+                _disposed = true;
+
+                if (_transactionOwned)
+                {
+                    await _dbTransaction.DisposeAsync();
+
+                    Logger.TransactionDisposed(
+                        Connection,
+                        _dbTransaction,
+                        TransactionId,
+                        DateTimeOffset.UtcNow);
+                }
+
+                await ClearTransactionAsync();
+            }
+        }
+
+        /// <summary>
         ///     Remove the underlying transaction from the connection
         /// </summary>
         protected virtual void ClearTransaction()
         {
-            Debug.Assert(Connection.CurrentTransaction == null || Connection.CurrentTransaction == this);
+            Check.DebugAssert(
+                Connection.CurrentTransaction == null || Connection.CurrentTransaction == this,
+                "Connection.CurrentTransaction is unexpected instance");
 
             Connection.UseTransaction(null);
 
@@ -183,6 +334,25 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 _connectionClosed = true;
 
                 Connection.Close();
+            }
+        }
+
+        /// <summary>
+        ///     Remove the underlying transaction from the connection
+        /// </summary>
+        protected virtual async Task ClearTransactionAsync(CancellationToken cancellationToken = default)
+        {
+            Check.DebugAssert(
+                Connection.CurrentTransaction == null || Connection.CurrentTransaction == this,
+                "Connection.CurrentTransaction is unexpected instance");
+
+            await Connection.UseTransactionAsync(null, cancellationToken);
+
+            if (!_connectionClosed)
+            {
+                _connectionClosed = true;
+
+                await Connection.CloseAsync();
             }
         }
 

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,11 +23,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public void Can_get_existing_entry_if_entity_is_already_tracked_otherwise_new_entry()
         {
             var stateManager = CreateStateManager(BuildModel());
-            var category = new Category
-            {
-                Id = 1,
-                PrincipalId = 777
-            };
+            var category = new Category { Id = 1, PrincipalId = 777 };
 
             var entry = stateManager.GetOrCreateEntry(category);
 
@@ -43,281 +38,217 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [ConditionalFact]
         public void Identity_conflict_throws_for_primary_key()
         {
-            using (var context = new IdentityConflictContext())
-            {
-                context.Attach(
-                    new SingleKey
-                    {
-                        Id = 77,
-                        AlternateId = 66
-                    });
+            using var context = new IdentityConflictContext();
+            context.Attach(
+                new SingleKey { Id = 77, AlternateId = 66 });
 
-                Assert.Equal(
-                    CoreStrings.IdentityConflict("SingleKey", "{'Id'}"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Attach(
-                            new SingleKey
-                            {
-                                Id = 77,
-                                AlternateId = 67
-                            })).Message);
-            }
+            Assert.Equal(
+                CoreStrings.IdentityConflict("SingleKey", "{'Id'}"),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Attach(
+                        new SingleKey { Id = 77, AlternateId = 67 })).Message);
         }
 
         [ConditionalFact]
         public void Identity_conflict_throws_for_alternate_key()
         {
-            using (var context = new IdentityConflictContext())
-            {
-                context.Attach(
-                    new SingleKey
-                    {
-                        Id = 77,
-                        AlternateId = 66
-                    });
+            using var context = new IdentityConflictContext();
+            context.Attach(
+                new SingleKey { Id = 77, AlternateId = 66 });
 
-                Assert.Equal(
-                    CoreStrings.IdentityConflict("SingleKey", "{'AlternateId'}"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Attach(
-                            new SingleKey
-                            {
-                                Id = 78,
-                                AlternateId = 66
-                            })).Message);
-            }
+            Assert.Equal(
+                CoreStrings.IdentityConflict("SingleKey", "{'AlternateId'}"),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Attach(
+                        new SingleKey { Id = 78, AlternateId = 66 })).Message);
         }
 
         [ConditionalFact]
         public void Identity_conflict_throws_for_composite_primary_key()
         {
-            using (var context = new IdentityConflictContext())
-            {
-                context.Attach(
-                    new CompositeKey
-                    {
-                        Id1 = 77,
-                        Id2 = 78,
-                        AlternateId1 = 66,
-                        AlternateId2 = 67
-                    });
+            using var context = new IdentityConflictContext();
+            context.Attach(
+                new CompositeKey
+                {
+                    Id1 = 77,
+                    Id2 = 78,
+                    AlternateId1 = 66,
+                    AlternateId2 = 67
+                });
 
-                Assert.Equal(
-                    CoreStrings.IdentityConflict("CompositeKey", "{'Id1', 'Id2'}"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Attach(
-                            new CompositeKey
-                            {
-                                Id1 = 77,
-                                Id2 = 78,
-                                AlternateId1 = 66,
-                                AlternateId2 = 68
-                            })).Message);
-            }
+            Assert.Equal(
+                CoreStrings.IdentityConflict("CompositeKey", "{'Id1', 'Id2'}"),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Attach(
+                        new CompositeKey
+                        {
+                            Id1 = 77,
+                            Id2 = 78,
+                            AlternateId1 = 66,
+                            AlternateId2 = 68
+                        })).Message);
         }
 
         [ConditionalFact]
         public void Identity_conflict_throws_for_composite_alternate_key()
         {
-            using (var context = new IdentityConflictContext())
-            {
-                context.Attach(
-                    new CompositeKey
-                    {
-                        Id1 = 77,
-                        Id2 = 78,
-                        AlternateId1 = 66,
-                        AlternateId2 = 67
-                    });
+            using var context = new IdentityConflictContext();
+            context.Attach(
+                new CompositeKey
+                {
+                    Id1 = 77,
+                    Id2 = 78,
+                    AlternateId1 = 66,
+                    AlternateId2 = 67
+                });
 
-                Assert.Equal(
-                    CoreStrings.IdentityConflict("CompositeKey", "{'AlternateId1', 'AlternateId2'}"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Attach(
-                            new CompositeKey
-                            {
-                                Id1 = 77,
-                                Id2 = 79,
-                                AlternateId1 = 66,
-                                AlternateId2 = 67
-                            })).Message);
-            }
+            Assert.Equal(
+                CoreStrings.IdentityConflict("CompositeKey", "{'AlternateId1', 'AlternateId2'}"),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Attach(
+                        new CompositeKey
+                        {
+                            Id1 = 77,
+                            Id2 = 79,
+                            AlternateId1 = 66,
+                            AlternateId2 = 67
+                        })).Message);
         }
 
         [ConditionalFact]
         public void Identity_conflict_throws_for_primary_key_values_logged()
         {
-            using (var context = new SensitiveIdentityConflictContext())
-            {
-                context.Attach(
-                    new SingleKey
-                    {
-                        Id = 77,
-                        AlternateId = 66
-                    });
+            using var context = new SensitiveIdentityConflictContext();
+            context.Attach(
+                new SingleKey { Id = 77, AlternateId = 66 });
 
-                Assert.Equal(
-                    CoreStrings.IdentityConflictSensitive("SingleKey", "{Id: 77}"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Attach(
-                            new SingleKey
-                            {
-                                Id = 77,
-                                AlternateId = 67
-                            })).Message);
-            }
+            Assert.Equal(
+                CoreStrings.IdentityConflictSensitive("SingleKey", "{Id: 77}"),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Attach(
+                        new SingleKey { Id = 77, AlternateId = 67 })).Message);
         }
 
         [ConditionalFact]
         public void Identity_conflict_throws_for_alternate_key_values_logged()
         {
-            using (var context = new SensitiveIdentityConflictContext())
-            {
-                context.Attach(
-                    new SingleKey
-                    {
-                        Id = 77,
-                        AlternateId = 66
-                    });
+            using var context = new SensitiveIdentityConflictContext();
+            context.Attach(
+                new SingleKey { Id = 77, AlternateId = 66 });
 
-                Assert.Equal(
-                    CoreStrings.IdentityConflictSensitive("SingleKey", "{AlternateId: 66}"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Attach(
-                            new SingleKey
-                            {
-                                Id = 78,
-                                AlternateId = 66
-                            })).Message);
-            }
+            Assert.Equal(
+                CoreStrings.IdentityConflictSensitive("SingleKey", "{AlternateId: 66}"),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Attach(
+                        new SingleKey { Id = 78, AlternateId = 66 })).Message);
         }
 
         [ConditionalFact]
         public void Identity_conflict_throws_for_composite_primary_key_values_logged()
         {
-            using (var context = new SensitiveIdentityConflictContext())
-            {
-                context.Attach(
-                    new CompositeKey
-                    {
-                        Id1 = 77,
-                        Id2 = 78,
-                        AlternateId1 = 66,
-                        AlternateId2 = 67
-                    });
+            using var context = new SensitiveIdentityConflictContext();
+            context.Attach(
+                new CompositeKey
+                {
+                    Id1 = 77,
+                    Id2 = 78,
+                    AlternateId1 = 66,
+                    AlternateId2 = 67
+                });
 
-                Assert.Equal(
-                    CoreStrings.IdentityConflictSensitive("CompositeKey", "{Id1: 77, Id2: 78}"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Attach(
-                            new CompositeKey
-                            {
-                                Id1 = 77,
-                                Id2 = 78,
-                                AlternateId1 = 66,
-                                AlternateId2 = 68
-                            })).Message);
-            }
+            Assert.Equal(
+                CoreStrings.IdentityConflictSensitive("CompositeKey", "{Id1: 77, Id2: 78}"),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Attach(
+                        new CompositeKey
+                        {
+                            Id1 = 77,
+                            Id2 = 78,
+                            AlternateId1 = 66,
+                            AlternateId2 = 68
+                        })).Message);
         }
 
         [ConditionalFact]
         public void Identity_conflict_throws_for_composite_alternate_key_values_logged()
         {
-            using (var context = new SensitiveIdentityConflictContext())
-            {
-                context.Attach(
-                    new CompositeKey
-                    {
-                        Id1 = 77,
-                        Id2 = 78,
-                        AlternateId1 = 66,
-                        AlternateId2 = 67
-                    });
+            using var context = new SensitiveIdentityConflictContext();
+            context.Attach(
+                new CompositeKey
+                {
+                    Id1 = 77,
+                    Id2 = 78,
+                    AlternateId1 = 66,
+                    AlternateId2 = 67
+                });
 
-                Assert.Equal(
-                    CoreStrings.IdentityConflictSensitive("CompositeKey", "{AlternateId1: 66, AlternateId2: 67}"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Attach(
-                            new CompositeKey
-                            {
-                                Id1 = 77,
-                                Id2 = 79,
-                                AlternateId1 = 66,
-                                AlternateId2 = 67
-                            })).Message);
-            }
+            Assert.Equal(
+                CoreStrings.IdentityConflictSensitive("CompositeKey", "{AlternateId1: 66, AlternateId2: 67}"),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Attach(
+                        new CompositeKey
+                        {
+                            Id1 = 77,
+                            Id2 = 79,
+                            AlternateId1 = 66,
+                            AlternateId2 = 67
+                        })).Message);
         }
 
         [ConditionalFact]
         public void Identity_null_throws_for_primary_key()
         {
-            using (var context = new IdentityConflictContext())
-            {
-                Assert.Equal(
-                    CoreStrings.InvalidKeyValue("SingleKey", "Id"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Attach(
-                            new SingleKey
-                            {
-                                Id = null,
-                                AlternateId = 67
-                            })).Message);
-            }
+            using var context = new IdentityConflictContext();
+            Assert.Equal(
+                CoreStrings.InvalidKeyValue("SingleKey", "Id"),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Attach(
+                        new SingleKey { Id = null, AlternateId = 67 })).Message);
         }
 
         [ConditionalFact]
         public void Identity_null_throws_for_alternate_key()
         {
-            using (var context = new IdentityConflictContext())
-            {
-                Assert.Equal(
-                    CoreStrings.InvalidAlternateKeyValue("SingleKey", "AlternateId"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Attach(
-                            new SingleKey
-                            {
-                                Id = 77,
-                                AlternateId = null
-                            })).Message);
-            }
+            using var context = new IdentityConflictContext();
+            Assert.Equal(
+                CoreStrings.InvalidAlternateKeyValue("SingleKey", "AlternateId"),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Attach(
+                        new SingleKey { Id = 77, AlternateId = null })).Message);
         }
 
         [ConditionalFact]
         public void Identity_null_throws_for_composite_primary_key()
         {
-            using (var context = new IdentityConflictContext())
-            {
-                Assert.Equal(
-                    CoreStrings.InvalidKeyValue("CompositeKey", "Id2"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Attach(
-                            new CompositeKey
-                            {
-                                Id1 = 77,
-                                Id2 = null,
-                                AlternateId1 = 66,
-                                AlternateId2 = 68
-                            })).Message);
-            }
+            using var context = new IdentityConflictContext();
+            Assert.Equal(
+                CoreStrings.InvalidKeyValue("CompositeKey", "Id2"),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Attach(
+                        new CompositeKey
+                        {
+                            Id1 = 77,
+                            Id2 = null,
+                            AlternateId1 = 66,
+                            AlternateId2 = 68
+                        })).Message);
         }
 
         [ConditionalFact]
         public void Identity_null_throws_for_composite_alternate_key()
         {
-            using (var context = new IdentityConflictContext())
-            {
-                Assert.Equal(
-                    CoreStrings.InvalidAlternateKeyValue("CompositeKey", "AlternateId2"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Attach(
-                            new CompositeKey
-                            {
-                                Id1 = 77,
-                                Id2 = 79,
-                                AlternateId1 = 66,
-                                AlternateId2 = null
-                            })).Message);
-            }
+            using var context = new IdentityConflictContext();
+            Assert.Equal(
+                CoreStrings.InvalidAlternateKeyValue("CompositeKey", "AlternateId2"),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Attach(
+                        new CompositeKey
+                        {
+                            Id1 = 77,
+                            Id2 = 79,
+                            AlternateId1 = 66,
+                            AlternateId2 = null
+                        })).Message);
         }
 
         private class SensitiveIdentityConflictContext : IdentityConflictContext
@@ -351,17 +282,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     b =>
                     {
                         b.HasKey(
-                            e => new
-                            {
-                                e.Id1,
-                                e.Id2
-                            });
+                            e => new { e.Id1, e.Id2 });
                         b.HasAlternateKey(
-                            e => new
-                            {
-                                e.AlternateId1,
-                                e.AlternateId2
-                            });
+                            e => new { e.AlternateId1, e.AlternateId2 });
                     });
             }
         }
@@ -388,16 +311,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var categoryType = model.FindEntityType(typeof(Category));
             var stateManager = CreateStateManager(model);
 
-            var category = new Category
-            {
-                Id = 77,
-                PrincipalId = 777
-            };
+            var category = new Category { Id = 77, PrincipalId = 777 };
             var valueBuffer = new ValueBuffer(new object[] { 77, "Bjork", 777 });
 
-            var entry = stateManager.StartTrackingFromQuery(categoryType, category, valueBuffer, null);
+            var entry = stateManager.StartTrackingFromQuery(categoryType, category, valueBuffer);
 
-            Assert.Same(entry, stateManager.StartTrackingFromQuery(categoryType, category, valueBuffer, null));
+            Assert.Same(entry, stateManager.StartTrackingFromQuery(categoryType, category, valueBuffer));
         }
 
         [ConditionalFact]
@@ -407,10 +326,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var stateManager = CreateStateManager(model);
 
             var entry = stateManager.GetOrCreateEntry(
-                new Dogegory
-                {
-                    Id = null
-                });
+                new Dogegory { Id = null });
 
             Assert.Equal(
                 CoreStrings.InvalidKeyValue("Dogegory", "Id"),
@@ -425,11 +341,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var stateManager = CreateStateManager(model);
 
             var entry = stateManager.GetOrCreateEntry(
-                new Category
-                {
-                    Id = 77,
-                    PrincipalId = null
-                });
+                new Category { Id = 77, PrincipalId = null });
 
             Assert.Equal(
                 CoreStrings.InvalidAlternateKeyValue("Category", "PrincipalId"),
@@ -438,217 +350,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         [ConditionalFact]
-        public void State_manager_switches_out_of_single_query_mode_when_second_query_begins()
-        {
-            var model = BuildModel();
-            var categoryType = model.FindEntityType(typeof(Category));
-            var stateManager = CreateStateManager(model);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            stateManager.BeginTrackingQuery();
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            stateManager.StartTrackingFromQuery(
-                categoryType,
-                new Category
-                {
-                    Id = 77,
-                    PrincipalId = 777
-                },
-                new ValueBuffer(new object[] { 77, "Bjork", 777 }), null);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            stateManager.StartTrackingFromQuery(
-                categoryType,
-                new Category
-                {
-                    Id = 78,
-                    PrincipalId = 778
-                },
-                new ValueBuffer(new object[] { 78, "Beck", 778 }), null);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            stateManager.BeginTrackingQuery();
-
-            Assert.Equal(TrackingQueryMode.Multiple, stateManager.GetTrackingQueryMode(categoryType));
-
-            stateManager.StartTrackingFromQuery(
-                categoryType,
-                new Category
-                {
-                    Id = 79,
-                    PrincipalId = 779
-                },
-                new ValueBuffer(new object[] { 79, "Bush", 779 }), null);
-
-            Assert.Equal(TrackingQueryMode.Multiple, stateManager.GetTrackingQueryMode(categoryType));
-        }
-
-        [ConditionalFact]
-        public void State_manager_switches_out_of_single_query_mode_when_entity_has_self_refs()
-        {
-            var model = BuildModel();
-            var widgetType = model.FindEntityType(typeof(Widget));
-            var stateManager = CreateStateManager(model);
-
-            Assert.Equal(TrackingQueryMode.Single, stateManager.GetTrackingQueryMode(widgetType));
-
-            stateManager.BeginTrackingQuery();
-
-            Assert.Equal(TrackingQueryMode.Single, stateManager.GetTrackingQueryMode(widgetType));
-        }
-
-        [ConditionalFact]
-        public void State_manager_switches_out_of_single_query_mode_when_entity_included()
-        {
-            var model = BuildModel();
-            var productType = model.FindEntityType(typeof(Product));
-            var categoryType = model.FindEntityType(typeof(Category));
-            var stateManager = CreateStateManager(model);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            stateManager.BeginTrackingQuery();
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            Assert.Equal(TrackingQueryMode.Single, stateManager.GetTrackingQueryMode(productType));
-
-            Assert.Equal(TrackingQueryMode.Single, stateManager.GetTrackingQueryMode(categoryType));
-        }
-
-        [ConditionalFact]
-        public void State_manager_switches_out_of_single_query_mode_when_tracked_state_changes_to_Modified()
-        {
-            var model = BuildModel();
-            var categoryType = model.FindEntityType(typeof(Category));
-            var stateManager = CreateStateManager(model);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            stateManager.BeginTrackingQuery();
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            stateManager.StartTrackingFromQuery(
-                categoryType,
-                new Category
-                {
-                    Id = 77,
-                    PrincipalId = 777
-                },
-                new ValueBuffer(new object[] { 77, "Bjork", 777 }), null);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            var entry = stateManager.StartTrackingFromQuery(
-                categoryType,
-                new Category
-                {
-                    Id = 78,
-                    PrincipalId = 778
-                },
-                new ValueBuffer(new object[] { 78, "Beck", 778 }), null);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            entry.SetEntityState(EntityState.Modified);
-
-            Assert.Equal(TrackingQueryMode.Multiple, stateManager.GetTrackingQueryMode(categoryType));
-        }
-
-        [ConditionalFact]
-        public void State_manager_switches_out_of_single_query_mode_when_tracked_state_changes_to_Added()
-        {
-            var model = BuildModel();
-            var categoryType = model.FindEntityType(typeof(Category));
-            var stateManager = CreateStateManager(model);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            stateManager.BeginTrackingQuery();
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            stateManager.StartTrackingFromQuery(
-                categoryType,
-                new Category
-                {
-                    Id = 77,
-                    PrincipalId = 777
-                },
-                new ValueBuffer(new object[] { 77, "Bjork", null }), null);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            var entry = stateManager.StartTrackingFromQuery(
-                categoryType,
-                new Category
-                {
-                    Id = 78,
-                    PrincipalId = 778
-                },
-                new ValueBuffer(new object[] { 78, "Beck", 778 }), null);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            entry.SetEntityState(EntityState.Added);
-
-            Assert.Equal(TrackingQueryMode.Multiple, stateManager.GetTrackingQueryMode(categoryType));
-        }
-
-        [ConditionalFact]
-        public void State_manager_does_not_switch_out_of_single_query_mode_when_getting_existing_entry()
-        {
-            var model = BuildModel();
-            var categoryType = model.FindEntityType(typeof(Category));
-            var stateManager = CreateStateManager(model);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            stateManager.BeginTrackingQuery();
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            var entry = stateManager.StartTrackingFromQuery(
-                categoryType,
-                new Category
-                {
-                    Id = 77,
-                    PrincipalId = 777
-                },
-                new ValueBuffer(new object[] { 77, "Bjork", 777 }), null);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            stateManager.StartTrackingFromQuery(
-                categoryType,
-                new Category
-                {
-                    Id = 78,
-                    PrincipalId = 778
-                },
-                new ValueBuffer(new object[] { 78, "Beck", 778 }), null);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            stateManager.GetOrCreateEntry(entry.Entity);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-        }
-
-        [ConditionalFact]
         public void Can_get_existing_entry_even_if_state_not_yet_set()
         {
             var stateManager = CreateStateManager(BuildModel());
-            var category = new Category
-            {
-                Id = 1
-            };
+            var category = new Category { Id = 1 };
 
             var entry = stateManager.GetOrCreateEntry(category);
             var entry2 = stateManager.GetOrCreateEntry(category);
@@ -661,11 +366,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public void Can_stop_tracking_and_then_start_tracking_again()
         {
             var stateManager = CreateStateManager(BuildModel());
-            var category = new Category
-            {
-                Id = 1,
-                PrincipalId = 777
-            };
+            var category = new Category { Id = 1, PrincipalId = 777 };
 
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
@@ -680,11 +381,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public void Can_stop_tracking_and_then_start_tracking_using_a_new_state_entry()
         {
             var stateManager = CreateStateManager(BuildModel());
-            var category = new Category
-            {
-                Id = 1,
-                PrincipalId = 777
-            };
+            var category = new Category { Id = 1, PrincipalId = 777 };
 
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
@@ -700,11 +397,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public void StopTracking_releases_reference_to_entry()
         {
             var stateManager = CreateStateManager(BuildModel());
-            var category = new Category
-            {
-                Id = 1,
-                PrincipalId = 777
-            };
+            var category = new Category { Id = 1, PrincipalId = 777 };
 
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
@@ -751,15 +444,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Assert.NotSame(
                 stateManager.GetOrCreateEntry(
-                    new Category
-                    {
-                        Id = 77
-                    }),
+                    new Category { Id = 77 }),
                 stateManager.GetOrCreateEntry(
-                    new Category
-                    {
-                        Id = 77
-                    }));
+                    new Category { Id = 77 }));
         }
 
         [ConditionalFact]
@@ -772,36 +459,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             stateManager.StartTracking(
                     stateManager.GetOrCreateEntry(
-                        new Category
-                        {
-                            Id = 77,
-                            PrincipalId = 777
-                        }))
+                        new Category { Id = 77, PrincipalId = 777 }))
                 .SetEntityState(EntityState.Unchanged);
 
             stateManager.StartTracking(
                     stateManager.GetOrCreateEntry(
-                        new Category
-                        {
-                            Id = 78,
-                            PrincipalId = 778
-                        }))
+                        new Category { Id = 78, PrincipalId = 778 }))
                 .SetEntityState(EntityState.Unchanged);
 
             stateManager.StartTracking(
                     stateManager.GetOrCreateEntry(
-                        new Product
-                        {
-                            Id = productId1
-                        }))
+                        new Product { Id = productId1 }))
                 .SetEntityState(EntityState.Unchanged);
 
             stateManager.StartTracking(
                     stateManager.GetOrCreateEntry(
-                        new Product
-                        {
-                            Id = productId2
-                        }))
+                        new Product { Id = productId2 }))
                 .SetEntityState(EntityState.Unchanged);
 
             Assert.Equal(4, stateManager.Entries.Count());
@@ -836,16 +509,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
             }
 
-            public void NavigationCollectionChanged(InternalEntityEntry entry, INavigation navigation, IEnumerable<object> added, IEnumerable<object> removed)
+            public void NavigationCollectionChanged(
+                InternalEntityEntry entry, INavigation navigation, IEnumerable<object> added, IEnumerable<object> removed)
             {
             }
 
-            public void TrackedFromQuery(InternalEntityEntry entry, ISet<IForeignKey> handledForeignKeys)
+            public void TrackedFromQuery(InternalEntityEntry entry)
             {
             }
 
             public void KeyPropertyChanged(
-                InternalEntityEntry entry, IProperty property, IReadOnlyList<IKey> containingPrincipalKeys, IReadOnlyList<IForeignKey> containingForeignKeys,
+                InternalEntityEntry entry, IProperty property, IReadOnlyList<IKey> containingPrincipalKeys,
+                IReadOnlyList<IForeignKey> containingForeignKeys,
                 object oldValue, object newValue)
             {
             }
@@ -909,7 +584,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(EntityState.Modified, entry1.EntityState);
             Assert.Equal(EntityState.Modified, entry2.EntityState);
             Assert.Equal(EntityState.Modified, entry3.EntityState);
-
         }
 
         [ConditionalFact]
@@ -921,27 +595,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
 
             var entry1 = stateManager.GetOrCreateEntry(
-                new Category
-                {
-                    Id = 77,
-                    PrincipalId = 777
-                });
+                new Category { Id = 77, PrincipalId = 777 });
             var entry2 = stateManager.GetOrCreateEntry(
-                new Category
-                {
-                    Id = 78,
-                    PrincipalId = 778
-                });
+                new Category { Id = 78, PrincipalId = 778 });
             var entry3 = stateManager.GetOrCreateEntry(
-                new Product
-                {
-                    Id = productId1
-                });
+                new Product { Id = productId1 });
             var entry4 = stateManager.GetOrCreateEntry(
-                new Product
-                {
-                    Id = productId2
-                });
+                new Product { Id = productId2 });
 
             entry1.SetEntityState(EntityState.Added);
             entry2.SetEntityState(EntityState.Modified);
@@ -969,67 +629,31 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var categoryEntry1 = stateManager.StartTracking(
                 stateManager.GetOrCreateEntry(
-                    new Category
-                    {
-                        Id = 1,
-                        PrincipalId = 77
-                    }));
+                    new Category { Id = 1, PrincipalId = 77 }));
             var categoryEntry2 = stateManager.StartTracking(
                 stateManager.GetOrCreateEntry(
-                    new Category
-                    {
-                        Id = 2,
-                        PrincipalId = 78
-                    }));
+                    new Category { Id = 2, PrincipalId = 78 }));
             var categoryEntry3 = stateManager.StartTracking(
                 stateManager.GetOrCreateEntry(
-                    new Category
-                    {
-                        Id = 3,
-                        PrincipalId = 79
-                    }));
+                    new Category { Id = 3, PrincipalId = 79 }));
             var categoryEntry4 = stateManager.StartTracking(
                 stateManager.GetOrCreateEntry(
-                    new Category
-                    {
-                        Id = 4,
-                        PrincipalId = 0
-                    }));
+                    new Category { Id = 4, PrincipalId = 0 }));
             var productEntry1 = stateManager.StartTracking(
                 stateManager.GetOrCreateEntry(
-                    new Product
-                    {
-                        Id = Guid.NewGuid(),
-                        DependentId = 77
-                    }));
+                    new Product { Id = Guid.NewGuid(), DependentId = 77 }));
             var productEntry2 = stateManager.StartTracking(
                 stateManager.GetOrCreateEntry(
-                    new Product
-                    {
-                        Id = Guid.NewGuid(),
-                        DependentId = 77
-                    }));
+                    new Product { Id = Guid.NewGuid(), DependentId = 77 }));
             var productEntry3 = stateManager.StartTracking(
                 stateManager.GetOrCreateEntry(
-                    new Product
-                    {
-                        Id = Guid.NewGuid(),
-                        DependentId = 78
-                    }));
+                    new Product { Id = Guid.NewGuid(), DependentId = 78 }));
             var productEntry4 = stateManager.StartTracking(
                 stateManager.GetOrCreateEntry(
-                    new Product
-                    {
-                        Id = Guid.NewGuid(),
-                        DependentId = 78
-                    }));
+                    new Product { Id = Guid.NewGuid(), DependentId = 78 }));
             stateManager.StartTracking(
                 stateManager.GetOrCreateEntry(
-                    new Product
-                    {
-                        Id = Guid.NewGuid(),
-                        DependentId = null
-                    }));
+                    new Product { Id = Guid.NewGuid(), DependentId = null }));
 
             var fk = model.FindEntityType(typeof(Product)).GetForeignKeys().Single();
 

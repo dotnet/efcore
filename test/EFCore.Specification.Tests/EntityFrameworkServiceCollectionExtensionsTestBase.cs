@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
                 else
                 {
-                    Assert.Equal(1, registered.Count);
+                    Assert.Single(registered);
                     Assert.Equal(coreService.Value.Lifetime, registered[0].Lifetime);
                 }
             }

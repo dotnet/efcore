@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var oldAnnotation = FindAnnotation(name);
             if (oldAnnotation != null
-                   && Equals(oldAnnotation.Value, value))
+                && Equals(oldAnnotation.Value, value))
             {
                 return;
             }
@@ -202,28 +202,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         IEnumerable<IAnnotation> IAnnotatable.GetAnnotations() => GetAnnotations();
 
-        /// <summary>
-        ///     Gets the annotation with the given name, returning <c>null</c> if it does not exist.
-        /// </summary>
-        /// <param name="name"> The key of the annotation to find. </param>
-        /// <returns>
-        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, <c>null</c>.
-        /// </returns>
+        /// <inheritdoc />
         IAnnotation IAnnotatable.FindAnnotation(string name) => FindAnnotation(name);
 
-        /// <summary>
-        ///     Adds an annotation to this object. Throws if an annotation with the specified name already exists.
-        /// </summary>
-        /// <param name="name"> The name of the annotation to be added. </param>
-        /// <param name="value"> The value to be stored in the annotation. </param>
-        /// <returns> The newly added annotation. </returns>
+        /// <inheritdoc />
         IAnnotation IMutableAnnotatable.AddAnnotation(string name, object value) => AddAnnotation(name, value);
 
-        /// <summary>
-        ///     Removes the given annotation from this object.
-        /// </summary>
-        /// <param name="name"> The name of the annotation to remove. </param>
-        /// <returns> The annotation that was removed. </returns>
+        /// <inheritdoc />
         IAnnotation IMutableAnnotatable.RemoveAnnotation(string name) => RemoveAnnotation(name);
     }
 }

@@ -3,8 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore
 {
-    // issue #15318
-    internal class GraphUpdatesSqlServerTestIdentity : GraphUpdatesSqlServerTestBase<GraphUpdatesSqlServerTestIdentity.GraphUpdatesWithIdentitySqlServerFixture>
+    public class GraphUpdatesSqlServerTestIdentity : GraphUpdatesSqlServerTestBase<
+        GraphUpdatesSqlServerTestIdentity.GraphUpdatesWithIdentitySqlServerFixture>
     {
         public GraphUpdatesSqlServerTestIdentity(GraphUpdatesWithIdentitySqlServerFixture fixture)
             : base(fixture)
@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
-                modelBuilder.ForSqlServerUseIdentityColumns();
+                modelBuilder.UseIdentityColumns();
 
                 base.OnModelCreating(modelBuilder, context);
             }

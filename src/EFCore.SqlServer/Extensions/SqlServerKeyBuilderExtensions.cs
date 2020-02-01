@@ -20,11 +20,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="keyBuilder"> The builder for the key being configured. </param>
         /// <param name="clustered"> A value indicating whether the key is clustered. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static KeyBuilder ForSqlServerIsClustered([NotNull] this KeyBuilder keyBuilder, bool clustered = true)
+        public static KeyBuilder IsClustered([NotNull] this KeyBuilder keyBuilder, bool clustered = true)
         {
             Check.NotNull(keyBuilder, nameof(keyBuilder));
 
-            keyBuilder.Metadata.SetSqlServerIsClustered(clustered);
+            keyBuilder.Metadata.SetIsClustered(clustered);
 
             return keyBuilder;
         }
@@ -39,14 +39,14 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <c>null</c> otherwise.
         /// </returns>
-        public static IConventionKeyBuilder ForSqlServerIsClustered(
+        public static IConventionKeyBuilder IsClustered(
             [NotNull] this IConventionKeyBuilder keyBuilder,
             bool? clustered,
             bool fromDataAnnotation = false)
         {
-            if (keyBuilder.ForSqlServerCanSetIsClustered(clustered, fromDataAnnotation))
+            if (keyBuilder.CanSetIsClustered(clustered, fromDataAnnotation))
             {
-                keyBuilder.Metadata.SetSqlServerIsClustered(clustered, fromDataAnnotation);
+                keyBuilder.Metadata.SetIsClustered(clustered, fromDataAnnotation);
                 return keyBuilder;
             }
 
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="clustered"> A value indicating whether the key is clustered. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the key can be configured as clustered. </returns>
-        public static bool ForSqlServerCanSetIsClustered(
+        public static bool CanSetIsClustered(
             [NotNull] this IConventionKeyBuilder keyBuilder,
             bool? clustered,
             bool fromDataAnnotation = false)

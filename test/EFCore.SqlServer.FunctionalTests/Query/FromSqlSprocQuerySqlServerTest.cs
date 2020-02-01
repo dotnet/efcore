@@ -1,156 +1,96 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class FromSqlSprocQuerySqlServerTest : FromSqlSprocQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
-        public FromSqlSprocQuerySqlServerTest(
-            NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+        public FromSqlSprocQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture)
             : base(fixture)
         {
             fixture.TestSqlLoggerFactory.Clear();
         }
 
-        public override void From_sql_queryable_stored_procedure()
+        public override async Task From_sql_queryable_stored_procedure(bool async)
         {
-            base.From_sql_queryable_stored_procedure();
+            await base.From_sql_queryable_stored_procedure(async);
 
-            Assert.Equal(
-                "[dbo].[Ten Most Expensive Products]",
-                Sql);
+            AssertSql("[dbo].[Ten Most Expensive Products]");
         }
 
-        public override void From_sql_queryable_stored_procedure_projection()
+        public override async Task From_sql_queryable_stored_procedure_with_tag(bool async)
         {
-            base.From_sql_queryable_stored_procedure_projection();
+            await base.From_sql_queryable_stored_procedure_with_tag(async);
 
-            Assert.Equal(
-                "[dbo].[Ten Most Expensive Products]",
-                Sql);
+            AssertSql(
+                @"-- Stored Procedure
+
+[dbo].[Ten Most Expensive Products]");
         }
 
-        public override void From_sql_queryable_stored_procedure_with_parameter()
+        public override async Task From_sql_queryable_stored_procedure_projection(bool async)
         {
-            base.From_sql_queryable_stored_procedure_with_parameter();
+            await base.From_sql_queryable_stored_procedure_projection(async);
 
-            Assert.Equal(
+            AssertSql("[dbo].[Ten Most Expensive Products]");
+        }
+
+        public override async Task From_sql_queryable_stored_procedure_with_parameter(bool async)
+        {
+            await base.From_sql_queryable_stored_procedure_with_parameter(async);
+
+            AssertSql(
                 @"p0='ALFKI' (Size = 4000)
 
-[dbo].[CustOrderHist] @CustomerID = @p0",
-                Sql,
-                ignoreLineEndingDifferences: true);
+[dbo].[CustOrderHist] @CustomerID = @p0");
         }
 
-        public override void From_sql_queryable_stored_procedure_reprojection()
+        public override async Task From_sql_queryable_stored_procedure_re_projection_on_client(bool async)
         {
-            base.From_sql_queryable_stored_procedure_reprojection();
+            await base.From_sql_queryable_stored_procedure_re_projection_on_client(async);
 
-            Assert.Equal(
-                "[dbo].[Ten Most Expensive Products]",
-                Sql);
+            AssertSql("[dbo].[Ten Most Expensive Products]");
         }
 
-        public override void From_sql_queryable_stored_procedure_composed()
+        public override async Task From_sql_queryable_stored_procedure_composed_on_client(bool async)
         {
-            base.From_sql_queryable_stored_procedure_composed();
+            await base.From_sql_queryable_stored_procedure_composed_on_client(async);
 
-            Assert.Equal(
-                "[dbo].[Ten Most Expensive Products]",
-                Sql);
+            AssertSql("[dbo].[Ten Most Expensive Products]");
         }
 
-        public override void From_sql_queryable_stored_procedure_with_parameter_composed()
+        public override async Task From_sql_queryable_stored_procedure_with_parameter_composed_on_client(bool async)
         {
-            base.From_sql_queryable_stored_procedure_with_parameter_composed();
+            await base.From_sql_queryable_stored_procedure_with_parameter_composed_on_client(async);
 
-            Assert.Equal(
-                @"@p0='ALFKI' (Size = 4000)
+            AssertSql(
+                @"p0='ALFKI' (Size = 4000)
 
-[dbo].[CustOrderHist] @CustomerID = @p0",
-                Sql,
-                ignoreLineEndingDifferences: true);
+[dbo].[CustOrderHist] @CustomerID = @p0");
         }
 
-        public override void From_sql_queryable_stored_procedure_take()
+        public override async Task From_sql_queryable_stored_procedure_take_on_client(bool async)
         {
-            base.From_sql_queryable_stored_procedure_take();
+            await base.From_sql_queryable_stored_procedure_take_on_client(async);
 
-            Assert.Equal(
-                "[dbo].[Ten Most Expensive Products]",
-                Sql);
+            AssertSql("[dbo].[Ten Most Expensive Products]");
         }
 
-        public override void From_sql_queryable_stored_procedure_min()
+        public override async Task From_sql_queryable_stored_procedure_min_on_client(bool async)
         {
-            base.From_sql_queryable_stored_procedure_min();
+            await base.From_sql_queryable_stored_procedure_min_on_client(async);
 
-            Assert.Equal(
-                "[dbo].[Ten Most Expensive Products]",
-                Sql);
+            AssertSql("[dbo].[Ten Most Expensive Products]");
         }
 
-        public override void From_sql_queryable_with_multiple_stored_procedures()
-        {
-            base.From_sql_queryable_with_multiple_stored_procedures();
-
-            Assert.StartsWith(
-                "[dbo].[Ten Most Expensive Products]" + _eol +
-                _eol +
-                "[dbo].[Ten Most Expensive Products]" + _eol +
-                _eol +
-                "[dbo].[Ten Most Expensive Products]",
-                Sql);
-        }
-
-        public override void From_sql_queryable_stored_procedure_and_select()
-        {
-            base.From_sql_queryable_stored_procedure_and_select();
-
-            Assert.StartsWith(
-                "[dbo].[Ten Most Expensive Products]" + _eol +
-                _eol +
-                "SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]"
-                + _eol +
-                "FROM (" + _eol +
-                @"    SELECT * FROM ""Products""" + _eol +
-                ") AS [p]" + _eol +
-                _eol +
-                "SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]"
-                + _eol +
-                "FROM (" + _eol +
-                @"    SELECT * FROM ""Products""" + _eol +
-                ") AS [p]",
-                Sql);
-        }
-
-        public override void From_sql_queryable_select_and_stored_procedure()
-        {
-            base.From_sql_queryable_select_and_stored_procedure();
-
-            Assert.StartsWith(
-                "SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]"
-                + _eol +
-                "FROM (" + _eol +
-                @"    SELECT * FROM ""Products""" + _eol +
-                ") AS [p]" + _eol +
-                _eol +
-                "[dbo].[Ten Most Expensive Products]" + _eol +
-                _eol +
-                "[dbo].[Ten Most Expensive Products]",
-                Sql);
-        }
+        private void AssertSql(params string[] expected)
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
         protected override string TenMostExpensiveProductsSproc => "[dbo].[Ten Most Expensive Products]";
+
         protected override string CustomerOrderHistorySproc => "[dbo].[CustOrderHist] @CustomerID = {0}";
-
-        private static readonly string _eol = Environment.NewLine;
-
-        private string Sql => Fixture.TestSqlLoggerFactory.Sql;
     }
 }

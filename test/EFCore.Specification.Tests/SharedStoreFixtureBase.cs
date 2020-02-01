@@ -2,15 +2,17 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Xunit;
 
 // ReSharper disable VirtualMemberCallInConstructor
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposable
+    public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposable, IAsyncLifetime
         where TContext : DbContext
     {
         protected virtual Type ContextType { get; } = typeof(TContext);
@@ -53,6 +55,11 @@ namespace Microsoft.EntityFrameworkCore
             TestStore.Initialize(ServiceProvider, CreateContext, c => Seed((TContext)c), c => Clean(c));
         }
 
+        public virtual Task InitializeAsync()
+        {
+            return Task.CompletedTask;
+        }
+
         public virtual TContext CreateContext()
         {
             if (UsePooling)
@@ -80,22 +87,45 @@ namespace Microsoft.EntityFrameworkCore
 
         public virtual void Reseed()
         {
-            using (var context = CreateContext())
-            {
-                Clean(context);
-                TestStore.Clean(context);
-                Seed(context);
-            }
+            using var context = CreateContext();
+            Clean(context);
+            TestStore.Clean(context);
+            Seed(context);
+        }
+
+        public virtual async Task ReseedAsync()
+        {
+            using var context = CreateContext();
+            await CleanAsync(context);
+            await TestStore.CleanAsync(context);
+            await SeedAsync(context);
         }
 
         protected virtual void Seed(TContext context)
         {
         }
 
+        protected virtual Task SeedAsync(TContext context)
+        {
+            Seed(context);
+            return Task.CompletedTask;
+        }
+
         protected virtual void Clean(DbContext context)
         {
         }
 
-        public virtual void Dispose() => TestStore.Dispose();
+        protected virtual Task CleanAsync(DbContext context)
+        {
+            Clean(context);
+            return Task.CompletedTask;
+        }
+
+        // Called after DisposeAsync
+        public virtual void Dispose()
+        {
+        }
+
+        public virtual Task DisposeAsync() => TestStore.DisposeAsync();
     }
 }

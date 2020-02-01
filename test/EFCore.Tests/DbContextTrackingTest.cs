@@ -56,63 +56,54 @@ namespace Microsoft.EntityFrameworkCore
             Func<DbContext, Category, ValueTask<EntityEntry<Category>>> categoryAdder,
             Func<DbContext, Product, ValueTask<EntityEntry<Product>>> productAdder, EntityState expectedState)
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var relatedDependent = new Product
             {
-                var relatedDependent = new Product
-                {
-                    Id = 1,
-                    Name = "Marmite",
-                    Price = 7.99m
-                };
-                var principal = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages",
-                    Products = new List<Product>
-                    {
-                        relatedDependent
-                    }
-                };
+                Id = 1,
+                Name = "Marmite",
+                Price = 7.99m
+            };
+            var principal = new Category
+            {
+                Id = 1,
+                Name = "Beverages",
+                Products = new List<Product> { relatedDependent }
+            };
 
-                var relatedPrincipal = new Category
-                {
-                    Id = 2,
-                    Name = "Foods"
-                };
-                var dependent = new Product
-                {
-                    Id = 2,
-                    Name = "Bovril",
-                    Price = 4.99m,
-                    Category = relatedPrincipal
-                };
+            var relatedPrincipal = new Category { Id = 2, Name = "Foods" };
+            var dependent = new Product
+            {
+                Id = 2,
+                Name = "Bovril",
+                Price = 4.99m,
+                Category = relatedPrincipal
+            };
 
-                var principalEntry = await categoryAdder(context, principal);
-                var dependentEntry = await productAdder(context, dependent);
+            var principalEntry = await categoryAdder(context, principal);
+            var dependentEntry = await productAdder(context, dependent);
 
-                var relatedPrincipalEntry = context.Entry(relatedPrincipal);
-                var relatedDependentEntry = context.Entry(relatedDependent);
+            var relatedPrincipalEntry = context.Entry(relatedPrincipal);
+            var relatedDependentEntry = context.Entry(relatedDependent);
 
-                Assert.Same(principal, principalEntry.Entity);
-                Assert.Same(relatedPrincipal, relatedPrincipalEntry.Entity);
-                Assert.Same(relatedDependent, relatedDependentEntry.Entity);
-                Assert.Same(dependent, dependentEntry.Entity);
+            Assert.Same(principal, principalEntry.Entity);
+            Assert.Same(relatedPrincipal, relatedPrincipalEntry.Entity);
+            Assert.Same(relatedDependent, relatedDependentEntry.Entity);
+            Assert.Same(dependent, dependentEntry.Entity);
 
-                Assert.Same(principal, principalEntry.Entity);
-                Assert.Equal(expectedState, principalEntry.State);
-                Assert.Same(relatedPrincipal, relatedPrincipalEntry.Entity);
-                Assert.Equal(expectedState == EntityState.Deleted ? EntityState.Unchanged : expectedState, relatedPrincipalEntry.State);
+            Assert.Same(principal, principalEntry.Entity);
+            Assert.Equal(expectedState, principalEntry.State);
+            Assert.Same(relatedPrincipal, relatedPrincipalEntry.Entity);
+            Assert.Equal(expectedState == EntityState.Deleted ? EntityState.Unchanged : expectedState, relatedPrincipalEntry.State);
 
-                Assert.Same(relatedDependent, relatedDependentEntry.Entity);
-                Assert.Equal(expectedState, relatedDependentEntry.State);
-                Assert.Same(dependent, dependentEntry.Entity);
-                Assert.Equal(expectedState, dependentEntry.State);
+            Assert.Same(relatedDependent, relatedDependentEntry.Entity);
+            Assert.Equal(expectedState, relatedDependentEntry.State);
+            Assert.Same(dependent, dependentEntry.Entity);
+            Assert.Equal(expectedState, dependentEntry.State);
 
-                Assert.Same(principalEntry.GetInfrastructure(), context.Entry(principal).GetInfrastructure());
-                Assert.Same(relatedPrincipalEntry.GetInfrastructure(), context.Entry(relatedPrincipal).GetInfrastructure());
-                Assert.Same(relatedDependentEntry.GetInfrastructure(), context.Entry(relatedDependent).GetInfrastructure());
-                Assert.Same(dependentEntry.GetInfrastructure(), context.Entry(dependent).GetInfrastructure());
-            }
+            Assert.Same(principalEntry.GetInfrastructure(), context.Entry(principal).GetInfrastructure());
+            Assert.Same(relatedPrincipalEntry.GetInfrastructure(), context.Entry(relatedPrincipal).GetInfrastructure());
+            Assert.Same(relatedDependentEntry.GetInfrastructure(), context.Entry(relatedDependent).GetInfrastructure());
+            Assert.Same(dependentEntry.GetInfrastructure(), context.Entry(dependent).GetInfrastructure());
         }
 
         [ConditionalFact]
@@ -160,54 +151,46 @@ namespace Microsoft.EntityFrameworkCore
             Func<DbContext, object[], Task> adder,
             EntityState expectedState)
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var relatedDependent = new Product
             {
-                var relatedDependent = new Product
-                {
-                    Id = 1,
-                    Name = "Marmite",
-                    Price = 7.99m
-                };
-                var principal = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages",
-                    Products = new List<Product>
-                    {
-                        relatedDependent
-                    }
-                };
+                Id = 1,
+                Name = "Marmite",
+                Price = 7.99m
+            };
+            var principal = new Category
+            {
+                Id = 1,
+                Name = "Beverages",
+                Products = new List<Product> { relatedDependent }
+            };
 
-                var relatedPrincipal = new Category
-                {
-                    Id = 2,
-                    Name = "Foods"
-                };
-                var dependent = new Product
-                {
-                    Id = 2,
-                    Name = "Bovril",
-                    Price = 4.99m,
-                    Category = relatedPrincipal
-                };
+            var relatedPrincipal = new Category { Id = 2, Name = "Foods" };
+            var dependent = new Product
+            {
+                Id = 2,
+                Name = "Bovril",
+                Price = 4.99m,
+                Category = relatedPrincipal
+            };
 
-                await adder(context, new object[] { principal, dependent });
+            await adder(context, new object[] { principal, dependent });
 
-                Assert.Same(principal, context.Entry(principal).Entity);
-                Assert.Same(relatedPrincipal, context.Entry(relatedPrincipal).Entity);
-                Assert.Same(relatedDependent, context.Entry(relatedDependent).Entity);
-                Assert.Same(dependent, context.Entry(dependent).Entity);
+            Assert.Same(principal, context.Entry(principal).Entity);
+            Assert.Same(relatedPrincipal, context.Entry(relatedPrincipal).Entity);
+            Assert.Same(relatedDependent, context.Entry(relatedDependent).Entity);
+            Assert.Same(dependent, context.Entry(dependent).Entity);
 
-                Assert.Same(principal, context.Entry(principal).Entity);
-                Assert.Equal(expectedState, context.Entry(principal).State);
-                Assert.Same(relatedPrincipal, context.Entry(relatedPrincipal).Entity);
-                Assert.Equal(expectedState == EntityState.Deleted ? EntityState.Unchanged : expectedState, context.Entry(relatedPrincipal).State);
+            Assert.Same(principal, context.Entry(principal).Entity);
+            Assert.Equal(expectedState, context.Entry(principal).State);
+            Assert.Same(relatedPrincipal, context.Entry(relatedPrincipal).Entity);
+            Assert.Equal(
+                expectedState == EntityState.Deleted ? EntityState.Unchanged : expectedState, context.Entry(relatedPrincipal).State);
 
-                Assert.Same(relatedDependent, context.Entry(relatedDependent).Entity);
-                Assert.Equal(expectedState, context.Entry(relatedDependent).State);
-                Assert.Same(dependent, context.Entry(dependent).Entity);
-                Assert.Equal(expectedState, context.Entry(dependent).State);
-            }
+            Assert.Same(relatedDependent, context.Entry(relatedDependent).Entity);
+            Assert.Equal(expectedState, context.Entry(relatedDependent).State);
+            Assert.Same(dependent, context.Entry(dependent).Entity);
+            Assert.Equal(expectedState, context.Entry(dependent).State);
         }
 
         [ConditionalFact]
@@ -253,35 +236,29 @@ namespace Microsoft.EntityFrameworkCore
             Func<DbContext, Category, ValueTask<EntityEntry<Category>>> categoryAdder,
             Func<DbContext, Product, ValueTask<EntityEntry<Product>>> productAdder, EntityState expectedState)
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category1 = new Category { Id = 0, Name = "Beverages" };
+            var product1 = new Product
             {
-                var category1 = new Category
-                {
-                    Id = 0,
-                    Name = "Beverages"
-                };
-                var product1 = new Product
-                {
-                    Id = 0,
-                    Name = "Marmite",
-                    Price = 7.99m
-                };
+                Id = 0,
+                Name = "Marmite",
+                Price = 7.99m
+            };
 
-                var categoryEntry1 = await categoryAdder(context, category1);
-                var productEntry1 = await productAdder(context, product1);
+            var categoryEntry1 = await categoryAdder(context, category1);
+            var productEntry1 = await productAdder(context, product1);
 
-                Assert.Same(category1, categoryEntry1.Entity);
-                Assert.Same(product1, productEntry1.Entity);
+            Assert.Same(category1, categoryEntry1.Entity);
+            Assert.Same(product1, productEntry1.Entity);
 
-                Assert.Same(category1, categoryEntry1.Entity);
-                Assert.Equal(expectedState, categoryEntry1.State);
+            Assert.Same(category1, categoryEntry1.Entity);
+            Assert.Equal(expectedState, categoryEntry1.State);
 
-                Assert.Same(product1, productEntry1.Entity);
-                Assert.Equal(expectedState, productEntry1.State);
+            Assert.Same(product1, productEntry1.Entity);
+            Assert.Equal(expectedState, productEntry1.State);
 
-                Assert.Same(categoryEntry1.GetInfrastructure(), context.Entry(category1).GetInfrastructure());
-                Assert.Same(productEntry1.GetInfrastructure(), context.Entry(product1).GetInfrastructure());
-            }
+            Assert.Same(categoryEntry1.GetInfrastructure(), context.Entry(category1).GetInfrastructure());
+            Assert.Same(productEntry1.GetInfrastructure(), context.Entry(product1).GetInfrastructure());
         }
 
         [ConditionalFact]
@@ -337,32 +314,26 @@ namespace Microsoft.EntityFrameworkCore
             Func<DbContext, object[], Task> categoryAdder,
             Func<DbContext, object[], Task> productAdder, EntityState expectedState)
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category1 = new Category { Id = 0, Name = "Beverages" };
+            var product1 = new Product
             {
-                var category1 = new Category
-                {
-                    Id = 0,
-                    Name = "Beverages"
-                };
-                var product1 = new Product
-                {
-                    Id = 0,
-                    Name = "Marmite",
-                    Price = 7.99m
-                };
+                Id = 0,
+                Name = "Marmite",
+                Price = 7.99m
+            };
 
-                await categoryAdder(context, new[] { category1 });
-                await productAdder(context, new[] { product1 });
+            await categoryAdder(context, new[] { category1 });
+            await productAdder(context, new[] { product1 });
 
-                Assert.Same(category1, context.Entry(category1).Entity);
-                Assert.Same(product1, context.Entry(product1).Entity);
+            Assert.Same(category1, context.Entry(category1).Entity);
+            Assert.Same(product1, context.Entry(product1).Entity);
 
-                Assert.Same(category1, context.Entry(category1).Entity);
-                Assert.Equal(expectedState, context.Entry(category1).State);
+            Assert.Same(category1, context.Entry(category1).Entity);
+            Assert.Equal(expectedState, context.Entry(category1).State);
 
-                Assert.Same(product1, context.Entry(product1).Entity);
-                Assert.Equal(expectedState, context.Entry(product1).State);
-            }
+            Assert.Same(product1, context.Entry(product1).Entity);
+            Assert.Equal(expectedState, context.Entry(product1).State);
         }
 
         [ConditionalFact]
@@ -374,12 +345,10 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public async Task Can_add_no_new_entities_to_context_async()
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
-            {
-                await context.AddRangeAsync();
-                await context.AddRangeAsync();
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            await context.AddRangeAsync();
+            await context.AddRangeAsync();
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         [ConditionalFact]
@@ -402,12 +371,10 @@ namespace Microsoft.EntityFrameworkCore
 
         private static void TrackNoEntitiesTest(Action<DbContext> categoryAdder, Action<DbContext> productAdder)
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
-            {
-                categoryAdder(context);
-                productAdder(context);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            categoryAdder(context);
+            productAdder(context);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         [ConditionalFact]
@@ -452,63 +419,54 @@ namespace Microsoft.EntityFrameworkCore
             Func<DbContext, object, ValueTask<EntityEntry>> categoryAdder,
             Func<DbContext, object, ValueTask<EntityEntry>> productAdder, EntityState expectedState)
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var relatedDependent = new Product
             {
-                var relatedDependent = new Product
-                {
-                    Id = 1,
-                    Name = "Marmite",
-                    Price = 7.99m
-                };
-                var principal = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages",
-                    Products = new List<Product>
-                    {
-                        relatedDependent
-                    }
-                };
+                Id = 1,
+                Name = "Marmite",
+                Price = 7.99m
+            };
+            var principal = new Category
+            {
+                Id = 1,
+                Name = "Beverages",
+                Products = new List<Product> { relatedDependent }
+            };
 
-                var relatedPrincipal = new Category
-                {
-                    Id = 2,
-                    Name = "Foods"
-                };
-                var dependent = new Product
-                {
-                    Id = 2,
-                    Name = "Bovril",
-                    Price = 4.99m,
-                    Category = relatedPrincipal
-                };
+            var relatedPrincipal = new Category { Id = 2, Name = "Foods" };
+            var dependent = new Product
+            {
+                Id = 2,
+                Name = "Bovril",
+                Price = 4.99m,
+                Category = relatedPrincipal
+            };
 
-                var principalEntry = await categoryAdder(context, principal);
-                var dependentEntry = await productAdder(context, dependent);
+            var principalEntry = await categoryAdder(context, principal);
+            var dependentEntry = await productAdder(context, dependent);
 
-                var relatedPrincipalEntry = context.Entry(relatedPrincipal);
-                var relatedDependentEntry = context.Entry(relatedDependent);
+            var relatedPrincipalEntry = context.Entry(relatedPrincipal);
+            var relatedDependentEntry = context.Entry(relatedDependent);
 
-                Assert.Same(principal, principalEntry.Entity);
-                Assert.Same(relatedPrincipal, relatedPrincipalEntry.Entity);
-                Assert.Same(relatedDependent, relatedDependentEntry.Entity);
-                Assert.Same(dependent, dependentEntry.Entity);
+            Assert.Same(principal, principalEntry.Entity);
+            Assert.Same(relatedPrincipal, relatedPrincipalEntry.Entity);
+            Assert.Same(relatedDependent, relatedDependentEntry.Entity);
+            Assert.Same(dependent, dependentEntry.Entity);
 
-                Assert.Same(principal, principalEntry.Entity);
-                Assert.Equal(expectedState, principalEntry.State);
-                Assert.Same(relatedPrincipal, relatedPrincipalEntry.Entity);
-                Assert.Equal(expectedState == EntityState.Deleted ? EntityState.Unchanged : expectedState, relatedPrincipalEntry.State);
+            Assert.Same(principal, principalEntry.Entity);
+            Assert.Equal(expectedState, principalEntry.State);
+            Assert.Same(relatedPrincipal, relatedPrincipalEntry.Entity);
+            Assert.Equal(expectedState == EntityState.Deleted ? EntityState.Unchanged : expectedState, relatedPrincipalEntry.State);
 
-                Assert.Same(relatedDependent, relatedDependentEntry.Entity);
-                Assert.Equal(expectedState, relatedDependentEntry.State);
-                Assert.Same(dependent, dependentEntry.Entity);
-                Assert.Equal(expectedState, dependentEntry.State);
+            Assert.Same(relatedDependent, relatedDependentEntry.Entity);
+            Assert.Equal(expectedState, relatedDependentEntry.State);
+            Assert.Same(dependent, dependentEntry.Entity);
+            Assert.Equal(expectedState, dependentEntry.State);
 
-                Assert.Same(principalEntry.GetInfrastructure(), context.Entry(principal).GetInfrastructure());
-                Assert.Same(relatedPrincipalEntry.GetInfrastructure(), context.Entry(relatedPrincipal).GetInfrastructure());
-                Assert.Same(relatedDependentEntry.GetInfrastructure(), context.Entry(relatedDependent).GetInfrastructure());
-                Assert.Same(dependentEntry.GetInfrastructure(), context.Entry(dependent).GetInfrastructure());
-            }
+            Assert.Same(principalEntry.GetInfrastructure(), context.Entry(principal).GetInfrastructure());
+            Assert.Same(relatedPrincipalEntry.GetInfrastructure(), context.Entry(relatedPrincipal).GetInfrastructure());
+            Assert.Same(relatedDependentEntry.GetInfrastructure(), context.Entry(relatedDependent).GetInfrastructure());
+            Assert.Same(dependentEntry.GetInfrastructure(), context.Entry(dependent).GetInfrastructure());
         }
 
         [ConditionalFact]
@@ -556,54 +514,46 @@ namespace Microsoft.EntityFrameworkCore
             Func<DbContext, IEnumerable<object>, Task> adder,
             EntityState expectedState)
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var relatedDependent = new Product
             {
-                var relatedDependent = new Product
-                {
-                    Id = 1,
-                    Name = "Marmite",
-                    Price = 7.99m
-                };
-                var principal = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages",
-                    Products = new List<Product>
-                    {
-                        relatedDependent
-                    }
-                };
+                Id = 1,
+                Name = "Marmite",
+                Price = 7.99m
+            };
+            var principal = new Category
+            {
+                Id = 1,
+                Name = "Beverages",
+                Products = new List<Product> { relatedDependent }
+            };
 
-                var relatedPrincipal = new Category
-                {
-                    Id = 2,
-                    Name = "Foods"
-                };
-                var dependent = new Product
-                {
-                    Id = 2,
-                    Name = "Bovril",
-                    Price = 4.99m,
-                    Category = relatedPrincipal
-                };
+            var relatedPrincipal = new Category { Id = 2, Name = "Foods" };
+            var dependent = new Product
+            {
+                Id = 2,
+                Name = "Bovril",
+                Price = 4.99m,
+                Category = relatedPrincipal
+            };
 
-                await adder(context, new object[] { principal, dependent });
+            await adder(context, new object[] { principal, dependent });
 
-                Assert.Same(principal, context.Entry(principal).Entity);
-                Assert.Same(relatedPrincipal, context.Entry(relatedPrincipal).Entity);
-                Assert.Same(relatedDependent, context.Entry(relatedDependent).Entity);
-                Assert.Same(dependent, context.Entry(dependent).Entity);
+            Assert.Same(principal, context.Entry(principal).Entity);
+            Assert.Same(relatedPrincipal, context.Entry(relatedPrincipal).Entity);
+            Assert.Same(relatedDependent, context.Entry(relatedDependent).Entity);
+            Assert.Same(dependent, context.Entry(dependent).Entity);
 
-                Assert.Same(principal, context.Entry(principal).Entity);
-                Assert.Equal(expectedState, context.Entry(principal).State);
-                Assert.Same(relatedPrincipal, context.Entry(relatedPrincipal).Entity);
-                Assert.Equal(expectedState == EntityState.Deleted ? EntityState.Unchanged : expectedState, context.Entry(relatedPrincipal).State);
+            Assert.Same(principal, context.Entry(principal).Entity);
+            Assert.Equal(expectedState, context.Entry(principal).State);
+            Assert.Same(relatedPrincipal, context.Entry(relatedPrincipal).Entity);
+            Assert.Equal(
+                expectedState == EntityState.Deleted ? EntityState.Unchanged : expectedState, context.Entry(relatedPrincipal).State);
 
-                Assert.Same(relatedDependent, context.Entry(relatedDependent).Entity);
-                Assert.Equal(expectedState, context.Entry(relatedDependent).State);
-                Assert.Same(dependent, context.Entry(dependent).Entity);
-                Assert.Equal(expectedState, context.Entry(dependent).State);
-            }
+            Assert.Same(relatedDependent, context.Entry(relatedDependent).Entity);
+            Assert.Equal(expectedState, context.Entry(relatedDependent).State);
+            Assert.Same(dependent, context.Entry(dependent).Entity);
+            Assert.Equal(expectedState, context.Entry(dependent).State);
         }
 
         [ConditionalFact]
@@ -649,35 +599,29 @@ namespace Microsoft.EntityFrameworkCore
             Func<DbContext, object, ValueTask<EntityEntry>> categoryAdder,
             Func<DbContext, object, ValueTask<EntityEntry>> productAdder, EntityState expectedState)
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category1 = new Category { Id = 0, Name = "Beverages" };
+            var product1 = new Product
             {
-                var category1 = new Category
-                {
-                    Id = 0,
-                    Name = "Beverages"
-                };
-                var product1 = new Product
-                {
-                    Id = 0,
-                    Name = "Marmite",
-                    Price = 7.99m
-                };
+                Id = 0,
+                Name = "Marmite",
+                Price = 7.99m
+            };
 
-                var categoryEntry1 = await categoryAdder(context, category1);
-                var productEntry1 = await productAdder(context, product1);
+            var categoryEntry1 = await categoryAdder(context, category1);
+            var productEntry1 = await productAdder(context, product1);
 
-                Assert.Same(category1, categoryEntry1.Entity);
-                Assert.Same(product1, productEntry1.Entity);
+            Assert.Same(category1, categoryEntry1.Entity);
+            Assert.Same(product1, productEntry1.Entity);
 
-                Assert.Same(category1, categoryEntry1.Entity);
-                Assert.Equal(expectedState, categoryEntry1.State);
+            Assert.Same(category1, categoryEntry1.Entity);
+            Assert.Equal(expectedState, categoryEntry1.State);
 
-                Assert.Same(product1, productEntry1.Entity);
-                Assert.Equal(expectedState, productEntry1.State);
+            Assert.Same(product1, productEntry1.Entity);
+            Assert.Equal(expectedState, productEntry1.State);
 
-                Assert.Same(categoryEntry1.GetInfrastructure(), context.Entry(category1).GetInfrastructure());
-                Assert.Same(productEntry1.GetInfrastructure(), context.Entry(product1).GetInfrastructure());
-            }
+            Assert.Same(categoryEntry1.GetInfrastructure(), context.Entry(category1).GetInfrastructure());
+            Assert.Same(productEntry1.GetInfrastructure(), context.Entry(product1).GetInfrastructure());
         }
 
         [ConditionalFact]
@@ -735,40 +679,28 @@ namespace Microsoft.EntityFrameworkCore
             Func<DbContext, IEnumerable<object>, Task> categoryAdder,
             Func<DbContext, IEnumerable<object>, Task> productAdder, EntityState expectedState)
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category1 = new Category { Id = 0, Name = "Beverages" };
+            var product1 = new Product
             {
-                var category1 = new Category
-                {
-                    Id = 0,
-                    Name = "Beverages"
-                };
-                var product1 = new Product
-                {
-                    Id = 0,
-                    Name = "Marmite",
-                    Price = 7.99m
-                };
+                Id = 0,
+                Name = "Marmite",
+                Price = 7.99m
+            };
 
-                await categoryAdder(
-                    context, new List<Category>
-                    {
-                        category1
-                    });
-                await productAdder(
-                    context, new List<Product>
-                    {
-                        product1
-                    });
+            await categoryAdder(
+                context, new List<Category> { category1 });
+            await productAdder(
+                context, new List<Product> { product1 });
 
-                Assert.Same(category1, context.Entry(category1).Entity);
-                Assert.Same(product1, context.Entry(product1).Entity);
+            Assert.Same(category1, context.Entry(category1).Entity);
+            Assert.Same(product1, context.Entry(product1).Entity);
 
-                Assert.Same(category1, context.Entry(category1).Entity);
-                Assert.Equal(expectedState, context.Entry(category1).State);
+            Assert.Same(category1, context.Entry(category1).Entity);
+            Assert.Equal(expectedState, context.Entry(category1).State);
 
-                Assert.Same(product1, context.Entry(product1).Entity);
-                Assert.Equal(expectedState, context.Entry(product1).State);
-            }
+            Assert.Same(product1, context.Entry(product1).Entity);
+            Assert.Equal(expectedState, context.Entry(product1).State);
         }
 
         [ConditionalFact]
@@ -786,12 +718,10 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public async Task Can_add_no_new_entities_to_context_Enumerable_graph_async()
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
-            {
-                await context.AddRangeAsync(new HashSet<Category>());
-                await context.AddRangeAsync(new HashSet<Product>());
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            await context.AddRangeAsync(new HashSet<Category>());
+            await context.AddRangeAsync(new HashSet<Product>());
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         [ConditionalFact]
@@ -810,12 +740,10 @@ namespace Microsoft.EntityFrameworkCore
             Action<DbContext, IEnumerable<object>> categoryAdder,
             Action<DbContext, IEnumerable<object>> productAdder)
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
-            {
-                categoryAdder(context, new HashSet<Category>());
-                productAdder(context, new HashSet<Product>());
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            categoryAdder(context, new HashSet<Category>());
+            productAdder(context, new HashSet<Product>());
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         [ConditionalTheory]
@@ -827,55 +755,47 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true, true, false)]
         public async Task Can_add_new_entities_to_context_with_key_generation_graph(bool attachFirst, bool useEntry, bool async)
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var gu1 = new TheGu { ShirtColor = "Red" };
+            var gu2 = new TheGu { ShirtColor = "Still Red" };
+
+            if (attachFirst)
             {
-                var gu1 = new TheGu
-                {
-                    ShirtColor = "Red"
-                };
-                var gu2 = new TheGu
-                {
-                    ShirtColor = "Still Red"
-                };
+                context.Entry(gu1).State = EntityState.Unchanged;
+                Assert.Equal(default, gu1.Id);
+                Assert.Equal(EntityState.Unchanged, context.Entry(gu1).State);
+            }
 
-                if (attachFirst)
+            if (async)
+            {
+                Assert.Same(gu1, (await context.AddAsync(gu1)).Entity);
+                Assert.Same(gu2, (await context.AddAsync(gu2)).Entity);
+            }
+            else
+            {
+                if (useEntry)
                 {
-                    context.Entry(gu1).State = EntityState.Unchanged;
-                    Assert.Equal(default, gu1.Id);
-                    Assert.Equal(EntityState.Unchanged, context.Entry(gu1).State);
-                }
-
-                if (async)
-                {
-                    Assert.Same(gu1, (await context.AddAsync(gu1)).Entity);
-                    Assert.Same(gu2, (await context.AddAsync(gu2)).Entity);
+                    context.Entry(gu1).State = EntityState.Added;
+                    context.Entry(gu2).State = EntityState.Added;
                 }
                 else
                 {
-                    if (useEntry)
-                    {
-                        context.Entry(gu1).State = EntityState.Added;
-                        context.Entry(gu2).State = EntityState.Added;
-                    }
-                    else
-                    {
-                        Assert.Same(gu1, context.Add(gu1).Entity);
-                        Assert.Same(gu2, context.Add(gu2).Entity);
-                    }
+                    Assert.Same(gu1, context.Add(gu1).Entity);
+                    Assert.Same(gu2, context.Add(gu2).Entity);
                 }
-
-                Assert.NotEqual(default, gu1.Id);
-                Assert.NotEqual(default, gu2.Id);
-                Assert.NotEqual(gu1.Id, gu2.Id);
-
-                var categoryEntry = context.Entry(gu1);
-                Assert.Same(gu1, categoryEntry.Entity);
-                Assert.Equal(EntityState.Added, categoryEntry.State);
-
-                categoryEntry = context.Entry(gu2);
-                Assert.Same(gu2, categoryEntry.Entity);
-                Assert.Equal(EntityState.Added, categoryEntry.State);
             }
+
+            Assert.NotEqual(default, gu1.Id);
+            Assert.NotEqual(default, gu2.Id);
+            Assert.NotEqual(gu1.Id, gu2.Id);
+
+            var categoryEntry = context.Entry(gu1);
+            Assert.Same(gu1, categoryEntry.Entity);
+            Assert.Equal(EntityState.Added, categoryEntry.State);
+
+            categoryEntry = context.Entry(gu2);
+            Assert.Same(gu2, categoryEntry.Entity);
+            Assert.Equal(EntityState.Added, categoryEntry.State);
         }
 
         [ConditionalFact]
@@ -946,1058 +866,835 @@ namespace Microsoft.EntityFrameworkCore
             EntityState initialState,
             EntityState expectedState)
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
-            {
-                var entity = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var entry = context.Entry(entity);
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var entity = new Category { Id = 1, Name = "Beverages" };
+            var entry = context.Entry(entity);
 
-                entry.State = initialState;
+            entry.State = initialState;
 
-                await action(context, entity);
+            await action(context, entity);
 
-                Assert.Equal(expectedState, entry.State);
-            }
+            Assert.Equal(expectedState, entry.State);
         }
 
         [ConditionalFact] // Issue #1246
         public void Can_attach_with_inconsistent_FK_principal_first_fully_fixed_up()
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category = new Category { Id = 1, Name = "Beverages" };
+            var product = new Product
             {
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+                Id = 1,
+                CategoryId = 7,
+                Name = "Marmite",
+                Category = category
+            };
+            category.Products = new List<Product> { product };
 
-                context.Entry(category).State = EntityState.Unchanged;
+            context.Entry(category).State = EntityState.Unchanged;
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Detached, context.Entry(product).State);
+            Assert.Equal(7, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
-                context.Attach(product);
+            context.Attach(product);
 
-                Assert.Equal(1, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
 
-                // Dependent is Unchanged here because the FK change happened before it was attached
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
-            }
+            // Dependent is Unchanged here because the FK change happened before it was attached
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
         }
 
         [ConditionalFact] // Issue #1246
         public void Can_attach_with_inconsistent_FK_dependent_first_fully_fixed_up()
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category = new Category { Id = 1, Name = "Beverages" };
+            var product = new Product
             {
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+                Id = 1,
+                CategoryId = 7,
+                Name = "Marmite",
+                Category = category
+            };
+            category.Products = new List<Product> { product };
 
-                context.Attach(product);
+            context.Attach(product);
 
-                Assert.Equal(1, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
-                context.Attach(category);
+            context.Attach(category);
 
-                Assert.Equal(1, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
-            }
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
         }
 
         [ConditionalFact] // Issue #1246
         public void Can_attach_with_inconsistent_FK_principal_first_collection_not_fixed_up()
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category = new Category { Id = 1, Name = "Beverages" };
+            var product = new Product
             {
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
-                category.Products = new List<Product>();
+                Id = 1,
+                CategoryId = 7,
+                Name = "Marmite",
+                Category = category
+            };
+            category.Products = new List<Product>();
 
-                context.Attach(category);
+            context.Attach(category);
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Empty(category.Products);
-                Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Detached, context.Entry(product).State);
+            Assert.Equal(7, product.CategoryId);
+            Assert.Empty(category.Products);
+            Assert.Same(category, product.Category);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
-                context.Attach(product);
+            context.Attach(product);
 
-                Assert.Equal(1, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
-            }
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
         }
 
         [ConditionalFact] // Issue #1246
         public void Can_attach_with_inconsistent_FK_dependent_first_collection_not_fixed_up()
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category = new Category { Id = 1, Name = "Beverages" };
+            var product = new Product
             {
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
-                category.Products = new List<Product>();
+                Id = 1,
+                CategoryId = 7,
+                Name = "Marmite",
+                Category = category
+            };
+            category.Products = new List<Product>();
 
-                context.Attach(product);
+            context.Attach(product);
 
-                Assert.Equal(1, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
-                context.Attach(category);
+            context.Attach(category);
 
-                Assert.Equal(1, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
-            }
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
         }
 
         [ConditionalFact] // Issue #1246
         public void Can_attach_with_inconsistent_FK_principal_first_reference_not_fixed_up()
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category = new Category { Id = 1, Name = "Beverages" };
+            var product = new Product
             {
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite"
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+                Id = 1,
+                CategoryId = 7,
+                Name = "Marmite"
+            };
+            category.Products = new List<Product> { product };
 
-                context.Entry(category).State = EntityState.Unchanged;
+            context.Entry(category).State = EntityState.Unchanged;
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Null(product.Category);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Detached, context.Entry(product).State);
+            Assert.Equal(7, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Null(product.Category);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
-                context.Attach(product);
+            context.Attach(product);
 
-                Assert.Equal(1, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
-            }
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
         }
 
         [ConditionalFact] // Issue #1246
         public void Can_attach_with_inconsistent_FK_dependent_first_reference_not_fixed_up()
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category = new Category { Id = 1, Name = "Beverages" };
+            var product = new Product
             {
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite"
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+                Id = 1,
+                CategoryId = 7,
+                Name = "Marmite"
+            };
+            category.Products = new List<Product> { product };
 
-                context.Attach(product);
+            context.Attach(product);
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Null(product.Category);
-                Assert.Equal(EntityState.Detached, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+            Assert.Equal(7, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Null(product.Category);
+            Assert.Equal(EntityState.Detached, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
-                context.Attach(category);
+            context.Attach(category);
 
-                Assert.Equal(1, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
-            }
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
         }
 
         [ConditionalFact] // Issue #1246
         public void Can_set_set_to_Unchanged_with_inconsistent_FK_principal_first_fully_fixed_up()
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category = new Category { Id = 1, Name = "Beverages" };
+            var product = new Product
             {
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+                Id = 1,
+                CategoryId = 7,
+                Name = "Marmite",
+                Category = category
+            };
+            category.Products = new List<Product> { product };
 
-                context.Entry(category).State = EntityState.Unchanged;
+            context.Entry(category).State = EntityState.Unchanged;
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Detached, context.Entry(product).State);
+            Assert.Equal(7, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
-                context.Entry(product).State = EntityState.Unchanged;
+            context.Entry(product).State = EntityState.Unchanged;
 
-                Assert.Equal(1, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
 
-                // Dependent is Unchanged here because the FK change happened before it was attached
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
-            }
+            // Dependent is Unchanged here because the FK change happened before it was attached
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
         }
 
         [ConditionalFact] // Issue #1246
         public void Can_set_set_to_Unchanged_with_inconsistent_FK_dependent_first_fully_fixed_up()
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category = new Category { Id = 1, Name = "Beverages" };
+            var product = new Product
             {
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+                Id = 1,
+                CategoryId = 7,
+                Name = "Marmite",
+                Category = category
+            };
+            category.Products = new List<Product> { product };
 
-                context.Entry(product).State = EntityState.Unchanged;
+            context.Entry(product).State = EntityState.Unchanged;
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Detached, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+            Assert.Equal(7, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Equal(EntityState.Detached, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
-                context.Entry(category).State = EntityState.Unchanged;
+            context.Entry(category).State = EntityState.Unchanged;
 
-                Assert.Equal(1, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
-            }
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
         }
 
         [ConditionalFact] // Issue #1246
         public void Can_set_set_to_Unchanged_with_inconsistent_FK_principal_first_collection_not_fixed_up()
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category = new Category { Id = 1, Name = "Beverages" };
+            var product = new Product
             {
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
-                category.Products = new List<Product>();
+                Id = 1,
+                CategoryId = 7,
+                Name = "Marmite",
+                Category = category
+            };
+            category.Products = new List<Product>();
 
-                context.Entry(category).State = EntityState.Unchanged;
+            context.Entry(category).State = EntityState.Unchanged;
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Empty(category.Products);
-                Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Detached, context.Entry(product).State);
+            Assert.Equal(7, product.CategoryId);
+            Assert.Empty(category.Products);
+            Assert.Same(category, product.Category);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
-                context.Entry(product).State = EntityState.Unchanged;
+            context.Entry(product).State = EntityState.Unchanged;
 
-                Assert.Equal(1, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
-            }
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
         }
 
         [ConditionalFact] // Issue #1246
         public void Can_set_set_to_Unchanged_with_inconsistent_FK_dependent_first_collection_not_fixed_up()
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category = new Category { Id = 1, Name = "Beverages" };
+            var product = new Product
             {
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
-                category.Products = new List<Product>();
+                Id = 1,
+                CategoryId = 7,
+                Name = "Marmite",
+                Category = category
+            };
+            category.Products = new List<Product>();
 
-                context.Entry(product).State = EntityState.Unchanged;
+            context.Entry(product).State = EntityState.Unchanged;
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Empty(category.Products);
-                Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Detached, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+            Assert.Equal(7, product.CategoryId);
+            Assert.Empty(category.Products);
+            Assert.Same(category, product.Category);
+            Assert.Equal(EntityState.Detached, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
-                context.Entry(category).State = EntityState.Unchanged;
+            context.Entry(category).State = EntityState.Unchanged;
 
-                Assert.Equal(1, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
-            }
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
         }
 
         [ConditionalFact] // Issue #1246
         public void Can_set_set_to_Unchanged_with_inconsistent_FK_principal_first_reference_not_fixed_up()
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category = new Category { Id = 1, Name = "Beverages" };
+            var product = new Product
             {
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite"
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+                Id = 1,
+                CategoryId = 7,
+                Name = "Marmite"
+            };
+            category.Products = new List<Product> { product };
 
-                context.Entry(category).State = EntityState.Unchanged;
+            context.Entry(category).State = EntityState.Unchanged;
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Null(product.Category);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Detached, context.Entry(product).State);
+            Assert.Equal(7, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Null(product.Category);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
-                context.Entry(product).State = EntityState.Unchanged;
+            context.Entry(product).State = EntityState.Unchanged;
 
-                Assert.Equal(1, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
-            }
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
         }
 
         [ConditionalFact] // Issue #1246
         public void Can_set_set_to_Unchanged_with_inconsistent_FK_dependent_first_reference_not_fixed_up()
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category = new Category { Id = 1, Name = "Beverages" };
+            var product = new Product
             {
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite"
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+                Id = 1,
+                CategoryId = 7,
+                Name = "Marmite"
+            };
+            category.Products = new List<Product> { product };
 
-                context.Entry(product).State = EntityState.Unchanged;
+            context.Entry(product).State = EntityState.Unchanged;
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Null(product.Category);
-                Assert.Equal(EntityState.Detached, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+            Assert.Equal(7, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Null(product.Category);
+            Assert.Equal(EntityState.Detached, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
-                context.Entry(category).State = EntityState.Unchanged;
+            context.Entry(category).State = EntityState.Unchanged;
 
-                Assert.Equal(1, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
-            }
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
         }
 
         [ConditionalFact] // Issue #1246
         public void Can_attach_with_inconsistent_FK_principal_first_fully_fixed_up_with_tracked_FK_match()
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category7 = context.Attach(
+                new Category { Id = 7, Products = new List<Product>() }).Entity;
+
+            var category = new Category { Id = 1, Name = "Beverages" };
+            var product = new Product
             {
-                var category7 = context.Attach(
-                    new Category
-                    {
-                        Id = 7,
-                        Products = new List<Product>()
-                    }).Entity;
+                Id = 1,
+                CategoryId = 7,
+                Name = "Marmite",
+                Category = category
+            };
+            category.Products = new List<Product> { product };
 
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+            context.Entry(category).State = EntityState.Unchanged;
 
-                context.Entry(category).State = EntityState.Unchanged;
+            Assert.Equal(7, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Empty(category7.Products);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category, product.Category);
-                Assert.Empty(category7.Products);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Detached, context.Entry(product).State);
+            context.Attach(product);
 
-                context.Attach(product);
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Same(product, category.Products.Single());
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
 
-                Assert.Equal(1, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category, product.Category);
-                Assert.Same(product, category.Products.Single());
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
-            }
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
         }
 
         [ConditionalFact] // Issue #1246
         public void Can_attach_with_inconsistent_FK_dependent_first_fully_fixed_up_with_tracked_FK_match()
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category7 = context.Attach(
+                new Category { Id = 7, Products = new List<Product>() }).Entity;
+
+            var category = new Category { Id = 1, Name = "Beverages" };
+
+            var product = new Product
             {
-                var category7 = context.Attach(
-                    new Category
-                    {
-                        Id = 7,
-                        Products = new List<Product>()
-                    }).Entity;
+                Id = 1,
+                CategoryId = 7,
+                Name = "Marmite",
+                Category = category
+            };
 
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+            category.Products = new List<Product> { product };
 
-                context.Attach(product);
+            context.Attach(product);
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category7, product.Category);
-                Assert.Same(product, category7.Products.Single());
-                Assert.Equal(EntityState.Detached, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Empty(category7.Products);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category7).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
-                context.Attach(category);
+            context.Attach(category);
 
-                Assert.Equal(1, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
-            }
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Empty(category7.Products);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category7).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
         }
 
         [ConditionalFact] // Issue #1246
         public void Can_attach_with_inconsistent_FK_principal_first_collection_not_fixed_up_with_tracked_FK_match()
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category7 = context.Attach(
+                new Category { Id = 7, Products = new List<Product>() }).Entity;
+
+            var category = new Category { Id = 1, Name = "Beverages" };
+
+            var product = new Product
             {
-                var category7 = context.Attach(
-                    new Category
-                    {
-                        Id = 7,
-                        Products = new List<Product>()
-                    }).Entity;
+                Id = 1,
+                CategoryId = 7,
+                Name = "Marmite",
+                Category = category
+            };
 
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
-                category.Products = new List<Product>();
+            category.Products = new List<Product>();
 
-                context.Attach(category);
+            context.Attach(category);
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Empty(category.Products);
-                Assert.Same(category, product.Category);
-                Assert.Empty(category7.Products);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Detached, context.Entry(product).State);
+            Assert.Equal(7, product.CategoryId);
+            Assert.Empty(category.Products);
+            Assert.Same(category, product.Category);
+            Assert.Empty(category.Products);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category7).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
-                context.Attach(product);
+            context.Attach(product);
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Empty(category.Products);
-                Assert.Same(category7, product.Category);
-                Assert.Same(product, category7.Products.Single());
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
-            }
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Empty(category7.Products);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category7).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
         }
 
         [ConditionalFact] // Issue #1246
         public void Can_attach_with_inconsistent_FK_dependent_first_collection_not_fixed_up_with_tracked_FK_match()
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category7 = context.Attach(
+                new Category { Id = 7, Products = new List<Product>() }).Entity;
+
+            var category = new Category { Id = 1, Name = "Beverages" };
+
+            var product = new Product
             {
-                var category7 = context.Attach(
-                    new Category
-                    {
-                        Id = 7,
-                        Products = new List<Product>()
-                    }).Entity;
+                Id = 1,
+                CategoryId = 7,
+                Name = "Marmite",
+                Category = category
+            };
 
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
-                category.Products = new List<Product>();
+            category.Products = new List<Product>();
 
-                context.Attach(product);
+            context.Attach(product);
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Empty(category.Products);
-                Assert.Same(category7, product.Category);
-                Assert.Same(product, category7.Products.Single());
-                Assert.Equal(EntityState.Detached, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Empty(category7.Products);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category7).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
-                context.Attach(category);
+            context.Attach(category);
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Empty(category.Products);
-                Assert.Same(category7, product.Category);
-                Assert.Same(product, category7.Products.Single());
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
-            }
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Empty(category7.Products);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category7).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
         }
 
         [ConditionalFact] // Issue #1246
         public void Can_attach_with_inconsistent_FK_principal_first_reference_not_fixed_up_with_tracked_FK_match()
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category7 = context.Attach(
+                new Category { Id = 7, Products = new List<Product>() }).Entity;
+
+            var category = new Category { Id = 1, Name = "Beverages" };
+            var product = new Product
             {
-                var category7 = context.Attach(
-                    new Category
-                    {
-                        Id = 7,
-                        Products = new List<Product>()
-                    }).Entity;
+                Id = 1,
+                CategoryId = 7,
+                Name = "Marmite"
+            };
+            category.Products = new List<Product> { product };
 
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite"
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+            context.Entry(category).State = EntityState.Unchanged;
 
-                context.Entry(category).State = EntityState.Unchanged;
+            Assert.Equal(7, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Null(product.Category);
+            Assert.Empty(category7.Products);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Null(product.Category);
-                Assert.Empty(category7.Products);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Detached, context.Entry(product).State);
+            context.Attach(product);
 
-                context.Attach(product);
-
-                Assert.Equal(1, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category, product.Category);
-                Assert.Same(product, category.Products.Single());
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
-            }
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Same(product, category.Products.Single());
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
         }
 
         [ConditionalFact] // Issue #1246
         public void Can_attach_with_inconsistent_FK_dependent_first_reference_not_fixed_up_with_tracked_FK_match()
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category7 = context.Attach(
+                new Category { Id = 7, Products = new List<Product>() }).Entity;
+
+            var category = new Category { Id = 1, Name = "Beverages" };
+            var product = new Product
             {
-                var category7 = context.Attach(
-                    new Category
-                    {
-                        Id = 7,
-                        Products = new List<Product>()
-                    }).Entity;
+                Id = 1,
+                CategoryId = 7,
+                Name = "Marmite"
+            };
+            category.Products = new List<Product> { product };
 
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite"
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+            context.Attach(product);
 
-                context.Attach(product);
+            Assert.Equal(7, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category7, product.Category);
+            Assert.Same(product, category7.Products.Single());
+            Assert.Equal(EntityState.Detached, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category7, product.Category);
-                Assert.Same(product, category7.Products.Single());
-                Assert.Equal(EntityState.Detached, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+            context.Attach(category);
 
-                context.Attach(category);
-
-                Assert.Equal(1, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
-            }
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
         }
 
         [ConditionalFact] // Issue #1246
         public void Can_set_set_to_Unchanged_with_inconsistent_FK_principal_first_fully_fixed_up_with_tracked_FK_match()
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category7 = context.Attach(
+                new Category { Id = 7, Products = new List<Product>() }).Entity;
+
+            var category = new Category { Id = 1, Name = "Beverages" };
+            var product = new Product
             {
-                var category7 = context.Attach(
-                    new Category
-                    {
-                        Id = 7,
-                        Products = new List<Product>()
-                    }).Entity;
+                Id = 1,
+                CategoryId = 7,
+                Name = "Marmite",
+                Category = category
+            };
+            category.Products = new List<Product> { product };
 
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+            context.Entry(category).State = EntityState.Unchanged;
 
-                context.Entry(category).State = EntityState.Unchanged;
+            Assert.Equal(7, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Empty(category7.Products);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category, product.Category);
-                Assert.Empty(category7.Products);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Detached, context.Entry(product).State);
+            context.Entry(product).State = EntityState.Unchanged;
 
-                context.Entry(product).State = EntityState.Unchanged;
-
-                Assert.Equal(1, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category, product.Category);
-                Assert.Same(product, category.Products.Single());
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
-            }
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Same(product, category.Products.Single());
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
         }
 
         [ConditionalFact] // Issue #1246
         public void Can_set_set_to_Unchanged_with_inconsistent_FK_dependent_first_fully_fixed_up_with_tracked_FK_match()
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category7 = context.Attach(
+                new Category { Id = 7, Products = new List<Product>() }).Entity;
+
+            var category = new Category { Id = 1, Name = "Beverages" };
+
+            var product = new Product
             {
-                var category7 = context.Attach(
-                    new Category
-                    {
-                        Id = 7,
-                        Products = new List<Product>()
-                    }).Entity;
+                Id = 1,
+                CategoryId = 7,
+                Name = "Marmite",
+                Category = category
+            };
 
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+            category.Products = new List<Product> { product };
 
-                context.Entry(product).State = EntityState.Unchanged;
+            context.Entry(product).State = EntityState.Unchanged;
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category7, product.Category);
-                Assert.Same(product, category7.Products.Single());
-                Assert.Equal(EntityState.Detached, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+            Assert.Equal(7, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Empty(category7.Products);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category7).State);
+            Assert.Equal(EntityState.Detached, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
-                context.Entry(category).State = EntityState.Unchanged;
+            context.Entry(category).State = EntityState.Unchanged;
 
-                Assert.Equal(1, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
-            }
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Empty(category7.Products);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category7).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
         }
 
         [ConditionalFact] // Issue #1246
         public void Can_set_set_to_Unchanged_with_inconsistent_FK_principal_first_collection_not_fixed_up_with_tracked_FK_match()
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category7 = context.Attach(
+                new Category { Id = 7, Products = new List<Product>() }).Entity;
+
+            var category = new Category { Id = 1, Name = "Beverages" };
+            var product = new Product
             {
-                var category7 = context.Attach(
-                    new Category
-                    {
-                        Id = 7,
-                        Products = new List<Product>()
-                    }).Entity;
+                Id = 1,
+                CategoryId = 7,
+                Name = "Marmite",
+                Category = category
+            };
+            category.Products = new List<Product>();
 
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
-                category.Products = new List<Product>();
+            context.Entry(category).State = EntityState.Unchanged;
 
-                context.Entry(category).State = EntityState.Unchanged;
+            Assert.Equal(7, product.CategoryId);
+            Assert.Empty(category.Products);
+            Assert.Same(category, product.Category);
+            Assert.Empty(category7.Products);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Empty(category.Products);
-                Assert.Same(category, product.Category);
-                Assert.Empty(category7.Products);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Detached, context.Entry(product).State);
+            context.Entry(product).State = EntityState.Unchanged;
 
-                context.Entry(product).State = EntityState.Unchanged;
-
-                Assert.Equal(7, product.CategoryId);
-                Assert.Empty(category.Products);
-                Assert.Same(category7, product.Category);
-                Assert.Same(product, category7.Products.Single());
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
-            }
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Empty(category7.Products);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category7).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
         }
 
         [ConditionalFact] // Issue #1246
         public void Can_set_set_to_Unchanged_with_inconsistent_FK_dependent_first_collection_not_fixed_up_with_tracked_FK_match()
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category7 = context.Attach(
+                new Category { Id = 7, Products = new List<Product>() }).Entity;
+
+            var category = new Category { Id = 1, Name = "Beverages" };
+
+            var product = new Product
             {
-                var category7 = context.Attach(
-                    new Category
-                    {
-                        Id = 7,
-                        Products = new List<Product>()
-                    }).Entity;
+                Id = 1,
+                CategoryId = 7,
+                Name = "Marmite",
+                Category = category
+            };
 
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
-                category.Products = new List<Product>();
+            category.Products = new List<Product>();
 
-                context.Entry(product).State = EntityState.Unchanged;
+            context.Entry(product).State = EntityState.Unchanged;
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Empty(category.Products);
-                Assert.Same(category7, product.Category);
-                Assert.Same(product, category7.Products.Single());
-                Assert.Equal(EntityState.Detached, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+            Assert.Equal(7, product.CategoryId);
+            Assert.Empty(category.Products);
+            Assert.Same(category, product.Category);
+            Assert.Empty(category7.Products);
+            Assert.Equal(EntityState.Detached, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category7).State);
 
-                context.Entry(category).State = EntityState.Unchanged;
+            context.Entry(category).State = EntityState.Unchanged;
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Empty(category.Products);
-                Assert.Same(category7, product.Category);
-                Assert.Same(product, category7.Products.Single());
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
-            }
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Empty(category7.Products);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category7).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
         }
 
         [ConditionalFact] // Issue #1246
         public void Can_set_set_to_Unchanged_with_inconsistent_FK_principal_first_reference_not_fixed_up_with_tracked_FK_match()
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category7 = context.Attach(
+                new Category { Id = 7, Products = new List<Product>() }).Entity;
+
+            var category = new Category { Id = 1, Name = "Beverages" };
+            var product = new Product
             {
-                var category7 = context.Attach(
-                    new Category
-                    {
-                        Id = 7,
-                        Products = new List<Product>()
-                    }).Entity;
+                Id = 1,
+                CategoryId = 7,
+                Name = "Marmite"
+            };
+            category.Products = new List<Product> { product };
 
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite"
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+            context.Entry(category).State = EntityState.Unchanged;
 
-                context.Entry(category).State = EntityState.Unchanged;
+            Assert.Equal(7, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Null(product.Category);
+            Assert.Empty(category7.Products);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Null(product.Category);
-                Assert.Empty(category7.Products);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Detached, context.Entry(product).State);
+            context.Entry(product).State = EntityState.Unchanged;
 
-                context.Entry(product).State = EntityState.Unchanged;
-
-                Assert.Equal(1, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category, product.Category);
-                Assert.Same(product, category.Products.Single());
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
-            }
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Same(product, category.Products.Single());
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
         }
 
         [ConditionalFact] // Issue #1246
         public void Can_set_set_to_Unchanged_with_inconsistent_FK_dependent_first_reference_not_fixed_up_with_tracked_FK_match()
         {
-            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+            var category7 = context.Attach(
+                new Category { Id = 7, Products = new List<Product>() }).Entity;
+
+            var category = new Category { Id = 1, Name = "Beverages" };
+            var product = new Product
             {
-                var category7 = context.Attach(
-                    new Category
-                    {
-                        Id = 7,
-                        Products = new List<Product>()
-                    }).Entity;
+                Id = 1,
+                CategoryId = 7,
+                Name = "Marmite"
+            };
+            category.Products = new List<Product> { product };
 
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite"
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+            context.Entry(product).State = EntityState.Unchanged;
 
-                context.Entry(product).State = EntityState.Unchanged;
+            Assert.Equal(7, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category7, product.Category);
+            Assert.Same(product, category7.Products.Single());
+            Assert.Equal(EntityState.Detached, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category7, product.Category);
-                Assert.Same(product, category7.Products.Single());
-                Assert.Equal(EntityState.Detached, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+            context.Entry(category).State = EntityState.Unchanged;
 
-                context.Entry(category).State = EntityState.Unchanged;
-
-                Assert.Equal(1, product.CategoryId);
-                Assert.Same(product, category.Products.Single());
-                Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
-            }
+            Assert.Equal(1, product.CategoryId);
+            Assert.Same(product, category.Products.Single());
+            Assert.Same(category, product.Category);
+            Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
         }
     }
 }

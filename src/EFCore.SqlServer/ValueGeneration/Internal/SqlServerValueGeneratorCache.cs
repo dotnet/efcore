@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,9 +19,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public class SqlServerValueGeneratorCache : ValueGeneratorCache, ISqlServerValueGeneratorCache
@@ -48,9 +48,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
             IProperty property,
             IRelationalConnection connection)
         {
-            var sequence = property.FindSqlServerHiLoSequence();
+            var sequence = property.FindHiLoSequence();
 
-            Debug.Assert(sequence != null);
+            Check.DebugAssert(sequence != null, "sequence is null");
 
             return _sequenceGeneratorCache.GetOrAdd(
                 GetSequenceName(sequence, connection),
@@ -62,10 +62,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
             var dbConnection = connection.DbConnection;
 
             return dbConnection.Database.ToUpperInvariant()
-                   + "::"
-                   + dbConnection.DataSource?.ToUpperInvariant()
-                   + "::"
-                   + (sequence.Schema == null ? "" : sequence.Schema + ".") + sequence.Name;
+                + "::"
+                + dbConnection.DataSource?.ToUpperInvariant()
+                + "::"
+                + (sequence.Schema == null ? "" : sequence.Schema + ".")
+                + sequence.Name;
         }
     }
 }

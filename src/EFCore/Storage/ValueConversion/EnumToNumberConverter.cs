@@ -24,9 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             var underlyingModelType = typeof(TEnum).UnwrapEnumType();
 
             return (underlyingModelType == typeof(long) || underlyingModelType == typeof(ulong))
-                   && typeof(TNumber) == typeof(decimal)
-                ? new ConverterMappingHints(precision: 20, scale: 0)
-                : default;
+                && typeof(TNumber) == typeof(decimal)
+                    ? new ConverterMappingHints(precision: 20, scale: 0)
+                    : default;
         }
 
         /// <summary>
@@ -48,7 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(typeof(TEnum), typeof(TNumber), i => new EnumToNumberConverter<TEnum, TNumber>(i.MappingHints), _defaultHints);
+            = new ValueConverterInfo(
+                typeof(TEnum), typeof(TNumber), i => new EnumToNumberConverter<TEnum, TNumber>(i.MappingHints), _defaultHints);
 
         private static Expression<Func<TEnum, TNumber>> ToNumber()
         {

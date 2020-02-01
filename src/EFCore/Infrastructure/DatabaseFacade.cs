@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -18,12 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     Instances of this class are typically obtained from <see cref="DbContext.Database" /> and it is not designed
     ///     to be directly constructed in your application code.
     /// </summary>
-    public class DatabaseFacade : IInfrastructure<IServiceProvider>
+    public class DatabaseFacade : IInfrastructure<IServiceProvider>, IDatabaseFacadeDependenciesAccessor
     {
         private readonly DbContext _context;
-        private IDatabaseCreator _databaseCreator;
-        private IDbContextTransactionManager _transactionManager;
-        private IExecutionStrategyFactory _executionStrategyFactory;
+        private IDatabaseFacadeDependencies _dependencies;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DatabaseFacade" /> class. Instances of this class are typically
@@ -37,6 +36,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             _context = context;
         }
+
+        private IDatabaseFacadeDependencies Dependencies
+            => _dependencies ??= _context.GetService<IDatabaseFacadeDependencies>();
 
         /// <summary>
         ///     <para>
@@ -52,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         /// <returns> True if the database is created, false if it already existed. </returns>
-        public virtual bool EnsureCreated() => DatabaseCreator.EnsureCreated();
+        public virtual bool EnsureCreated() => Dependencies.DatabaseCreator.EnsureCreated();
 
         /// <summary>
         ///     <para>
@@ -73,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     false if it already existed.
         /// </returns>
         public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
-            => DatabaseCreator.EnsureCreatedAsync(cancellationToken);
+            => Dependencies.DatabaseCreator.EnsureCreatedAsync(cancellationToken);
 
         /// <summary>
         ///     <para>
@@ -86,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         /// <returns> True if the database is deleted, false if it did not exist. </returns>
-        public virtual bool EnsureDeleted() => DatabaseCreator.EnsureDeleted();
+        public virtual bool EnsureDeleted() => Dependencies.DatabaseCreator.EnsureDeleted();
 
         /// <summary>
         ///     <para>
@@ -104,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     false if it did not exist.
         /// </returns>
         public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default)
-            => DatabaseCreator.EnsureDeletedAsync(cancellationToken);
+            => Dependencies.DatabaseCreator.EnsureDeletedAsync(cancellationToken);
 
         /// <summary>
         ///     <para>
@@ -117,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <returns> <c>True</c> if the database is available; <c>false</c> otherwise. </returns>
         public virtual bool CanConnect()
-            => DatabaseCreator.CanConnect();
+            => Dependencies.DatabaseCreator.CanConnect();
 
         /// <summary>
         ///     <para>
@@ -131,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> <c>True</c> if the database is available; <c>false</c> otherwise. </returns>
         public virtual Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
-            => DatabaseCreator.CanConnectAsync(cancellationToken);
+            => Dependencies.DatabaseCreator.CanConnectAsync(cancellationToken);
 
         /// <summary>
         ///     Starts a new transaction.
@@ -140,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     A <see cref="IDbContextTransaction" /> that represents the started transaction.
         /// </returns>
         public virtual IDbContextTransaction BeginTransaction()
-            => TransactionManager.BeginTransaction();
+            => Dependencies.TransactionManager.BeginTransaction();
 
         /// <summary>
         ///     Asynchronously starts a new transaction.
@@ -151,26 +153,26 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     that represents the started transaction.
         /// </returns>
         public virtual Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
-            => TransactionManager.BeginTransactionAsync(cancellationToken);
+            => Dependencies.TransactionManager.BeginTransactionAsync(cancellationToken);
 
         /// <summary>
         ///     Applies the outstanding operations in the current transaction to the database.
         /// </summary>
         public virtual void CommitTransaction()
-            => TransactionManager.CommitTransaction();
+            => Dependencies.TransactionManager.CommitTransaction();
 
         /// <summary>
         ///     Discards the outstanding operations in the current transaction.
         /// </summary>
         public virtual void RollbackTransaction()
-            => TransactionManager.RollbackTransaction();
+            => Dependencies.TransactionManager.RollbackTransaction();
 
         /// <summary>
         ///     Creates an instance of the configured <see cref="IExecutionStrategy" />.
         /// </summary>
         /// <returns>An <see cref="IExecutionStrategy" /> instance.</returns>
         public virtual IExecutionStrategy CreateExecutionStrategy()
-            => ExecutionStrategyFactory.Create();
+            => Dependencies.ExecutionStrategyFactory.Create();
 
         /// <summary>
         ///     <para>
@@ -189,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         public virtual IDbContextTransaction CurrentTransaction
-            => TransactionManager.CurrentTransaction;
+            => Dependencies.TransactionManager.CurrentTransaction;
 
         /// <summary>
         ///     <para>
@@ -227,6 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         public virtual string ProviderName
+            // Needs to be lazy because used from OnModelCreating
             => _context.GetService<IEnumerable<IDatabaseProvider>>()
                 ?.Select(p => p.Name)
                 .FirstOrDefault();
@@ -242,14 +245,23 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         IServiceProvider IInfrastructure<IServiceProvider>.Instance => ((IInfrastructure<IServiceProvider>)_context).Instance;
 
-        private IDbContextTransactionManager TransactionManager
-            => _transactionManager ?? (_transactionManager = this.GetService<IDbContextTransactionManager>());
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IDatabaseFacadeDependencies IDatabaseFacadeDependenciesAccessor.Dependencies
+            => Dependencies;
 
-        private IDatabaseCreator DatabaseCreator
-            => _databaseCreator ?? (_databaseCreator = this.GetService<IDatabaseCreator>());
-
-        private IExecutionStrategyFactory ExecutionStrategyFactory
-            => _executionStrategyFactory ?? (_executionStrategyFactory = this.GetService<IExecutionStrategyFactory>());
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        DbContext IDatabaseFacadeDependenciesAccessor.Context
+            => _context;
 
         #region Hidden System.Object members
 

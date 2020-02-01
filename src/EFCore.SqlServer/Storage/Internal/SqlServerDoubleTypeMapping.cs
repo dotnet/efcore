@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data;
 using System.Data.Common;
 using JetBrains.Annotations;
@@ -58,13 +59,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         {
             var literal = base.GenerateNonNullSqlLiteral(value);
 
-            var doubleValue = (double)value;
+            var doubleValue = Convert.ToDouble(value);
             return !literal.Contains("E")
-                   && !literal.Contains("e")
-                   && !double.IsNaN(doubleValue)
-                   && !double.IsInfinity(doubleValue)
-                ? literal + "E0"
-                : literal;
+                && !literal.Contains("e")
+                && !double.IsNaN(doubleValue)
+                && !double.IsInfinity(doubleValue)
+                    ? literal + "E0"
+                    : literal;
         }
 
         /// <summary>

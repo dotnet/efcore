@@ -21,9 +21,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public class InternalEntityEntrySubscriber : IInternalEntityEntrySubscriber
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return false;
             }
 
-            foreach (var navigation in entityType.GetNavigations().Where(n => n.IsCollection()))
+            foreach (var navigation in entityType.GetNavigations().Where(n => n.IsCollection))
             {
                 AsINotifyCollectionChanged(entry, navigation, entityType, changeTrackingStrategy).CollectionChanged
                     += entry.HandleINotifyCollectionChanged;
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (changeTrackingStrategy != ChangeTrackingStrategy.Snapshot)
             {
-                foreach (var navigation in entityType.GetNavigations().Where(n => n.IsCollection()))
+                foreach (var navigation in entityType.GetNavigations().Where(n => n.IsCollection))
                 {
                     AsINotifyCollectionChanged(entry, navigation, entityType, changeTrackingStrategy).CollectionChanged
                         -= entry.HandleINotifyCollectionChanged;
@@ -105,7 +105,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             IEntityType entityType,
             ChangeTrackingStrategy changeTrackingStrategy)
         {
-            if (!(navigation.GetCollectionAccessor()?.GetOrCreate(entry.Entity) is INotifyCollectionChanged notifyingCollection))
+            if (!(navigation.GetCollectionAccessor()
+                ?.GetOrCreate(entry.Entity, forMaterialization: false) is INotifyCollectionChanged notifyingCollection))
             {
                 throw new InvalidOperationException(
                     CoreStrings.NonNotifyingCollection(navigation.Name, entityType.DisplayName(), changeTrackingStrategy));

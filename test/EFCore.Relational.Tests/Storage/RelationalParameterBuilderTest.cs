@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
-            var property = ((IMutableModel) new Model()).AddEntityType("MyType").AddProperty("MyProp", typeof(string));
+            var property = ((IMutableModel)new Model()).AddEntityType("MyType").AddProperty("MyProp", typeof(string));
             property.IsNullable = nullable;
             property[CoreAnnotationNames.TypeMapping] = GetMapping(typeMapper, property);
 

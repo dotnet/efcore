@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -61,8 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             return keyValues == null || keyValues.Any(v => v == null)
                 ? null
-                : FindTracked(keyValues, out var keyProperties)
-                  ?? _queryRoot.FirstOrDefault(BuildLambda(keyProperties, new ValueBuffer(keyValues)));
+                : (FindTracked(keyValues, out var keyProperties)
+                    ?? _queryRoot.FirstOrDefault(BuildLambda(keyProperties, new ValueBuffer(keyValues))));
         }
 
         /// <summary>
@@ -82,7 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public virtual ValueTask<TEntity> FindAsync(object[] keyValues, CancellationToken cancellationToken = default)
         {
-            if (keyValues == null || keyValues.Any(v => v == null))
+            if (keyValues == null
+                || keyValues.Any(v => v == null))
             {
                 return new ValueTask<TEntity>((TEntity)null);
             }
@@ -90,7 +91,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var tracked = FindTracked(keyValues, out var keyProperties);
             return tracked != null
                 ? new ValueTask<TEntity>(tracked)
-                : new ValueTask<TEntity>(_queryRoot.FirstOrDefaultAsync(BuildLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken));
+                : new ValueTask<TEntity>(
+                    _queryRoot.FirstOrDefaultAsync(BuildLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken));
         }
 
         /// <summary>
@@ -101,7 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         ValueTask<object> IEntityFinder.FindAsync(object[] keyValues, CancellationToken cancellationToken)
         {
-            if (keyValues == null || keyValues.Any(v => v == null))
+            if (keyValues == null
+                || keyValues.Any(v => v == null))
             {
                 return new ValueTask<object>((object)null);
             }
@@ -109,8 +112,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var tracked = FindTracked(keyValues, out var keyProperties);
             return tracked != null
                 ? new ValueTask<object>(tracked)
-                : new ValueTask<object>(_queryRoot.FirstOrDefaultAsync(
-                    BuildObjectLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken));
+                : new ValueTask<object>(
+                    _queryRoot.FirstOrDefaultAsync(
+                        BuildObjectLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken));
         }
 
         /// <summary>
@@ -219,10 +223,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 {
                     return null;
                 }
+
                 keyValues[i] = keyValue;
             }
 
-            return _queryRoot.AsNoTracking()//.IgnoreQueryFilters()
+            return _queryRoot.AsNoTracking().IgnoreQueryFilters()
                 .Where(BuildObjectLambda(properties, new ValueBuffer(keyValues)))
                 .Select(BuildProjection(entityType));
         }
@@ -241,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         private static object[] GetLoadValues(INavigation navigation, InternalEntityEntry entry)
         {
-            var properties = navigation.IsDependentToPrincipal()
+            var properties = navigation.IsOnDependent
                 ? navigation.ForeignKey.Properties
                 : navigation.ForeignKey.PrincipalKey.Properties;
 
@@ -254,6 +259,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 {
                     return null;
                 }
+
                 values[i] = value;
             }
 
@@ -261,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         private static IReadOnlyList<IProperty> GetLoadProperties(INavigation navigation)
-            => navigation.IsDependentToPrincipal()
+            => navigation.IsOnDependent
                 ? navigation.ForeignKey.PrincipalKey.Properties
                 : navigation.ForeignKey.Properties;
 
@@ -315,18 +321,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         private IQueryable BuildQueryRoot(IEntityType entityType)
         {
-            var definingEntityType = entityType.DefiningEntityType;
-            return definingEntityType == null
-                ? (IQueryable)_setCache.GetOrAddSet(_setSource, entityType.ClrType)
-                : BuildQueryRoot(definingEntityType, entityType);
+            return entityType.DefiningEntityType is IEntityType definingEntityType
+                ? BuildQueryRoot(definingEntityType, entityType, entityType.DefiningNavigationName)
+                : entityType.FindOwnership() is IForeignKey ownership
+                    ? BuildQueryRoot(ownership.PrincipalEntityType, entityType, ownership.PrincipalToDependent.Name)
+                    : (IQueryable)_setCache.GetOrAddSet(_setSource, entityType.ClrType);
         }
 
-        private IQueryable BuildQueryRoot(IEntityType definingEntityType, IEntityType entityType)
+        private IQueryable BuildQueryRoot(IEntityType ownerOrDefiningEntityType, IEntityType entityType, string navigationName)
         {
-            var queryRoot = BuildQueryRoot(definingEntityType);
+            var queryRoot = BuildQueryRoot(ownerOrDefiningEntityType);
 
-            return (IQueryable)_selectMethod.MakeGenericMethod(definingEntityType.ClrType, entityType.ClrType)
-                .Invoke(null, new object[] { queryRoot, entityType.DefiningNavigationName });
+            return (IQueryable)_selectMethod.MakeGenericMethod(ownerOrDefiningEntityType.ClrType, entityType.ClrType)
+                .Invoke(null, new object[] { queryRoot, navigationName });
         }
 
         private static readonly MethodInfo _selectMethod

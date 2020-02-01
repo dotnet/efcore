@@ -12,33 +12,27 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     The <see cref="DiagnosticSource" /> event payload base class for
     ///     <see cref="RelationalEventId" /> connection events.
     /// </summary>
-    public class ConnectionEventData : EventData
+    public class ConnectionEventData : DbContextEventData
     {
         /// <summary>
         ///     Constructs the event payload.
         /// </summary>
         /// <param name="eventDefinition"> The event definition. </param>
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
-        /// <param name="connection">
-        ///     The <see cref="DbConnection" />.
-        /// </param>
-        /// <param name="connectionId">
-        ///     A correlation ID that identifies the <see cref="DbConnection" /> instance being used.
-        /// </param>
-        /// <param name="async">
-        ///     Indicates whether or not the operation is happening asynchronously.
-        /// </param>
-        /// <param name="startTime">
-        ///     The start time of this event.
-        /// </param>
+        /// <param name="connection"> The <see cref="DbConnection" />. </param>
+        /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
+        /// <param name="connectionId"> A correlation ID that identifies the <see cref="DbConnection" /> instance being used. </param>
+        /// <param name="async"> Indicates whether or not the operation is happening asynchronously. </param>
+        /// <param name="startTime"> The start time of this event. </param>
         public ConnectionEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] DbConnection connection,
+            [CanBeNull] DbContext context,
             Guid connectionId,
             bool async,
             DateTimeOffset startTime)
-            : base(eventDefinition, messageGenerator)
+            : base(eventDefinition, messageGenerator, context)
         {
             Connection = connection;
             ConnectionId = connectionId;

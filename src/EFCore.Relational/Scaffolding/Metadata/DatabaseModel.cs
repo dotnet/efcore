@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
 {
     /// <summary>
@@ -15,12 +17,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         /// <summary>
         ///     The database name, or <c>null</c> if none is set.
         /// </summary>
-        public virtual string DatabaseName { get; [param: CanBeNull] set; }
+        public virtual string? DatabaseName { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The database schema, or <c>null</c> to use the default schema.
         /// </summary>
-        public virtual string DefaultSchema { get; [param: CanBeNull] set; }
+        public virtual string? DefaultSchema { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The list of tables in the database.

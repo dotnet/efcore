@@ -12,29 +12,9 @@ namespace Microsoft.EntityFrameworkCore
     {
         protected override ICollection<Type> IgnoredTestBases { get; } = new HashSet<Type>
         {
-            typeof(AsyncFromSqlSprocQueryTestBase<>),
             typeof(FromSqlSprocQueryTestBase<>),
             typeof(SqlExecutorTestBase<>),
-            typeof(UdfDbFunctionTestBase<>),
-            typeof(LoadTestBase<>),                        // issue #15318
-            typeof(GraphUpdatesTestBase<>),                // issue #15318
-            typeof(ProxyGraphUpdatesTestBase<>),           // issue #15318
-            typeof(ComplexNavigationsWeakQueryTestBase<>), // issue #15285
-            typeof(FiltersInheritanceTestBase<>),          // issue #15264
-            typeof(FiltersTestBase<>),                     // issue #15264
-            typeof(OwnedQueryTestBase<>),                  // issue #15285
-            typeof(QueryFilterFuncletizationTestBase<>),   // issue #15264
-            typeof(RelationalOwnedQueryTestBase<>),        // issue #15285
-            // Query pipeline
-            typeof(ConcurrencyDetectorTestBase<>),
-            typeof(CompiledQueryTestBase<>),
-            typeof(InheritanceRelationshipsQueryTestBase<>),
-            typeof(QueryNavigationsTestBase<>),
-            typeof(ConcurrencyDetectorRelationalTestBase<>),
-            typeof(QueryTaggingTestBase<>),
-            typeof(GearsOfWarFromSqlQueryTestBase<>),
-            typeof(QueryNoClientEvalTestBase<>),
-            typeof(WarningsTestBase<>),
+            typeof(UdfDbFunctionTestBase<>)
         };
 
         protected override Assembly TargetAssembly { get; } = typeof(SqliteComplianceTest).Assembly;
