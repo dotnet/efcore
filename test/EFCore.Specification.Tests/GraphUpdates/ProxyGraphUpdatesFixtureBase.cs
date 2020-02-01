@@ -10,11 +10,17 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
+    public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixture<TFixture>
+        where TFixture : ProxyGraphUpdatesTestBase<TFixture>.ProxyGraphUpdatesFixtureBase, new()
     {
+        protected ProxyGraphUpdatesTestBase(TFixture fixture) => Fixture = fixture;
+
+        protected TFixture Fixture { get; }
+
         protected abstract bool DoesLazyLoading { get; }
         protected abstract bool DoesChangeTracking { get; }
 
