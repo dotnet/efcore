@@ -552,7 +552,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             var selectExpression = (SelectExpression)source.QueryExpression;
             if (selectExpression.Orderings.Count == 0)
             {
-                return null;
+                throw new InvalidOperationException(
+                    CoreStrings.LastUsedWithoutOrderBy(returnDefault ?
+                        nameof(Queryable.LastOrDefault) : nameof(Queryable.Last)));
             }
 
             if (predicate != null)
