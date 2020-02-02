@@ -1299,7 +1299,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     // rather than evaluating nullability of the entire function
                     var nullabilityPropagationElements = new List<SqlExpression>();
                     if (sqlFunctionExpression.Instance != null
-                        && sqlFunctionExpression.InstancPropagatesNullability == true)
+                        && sqlFunctionExpression.InstancePropagatesNullability == true)
                     {
                         nullabilityPropagationElements.Add(sqlFunctionExpression.Instance);
                     }
