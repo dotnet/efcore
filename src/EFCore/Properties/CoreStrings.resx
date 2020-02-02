@@ -1266,4 +1266,7 @@
   <data name="SkipNavigationInUseBySkipNavigation" xml:space="preserve">
     <value>The skip navigation '{skipNavigation}' cannot be removed because it is set as the inverse of the skip navigation '{inverseSkipNavigation}' on '{referencingEntityType}'. All referencing skip navigations must be removed before this skip navigation can be removed.</value>
   </data>
+  <data name="LastUsedWithoutOrderBy" xml:space="preserve">
+    <value>Queries performing '{method}' operation must have a deterministic sort order. Rewrite the query to apply an OrderBy clause on the sequence before calling '{method}'.</value>
+  </data>
 </root>

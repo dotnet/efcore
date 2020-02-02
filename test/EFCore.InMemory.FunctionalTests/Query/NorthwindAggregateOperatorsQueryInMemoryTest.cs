@@ -54,5 +54,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return base.Last_when_no_order_by(async);
         }
+
+        [ConditionalTheory(Skip = "Issue#17386")]
+        public override Task LastOrDefault_when_no_order_by(bool async)
+        {
+            return base.LastOrDefault_when_no_order_by(async);
+        }
     }
 }

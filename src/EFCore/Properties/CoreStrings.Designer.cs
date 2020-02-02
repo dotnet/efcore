@@ -2364,6 +2364,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("SkipNavigationInUseBySkipNavigation", nameof(skipNavigation), nameof(inverseSkipNavigation), nameof(referencingEntityType)),
                 skipNavigation, inverseSkipNavigation, referencingEntityType);
 
+        /// <summary>
+        ///     Queries performing '{method}' operation must have a deterministic sort order. Rewrite the query to apply an OrderBy clause on the sequence before calling '{method}'.
+        /// </summary>
+        public static string LastUsedWithoutOrderBy([CanBeNull] object method)
+            => string.Format(
+                GetString("LastUsedWithoutOrderBy", nameof(method)),
+                method);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

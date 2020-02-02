@@ -334,8 +334,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Include_collection_with_last_no_orderby(bool useString)
         {
             using var context = CreateContext();
-            Assert.Contains(
-                CoreStrings.TranslationFailed("").Substring(21),
+            Assert.Equal(
+                CoreStrings.LastUsedWithoutOrderBy(nameof(Enumerable.Last)),
                 Assert.Throws<InvalidOperationException>(
                     () => useString
                         ? context.Set<Customer>().Include("Orders").Last()
