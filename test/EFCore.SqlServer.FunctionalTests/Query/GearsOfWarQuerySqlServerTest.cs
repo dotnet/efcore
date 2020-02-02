@@ -7556,6 +7556,42 @@ FROM [Weapons] AS [w]
 GROUP BY [w].[SynergyWithId]");
         }
 
+        public override async Task TimeSpan_Hours(bool async)
+        {
+            await base.TimeSpan_Hours(async);
+
+            AssertSql(
+                @"SELECT DATEPART(hour, [m].[Duration])
+FROM [Missions] AS [m]");
+        }
+
+        public override async Task TimeSpan_Minutes(bool async)
+        {
+            await base.TimeSpan_Minutes(async);
+
+            AssertSql(
+                @"SELECT DATEPART(minute, [m].[Duration])
+FROM [Missions] AS [m]");
+        }
+
+        public override async Task TimeSpan_Seconds(bool async)
+        {
+            await base.TimeSpan_Seconds(async);
+
+            AssertSql(
+                @"SELECT DATEPART(second, [m].[Duration])
+FROM [Missions] AS [m]");
+        }
+
+        public override async Task TimeSpan_Milliseconds(bool async)
+        {
+            await base.TimeSpan_Milliseconds(async);
+
+            AssertSql(
+                @"SELECT DATEPART(millisecond, [m].[Duration])
+FROM [Missions] AS [m]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

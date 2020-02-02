@@ -119,21 +119,24 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
                     Id = 1,
                     CodeName = "Lightmass Offensive",
                     Rating = 2.1,
-                    Timeline = new DateTimeOffset(599898024001234567, new TimeSpan(1, 30, 0))
+                    Timeline = new DateTimeOffset(599898024001234567, new TimeSpan(1, 30, 0)),
+                    Duration = new TimeSpan(1, 2, 3)
                 },
                 new Mission
                 {
                     Id = 2,
                     CodeName = "Hollow Storm",
                     Rating = 4.2,
-                    Timeline = new DateTimeOffset(2, 3, 1, 8, 0, 0, new TimeSpan(-5, 0, 0))
+                    Timeline = new DateTimeOffset(2, 3, 1, 8, 0, 0, new TimeSpan(-5, 0, 0)),
+                    Duration = new TimeSpan(0, 1, 2, 3, 456)
                 },
                 new Mission
                 {
                     Id = 3,
                     CodeName = "Halvo Bay defense",
                     Rating = null,
-                    Timeline = new DateTimeOffset(10, 5, 3, 12, 0, 0, new TimeSpan())
+                    Timeline = new DateTimeOffset(10, 5, 3, 12, 0, 0, new TimeSpan()),
+                    Duration = new TimeSpan(0, 1, 0, 15, 456)
                 }
             };
 

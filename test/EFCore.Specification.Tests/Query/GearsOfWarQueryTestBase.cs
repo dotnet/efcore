@@ -7570,6 +7570,46 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(g => g.Key.HasValue));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task TimeSpan_Hours(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Mission>()
+                    .Select(g => g.Duration.Hours));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task TimeSpan_Minutes(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Mission>()
+                    .Select(g => g.Duration.Minutes));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task TimeSpan_Seconds(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Mission>()
+                    .Select(g => g.Duration.Seconds));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task TimeSpan_Milliseconds(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Mission>()
+                    .Select(g => g.Duration.Milliseconds));
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
