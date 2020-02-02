@@ -842,7 +842,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     && EntityTypePathEquals(s.DeclaringEntityType, t.DeclaringEntityType, c),
                 (s, t, c) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase),
                 (s, t, c) => EntityTypePathEquals(s.DeclaringEntityType, t.DeclaringEntityType, c)
-                             && PropertyStructureEquals(s, t, c),
+                    && PropertyStructureEquals(s, t, c),
                 (s, t, c) => PropertyStructureEquals(s, t, c));
 
         private bool PropertyStructureEquals(IProperty source, IProperty target, DiffContext diffContext)
@@ -858,22 +858,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 && source.GetComputedColumnSql() == target.GetComputedColumnSql()
                 && Equals(GetDefaultValue(source), GetDefaultValue(target))
                 && source.GetDefaultValueSql() == target.GetDefaultValueSql()
-                && EntityTypePathEquals(
-                        source.FindContainingPrimaryKey()?.DeclaringEntityType,
-                        target.FindContainingPrimaryKey()?.DeclaringEntityType,
-                        diffContext)
-                && (source.FindContainingPrimaryKey() == null || target.FindContainingPrimaryKey() == null
-                    || source.FindContainingPrimaryKey().Properties.Count == 
-                        target.FindContainingPrimaryKey().Properties.Count)
+                && source.GetContainingKeys().All(sk =>
+                        target.GetContainingKeys().Any(tk =>
+                            EntityTypePathEquals(sk.DeclaringEntityType, tk.DeclaringEntityType, diffContext)
+                            && sk.Properties.Count == tk.Properties.Count))
                 && source.GetContainingForeignKeys().All(sfk =>
                         target.GetContainingForeignKeys().Any(tfk =>
                             EntityTypePathEquals(sfk.PrincipalEntityType, tfk.PrincipalEntityType, diffContext)
-                            && sfk.PrincipalKey == tfk.PrincipalKey))
+                            && sfk.Properties.Count == tfk.Properties.Count))
                 && source.GetContainingIndexes().All(si =>
                         target.GetContainingIndexes().Any(ti =>
                             EntityTypePathEquals(si.DeclaringEntityType, ti.DeclaringEntityType, diffContext)
-                            && si.Properties.Select(p => p.GetColumnName()).SequenceEqual(
-                                 ti.Properties.Select(p => p.GetColumnName()))));
+                            && si.Properties.Count == ti.Properties.Count));
 
         private static bool EntityTypePathEquals(IEntityType source, IEntityType target, DiffContext diffContext)
         {
@@ -889,11 +885,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var sourceTable = diffContext.FindSourceTable(source);
             var targetTable = diffContext.FindTargetTable(target);
 
-            if (sourceTable.EntityTypes.Count == 1
-                && targetTable.EntityTypes.Count == 1)
-            {
-                return true;
-            }
+            //if (sourceTable.EntityTypes.Count == 1
+            //    && targetTable.EntityTypes.Count == 1)
+            //{
+            //    return true;
+            //}
 
             if (!string.Equals(
                 GetDefiningNavigationName(source),

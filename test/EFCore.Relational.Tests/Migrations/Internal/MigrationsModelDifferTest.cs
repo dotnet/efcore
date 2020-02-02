@@ -4452,7 +4452,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [ConditionalFact]
-        public void Rename_column_with_referencing_foreign_key_to_another_table_forces_drop_and_create()
+        public void Rename_column_with_referencing_foreign_key_to_a_changed_foreign_table_forces_drop_and_create()
         {
             Execute(
                 source =>
@@ -4490,6 +4490,44 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o => Assert.IsType<CreateIndexOperation>(o),
                     o => Assert.IsType<AddForeignKeyOperation>(o))
                );
+        }
+
+        [ConditionalFact]
+        public void Rename_column_with_referencing_foreign_key_to_another_table()
+        {
+            Execute(
+                source =>
+                {
+                    source.Entity("OtherTable").Property<int>("Id");
+                    source.Entity(
+                        "Mucor",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<int>("OtherTableId");
+                            x.HasOne("OtherTable").WithMany().HasForeignKey("OtherTableId");
+                        });
+                },
+                target =>
+                {
+                    target.Entity("OtherTable").Property<int>("Id");
+                    target.Entity(
+                        "Mucor",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<int>("OtherTableId2");
+                            x.HasOne("OtherTable").WithMany().HasForeignKey("OtherTableId2");
+                        });
+                },
+                operations =>
+                {
+                    Assert.Equal(4, operations.Count);
+                    Assert.IsType<DropForeignKeyOperation>(operations[0]);
+                    Assert.IsType<RenameColumnOperation>(operations[1]);
+                    Assert.IsType<RenameIndexOperation>(operations[2]);
+                    Assert.IsType<AddForeignKeyOperation>(operations[3]);
+                });
         }
 
         [ConditionalFact]
@@ -4551,8 +4589,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 operations =>
                 {
                     Assert.Equal(2, operations.Count);
-                    Assert.IsType<RenameColumnOperation>(operations[0]);
-                    Assert.IsType<AddColumnOperation>(operations[1]);
+                    var renameOperation = Assert.IsType<RenameColumnOperation>(operations[0]);
+                    Assert.Equal("A", renameOperation.Name);
+                    Assert.Equal("C", renameOperation.NewName);
+                    var addOperation = Assert.IsType<AddColumnOperation>(operations[1]);
+                    Assert.Equal("B", addOperation.Name);
                 });
         }
 
@@ -4586,14 +4627,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 {
                     Assert.Equal(4, operations.Count);
                     Assert.IsType<DropPrimaryKeyOperation>(operations[0]);
-                    Assert.IsType<DropColumnOperation>(operations[1]);
-                    Assert.IsType<AddColumnOperation>(operations[2]);
+                    var dropOperation = Assert.IsType<DropColumnOperation>(operations[1]);
+                    Assert.Equal("B", dropOperation.Name);
+                    var addOperation = Assert.IsType<AddColumnOperation>(operations[2]);
+                    Assert.Equal("C", addOperation.Name);
                     Assert.IsType<AddPrimaryKeyOperation>(operations[3]);
                 });
         }
 
         [ConditionalFact]
-        public void Rename_column_with_referencing_index_forces_drop_and_create()
+        public void Rename_column_with_referencing_index()
         {
             Execute(
                 source =>
@@ -4618,13 +4661,127 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x.HasIndex("AnotherTableId");
                         });
                 },
-                operations => Assert.Collection(
-                    operations,
-                    o => Assert.IsType<DropIndexOperation>(o),
-                    o => Assert.IsType<DropColumnOperation>(o),
-                    o => Assert.IsType<AddColumnOperation>(o),
-                    o => Assert.IsType<CreateIndexOperation>(o))
-               );
+                operations =>
+                {
+                    Assert.Equal(2, operations.Count);
+                    var renameOperation = Assert.IsType<RenameColumnOperation>(operations[0]);
+                    Assert.Equal("OtherTableId", renameOperation.Name);
+                    Assert.Equal("AnotherTableId", renameOperation.NewName);
+                    var renameIndexOperation = Assert.IsType<RenameIndexOperation>(operations[1]);
+                    Assert.Equal("IX_Mucor_OtherTableId", renameIndexOperation.Name);
+                    Assert.Equal("IX_Mucor_AnotherTableId", renameIndexOperation.NewName);
+                });
+        }
+
+        [ConditionalFact]
+        public void Rename_column_with_referencing_index_without_same_ordinal_forces_drop_and_create()
+        {
+            Execute(
+                source =>
+                {
+                    source.Entity(
+                        "Mucor",
+                        x =>
+                        {
+                            x.Property<int>("A");
+                            x.Property<int>("B");
+                            x.HasIndex("B");
+                        });
+                },
+                target =>
+                {
+                    target.Entity(
+                        "Mucor",
+                        x =>
+                        {
+                            x.Property<int>("A");
+                            x.Property<int>("C");
+                            x.HasIndex("C", "A");
+                        });
+                },
+                operations =>
+                {
+                    Assert.Equal(4, operations.Count);
+                    Assert.IsType<DropIndexOperation>(operations[0]);
+                    var dropOperation = Assert.IsType<DropColumnOperation>(operations[1]);
+                    Assert.Equal("B", dropOperation.Name);
+                    var addOperation = Assert.IsType<AddColumnOperation>(operations[2]);
+                    Assert.Equal("C", addOperation.Name);
+                    Assert.IsType<CreateIndexOperation>(operations[3]);
+                });
+        }
+
+        [ConditionalFact]
+        public void Rename_column_with_different_unique_constraint_name()
+        {
+            Execute(
+                source =>
+                {
+                    source.Entity(
+                        "Mucor",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<int>("OtherTableId");
+                            x.HasAlternateKey("OtherTableId");
+                        });
+                },
+                target =>
+                {
+                    target.Entity(
+                        "Mucor",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<int>("AnotherTableId");
+                            x.HasAlternateKey("AnotherTableId");
+                        });
+                },
+                operations =>
+                {
+                    Assert.Equal(3, operations.Count);
+                    Assert.IsType<DropUniqueConstraintOperation>(operations[0]);
+                    Assert.IsType<RenameColumnOperation>(operations[1]);
+                    Assert.IsType<AddUniqueConstraintOperation>(operations[2]);
+                });
+        }
+
+        [ConditionalFact]
+        public void Rename_column_with_unique_constraint_with_different_ordinal_forces_drop_and_create()
+        {
+            Execute(
+                source =>
+                {
+                    source.Entity(
+                        "Mucor",
+                        x =>
+                        {
+                            x.Property<int>("A");
+                            x.Property<int>("B");
+                            x.HasAlternateKey("B");
+                        });
+                },
+                target =>
+                {
+                    target.Entity(
+                        "Mucor",
+                        x =>
+                        {
+                            x.Property<int>("A");
+                            x.Property<int>("C");
+                            x.HasAlternateKey("C", "A");
+                        });
+                },
+                operations =>
+                {
+                    Assert.Equal(4, operations.Count);
+                    Assert.IsType<DropUniqueConstraintOperation>(operations[0]);
+                    var dropOperation = Assert.IsType<DropColumnOperation>(operations[1]);
+                    Assert.Equal("B", dropOperation.Name);
+                    var addOperation = Assert.IsType<AddColumnOperation>(operations[2]);
+                    Assert.Equal("C", addOperation.Name);
+                    Assert.IsType<AddUniqueConstraintOperation>(operations[3]);
+                });
         }
 
         [ConditionalFact]
