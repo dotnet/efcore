@@ -885,12 +885,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var sourceTable = diffContext.FindSourceTable(source);
             var targetTable = diffContext.FindTargetTable(target);
 
-            //if (sourceTable.EntityTypes.Count == 1
-            //    && targetTable.EntityTypes.Count == 1)
-            //{
-            //    return true;
-            //}
-
             if (!string.Equals(
                 GetDefiningNavigationName(source),
                 GetDefiningNavigationName(target),
