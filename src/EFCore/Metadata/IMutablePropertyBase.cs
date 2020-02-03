@@ -26,6 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets or sets the underlying CLR field for this property.
         ///     This may be <c>null</c> for shadow properties or if the backing field for the property is not known.
         /// </summary>
-        new FieldInfo FieldInfo { get; [param: CanBeNull] set; }
+        new FieldInfo? FieldInfo { get; [param: CanBeNull] set; }
     }
 }
