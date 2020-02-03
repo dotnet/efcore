@@ -32,13 +32,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the <see cref="PropertyInfo" /> for the underlying CLR property for this property-like object.
         ///     This may be <c>null</c> for shadow properties or if mapped directly to a field.
         /// </summary>
-        PropertyInfo PropertyInfo { get; }
+        PropertyInfo? PropertyInfo { get; }
 
         /// <summary>
         ///     Gets the <see cref="FieldInfo" /> for the underlying CLR field for this property-like object.
         ///     This may be <c>null</c> for shadow properties or if the backing field is not known.
         /// </summary>
-        FieldInfo FieldInfo { get; }
+        FieldInfo? FieldInfo { get; }
 
         /// <summary>
         ///     <para>
