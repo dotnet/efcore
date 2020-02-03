@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to find the key on. </param>
         /// <param name="property"> The property that the key is defined on. </param>
         /// <returns> The key, or null if none is defined. </returns>
-        public static IMutableKey FindKey([NotNull] this IMutableEntityType entityType, [NotNull] IProperty property)
+        public static IMutableKey? FindKey([NotNull] this IMutableEntityType entityType, [NotNull] IProperty property)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -251,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     base type of the hierarchy).
         /// </param>
         /// <returns> The foreign key, or <c>null</c> if none is defined. </returns>
-        public static IMutableForeignKey FindForeignKey(
+        public static IMutableForeignKey? FindForeignKey(
             [NotNull] this IMutableEntityType entityType,
             [NotNull] IProperty property,
             [NotNull] IKey principalKey,
@@ -319,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to find the foreign keys on. </param>
         /// <returns> The relationship to the owner if this is an owned type or <c>null</c> otherwise. </returns>
-        public static IMutableForeignKey FindOwnership([NotNull] this IMutableEntityType entityType)
+        public static IMutableForeignKey? FindOwnership([NotNull] this IMutableEntityType entityType)
             => ((EntityType)entityType).FindOwnership();
 
         /// <summary>
@@ -347,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to find the navigation property on. </param>
         /// <param name="memberInfo"> The navigation property on the entity class. </param>
         /// <returns> The navigation property, or <c>null</c> if none is found. </returns>
-        public static IMutableNavigation FindNavigation(
+        public static IMutableNavigation? FindNavigation(
             [NotNull] this IMutableEntityType entityType, [NotNull] MemberInfo memberInfo)
             => Check.NotNull(entityType, nameof(entityType))
                 .FindNavigation(Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName());
@@ -358,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to find the navigation property on. </param>
         /// <param name="name"> The name of the navigation property on the entity class. </param>
         /// <returns> The navigation property, or <c>null</c> if none is found. </returns>
-        public static IMutableNavigation FindNavigation([NotNull] this IMutableEntityType entityType, [NotNull] string name)
+        public static IMutableNavigation? FindNavigation([NotNull] this IMutableEntityType entityType, [NotNull] string name)
             => ((EntityType)entityType).FindNavigation(name);
 
         /// <summary>
@@ -368,7 +368,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to find the navigation property on. </param>
         /// <param name="name"> The name of the navigation property on the entity class. </param>
         /// <returns> The navigation property, or <c>null</c> if none is found. </returns>
-        public static IMutableNavigation FindDeclaredNavigation([NotNull] this IMutableEntityType entityType, [NotNull] string name)
+        public static IMutableNavigation? FindDeclaredNavigation([NotNull] this IMutableEntityType entityType, [NotNull] string name)
             => ((EntityType)entityType).FindDeclaredNavigation(Check.NotNull(name, nameof(name)));
 
         /// <summary>
@@ -376,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to find the defining navigation for. </param>
         /// <returns> The defining navigation if one exists or <c>null</c> otherwise. </returns>
-        public static IMutableNavigation FindDefiningNavigation([NotNull] this IMutableEntityType entityType)
+        public static IMutableNavigation? FindDefiningNavigation([NotNull] this IMutableEntityType entityType)
             => (IMutableNavigation)((IEntityType)entityType).FindDefiningNavigation();
 
         /// <summary>
@@ -399,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to find the property on. </param>
         /// <param name="propertyInfo"> The property on the entity class. </param>
         /// <returns> The property, or <c>null</c> if none is found. </returns>
-        public static IMutableProperty FindProperty([NotNull] this IMutableEntityType entityType, [NotNull] PropertyInfo propertyInfo)
+        public static IMutableProperty? FindProperty([NotNull] this IMutableEntityType entityType, [NotNull] PropertyInfo propertyInfo)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(propertyInfo, nameof(propertyInfo));
@@ -418,7 +418,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to find the properties on. </param>
         /// <param name="propertyNames"> The property names. </param>
         /// <returns> The properties, or <c>null</c> if any property is not found. </returns>
-        public static IReadOnlyList<IMutableProperty> FindProperties(
+        public static IReadOnlyList<IMutableProperty>? FindProperties(
             [NotNull] this IMutableEntityType entityType,
             [NotNull] IReadOnlyList<string> propertyNames)
             => ((EntityType)entityType).FindProperties(Check.NotNull(propertyNames, nameof(propertyNames)));
@@ -493,7 +493,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to find the index on. </param>
         /// <param name="property"> The property to find the index on. </param>
         /// <returns> The index, or null if none is found. </returns>
-        public static IMutableIndex FindIndex([NotNull] this IMutableEntityType entityType, [NotNull] IProperty property)
+        public static IMutableIndex? FindIndex([NotNull] this IMutableEntityType entityType, [NotNull] IProperty property)
         {
             Check.NotNull(entityType, nameof(entityType));
 
