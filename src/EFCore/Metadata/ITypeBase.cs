@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         Therefore, shadow types will only exist in migration model snapshots, etc.
         ///     </para>
         /// </summary>
-        Type ClrType { get; }
+        Type? ClrType { get; }
 
         /// <summary>
         ///     Gets whether this entity type can share its ClrType with other entities.
