@@ -563,16 +563,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return Visit(ConvertAnonymousObjectEqualityComparison(binaryExpression));
             }
 
-            var left = TryRemoveImplicitConvert(binaryExpression.Left);
-            var right = TryRemoveImplicitConvert(binaryExpression.Right);
+            var uncheckedExpression = binaryExpression.NodeType switch
+            {
+                ExpressionType.AddChecked => Expression.Add(binaryExpression.Left, binaryExpression.Right),
+                ExpressionType.SubtractChecked => Expression.Subtract(binaryExpression.Left, binaryExpression.Right),
+                ExpressionType.MultiplyChecked => Expression.Multiply(binaryExpression.Left, binaryExpression.Right),
+                _ => binaryExpression
+            };
 
-            return TranslationFailed(binaryExpression.Left, Visit(left), out var sqlLeft)
-                || TranslationFailed(binaryExpression.Right, Visit(right), out var sqlRight)
+            var left = TryRemoveImplicitConvert(uncheckedExpression.Left);
+            var right = TryRemoveImplicitConvert(uncheckedExpression.Right);
+
+            return TranslationFailed(uncheckedExpression.Left, Visit(left), out var sqlLeft)
+                || TranslationFailed(uncheckedExpression.Right, Visit(right), out var sqlRight)
                 ? null
-                : binaryExpression.NodeType == ExpressionType.Coalesce
+                : uncheckedExpression.NodeType == ExpressionType.Coalesce
                     ? SqlExpressionFactory.Coalesce(sqlLeft, sqlRight)
                     : (Expression)SqlExpressionFactory.MakeBinary(
-                        binaryExpression.NodeType,
+                        uncheckedExpression.NodeType,
                         sqlLeft,
                         sqlRight,
                         null);
@@ -726,6 +734,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return SqlExpressionFactory.Negate(sqlOperand);
 
                 case ExpressionType.Convert:
+                case ExpressionType.ConvertChecked:
                 case ExpressionType.TypeAs:
                     // Object convert needs to be converted to explicit cast when mismatching types
                     if (operand.Type.IsInterface
