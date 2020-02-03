@@ -130,8 +130,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     Notes = new List<Note> { note1, note2 }
                 };
                 context.Add(new Person { Id = 2, Addresses = new List<Address> { existingAddress1Person2 } });
-                existingAddress1Person3 = new Address { Street = "First", City = "City" };
-                existingAddress2Person3 = new Address { Street = "Second", City = "City" };
+                existingAddress1Person3 = new Address
+                {
+                    Street = "First",
+                    City = "City",
+                    AddressTitle = new AddressTitle { Title = "P3 Shipping" }
+                };
+                existingAddress2Person3 = new Address
+                {
+                    Street = "Second",
+                    City = "City",
+                    AddressTitle = new AddressTitle { Title = "P3 Billing" }
+                };
                 context.Add(new Person { Id = 3, Addresses = new List<Address> { existingAddress1Person3, existingAddress2Person3 } });
 
                 await context.SaveChangesAsync();
@@ -155,10 +165,21 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             using (var context = new EmbeddedTransportationContext(options))
             {
                 var people = await context.Set<Person>().ToListAsync();
-                addedAddress1 = new Address { Street = "First", City = "Town" };
+                addedAddress1 = new Address
+                {
+                    Street = "First",
+                    City = "Town",
+                    AddressTitle = new AddressTitle { Title = "P1" }
+                };
                 people[0].Addresses.Add(addedAddress1);
 
-                addedAddress2 = new Address { Street = "Another", City = "Village", Notes = existingAddress1Person2.Notes };
+                addedAddress2 = new Address
+                {
+                    Street = "Another",
+                    City = "Village",
+                    AddressTitle = new AddressTitle { Title = "P2" },
+                    Notes = existingAddress1Person2.Notes
+                };
                 people[1].Addresses.Clear();
                 people[1].Addresses.Add(addedAddress2);
 
@@ -166,6 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 {
                     Street = "Another",
                     City = "City",
+                    AddressTitle = new AddressTitle { Title = "P3 Alternative" },
                     Notes = new List<Note> { new Note { Content = "Another note" } }
                 };
 
@@ -198,16 +220,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             async Task AssertState(EmbeddedTransportationContext context)
             {
                 var people = await context.Set<Person>().OrderBy(o => o.Id).ToListAsync();
-                var addresses = people[0].Addresses.ToList();
-                Assert.Equal("First", addresses.Single().Street);
-                Assert.Equal("Town", addresses.Single().City);
-                Assert.Empty(addresses.Single().Notes);
+                var firstAddress = people[0].Addresses.Single();
+                Assert.Equal("First", firstAddress.Street);
+                Assert.Equal("Town", firstAddress.City);
+                Assert.Equal("P1", firstAddress.AddressTitle.Title);
+                Assert.Empty(firstAddress.Notes);
 
-                addresses = people[1].Addresses.ToList();
+                var addresses = people[1].Addresses.ToList();
                 Assert.Single(addresses);
 
                 Assert.Equal("Another", addresses[0].Street);
                 Assert.Equal("Village", addresses[0].City);
+                Assert.Equal("P2", addresses[0].AddressTitle.Title);
                 var notes = addresses[0].Notes;
                 Assert.Equal(2, notes.Count);
                 Assert.Equal("First note", notes.First().Content);
@@ -218,22 +242,25 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
                 Assert.Equal("First", addresses[0].Street);
                 Assert.Equal("City", addresses[0].City);
+                Assert.Equal("P3 Shipping", addresses[0].AddressTitle.Title);
 
                 var existingAddressEntry = context.Entry(addresses[0]);
 
                 var addressJson = existingAddressEntry.Property<JObject>("__jObject").CurrentValue;
 
                 Assert.Equal("First", addressJson[nameof(Address.Street)]);
-                Assert.Equal(4, addressJson.Count);
+                Assert.Equal(5, addressJson.Count);
                 Assert.Equal(2, addressJson["unmappedId"]);
 
                 Assert.Equal("Another", addresses[1].Street);
                 Assert.Equal("City", addresses[1].City);
+                Assert.Equal("P3 Alternative", addresses[1].AddressTitle.Title);
                 Assert.Equal(1, addresses[1].Notes.Count);
                 Assert.Equal("Another note", addresses[1].Notes.First().Content);
 
                 Assert.Equal("Second", addresses[2].Street);
                 Assert.Equal("City", addresses[2].City);
+                Assert.Equal("P3 Billing", addresses[2].AddressTitle.Title);
                 Assert.Equal(1, addresses[2].Notes.Count);
                 Assert.Equal("City note", addresses[2].Notes.First().Content);
             }
@@ -539,6 +566,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                         v => v.Addresses, b =>
                         {
                             b.ToJsonProperty("Stored Addresses");
+                            b.OwnsOne(a => a.AddressTitle);
                             b.OwnsMany(a => a.Notes);
                         }));
             }
@@ -558,7 +586,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         {
             public string Street { get; set; }
             public string City { get; set; }
+            public AddressTitle AddressTitle { get; set; }
             public ICollection<Note> Notes { get; set; } = new HashSet<Note>();
+        }
+
+        public class AddressTitle
+        {
+            public string Title { get; set; }
         }
 
         public class Note

@@ -217,6 +217,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                         _pendingIncludes.Add(includeExpression);
 
+                        if (!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue19159", out var isEnabled) || !isEnabled)
+                        {
+                            Visit(includeExpression.EntityExpression);
+                        }
+
                         // Includes on collections are processed when visiting CollectionShaperExpression
                         return Visit(methodCallExpression.Arguments[0]);
                     }
@@ -295,12 +300,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         var isFirstInclude = _pendingIncludes.Count == 0;
                         _pendingIncludes.Add(includeExpression);
 
-                        var jObjectBlock = (BlockExpression)Visit(includeExpression.EntityExpression);
+                        var jObjectBlock = Visit(includeExpression.EntityExpression) as BlockExpression;
 
                         if (!isFirstInclude)
                         {
                             return jObjectBlock;
                         }
+
+                        Debug.Assert(jObjectBlock != null, "The first include must end up on a valid shaper block");
 
                         // These are the expressions added by JObjectInjectingExpressionVisitor
                         var jObjectCondition = (ConditionalExpression)jObjectBlock.Expressions[jObjectBlock.Expressions.Count - 1];
