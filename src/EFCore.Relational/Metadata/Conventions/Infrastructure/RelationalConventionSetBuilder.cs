@@ -97,6 +97,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
                 (QueryFilterDefiningQueryRewritingConvention)new RelationalQueryFilterDefiningQueryRewritingConvention(
                     Dependencies, RelationalDependencies));
 
+            ConventionSet.AddAfter(
+                conventionSet.ModelFinalizedConventions,
+                new RelationalModelConvention(),
+                typeof(ValidatingConvention));
+
             return conventionSet;
         }
     }

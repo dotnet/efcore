@@ -69,6 +69,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             foreach (var entityType in model.GetEntityTypes())
             {
                 var tableName = (Schema: entityType.GetSchema(), TableName: entityType.GetTableName());
+                if (tableName.TableName == null)
+                {
+                    continue;
+                }
 
                 if (!tables.TryGetValue(tableName, out var entityTypes))
                 {

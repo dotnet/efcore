@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 entityType, new TableExpression(
                     entityType.GetTableName(),
                     entityType.GetSchema(),
-                    entityType.GetTableName().ToLower().Substring(0, 1)))
+                    entityType.GetTableName().Substring(0, 1).ToLower()))
         {
         }
 
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 entityType, new FromSqlExpression(
                     sql,
                     arguments,
-                    entityType.GetTableName().ToLower().Substring(0, 1)))
+                    (entityType.GetTableName() ?? entityType.GetViewName() ?? entityType.ShortName()).Substring(0, 1).ToLower()))
         {
         }
 

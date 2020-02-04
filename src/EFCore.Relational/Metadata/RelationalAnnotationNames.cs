@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public static class RelationalAnnotationNames
     {
         /// <summary>
-        ///     The prefix used for any relational annotation.
+        ///     The prefix used for all relational annotations.
         /// </summary>
         public const string Prefix = "Relational:";
 
@@ -85,18 +85,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string DbFunction = Prefix + "DbFunction";
 
         /// <summary>
-        ///     The maximum length for database identifiers.
+        ///     The name for the annotation containing the maximum length for database identifiers.
         /// </summary>
         public const string MaxIdentifierLength = Prefix + "MaxIdentifierLength";
 
         /// <summary>
-        ///     A flag indicating whether the property is constrained to fixed length values.
+        ///     The name for the annotation containing a flag indicating whether the property is constrained to fixed length values.
         /// </summary>
         public const string IsFixedLength = Prefix + "IsFixedLength";
 
         /// <summary>
-        ///     The definition of a database view.
+        ///     The name for the annotation containing the definition of a database view.
         /// </summary>
         public const string ViewDefinition = Prefix + "ViewDefinition";
+
+        /// <summary>
+        ///     The name for tables annotation.
+        /// </summary>
+        public const string Tables = Prefix + "Tables";
+
+        /// <summary>
+        ///     The name for table mappings annotations.
+        /// </summary>
+        public const string TableMappings = Prefix + "TableMappings";
+
+        /// <summary>
+        ///     The name for column mappings annotations.
+        /// </summary>
+        public const string TableColumnMappings = Prefix + "TableColumnMappings";
     }
 }

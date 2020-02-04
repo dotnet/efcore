@@ -241,7 +241,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.ValueGeneratorFactory,
                 CoreAnnotationNames.DefiningQuery,
                 CoreAnnotationNames.QueryFilter,
-                RelationalAnnotationNames.CheckConstraints
+                RelationalAnnotationNames.CheckConstraints,
+                RelationalAnnotationNames.Tables,
+                RelationalAnnotationNames.TableMappings,
+                RelationalAnnotationNames.TableColumnMappings
             };
 
             var ignoredAnnotationTypes = new List<string>

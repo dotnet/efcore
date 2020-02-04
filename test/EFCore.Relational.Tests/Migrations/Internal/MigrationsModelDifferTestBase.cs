@@ -6,12 +6,14 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
@@ -138,8 +140,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         protected virtual ModelBuilder CreateModelBuilder(bool skipConventions)
             => skipConventions
-                ? new ModelBuilder(new ConventionSet())
+                ? new ModelBuilder(CreateEmptyConventionSet())
                 : TestHelpers.CreateConventionBuilder(skipValidation: true);
+
+        private ConventionSet CreateEmptyConventionSet()
+        {
+            var conventions = new ConventionSet();
+            var conventionSetDependencies = TestHelpers.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
+            conventions.ModelFinalizingConventions.Add(new TypeMappingConvention(conventionSetDependencies));
+            conventions.ModelFinalizedConventions.Add(new RelationalModelConvention());
+            return conventions;
+        }
 
         protected virtual MigrationsModelDiffer CreateModelDiffer(DbContextOptions options)
         {

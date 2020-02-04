@@ -156,7 +156,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var tables = new Dictionary<string, List<IEntityType>>();
             foreach (var entityType in model.GetEntityTypes())
             {
-                var tableName = Format(entityType.GetSchema(), entityType.GetTableName());
+                var name = entityType.GetTableName();
+                if (name == null)
+                {
+                    continue;
+                }
+
+                var tableName = Format(entityType.GetSchema(), name);
 
                 if (!tables.TryGetValue(tableName, out var mappedTypes))
                 {

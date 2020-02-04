@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -51,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            new SnapshotModelProcessor(reporter).Process(model);
+            new SnapshotModelProcessor(reporter, null).Process(model);
 
             AssertAnnotations(model);
             AssertAnnotations(entityType);
@@ -77,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            new SnapshotModelProcessor(reporter).Process(model);
+            new SnapshotModelProcessor(reporter, null).Process(model);
 
             Assert.Equal("warn: " + DesignStrings.MultipleAnnotationConflict("DefaultSchema"), reporter.Messages.Single());
             Assert.Equal(2, model.GetAnnotations().Count());
@@ -98,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            new SnapshotModelProcessor(reporter).Process(model);
+            new SnapshotModelProcessor(reporter, null).Process(model);
 
             Assert.Equal("warn: " + DesignStrings.MultipleAnnotationConflict("DefaultSchema"), reporter.Messages.Single());
             Assert.Equal(2, model.GetAnnotations().Count());
@@ -119,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            new SnapshotModelProcessor(reporter).Process(model);
+            new SnapshotModelProcessor(reporter, null).Process(model);
 
             Assert.Empty(reporter.Messages);
 
@@ -138,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            new SnapshotModelProcessor(reporter).Process(model);
+            new SnapshotModelProcessor(reporter, null).Process(model);
 
             Assert.Empty(reporter.Messages);
 
@@ -164,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
 
             var reporter = new TestOperationReporter();
-            new SnapshotModelProcessor(reporter).Process(model);
+            new SnapshotModelProcessor(reporter, null).Process(model);
 
             Assert.Empty(reporter.Messages);
             Assert.Equal(
@@ -180,13 +181,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         [InlineData(typeof(OwnershipModelSnapshot3_0))]
         public void Can_diff_against_older_ownership_model(Type snapshotType)
         {
-            using var db = new Ownership.OwnershipContext();
-            var differ = db.GetService<IMigrationsModelDiffer>();
+            using var context = new Ownership.OwnershipContext();
+            var differ = context.GetService<IMigrationsModelDiffer>();
             var snapshot = (ModelSnapshot)Activator.CreateInstance(snapshotType);
             var reporter = new TestOperationReporter();
-            var processor = new SnapshotModelProcessor(reporter);
+            var processor = new SnapshotModelProcessor(reporter, context.GetService<ProviderConventionSetBuilderDependencies>());
 
-            var differences = differ.GetDifferences(processor.Process(snapshot.Model), db.Model);
+            var differences = differ.GetDifferences(processor.Process(snapshot.Model), context.Model);
 
             Assert.Empty(differences);
         }

@@ -33,6 +33,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The default name of the table to which the entity type would be mapped. </returns>
         public static string GetDefaultTableName([NotNull] this IEntityType entityType)
         {
+            if (entityType.GetDefiningQuery() != null)
+            {
+                return null;
+            }
+
             var ownership = entityType.FindOwnership();
             if (ownership != null
                 && ownership.IsUnique)
@@ -139,6 +144,41 @@ namespace Microsoft.EntityFrameworkCore
         public static ConfigurationSource? GetSchemaConfigurationSource([NotNull] this IConventionEntityType entityType)
             => entityType.FindAnnotation(RelationalAnnotationNames.Schema)
                 ?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Returns the name of the table to which the entity type is mapped.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the table name for. </param>
+        /// <returns> The name of the table to which the entity type is mapped. </returns>
+        public static IEnumerable<ITableMapping> GetTableMappings([NotNull] this IEntityType entityType) =>
+            (IEnumerable<ITableMapping>)entityType[RelationalAnnotationNames.TableMappings];
+
+        /// <summary>
+        ///     Returns the name of the view to which the entity type is mapped.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the view name for. </param>
+        /// <returns> The name of the view to which the entity type is mapped. </returns>
+        public static string GetViewName([NotNull] this IEntityType entityType)
+        {
+            if (entityType.BaseType != null)
+            {
+                return entityType.GetRootType().GetViewName();
+            }
+
+            if (entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinition) != null)
+            {
+                return entityType.GetTableName();
+            }
+
+            var ownership = entityType.FindOwnership();
+            if (ownership != null
+                && ownership.IsUnique)
+            {
+                return ownership.PrincipalEntityType.GetViewName();
+            }
+
+            return null;
+        }
 
         /// <summary>
         ///     Finds an <see cref="ICheckConstraint" /> with the given name.
