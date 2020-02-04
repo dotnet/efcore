@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
@@ -242,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);"),
                 o =>
                 {
-                    Assert.Equal(6, o.GetAnnotations().Count());
+                    Assert.Equal(7, o.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", o["AnnotationName"]);
                 });
         }
@@ -265,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);"),
                 o =>
                 {
-                    Assert.Equal(4, o.GetAnnotations().Count());
+                    Assert.Equal(5, o.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", o["AnnotationName"]);
                     Assert.Equal("DefaultSchema", o[RelationalAnnotationNames.DefaultSchema]);
                 });
@@ -351,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);"),
                 o =>
                 {
-                    Assert.Equal(3, o.GetAnnotations().Count());
+                    Assert.Equal(4, o.GetAnnotations().Count());
                 });
         }
 
@@ -415,7 +416,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });"),
                 o =>
                 {
-                    Assert.Equal(2, o.GetAnnotations().Count());
+                    Assert.Equal(3, o.GetAnnotations().Count());
                 });
         }
 
@@ -464,7 +465,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });"),
                 o =>
                 {
-                    Assert.Equal(2, o.GetAnnotations().Count());
+                    Assert.Equal(3, o.GetAnnotations().Count());
                 });
         }
 
@@ -499,7 +500,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });"),
                 o =>
                 {
-                    Assert.Equal(2, o.GetEntityTypes().First().GetAnnotations().Count());
+                    Assert.Equal(3, o.GetEntityTypes().First().GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", o.GetEntityTypes().First()["AnnotationName"]);
                 });
         }
@@ -2086,7 +2087,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o =>
                 {
                     var property = o.GetEntityTypes().First().FindProperty("AlternateId");
-                    Assert.Equal(3, property.GetAnnotations().Count());
+                    Assert.Equal(5, property.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", property["AnnotationName"]);
                     Assert.Equal("CName", property["Relational:ColumnName"]);
                     Assert.Equal("int", property["Relational:ColumnType"]);
@@ -3749,7 +3750,11 @@ namespace RootNamespace
                 Activator.CreateInstance(factoryType),
                 new object[] { builder });
 
-            var modelFromSnapshot = new SnapshotModelProcessor(new TestOperationReporter()).Process(builder.Model);
+            var services = RelationalTestHelpers.Instance.CreateContextServices();
+
+            var processor = new SnapshotModelProcessor(new TestOperationReporter(),
+                services.GetRequiredService<ProviderConventionSetBuilderDependencies>().With(sqlServerTypeMappingSource));
+            var modelFromSnapshot = processor.Process(builder.Model);
 
             assert(modelFromSnapshot, model);
         }

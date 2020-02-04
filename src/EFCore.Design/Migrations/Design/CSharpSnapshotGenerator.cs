@@ -55,6 +55,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             var annotations = model.GetAnnotations().ToList();
 
+            IgnoreAnnotationTypes(annotations, RelationalAnnotationNames.DbFunction);
+            IgnoreAnnotations(
+                annotations,
+                ChangeDetector.SkipDetectChangesAnnotation,
+                CoreAnnotationNames.ChangeTrackingStrategy,
+                CoreAnnotationNames.OwnedTypes,
+                RelationalAnnotationNames.CheckConstraints,
+                RelationalAnnotationNames.Tables);
+
             if (annotations.Count > 0)
             {
                 stringBuilder.Append(builderName);
@@ -64,14 +73,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     GenerateFluentApiForAnnotation(
                         ref annotations, RelationalAnnotationNames.DefaultSchema, nameof(RelationalModelBuilderExtensions.HasDefaultSchema),
                         stringBuilder);
-
-                    IgnoreAnnotationTypes(annotations, RelationalAnnotationNames.DbFunction);
-                    IgnoreAnnotations(
-                        annotations,
-                        ChangeDetector.SkipDetectChangesAnnotation,
-                        CoreAnnotationNames.ChangeTrackingStrategy,
-                        CoreAnnotationNames.OwnedTypes,
-                        RelationalAnnotationNames.CheckConstraints);
 
                     GenerateAnnotations(annotations, stringBuilder);
                 }
@@ -495,6 +496,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             IgnoreAnnotations(
                 annotations,
                 RelationalAnnotationNames.ColumnType,
+                RelationalAnnotationNames.TableColumnMappings,
                 CoreAnnotationNames.ValueGeneratorFactory,
                 CoreAnnotationNames.PropertyAccessMode,
                 CoreAnnotationNames.ChangeTrackingStrategy,
@@ -784,7 +786,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.ConstructorBinding,
                 CoreAnnotationNames.DefiningQuery,
                 CoreAnnotationNames.QueryFilter,
-                RelationalAnnotationNames.CheckConstraints);
+                RelationalAnnotationNames.CheckConstraints,
+                RelationalAnnotationNames.TableMappings);
 
             if (annotations.Count > 0)
             {

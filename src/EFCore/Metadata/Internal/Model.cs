@@ -890,13 +890,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IModel FinalizeModel()
         {
-            IModel validatedModel = ConventionDispatcher.OnModelFinalizing(Builder)?.Metadata;
-            if (validatedModel != null)
+            IModel finalizedModel = ConventionDispatcher.OnModelFinalizing(Builder)?.Metadata;
+            if (finalizedModel != null)
             {
-                validatedModel = ConventionDispatcher.OnModelFinalized(validatedModel);
+                finalizedModel = ConventionDispatcher.OnModelFinalized(finalizedModel);
             }
 
-            return (validatedModel as Model)?.MakeReadonly() ?? validatedModel;
+            return (finalizedModel as Model)?.MakeReadonly() ?? finalizedModel;
         }
 
         /// <summary>

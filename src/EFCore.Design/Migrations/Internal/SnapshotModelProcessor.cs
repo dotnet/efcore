@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
@@ -23,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
     public class SnapshotModelProcessor : ISnapshotModelProcessor
     {
         private readonly IOperationReporter _operationReporter;
+        private readonly ProviderConventionSetBuilderDependencies _conventionDependencies;
         private readonly HashSet<string> _relationalNames;
 
         /// <summary>
@@ -31,9 +34,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SnapshotModelProcessor([NotNull] IOperationReporter operationReporter)
+        public SnapshotModelProcessor(
+            [NotNull] IOperationReporter operationReporter,
+            [NotNull] ProviderConventionSetBuilderDependencies conventionDependencies)
         {
             _operationReporter = operationReporter;
+            _conventionDependencies = conventionDependencies;
             _relationalNames = new HashSet<string>(
                 typeof(RelationalAnnotationNames)
                     .GetRuntimeFields()
@@ -73,6 +79,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         ProcessElement(element.PrincipalToDependent, version);
                     }
                 }
+            }
+
+            if (model is IConventionModel conventionModel
+                && _conventionDependencies != null)
+            {
+                var typeMappingConvention = new TypeMappingConvention(_conventionDependencies);
+                typeMappingConvention.ProcessModelFinalizing(conventionModel.Builder, null);
+
+                model = new RelationalModelConvention().ProcessModelFinalized(conventionModel);
             }
 
             return model is IMutableModel mutableModel

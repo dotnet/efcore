@@ -7,6 +7,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -67,8 +68,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 KeyValues.GetLength(0) == Values.GetLength(0),
                 $"The number of key values doesn't match the number of values (${KeyValues.GetLength(0)})");
 
-            var properties = model != null
-                ? TableMapping.GetTableMapping(model, Table, Schema)?.GetPropertyMap()
+            var table = model?.FindTable(Table, Schema);
+            var keyProperties = table != null
+                ? MigrationsModelDiffer.GetMappedProperties(table, KeyColumns)
+                : null;
+            var properties = table != null
+                ? MigrationsModelDiffer.GetMappedProperties(table, Columns)
                 : null;
 
             for (var i = 0; i < KeyValues.GetLength(0); i++)
@@ -77,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 for (var j = 0; j < KeyColumns.Length; j++)
                 {
                     keys[j] = new ColumnModification(
-                        KeyColumns[j], originalValue: null, value: KeyValues[i, j], property: properties?.Find(KeyColumns[j]),
+                        KeyColumns[j], originalValue: null, value: KeyValues[i, j], property: keyProperties?[j],
                         isRead: false, isWrite: false, isKey: true, isCondition: true, sensitiveLoggingEnabled: true);
                 }
 
@@ -85,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 for (var j = 0; j < Columns.Length; j++)
                 {
                     modifications[j] = new ColumnModification(
-                        Columns[j], originalValue: null, value: Values[i, j], property: properties?.Find(Columns[j]),
+                        Columns[j], originalValue: null, value: Values[i, j], property: properties?[j],
                         isRead: false, isWrite: true, isKey: true, isCondition: false, sensitiveLoggingEnabled: true);
                 }
 

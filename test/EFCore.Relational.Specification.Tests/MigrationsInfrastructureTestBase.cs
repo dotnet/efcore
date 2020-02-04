@@ -1,11 +1,14 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -284,23 +287,15 @@ namespace Microsoft.EntityFrameworkCore
 
         protected virtual void DiffSnapshot(ModelSnapshot snapshot, DbContext context)
         {
-            var sourceModel = ((IMutableModel)snapshot.Model).FinalizeModel();
-            var targetModel = context.Model;
+            var dependencies = context.GetService<ProviderConventionSetBuilderDependencies>();
+            var typeMappingConvention = new TypeMappingConvention(dependencies);
+            typeMappingConvention.ProcessModelFinalizing(((IConventionModel)snapshot.Model).Builder, null);
 
-            var typeMapper = context.GetService<IRelationalTypeMappingSource>();
-
-            foreach (var property in sourceModel.GetEntityTypes().SelectMany(e => e.GetDeclaredProperties()))
-            {
-                Assert.NotNull(typeMapper.FindMapping(property));
-            }
-
-            foreach (var property in targetModel.GetEntityTypes().SelectMany(e => e.GetDeclaredProperties()))
-            {
-                Assert.NotNull(typeMapper.FindMapping(property));
-            }
+            var relationalModelConvention = new RelationalModelConvention();
+            var sourceModel = relationalModelConvention.ProcessModelFinalized(snapshot.Model);
 
             var modelDiffer = context.GetService<IMigrationsModelDiffer>();
-            var operations = modelDiffer.GetDifferences(sourceModel, targetModel);
+            var operations = modelDiffer.GetDifferences(((IMutableModel)sourceModel).FinalizeModel(), context.Model);
 
             Assert.Equal(0, operations.Count);
         }

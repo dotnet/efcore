@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -48,8 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 Columns.Length == Values.GetLength(1),
                 $"The number of values doesn't match the number of keys (${Columns.Length})");
 
-            var properties = model != null
-                ? TableMapping.GetTableMapping(model, Table, Schema)?.GetPropertyMap()
+            var table = model?.FindTable(Table, Schema);
+            var properties = table != null
+                ? MigrationsModelDiffer.GetMappedProperties(table, Columns)
                 : null;
 
             for (var i = 0; i < Values.GetLength(0); i++)
@@ -58,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 for (var j = 0; j < Columns.Length; j++)
                 {
                     modifications[j] = new ColumnModification(
-                        Columns[j], originalValue: null, value: Values[i, j], property: properties?.Find(Columns[j]),
+                        Columns[j], originalValue: null, value: Values[i, j], property: properties?[j],
                         isRead: false, isWrite: true, isKey: true, isCondition: false, sensitiveLoggingEnabled: true);
                 }
 

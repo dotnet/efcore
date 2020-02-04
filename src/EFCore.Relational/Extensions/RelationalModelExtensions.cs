@@ -56,6 +56,26 @@ namespace Microsoft.EntityFrameworkCore
             => model.FindAnnotation(RelationalAnnotationNames.DefaultSchema)?.GetConfigurationSource();
 
         /// <summary>
+        ///     Returns all the tables mapped in the model.
+        /// </summary>
+        /// <param name="model"> The model to get the tables for. </param>
+        /// <returns> All the tables mapped in the model. </returns>
+        public static IEnumerable<ITable> GetTables([NotNull] this IModel model) =>
+            ((IDictionary<(string, string), Table>)model[RelationalAnnotationNames.Tables]).Values;
+
+        /// <summary>
+        ///     Gets the table with a given name. Returns <c>null</c> if no table with the given name is defined.
+        /// </summary>
+        /// <param name="model"> The model to get the table for. </param>
+        /// <param name="name"> The name of the table. </param>
+        /// <param name="schema"> The schema of the table. </param>
+        /// <returns> The table with a given name or <c>null</c> if no table with the given name is defined. </returns>
+        public static ITable FindTable([NotNull] this IModel model, [NotNull] string name, [CanBeNull] string schema) =>
+            ((IDictionary<(string, string), Table>)model[RelationalAnnotationNames.Tables]).TryGetValue((name, schema), out var table)
+                ? table
+                : null;
+
+        /// <summary>
         ///     Returns the maximum length allowed for store identifiers.
         /// </summary>
         /// <param name="model"> The model to get the maximum identifier length for. </param>
