@@ -23,6 +23,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Conventions to run when model building is completed.
         /// </summary>
+        public virtual IList<IModelFinalizingConvention> ModelFinalizingConventions { get; } = new List<IModelFinalizingConvention>();
+
+        /// <summary>
+        ///     Conventions to run when model validation is completed.
+        /// </summary>
         public virtual IList<IModelFinalizedConvention> ModelFinalizedConventions { get; } = new List<IModelFinalizedConvention>();
 
         /// <summary>

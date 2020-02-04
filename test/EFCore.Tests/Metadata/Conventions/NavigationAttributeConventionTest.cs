@@ -432,7 +432,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Principal.Dependent));
             Assert.DoesNotContain(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Dependent.Principal));
 
-            convention.ProcessModelFinalized(
+            convention.ProcessModelFinalizing(
                 dependentEntityTypeBuilder.ModelBuilder,
                 new ConventionContext<IConventionModelBuilder>(
                     dependentEntityTypeBuilder.Metadata.Model.ConventionDispatcher));
@@ -836,13 +836,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 entityTypeBuilder.Metadata.Model.ConventionDispatcher);
 
             new KeyAttributeConvention(dependencies)
-                .ProcessModelFinalized(entityTypeBuilder.ModelBuilder, context);
+                .ProcessModelFinalizing(entityTypeBuilder.ModelBuilder, context);
 
             new InversePropertyAttributeConvention(dependencies)
-                .ProcessModelFinalized(entityTypeBuilder.ModelBuilder, context);
+                .ProcessModelFinalizing(entityTypeBuilder.ModelBuilder, context);
 
             new ForeignKeyAttributeConvention(dependencies)
-                .ProcessModelFinalized(entityTypeBuilder.ModelBuilder, context);
+                .ProcessModelFinalizing(entityTypeBuilder.ModelBuilder, context);
         }
 
         #endregion

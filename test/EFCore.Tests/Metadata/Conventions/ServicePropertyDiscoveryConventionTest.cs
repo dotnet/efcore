@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private void Validate(EntityType entityType)
         {
             var convention = CreateServicePropertyDiscoveryConvention();
-            convention.ProcessModelFinalized(
+            convention.ProcessModelFinalizing(
                 entityType.Model.Builder,
                 new ConventionContext<IConventionModelBuilder>(entityType.Model.ConventionDispatcher));
         }

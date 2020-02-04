@@ -103,6 +103,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual bool IsValidated { get; set; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual InternalModelBuilder Builder { [DebuggerStepThrough] get; }
 
         /// <summary>
@@ -882,8 +890,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IModel FinalizeModel()
         {
-            var finalModel = (Model)ConventionDispatcher.OnModelFinalized(Builder)?.Metadata;
-            return finalModel?.MakeReadonly() ?? this;
+            IModel validatedModel = ConventionDispatcher.OnModelFinalizing(Builder)?.Metadata;
+            if (validatedModel != null)
+            {
+                validatedModel = ConventionDispatcher.OnModelFinalized(validatedModel);
+            }
+
+            return (validatedModel as Model)?.MakeReadonly() ?? validatedModel;
         }
 
         /// <summary>
@@ -892,9 +905,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IModel MakeReadonly()
+        private IModel MakeReadonly()
         {
             ConventionDispatcher = null;
+            IsValidated = true;
             return this;
         }
 

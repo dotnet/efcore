@@ -272,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private void Validate(IMutableProperty property)
             => new BackingFieldConvention(CreateDependencies())
-                .ProcessModelFinalized(
+                .ProcessModelFinalizing(
                     ((Property)property).DeclaringEntityType.Model.Builder,
                     new ConventionContext<IConventionModelBuilder>(((Model)property.DeclaringEntityType.Model).ConventionDispatcher));
 

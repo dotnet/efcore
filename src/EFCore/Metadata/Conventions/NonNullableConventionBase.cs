@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A base type for conventions that configure model aspects based on whether the member type
     ///     is a non-nullable reference type.
     /// </summary>
-    public abstract class NonNullableConventionBase : IModelFinalizedConvention
+    public abstract class NonNullableConventionBase : IModelFinalizingConvention
     {
         // For the interpretation of nullability metadata, see
         // https://github.com/dotnet/roslyn/blob/master/docs/features/nullable-metadata.md
@@ -130,12 +130,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 ?? modelBuilder.Metadata.AddAnnotation(StateAnnotationName, new NonNullabilityConventionState())
             ).Value;
 
-        /// <summary>
-        ///     Called after a model is finalized. Removes the cached state annotation used by this convention.
-        /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessModelFinalized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        /// <inheritdoc />
+        public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
             => modelBuilder.Metadata.RemoveAnnotation(StateAnnotationName);
 
         private sealed class NonNullabilityConventionState

@@ -650,7 +650,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var dbFunctionAttributeConvention = new RelationalDbFunctionAttributeConvention(dependencies, relationalDependencies);
             conventionSet.ModelInitializedConventions.Add(dbFunctionAttributeConvention);
             conventionSet.ModelAnnotationChangedConventions.Add(dbFunctionAttributeConvention);
-            conventionSet.ModelFinalizedConventions.Add(new DbFunctionTypeMappingConvention(dependencies, relationalDependencies));
+            conventionSet.ModelFinalizingConventions.Add(new DbFunctionTypeMappingConvention(dependencies, relationalDependencies));
 
             return new ModelBuilder(conventionSet);
         }

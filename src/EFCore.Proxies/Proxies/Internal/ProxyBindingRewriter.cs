@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class ProxyBindingRewriter : IModelFinalizedConvention
+    public class ProxyBindingRewriter : IModelFinalizingConvention
     {
         private static readonly MethodInfo _createLazyLoadingProxyMethod
             = typeof(IProxyFactory).GetTypeInfo().GetDeclaredMethod(nameof(IProxyFactory.CreateLazyLoadingProxy));
@@ -57,12 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             _directBindingConvention = new ConstructorBindingConvention(conventionSetBuilderDependencies);
         }
 
-        /// <summary>
-        ///     Called after a model is finalized.
-        /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessModelFinalized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        /// <inheritdoc />
+        public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
         {
             if (_options?.UseProxies == true)
             {
@@ -81,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                         var binding = (InstantiationBinding)entityType[CoreAnnotationNames.ConstructorBinding];
                         if (binding == null)
                         {
-                            _directBindingConvention.ProcessModelFinalized(modelBuilder, context);
+                            _directBindingConvention.ProcessModelFinalizing(modelBuilder, context);
                         }
 
                         // WARNING: This code is EF internal; it should not be copied. See #10789 #14554

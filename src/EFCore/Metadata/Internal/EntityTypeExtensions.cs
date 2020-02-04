@@ -298,7 +298,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static PropertyCounts CalculateCounts([NotNull] this EntityType entityType)
         {
-            Check.DebugAssert(entityType.Model.IsReadonly, "Should not be called on a mutable model");
+            Check.DebugAssert(entityType.Model.IsValidated, "Should not be called on a non-validated model");
 
             var index = 0;
             var navigationIndex = 0;

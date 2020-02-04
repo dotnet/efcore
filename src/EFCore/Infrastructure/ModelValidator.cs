@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="logger"> The logger to use. </param>
         public virtual void Validate(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            ((Model)model).MakeReadonly();
+            ((Model)model).IsValidated = true;
 
             ValidateNoShadowEntities(model, logger);
             ValidateIgnoredMembers(model, logger);

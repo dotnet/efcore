@@ -296,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var conventionSet = new ConventionSet();
 
             var dependencies = CreateDependencies(sensitiveDataLoggingEnabled);
-            conventionSet.ModelFinalizedConventions.Add(new TypeMappingConvention(dependencies));
+            conventionSet.ModelFinalizingConventions.Add(new TypeMappingConvention(dependencies));
             conventionSet.ModelFinalizedConventions.Add(new ValidatingConvention(dependencies));
 
             return new ModelBuilder(conventionSet);
