@@ -60,15 +60,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public override void Run(ConventionDispatcher dispatcher)
                 => throw new NotImplementedException("Immediate convention scope cannot be run again");
 
-            public IConventionModelBuilder OnModelFinalized([NotNull] IConventionModelBuilder modelBuilder)
+            public IConventionModelBuilder OnModelFinalizing([NotNull] IConventionModelBuilder modelBuilder)
             {
                 _modelBuilderConventionContext.ResetState(modelBuilder);
-                foreach (var modelConvention in _conventionSet.ModelFinalizedConventions)
+                foreach (var modelConvention in _conventionSet.ModelFinalizingConventions)
                 {
                     // Execute each convention in a separate batch so model validation will get an up-to-date model
                     using (_dispatcher.DelayConventions())
                     {
-                        modelConvention.ProcessModelFinalized(modelBuilder, _modelBuilderConventionContext);
+                        modelConvention.ProcessModelFinalizing(modelBuilder, _modelBuilderConventionContext);
                         if (_modelBuilderConventionContext.ShouldStopProcessing())
                         {
                             return _modelBuilderConventionContext.Result;
@@ -77,6 +77,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
 
                 return modelBuilder;
+            }
+
+            public IModel OnModelFinalized([NotNull] IModel model)
+            {
+                foreach (var modelConvention in _conventionSet.ModelFinalizedConventions)
+                {
+                    model = modelConvention.ProcessModelFinalized(model);
+                }
+
+                return model;
             }
 
             public IConventionModelBuilder OnModelInitialized([NotNull] IConventionModelBuilder modelBuilder)

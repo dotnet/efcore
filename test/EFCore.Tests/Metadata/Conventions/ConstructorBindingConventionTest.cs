@@ -794,7 +794,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var context = new ConventionContext<IConventionModelBuilder>(model.ConventionDispatcher);
 
             var convention = new ConstructorBindingConvention(CreateDependencies());
-            convention.ProcessModelFinalized(model.Builder, context);
+            convention.ProcessModelFinalizing(model.Builder, context);
 
             return (ConstructorBinding)entityType[CoreAnnotationNames.ConstructorBinding];
         }

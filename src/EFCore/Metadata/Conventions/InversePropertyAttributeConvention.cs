@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// </summary>
     public class InversePropertyAttributeConvention :
         NavigationAttributeConventionBase<InversePropertyAttribute>,
-        IModelFinalizedConvention
+        IModelFinalizingConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="InversePropertyAttributeConvention" />.
@@ -362,12 +362,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             RemoveInverseNavigation(entityTypeBuilder.Metadata, navigationMemberInfo, targetEntityType);
         }
 
-        /// <summary>
-        ///     Called after a model is finalized.
-        /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessModelFinalized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        /// <inheritdoc />
+        public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
         {
             var model = modelBuilder.Metadata;
             foreach (var entityType in model.GetEntityTypes())

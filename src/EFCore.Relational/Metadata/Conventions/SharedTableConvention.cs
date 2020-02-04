@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     A convention that manipulates names of database objects for entity types that share a table to avoid clashes.
     /// </summary>
-    public class SharedTableConvention : IModelFinalizedConvention
+    public class SharedTableConvention : IModelFinalizingConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="SharedTableConvention" />.
@@ -35,12 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
-        /// <summary>
-        ///     Called after a model is finalized.
-        /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessModelFinalized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        /// <inheritdoc />
+        public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
         {
             var maxLength = modelBuilder.Metadata.GetMaxIdentifierLength();
             var tables = new Dictionary<(string, string), List<IConventionEntityType>>();
@@ -73,6 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             foreach (var entityType in model.GetEntityTypes())
             {
                 var tableName = (Schema: entityType.GetSchema(), TableName: entityType.GetTableName());
+
                 if (!tables.TryGetValue(tableName, out var entityTypes))
                 {
                     entityTypes = new List<IConventionEntityType>();

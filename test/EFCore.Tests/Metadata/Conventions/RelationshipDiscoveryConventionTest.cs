@@ -1119,7 +1119,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private void Cleanup(InternalModelBuilder modelBuilder)
         {
             new ModelCleanupConvention(CreateDependencies())
-                .ProcessModelFinalized(
+                .ProcessModelFinalizing(
                     modelBuilder,
                     new ConventionContext<IConventionModelBuilder>(modelBuilder.Metadata.ConventionDispatcher));
         }

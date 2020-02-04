@@ -65,14 +65,11 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                 new ProxyChangeTrackingConvention(extension),
                 typeof(DbSetFindingConvention));
 
-            ConventionSet.AddBefore(
-                conventionSet.ModelFinalizedConventions,
-                new ProxyBindingRewriter(
+            conventionSet.ModelFinalizingConventions.Add(new ProxyBindingRewriter(
                     _proxyFactory,
                     extension,
                     _lazyLoaderParameterBindingFactoryDependencies,
-                    _conventionSetBuilderDependencies),
-                typeof(ValidatingConvention));
+                    _conventionSetBuilderDependencies));
 
             return conventionSet;
         }

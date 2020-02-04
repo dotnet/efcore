@@ -1130,7 +1130,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private void ValidateModel()
         {
             var convention = CreateForeignKeyPropertyDiscoveryConvention();
-            convention.ProcessModelFinalized(_model, new ConventionContext<IConventionModelBuilder>(_model.Metadata.ConventionDispatcher));
+            convention.ProcessModelFinalizing(_model, new ConventionContext<IConventionModelBuilder>(_model.Metadata.ConventionDispatcher));
         }
 
         private ForeignKeyPropertyDiscoveryConvention CreateForeignKeyPropertyDiscoveryConvention()

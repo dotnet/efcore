@@ -573,7 +573,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 entityTypeBuilder.Metadata.Model.ConventionDispatcher);
 
             new KeyAttributeConvention(CreateDependencies())
-                .ProcessModelFinalized(entityTypeBuilder.ModelBuilder, context);
+                .ProcessModelFinalizing(entityTypeBuilder.ModelBuilder, context);
         }
 
         private static ProviderConventionSetBuilderDependencies CreateDependencies()

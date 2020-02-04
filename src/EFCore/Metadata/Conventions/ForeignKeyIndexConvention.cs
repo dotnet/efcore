@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         IIndexAddedConvention,
         IIndexRemovedConvention,
         IIndexUniquenessChangedConvention,
-        IModelFinalizedConvention
+        IModelFinalizingConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="ForeignKeyIndexConvention" />.
@@ -357,12 +357,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private static void RemoveIndex(IConventionIndex index)
             => index.DeclaringEntityType.Builder.HasNoIndex(index);
 
-        /// <summary>
-        ///     Called after a model is finalized.
-        /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessModelFinalized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        /// <inheritdoc />
+        public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
         {
             var definition = CoreResources.LogRedundantIndexRemoved(Dependencies.Logger);
             if (!Dependencies.Logger.ShouldLog(definition)

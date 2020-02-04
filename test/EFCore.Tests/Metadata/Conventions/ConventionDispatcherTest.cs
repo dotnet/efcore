@@ -76,19 +76,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var convention1 = new ModelFinalizedConvention(terminate: false);
             var convention2 = new ModelFinalizedConvention(terminate: true);
             var convention3 = new ModelFinalizedConvention(terminate: false);
-            conventions.ModelFinalizedConventions.Add(convention1);
-            conventions.ModelFinalizedConventions.Add(convention2);
-            conventions.ModelFinalizedConventions.Add(convention3);
+            conventions.ModelFinalizingConventions.Add(convention1);
+            conventions.ModelFinalizingConventions.Add(convention2);
+            conventions.ModelFinalizingConventions.Add(convention3);
 
             var model = new Model(conventions);
 
             if (useBuilder)
             {
-                Assert.Same(model, new InternalModelBuilder(model).Metadata.FinalizeModel());
+                Assert.Null(new InternalModelBuilder(model).Metadata.FinalizeModel());
             }
             else
             {
-                Assert.Same(model, model.FinalizeModel());
+                Assert.Null(model.FinalizeModel());
             }
 
             Assert.Equal(1, convention1.Calls);
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.Equal(0, convention3.Calls);
         }
 
-        private class ModelFinalizedConvention : IModelFinalizedConvention
+        private class ModelFinalizedConvention : IModelFinalizingConvention
         {
             private readonly bool _terminate;
             public int Calls;
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 _terminate = terminate;
             }
 
-            public void ProcessModelFinalized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+            public void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
             {
                 Assert.NotNull(modelBuilder.Metadata.Builder);
 

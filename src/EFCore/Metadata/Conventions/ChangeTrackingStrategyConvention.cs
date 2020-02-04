@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that sets a flag on the model to always skip detecting changes if no entity type is using the
     ///     <see cref="ChangeTrackingStrategy.Snapshot" /> strategy.
     /// </summary>
-    public class ChangeTrackingStrategyConvention : IModelFinalizedConvention
+    public class ChangeTrackingStrategyConvention : IModelFinalizingConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="ChangeTrackingStrategyConvention" />.
@@ -28,12 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
-        /// <summary>
-        ///     Called after a model is finalized.
-        /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessModelFinalized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        /// <inheritdoc />
+        public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
