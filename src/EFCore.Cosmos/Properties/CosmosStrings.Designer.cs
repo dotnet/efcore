@@ -115,9 +115,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         /// <summary>
         ///     Conflicts were detected for item with id '{itemId}'.
         /// </summary>
-        public static string UpdateConcurrencyTokenException([CanBeNull] object itemId)
+        public static string UpdateConflict([CanBeNull] object itemId)
             => string.Format(
-                GetString("UpdateConcurrencyTokenException", nameof(itemId)),
+                GetString("UpdateConflict", nameof(itemId)),
                 itemId);
 
         private static string GetString(string name, params string[] formatterNames)

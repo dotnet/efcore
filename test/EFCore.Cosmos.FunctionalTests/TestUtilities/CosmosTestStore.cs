@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                                                         document["id"] = $"{entityName}|{document["id"]}";
                                                         document["Discriminator"] = entityName;
 
-                                                        await cosmosClient.CreateItemAsync("NorthwindContext", document, null);
+                                                        await cosmosClient.CreateItemAsync("NorthwindContext", document, CosmosConcurrencyToken.None, null);
                                                     }
                                                     else if (reader.TokenType == JsonToken.EndObject)
                                                     {

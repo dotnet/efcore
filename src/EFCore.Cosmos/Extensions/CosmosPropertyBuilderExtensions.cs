@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static PropertyBuilder SetEtagConcurrency([NotNull] this PropertyBuilder propertyBuilder)
+        public static PropertyBuilder IsEtagConcurrency([NotNull] this PropertyBuilder propertyBuilder)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             propertyBuilder
@@ -109,8 +109,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static PropertyBuilder<TProperty> SetEtagConcurrency<TProperty>(
+        public static PropertyBuilder<TProperty> IsEtagConcurrency<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder)
-            => (PropertyBuilder<TProperty>)SetEtagConcurrency((PropertyBuilder)propertyBuilder);
+            => (PropertyBuilder<TProperty>)IsEtagConcurrency((PropertyBuilder)propertyBuilder);
     }
 }

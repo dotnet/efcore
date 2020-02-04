@@ -153,7 +153,7 @@
   <data name="PartitionKeyStoreNameMismatch" xml:space="preserve">
     <value>The partition key property '{property1}' on '{entityType1}' is mapped as '{storeName1}', but the partition key property '{property2}' on '{entityType2}' is mapped as '{storeName2}'. All partition key properties need to be mapped to the same store property.</value>
   </data>
-  <data name="UpdateConcurrencyTokenException" xml:space="preserve">
+  <data name="UpdateConflict" xml:space="preserve">
     <value>Conflicts were detected for item with id '{itemId}'.</value>
   </data>
 </root>

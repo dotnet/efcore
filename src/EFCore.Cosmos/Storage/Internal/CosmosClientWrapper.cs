@@ -252,13 +252,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         public virtual bool CreateItem(
             [NotNull] string containerId,
             [NotNull] JToken document,
+            CosmosConcurrencyToken concurrencyToken,
             [CanBeNull] string partitionKey)
             => _executionStrategyFactory.Create().Execute(
-                (containerId, document, partitionKey), CreateItemOnce, null);
+                (containerId, document, concurrencyToken, partitionKey), CreateItemOnce, null);
 
         private bool CreateItemOnce(
             DbContext context,
-            (string ContainerId, JToken Document, string PartitionKey) parameters)
+            (string ContainerId, JToken Document, CosmosConcurrencyToken ConcurrencyToken, string PartitionKey) parameters)
             => CreateItemOnceAsync(context, parameters).GetAwaiter().GetResult();
 
         /// <summary>
@@ -270,14 +271,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         public virtual Task<bool> CreateItemAsync(
             [NotNull] string containerId,
             [NotNull] JToken document,
+            CosmosConcurrencyToken concurrencyToken,
             [CanBeNull] string partitionKey,
             CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
-                (containerId, document, partitionKey), CreateItemOnceAsync, null, cancellationToken);
+                (containerId, document, concurrencyToken, partitionKey), CreateItemOnceAsync, null, cancellationToken);
 
         private async Task<bool> CreateItemOnceAsync(
             DbContext _,
-            (string ContainerId, JToken Document, string PartitionKey) parameters,
+            (string ContainerId, JToken Document, CosmosConcurrencyToken ConcurrencyToken, string PartitionKey) parameters,
             CancellationToken cancellationToken = default)
         {
             await using var stream = new MemoryStream();
@@ -287,9 +289,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             await jsonWriter.FlushAsync(cancellationToken);
 
             var container = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
+            var itemRequestOptions = CreateItemRequestOptions(parameters.ConcurrencyToken);
             var partitionKey = CreatePartitionKey(parameters.PartitionKey);
 
-            using var response = await container.CreateItemStreamAsync(stream, partitionKey, null, cancellationToken);
+            using var response = await container.CreateItemStreamAsync(stream, partitionKey, itemRequestOptions, cancellationToken);
             response.EnsureSuccessStatusCode();
             return response.StatusCode == HttpStatusCode.Created;
         }
@@ -350,17 +353,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             var itemRequestOptions = CreateItemRequestOptions(parameters.ConcurrencyToken);
             var partitionKey = CreatePartitionKey(parameters.PartitionKey);
 
-            try
-            {
-                using var response = await container.ReplaceItemStreamAsync(
-                    stream, parameters.ItemId, partitionKey, itemRequestOptions, cancellationToken);
-                response.EnsureSuccessStatusCode();
-                return response.StatusCode == HttpStatusCode.OK;
-            }
-            catch (CosmosException cre) when (cre.StatusCode == HttpStatusCode.PreconditionFailed)
-            {
-                throw ThrowConcurrencyException(parameters.ItemId, cre);
-            }
+            using var response = await container.ReplaceItemStreamAsync(
+                stream, parameters.ItemId, partitionKey, itemRequestOptions, cancellationToken);
+            response.EnsureSuccessStatusCode();
+            return response.StatusCode == HttpStatusCode.OK;
         }
 
         /// <summary>
@@ -417,16 +413,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             var items = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
             var itemRequestOptions = CreateItemRequestOptions(parameters.ConcurrencyToken);
             var partitionKey = CreatePartitionKey(parameters.PartitionKey);
+
             using var response = await items.DeleteItemStreamAsync(
                 parameters.DocumentId, partitionKey, itemRequestOptions, cancellationToken: cancellationToken);
             response.EnsureSuccessStatusCode();
             return response.StatusCode == HttpStatusCode.NoContent;
-        }
-
-        private static Exception ThrowConcurrencyException(string itemId, CosmosException cosmosException)
-        {
-            throw new DbUpdateConcurrencyException(
-                CosmosStrings.UpdateConcurrencyTokenException(itemId), cosmosException);
         }
 
         private PartitionKey CreatePartitionKey(string partitionKey)
