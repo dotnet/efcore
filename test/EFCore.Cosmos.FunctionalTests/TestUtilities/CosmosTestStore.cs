@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                                                         document["Discriminator"] = entityName;
 
                                                         await cosmosClient.CreateItemAsync(
-                                                            "NorthwindContext", document, new FakeUpdateEntry(), CosmosConcurrencyToken.None, null);
+                                                            "NorthwindContext", document, new FakeUpdateEntry());
                                                     }
                                                     else if (reader.TokenType == JsonToken.EndObject)
                                                     {
@@ -250,8 +250,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
 
         private class FakeUpdateEntry : IUpdateEntry
         {
-            public IEntityType EntityType => throw new NotImplementedException();
-            public EntityState EntityState { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+            public IEntityType EntityType => new FakeEntityType();
+            public EntityState EntityState { get => EntityState.Added; set => throw new NotImplementedException(); }
             public IUpdateEntry SharedIdentityEntry => throw new NotImplementedException();
             public object GetCurrentValue(IPropertyBase propertyBase) => throw new NotImplementedException();
             public TProperty GetCurrentValue<TProperty>(IPropertyBase propertyBase) => throw new NotImplementedException();
@@ -264,6 +264,33 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             public void SetPropertyModified(IProperty property) => throw new NotImplementedException();
             public void SetStoreGeneratedValue(IProperty property, object value) => throw new NotImplementedException();
             public EntityEntry ToEntityEntry() => throw new NotImplementedException();
+        }
+
+        public class FakeEntityType : IEntityType
+        {
+            public object this[string name] => null;
+            public IEntityType BaseType => throw new NotImplementedException();
+            public string DefiningNavigationName => throw new NotImplementedException();
+            public IEntityType DefiningEntityType => throw new NotImplementedException();
+            public IModel Model => throw new NotImplementedException();
+            public string Name => throw new NotImplementedException();
+            public Type ClrType => throw new NotImplementedException();
+            public bool IsSharedType => throw new NotImplementedException();
+            public IAnnotation FindAnnotation(string name) => throw new NotImplementedException();
+            public IForeignKey FindForeignKey(IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType) => throw new NotImplementedException();
+            public IIndex FindIndex(IReadOnlyList<IProperty> properties) => throw new NotImplementedException();
+            public IKey FindKey(IReadOnlyList<IProperty> properties) => throw new NotImplementedException();
+            public IKey FindPrimaryKey() => throw new NotImplementedException();
+            public IProperty FindProperty(string name) => throw new NotImplementedException();
+            public IServiceProperty FindServiceProperty(string name) => throw new NotImplementedException();
+            public ISkipNavigation FindSkipNavigation(string name) => throw new NotImplementedException();
+            public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();
+            public IEnumerable<IForeignKey> GetForeignKeys() => throw new NotImplementedException();
+            public IEnumerable<IIndex> GetIndexes() => throw new NotImplementedException();
+            public IEnumerable<IKey> GetKeys() => throw new NotImplementedException();
+            public IEnumerable<IProperty> GetProperties() => throw new NotImplementedException();
+            public IEnumerable<IServiceProperty> GetServiceProperties() => throw new NotImplementedException();
+            public IEnumerable<ISkipNavigation> GetSkipNavigations() => throw new NotImplementedException();
         }
     }
 }

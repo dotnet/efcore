@@ -14,7 +14,6 @@ using JetBrains.Annotations;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -253,15 +252,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         public virtual bool CreateItem(
             [NotNull] string containerId,
             [NotNull] JToken document,
-            [NotNull] IUpdateEntry updateEntry,
-            CosmosConcurrencyToken concurrencyToken,
-            [CanBeNull] string partitionKey)
+            [NotNull] IUpdateEntry entry)
             => _executionStrategyFactory.Create().Execute(
-                (containerId, document, updateEntry, concurrencyToken, partitionKey), CreateItemOnce, null);
+                (containerId, document, entry), CreateItemOnce, null);
 
         private bool CreateItemOnce(
             DbContext context,
-            (string ContainerId, JToken Document, IUpdateEntry UpdateEntry, CosmosConcurrencyToken ConcurrencyToken, string PartitionKey) parameters)
+            (string ContainerId, JToken Document, IUpdateEntry Entry) parameters)
             => CreateItemOnceAsync(context, parameters).GetAwaiter().GetResult();
 
         /// <summary>
@@ -274,15 +271,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             [NotNull] string containerId,
             [NotNull] JToken document,
             [NotNull] IUpdateEntry updateEntry,
-            CosmosConcurrencyToken concurrencyToken,
-            [CanBeNull] string partitionKey,
             CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
-                (containerId, document, updateEntry, concurrencyToken, partitionKey), CreateItemOnceAsync, null, cancellationToken);
+                (containerId, document, updateEntry), CreateItemOnceAsync, null, cancellationToken);
 
         private async Task<bool> CreateItemOnceAsync(
             DbContext _,
-            (string ContainerId, JToken Document, IUpdateEntry UpdateEntry, CosmosConcurrencyToken ConcurrencyToken, string PartitionKey) parameters,
+            (string ContainerId, JToken Document, IUpdateEntry Entry) parameters,
             CancellationToken cancellationToken = default)
         {
             await using var stream = new MemoryStream();
@@ -291,18 +286,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             JsonSerializer.Create().Serialize(jsonWriter, parameters.Document);
             await jsonWriter.FlushAsync(cancellationToken);
 
+            var entry = parameters.Entry;
             var container = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
-            var itemRequestOptions = CreateItemRequestOptions(parameters.ConcurrencyToken);
-            var partitionKey = CreatePartitionKey(parameters.PartitionKey);
+            var itemRequestOptions = CreateItemRequestOptions(entry);
+            var partitionKey = CreatePartitionKey(entry);
 
             using var response = await container.CreateItemStreamAsync(stream, partitionKey, itemRequestOptions, cancellationToken);
-            response.EnsureSuccessStatusCode();
-
-            if (parameters.ConcurrencyToken.Mode != CosmosConcurrencyMode.None)
-            {
-                var updateEntry = parameters.UpdateEntry;
-                updateEntry.SetStoreGeneratedValue(updateEntry.EntityType.GetETagProperty(), response.Headers.ETag);
-            }
+            ProcessResponse(response, entry);
 
             return response.StatusCode == HttpStatusCode.Created;
         }
@@ -317,17 +307,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             [NotNull] string collectionId,
             [NotNull] string documentId,
             [NotNull] JObject document,
-            [NotNull] IUpdateEntry updateEntry,
-            CosmosConcurrencyToken concurrencyToken,
-            [CanBeNull] string partitionKey)
+            [NotNull] IUpdateEntry entry)
             => _executionStrategyFactory.Create().Execute(
-                (collectionId, documentId, document, updateEntry, concurrencyToken, partitionKey),
+                (collectionId, documentId, document, entry),
                 ReplaceItemOnce,
                 null);
 
         private bool ReplaceItemOnce(
             DbContext context,
-            (string ContainerId, string ItemId, JObject Document, IUpdateEntry UpdateEntry, CosmosConcurrencyToken concurrencyToken, string PartitionKey) parameters)
+            (string ContainerId, string ItemId, JObject Document, IUpdateEntry Entry) parameters)
             => ReplaceItemOnceAsync(context, parameters).GetAwaiter().GetResult();
 
         /// <summary>
@@ -341,18 +329,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             [NotNull] string documentId,
             [NotNull] JObject document,
             [NotNull] IUpdateEntry updateEntry,
-            CosmosConcurrencyToken concurrencyToken,
-            [CanBeNull] string partitionKey,
             CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
-                (collectionId, documentId, document, updateEntry, concurrencyToken, partitionKey),
+                (collectionId, documentId, document, updateEntry),
                 ReplaceItemOnceAsync,
                 null,
                 cancellationToken);
 
         private async Task<bool> ReplaceItemOnceAsync(
             DbContext _,
-            (string ContainerId, string ItemId, JObject Document, IUpdateEntry UpdateEntry, CosmosConcurrencyToken ConcurrencyToken, string PartitionKey) parameters,
+            (string ContainerId, string ItemId, JObject Document, IUpdateEntry Entry) parameters,
             CancellationToken cancellationToken = default)
         {
             using var stream = new MemoryStream();
@@ -361,19 +347,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             JsonSerializer.Create().Serialize(jsonWriter, parameters.Document);
             await jsonWriter.FlushAsync(cancellationToken);
 
+            var entry = parameters.Entry;
             var container = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
-            var itemRequestOptions = CreateItemRequestOptions(parameters.ConcurrencyToken);
-            var partitionKey = CreatePartitionKey(parameters.PartitionKey);
+            var itemRequestOptions = CreateItemRequestOptions(entry);
+            var partitionKey = CreatePartitionKey(entry);
 
             using var response = await container.ReplaceItemStreamAsync(
                 stream, parameters.ItemId, partitionKey, itemRequestOptions, cancellationToken);
-            response.EnsureSuccessStatusCode();
-
-            if (parameters.ConcurrencyToken.Mode != CosmosConcurrencyMode.None)
-            {
-                var updateEntry = parameters.UpdateEntry;
-                updateEntry.SetStoreGeneratedValue(updateEntry.EntityType.GetETagProperty(), response.Headers.ETag);
-            }
+            ProcessResponse(response, entry);
 
             return response.StatusCode == HttpStatusCode.OK;
         }
@@ -387,10 +368,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         public virtual bool DeleteItem(
             [NotNull] string containerId,
             [NotNull] string documentId,
-            CosmosConcurrencyToken concurrencyToken,
-            [CanBeNull] string partitionKey)
+            [NotNull] IUpdateEntry entry)
             => _executionStrategyFactory.Create().Execute(
-                (containerId, documentId, concurrencyToken, partitionKey), DeleteItemOnce, null);
+                (containerId, documentId, entry), DeleteItemOnce, null);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -400,7 +380,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         /// </summary>
         public virtual bool DeleteItemOnce(
             [NotNull] DbContext context,
-            (string ContainerId, string DocumentId, CosmosConcurrencyToken concurrencyToken, string PartitionKey) parameters)
+            (string ContainerId, string DocumentId, IUpdateEntry Entry) parameters)
             => DeleteItemOnceAsync(context, parameters).GetAwaiter().GetResult();
 
         /// <summary>
@@ -412,11 +392,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         public virtual Task<bool> DeleteItemAsync(
             [NotNull] string containerId,
             [NotNull] string documentId,
-            CosmosConcurrencyToken concurrencyToken,
-            [CanBeNull] string partitionKey,
+            [NotNull] IUpdateEntry entry,
             CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
-                (containerId, documentId, concurrencyToken, partitionKey), DeleteItemOnceAsync, null, cancellationToken);
+                (containerId, documentId, entry), DeleteItemOnceAsync, null, cancellationToken);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -426,33 +405,66 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         /// </summary>
         public virtual async Task<bool> DeleteItemOnceAsync(
             [CanBeNull] DbContext _,
-            (string ContainerId, string DocumentId, CosmosConcurrencyToken ConcurrencyToken, string PartitionKey) parameters,
+            (string ContainerId, string DocumentId, IUpdateEntry Entry) parameters,
             CancellationToken cancellationToken = default)
         {
+            var entry = parameters.Entry;
             var items = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
-            var itemRequestOptions = CreateItemRequestOptions(parameters.ConcurrencyToken);
-            var partitionKey = CreatePartitionKey(parameters.PartitionKey);
+            var itemRequestOptions = CreateItemRequestOptions(entry);
+            var partitionKey = CreatePartitionKey(entry);
 
             using var response = await items.DeleteItemStreamAsync(
                 parameters.DocumentId, partitionKey, itemRequestOptions, cancellationToken: cancellationToken);
-            response.EnsureSuccessStatusCode();
+            ProcessResponse(response, entry);
+
             return response.StatusCode == HttpStatusCode.NoContent;
         }
 
-        private PartitionKey CreatePartitionKey(string partitionKey)
-            => partitionKey == null
-                ? PartitionKey.None
-                : new PartitionKey(partitionKey);
-
-        private ItemRequestOptions CreateItemRequestOptions(CosmosConcurrencyToken concurrencyToken)
+        private static ItemRequestOptions CreateItemRequestOptions(IUpdateEntry entry)
         {
-            return concurrencyToken.Mode switch
+            var etagProperty = entry.EntityType.GetETagProperty();
+            if (etagProperty == null)
             {
-                CosmosConcurrencyMode.None => null, // null to keep it consistent with previous behavior 
-                CosmosConcurrencyMode.IfMatch => new ItemRequestOptions { IfMatchEtag = concurrencyToken.Value },
-                CosmosConcurrencyMode.IfNoneMatch => new ItemRequestOptions { IfNoneMatchEtag = concurrencyToken.Value },
-                _ => throw new InvalidOperationException(),
-            };
+                return null;
+            }
+
+            var etag = entry.GetCurrentValue(etagProperty);
+            var converter = etagProperty.GetTypeMapping().Converter;
+            if (converter != null)
+            {
+                etag = converter.ConvertToProvider(etag);
+            }
+
+            return new ItemRequestOptions { IfMatchEtag = (string)etag };
+        }
+
+        private static PartitionKey CreatePartitionKey(IUpdateEntry entry)
+        {
+            object partitionKey = null;
+            var partitionKeyPropertyName = entry.EntityType.GetPartitionKeyPropertyName();
+            if (partitionKeyPropertyName != null)
+            {
+                var partitionKeyProperty = entry.EntityType.FindProperty(partitionKeyPropertyName);
+                partitionKey = entry.GetCurrentValue(partitionKeyProperty);
+
+                var converter = partitionKeyProperty.GetTypeMapping().Converter;
+                if (converter != null)
+                {
+                    partitionKey = converter.ConvertToProvider(partitionKey);
+                }
+            }
+
+            return partitionKey == null ? PartitionKey.None : new PartitionKey((string)partitionKey);
+        }
+
+        private static void ProcessResponse(ResponseMessage response, IUpdateEntry entry)
+        {
+            response.EnsureSuccessStatusCode();
+            var etagProperty = entry.EntityType.GetETagProperty();
+            if (etagProperty != null && entry.EntityState != EntityState.Deleted)
+            {
+                entry.SetStoreGeneratedValue(etagProperty, response.Headers.ETag);
+            }
         }
 
         /// <summary>

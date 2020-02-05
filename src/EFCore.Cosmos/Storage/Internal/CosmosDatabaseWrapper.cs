@@ -210,9 +210,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             {
                 case EntityState.Added:
                     var newDocument = documentSource.CreateDocument(entry);
+                    return _cosmosClient.CreateItem(collectionId, newDocument, entry);
 
-                    return _cosmosClient.CreateItem(
-                        collectionId, newDocument, entry, GetConcurrencyToken(entry), GetPartitionKey(entry));
                 case EntityState.Modified:
                     var document = documentSource.GetCurrentDocument(entry);
                     if (document != null)
@@ -235,16 +234,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     }
 
                     return _cosmosClient.ReplaceItem(
-                        collectionId,
-                        documentSource.GetId(entry.SharedIdentityEntry ?? entry),
-                        document,
-                        entry,
-                        GetConcurrencyToken(entry),
-                        GetPartitionKey(entry));
+                        collectionId, documentSource.GetId(entry.SharedIdentityEntry ?? entry), document, entry);
 
                 case EntityState.Deleted:
-                    return _cosmosClient.DeleteItem(
-                        collectionId, documentSource.GetId(entry), GetConcurrencyToken(entry), GetPartitionKey(entry));
+                    return _cosmosClient.DeleteItem(collectionId, documentSource.GetId(entry), entry);
+
                 default:
                     return false;
             }
@@ -275,7 +269,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 case EntityState.Added:
                     var newDocument = documentSource.CreateDocument(entry);
                     return _cosmosClient.CreateItemAsync(
-                        collectionId, newDocument, entry, GetConcurrencyToken(entry), GetPartitionKey(entry), cancellationToken);
+                        collectionId, newDocument, entry, cancellationToken);
+
                 case EntityState.Modified:
                     var document = documentSource.GetCurrentDocument(entry);
                     if (document != null)
@@ -302,14 +297,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                         documentSource.GetId(entry.SharedIdentityEntry ?? entry),
                         document,
                         entry,
-                        GetConcurrencyToken(entry),
-                        GetPartitionKey(entry),
                         cancellationToken);
 
                 case EntityState.Deleted:
                     return _cosmosClient.DeleteItemAsync(
-                        collectionId, documentSource.GetId(entry),
-                        GetConcurrencyToken(entry), GetPartitionKey(entry), cancellationToken);
+                        collectionId, documentSource.GetId(entry), entry, cancellationToken);
+
                 default:
                     return Task.FromResult(false);
             }
@@ -367,43 +360,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 HttpStatusCode.Conflict => new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
                 _ => Rethrow(exception),
             };
-        }
-
-        private static CosmosConcurrencyToken GetConcurrencyToken(IUpdateEntry entry)
-        {
-            var etagProperty = entry.EntityType.GetETagProperty();
-            if (etagProperty == null)
-            {
-                return CosmosConcurrencyToken.None;
-            }
-
-            var etag = entry.GetCurrentValue(etagProperty);
-            var converter = etagProperty.GetTypeMapping().Converter;
-            if (converter != null)
-            {
-                etag = converter.ConvertToProvider(etag);
-            }
-
-            return CosmosConcurrencyToken.IfMatch((string)etag);
-        }
-
-        private static string GetPartitionKey(IUpdateEntry entry)
-        {
-            object partitionKey = null;
-            var partitionKeyPropertyName = entry.EntityType.GetPartitionKeyPropertyName();
-            if (partitionKeyPropertyName != null)
-            {
-                var partitionKeyProperty = entry.EntityType.FindProperty(partitionKeyPropertyName);
-                partitionKey = entry.GetCurrentValue(partitionKeyProperty);
-
-                var converter = partitionKeyProperty.GetTypeMapping().Converter;
-                if (converter != null)
-                {
-                    partitionKey = converter.ConvertToProvider(partitionKey);
-                }
-            }
-
-            return (string)partitionKey;
         }
 
         private static Exception Rethrow(Exception ex)
