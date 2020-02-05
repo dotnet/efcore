@@ -109,6 +109,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(entityType.GetDiscriminatorProperty());
         }
 
+        [ConditionalFact]
+        public void Can_set_etag_concurrency_entity()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            modelBuilder.Entity<Customer>().UseEtagConcurrency();
+            var model = modelBuilder.Model;
+
+            var etagProperty = model.FindEntityType(typeof(Customer).FullName).FindProperty("_etag");
+            Assert.NotNull(etagProperty);
+            Assert.Equal(ValueGenerated.OnAddOrUpdate, etagProperty.ValueGenerated);
+            Assert.True(etagProperty.IsConcurrencyToken);
+        }
+
+        [ConditionalFact]
+        public void Can_set_etag_concurrency_property()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            modelBuilder.Entity<Customer>().Property(x => x.ETag).IsEtagConcurrency();
+            var model = modelBuilder.Model;
+
+            var etagProperty = model.FindEntityType(typeof(Customer).FullName).FindProperty("ETag");
+            Assert.NotNull(etagProperty);
+            Assert.Equal(ValueGenerated.OnAddOrUpdate, etagProperty.ValueGenerated);
+            Assert.True(etagProperty.IsConcurrencyToken);
+            Assert.Equal("_etag", etagProperty.GetJsonPropertyName());
+        }
+
         protected virtual ModelBuilder CreateConventionModelBuilder() => CosmosTestHelpers.Instance.CreateConventionBuilder();
 
         private class Customer
@@ -116,6 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             public int Id { get; set; }
             public string Name { get; set; }
             public short SomeShort { get; set; }
+            public string ETag { get; set; }
         }
     }
 }
