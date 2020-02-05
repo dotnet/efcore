@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     var newDocument = documentSource.CreateDocument(entry);
 
                     return _cosmosClient.CreateItem(
-                        collectionId, newDocument, GetConcurrencyToken(entry), GetPartitionKey(entry));
+                        collectionId, newDocument, entry, GetConcurrencyToken(entry), GetPartitionKey(entry));
                 case EntityState.Modified:
                     var document = documentSource.GetCurrentDocument(entry);
                     if (document != null)
@@ -238,6 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                         collectionId,
                         documentSource.GetId(entry.SharedIdentityEntry ?? entry),
                         document,
+                        entry,
                         GetConcurrencyToken(entry),
                         GetPartitionKey(entry));
 
@@ -274,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 case EntityState.Added:
                     var newDocument = documentSource.CreateDocument(entry);
                     return _cosmosClient.CreateItemAsync(
-                        collectionId, newDocument, GetConcurrencyToken(entry), GetPartitionKey(entry), cancellationToken);
+                        collectionId, newDocument, entry, GetConcurrencyToken(entry), GetPartitionKey(entry), cancellationToken);
                 case EntityState.Modified:
                     var document = documentSource.GetCurrentDocument(entry);
                     if (document != null)
@@ -300,6 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                         collectionId,
                         documentSource.GetId(entry.SharedIdentityEntry ?? entry),
                         document,
+                        entry,
                         GetConcurrencyToken(entry),
                         GetPartitionKey(entry),
                         cancellationToken);

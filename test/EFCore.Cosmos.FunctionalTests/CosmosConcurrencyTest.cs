@@ -21,15 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [ConditionalFact]
         public virtual Task Adding_the_same_entity_twice_results_in_DbUpdateException()
         {
-            static void AddAction(ConcurrencyContext c) =>
-                c.Customers.Add(
-                    new Customer
-                    {
-                        Id = "1",
-                        Name = "CreatedTwice",
-                    });
-
-            return ConcurrencyTestAsync<DbUpdateException>(AddAction);
+            return ConcurrencyTestAsync<DbUpdateException>(
+                ctx => ctx.Customers.Add(new Customer { Id = "1", Name = "CreatedTwice", }));
         }
 
         [ConditionalFact]
@@ -78,17 +71,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             Action<ConcurrencyContext> clientChange)
             where TException : DbUpdateException
         {
-            // Issue: DB Generated values are not fetched when
-            // added, saved, and fetched in the same context.
-            // So we use a different context to "seed" the values.
-            using (var seedContext = CreateContext())
-            {
-                await seedContext.Database.EnsureCreatedAsync();
-                seedAction?.Invoke(seedContext);
-                await seedContext.SaveChangesAsync();
-            }
-
             using var outerContext = CreateContext();
+            await outerContext.Database.EnsureCreatedAsync();
+            seedAction?.Invoke(outerContext);
+            await outerContext.SaveChangesAsync();
+
             clientChange?.Invoke(outerContext);
 
             using (var innerContext = CreateContext())
