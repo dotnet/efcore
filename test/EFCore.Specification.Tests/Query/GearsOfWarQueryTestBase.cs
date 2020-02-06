@@ -7577,7 +7577,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQueryScalar(
                 async,
                 ss => ss.Set<Mission>()
-                    .Select(g => g.Duration.Hours));
+                    .Select(m => m.Duration.Hours));
         }
 
         [ConditionalTheory]
@@ -7587,7 +7587,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQueryScalar(
                 async,
                 ss => ss.Set<Mission>()
-                    .Select(g => g.Duration.Minutes));
+                    .Select(m => m.Duration.Minutes));
         }
 
         [ConditionalTheory]
@@ -7597,7 +7597,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQueryScalar(
                 async,
                 ss => ss.Set<Mission>()
-                    .Select(g => g.Duration.Seconds));
+                    .Select(m => m.Duration.Seconds));
         }
 
         [ConditionalTheory]
@@ -7607,7 +7607,47 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQueryScalar(
                 async,
                 ss => ss.Set<Mission>()
-                    .Select(g => g.Duration.Milliseconds));
+                    .Select(m => m.Duration.Milliseconds));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_TimeSpan_Hours(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>()
+                    .Where(m => m.Duration.Hours == 1));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_TimeSpan_Minutes(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>()
+                    .Where(m => m.Duration.Minutes == 1));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_TimeSpan_Seconds(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>()
+                    .Where(m => m.Duration.Seconds == 1));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_TimeSpan_Milliseconds(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>()
+                    .Where(m => m.Duration.Milliseconds == 1));
         }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();

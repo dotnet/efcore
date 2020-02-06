@@ -7592,6 +7592,46 @@ FROM [Missions] AS [m]");
 FROM [Missions] AS [m]");
         }
 
+        public override async Task Where_TimeSpan_Hours(bool async)
+        {
+            await base.Where_TimeSpan_Hours(async);
+
+            AssertSql(
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(hour, [m].[Duration]) = 1");
+        }
+
+        public override async Task Where_TimeSpan_Minutes(bool async)
+        {
+            await base.Where_TimeSpan_Minutes(async);
+
+            AssertSql(
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(minute, [m].[Duration]) = 1");
+        }
+
+        public override async Task Where_TimeSpan_Seconds(bool async)
+        {
+            await base.Where_TimeSpan_Seconds(async);
+
+            AssertSql(
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(second, [m].[Duration]) = 1");
+        }
+
+        public override async Task Where_TimeSpan_Milliseconds(bool async)
+        {
+            await base.Where_TimeSpan_Milliseconds(async);
+
+            AssertSql(
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(millisecond, [m].[Duration]) = 1");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
