@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -37,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(constantExpression, nameof(constantExpression));
 
             return constantExpression.IsEntityQueryable()
-                ? CreateShapedQueryExpression(((IQueryable)constantExpression.Value).ElementType)
+                ? CreateShapedQueryExpression(((IEntityQueryable)constantExpression.Value).EntityType)
                 : base.VisitConstant(constantExpression);
         }
 
@@ -559,7 +560,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected abstract QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor();
 
+        [Obsolete("Use overload which takes IEntityType.")]
         protected abstract ShapedQueryExpression CreateShapedQueryExpression([NotNull] Type elementType);
+        protected abstract ShapedQueryExpression CreateShapedQueryExpression([NotNull] IEntityType entityType);
         protected abstract ShapedQueryExpression TranslateAll([NotNull] ShapedQueryExpression source, [NotNull] LambdaExpression predicate);
         protected abstract ShapedQueryExpression TranslateAny([NotNull] ShapedQueryExpression source, [NotNull] LambdaExpression predicate);
 

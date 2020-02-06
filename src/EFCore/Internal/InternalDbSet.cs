@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         private EntityQueryable<TEntity> CreateEntityQueryable()
-            => new EntityQueryable<TEntity>(_context.GetDependencies().QueryProvider);
+            => new EntityQueryable<TEntity>(_context.GetDependencies().QueryProvider, EntityType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

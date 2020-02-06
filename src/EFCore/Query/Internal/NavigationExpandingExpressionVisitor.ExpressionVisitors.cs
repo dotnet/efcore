@@ -176,8 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return ownedExpansion;
                 }
 
-                var innerQueryableType = targetType.ClrType;
-                var innerQueryable = NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(innerQueryableType);
+                var innerQueryable = NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(targetType);
                 var innerSource = (NavigationExpansionExpression)_navigationExpandingExpressionVisitor.Visit(innerQueryable);
                 if (entityReference.IncludePaths.ContainsKey(navigation))
                 {
@@ -685,9 +684,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (constantExpression.IsEntityQueryable())
                 {
-                    var entityType =
-                        _navigationExpandingExpressionVisitor._queryCompilationContext.Model.FindEntityType(
-                            ((IQueryable)constantExpression.Value).ElementType);
+                    var entityType = ((IEntityQueryable)constantExpression.Value).EntityType;
                     if (entityType == _entityType)
                     {
                         return _navigationExpandingExpressionVisitor.CreateNavigationExpansionExpression(constantExpression, entityType);
