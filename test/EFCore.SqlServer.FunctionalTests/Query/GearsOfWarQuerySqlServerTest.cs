@@ -2626,7 +2626,7 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
             await base.Where_datetimeoffset_now(async);
 
             AssertSql(
-                @"SELECT [m].[Id], [m].[CodeName], [m].[Rating], [m].[Timeline]
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE [m].[Timeline] <> SYSDATETIMEOFFSET()");
         }
@@ -2636,7 +2636,7 @@ WHERE [m].[Timeline] <> SYSDATETIMEOFFSET()");
             await base.Where_datetimeoffset_utcnow(async);
 
             AssertSql(
-                @"SELECT [m].[Id], [m].[CodeName], [m].[Rating], [m].[Timeline]
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE [m].[Timeline] <> CAST(SYSUTCDATETIME() AS datetimeoffset)");
         }
@@ -2657,7 +2657,7 @@ WHERE [m].[Timeline] <> CAST(SYSUTCDATETIME() AS datetimeoffset)");
             await base.Where_datetimeoffset_year_component(async);
 
             AssertSql(
-                @"SELECT [m].[Id], [m].[CodeName], [m].[Rating], [m].[Timeline]
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(year, [m].[Timeline]) = 2");
         }
@@ -2667,7 +2667,7 @@ WHERE DATEPART(year, [m].[Timeline]) = 2");
             await base.Where_datetimeoffset_month_component(async);
 
             AssertSql(
-                @"SELECT [m].[Id], [m].[CodeName], [m].[Rating], [m].[Timeline]
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(month, [m].[Timeline]) = 1");
         }
@@ -2677,7 +2677,7 @@ WHERE DATEPART(month, [m].[Timeline]) = 1");
             await base.Where_datetimeoffset_dayofyear_component(async);
 
             AssertSql(
-                @"SELECT [m].[Id], [m].[CodeName], [m].[Rating], [m].[Timeline]
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(dayofyear, [m].[Timeline]) = 2");
         }
@@ -2687,7 +2687,7 @@ WHERE DATEPART(dayofyear, [m].[Timeline]) = 2");
             await base.Where_datetimeoffset_day_component(async);
 
             AssertSql(
-                @"SELECT [m].[Id], [m].[CodeName], [m].[Rating], [m].[Timeline]
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(day, [m].[Timeline]) = 2");
         }
@@ -2697,7 +2697,7 @@ WHERE DATEPART(day, [m].[Timeline]) = 2");
             await base.Where_datetimeoffset_hour_component(async);
 
             AssertSql(
-                @"SELECT [m].[Id], [m].[CodeName], [m].[Rating], [m].[Timeline]
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(hour, [m].[Timeline]) = 10");
         }
@@ -2707,7 +2707,7 @@ WHERE DATEPART(hour, [m].[Timeline]) = 10");
             await base.Where_datetimeoffset_minute_component(async);
 
             AssertSql(
-                @"SELECT [m].[Id], [m].[CodeName], [m].[Rating], [m].[Timeline]
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(minute, [m].[Timeline]) = 0");
         }
@@ -2717,7 +2717,7 @@ WHERE DATEPART(minute, [m].[Timeline]) = 0");
             await base.Where_datetimeoffset_second_component(async);
 
             AssertSql(
-                @"SELECT [m].[Id], [m].[CodeName], [m].[Rating], [m].[Timeline]
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(second, [m].[Timeline]) = 0");
         }
@@ -2727,7 +2727,7 @@ WHERE DATEPART(second, [m].[Timeline]) = 0");
             await base.Where_datetimeoffset_millisecond_component(async);
 
             AssertSql(
-                @"SELECT [m].[Id], [m].[CodeName], [m].[Rating], [m].[Timeline]
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(millisecond, [m].[Timeline]) = 0");
         }
@@ -6548,7 +6548,7 @@ WHERE (
                 @"@__start_0='1902-01-01T10:00:00.1234567+01:30'
 @__end_1='1902-01-03T10:00:00.1234567+01:30'
 
-SELECT [m].[Id], [m].[CodeName], [m].[Rating], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE ((@__start_0 <= CAST(CONVERT(date, [m].[Timeline]) AS datetimeoffset)) AND ([m].[Timeline] < @__end_1)) AND [m].[Timeline] IN ('1902-01-02T10:00:00.1234567+01:30')");
         }
@@ -7400,7 +7400,7 @@ ORDER BY [w0].[IsAutomatic]");
             AssertSql(
                 @"@__dateTimeOffset_Date_0='0002-03-01T00:00:00'
 
-SELECT [m].[Id], [m].[CodeName], [m].[Rating], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE CONVERT(date, [m].[Timeline]) >= @__dateTimeOffset_Date_0");
         }
