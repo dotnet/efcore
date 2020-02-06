@@ -33,17 +33,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             Check.NotNull(member, nameof(member));
             Check.NotNull(returnType, nameof(returnType));
 
-            SqlExpression translatedSqlExpression = null;
             if (member.DeclaringType == typeof(TimeSpan) && _datePartMappings.TryGetValue(member.Name, out string value))
             {
-                translatedSqlExpression = _sqlExpressionFactory.Function("DATEPART", new SqlExpression[2]
+                return _sqlExpressionFactory.Function("DATEPART", new []
                     {
                         _sqlExpressionFactory.Fragment(value),
                         instance
                     }, returnType);
             }
 
-            return translatedSqlExpression;
+            return null;
         }
     }
 }
