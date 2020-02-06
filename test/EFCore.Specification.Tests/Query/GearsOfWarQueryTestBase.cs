@@ -7491,9 +7491,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Weapon>()
                     .GroupBy(w => w.SynergyWithId)
                     .Select(g => g.Key.HasValue));
-		}
+        }
 
-		[ConditionalTheory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Checked_context_with_cast_does_not_fail(bool isAsync)
         {
