@@ -563,24 +563,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return Visit(ConvertAnonymousObjectEqualityComparison(binaryExpression));
             }
 
-            var uncheckedExpression = binaryExpression.NodeType switch
+            var uncheckedNodeTypeVariant = binaryExpression.NodeType switch
             {
-                ExpressionType.AddChecked => Expression.Add(binaryExpression.Left, binaryExpression.Right),
-                ExpressionType.SubtractChecked => Expression.Subtract(binaryExpression.Left, binaryExpression.Right),
-                ExpressionType.MultiplyChecked => Expression.Multiply(binaryExpression.Left, binaryExpression.Right),
-                _ => binaryExpression
+                ExpressionType.AddChecked => ExpressionType.Add,
+                ExpressionType.SubtractChecked => ExpressionType.Subtract,
+                ExpressionType.MultiplyChecked => ExpressionType.Multiply,
+                _ => binaryExpression.NodeType
             };
 
-            var left = TryRemoveImplicitConvert(uncheckedExpression.Left);
-            var right = TryRemoveImplicitConvert(uncheckedExpression.Right);
+            var left = TryRemoveImplicitConvert(binaryExpression.Left);
+            var right = TryRemoveImplicitConvert(binaryExpression.Right);
 
-            return TranslationFailed(uncheckedExpression.Left, Visit(left), out var sqlLeft)
-                || TranslationFailed(uncheckedExpression.Right, Visit(right), out var sqlRight)
+            return TranslationFailed(binaryExpression.Left, Visit(left), out var sqlLeft)
+                || TranslationFailed(binaryExpression.Right, Visit(right), out var sqlRight)
                 ? null
-                : uncheckedExpression.NodeType == ExpressionType.Coalesce
+                : uncheckedNodeTypeVariant == ExpressionType.Coalesce
                     ? SqlExpressionFactory.Coalesce(sqlLeft, sqlRight)
                     : (Expression)SqlExpressionFactory.MakeBinary(
-                        uncheckedExpression.NodeType,
+                        uncheckedNodeTypeVariant,
                         sqlLeft,
                         sqlRight,
                         null);
