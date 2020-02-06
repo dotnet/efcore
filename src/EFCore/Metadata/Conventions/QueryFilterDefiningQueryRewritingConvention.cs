@@ -52,13 +52,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 var queryFilter = entityType.GetQueryFilter();
                 if (queryFilter != null)
                 {
-                    entityType.SetQueryFilter((LambdaExpression)DbSetAccessRewriter.Visit(queryFilter));
+                    entityType.SetQueryFilter((LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, queryFilter));
                 }
 
                 var definingQuery = entityType.GetDefiningQuery();
                 if (definingQuery != null)
                 {
-                    entityType.SetDefiningQuery((LambdaExpression)DbSetAccessRewriter.Visit(definingQuery));
+                    entityType.SetDefiningQuery((LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, definingQuery));
                 }
             }
         }
@@ -66,10 +66,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         protected class DbSetAccessRewritingExpressionVisitor : ExpressionVisitor
         {
             private readonly Type _contextType;
+            private IModel _model;
 
             public DbSetAccessRewritingExpressionVisitor(Type contextType)
             {
                 _contextType = contextType;
+            }
+
+            public Expression Rewrite(IModel model, Expression expression)
+            {
+                _model = model;
+
+                return Visit(expression);
             }
 
             protected override Expression VisitMember(MemberExpression memberExpression)
@@ -80,9 +88,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     && (memberExpression.Expression.Type.IsAssignableFrom(_contextType)
                         || _contextType.IsAssignableFrom(memberExpression.Expression.Type))
                     && memberExpression.Type.IsGenericType
-                    && memberExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>))
+                    && memberExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>)
+                    && _model != null)
                 {
-                    return NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(memberExpression.Type.GetGenericArguments()[0]);
+                    return NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(FindEntityType(memberExpression.Type));
                 }
 
                 return base.VisitMember(memberExpression);
@@ -96,14 +105,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     && methodCallExpression.Object != null
                     && typeof(DbContext).IsAssignableFrom(methodCallExpression.Object.Type)
                     && methodCallExpression.Type.IsGenericType
-                    && methodCallExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>))
+                    && methodCallExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>)
+                    && _model != null)
                 {
-                    return NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(
-                        methodCallExpression.Type.GetGenericArguments()[0]);
+                    return NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(FindEntityType(methodCallExpression.Type));
                 }
 
                 return base.VisitMethodCall(methodCallExpression);
             }
+
+            private IEntityType FindEntityType(Type dbSetType) => _model.FindRuntimeEntityType(dbSetType.GetGenericArguments()[0]);
         }
     }
 }

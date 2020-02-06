@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (constantExpression.IsEntityQueryable())
             {
-                var entityType = _queryCompilationContext.Model.FindEntityType(((IQueryable)constantExpression.Value).ElementType);
+                var entityType = ((IEntityQueryable)constantExpression.Value).EntityType;
                 var definingQuery = entityType.GetDefiningQuery();
                 NavigationExpansionExpression navigationExpansionExpression;
                 if (definingQuery != null)
@@ -524,7 +524,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && (methodCallExpression.Arguments[2] is ParameterExpression || methodCallExpression.Arguments[2] is ConstantExpression)
                 && constantExpression.IsEntityQueryable())
             {
-                var entityType = _queryCompilationContext.Model.FindEntityType(((IQueryable)constantExpression.Value).ElementType);
+                var entityType = ((IEntityQueryable)constantExpression.Value).EntityType;
                 var source = CreateNavigationExpansionExpression(constantExpression, entityType);
                 source.UpdateSource(
                     methodCallExpression.Update(
@@ -1169,7 +1169,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         // entity information through. Construct a MethodCall wrapper for the predicate with the proper query root.
                         var filterWrapper = Expression.Call(
                             QueryableMethods.Where.MakeGenericMethod(rootEntityType.ClrType),
-                            NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(rootEntityType.ClrType),
+                            NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(rootEntityType),
                             filterPredicate);
                         var rewrittenFilterWrapper = (MethodCallExpression)_entityEqualityRewritingExpressionVisitor.Rewrite(filterWrapper);
                         filterPredicate = rewrittenFilterWrapper.Arguments[1].UnwrapLambdaFromQuote();
