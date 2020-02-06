@@ -7495,11 +7495,6 @@ FROM [LocustLeaders] AS [l]
 WHERE [l].[Discriminator] IN (N'LocustLeader', N'LocustCommander') AND (CAST([l].[ThreatLevel] AS bigint) >= (CAST(5 AS bigint) + CAST([l].[ThreatLevel] AS bigint)))");
         }
 
-        public override async Task Checked_context_throws_on_client_evaluation(bool isAsync)
-        {
-            await base.Checked_context_throws_on_client_evaluation(isAsync);
-        }
-
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
