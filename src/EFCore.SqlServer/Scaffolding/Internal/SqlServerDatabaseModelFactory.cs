@@ -699,7 +699,7 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                 return defaultValue;
             }
 
-            if (defaultValue == "((0))")
+            if (defaultValue == "((0))" || defaultValue == "(0)")
             {
                 if (dataTypeName == "bigint"
                     || dataTypeName == "bit"
@@ -716,7 +716,7 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                     return null;
                 }
             }
-            else if (defaultValue == "((0.0))")
+            else if (defaultValue == "((0.0))" || defaultValue == "(0.0)")
             {
                 if (dataTypeName == "decimal"
                     || dataTypeName == "float"
@@ -730,6 +730,7 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
             }
             else if ((defaultValue == "(CONVERT([real],(0)))" && dataTypeName == "real")
                 || (defaultValue == "((0.0000000000000000e+000))" && dataTypeName == "float")
+                || (defaultValue == "(0.0000000000000000e+000)" && dataTypeName == "float")
                 || (defaultValue == "('0001-01-01')" && dataTypeName == "date")
                 || (defaultValue == "('1900-01-01T00:00:00.000')" && (dataTypeName == "datetime" || dataTypeName == "smalldatetime"))
                 || (defaultValue == "('0001-01-01T00:00:00.000')" && dataTypeName == "datetime2")
