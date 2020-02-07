@@ -69,13 +69,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         }
 
         private SqlExpression TranslateSystemFunction(string function, SqlExpression instance, SqlExpression pattern, Type returnType)
-        {
-            Check.NotNull(instance, nameof(instance));
-            return _sqlExpressionFactory.ApplyDefaultTypeMapping(
-                _sqlExpressionFactory.Function(
-                function,
-                new[] { instance, pattern },
-                returnType));
-        }
+            => _sqlExpressionFactory.Function(function, new[] { instance, pattern }, returnType);
     }
 }
