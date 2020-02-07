@@ -1522,13 +1522,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 case NewExpression newExpression:
                 {
+                    var allDefault = true;
                     var arguments = new Expression[newExpression.Arguments.Count];
                     for (var i = 0; i < newExpression.Arguments.Count; i++)
                     {
                         arguments[i] = SnapshotExpression(newExpression.Arguments[i]);
+                        allDefault &= arguments[i].NodeType == ExpressionType.Default;
                     }
 
-                    return newExpression.Update(arguments);
+                    return allDefault
+                        ? Expression.Default(newExpression.Type)
+                        : (Expression)newExpression.Update(arguments);
                 }
 
                 case OwnedNavigationReference ownedNavigationReference:
