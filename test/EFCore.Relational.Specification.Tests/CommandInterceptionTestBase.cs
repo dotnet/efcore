@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (context.Database.BeginTransaction())
                 {
-                    const string nonQuery = "DELETE FROM Singularity WHERE Id = 77";
+                    const string nonQuery = "DELETE FROM [Singularity] WHERE Id = 77";
 
                     using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
                     var result = async
@@ -344,7 +344,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (context.Database.BeginTransaction())
                 {
-                    const string nonQuery = "DELETE FROM Singularity WHERE Id = 77";
+                    const string nonQuery = "DELETE FROM [Singularity] WHERE Id = 77";
 
                     using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
                     var result = async
@@ -528,7 +528,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (context.Database.BeginTransaction())
                 {
-                    const string nonQuery = "DELETE FROM Singularity WHERE Id = 77";
+                    const string nonQuery = "DELETE FROM [Singularity] WHERE Id = 77";
 
                     using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
                     var result = async
@@ -548,7 +548,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected class MutatingNonQueryCommandInterceptor : CommandInterceptorBase
         {
-            public const string MutatedSql = "DELETE FROM Singularity WHERE Id = 78";
+            public const string MutatedSql = "DELETE FROM [Singularity] WHERE Id = 78";
 
             public MutatingNonQueryCommandInterceptor()
                 : base(DbCommandMethod.ExecuteNonQuery)
@@ -730,7 +730,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (context.Database.BeginTransaction())
                 {
-                    const string nonQuery = "DELETE FROM Singularity WHERE Id = 78";
+                    const string nonQuery = "DELETE FROM [Singularity] WHERE Id = 78";
 
                     using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
                     var result = async
@@ -782,7 +782,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var newCommand = command.Connection.CreateCommand();
                 newCommand.Transaction = command.Transaction;
-                newCommand.CommandText = "DELETE FROM Singularity WHERE Id = 77";
+                newCommand.CommandText = "DELETE FROM [Singularity] WHERE Id = 77";
 
                 return newCommand;
             }
@@ -995,7 +995,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (context.Database.BeginTransaction())
                 {
-                    const string nonQuery = "DELETE FROM Singularity WHERE Id = 78";
+                    const string nonQuery = "DELETE FROM [Singularity] WHERE Id = 78";
 
                     using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
                     var result = async
@@ -1193,7 +1193,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (context.Database.BeginTransaction())
                 {
-                    const string nonQuery = "DELETE FROM Singularity WHERE Id = 77";
+                    const string nonQuery = "DELETE FROM [Singularity] WHERE Id = 77";
 
                     var exception = async
                         ? await Assert.ThrowsAsync<Exception>(() => context.Database.ExecuteSqlRawAsync(nonQuery))
@@ -1326,7 +1326,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (context.Database.BeginTransaction())
             {
-                const string nonQuery = "DELETE FROM Singularity WHERE Id = 78";
+                const string nonQuery = "DELETE FROM [Singularity] WHERE Id = 78";
 
                 Assert.Equal(
                     7,
