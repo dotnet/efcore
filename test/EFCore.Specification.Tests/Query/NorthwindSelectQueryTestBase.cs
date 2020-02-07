@@ -1669,7 +1669,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Customer>().Select(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()).Select(e => e.EmployeeID),
                 ss => ss.Set<Customer>().Select(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault())
-                    .Select(e => MaybeScalar(e, () => e.EmployeeID)));
+                    .Select(e => e.MaybeScalar(x => x.EmployeeID)));
         }
 
         [ConditionalTheory]

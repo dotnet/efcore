@@ -794,11 +794,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery(
                 async,
                 ss => ss.Set<Employee>().Where(e => nullableIntPrm.Equals(e.ReportsTo)),
+                ss => ss.Set<Employee>().Where(e => e.ReportsTo == nullableIntPrm),
                 entryCount: 1);
 
             await AssertQuery(
                 async,
                 ss => ss.Set<Employee>().Where(e => e.ReportsTo.Equals(nullableIntPrm)),
+                ss => ss.Set<Employee>().Where(e => e.ReportsTo == nullableIntPrm),
                 entryCount: 1);
         }
 

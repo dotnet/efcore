@@ -281,9 +281,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => from e in ss.Set<Employee>()
                       where e.Manager.Manager == null
                       select e,
-                ss => from e in ss.Set<Employee>()
-                      where Maybe(e.Manager, () => e.Manager.Manager) == null
-                      select e,
                 entryCount: 6);
         }
 

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.NullSemanticsModel;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 // ReSharper disable SimplifyConditionalTernaryExpression
@@ -849,7 +850,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQueryScalar(
                 async,
                 ss => ss.Set<NullSemanticsEntity1>().OrderBy(e => e.Id).Select(e => e.NullableStringA.IndexOf("oo")),
-                ss => ss.Set<NullSemanticsEntity1>().OrderBy(e => e.Id).Select(e => MaybeScalar<int>(e.NullableStringA, () => e.NullableStringA.IndexOf("oo")) ?? 0),
+                ss => ss.Set<NullSemanticsEntity1>().OrderBy(e => e.Id).Select(e => e.NullableStringA.MaybeScalar(x => x.IndexOf("oo")) ?? 0),
                 assertOrder: true);
         }
 
@@ -861,25 +862,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.IndexOf("oo") == e.NullableStringB.IndexOf("ar")).Select(e => e.Id),
                 ss => ss.Set<NullSemanticsEntity1>().Where(
-                    e => MaybeScalar<int>(e.NullableStringA, () => e.NullableStringA.IndexOf("oo"))
-                        == MaybeScalar<int>(
-                            e.NullableStringB, () => e.NullableStringB.IndexOf("ar"))).Select(e => e.Id));
+                    e => e.NullableStringA.MaybeScalar(x => x.IndexOf("oo"))
+                        == e.NullableStringB.MaybeScalar(x => x.IndexOf("ar"))).Select(e => e.Id));
 
             await AssertQueryScalar(
                 async,
                 ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.IndexOf("oo") != e.NullableStringB.IndexOf("ar")).Select(e => e.Id),
                 ss => ss.Set<NullSemanticsEntity1>().Where(
-                    e => MaybeScalar<int>(e.NullableStringA, () => e.NullableStringA.IndexOf("oo"))
-                        != MaybeScalar<int>(
-                            e.NullableStringB, () => e.NullableStringB.IndexOf("ar"))).Select(e => e.Id));
+                    e => e.NullableStringA.MaybeScalar(x => x.IndexOf("oo"))
+                        != e.NullableStringB.MaybeScalar(x => x.IndexOf("ar"))).Select(e => e.Id));
 
             await AssertQueryScalar(
                 async,
                 ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.IndexOf("oo") != e.NullableStringA.IndexOf("ar")).Select(e => e.Id),
                 ss => ss.Set<NullSemanticsEntity1>().Where(
-                    e => MaybeScalar<int>(e.NullableStringA, () => e.NullableStringA.IndexOf("oo"))
-                        != MaybeScalar<int>(
-                            e.NullableStringA, () => e.NullableStringA.IndexOf("ar"))).Select(e => e.Id));
+                    e => e.NullableStringA.MaybeScalar(x => x.IndexOf("oo"))
+                        != e.NullableStringA.MaybeScalar(x => x.IndexOf("ar"))).Select(e => e.Id));
         }
 
         [ConditionalTheory]
@@ -940,7 +938,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQueryScalar(
                 async,
                 ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.Substring(0, e.IntA) != e.NullableStringB).Select(e => e.Id),
-                ss => ss.Set<NullSemanticsEntity1>().Where(e => Maybe(e.NullableIntA, () => e.NullableStringA.Substring(0, e.IntA)) != e.NullableStringB).Select(e => e.Id));
+                ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.Maybe(x => x.Substring(0, e.IntA)) != e.NullableStringB).Select(e => e.Id));
         }
 
         [ConditionalTheory]

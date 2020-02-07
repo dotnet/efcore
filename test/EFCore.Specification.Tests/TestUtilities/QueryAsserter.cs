@@ -67,6 +67,16 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
         }
 
+        private IList<TResult> GetExpectedResults<TResult>(Func<ISetSource, IQueryable<TResult>> expectedQueryFunc)
+        {
+            var expectedQuery = expectedQueryFunc(ExpectedData);
+            var expectedQueryExpression = expectedQuery.Expression;
+            var rewrittenExpectedQueryExpression = new ExpectedQueryRewritingVisitor().Visit(expectedQueryExpression);
+            var newExpectedQuery = expectedQuery.Provider.CreateQuery<TResult>(rewrittenExpectedQueryExpression);
+
+            return newExpectedQuery.ToList();
+        }
+
         public override async Task AssertQuery<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
@@ -89,12 +99,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             OrderingSettingsVerifier(assertOrder, query.Expression.Type, elementSorter);
 
             var actual = async
-                ? await query.ToArrayAsync()
-                : query.ToArray();
+                ? await query.ToListAsync()
+                : query.ToList();
 
-            AssertRogueExecution(actual.Length, query);
+            AssertRogueExecution(actual.Count, query);
 
-            var expected = expectedQuery(ExpectedData).ToArray();
+            var expected = GetExpectedResults(expectedQuery);
 
             if (!assertOrder
                 && elementSorter == null)
@@ -159,12 +169,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             OrderingSettingsVerifier(assertOrder, query.Expression.Type);
 
             var actual = async
-                ? await query.ToArrayAsync()
-                : query.ToArray();
+                ? await query.ToListAsync()
+                : query.ToList();
 
-            AssertRogueExecution(actual.Length, query);
+            AssertRogueExecution(actual.Count, query);
 
-            var expected = expectedQuery(ExpectedData).ToArray();
+            var expected = GetExpectedResults(expectedQuery);
 
             TestHelpers.AssertResults(
                 expected,
@@ -194,12 +204,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             OrderingSettingsVerifier(assertOrder, query.Expression.Type);
 
             var actual = async
-                ? await query.ToArrayAsync()
-                : query.ToArray();
+                ? await query.ToListAsync()
+                : query.ToList();
 
-            AssertRogueExecution(actual.Length, query);
+            AssertRogueExecution(actual.Count, query);
 
-            var expected = expectedQuery(ExpectedData).ToArray();
+            var expected = GetExpectedResults(expectedQuery);
 
             TestHelpers.AssertResults(
                 expected,
@@ -237,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             AssertRogueExecution(actual.Count, query);
 
-            var expected = expectedQuery(ExpectedData).ToList();
+            var expected = GetExpectedResults(expectedQuery);
 
             if (!assertOrder
                 && elementSorter == null)

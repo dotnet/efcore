@@ -927,12 +927,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Select(
                     c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails.OrderBy(od => od.ProductID).FirstOrDefault()),
                 ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Select(
-                    c => Maybe(
-                        Maybe(
-                            c.Orders.OrderBy(o => o.OrderID).FirstOrDefault(),
-                            () => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails),
-                        () => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails.OrderBy(od => od.ProductID)
-                            .FirstOrDefault())));
+                    c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()
+                        .Maybe(x => x.OrderDetails)
+                        .Maybe(xx => xx.OrderBy(od => od.ProductID).FirstOrDefault()))); 
         }
 
         [ConditionalTheory]
@@ -945,12 +942,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     c => (int?)c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails.OrderBy(od => od.ProductID).FirstOrDefault()
                         .ProductID),
                 ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Select(
-                    c => MaybeScalar<int>(
-                        Maybe(
-                            c.Orders.OrderBy(o => o.OrderID).FirstOrDefault(),
-                            () => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails),
-                        () => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails.OrderBy(od => od.ProductID).FirstOrDefault()
-                            .ProductID)));
+                    c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()
+                        .Maybe(x => x.OrderDetails)
+                        .MaybeScalar(x => x.OrderBy(od => od.ProductID).FirstOrDefault().ProductID)));
         }
 
         [ConditionalTheory]
@@ -1785,11 +1779,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
                     .Where(c => c.Orders.OrderByDescending(o => o.OrderID).Last().CustomerID == c.CustomerID),
                 ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-                    .Where(
-                        c => Maybe(
-                                c.Orders.OrderByDescending(o => o.OrderID).LastOrDefault(),
-                                () => c.Orders.OrderByDescending(o => o.OrderID).LastOrDefault().CustomerID)
-                            == c.CustomerID),
+                    .Where(c => c.Orders.OrderByDescending(o => o.OrderID).LastOrDefault().Maybe(x => x.CustomerID) == c.CustomerID),
                 entryCount: 7);
         }
 
@@ -1802,11 +1792,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
                     .Where(c => c.Orders.OrderByDescending(o => o.OrderID).LastOrDefault().CustomerID == c.CustomerID),
                 ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-                    .Where(
-                        c => Maybe(
-                                c.Orders.OrderByDescending(o => o.OrderID).LastOrDefault(),
-                                () => c.Orders.OrderByDescending(o => o.OrderID).LastOrDefault().CustomerID)
-                            == c.CustomerID),
+                    .Where(c => c.Orders.OrderByDescending(o => o.OrderID).LastOrDefault().Maybe(x => x.CustomerID) == c.CustomerID),
                 entryCount: 7);
         }
 
