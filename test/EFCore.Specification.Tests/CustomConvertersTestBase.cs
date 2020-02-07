@@ -576,6 +576,17 @@ namespace Microsoft.EntityFrameworkCore
                     .Message.Replace("\r", "").Replace("\n", ""));
         }
 
+        [ConditionalFact]
+        public virtual void Collection_property_as_scalar_Count_member()
+        {
+            using var context = CreateContext();
+            Assert.Equal(
+                @"The LINQ expression 'DbSet<CollectionScalar>    .Where(c => c.Tags.Count == 2)' could not be translated. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Set<CollectionScalar>().Where(e => e.Tags.Count == 2).ToList())
+                    .Message.Replace("\r", "").Replace("\n", ""));
+        }
+
         protected class CollectionScalar
         {
             public int Id { get; set; }
@@ -1000,7 +1011,7 @@ namespace Microsoft.EntityFrameworkCore
                         b.IndexedProperty(typeof(bool), "IndexerVisible").HasConversion(new BoolToStringConverter("Nay", "Aye"));
 
                         b.HasData(
-                            new 
+                            new
                             {
                                 BlogId = 1,
                                 Url = "http://blog.com",
