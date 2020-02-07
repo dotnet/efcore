@@ -158,10 +158,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 var innerQueryable = UnwrapCollectionMaterialization(innerExpression);
 
-                return Visit(
+                if (innerQueryable.Type.TryGetElementType(typeof(IQueryable<>)) != null)
+                {
+                    return Visit(
                     Expression.Call(
                         QueryableMethods.CountWithoutPredicate.MakeGenericMethod(innerQueryable.Type.TryGetSequenceType()),
                         innerQueryable));
+                }
             }
 
             var updatedExpression = (Expression)memberExpression.Update(innerExpression);
