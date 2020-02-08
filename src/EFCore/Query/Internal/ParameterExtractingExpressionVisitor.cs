@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             bool generateContextAccessors)
         {
             _evaluatableExpressionFindingExpressionVisitor
-                = new EvaluatableExpressionFindingExpressionVisitor(evaluatableExpressionFilter, model);
+                = new EvaluatableExpressionFindingExpressionVisitor(evaluatableExpressionFilter, model, parameterize);
 
             _parameterValues = parameterValues;
             _logger = logger;
@@ -467,16 +467,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter;
             private readonly ISet<ParameterExpression> _allowedParameters = new HashSet<ParameterExpression>();
             private readonly IModel _model;
+            private readonly bool _parameterize;
 
             private bool _evaluatable;
             private bool _containsClosure;
             private bool _inLambda;
             private IDictionary<Expression, bool> _evaluatableExpressions;
 
-            public EvaluatableExpressionFindingExpressionVisitor(IEvaluatableExpressionFilter evaluatableExpressionFilter, IModel model)
+            public EvaluatableExpressionFindingExpressionVisitor(
+                IEvaluatableExpressionFilter evaluatableExpressionFilter, IModel model, bool parameterize)
             {
                 _evaluatableExpressionFilter = evaluatableExpressionFilter;
                 _model = model;
+                _parameterize = parameterize;
             }
 
             public IDictionary<Expression, bool> Find(Expression expression)
@@ -504,7 +507,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 _evaluatable = IsEvaluatableNodeType(expression)
                     // Extension point to disable funcletization
-                    && _evaluatableExpressionFilter.IsEvaluatableExpression(expression, _model);
+                    && _evaluatableExpressionFilter.IsEvaluatableExpression(expression, _model)
+                    // Don't evaluate QueryableMethods if in compiled query
+                    && (_parameterize || !IsQueryableMethod(expression));
                 _containsClosure = false;
 
                 base.Visit(expression);
@@ -643,19 +648,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             private static bool IsEvaluatableNodeType(Expression expression)
-            {
-                if (expression.NodeType == ExpressionType.Extension)
-                {
-                    if (!expression.CanReduce)
-                    {
-                        return false;
-                    }
+                => expression.NodeType != ExpressionType.Extension
+                    || expression.CanReduce
+                        && IsEvaluatableNodeType(expression.ReduceAndCheck());
 
-                    return IsEvaluatableNodeType(expression.ReduceAndCheck());
-                }
-
-                return true;
-            }
+            private static bool IsQueryableMethod(Expression expression)
+                => expression is MethodCallExpression methodCallExpression
+                    && methodCallExpression.Method.DeclaringType == typeof(Queryable);
         }
     }
 }

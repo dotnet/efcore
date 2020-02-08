@@ -2214,6 +2214,29 @@ WHERE [e].[Name] IS NULL");
             }
         }
 
+        [ConditionalFact]
+        public virtual void Explicitly_compiled_query_does_not_add_cache_entry()
+        {
+            var parameter = Expression.Parameter(typeof(Entity8909));
+            var predicate = Expression.Lambda<Func<Entity8909, bool>>(
+                Expression.MakeBinary(ExpressionType.Equal,
+                    Expression.PropertyOrField(parameter, "Id"),
+                    Expression.Constant(1)),
+                parameter);
+            var query = EF.CompileQuery((MyContext8909 context) => context.Set<Entity8909>().SingleOrDefault(predicate));
+            using (CreateDatabase8909())
+            {
+                using var context = new MyContext8909(_options);
+                context.Cache.Compact(1);
+                Assert.Equal(0, context.Cache.Count);
+
+                query(context);
+
+                // 1 entry for RelationalCommandCache
+                Assert.Equal(1, context.Cache.Count);
+            }
+        }
+
         private SqlServerTestStore CreateDatabase8909()
         {
             return CreateTestStore(
