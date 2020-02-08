@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                         dbParameter.ParameterName = _sqlGenerationHelper.GenerateParameterName(parameterNameGenerator.GenerateNext());
                     }
 
-                    substitutions.Add(dbParameter.ParameterName);
+                    substitutions.Add(_sqlGenerationHelper.GenerateParameterName(dbParameter.ParameterName));
                     relationalCommandBuilder.AddRawParameter(dbParameter.ParameterName, dbParameter);
                 }
                 else
