@@ -779,7 +779,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact (Skip="Issue #19641")]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_with_struct_binary_key_and_optional_dependents()
         {
             InsertOptionalBytesGraph<BytesStructKeyPrincipal, BytesStructKeyOptionalDependent>();
@@ -873,7 +873,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact (Skip="Issue #19641")]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_with_structural_struct_binary_key_and_optional_dependents()
         {
             InsertOptionalBytesGraph<StructuralComparableBytesStructKeyPrincipal, StructuralComparableBytesStructKeyOptionalDependent>();
@@ -967,7 +967,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact (Skip="Issue #19641")]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_with_comparable_struct_binary_key_and_optional_dependents()
         {
             InsertOptionalBytesGraph<ComparableBytesStructKeyPrincipal, ComparableBytesStructKeyOptionalDependent>();
@@ -1061,7 +1061,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact (Skip="Issue #19641")]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_with_generic_comparable_struct_binary_key_and_optional_dependents()
         {
             InsertOptionalBytesGraph<GenericComparableBytesStructKeyPrincipal, GenericComparableBytesStructKeyOptionalDependent>();
@@ -1155,7 +1155,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact (Skip="Issue #19641")]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_with_struct_binary_key_and_required_dependents()
         {
             InsertRequiredBytesGraph<BytesStructKeyPrincipal, BytesStructKeyRequiredDependent>();
@@ -1249,7 +1249,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact (Skip="Issue #19641")]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_with_comparable_struct_binary_key_and_required_dependents()
         {
             InsertRequiredBytesGraph<ComparableBytesStructKeyPrincipal, ComparableBytesStructKeyRequiredDependent>();
@@ -1298,7 +1298,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 principals = new[]
                 {
-                    context.Set<ComparableBytesStructKeyPrincipal>().Include(e => e.RequiredDependents).Single(e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 11, 11 } })),
+                    context.Set<ComparableBytesStructKeyPrincipal>().Include(e => e.RequiredDependents).Single(e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 11 } })),
                     context.Set<ComparableBytesStructKeyPrincipal>().Include(e => e.RequiredDependents).Single(e => e.Id.Equals(new ComparableBytesStructKey { Id = twelve })),
                     context.Set<ComparableBytesStructKeyPrincipal>().Include(e => e.RequiredDependents).Single(e => e.Id.Equals(thirteen)),
                     context.Set<ComparableBytesStructKeyPrincipal>().Include(e => e.RequiredDependents).Single(e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 14, 14, 14, 14 } }))
@@ -1343,7 +1343,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact (Skip="Issue #19641")]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_with_structural_struct_binary_key_and_required_dependents()
         {
             InsertRequiredBytesGraph<StructuralComparableBytesStructKeyPrincipal, StructuralComparableBytesStructKeyRequiredDependent>();
@@ -1392,7 +1392,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 principals = new[]
                 {
-                    context.Set<StructuralComparableBytesStructKeyPrincipal>().Include(e => e.RequiredDependents).Single(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 11, 11 } })),
+                    context.Set<StructuralComparableBytesStructKeyPrincipal>().Include(e => e.RequiredDependents).Single(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 11 } })),
                     context.Set<StructuralComparableBytesStructKeyPrincipal>().Include(e => e.RequiredDependents).Single(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = twelve })),
                     context.Set<StructuralComparableBytesStructKeyPrincipal>().Include(e => e.RequiredDependents).Single(e => e.Id.Equals(thirteen)),
                     context.Set<StructuralComparableBytesStructKeyPrincipal>().Include(e => e.RequiredDependents).Single(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 14, 14, 14, 14 } }))
@@ -1437,7 +1437,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact (Skip="Issue #19641")]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_with_generic_comparable_struct_binary_key_and_required_dependents()
         {
             InsertRequiredBytesGraph<GenericComparableBytesStructKeyPrincipal, GenericComparableBytesStructKeyRequiredDependent>();
@@ -1482,7 +1482,7 @@ namespace Microsoft.EntityFrameworkCore
                 out GenericComparableBytesStructKeyRequiredDependent[] dependents)
             {
                 var twelve = new byte[] { 12, 12 };
-                var thirteen = new GenericComparableBytesStructKey { Id = new byte[] { 13, 13 } };
+                var thirteen = new GenericComparableBytesStructKey { Id = new byte[] { 13, 13, 13 } };
 
                 principals = new[]
                 {
@@ -1768,18 +1768,24 @@ namespace Microsoft.EntityFrameworkCore
             Func<IBytesRequiredDependent, IBytesPrincipal> getPrincipal)
         {
             Assert.Equal(4, principals.Count);
-            Assert.Equal(new byte[] { 1 }, principals[0].BackingId);
-            Assert.Equal(new byte[] { 2, 2 }, principals[1].BackingId);
-            Assert.Equal(new byte[] { 3, 3, 3 }, principals[2].BackingId);
-            Assert.Equal(new byte[] { 4, 4, 4, 4 }, principals[3].BackingId);
+            Assert.Equal(new byte[] { 11 }, principals[0].BackingId);
+            Assert.Equal(new byte[] { 12, 12 }, principals[1].BackingId);
+            Assert.Equal(new byte[] { 13, 13, 13 }, principals[2].BackingId);
+            Assert.Equal(new byte[] { 14, 14, 14, 14 }, principals[3].BackingId);
 
             Assert.Equal(6, dependents.Count);
-            Assert.Equal(new byte[] { 101 }, dependents[0].BackingId);
-            Assert.Equal(new byte[] { 102 }, dependents[1].BackingId);
-            Assert.Equal(new byte[] { 103 }, dependents[2].BackingId);
-            Assert.Equal(new byte[] { 104 }, dependents[3].BackingId);
-            Assert.Equal(new byte[] { 105 }, dependents[4].BackingId);
-            Assert.Equal(new byte[] { 106 }, dependents[5].BackingId);
+            Assert.Equal(new byte[] { 111 }, dependents[0].BackingId);
+            if (dependents[1] != null)
+            {
+                Assert.Equal(new byte[] { 112 }, dependents[1].BackingId);
+            }
+            Assert.Equal(new byte[] { 113 }, dependents[2].BackingId);
+            Assert.Equal(new byte[] { 114 }, dependents[3].BackingId);
+            if (dependents[4] != null)
+            {
+                Assert.Equal(new byte[] { 115 }, dependents[4].BackingId);
+            }
+            Assert.Equal(new byte[] { 116 }, dependents[5].BackingId);
 
             foreach (var (dependentIndex, principalIndex) in expectedDependentToPrincipals)
             {

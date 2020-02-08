@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 if (selectExpression.IsDistinct
                     || selectExpression.Limit != null
                     || selectExpression.Offset != null
-                    || selectExpression.GroupBy.Count > 1)
+                    || selectExpression.GroupBy.Count > 0)
                 {
                     selectExpression.PushdownIntoSubquery();
                 }
