@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void DbSet_query_first()
         {
             var query = EF.CompileQuery(
-                (NorthwindContext context) => context.Customers.OrderBy(c => c.CustomerID).First());
+                (NorthwindContext context) => context.Set<Customer>().OrderBy(c => c.CustomerID).First());
 
             using (var context = CreateContext())
             {
@@ -537,6 +537,23 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.True(query(context, "ALFKI"));
+            }
+        }
+
+        [ConditionalFact(Skip = "Issue#19209")]
+        public virtual void Compiled_query_when_using_member_on_context()
+        {
+            var query = EF.CompileQuery(
+                (NorthwindContext context)
+                    => context.Customers.Where(c => c.CustomerID.StartsWith(context.TenantPrefix)));
+
+            using (var context = CreateContext())
+            {
+                context.TenantPrefix = "A";
+                Assert.Equal(6, query(context).Count());
+
+                context.TenantPrefix = "B";
+                Assert.Equal(4, query(context).Count());
             }
         }
 
