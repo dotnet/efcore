@@ -169,6 +169,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Query_with_DbParameters_interpolated()
+        {
+            var city = CreateDbParameter("city", "London");
+            var contactTitle = CreateDbParameter( "contactTitle", "Sales Representative");
+
+            using var context = CreateContext();
+            var actual = context.Database
+                .ExecuteSqlInterpolated(
+                    $@"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {city} AND ""ContactTitle"" = {contactTitle}");
+
+            Assert.Equal(-1, actual);
+        }
+
+        [ConditionalFact]
         public virtual async Task Executes_stored_procedure_async()
         {
             using var context = CreateContext();
