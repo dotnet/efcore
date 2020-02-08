@@ -721,8 +721,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 derivedForeignKeyProperty, specialCustomerKey, specialCustomerType);
             specialCustomerForeignKey.HasDependentToPrincipal(Order.CustomerProperty);
 
-            Assert.Equal(
-                CoreStrings.DuplicateNavigationsOnBase(typeof(SpecialOrder).Name, typeof(Order).Name, "Customer"),
+            Assert.Equal(CoreStrings.DuplicatePropertiesOnBase(nameof(SpecialOrder), nameof(Order),
+                nameof(SpecialOrder), nameof(Order.Customer), nameof(Order), nameof(Order.Customer)),
                 Assert.Throws<InvalidOperationException>(() => specialOrderType.BaseType = orderType).Message);
         }
 
@@ -752,8 +752,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             specialCustomerForeignKey.HasDependentToPrincipal(Order.CustomerProperty);
             verySpecialOrderType.BaseType = specialOrderType;
 
-            Assert.Equal(
-                CoreStrings.DuplicateNavigationsOnBase(typeof(SpecialOrder).Name, typeof(Order).Name, nameof(Order.Customer)),
+            Assert.Equal(CoreStrings.DuplicatePropertiesOnBase(nameof(SpecialOrder), nameof(Order),
+                    nameof(VerySpecialOrder), nameof(Order.Customer), nameof(Order), nameof(Order.Customer)),
                 Assert.Throws<InvalidOperationException>(() => specialOrderType.BaseType = orderType).Message);
         }
 
@@ -784,7 +784,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             specialCustomerForeignKey.HasDependentToPrincipal(Order.CustomerProperty);
 
             Assert.Equal(
-                CoreStrings.DuplicateNavigationsOnBase(typeof(VerySpecialOrder).Name, typeof(SpecialOrder).Name, "Customer"),
+                CoreStrings.DuplicatePropertiesOnBase(nameof(VerySpecialOrder), nameof(SpecialOrder),
+                    nameof(VerySpecialOrder), nameof(Order.Customer), nameof(Order), nameof(Order.Customer)),
                 Assert.Throws<InvalidOperationException>(() => verySpecialOrderType.BaseType = specialOrderType).Message);
         }
 

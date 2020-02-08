@@ -976,13 +976,28 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Last_when_no_order_by(bool async)
+        public virtual async Task Last_when_no_order_by(bool async)
         {
-            return AssertTranslationFailed(
-                () => AssertLast(
-                    async,
-                    ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI"),
-                    entryCount: 1));
+            Assert.Equal(Diagnostics.CoreStrings.LastUsedWithoutOrderBy(nameof(Enumerable.Last)),
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => AssertLast(
+                        async,
+                        ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI"),
+                        entryCount: 1)
+                    )).Message);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task LastOrDefault_when_no_order_by(bool async)
+        {
+            Assert.Equal(Diagnostics.CoreStrings.LastUsedWithoutOrderBy(nameof(Enumerable.LastOrDefault)),
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => AssertLastOrDefault(
+                        async,
+                        ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI"),
+                        entryCount: 1)
+                    )).Message);
         }
 
         [ConditionalTheory]

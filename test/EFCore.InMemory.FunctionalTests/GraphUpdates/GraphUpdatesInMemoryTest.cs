@@ -8,12 +8,39 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class GraphUpdatesInMemoryTest
-        : GraphUpdatesTestBase<GraphUpdatesInMemoryTest.GraphUpdatesInMemoryFixture>
+    public class GraphUpdatesInMemoryTest : GraphUpdatesTestBase<GraphUpdatesInMemoryTest.InMemoryFixture>
     {
-        public GraphUpdatesInMemoryTest(GraphUpdatesInMemoryFixture fixture)
+        public GraphUpdatesInMemoryTest(InMemoryFixture fixture)
             : base(fixture)
         {
+        }
+
+        public override void Required_many_to_one_dependents_are_cascade_deleted_in_store(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
+        {
+            // FK uniqueness not enforced in in-memory database
+        }
+
+        public override void Optional_many_to_one_dependents_are_orphaned_in_store(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
+        {
+            // FK uniqueness not enforced in in-memory database
+        }
+
+        public override void Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
+        {
+            // FK uniqueness not enforced in in-memory database
+        }
+
+        public override void Optional_many_to_one_dependents_with_alternate_key_are_orphaned_in_store(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
+        {
+            // FK uniqueness not enforced in in-memory database
         }
 
         public override void Optional_One_to_one_relationships_are_one_to_one(
@@ -23,18 +50,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         public override void Required_One_to_one_relationships_are_one_to_one(
-            CascadeTiming? deleteOrphansTiming)
-        {
-            // FK uniqueness not enforced in in-memory database
-        }
-
-        public override void Optional_One_to_one_with_AK_relationships_are_one_to_one(
-            CascadeTiming? deleteOrphansTiming)
-        {
-            // FK uniqueness not enforced in in-memory database
-        }
-
-        public override void Required_One_to_one_with_AK_relationships_are_one_to_one(
             CascadeTiming? deleteOrphansTiming)
         {
             // FK uniqueness not enforced in in-memory database
@@ -54,13 +69,6 @@ namespace Microsoft.EntityFrameworkCore
             // FK uniqueness not enforced in in-memory database
         }
 
-        public override void Required_many_to_one_dependents_are_cascade_deleted_in_store(
-            CascadeTiming? cascadeDeleteTiming,
-            CascadeTiming? deleteOrphansTiming)
-        {
-            // FK uniqueness not enforced in in-memory database
-        }
-
         public override void Required_one_to_one_are_cascade_deleted_in_store(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
@@ -75,8 +83,34 @@ namespace Microsoft.EntityFrameworkCore
             // FK uniqueness not enforced in in-memory database
         }
 
-        public override void Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store(
+        public override void Optional_one_to_one_are_orphaned_in_store(
             CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
+        {
+            // FK uniqueness not enforced in in-memory database
+        }
+
+        public override void Required_one_to_one_are_cascade_detached_when_Added(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
+        {
+            // FK uniqueness not enforced in in-memory database
+        }
+
+        public override void Required_non_PK_one_to_one_are_cascade_detached_when_Added(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
+        {
+            // FK uniqueness not enforced in in-memory database
+        }
+
+        public override void Optional_One_to_one_with_AK_relationships_are_one_to_one(
+            CascadeTiming? deleteOrphansTiming)
+        {
+            // FK uniqueness not enforced in in-memory database
+        }
+
+        public override void Required_One_to_one_with_AK_relationships_are_one_to_one(
             CascadeTiming? deleteOrphansTiming)
         {
             // FK uniqueness not enforced in in-memory database
@@ -90,27 +124,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         public override void Required_non_PK_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
-            CascadeTiming? cascadeDeleteTiming,
-            CascadeTiming? deleteOrphansTiming)
-        {
-            // FK uniqueness not enforced in in-memory database
-        }
-
-        public override void Optional_many_to_one_dependents_are_orphaned_in_store(
-            CascadeTiming? cascadeDeleteTiming,
-            CascadeTiming? deleteOrphansTiming)
-        {
-            // FK uniqueness not enforced in in-memory database
-        }
-
-        public override void Optional_one_to_one_are_orphaned_in_store(
-            CascadeTiming? cascadeDeleteTiming,
-            CascadeTiming? deleteOrphansTiming)
-        {
-            // FK uniqueness not enforced in in-memory database
-        }
-
-        public override void Optional_many_to_one_dependents_with_alternate_key_are_orphaned_in_store(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
@@ -131,21 +144,7 @@ namespace Microsoft.EntityFrameworkCore
             // FK uniqueness not enforced in in-memory database
         }
 
-        public override void Required_one_to_one_are_cascade_detached_when_Added(
-            CascadeTiming? cascadeDeleteTiming,
-            CascadeTiming? deleteOrphansTiming)
-        {
-            // FK uniqueness not enforced in in-memory database
-        }
-
         public override void Required_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
-            CascadeTiming? cascadeDeleteTiming,
-            CascadeTiming? deleteOrphansTiming)
-        {
-            // FK uniqueness not enforced in in-memory database
-        }
-
-        public override void Required_non_PK_one_to_one_are_cascade_detached_when_Added(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
@@ -162,8 +161,10 @@ namespace Microsoft.EntityFrameworkCore
             Fixture.Reseed();
         }
 
-        public class GraphUpdatesInMemoryFixture : GraphUpdatesFixtureBase
+        public class InMemoryFixture : GraphUpdatesFixtureBase
         {
+            protected override string StoreName { get; } = "GraphUpdatesTest";
+
             protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)

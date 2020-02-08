@@ -31,6 +31,12 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact(Skip = "Issue#17050")]
+        public override void Collection_property_as_scalar_Count_member()
+        {
+            base.Collection_property_as_scalar_Count_member();
+        }
+
+        [ConditionalFact(Skip = "Issue#17050")]
         public override void Collection_enum_as_string_Contains()
         {
             base.Collection_enum_as_string_Contains();

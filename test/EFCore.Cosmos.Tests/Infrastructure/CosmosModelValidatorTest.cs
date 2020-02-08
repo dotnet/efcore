@@ -126,6 +126,32 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(CosmosStrings.DuplicateDiscriminatorValue(typeof(Order).Name, "type", typeof(Customer).Name, "Orders"), model);
         }
 
+        [ConditionalFact]
+        public virtual void Passes_on_valid_concurrency_token()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Customer>()
+                .ToContainer("Orders")
+                .Property<string>("_etag")
+                .IsConcurrencyToken();
+
+            var model = modelBuilder.Model;
+            Validate(model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_invalid_concurrency_token()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Customer>()
+                .ToContainer("Orders")
+                .Property<string>("_not_etag")
+                .IsConcurrencyToken();
+
+            var model = modelBuilder.Model;
+            VerifyError(CosmosStrings.NonEtagConcurrencyToken(typeof(Customer).Name, "_not_etag"), model);
+        }
+
         protected override TestHelpers TestHelpers => CosmosTestHelpers.Instance;
     }
 }

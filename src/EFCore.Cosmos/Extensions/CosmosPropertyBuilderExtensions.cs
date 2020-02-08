@@ -87,5 +87,30 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string name,
             bool fromDataAnnotation = false)
             => propertyBuilder.CanSetAnnotation(CosmosAnnotationNames.PropertyName, name, fromDataAnnotation);
+
+        /// <summary>
+        ///     Configures this property to be the etag concurrency token.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static PropertyBuilder IsEtagConcurrency([NotNull] this PropertyBuilder propertyBuilder)
+        {
+            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
+            propertyBuilder
+                .IsConcurrencyToken()
+                .ToJsonProperty("_etag")
+                .ValueGeneratedOnAddOrUpdate();
+            return propertyBuilder;
+        }
+
+        /// <summary>
+        ///     Configures this property to be the etag concurrency token.
+        /// </summary>
+        /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static PropertyBuilder<TProperty> IsEtagConcurrency<TProperty>(
+            [NotNull] this PropertyBuilder<TProperty> propertyBuilder)
+            => (PropertyBuilder<TProperty>)IsEtagConcurrency((PropertyBuilder)propertyBuilder);
     }
 }

@@ -192,6 +192,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Expression<Func<TEntity, TProperty>> propertyExpression);
 
             public abstract TestPropertyBuilder<TProperty> Property<TProperty>(string propertyName);
+            public abstract TestPropertyBuilder<TProperty> IndexedProperty<TProperty>(string propertyName);
 
             public abstract TestEntityTypeBuilder<TEntity> Ignore(
                 Expression<Func<TEntity, object>> propertyExpression);
@@ -341,6 +342,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
             public abstract TestReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(
                 Expression<Func<TRelatedEntity, TEntity>> navigationExpression = null);
+
+            public abstract TestCollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany(
+                Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> navigationExpression);
         }
 
         public abstract class TestReferenceNavigationBuilder<TEntity, TRelatedEntity>
@@ -410,6 +414,26 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> OnDelete(DeleteBehavior deleteBehavior);
         }
 
+        public abstract class TestCollectionCollectionBuilder<TLeftEntity, TRightEntity>
+            where TLeftEntity : class
+            where TRightEntity : class
+        {
+            public abstract TestEntityTypeBuilder<TAssociationEntity> UsingEntity<TAssociationEntity>(
+                Func<TestEntityTypeBuilder<TAssociationEntity>,
+                    TestReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>> configureRight,
+                Func<TestEntityTypeBuilder<TAssociationEntity>,
+                    TestReferenceCollectionBuilder<TRightEntity, TAssociationEntity>> configureLeft)
+                where TAssociationEntity : class;
+
+            public abstract TestEntityTypeBuilder<TLeftEntity> UsingEntity<TAssociationEntity>(
+                Func<TestEntityTypeBuilder<TAssociationEntity>,
+                    TestReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>> configureRight,
+                Func<TestEntityTypeBuilder<TAssociationEntity>,
+                    TestReferenceCollectionBuilder<TRightEntity, TAssociationEntity>> configureLeft,
+                Action<TestEntityTypeBuilder<TAssociationEntity>> configureAssociation)
+                where TAssociationEntity : class;
+        }
+
         public abstract class TestOwnershipBuilder<TEntity, TDependentEntity>
             where TEntity : class
             where TDependentEntity : class
@@ -446,6 +470,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestKeyBuilder HasKey(params string[] propertyNames);
 
             public abstract TestPropertyBuilder<TProperty> Property<TProperty>(string propertyName);
+            public abstract TestPropertyBuilder<TProperty> IndexedProperty<TProperty>(string propertyName);
 
             public abstract TestPropertyBuilder<TProperty> Property<TProperty>(
                 Expression<Func<TDependentEntity, TProperty>> propertyExpression);
@@ -492,6 +517,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract DataBuilder<TDependentEntity> HasData(params TDependentEntity[] data);
 
             public abstract DataBuilder<TDependentEntity> HasData(params object[] data);
+
+            public abstract DataBuilder<TDependentEntity> HasData(IEnumerable<TDependentEntity> data);
+
+            public abstract DataBuilder<TDependentEntity> HasData(IEnumerable<object> data);
         }
     }
 }

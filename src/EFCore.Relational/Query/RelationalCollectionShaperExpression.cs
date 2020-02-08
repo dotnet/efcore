@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -12,23 +13,46 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class RelationalCollectionShaperExpression : Expression, IPrintableExpression
     {
+        [Obsolete("Use ctor which takes value comaprers.")]
         public RelationalCollectionShaperExpression(
             int collectionId,
             [NotNull] Expression parentIdentifier,
             [NotNull] Expression outerIdentifier,
-            [CanBeNull] Expression selfIdentifier,
-            [CanBeNull] Expression innerShaper,
+            [NotNull] Expression selfIdentifier,
+            [NotNull] Expression innerShaper,
+            [CanBeNull] INavigation navigation,
+            [NotNull] Type elementType)
+            : this(collectionId, parentIdentifier, outerIdentifier, selfIdentifier,
+                  null, null, null, innerShaper, navigation, elementType)
+        {
+        }
+
+
+        public RelationalCollectionShaperExpression(
+            int collectionId,
+            [NotNull] Expression parentIdentifier,
+            [NotNull] Expression outerIdentifier,
+            [NotNull] Expression selfIdentifier,
+            [CanBeNull] IReadOnlyList<ValueComparer> parentIdentifierValueComparers,
+            [CanBeNull] IReadOnlyList<ValueComparer> outerIdentifierValueComparers,
+            [CanBeNull] IReadOnlyList<ValueComparer> selfIdentifierValueComparers,
+            [NotNull] Expression innerShaper,
             [CanBeNull] INavigation navigation,
             [NotNull] Type elementType)
         {
             Check.NotNull(parentIdentifier, nameof(parentIdentifier));
             Check.NotNull(outerIdentifier, nameof(outerIdentifier));
+            Check.NotNull(selfIdentifier, nameof(selfIdentifier));
+            Check.NotNull(innerShaper, nameof(innerShaper));
             Check.NotNull(elementType, nameof(elementType));
 
             CollectionId = collectionId;
             ParentIdentifier = parentIdentifier;
             OuterIdentifier = outerIdentifier;
             SelfIdentifier = selfIdentifier;
+            ParentIdentifierValueComparers = parentIdentifierValueComparers;
+            OuterIdentifierValueComparers = outerIdentifierValueComparers;
+            SelfIdentifierValueComparers = selfIdentifierValueComparers;
             InnerShaper = innerShaper;
             Navigation = navigation;
             ElementType = elementType;
@@ -38,6 +62,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Expression ParentIdentifier { get; }
         public virtual Expression OuterIdentifier { get; }
         public virtual Expression SelfIdentifier { get; }
+        public virtual IReadOnlyList<ValueComparer> ParentIdentifierValueComparers { get; }
+        public virtual IReadOnlyList<ValueComparer> OuterIdentifierValueComparers { get; }
+        public virtual IReadOnlyList<ValueComparer> SelfIdentifierValueComparers { get; }
+
         public virtual Expression InnerShaper { get; }
         public virtual INavigation Navigation { get; }
         public virtual Type ElementType { get; }
@@ -73,7 +101,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 || selfIdentifier != SelfIdentifier
                 || innerShaper != InnerShaper
                     ? new RelationalCollectionShaperExpression(
-                        CollectionId, parentIdentifier, outerIdentifier, selfIdentifier, innerShaper, Navigation, ElementType)
+                        CollectionId, parentIdentifier, outerIdentifier, selfIdentifier,
+                        ParentIdentifierValueComparers, OuterIdentifierValueComparers, SelfIdentifierValueComparers,
+                        innerShaper, Navigation, ElementType)
                     : this;
         }
 

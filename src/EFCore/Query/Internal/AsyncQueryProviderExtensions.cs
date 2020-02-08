@@ -5,6 +5,7 @@ using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
@@ -24,16 +25,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static ConstantExpression CreateEntityQueryableExpression(
-            [NotNull] this IAsyncQueryProvider entityQueryProvider, [NotNull] Type type)
+            [NotNull] this IAsyncQueryProvider entityQueryProvider, [NotNull] IEntityType entityType)
         {
             Check.NotNull(entityQueryProvider, nameof(entityQueryProvider));
-            Check.NotNull(type, nameof(type));
+            Check.NotNull(entityType, nameof(entityType));
 
             return Expression.Constant(
                 _createEntityQueryableMethod
-                    .MakeGenericMethod(type)
+                    .MakeGenericMethod(entityType.ClrType)
                     .Invoke(
-                        null, new object[] { entityQueryProvider }));
+                        null, new object[] { entityQueryProvider, entityType }));
         }
 
         private static readonly MethodInfo _createEntityQueryableMethod
@@ -41,7 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(CreateEntityQueryable));
 
         [UsedImplicitly]
-        private static EntityQueryable<TResult> CreateEntityQueryable<TResult>(IAsyncQueryProvider entityQueryProvider)
-            => new EntityQueryable<TResult>(entityQueryProvider);
+        private static EntityQueryable<TResult> CreateEntityQueryable<TResult>(
+            IAsyncQueryProvider entityQueryProvider, IEntityType entityType)
+            => new EntityQueryable<TResult>(entityQueryProvider, entityType);
     }
 }

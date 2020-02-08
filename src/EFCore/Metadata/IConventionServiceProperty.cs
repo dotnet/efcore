@@ -29,12 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionEntityType DeclaringEntityType { get; }
 
         /// <summary>
-        ///     Returns the configuration source for this property.
-        /// </summary>
-        /// <returns> The configuration source. </returns>
-        ConfigurationSource GetConfigurationSource();
-
-        /// <summary>
         ///     Sets the <see cref="ServiceParameterBinding" /> for this property.
         /// </summary>
         /// <param name="parameterBinding"> The parameter binding. </param>

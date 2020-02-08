@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return constantExpression.IsEntityQueryable()
                 ? new EntityReferenceExpression(
                     constantExpression,
-                    _queryCompilationContext.Model.FindEntityType(((IQueryable)constantExpression.Value).ElementType))
+                    ((IEntityQueryable)constantExpression.Value).EntityType)
                 : (Expression)constantExpression;
         }
 

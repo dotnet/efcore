@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Returns the configuration source for this navigation property.
         /// </summary>
         /// <returns> The configuration source. </returns>
-        ConfigurationSource IConventionNavigationBase.GetConfigurationSource()
+        ConfigurationSource IConventionPropertyBase.GetConfigurationSource()
             => (ConfigurationSource)(IsOnDependent
                 ? ForeignKey.GetDependentToPrincipalConfigurationSource()
                 : ForeignKey.GetPrincipalToDependentConfigurationSource());

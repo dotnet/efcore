@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionEntityTypeBuilder entityTypeBuilder, MemberInfo navigationMemberInfo, Type targetClrType,
             InversePropertyAttribute attribute)
         {
-            if (!entityTypeBuilder.CanAddNavigation(
+            if (!entityTypeBuilder.CanHaveNavigation(
                 navigationMemberInfo.GetSimpleMemberName(), fromDataAnnotation: true))
             {
                 return;

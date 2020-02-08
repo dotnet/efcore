@@ -155,8 +155,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     CollectionNavigationBuilder.WithOne(navigationExpression?.GetPropertyAccess().GetSimpleMemberName()));
         }
 
-        private class GenericStringTestReferenceCollectionBuilder<TEntity, TRelatedEntity> : GenericTestReferenceCollectionBuilder<TEntity,
-            TRelatedEntity>
+        private class GenericStringTestReferenceCollectionBuilder<TEntity, TRelatedEntity>
+            : GenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>
             where TEntity : class
             where TRelatedEntity : class
         {

@@ -377,7 +377,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     case EntityState.Added:
                         _currentValue = entry.GetCurrentValue(property);
 
-                        var comparer = property.GetValueComparer() ?? property.FindTypeMapping()?.Comparer;
+                        var comparer = property.GetValueComparer();
                         if (comparer == null)
                         {
                             _write = !Equals(_originalValue, _currentValue);

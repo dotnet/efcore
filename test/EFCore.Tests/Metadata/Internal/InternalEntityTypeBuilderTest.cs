@@ -1689,85 +1689,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(2, dependentEntityBuilder.Metadata.GetProperties().Count());
         }
 
-        [ConditionalFact]
-        public void Can_ignore_same_or_lower_source_property()
-        {
-            var modelBuilder = CreateModelBuilder();
-            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
-            var entityType = entityBuilder.Metadata;
-
-            Assert.NotNull(entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.Explicit));
-
-            Assert.Null(entityType.FindProperty(Order.IdProperty.Name));
-            Assert.NotNull(entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.Explicit));
-            Assert.Null(entityBuilder.Property(typeof(int), Order.IdProperty.Name, ConfigurationSource.DataAnnotation));
-
-            Assert.NotNull(entityBuilder.Property(typeof(int), Order.IdProperty.Name, ConfigurationSource.Explicit));
-        }
-
-        [ConditionalFact]
-        public void Cannot_ignore_higher_source_property()
-        {
-            var modelBuilder = CreateModelBuilder();
-            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
-            var entityType = entityBuilder.Metadata;
-
-            Assert.NotNull(entityBuilder.Property(typeof(int), Order.IdProperty.Name, ConfigurationSource.DataAnnotation));
-            Assert.Null(entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.Convention));
-            Assert.NotNull(entityType.FindProperty(Order.IdProperty.Name));
-
-            Assert.Null(entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.DataAnnotation));
-            Assert.NotNull(entityType.FindProperty(Order.IdProperty.Name));
-
-            Assert.NotNull(entityBuilder.Property(typeof(int), Order.IdProperty.Name, ConfigurationSource.Explicit));
-            Assert.Null(entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.Convention));
-            Assert.Null(entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.DataAnnotation));
-            Assert.NotNull(entityType.FindProperty(Order.IdProperty.Name));
-
-            Assert.NotNull(entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.Explicit));
-            Assert.Null(entityType.FindProperty(Order.IdProperty.Name));
-        }
-
-        [ConditionalFact]
-        public void Can_ignore_existing_property()
-        {
-            var modelBuilder = CreateModelBuilder();
-            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
-            var entityType = entityBuilder.Metadata;
-            var property = entityType.AddProperty(
-                Order.IdProperty.Name, typeof(int), ConfigurationSource.Explicit, ConfigurationSource.Explicit);
-
-            Assert.Same(property, entityBuilder.Property(Order.IdProperty.Name, ConfigurationSource.Convention).Metadata);
-
-            Assert.NotNull(entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.Explicit));
-            Assert.Null(entityType.FindProperty(Order.IdProperty.Name));
-        }
-
         [ConditionalTheory]
-        [InlineData(ConfigurationSource.Explicit, ConfigurationSource.Explicit)]
-        [InlineData(ConfigurationSource.Explicit, ConfigurationSource.DataAnnotation)]
-        [InlineData(ConfigurationSource.Explicit, ConfigurationSource.Convention)]
-        [InlineData(ConfigurationSource.DataAnnotation, ConfigurationSource.Explicit)]
-        [InlineData(ConfigurationSource.DataAnnotation, ConfigurationSource.DataAnnotation)]
-        [InlineData(ConfigurationSource.DataAnnotation, ConfigurationSource.Convention)]
-        [InlineData(ConfigurationSource.Convention, ConfigurationSource.Explicit)]
-        [InlineData(ConfigurationSource.Convention, ConfigurationSource.DataAnnotation)]
-        [InlineData(ConfigurationSource.Convention, ConfigurationSource.Convention)]
+        [MemberData(nameof(DataGenerator.GetCombinations),
+            new object[] { new Type[] { typeof(ConfigurationSource), typeof(ConfigurationSource) } },
+            MemberType = typeof(DataGenerator))]
         public void Can_ignore_property_in_hierarchy(ConfigurationSource ignoreSource, ConfigurationSource addSource)
         {
-            VerifyIgnoreProperty(typeof(OrderMinimal), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: true);
-            VerifyIgnoreProperty(typeof(SpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: true);
-            VerifyIgnoreProperty(typeof(ExtraSpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: true);
-            VerifyIgnoreProperty(typeof(OrderMinimal), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: true);
-            VerifyIgnoreProperty(typeof(SpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: true);
-            VerifyIgnoreProperty(typeof(ExtraSpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: true);
+            VerifyIgnoreProperty(typeof(Order), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: true);
+            VerifyIgnoreProperty(typeof(SpecialOrder), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: true);
+            VerifyIgnoreProperty(typeof(ExtraSpecialOrder), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: true);
+            VerifyIgnoreProperty(typeof(Order), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: true);
+            VerifyIgnoreProperty(typeof(SpecialOrder), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: true);
+            VerifyIgnoreProperty(typeof(ExtraSpecialOrder), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: true);
 
-            VerifyIgnoreProperty(typeof(OrderMinimal), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: false);
-            VerifyIgnoreProperty(typeof(SpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: false);
-            VerifyIgnoreProperty(typeof(ExtraSpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: false);
-            VerifyIgnoreProperty(typeof(OrderMinimal), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: false);
-            VerifyIgnoreProperty(typeof(SpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: false);
-            VerifyIgnoreProperty(typeof(ExtraSpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: false);
+            VerifyIgnoreProperty(typeof(Order), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: false);
+            VerifyIgnoreProperty(typeof(SpecialOrder), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: false);
+            VerifyIgnoreProperty(typeof(ExtraSpecialOrder), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: false);
+            VerifyIgnoreProperty(typeof(Order), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: false);
+            VerifyIgnoreProperty(typeof(SpecialOrder), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: false);
+            VerifyIgnoreProperty(typeof(ExtraSpecialOrder), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: false);
         }
 
         private void VerifyIgnoreProperty(
@@ -1778,10 +1718,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             bool setBaseFirst)
             => VerifyIgnoreMember(
                 ignoredOnType, ignoreConfigurationSource, addConfigurationSource, ignoredFirst, setBaseFirst,
-                et => et.Metadata.FindProperty(OrderMinimal.CustomerIdProperty.Name) != null,
-                et => et.Property(OrderMinimal.CustomerIdProperty, addConfigurationSource) != null,
-                et => et.Property(OrderMinimal.CustomerIdProperty, ignoreConfigurationSource) != null,
-                OrderMinimal.CustomerIdProperty.Name);
+                et => et.Metadata.FindProperty(Order.CustomerIdProperty.Name) != null,
+                et => et.Property(Order.CustomerIdProperty, addConfigurationSource) != null,
+                et => et.Property(Order.CustomerIdProperty, ignoreConfigurationSource) != null,
+                Order.CustomerIdProperty.Name);
 
         private void VerifyIgnoreMember(
             Type ignoredOnType,
@@ -1795,31 +1735,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             string memberToIgnore)
         {
             var modelBuilder = CreateModelBuilder();
-            var customerTypeBuilder = modelBuilder.Entity(typeof(CustomerMinimal), ConfigurationSource.Convention);
-
-            customerTypeBuilder
-                .PrimaryKey(new[] { CustomerMinimal.IdProperty }, ConfigurationSource.Convention);
+            var customerTypeBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention);
+            customerTypeBuilder.PrimaryKey(new[] { Customer.IdProperty }, ConfigurationSource.Convention);
+            var productTypeBuilder = modelBuilder.Entity(typeof(Product), ConfigurationSource.Convention);
+            productTypeBuilder.PrimaryKey(new[] { Product.IdProperty }, ConfigurationSource.Convention);
 
             if (setBaseFirst)
             {
-                ConfigureOrdersHierarchyMinimal(modelBuilder);
+                ConfigureOrdersHierarchy(modelBuilder);
             }
 
             var ignoredEntityTypeBuilder = modelBuilder.Entity(ignoredOnType, ConfigurationSource.Convention);
-            var addedEntityTypeBuilder = modelBuilder.Entity(typeof(SpecialOrderMinimal), ConfigurationSource.Convention);
-            Assert.False(findMember(addedEntityTypeBuilder));
+            var addedEntityTypeBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
 
-            var exceptionExpected = ignoredOnType == typeof(ExtraSpecialOrderMinimal)
+            var exceptionExpected = ignoredOnType == typeof(ExtraSpecialOrder)
                 && (ignoreConfigurationSource == ConfigurationSource.Explicit
                     || (!ignoredFirst && setBaseFirst));
 
-            var expectedAdded = ignoredOnType == typeof(ExtraSpecialOrderMinimal)
+            var expectedAdded = ignoredOnType == typeof(ExtraSpecialOrder)
                 || (addConfigurationSource.Overrides(ignoreConfigurationSource)
                     && (ignoreConfigurationSource != ConfigurationSource.Explicit
-                        || ignoredOnType != typeof(SpecialOrderMinimal)
+                        || ignoredOnType != typeof(SpecialOrder)
                         || ignoredFirst));
 
-            var expectedIgnored = (ignoredOnType != typeof(SpecialOrderMinimal)
+            var expectedIgnored = (ignoredOnType != typeof(SpecialOrder)
                     || !expectedAdded)
                 && !exceptionExpected;
 
@@ -1827,7 +1766,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 Assert.NotNull(ignoredEntityTypeBuilder.Ignore(memberToIgnore, ignoreConfigurationSource));
                 Assert.Equal(
-                    expectedAdded || (!setBaseFirst && ignoredOnType != typeof(SpecialOrderMinimal)), addMember(addedEntityTypeBuilder));
+                    expectedAdded || (!setBaseFirst && ignoredOnType != typeof(SpecialOrder)), addMember(addedEntityTypeBuilder));
             }
             else
             {
@@ -1837,8 +1776,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     Assert.Equal(
                         CoreStrings.InheritedPropertyCannotBeIgnored(
-                            memberToIgnore, typeof(ExtraSpecialOrderMinimal).ShortDisplayName(),
-                            typeof(SpecialOrderMinimal).ShortDisplayName()),
+                            memberToIgnore, typeof(ExtraSpecialOrder).ShortDisplayName(),
+                            typeof(SpecialOrder).ShortDisplayName()),
                         Assert.Throws<InvalidOperationException>(
                             () => ignoredEntityTypeBuilder.Ignore(memberToIgnore, ignoreConfigurationSource)).Message);
                     return;
@@ -1847,13 +1786,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Equal(
                     expectedIgnored
                     || (!setBaseFirst
-                        && (ignoreConfigurationSource == ConfigurationSource.Explicit || ignoredOnType != typeof(SpecialOrderMinimal))),
+                        && (ignoreConfigurationSource == ConfigurationSource.Explicit || ignoredOnType != typeof(SpecialOrder))),
                     ignoredEntityTypeBuilder.Ignore(memberToIgnore, ignoreConfigurationSource) != null);
             }
 
             if (!setBaseFirst)
             {
-                ConfigureOrdersHierarchyMinimal(modelBuilder);
+                ConfigureOrdersHierarchy(modelBuilder);
             }
 
             var modelValidator = InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelValidator>();
@@ -1863,8 +1802,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Equal(
                     CoreStrings.InheritedPropertyCannotBeIgnored(
                         memberToIgnore,
-                        typeof(ExtraSpecialOrderMinimal).ShortDisplayName(),
-                        typeof(SpecialOrderMinimal).ShortDisplayName()),
+                        typeof(ExtraSpecialOrder).ShortDisplayName(),
+                        typeof(SpecialOrder).ShortDisplayName()),
                     Assert.Throws<InvalidOperationException>(
                         () => modelValidator.Validate(
                             modelBuilder.Metadata,
@@ -1888,16 +1827,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             entityBuilder.HasBaseType(typeof(Order), ConfigurationSource.Explicit);
             var derivedEntityBuilder = modelBuilder.Entity(typeof(ExtraSpecialOrder), ConfigurationSource.Explicit);
             derivedEntityBuilder.HasBaseType(typeof(SpecialOrder), ConfigurationSource.Explicit);
-        }
-
-        private void ConfigureOrdersHierarchyMinimal(InternalModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity(typeof(OrderMinimal), ConfigurationSource.Explicit)
-                .PrimaryKey(new[] { OrderMinimal.IdProperty }, ConfigurationSource.Explicit);
-            var entityBuilder = modelBuilder.Entity(typeof(SpecialOrderMinimal), ConfigurationSource.Explicit);
-            entityBuilder.HasBaseType(typeof(OrderMinimal), ConfigurationSource.Explicit);
-            var derivedEntityBuilder = modelBuilder.Entity(typeof(ExtraSpecialOrderMinimal), ConfigurationSource.Explicit);
-            derivedEntityBuilder.HasBaseType(typeof(SpecialOrderMinimal), ConfigurationSource.Explicit);
         }
 
         [ConditionalFact]
@@ -2089,22 +2018,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var foreignKeyBuilder = dependentEntityBuilder.HasRelationship(
                 principalEntityBuilder.Metadata, ConfigurationSource.DataAnnotation);
 
-            Assert.True(dependentEntityBuilder.CanAddNavigation(Order.CustomerProperty.Name, ConfigurationSource.Convention));
+            Assert.True(dependentEntityBuilder.CanHaveNavigation(Order.CustomerProperty.Name, ConfigurationSource.Convention));
 
             foreignKeyBuilder = foreignKeyBuilder.HasNavigation(
                 Order.CustomerProperty.Name,
                 pointsToPrincipal: true,
                 ConfigurationSource.DataAnnotation);
 
-            Assert.True(dependentEntityBuilder.CanAddNavigation(Order.CustomerProperty.Name, ConfigurationSource.Explicit));
-            Assert.True(principalEntityBuilder.CanAddNavigation(Customer.OrdersProperty.Name, ConfigurationSource.Convention));
+            Assert.True(dependentEntityBuilder.CanHaveNavigation(Order.CustomerProperty.Name, ConfigurationSource.Explicit));
+            Assert.True(principalEntityBuilder.CanHaveNavigation(Customer.OrdersProperty.Name, ConfigurationSource.Convention));
 
             foreignKeyBuilder = foreignKeyBuilder.HasNavigation(
                 Customer.OrdersProperty.Name,
                 pointsToPrincipal: false,
                 ConfigurationSource.DataAnnotation);
 
-            Assert.True(principalEntityBuilder.CanAddNavigation(Customer.OrdersProperty.Name, ConfigurationSource.Explicit));
+            Assert.True(principalEntityBuilder.CanHaveNavigation(Customer.OrdersProperty.Name, ConfigurationSource.Explicit));
 
             var newForeignKeyBuilder = dependentEntityBuilder
                 .HasRelationship(principalEntityBuilder.Metadata, ConfigurationSource.Convention).HasNavigation(
@@ -2125,169 +2054,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(foreignKeyBuilder.Metadata.PrincipalKey, principalEntityBuilder.Metadata.GetKeys().Single());
         }
 
-        [ConditionalFact]
-        public void Can_ignore_lower_or_equal_source_navigation()
-        {
-            var modelBuilder = CreateModelBuilder();
-            var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
-            principalEntityBuilder.PrimaryKey(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Explicit);
-            var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
-            var foreignKeyBuilder = dependentEntityBuilder.HasRelationship(
-                typeof(Customer).FullName, new[] { Order.CustomerIdProperty.Name, Order.CustomerUniqueProperty.Name },
-                ConfigurationSource.DataAnnotation);
-            foreignKeyBuilder = foreignKeyBuilder.HasNavigation(
-                Order.CustomerProperty.Name,
-                pointsToPrincipal: true,
-                ConfigurationSource.DataAnnotation);
-            foreignKeyBuilder = foreignKeyBuilder.HasNavigation(
-                Customer.OrdersProperty.Name,
-                pointsToPrincipal: false,
-                ConfigurationSource.DataAnnotation);
-            Assert.NotNull(foreignKeyBuilder);
-
-            Assert.NotNull(dependentEntityBuilder.Ignore(Order.CustomerProperty.Name, ConfigurationSource.Explicit));
-            Assert.NotNull(principalEntityBuilder.Ignore(Customer.OrdersProperty.Name, ConfigurationSource.Explicit));
-
-            Assert.Null(dependentEntityBuilder.Metadata.FindNavigation(Order.CustomerProperty.Name));
-            Assert.Null(principalEntityBuilder.Metadata.FindNavigation(Customer.OrdersProperty.Name));
-            Assert.NotNull(dependentEntityBuilder.Ignore(Order.CustomerProperty.Name, ConfigurationSource.Convention));
-            Assert.NotNull(principalEntityBuilder.Ignore(Customer.OrdersProperty.Name, ConfigurationSource.Convention));
-            Assert.Empty(dependentEntityBuilder.Metadata.GetForeignKeys());
-
-            foreignKeyBuilder = dependentEntityBuilder.HasRelationship(
-                typeof(Customer).FullName, new[] { Order.CustomerIdProperty.Name, Order.CustomerUniqueProperty.Name },
-                ConfigurationSource.DataAnnotation);
-            Assert.Null(
-                foreignKeyBuilder.HasNavigation(
-                    Order.CustomerProperty.Name,
-                    pointsToPrincipal: true,
-                    ConfigurationSource.DataAnnotation));
-            Assert.Null(
-                foreignKeyBuilder.HasNavigation(
-                    Customer.OrdersProperty.Name,
-                    pointsToPrincipal: false,
-                    ConfigurationSource.DataAnnotation));
-
-            foreignKeyBuilder = foreignKeyBuilder.HasNavigation(
-                Order.CustomerProperty.Name,
-                pointsToPrincipal: true,
-                ConfigurationSource.Explicit);
-            Assert.NotNull(foreignKeyBuilder);
-
-            foreignKeyBuilder = foreignKeyBuilder.HasNavigation(
-                Customer.OrdersProperty.Name,
-                pointsToPrincipal: false,
-                ConfigurationSource.Explicit);
-            Assert.NotNull(foreignKeyBuilder);
-        }
-
-        [ConditionalFact]
-        public void Cannot_ignore_higher_source_navigation()
-        {
-            var modelBuilder = CreateModelBuilder();
-            var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
-            principalEntityBuilder.PrimaryKey(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Explicit);
-            var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
-            var foreignKeyBuilder = dependentEntityBuilder.HasRelationship(
-                typeof(Customer).FullName, new[] { Order.CustomerIdProperty.Name, Order.CustomerUniqueProperty.Name },
-                ConfigurationSource.Convention);
-
-            Assert.NotNull(dependentEntityBuilder.Ignore(Order.CustomerProperty.Name, ConfigurationSource.DataAnnotation));
-            Assert.NotNull(principalEntityBuilder.Ignore(Customer.OrdersProperty.Name, ConfigurationSource.DataAnnotation));
-            Assert.False(dependentEntityBuilder.CanAddNavigation(Order.CustomerProperty.Name, ConfigurationSource.Convention));
-            Assert.False(principalEntityBuilder.CanAddNavigation(Customer.OrdersProperty.Name, ConfigurationSource.Convention));
-            Assert.True(dependentEntityBuilder.CanAddNavigation(Order.CustomerProperty.Name, ConfigurationSource.DataAnnotation));
-            Assert.True(principalEntityBuilder.CanAddNavigation(Customer.OrdersProperty.Name, ConfigurationSource.DataAnnotation));
-
-            foreignKeyBuilder = foreignKeyBuilder.HasNavigation(
-                Order.CustomerProperty.Name,
-                pointsToPrincipal: true,
-                ConfigurationSource.Explicit);
-            foreignKeyBuilder = foreignKeyBuilder.HasNavigation(
-                Customer.OrdersProperty.Name,
-                pointsToPrincipal: false,
-                ConfigurationSource.Explicit);
-
-            Assert.Null(dependentEntityBuilder.Ignore(Order.CustomerProperty.Name, ConfigurationSource.DataAnnotation));
-            Assert.Null(principalEntityBuilder.Ignore(Customer.OrdersProperty.Name, ConfigurationSource.DataAnnotation));
-            Assert.NotNull(dependentEntityBuilder.Metadata.FindNavigation(Order.CustomerProperty.Name));
-            Assert.NotNull(principalEntityBuilder.Metadata.FindNavigation(Customer.OrdersProperty.Name));
-
-            Assert.Same(
-                foreignKeyBuilder, foreignKeyBuilder.HasNavigation(
-                    Customer.OrdersProperty.Name,
-                    pointsToPrincipal: false,
-                    ConfigurationSource.Explicit));
-            Assert.Null(
-                foreignKeyBuilder.HasNavigation(
-                    (string)null,
-                    pointsToPrincipal: true,
-                    ConfigurationSource.DataAnnotation));
-        }
-
-        [ConditionalFact]
-        public void Can_ignore_existing_navigation()
-        {
-            var modelBuilder = CreateModelBuilder();
-            var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
-            principalEntityBuilder.PrimaryKey(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Explicit);
-            var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
-            var property1 = dependentEntityBuilder.Metadata.AddProperty(
-                Order.CustomerIdProperty.Name, typeof(int), ConfigurationSource.Explicit, ConfigurationSource.Explicit);
-            var property2 = dependentEntityBuilder.Metadata.AddProperty(
-                Order.CustomerUniqueProperty.Name, typeof(Guid?), ConfigurationSource.Explicit, ConfigurationSource.Explicit);
-            var foreignKey = dependentEntityBuilder.Metadata.AddForeignKey(
-                new[] { property1, property2 },
-                principalEntityBuilder.Metadata.FindPrimaryKey(),
-                principalEntityBuilder.Metadata,
-                ConfigurationSource.Explicit,
-                ConfigurationSource.Explicit);
-
-            var navigationToPrincipal = foreignKey.HasDependentToPrincipal(Order.CustomerProperty, ConfigurationSource.Explicit);
-            var navigationToDependent = foreignKey.HasPrincipalToDependent(Customer.OrdersProperty, ConfigurationSource.Explicit);
-
-            var relationship = dependentEntityBuilder.HasRelationship(
-                principalEntityBuilder.Metadata, foreignKey.Properties, ConfigurationSource.Convention).HasNavigation(
-                navigationToPrincipal.Name,
-                pointsToPrincipal: true,
-                ConfigurationSource.Convention).HasNavigation(
-                navigationToDependent.Name,
-                pointsToPrincipal: false,
-                ConfigurationSource.Convention);
-            Assert.Same(foreignKey, relationship.Metadata);
-
-            Assert.NotNull(dependentEntityBuilder.Ignore(Order.CustomerProperty.Name, ConfigurationSource.Explicit));
-            Assert.NotNull(principalEntityBuilder.Ignore(Customer.OrdersProperty.Name, ConfigurationSource.Explicit));
-
-            Assert.Null(dependentEntityBuilder.Metadata.FindNavigation(Order.CustomerProperty.Name));
-            Assert.Null(principalEntityBuilder.Metadata.FindNavigation(Customer.OrdersProperty.Name));
-        }
-
         [ConditionalTheory]
-        [InlineData(ConfigurationSource.Explicit, ConfigurationSource.Explicit)]
-        [InlineData(ConfigurationSource.Explicit, ConfigurationSource.DataAnnotation)]
-        [InlineData(ConfigurationSource.Explicit, ConfigurationSource.Convention)]
-        [InlineData(ConfigurationSource.DataAnnotation, ConfigurationSource.Explicit)]
-        [InlineData(ConfigurationSource.DataAnnotation, ConfigurationSource.DataAnnotation)]
-        [InlineData(ConfigurationSource.DataAnnotation, ConfigurationSource.Convention)]
-        [InlineData(ConfigurationSource.Convention, ConfigurationSource.Explicit)]
-        [InlineData(ConfigurationSource.Convention, ConfigurationSource.DataAnnotation)]
-        [InlineData(ConfigurationSource.Convention, ConfigurationSource.Convention)]
+        [MemberData(nameof(DataGenerator.GetCombinations),
+            new object[] { new Type[] { typeof(ConfigurationSource), typeof(ConfigurationSource) } },
+            MemberType = typeof(DataGenerator))]
         public void Can_ignore_navigation_in_hierarchy(ConfigurationSource ignoreSource, ConfigurationSource addSource)
         {
-            VerifyIgnoreNavigation(typeof(OrderMinimal), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: true);
-            VerifyIgnoreNavigation(typeof(SpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: true);
-            VerifyIgnoreNavigation(typeof(ExtraSpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: true);
-            VerifyIgnoreNavigation(typeof(OrderMinimal), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: true);
-            VerifyIgnoreNavigation(typeof(SpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: true);
-            VerifyIgnoreNavigation(typeof(ExtraSpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: true);
+            VerifyIgnoreNavigation(typeof(Order), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: true);
+            VerifyIgnoreNavigation(typeof(SpecialOrder), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: true);
+            VerifyIgnoreNavigation(typeof(ExtraSpecialOrder), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: true);
+            VerifyIgnoreNavigation(typeof(Order), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: true);
+            VerifyIgnoreNavigation(typeof(SpecialOrder), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: true);
+            VerifyIgnoreNavigation(typeof(ExtraSpecialOrder), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: true);
 
-            VerifyIgnoreNavigation(typeof(OrderMinimal), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: false);
-            VerifyIgnoreNavigation(typeof(SpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: false);
-            VerifyIgnoreNavigation(typeof(ExtraSpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: false);
-            VerifyIgnoreNavigation(typeof(OrderMinimal), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: false);
-            VerifyIgnoreNavigation(typeof(SpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: false);
-            VerifyIgnoreNavigation(typeof(ExtraSpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: false);
+            VerifyIgnoreNavigation(typeof(Order), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: false);
+            VerifyIgnoreNavigation(typeof(SpecialOrder), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: false);
+            VerifyIgnoreNavigation(typeof(ExtraSpecialOrder), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: false);
+            VerifyIgnoreNavigation(typeof(Order), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: false);
+            VerifyIgnoreNavigation(typeof(SpecialOrder), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: false);
+            VerifyIgnoreNavigation(typeof(ExtraSpecialOrder), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: false);
         }
 
         private void VerifyIgnoreNavigation(
@@ -2298,20 +2083,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             bool setBaseFirst)
             => VerifyIgnoreMember(
                 ignoredOnType, ignoreConfigurationSource, addConfigurationSource, ignoredFirst, setBaseFirst,
-                et => et.Metadata.FindNavigation(OrderMinimal.CustomerProperty.Name) != null,
+                et => et.Metadata.FindNavigation(Order.CustomerProperty.Name) != null,
                 et => et.HasRelationship(
-                        et.ModelBuilder.Entity(typeof(CustomerMinimal), ConfigurationSource.Explicit).Metadata,
-                        OrderMinimal.CustomerProperty.Name,
-                        CustomerMinimal.OrdersProperty.Name,
+                        et.ModelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit).Metadata,
+                        Order.CustomerProperty,
+                        Customer.OrdersProperty,
                         addConfigurationSource)
                     != null,
                 et => et.HasRelationship(
-                        et.ModelBuilder.Entity(typeof(CustomerMinimal), ConfigurationSource.Explicit).Metadata,
-                        OrderMinimal.CustomerProperty.Name,
-                        CustomerMinimal.OrdersProperty.Name,
+                        et.ModelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit).Metadata,
+                        Order.CustomerProperty,
+                        Customer.OrdersProperty,
                         ignoreConfigurationSource)
                     != null,
-                OrderMinimal.CustomerProperty.Name);
+                Order.CustomerProperty.Name);
 
         [ConditionalFact]
         public void Can_merge_with_intrahierarchical_relationship_of_higher_source()
@@ -2352,6 +2137,229 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotSame(
                 relationshipBuilder, orderEntityBuilder.HasRelationship(customerEntityBuilder.Metadata, ConfigurationSource.Convention));
             Assert.Equal(2, orderEntityBuilder.Metadata.GetForeignKeys().Count());
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(DataGenerator.GetCombinations),
+            new object[] { new Type[] { typeof(ConfigurationSource), typeof(ConfigurationSource) } },
+            MemberType = typeof(DataGenerator))]
+        public void Can_ignore_skip_navigation_in_hierarchy(ConfigurationSource ignoreSource, ConfigurationSource addSource)
+        {
+            VerifyIgnoreSkipNavigation(typeof(Order), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: true);
+            VerifyIgnoreSkipNavigation(typeof(SpecialOrder), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: true);
+            VerifyIgnoreSkipNavigation(typeof(ExtraSpecialOrder), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: true);
+            VerifyIgnoreSkipNavigation(typeof(Order), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: true);
+            VerifyIgnoreSkipNavigation(typeof(SpecialOrder), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: true);
+            VerifyIgnoreSkipNavigation(typeof(ExtraSpecialOrder), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: true);
+
+            VerifyIgnoreSkipNavigation(typeof(Order), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: false);
+            VerifyIgnoreSkipNavigation(typeof(SpecialOrder), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: false);
+            VerifyIgnoreSkipNavigation(typeof(ExtraSpecialOrder), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: false);
+            VerifyIgnoreSkipNavigation(typeof(Order), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: false);
+            VerifyIgnoreSkipNavigation(typeof(SpecialOrder), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: false);
+            VerifyIgnoreSkipNavigation(typeof(ExtraSpecialOrder), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: false);
+        }
+
+        private void VerifyIgnoreSkipNavigation(
+            Type ignoredOnType,
+            ConfigurationSource ignoreConfigurationSource,
+            ConfigurationSource addConfigurationSource,
+            bool ignoredFirst,
+            bool setBaseFirst)
+            => VerifyIgnoreMember(
+                ignoredOnType, ignoreConfigurationSource, addConfigurationSource, ignoredFirst, setBaseFirst,
+                et => et.Metadata.FindSkipNavigation(nameof(Order.Products)) != null,
+                et => et.HasSkipNavigation(
+                        MemberIdentity.Create(Order.ProductsProperty),
+                        et.ModelBuilder.Entity(typeof(Product), ConfigurationSource.Explicit).Metadata,
+                        addConfigurationSource)
+                    != null,
+                et => et.HasSkipNavigation(
+                        MemberIdentity.Create(Order.ProductsProperty),
+                        et.ModelBuilder.Entity(typeof(Product), ConfigurationSource.Explicit).Metadata,
+                        ignoreConfigurationSource)
+                    != null,
+                nameof(Order.Products));
+
+        [ConditionalTheory]
+        [MemberData(nameof(DataGenerator.GetCombinations), new object[] { new Type[] {
+                typeof(ConfigurationSource), typeof(ConfigurationSource), typeof(MemberType), typeof(MemberType), typeof(bool) } },
+            MemberType = typeof(DataGenerator))]
+        public void Can_override_members_in_hierarchy(
+            ConfigurationSource firstSource,
+            ConfigurationSource secondSource,
+            MemberType firstMemberType,
+            MemberType secondMemberType,
+            bool setBaseFirst)
+        {
+            VerifyOverrideMembers(typeof(Order), firstSource, secondSource, firstMemberType, secondMemberType, setBaseFirst);
+            VerifyOverrideMembers(typeof(SpecialOrder), firstSource, secondSource, firstMemberType, secondMemberType, setBaseFirst);
+            VerifyOverrideMembers(typeof(ExtraSpecialOrder), firstSource, secondSource, firstMemberType, secondMemberType, setBaseFirst);
+        }
+
+        private void VerifyOverrideMembers(
+            Type firstType,
+            ConfigurationSource firstSource,
+            ConfigurationSource secondSource,
+            MemberType firstMemberType,
+            MemberType secondMemberType,
+            bool setBaseFirst)
+        {
+            var modelBuilder = CreateModelBuilder();
+            var productTypeBuilder = modelBuilder.Entity(typeof(Product), ConfigurationSource.Convention);
+            productTypeBuilder.PrimaryKey(new[] { Product.IdProperty }, ConfigurationSource.Convention);
+
+            if (setBaseFirst)
+            {
+                ConfigureOrdersHierarchy(modelBuilder);
+            }
+
+            var firstEntityTypeBuilder = modelBuilder.Entity(firstType, ConfigurationSource.Convention);
+            var secondEntityTypeBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
+
+            Assert.True(ConfigureMember(firstEntityTypeBuilder, firstMemberType, firstSource));
+
+            if ((!setBaseFirst && firstEntityTypeBuilder != secondEntityTypeBuilder)
+                || firstSource != ConfigurationSource.Explicit
+                || secondSource != ConfigurationSource.Explicit
+                || firstMemberType == secondMemberType)
+            {
+                Assert.Equal((!setBaseFirst && firstEntityTypeBuilder != secondEntityTypeBuilder)
+                                || firstMemberType == secondMemberType
+                                || secondSource.Overrides(firstSource),
+                    ConfigureMember(secondEntityTypeBuilder, secondMemberType, secondSource));
+            }
+            else
+            {
+                var message = "";
+                if (firstMemberType == MemberType.Navigation
+                    && secondMemberType == MemberType.Property)
+                {
+                    message = CoreStrings.PropertyCalledOnNavigation(nameof(Order.Products), nameof(SpecialOrder));
+                }
+                else
+                {
+                    message = CoreStrings.ConflictingPropertyOrNavigation(nameof(Order.Products), nameof(SpecialOrder), firstEntityTypeBuilder.Metadata.DisplayName());
+                }
+
+                Assert.Equal(message,
+                    Assert.Throws<InvalidOperationException>(
+                        () => ConfigureMember(secondEntityTypeBuilder, secondMemberType, secondSource)).Message);
+
+                return;
+            }
+
+            if (!setBaseFirst)
+            {
+                if (firstEntityTypeBuilder == secondEntityTypeBuilder
+                    || firstSource != ConfigurationSource.Explicit
+                    || secondSource != ConfigurationSource.Explicit
+                    || firstMemberType == secondMemberType)
+                {
+                    ConfigureOrdersHierarchy(modelBuilder);
+                }
+                else
+                {
+                    if (firstType == typeof(Order))
+                    {
+                        Assert.Equal(CoreStrings.DuplicatePropertiesOnBase(nameof(SpecialOrder), nameof(Order),
+                            nameof(SpecialOrder), nameof(Order.Products), nameof(Order), nameof(Order.Products)),
+                            Assert.Throws<InvalidOperationException>(
+                                () => ConfigureOrdersHierarchy(modelBuilder)).Message);
+                    }
+                    else
+                    {
+                        Assert.Equal(CoreStrings.DuplicatePropertiesOnBase(nameof(ExtraSpecialOrder), nameof(SpecialOrder),
+                            nameof(ExtraSpecialOrder), nameof(Order.Products), nameof(SpecialOrder), nameof(Order.Products)),
+                            Assert.Throws<InvalidOperationException>(
+                                () => ConfigureOrdersHierarchy(modelBuilder)).Message);
+                    }
+
+                    return;
+                }
+            }
+
+            var leastDerivedType = firstEntityTypeBuilder.Metadata.LeastDerivedType(secondEntityTypeBuilder.Metadata);
+            var shouldSecondWin = secondSource.Overrides(firstSource)
+                    && (secondSource != firstSource
+                        || setBaseFirst
+                        || secondEntityTypeBuilder.Metadata == leastDerivedType);
+
+            var expectedDeclaringType = firstMemberType == secondMemberType
+                ? leastDerivedType
+                : shouldSecondWin
+                    ? secondEntityTypeBuilder.Metadata
+                    : firstEntityTypeBuilder.Metadata;
+
+            var expectedMemberType = shouldSecondWin
+                ? secondMemberType
+                : firstMemberType;
+
+            AssertDeclaringType(
+                modelBuilder.Entity(typeof(ExtraSpecialOrder), ConfigurationSource.Convention),
+                expectedDeclaringType,
+                expectedMemberType);
+        }
+
+        private bool ConfigureMember(
+            InternalEntityTypeBuilder entityTypeBuilder,
+            MemberType memberType,
+            ConfigurationSource configurationSource)
+        {
+            switch (memberType)
+            {
+                case MemberType.Property:
+                    return entityTypeBuilder.Property(Order.ProductsProperty, configurationSource) != null;
+                case MemberType.ServiceProperty:
+                    return entityTypeBuilder.ServiceProperty(Order.ProductsProperty, configurationSource) != null;
+                case MemberType.Navigation:
+                    return entityTypeBuilder.HasRelationship(
+                        entityTypeBuilder.ModelBuilder.Entity(typeof(Product), ConfigurationSource.Explicit).Metadata,
+                        Order.ProductsProperty,
+                        null,
+                        configurationSource) != null;
+                case MemberType.SkipNavigation:
+                    return entityTypeBuilder.HasSkipNavigation(
+                        MemberIdentity.Create(Order.ProductsProperty),
+                        entityTypeBuilder.ModelBuilder.Entity(typeof(Product), ConfigurationSource.Explicit).Metadata,
+                        configurationSource) != null;
+            }
+
+            return false;
+        }
+
+        private void AssertDeclaringType(
+            InternalEntityTypeBuilder entityTypeBuilder,
+            EntityType expectedDeclaringType,
+            MemberType memberType)
+        {
+            Assert.Same(memberType == MemberType.Property ? expectedDeclaringType : null,
+                GetDeclaringType(entityTypeBuilder, MemberType.Property));
+            Assert.Same(memberType == MemberType.ServiceProperty ? expectedDeclaringType : null,
+                GetDeclaringType(entityTypeBuilder, MemberType.ServiceProperty));
+            Assert.Same(memberType == MemberType.Navigation ? expectedDeclaringType : null,
+                GetDeclaringType(entityTypeBuilder, MemberType.Navigation));
+            Assert.Same(memberType == MemberType.SkipNavigation ? expectedDeclaringType : null,
+                GetDeclaringType(entityTypeBuilder, MemberType.SkipNavigation));
+        }
+
+        private EntityType GetDeclaringType(
+            InternalEntityTypeBuilder entityTypeBuilder,
+            MemberType memberType)
+        {
+            switch (memberType)
+            {
+                case MemberType.Property:
+                    return entityTypeBuilder.Metadata.FindProperty(nameof(Order.Products))?.DeclaringEntityType;
+                case MemberType.ServiceProperty:
+                    return entityTypeBuilder.Metadata.FindServiceProperty(nameof(Order.Products))?.DeclaringEntityType;
+                case MemberType.Navigation:
+                    return entityTypeBuilder.Metadata.FindNavigation(nameof(Order.Products))?.DeclaringEntityType;
+                case MemberType.SkipNavigation:
+                    return entityTypeBuilder.Metadata.FindSkipNavigation(nameof(Order.Products))?.DeclaringEntityType;
+            }
+
+            return null;
         }
 
         [ConditionalFact]
@@ -2631,7 +2639,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void Can_only_set_base_type_if_relationship_with_conflicting_navigation_of_data_annotation_or_lower_source()
+        public void Cannot_set_base_type_for_relationship_with_explicit_conflicting_incompatible_navigations()
         {
             var modelBuilder = CreateModelBuilder();
             var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
@@ -2649,16 +2657,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(derivedDependentEntityBuilder.Metadata.BaseType);
             Assert.Single(derivedDependentEntityBuilder.Metadata.GetDeclaredNavigations());
 
-            Assert.Same(
-                derivedDependentEntityBuilder,
-                derivedDependentEntityBuilder.HasBaseType(dependentEntityBuilder.Metadata, ConfigurationSource.Explicit));
-            Assert.Same(dependentEntityBuilder.Metadata, derivedDependentEntityBuilder.Metadata.BaseType);
-            Assert.Single(dependentEntityBuilder.Metadata.GetDeclaredNavigations());
-            Assert.Empty(derivedDependentEntityBuilder.Metadata.GetDeclaredNavigations());
+            Assert.Equal(CoreStrings.DuplicatePropertiesOnBase(nameof(SpecialOrder), nameof(Order),
+                nameof(SpecialOrder), nameof(Order.Customer), nameof(Order), nameof(Order.Customer)),
+                Assert.Throws<InvalidOperationException>(
+                    () => derivedDependentEntityBuilder.HasBaseType(dependentEntityBuilder.Metadata, ConfigurationSource.Explicit)).Message);
         }
 
         [ConditionalFact]
-        public void Can_set_base_type_if_relationship_with_conflicting_foreign_key_of_data_annotation_or_lower_source()
+        public void Can_set_base_type_for_relationship_with_explicit_conflicting_foreign_key()
         {
             var modelBuilder = CreateModelBuilder();
             var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
@@ -2775,13 +2781,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     Order.CustomerProperty.Name,
                     Customer.SpecialOrdersProperty.Name,
                     ConfigurationSource.Explicit)
-                .HasForeignKey(new[] { derivedIdProperty }, ConfigurationSource.Explicit);
-
-            Assert.Null(derivedDependentEntityBuilder.HasBaseType(dependentEntityBuilder.Metadata, ConfigurationSource.DataAnnotation));
+                .HasForeignKey(new[] { derivedIdProperty }, ConfigurationSource.Convention);
 
             Assert.Same(
                 derivedDependentEntityBuilder,
-                derivedDependentEntityBuilder.HasBaseType(dependentEntityBuilder.Metadata, ConfigurationSource.Explicit));
+                derivedDependentEntityBuilder.HasBaseType(dependentEntityBuilder.Metadata, ConfigurationSource.DataAnnotation));
             Assert.Empty(dependentEntityBuilder.Metadata.GetForeignKeys());
             var fk = derivedDependentEntityBuilder.Metadata.GetForeignKeys().Single();
             Assert.Equal(Order.CustomerProperty.Name, fk.DependentToPrincipal.Name);
@@ -2791,7 +2795,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void Setting_base_type_removes_duplicate_service_properties()
+        public void Setting_base_type_removes_duplicate_derived_service_properties()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+            entityBuilder.PrimaryKey(new[] { Order.IdProperty }, ConfigurationSource.Explicit);
+            entityBuilder.ServiceProperty(Order.ContextProperty, ConfigurationSource.Explicit);
+            var derivedEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
+            derivedEntityBuilder.PrimaryKey(new[] { Order.IdProperty }, ConfigurationSource.Convention);
+            derivedEntityBuilder.ServiceProperty(Order.ContextProperty, ConfigurationSource.Convention);
+
+            Assert.Same(
+                derivedEntityBuilder,
+                derivedEntityBuilder.HasBaseType(entityBuilder.Metadata, ConfigurationSource.Convention));
+
+            Assert.Single(entityBuilder.Metadata.GetServiceProperties());
+            Assert.Empty(derivedEntityBuilder.Metadata.GetDeclaredServiceProperties());
+        }
+
+        [ConditionalFact]
+        public void Setting_base_type_preserves_duplicate_base_service_properties()
         {
             var modelBuilder = CreateModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
@@ -2803,10 +2826,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Same(
                 derivedEntityBuilder,
-                derivedEntityBuilder.HasBaseType(entityBuilder.Metadata, ConfigurationSource.Explicit));
+                derivedEntityBuilder.HasBaseType(entityBuilder.Metadata, ConfigurationSource.DataAnnotation));
 
             Assert.Single(entityBuilder.Metadata.GetServiceProperties());
-            Assert.Single(derivedEntityBuilder.Metadata.GetServiceProperties());
+            Assert.Empty(derivedEntityBuilder.Metadata.GetDeclaredServiceProperties());
         }
 
         [ConditionalFact]
@@ -3034,19 +3057,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private InternalModelBuilder CreateModelBuilder() => new InternalModelBuilder(new Model());
 
+        public enum MemberType
+        {
+            Property,
+            ServiceProperty,
+            Navigation,
+            SkipNavigation
+        }
+
         private class Order
         {
-            public static readonly PropertyInfo IdProperty = typeof(Order).GetProperty("Id");
-            public static readonly PropertyInfo CustomerIdProperty = typeof(Order).GetProperty("CustomerId");
-            public static readonly PropertyInfo CustomerUniqueProperty = typeof(Order).GetProperty("CustomerUnique");
-            public static readonly PropertyInfo CustomerProperty = typeof(Order).GetProperty("Customer");
+            public static readonly PropertyInfo IdProperty = typeof(Order).GetProperty(nameof(Id));
+            public static readonly PropertyInfo CustomerIdProperty = typeof(Order).GetProperty(nameof(CustomerId));
+            public static readonly PropertyInfo CustomerUniqueProperty = typeof(Order).GetProperty(nameof(CustomerUnique));
+            public static readonly PropertyInfo CustomerProperty = typeof(Order).GetProperty(nameof(Customer));
             public static readonly PropertyInfo ContextProperty = typeof(Order).GetProperty(nameof(Context));
+            public static readonly PropertyInfo ProductsProperty = typeof(Order).GetProperty(nameof(Products));
 
             public int Id { get; set; }
             public int CustomerId { get; set; }
             public Guid? CustomerUnique { get; set; }
             public Customer Customer { get; set; }
             public DbContext Context { get; set; }
+            public ICollection<Product> Products { get; set; }
         }
 
         private class SpecialOrder : Order, IEnumerable<Order>
@@ -3073,11 +3106,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class Customer
         {
-            public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
-            public static readonly PropertyInfo UniqueProperty = typeof(Customer).GetProperty("Unique");
-            public static readonly PropertyInfo OrdersProperty = typeof(Customer).GetProperty("Orders");
-            public static readonly PropertyInfo NotCollectionOrdersProperty = typeof(Customer).GetProperty("NotCollectionOrders");
-            public static readonly PropertyInfo SpecialOrdersProperty = typeof(Customer).GetProperty("SpecialOrders");
+            public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty(nameof(Id));
+            public static readonly PropertyInfo UniqueProperty = typeof(Customer).GetProperty(nameof(Unique));
+            public static readonly PropertyInfo OrdersProperty = typeof(Customer).GetProperty(nameof(Orders));
+            public static readonly PropertyInfo NotCollectionOrdersProperty = typeof(Customer).GetProperty(nameof(NotCollectionOrders));
+            public static readonly PropertyInfo SpecialOrdersProperty = typeof(Customer).GetProperty(nameof(SpecialOrders));
 
             public int Id { get; set; }
             public Guid Unique { get; set; }
@@ -3092,44 +3125,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             internal Customer Customer { get; set; }
         }
 
-        private class OrderMinimal
+        private class OrderProduct
         {
-            public static readonly PropertyInfo IdProperty = typeof(OrderMinimal).GetProperty("Id");
-            public static readonly PropertyInfo CustomerIdProperty = typeof(OrderMinimal).GetProperty("CustomerId");
-            public static readonly PropertyInfo CustomerProperty = typeof(OrderMinimal).GetProperty("Customer");
+            public static readonly PropertyInfo OrderIdProperty = typeof(OrderProduct).GetProperty(nameof(OrderId));
+            public static readonly PropertyInfo ProductIdProperty = typeof(OrderProduct).GetProperty(nameof(ProductId));
+
+            public int OrderId { get; set; }
+            public int ProductId { get; set; }
+            public virtual Order Order { get; set; }
+            public virtual Product Product { get; set; }
+        }
+
+        private class Product
+        {
+            public static readonly PropertyInfo IdProperty = typeof(Product).GetProperty(nameof(Id));
 
             public int Id { get; set; }
-            public int CustomerId { get; set; }
-            public CustomerMinimal Customer { get; set; }
+
+            public virtual ICollection<Order> Orders { get; set; }
         }
 
-        private class SpecialOrderMinimal : OrderMinimal, IEnumerable<OrderMinimal>
-        {
-            public static readonly PropertyInfo SpecialtyProperty = typeof(SpecialOrderMinimal).GetProperty("Specialty");
-
-            public IEnumerator<OrderMinimal> GetEnumerator()
-            {
-                yield return this;
-            }
-
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-        }
-
-        private class ExtraSpecialOrderMinimal : SpecialOrderMinimal
+        private class SpecialProduct : Product
         {
         }
 
-        private class BackOrderMinimal : OrderMinimal
+        private class ExtraSpecialProduct : SpecialProduct
         {
-        }
-
-        private class CustomerMinimal
-        {
-            public static readonly PropertyInfo IdProperty = typeof(CustomerMinimal).GetProperty("Id");
-            public static readonly PropertyInfo OrdersProperty = typeof(CustomerMinimal).GetProperty("Orders");
-
-            public int Id { get; set; }
-            public ICollection<OrderMinimal> Orders { get; set; }
         }
 
         private class Splot

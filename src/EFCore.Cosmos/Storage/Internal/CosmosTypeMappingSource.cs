@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             _clrTypeMappings
                 = new Dictionary<Type, CosmosTypeMapping>
                 {
-                    { typeof(byte[]), new CosmosTypeMapping(typeof(byte[]), structuralComparer: new ArrayStructuralComparer<byte>()) }
+                    { typeof(byte[]), new CosmosTypeMapping(typeof(byte[]), keyComparer: new ArrayStructuralComparer<byte>()) }
                 };
         }
 

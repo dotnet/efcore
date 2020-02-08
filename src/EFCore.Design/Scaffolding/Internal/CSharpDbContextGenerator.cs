@@ -226,13 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     _sb.Append("optionsBuilder");
 
                     var useProviderCall = _providerConfigurationCodeGenerator.GenerateUseProvider(
-                        connectionString,
-                        _providerConfigurationCodeGenerator.GenerateProviderOptions());
-                    var contextOptions = _providerConfigurationCodeGenerator.GenerateContextOptions();
-                    if (contextOptions != null)
-                    {
-                        useProviderCall = useProviderCall.Chain(contextOptions);
-                    }
+                        connectionString);
 
                     _sb
                         .Append(_code.Fragment(useProviderCall))
@@ -490,7 +484,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
             }
 
-            var lines = new List<string> { $".{nameof(EntityTypeBuilder.HasKey)}(e => {GenerateLambdaToKey(key.Properties, "e")})" };
+            var lines = new List<string> { $".{nameof(EntityTypeBuilder.HasKey)}({_code.Lambda(key.Properties)})" };
 
             if (explicitName)
             {
@@ -553,7 +547,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateIndex(IIndex index)
         {
-            var lines = new List<string> { $".{nameof(EntityTypeBuilder.HasIndex)}(e => {GenerateLambdaToKey(index.Properties, "e")})" };
+            var lines = new List<string> { $".{nameof(EntityTypeBuilder.HasIndex)}({_code.Lambda(index.Properties)})" };
 
             var annotations = index.GetAnnotations().ToList();
 
@@ -778,13 +772,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 lines.Add(
                     $".{nameof(ReferenceReferenceBuilder.HasPrincipalKey)}"
                     + (foreignKey.IsUnique ? $"<{foreignKey.PrincipalEntityType.DisplayName()}>" : "")
-                    + $"(p => {GenerateLambdaToKey(foreignKey.PrincipalKey.Properties, "p")})");
+                    + $"({_code.Lambda(foreignKey.PrincipalKey.Properties)})");
             }
 
             lines.Add(
                 $".{nameof(ReferenceReferenceBuilder.HasForeignKey)}"
                 + (foreignKey.IsUnique ? $"<{foreignKey.DeclaringEntityType.DisplayName()}>" : "")
-                + $"(d => {GenerateLambdaToKey(foreignKey.Properties, "d")})");
+                + $"({_code.Lambda(foreignKey.Properties)})");
 
             var defaultOnDeleteAction = foreignKey.IsRequired
                 ? DeleteBehavior.Cascade
@@ -899,17 +893,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             _sb.AppendLine(";");
-        }
-
-        private static string GenerateLambdaToKey(
-            IReadOnlyList<IProperty> properties,
-            string lambdaIdentifier)
-        {
-            return properties.Count <= 0
-                ? ""
-                : properties.Count == 1
-                    ? $"{lambdaIdentifier}.{properties[0].Name}"
-                    : $"new {{ {string.Join(", ", properties.Select(p => lambdaIdentifier + "." + p.Name))} }}";
         }
 
         private static void RemoveAnnotation(ref List<IAnnotation> annotations, string annotationName)

@@ -691,11 +691,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             if (IsTrueOrFalse(right) is bool rightTrueFalseValue
-                && !leftNullable)
+                && !leftNullable
+                && left.TypeMapping.Converter == null)
             {
                 _nullable = leftNullable;
 
-                // only correct in 2-value logic
+                // only correct in 2-value logic and only if 'a' doesn't have value converter applied to it
                 // a == true -> a
                 // a == false -> !a
                 // a != true -> !a
@@ -706,11 +707,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             if (IsTrueOrFalse(left) is bool leftTrueFalseValue
-                && !rightNullable)
+                && !rightNullable
+                && right.TypeMapping.Converter == null)
             {
                 _nullable = rightNullable;
 
-                // only correct in 2-value logic
+                // only correct in 2-value logic and only if 'a' doesn't have value converter applied to it
                 // true == a -> a
                 // false == a -> !a
                 // true != a -> !a
@@ -1299,7 +1301,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     // rather than evaluating nullability of the entire function
                     var nullabilityPropagationElements = new List<SqlExpression>();
                     if (sqlFunctionExpression.Instance != null
-                        && sqlFunctionExpression.InstancPropagatesNullability == true)
+                        && sqlFunctionExpression.InstancePropagatesNullability == true)
                     {
                         nullabilityPropagationElements.Add(sqlFunctionExpression.Instance);
                     }

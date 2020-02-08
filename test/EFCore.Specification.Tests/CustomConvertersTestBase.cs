@@ -482,6 +482,26 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public virtual void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
+        {
+            using var context = CreateContext();
+            var query = context.Set<Blog>().Where(b => EF.Property<bool>(b, "IsVisible")).ToList();
+
+            var result = Assert.Single(query);
+            Assert.Equal("http://blog.com", result.Url);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer()
+        {
+            using var context = CreateContext();
+            var query = context.Set<Blog>().Where(b => !(bool)b["IndexerVisible"]).ToList();
+
+            var result = Assert.Single(query);
+            Assert.Equal("http://blog.com", result.Url);
+        }
+
+        [ConditionalFact]
         public virtual void Value_conversion_with_property_named_value()
         {
             using var context = CreateContext();
@@ -491,10 +511,35 @@ namespace Microsoft.EntityFrameworkCore
 
         protected class Blog
         {
+            private bool _indexerVisible;
+
             public int BlogId { get; set; }
             public string Url { get; set; }
             public bool IsVisible { get; set; }
             public List<Post> Posts { get; set; }
+
+            public object this[string name]
+            {
+                get
+                {
+                    if (!string.Equals(name, "IndexerVisible", StringComparison.Ordinal))
+                    {
+                        throw new InvalidOperationException($"Indexed property with key {name} is not defined on {nameof(Blog)}.");
+                    }
+
+                    return _indexerVisible;
+                }
+
+                set
+                {
+                    if (!string.Equals(name, "IndexerVisible", StringComparison.Ordinal))
+                    {
+                        throw new InvalidOperationException($"Indexed property with key {name} is not defined on {nameof(Blog)}.");
+                    }
+
+                    _indexerVisible = (bool)value;
+                }
+            }
         }
 
         protected class RssBlog : Blog
@@ -528,6 +573,17 @@ namespace Microsoft.EntityFrameworkCore
                 @"The LINQ expression 'DbSet<CollectionScalar>    .Where(c => c.Tags        .Any())' could not be translated. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
                 Assert.Throws<InvalidOperationException>(
                     () => context.Set<CollectionScalar>().Where(e => e.Tags.Any()).ToList())
+                    .Message.Replace("\r", "").Replace("\n", ""));
+        }
+
+        [ConditionalFact]
+        public virtual void Collection_property_as_scalar_Count_member()
+        {
+            using var context = CreateContext();
+            Assert.Equal(
+                @"The LINQ expression 'DbSet<CollectionScalar>    .Where(c => c.Tags.Count == 2)' could not be translated. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Set<CollectionScalar>().Where(e => e.Tags.Count == 2).ToList())
                     .Message.Replace("\r", "").Replace("\n", ""));
         }
 
@@ -952,12 +1008,15 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         b.Property(e => e.Url).HasConversion(urlConverter);
                         b.Property(e => e.IsVisible).HasConversion(new BoolToStringConverter("N", "Y"));
+                        b.IndexedProperty(typeof(bool), "IndexerVisible").HasConversion(new BoolToStringConverter("Nay", "Aye"));
+
                         b.HasData(
-                            new Blog
+                            new
                             {
                                 BlogId = 1,
                                 Url = "http://blog.com",
-                                IsVisible = true
+                                IsVisible = true,
+                                IndexerVisible = false,
                             });
                     });
 
@@ -966,12 +1025,13 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         b.Property(e => e.RssUrl).HasConversion(urlConverter);
                         b.HasData(
-                            new RssBlog
+                            new
                             {
                                 BlogId = 2,
                                 Url = "http://rssblog.com",
                                 RssUrl = "http://rssblog.com/rss",
-                                IsVisible = false
+                                IsVisible = false,
+                                IndexerVisible = true,
                             });
                     });
 

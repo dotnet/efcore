@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore
         public static MethodInfo AnyWithoutPredicate { get; }
         public static MethodInfo AnyWithPredicate { get; }
         public static MethodInfo Contains { get; }
+        public static MethodInfo SequenceEqual { get; }
 
         public static MethodInfo ToList { get; }
         public static MethodInfo ToArray { get; }
@@ -151,6 +152,8 @@ namespace Microsoft.EntityFrameworkCore
                     && IsFunc(mi.GetParameters()[1].ParameterType));
             Contains = enumerableMethods.Single(
                 mi => mi.Name == nameof(Enumerable.Contains) && mi.GetParameters().Length == 2);
+            SequenceEqual = enumerableMethods.Single(
+                mi => mi.Name == nameof(Enumerable.SequenceEqual) && mi.GetParameters().Length == 2);
 
             ToList = enumerableMethods.Single(
                 mi => mi.Name == nameof(Enumerable.ToList) && mi.GetParameters().Length == 1);

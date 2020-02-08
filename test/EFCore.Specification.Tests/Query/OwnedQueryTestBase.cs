@@ -476,6 +476,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<OwnedPerson>().OrderBy(e => e.Id).Select(e => Identity(e)).Skip(1).Take(2));
         }
 
+        private static OwnedPerson Identity(OwnedPerson person) => person;
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_owned_collection_navigation_ToList_Count(bool async)
@@ -546,7 +548,199 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertCollection(e, a));
         }
 
-        private static OwnedPerson Identity(OwnedPerson person) => person;
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_query_on_indexer_properties(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OwnedPerson>().Where(c => (string)c["Name"] == "Mona Cy"));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_query_on_owned_indexer_properties(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OwnedPerson>().Where(c => (int)c.PersonAddress["ZipCode"] == 38654).Select(c => (string)c["Name"]));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_query_on_indexer_property_when_property_name_from_closure(bool async)
+        {
+            var propertyName = "Name";
+            return AssertQuery(
+                async,
+                ss => ss.Set<OwnedPerson>().Where(c => (string)c[propertyName] == "Mona Cy").Select(c => (string)c["Name"]));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_project_indexer_properties(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OwnedPerson>().Select(c => c["Name"]));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_project_owned_indexer_properties(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OwnedPerson>().Select(c => c.PersonAddress["AddressLine"]));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_project_indexer_properties_converted(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OwnedPerson>().Select(c => (string)c["Name"]));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_project_owned_indexer_properties_converted(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OwnedPerson>().Select(c => (string)c.PersonAddress["AddressLine"]));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_OrderBy_indexer_properties(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OwnedPerson>().OrderBy(c => c["Name"]).ThenBy(c => c.Id),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_OrderBy_indexer_properties_converted(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OwnedPerson>().OrderBy(c => (string)c["Name"]).ThenBy(c => c.Id).Select(c => (string)c["Name"]),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_OrderBy_owned_indexer_properties(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OwnedPerson>().OrderBy(c => c.PersonAddress["ZipCode"]).ThenBy(c => c.Id).Select(c => (string)c["Name"]),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_OrderBy_owened_indexer_properties_converted(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OwnedPerson>().OrderBy(c => (int)c.PersonAddress["ZipCode"]).ThenBy(c => c.Id).Select(c => (string)c["Name"]),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_group_by_indexer_property(bool isAsync)
+        {
+            return AssertQueryScalar(
+                isAsync,
+                ss => ss.Set<OwnedPerson>().GroupBy(c => c["Name"]).Select(g => g.Count()));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_group_by_converted_indexer_property(bool isAsync)
+        {
+            return AssertQueryScalar(
+                isAsync,
+                ss => ss.Set<OwnedPerson>().GroupBy(c => (string)c["Name"]).Select(g => g.Count()));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_group_by_owned_indexer_property(bool isAsync)
+        {
+            return AssertQueryScalar(
+                isAsync,
+                ss => ss.Set<OwnedPerson>().GroupBy(c => c.PersonAddress["ZipCode"]).Select(g => g.Count()));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_group_by_converted_owned_indexer_property(bool isAsync)
+        {
+            return AssertQueryScalar(
+                isAsync,
+                ss => ss.Set<OwnedPerson>().GroupBy(c => (int)c.PersonAddress["ZipCode"]).Select(g => g.Count()));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_join_on_indexer_property_on_query(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss =>
+                    (from c1 in ss.Set<OwnedPerson>()
+                     join c2 in ss.Set<OwnedPerson>()
+                         on c1.PersonAddress["ZipCode"] equals c2.PersonAddress["ZipCode"]
+                     select new { c1.Id, c2.PersonAddress.Country.Name }));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_indexer_property_ignores_include(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => from c in ss.Set<OwnedPerson>().AsTracking()
+                      select new { Nation = c.PersonAddress["ZipCode"] });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_indexer_property_ignores_include_converted(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => from c in ss.Set<OwnedPerson>().AsTracking()
+                      select new { Nation = (int)c.PersonAddress["ZipCode"] });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Indexer_property_is_pushdown_into_subquery(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<OwnedPerson>()
+                    .Where(g => (string)ss.Set<OwnedPerson>().Where(c => c.Id == g.Id).FirstOrDefault()["Name"] == "Mona Cy")
+                    .Select(c => (string)c["Name"]));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_query_indexer_property_on_owned_collection(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<OwnedPerson>().Where(ow => ow.Orders.Where(o => ((DateTime)o["OrderDate"]).Year == 2018).Count() == 1)
+                    .Select(c => (string)c["Name"]));
+        }
 
         protected virtual DbContext CreateContext() => Fixture.CreateContext();
 
@@ -554,6 +748,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             private static void AssertAddress(OwnedAddress expectedAddress, OwnedAddress actualAddress)
             {
+                Assert.Equal(expectedAddress["AddressLine"], actualAddress["AddressLine"]);
+                Assert.Equal(expectedAddress["ZipCode"], actualAddress["ZipCode"]);
                 Assert.Equal(expectedAddress.Country.PlanetId, actualAddress.Country.PlanetId);
                 Assert.Equal(expectedAddress.Country.Name, actualAddress.Country.Name);
             }
@@ -564,6 +760,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 foreach (var element in expectedOrders.OrderBy(ee => ee.Id).Zip(actualOrders.OrderBy(aa => aa.Id), (e, a) => new { e, a }))
                 {
                     Assert.Equal(element.e.Id, element.a.Id);
+                    Assert.Equal(element.e["OrderDate"], element.a["OrderDate"]);
                     Assert.Equal(element.e.Client.Id, element.a.Client.Id);
                 }
             }
@@ -603,6 +800,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 var aa = (OwnedPerson)a;
 
                                 Assert.Equal(ee.Id, aa.Id);
+                                Assert.Equal(ee["Name"], aa["Name"]);
                                 AssertAddress(ee.PersonAddress, aa.PersonAddress);
                                 AssertOrders(ee.Orders, aa.Orders);
                             }
@@ -833,15 +1031,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                 modelBuilder.Entity<OwnedPerson>(
                     eb =>
                     {
-                        eb.HasData(
-                            new OwnedPerson { Id = 1 });
+                        eb.IndexedProperty<string>("Name");
+                        var ownedPerson = new OwnedPerson { Id = 1 };
+                        ownedPerson["Name"] = "Mona Cy";
+                        eb.HasData(ownedPerson);
 
                         eb.OwnsOne(
                             p => p.PersonAddress, ab =>
                             {
+                                ab.IndexedProperty<string>("AddressLine");
+                                ab.IndexedProperty(typeof(int), "ZipCode");
                                 ab.HasData(
-                                    new { OwnedPersonId = 1 }, new { OwnedPersonId = 2 }, new { OwnedPersonId = 3 },
-                                    new { OwnedPersonId = 4 });
+                                    new { OwnedPersonId = 1, AddressLine = "804 S. Lakeshore Road", ZipCode = 38654 },
+                                    new { OwnedPersonId = 2, AddressLine = "7 Church Dr.", ZipCode = 28655 },
+                                    new { OwnedPersonId = 3, AddressLine = "72 Hickory Rd.", ZipCode = 07728 },
+                                    new { OwnedPersonId = 4, AddressLine = "28 Strawberry St.", ZipCode = 19053 });
 
                                 ab.OwnsOne(
                                     a => a.Country, cb =>
@@ -880,12 +1084,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                         eb.OwnsMany(
                             p => p.Orders, ob =>
                             {
+                                ob.IndexedProperty<DateTime>("OrderDate");
                                 ob.HasData(
-                                    new { Id = -10, ClientId = 1 },
-                                    new { Id = -11, ClientId = 1 },
-                                    new { Id = -20, ClientId = 2 },
-                                    new { Id = -30, ClientId = 3 },
-                                    new { Id = -40, ClientId = 4 }
+                                    new { Id = -10, ClientId = 1, OrderDate = Convert.ToDateTime("2018-07-11 10:01:41") },
+                                    new { Id = -11, ClientId = 1, OrderDate = Convert.ToDateTime("2015-03-03 04:37:59") },
+                                    new { Id = -20, ClientId = 2, OrderDate = Convert.ToDateTime("2015-05-25 20:35:48") },
+                                    new { Id = -30, ClientId = 3, OrderDate = Convert.ToDateTime("2014-11-10 04:32:42") },
+                                    new { Id = -40, ClientId = 4, OrderDate = Convert.ToDateTime("2016-04-25 19:23:56") }
                                 );
                             });
                     });
@@ -893,8 +1098,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 modelBuilder.Entity<Branch>(
                     eb =>
                     {
-                        eb.HasData(
-                            new Branch { Id = 2 });
+                        eb.HasData(new { Id = 2, Name = "Antigonus Mitul" });
 
                         eb.OwnsOne(
                             p => p.BranchAddress, ab =>
@@ -925,8 +1129,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 modelBuilder.Entity<LeafA>(
                     eb =>
                     {
-                        eb.HasData(
-                            new LeafA { Id = 3 });
+                        var leafA = new LeafA { Id = 3 };
+                        leafA["Name"] = "Madalena Morana";
+                        eb.HasData(leafA);
 
                         eb.OwnsOne(
                             p => p.LeafAAddress, ab =>
@@ -954,8 +1159,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 modelBuilder.Entity<LeafB>(
                     eb =>
                     {
-                        eb.HasData(
-                            new LeafB { Id = 4 });
+                        var leafB = new LeafB { Id = 4 };
+                        leafB["Name"] = "Vanda Waldemar";
+                        eb.HasData(leafB);
 
                         eb.OwnsOne(
                             p => p.LeafBAddress, ab =>
@@ -1040,7 +1246,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        public class OwnedQueryData : ISetSource
+        protected class OwnedQueryData : ISetSource
         {
             private readonly IReadOnlyList<OwnedPerson> _ownedPeople;
             private readonly IReadOnlyList<Planet> _planets;
@@ -1148,40 +1354,67 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             private static IReadOnlyList<OwnedPerson> CreateOwnedPeople()
             {
+                var personAddress1 = new OwnedAddress { Country = new OwnedCountry { Name = "USA", PlanetId = 1 } };
+                personAddress1["AddressLine"] = "804 S. Lakeshore Road";
+                personAddress1["ZipCode"] = 38654;
                 var ownedPerson1 = new OwnedPerson
                 {
-                    Id = 1, PersonAddress = new OwnedAddress { Country = new OwnedCountry { Name = "USA", PlanetId = 1 } }
+                    Id = 1,
+                    PersonAddress = personAddress1
                 };
+                ownedPerson1["Name"] = "Mona Cy";
 
+                var personAddress2 = new OwnedAddress { Country = new OwnedCountry { Name = "USA", PlanetId = 1 } };
+                personAddress2["AddressLine"] = "7 Church Dr.";
+                personAddress2["ZipCode"] = 28655;
                 var ownedPerson2 = new Branch
                 {
                     Id = 2,
-                    PersonAddress = new OwnedAddress { Country = new OwnedCountry { Name = "USA", PlanetId = 1 } },
+                    PersonAddress = personAddress2,
                     BranchAddress = new OwnedAddress { Country = new OwnedCountry { Name = "Canada", PlanetId = 1 } }
                 };
+                ownedPerson2["Name"] = "Antigonus Mitul";
 
+                var personAddress3 = new OwnedAddress { Country = new OwnedCountry { Name = "USA", PlanetId = 1 } };
+                personAddress3["AddressLine"] = "72 Hickory Rd.";
+                personAddress3["ZipCode"] = 07728;
                 var ownedPerson3 = new LeafA
                 {
                     Id = 3,
-                    PersonAddress = new OwnedAddress { Country = new OwnedCountry { Name = "USA", PlanetId = 1 } },
+                    PersonAddress = personAddress3,
                     BranchAddress = new OwnedAddress { Country = new OwnedCountry { Name = "Canada", PlanetId = 1 } },
                     LeafAAddress = new OwnedAddress { Country = new OwnedCountry { Name = "Mexico", PlanetId = 1 } }
                 };
+                ownedPerson3["Name"] = "Madalena Morana";
 
+                var personAddress4 = new OwnedAddress { Country = new OwnedCountry { Name = "USA", PlanetId = 1 } };
+                personAddress4["AddressLine"] = "28 Strawberry St.";
+                personAddress4["ZipCode"] = 19053;
                 var ownedPerson4 = new LeafB
                 {
                     Id = 4,
-                    PersonAddress = new OwnedAddress { Country = new OwnedCountry { Name = "USA", PlanetId = 1 } },
+                    PersonAddress = personAddress4,
                     LeafBAddress = new OwnedAddress { Country = new OwnedCountry { Name = "Panama", PlanetId = 1 } }
                 };
+                ownedPerson4["Name"] = "Vanda Waldemar";
 
-                ownedPerson1.Orders = new List<Order>
-                {
-                    new Order { Id = -11, Client = ownedPerson1 }, new Order { Id = -10, Client = ownedPerson1 }
-                };
-                ownedPerson2.Orders = new List<Order> { new Order { Id = -20, Client = ownedPerson2 } };
-                ownedPerson3.Orders = new List<Order> { new Order { Id = -30, Client = ownedPerson3 } };
-                ownedPerson4.Orders = new List<Order> { new Order { Id = -40, Client = ownedPerson4 } };
+                var order1 = new Order { Id = -10, Client = ownedPerson1 };
+                order1["OrderDate"] = Convert.ToDateTime("2018-07-11 10:01:41");
+                var order2 = new Order { Id = -11, Client = ownedPerson1 };
+                order2["OrderDate"] = Convert.ToDateTime("2015-03-03 04:37:59");
+                ownedPerson1.Orders = new List<Order> { order1, order2 };
+
+                var order3 = new Order { Id = -20, Client = ownedPerson2 };
+                order3["OrderDate"] = Convert.ToDateTime("2015-05-25 20:35:48");
+                ownedPerson2.Orders = new List<Order> { order3 };
+
+                var order4 = new Order { Id = -30, Client = ownedPerson3 };
+                order4["OrderDate"] = Convert.ToDateTime("2014-11-10 04:32:42");
+                ownedPerson3.Orders = new List<Order> { order4 };
+
+                var order5 = new Order { Id = -40, Client = ownedPerson4 };
+                order5["OrderDate"] = Convert.ToDateTime("2016-04-25 19:23:56");
+                ownedPerson4.Orders = new List<Order> { order5 };
 
                 return new List<OwnedPerson>
                 {
@@ -1239,7 +1472,42 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected class OwnedAddress
         {
+            private string _addressLine;
+            private int _zipCode;
             public OwnedCountry Country { get; set; }
+            public object this[string name]
+            {
+                get
+                {
+                    if (string.Equals(name, "AddressLine", StringComparison.Ordinal))
+                    {
+                        return _addressLine;
+                    }
+
+                    if (string.Equals(name, "ZipCode", StringComparison.Ordinal))
+                    {
+                        return _zipCode;
+                    }
+
+                    throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(OwnedPerson)}.");
+                }
+
+                set
+                {
+                    if (string.Equals(name, "AddressLine", StringComparison.Ordinal))
+                    {
+                        _addressLine = (string)value;
+                    }
+                    else if (string.Equals(name, "ZipCode", StringComparison.Ordinal))
+                    {
+                        _zipCode = (int)value;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(OwnedPerson)}.");
+                    }
+                }
+            }
         }
 
         protected class OwnedCountry
@@ -1252,7 +1520,35 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected class OwnedPerson
         {
+            private string _name;
+
             public int Id { get; set; }
+
+            public object this[string name]
+            {
+                get
+                {
+                    if (string.Equals(name, "Name", StringComparison.Ordinal))
+                    {
+                        return _name;
+                    }
+
+                    throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(OwnedPerson)}.");
+                }
+
+                set
+                {
+                    if (string.Equals(name, "Name", StringComparison.Ordinal))
+                    {
+                        _name = (string)value;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(OwnedPerson)}.");
+                    }
+                }
+            }
+
             public OwnedAddress PersonAddress { get; set; }
             public int ReadOnlyProperty => 10;
 
@@ -1261,7 +1557,34 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected class Order
         {
+            private DateTime _orderDate;
             public int Id { get; set; }
+
+            public object this[string name]
+            {
+                get
+                {
+                    if (string.Equals(name, "OrderDate", StringComparison.Ordinal))
+                    {
+                        return _orderDate;
+                    }
+
+                    throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(OwnedPerson)}.");
+                }
+
+                set
+                {
+                    if (string.Equals(name, "OrderDate", StringComparison.Ordinal))
+                    {
+                        _orderDate = (DateTime)value;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(OwnedPerson)}.");
+                    }
+                }
+            }
+
             public OwnedPerson Client { get; set; }
         }
 

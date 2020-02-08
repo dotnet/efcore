@@ -2,12 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -29,6 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private IClrPropertySetter _materializationSetter;
         private PropertyAccessors _accessors;
         private PropertyIndexes _indexes;
+        private ConfigurationSource _configurationSource;
+        private IComparer<IUpdateEntry> _currentValueComparer;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -39,13 +44,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         protected PropertyBase(
             [NotNull] string name,
             [CanBeNull] PropertyInfo propertyInfo,
-            [CanBeNull] FieldInfo fieldInfo)
+            [CanBeNull] FieldInfo fieldInfo,
+            ConfigurationSource configurationSource)
         {
             Check.NotEmpty(name, nameof(name));
 
             Name = name;
             PropertyInfo = propertyInfo;
             _fieldInfo = fieldInfo;
+            _configurationSource = configurationSource;
         }
 
         /// <summary>
@@ -85,6 +92,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [DebuggerStepThrough]
             set => SetField(value, ConfigurationSource.Explicit);
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
+        {
+            var oldConfigurationSource = _configurationSource;
+            _configurationSource = configurationSource.Max(_configurationSource);
+        }
+
+        // Needed for a workaround before reference counting is implemented
+        // Issue #15898
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void SetConfigurationSource(ConfigurationSource configurationSource)
+            => _configurationSource = configurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -144,7 +182,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (Equals(FieldInfo, fieldInfo))
             {
-                UpdateFieldInfoConfigurationSource(configurationSource);
+                if (fieldInfo != null)
+                {
+                    UpdateFieldInfoConfigurationSource(configurationSource);
+                }
+
                 return;
             }
 
@@ -158,6 +200,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(
                         CoreStrings.BackingFieldOnIndexer(fieldInfo.GetSimpleMemberName(), DeclaringType.DisplayName(), Name));
                 }
+                UpdateFieldInfoConfigurationSource(configurationSource);
+            }
+            else
+            {
+                _fieldInfoConfigurationSource = null;
             }
 
             if (PropertyInfo == null
@@ -166,8 +213,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new InvalidOperationException(
                     CoreStrings.FieldNameMismatch(fieldInfo?.GetSimpleMemberName(), DeclaringType.DisplayName(), Name));
             }
-
-            UpdateFieldInfoConfigurationSource(configurationSource);
 
             var oldFieldInfo = FieldInfo;
             _fieldInfo = fieldInfo;
@@ -330,6 +375,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual PropertyAccessors Accessors
             => NonCapturingLazyInitializer.EnsureInitialized(ref _accessors, this, p => new PropertyAccessorsFactory().Create(p));
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IComparer<IUpdateEntry> CurrentValueComparer =>
+            NonCapturingLazyInitializer.EnsureInitialized(
+                ref _currentValueComparer, this, p => new CurrentValueComparerFactory().Create(p));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

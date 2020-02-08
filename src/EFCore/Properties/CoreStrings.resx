@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -611,9 +611,6 @@
   <data name="CompositePKWithDataAnnotation" xml:space="preserve">
     <value>Entity type '{entityType}' has composite primary key defined with data annotations. To set composite primary key, use fluent API.</value>
   </data>
-  <data name="DuplicateNavigationsOnBase" xml:space="preserve">
-    <value>The type '{entityType}' cannot have base type '{baseType}' because both types include the navigations: {navigations}.</value>
-  </data>
   <data name="EntityTypeModelMismatch" xml:space="preserve">
     <value>The entity types '{firstEntityType}' and '{secondEntityType}' do not belong to the same model.</value>
   </data>
@@ -769,7 +766,7 @@
     <value>A parameterless constructor was not found on entity type '{entityType}'. In order to create an instance of '{entityType}' EF requires that a parameterless constructor be declared.</value>
   </data>
   <data name="ConflictingRelationshipNavigation" xml:space="preserve">
-    <value>Cannot create a relationship between '{newPrincipalEntityType}.{newPrincipalNavigation}' and '{newDependentEntityType}.{newDependentNavigation}', because there already is a relationship between '{existingPrincipalEntityType}.{existingPrincipalNavigation}' and '{existingDependentEntityType}.{existingDependentNavigation}'. Navigation properties can only participate in a single relationship. If you want to override an existing relationship call Ignore on the navigation first.</value>
+    <value>Cannot create a relationship between '{newPrincipalNavigationSpecification}' and '{newDependentNavigationSpecification}', because there already is a relationship between '{existingPrincipalNavigationSpecification}' and '{existingDependentNavigationSpecification}'. Navigation properties can only participate in a single relationship. If you want to override an existing relationship call Ignore on the navigation first.</value>
   </data>
   <data name="WarningAsErrorTemplate" xml:space="preserve">
     <value>Error generated for warning '{eventName}': {message} This exception can be suppressed or logged by passing event ID '{eventId}' to the 'ConfigureWarnings' method in 'DbContext.OnConfiguring' or 'AddDbContext'.</value>
@@ -828,8 +825,8 @@
   <data name="ForeignKeySelfReferencingDependentEntityType" xml:space="preserve">
     <value>The foreign keys on entity type '{dependentType}' cannot target the same entity type because it is a weak entity type.</value>
   </data>
-  <data name="EntityTypeInUseByForeignKey" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot be removed because it is referencing '{referencedEntityType}' by foreign key {foreignKey}. All foreign keys must be removed before the entity type can be removed.</value>
+  <data name="EntityTypeInUseByReferencingSkipNavigation" xml:space="preserve">
+    <value>The entity type '{entityType}' cannot be removed because it is being referenced by the skip navigation '{skipNavigation}' on '{referencingEntityType}'. All referencing skip navigations must be removed before the entity type can be removed.</value>
   </data>
   <data name="ClashingWeakEntityType" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be added to the model because a weak entity type with the same name already exists.</value>
@@ -887,6 +884,12 @@
   </data>
   <data name="ComparerPropertyMismatch" xml:space="preserve">
     <value>Comparer for type '{type}' cannot be used for '{entityType}.{propertyName}' because its type is '{propertyType}'.</value>
+  </data>
+  <data name="NonComparableKeyType" xml:space="preserve">
+    <value>Property '{entityType}.{property}' cannot be used as a key because it has type '{providerType}' which does not implement 'IComparable&lt;T&gt;', 'IComparable' or 'IStructuralComparable'. Use 'HasConversion()' in 'OnModelCreating()' to wrap '{providerType}' with a type that can be compared.</value>
+  </data>
+  <data name="NonComparableKeyTypes" xml:space="preserve">
+    <value>Property '{entityType}.{property}' cannot be used as a key because it has type '{modelType}' and provider type '{providerType}' neither of which implement 'IComparable&lt;T&gt;', 'IComparable' or 'IStructuralComparable'. Make '{modelType}' implement one of these interfaces to use it as a key.</value>
   </data>
   <data name="IncludeNotSpecifiedDirectlyOnEntityType" xml:space="preserve">
     <value>The Include operation '{include}' is not supported. '{invalidNavigation}' must be a navigation property defined on an entity type.</value>
@@ -1076,7 +1079,7 @@
     <comment>Debug CoreEventId.OptimisticConcurrencyException Exception</comment>
   </data>
   <data name="AmbiguousOwnedNavigation" xml:space="preserve">
-    <value>Unable to determine the owner for the relationship between '{entityType}' and '{otherEntityType}' as both types have been marked as owned. Either manually configure the ownership, or ignore the corresponding navigations using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
+    <value>Unable to determine the owner for the relationship between '{entityTypeNavigationSpecification}' and '{otherEntityType}' as both types have been marked as owned. Either manually configure the ownership, or ignore the corresponding navigations using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
   </data>
   <data name="FkAttributeOnNonUniquePrincipal" xml:space="preserve">
     <value>The ForeignKeyAttribute for the navigation '{navigation}' cannot be specified on the entity type '{principalType}' since it represents a one-to-many relationship. Move the ForeignKeyAttribute to a property on '{dependentType}'.</value>
@@ -1221,14 +1224,8 @@
   <data name="ForeignKeyInUseSkipNavigation" xml:space="preserve">
     <value>Cannot remove foreign key {foreigKey} from entity type '{entityType}' because it is referenced by a skip navigation '{navigation}' on entity type '{navigationEntityType}'. All referencing skip navigation must be removed before the referenced foreign key can be removed.</value>
   </data>
-  <data name="SkipNavigationWrongDependentType" xml:space="preserve">
-    <value>The skip navigation property '{navigation}' cannot be added to entity type '{entityType}' because it is expected to be on the dependent entity type '{dependentEntityType}' of the foreign key {foreignKey}.</value>
-  </data>
   <data name="SkipNavigationWrongInverse" xml:space="preserve">
     <value>The skip navigation '{inverse}' declared on the entity type '{inverseEntityType}' cannot be set as the inverse of '{navigation}' that targets '{targetEntityType}'. The inverse should be declared on the target entity type.</value>
-  </data>
-  <data name="SkipNavigationWrongPrincipalType" xml:space="preserve">
-    <value>The skip navigation property '{navigation}' cannot be added to entity type '{entityType}' because it is expected to be on the principal entity type '{principalEntityType}' of the foreign key {foreignKey}.</value>
   </data>
   <data name="SkipNavigationWrongType" xml:space="preserve">
     <value>The skip navigation property '{navigation}' cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.</value>
@@ -1265,5 +1262,11 @@
   </data>
   <data name="CannotFindEntityWithClrTypeWhenShared" xml:space="preserve">
     <value>Cannot find entity type with type '{clrType}' since model contains shared entity type(s) with same type.</value>
+  </data>
+  <data name="SkipNavigationInUseBySkipNavigation" xml:space="preserve">
+    <value>The skip navigation '{skipNavigation}' cannot be removed because it is set as the inverse of the skip navigation '{inverseSkipNavigation}' on '{referencingEntityType}'. All referencing skip navigations must be removed before this skip navigation can be removed.</value>
+  </data>
+  <data name="LastUsedWithoutOrderBy" xml:space="preserve">
+    <value>Queries performing '{method}' operation must have a deterministic sort order. Rewrite the query to apply an OrderBy clause on the sequence before calling '{method}'.</value>
   </data>
 </root>

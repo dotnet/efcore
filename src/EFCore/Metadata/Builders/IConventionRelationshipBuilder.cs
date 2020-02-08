@@ -317,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <summary>
         ///     Returns a value indicating whether the backing field can be set for a navigation
-        ///     from the current configuration source.
+        ///     from the given configuration source.
         /// </summary>
         /// <param name="fieldName"> The field name. </param>
         /// <param name="pointsToPrincipal">
@@ -332,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <summary>
         ///     Returns a value indicating whether the backing field can be set for a navigation
-        ///     from the current configuration source.
+        ///     from the given configuration source.
         /// </summary>
         /// <param name="fieldInfo"> The field. </param>
         /// <param name="pointsToPrincipal">
@@ -344,6 +344,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [CanBeNull] FieldInfo fieldInfo,
             bool pointsToPrincipal,
             bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Sets the <see cref="PropertyAccessMode" /> to use for a navigation.
+        /// </summary>
+        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> to use for the navigation. </param>
+        /// <param name="pointsToPrincipal">
+        ///     A value indicating whether the navigation is on the dependent type pointing to the principal type.
+        /// </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        IConventionRelationshipBuilder UsePropertyAccessMode(
+            PropertyAccessMode? propertyAccessMode, bool pointsToPrincipal, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns a value indicating whether the <see cref="PropertyAccessMode" /> can be set for a navigation
+        ///     from the given configuration source.
+        /// </summary>
+        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> to use for the navigation. </param>
+        /// <param name="pointsToPrincipal">
+        ///     A value indicating whether the navigation is on the dependent type pointing to the principal type.
+        /// </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the <see cref="PropertyAccessMode" /> can be set for this property. </returns>
+        bool CanSetPropertyAccessMode(
+            PropertyAccessMode? propertyAccessMode, bool pointsToPrincipal, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Configures whether this navigation should be eager loaded by default.

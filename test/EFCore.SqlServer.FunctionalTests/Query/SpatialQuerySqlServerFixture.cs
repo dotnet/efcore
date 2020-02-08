@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         "STDistance",
                         arguments: e.Skip(1),
                         nullResultAllowed: true,
-                        instancPropagatesNullability: true,
+                        instancePropagatesNullability: true,
                         argumentsPropagateNullability: e.Skip(1).Select(a => true),
                         typeof(double),
                         null)));

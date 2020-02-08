@@ -20,11 +20,15 @@ using Xunit;
 // ReSharper disable NonReadonlyMemberInGetHashCode
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract partial class GraphUpdatesTestBase<TFixture>
+    public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFixture>
+        where TFixture :  GraphUpdatesTestBase<TFixture>.GraphUpdatesFixtureBase, new()
     {
+        protected GraphUpdatesTestBase(TFixture fixture) => Fixture = fixture;
+
+        protected TFixture Fixture { get; }
+
         public abstract class GraphUpdatesFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
-            protected override string StoreName { get; } = "GraphUpdatesChangedTest";
             public readonly Guid RootAK = Guid.NewGuid();
             public virtual bool ForceClientNoAction => false;
             public virtual bool NoStoreCascades => false;
@@ -586,9 +590,9 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private static void Add<T>(IEnumerable<T> collection, T item) => ((ICollection<T>)collection).Add(item);
+        protected static void Add<T>(IEnumerable<T> collection, T item) => ((ICollection<T>)collection).Add(item);
 
-        private static void Remove<T>(IEnumerable<T> collection, T item) => ((ICollection<T>)collection).Remove(item);
+        protected static void Remove<T>(IEnumerable<T> collection, T item) => ((ICollection<T>)collection).Remove(item);
 
         [Flags]
         public enum ChangeMechanism
@@ -682,7 +686,7 @@ namespace Microsoft.EntityFrameworkCore
                 .Single(IsTheRoot);
         }
 
-        private static void AssertEntries(IReadOnlyList<EntityEntry> expectedEntries, IReadOnlyList<EntityEntry> actualEntries)
+        protected static void AssertEntries(IReadOnlyList<EntityEntry> expectedEntries, IReadOnlyList<EntityEntry> actualEntries)
         {
             var newEntities = new HashSet<object>(actualEntries.Select(ne => ne.Entity));
             var missingEntities = expectedEntries.Select(e => e.Entity).Where(e => !newEntities.Contains(e)).ToList();
@@ -690,7 +694,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(expectedEntries.Count, actualEntries.Count);
         }
 
-        private static void AssertKeys(Root expected, Root actual)
+        protected static void AssertKeys(Root expected, Root actual)
         {
             Assert.Equal(expected.Id, actual.Id);
 
@@ -813,7 +817,7 @@ namespace Microsoft.EntityFrameworkCore
                         e => new { e.Id, e.ParentAlternateId }));
         }
 
-        private static void AssertNavigations(Root root)
+        protected static void AssertNavigations(Root root)
         {
             foreach (var child in root.RequiredChildren)
             {
@@ -896,7 +900,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private static void AssertPossiblyNullNavigations(Root root)
+        protected static void AssertPossiblyNullNavigations(Root root)
         {
             foreach (var child in root.RequiredChildren)
             {

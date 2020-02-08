@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (constantExpression.IsEntityQueryable())
             {
-                var entityType = _queryCompilationContext.Model.FindEntityType(((IQueryable)constantExpression.Value).ElementType);
+                var entityType = ((IEntityQueryable)constantExpression.Value).EntityType;
                 var definingQuery = entityType.GetDefiningQuery();
                 NavigationExpansionExpression navigationExpansionExpression;
                 if (definingQuery != null)
@@ -158,10 +158,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 var innerQueryable = UnwrapCollectionMaterialization(innerExpression);
 
-                return Visit(
+                if (innerQueryable.Type.TryGetElementType(typeof(IQueryable<>)) != null)
+                {
+                    return Visit(
                     Expression.Call(
                         QueryableMethods.CountWithoutPredicate.MakeGenericMethod(innerQueryable.Type.TryGetSequenceType()),
                         innerQueryable));
+                }
             }
 
             var updatedExpression = (Expression)memberExpression.Update(innerExpression);
@@ -524,7 +527,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && (methodCallExpression.Arguments[2] is ParameterExpression || methodCallExpression.Arguments[2] is ConstantExpression)
                 && constantExpression.IsEntityQueryable())
             {
-                var entityType = _queryCompilationContext.Model.FindEntityType(((IQueryable)constantExpression.Value).ElementType);
+                var entityType = ((IEntityQueryable)constantExpression.Value).EntityType;
                 var source = CreateNavigationExpansionExpression(constantExpression, entityType);
                 source.UpdateSource(
                     methodCallExpression.Update(
@@ -1169,7 +1172,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         // entity information through. Construct a MethodCall wrapper for the predicate with the proper query root.
                         var filterWrapper = Expression.Call(
                             QueryableMethods.Where.MakeGenericMethod(rootEntityType.ClrType),
-                            NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(rootEntityType.ClrType),
+                            NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(rootEntityType),
                             filterPredicate);
                         var rewrittenFilterWrapper = (MethodCallExpression)_entityEqualityRewritingExpressionVisitor.Rewrite(filterWrapper);
                         filterPredicate = rewrittenFilterWrapper.Arguments[1].UnwrapLambdaFromQuote();
@@ -1519,13 +1522,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 case NewExpression newExpression:
                 {
+                    var allDefault = true;
                     var arguments = new Expression[newExpression.Arguments.Count];
                     for (var i = 0; i < newExpression.Arguments.Count; i++)
                     {
                         arguments[i] = SnapshotExpression(newExpression.Arguments[i]);
+                        allDefault &= arguments[i].NodeType == ExpressionType.Default;
                     }
 
-                    return newExpression.Update(arguments);
+                    return allDefault
+                        ? Expression.Default(newExpression.Type)
+                        : (Expression)newExpression.Update(arguments);
                 }
 
                 case OwnedNavigationReference ownedNavigationReference:

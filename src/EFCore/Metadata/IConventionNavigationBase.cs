@@ -27,12 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionEntityType TargetEntityType => (IConventionEntityType)((INavigationBase)this).TargetEntityType;
 
         /// <summary>
-        ///     Returns the configuration source for this navigation property.
-        /// </summary>
-        /// <returns> The configuration source. </returns>
-        ConfigurationSource GetConfigurationSource();
-
-        /// <summary>
         ///     Gets the inverse navigation.
         /// </summary>
         new IConventionNavigationBase Inverse => (IConventionNavigationBase)((INavigationBase)this).Inverse;

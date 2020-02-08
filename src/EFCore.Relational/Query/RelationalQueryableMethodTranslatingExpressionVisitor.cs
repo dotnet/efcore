@@ -71,8 +71,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && methodCallExpression.Method.Name == nameof(RelationalQueryableExtensions.FromSqlOnQueryable))
             {
                 var sql = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
-                var queryable = (IQueryable)((ConstantExpression)methodCallExpression.Arguments[0]).Value;
-                return CreateShapedQueryExpression(queryable.ElementType, sql, methodCallExpression.Arguments[2]);
+                var queryable = (IEntityQueryable)((ConstantExpression)methodCallExpression.Arguments[0]).Value;
+
+                return CreateShapedQueryExpression(
+                    queryable.EntityType, _sqlExpressionFactory.Select(queryable.EntityType, sql, methodCallExpression.Arguments[2]));
             }
 
             return base.VisitMethodCall(methodCallExpression);
@@ -81,6 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor()
             => new RelationalQueryableMethodTranslatingExpressionVisitor(this);
 
+        [Obsolete("Use overload which takes IEntityType.")]
         protected override ShapedQueryExpression CreateShapedQueryExpression(Type elementType)
         {
             Check.NotNull(elementType, nameof(elementType));
@@ -91,12 +94,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return CreateShapedQueryExpression(entityType, queryExpression);
         }
 
-        private ShapedQueryExpression CreateShapedQueryExpression(Type elementType, string sql, Expression arguments)
+        protected override ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType)
         {
-            var entityType = _model.FindEntityType(elementType);
-            var queryExpression = _sqlExpressionFactory.Select(entityType, sql, arguments);
+            Check.NotNull(entityType, nameof(entityType));
 
-            return CreateShapedQueryExpression(entityType, queryExpression);
+            return CreateShapedQueryExpression(entityType, _sqlExpressionFactory.Select(entityType));
         }
 
         private static ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType, SelectExpression selectExpression)
@@ -552,7 +554,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             var selectExpression = (SelectExpression)source.QueryExpression;
             if (selectExpression.Orderings.Count == 0)
             {
-                return null;
+                throw new InvalidOperationException(
+                    CoreStrings.LastUsedWithoutOrderBy(returnDefault ?
+                        nameof(Queryable.LastOrDefault) : nameof(Queryable.Last)));
             }
 
             if (predicate != null)

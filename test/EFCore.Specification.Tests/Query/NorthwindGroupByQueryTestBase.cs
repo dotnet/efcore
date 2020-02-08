@@ -2398,6 +2398,27 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.Key);
         }
 
+
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_scalar_aggregate_in_set_operation(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Where(c => c.CustomerID.StartsWith("F"))
+                    .Select(c => new { c.CustomerID, Sequence = 0 })
+                    .Union(ss.Set<Order>()
+                        .GroupBy(o => o.CustomerID)
+                        .Select(g => new
+                        {
+                            CustomerID = g.Key,
+                            Sequence = 1
+                        })),
+                elementSorter: e => e.CustomerID);
+        }
+
         #endregion
     }
 }

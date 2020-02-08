@@ -278,6 +278,179 @@ WHERE (c[""Discriminator""] = ""LeafA"")");
             return base.Where_collection_navigation_ToArray_Length_member(async);
         }
 
+        public override async Task Can_query_on_indexer_properties(bool async)
+        {
+            await base.Can_query_on_indexer_properties(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"") AND (c[""Name""] = ""Mona Cy""))");
+        }
+
+        public override async Task Can_query_on_owned_indexer_properties(bool async)
+        {
+            await base.Can_query_on_owned_indexer_properties(async);
+
+            AssertSql(
+                @"SELECT c[""Name""]
+FROM root c
+WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"") AND (c[""PersonAddress""][""ZipCode""] = 38654))");
+        }
+
+        public override async Task Can_query_on_indexer_property_when_property_name_from_closure(bool async)
+        {
+            await base.Can_query_on_indexer_property_when_property_name_from_closure(async);
+
+            AssertSql(
+                @"SELECT c[""Name""]
+FROM root c
+WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"") AND (c[""Name""] = ""Mona Cy""))");
+        }
+
+        public override async Task Can_project_indexer_properties(bool async)
+        {
+            await base.Can_project_indexer_properties(async);
+
+            AssertSql(
+                @"SELECT c[""Name""]
+FROM root c
+WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"")");
+        }
+
+        public override async Task Can_project_owned_indexer_properties(bool async)
+        {
+            await base.Can_project_owned_indexer_properties(async);
+
+            AssertSql(
+                @"SELECT c[""PersonAddress""][""AddressLine""]
+FROM root c
+WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"")");
+        }
+
+        public override async Task Can_project_indexer_properties_converted(bool async)
+        {
+            await base.Can_project_indexer_properties_converted(async);
+
+            AssertSql(
+                @"SELECT c[""Name""]
+FROM root c
+WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"")");
+        }
+
+        public override async Task Can_project_owned_indexer_properties_converted(bool async)
+        {
+            await base.Can_project_owned_indexer_properties_converted(async);
+        }
+
+        [ConditionalTheory(Skip = "OrderBy requires composite index #17246")]
+        public override async Task Can_OrderBy_indexer_properties(bool async)
+        {
+            await base.Can_OrderBy_indexer_properties(async);
+
+            AssertSql(" ");
+        }
+
+        [ConditionalTheory(Skip = "OrderBy requires composite index #17246")]
+        public override async Task Can_OrderBy_indexer_properties_converted(bool async)
+        {
+            await base.Can_OrderBy_indexer_properties_converted(async);
+
+            AssertSql(" ");
+        }
+
+        [ConditionalTheory(Skip = "OrderBy requires composite index #17246")]
+        public override async Task Can_OrderBy_owned_indexer_properties(bool async)
+        {
+            await base.Can_OrderBy_owned_indexer_properties(async);
+
+            AssertSql(" ");
+        }
+
+        [ConditionalTheory(Skip = "OrderBy requires composite index #17246")]
+        public override async Task Can_OrderBy_owened_indexer_properties_converted(bool async)
+        {
+            await base.Can_OrderBy_owened_indexer_properties_converted(async);
+
+            AssertSql(" ");
+        }
+
+        [ConditionalTheory(Skip = "GroupBy #17246")]
+        public override async Task Can_group_by_indexer_property(bool isAsync)
+        {
+            await base.Can_group_by_indexer_property(isAsync);
+
+            AssertSql(" ");
+        }
+
+        [ConditionalTheory(Skip = "GroupBy #17246")]
+        public override async Task Can_group_by_converted_indexer_property(bool isAsync)
+        {
+            await base.Can_group_by_converted_indexer_property(isAsync);
+
+            AssertSql(" ");
+        }
+
+        [ConditionalTheory(Skip = "GroupBy #17246")]
+        public override async Task Can_group_by_owned_indexer_property(bool isAsync)
+        {
+            await base.Can_group_by_owned_indexer_property(isAsync);
+
+            AssertSql(" ");
+        }
+
+        [ConditionalTheory(Skip = "GroupBy #17246")]
+        public override async Task Can_group_by_converted_owned_indexer_property(bool isAsync)
+        {
+            await base.Can_group_by_converted_owned_indexer_property(isAsync);
+
+            AssertSql(" ");
+        }
+
+        [ConditionalTheory(Skip = "Join #17246")]
+        public override async Task Can_join_on_indexer_property_on_query(bool isAsync)
+        {
+            await base.Can_join_on_indexer_property_on_query(isAsync);
+
+            AssertSql(" ");
+        }
+
+        public override async Task Projecting_indexer_property_ignores_include(bool isAsync)
+        {
+            await base.Projecting_indexer_property_ignores_include(isAsync);
+
+            AssertSql(
+                @"SELECT c[""PersonAddress""][""ZipCode""] AS Nation
+FROM root c
+WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"")");
+        }
+
+        public override async Task Projecting_indexer_property_ignores_include_converted(bool isAsync)
+        {
+            await base.Projecting_indexer_property_ignores_include_converted(isAsync);
+
+            AssertSql(
+                @"SELECT c[""PersonAddress""][""ZipCode""] AS Nation
+FROM root c
+WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"")");
+        }
+
+        [ConditionalTheory(Skip = "Subquery #17246")]
+        public override async Task Indexer_property_is_pushdown_into_subquery(bool isAsync)
+        {
+            await base.Indexer_property_is_pushdown_into_subquery(isAsync);
+
+            AssertSql(" ");
+        }
+
+        [ConditionalTheory(Skip = "Composition over owned collection #17246")]
+        public override async Task Can_query_indexer_property_on_owned_collection(bool isAsync)
+        {
+            await base.Can_query_indexer_property_on_owned_collection(isAsync);
+
+            AssertSql(" ");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
@@ -296,15 +469,20 @@ WHERE (c[""Discriminator""] = ""LeafA"")");
                 modelBuilder.Entity<OwnedPerson>(
                     eb =>
                     {
+                        eb.IndexedProperty<string>("Name");
                         eb.HasData(
-                            new { Id = 1, id = Guid.NewGuid().ToString() });
+                            new { Id = 1, id = Guid.NewGuid().ToString(), Name = "Mona Cy" });
 
                         eb.OwnsOne(
                             p => p.PersonAddress, ab =>
                             {
+                                ab.IndexedProperty<string>("AddressLine");
+                                ab.IndexedProperty(typeof(int), "ZipCode");
                                 ab.HasData(
-                                    new { OwnedPersonId = 1 }, new { OwnedPersonId = 2 }, new { OwnedPersonId = 3 },
-                                    new { OwnedPersonId = 4 });
+                                    new { OwnedPersonId = 1, AddressLine = "804 S. Lakeshore Road", ZipCode = 38654 },
+                                    new { OwnedPersonId = 2, AddressLine = "7 Church Dr.", ZipCode = 28655 },
+                                    new { OwnedPersonId = 3, AddressLine = "72 Hickory Rd.", ZipCode = 07728 },
+                                    new { OwnedPersonId = 4, AddressLine = "28 Strawberry St.", ZipCode = 19053 });
 
                                 ab.OwnsOne(
                                     a => a.Country, cb =>
@@ -344,12 +522,13 @@ WHERE (c[""Discriminator""] = ""LeafA"")");
                             p => p.Orders, ob =>
                             {
                                 ob.HasKey(o => o.Id);
+                                ob.IndexedProperty<DateTime>("OrderDate");
                                 ob.HasData(
-                                    new { Id = -10, ClientId = 1 },
-                                    new { Id = -11, ClientId = 1 },
-                                    new { Id = -20, ClientId = 2 },
-                                    new { Id = -30, ClientId = 3 },
-                                    new { Id = -40, ClientId = 4 }
+                                    new { Id = -10, ClientId = 1, OrderDate = Convert.ToDateTime("2018-07-11 10:01:41") },
+                                    new { Id = -11, ClientId = 1, OrderDate = Convert.ToDateTime("2015-03-03 04:37:59") },
+                                    new { Id = -20, ClientId = 2, OrderDate = Convert.ToDateTime("2015-05-25 20:35:48") },
+                                    new { Id = -30, ClientId = 3, OrderDate = Convert.ToDateTime("2014-11-10 04:32:42") },
+                                    new { Id = -40, ClientId = 4, OrderDate = Convert.ToDateTime("2016-04-25 19:23:56") }
                                 );
                             });
                     });
@@ -358,7 +537,7 @@ WHERE (c[""Discriminator""] = ""LeafA"")");
                     eb =>
                     {
                         eb.HasData(
-                            new { Id = 2, id = Guid.NewGuid().ToString() });
+                            new { Id = 2, id = Guid.NewGuid().ToString(), Name = "Antigonus Mitul" });
 
                         eb.OwnsOne(
                             p => p.BranchAddress, ab =>
@@ -390,7 +569,7 @@ WHERE (c[""Discriminator""] = ""LeafA"")");
                     eb =>
                     {
                         eb.HasData(
-                            new { Id = 3, id = Guid.NewGuid().ToString() });
+                            new { Id = 3, id = Guid.NewGuid().ToString(), Name = "Madalena Morana" });
 
                         eb.OwnsOne(
                             p => p.LeafAAddress, ab =>
@@ -416,7 +595,7 @@ WHERE (c[""Discriminator""] = ""LeafA"")");
                     eb =>
                     {
                         eb.HasData(
-                            new { Id = 4, id = Guid.NewGuid().ToString() });
+                            new { Id = 4, id = Guid.NewGuid().ToString(), Name = "Vanda Waldemar" });
 
                         eb.OwnsOne(
                             p => p.LeafBAddress, ab =>

@@ -185,6 +185,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         Returns an object that can be used to configure a property of the entity type.
         ///         If no property with the given name exists, then a new property will be added.
         ///     </para>
+        ///     <para>
+        ///         Indexed properties are stored in the entity using
+        ///         <see href="https://docs.microsoft.com/dotnet/csharp/programming-guide/indexers/">an indexer</see>
+        ///         supplying the provided property name.
+        ///     </para>
         /// </summary>
         /// <typeparam name="TProperty"> The type of the property to be configured. </typeparam>
         /// <param name="propertyName"> The name of the property to be configured. </param>
@@ -201,7 +206,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         If no property with the given name exists, then a new property will be added.
         ///     </para>
         ///     <para>
-        ///         Indexed properties are stored in the entity using an indexer supplying the provided property name.
+        ///         Indexed properties are stored in the entity using
+        ///         <see href="https://docs.microsoft.com/dotnet/csharp/programming-guide/indexers/">an indexer</see>
+        ///         supplying the provided property name.
         ///     </para>
         /// </summary>
         /// <param name="propertyType"> The type of the property to be configured. </param>
@@ -584,7 +591,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 navigationName,
                 Builder.HasRelationship(
                     relatedEntityType, navigationName, ConfigurationSource.Explicit,
-                    setTargetAsPrincipal: Builder.Metadata == relatedEntityType).Metadata);
+                    targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null).Metadata);
         }
 
         /// <summary>
@@ -627,7 +634,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 navigationName,
                 Builder.HasRelationship(
                     relatedEntityType, navigationName, ConfigurationSource.Explicit,
-                    setTargetAsPrincipal: Builder.Metadata == relatedEntityType).Metadata);
+                    targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null).Metadata);
         }
 
         /// <summary>
@@ -684,26 +691,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(relatedTypeName, nameof(relatedTypeName));
             Check.NullButNotEmpty(navigationName, nameof(navigationName));
 
-            var relatedEntityType = FindRelatedEntityType(relatedTypeName, navigationName);
-
-            InternalRelationshipBuilder relationship;
-            using (var batch = Builder.Metadata.Model.ConventionDispatcher.DelayConventions())
-            {
-                relationship = relatedEntityType.Builder
-                    .HasRelationship(Builder.Metadata, ConfigurationSource.Explicit)
-                    .IsUnique(false, ConfigurationSource.Explicit)
-                    .HasEntityTypes(Builder.Metadata, relatedEntityType, ConfigurationSource.Explicit).HasNavigation(
-                        navigationName,
-                        pointsToPrincipal: false,
-                        ConfigurationSource.Explicit);
-                relationship = batch.Run(relationship);
-            }
-
-            return new CollectionNavigationBuilder(
-                Builder.Metadata,
-                relatedEntityType,
-                navigationName,
-                relationship.Metadata);
+            return HasMany(navigationName, FindRelatedEntityType(relatedTypeName, navigationName));
         }
 
         /// <summary>
@@ -730,7 +718,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             if (Metadata.ClrType == null)
             {
-                return HasMany(navigationName, null);
+                return HasMany(navigationName, (string)null);
             }
 
             var memberType = Metadata.GetNavigationMemberInfo(navigationName).GetMemberType();
@@ -778,28 +766,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [CanBeNull] string navigationName = null)
         {
             Check.NotNull(relatedType, nameof(relatedType));
-            Check.NullButNotEmpty(navigationName, nameof(navigationName));
+            Check.NullButNotEmpty(navigationName, nameof(navigationName));;
 
-            var relatedEntityType = FindRelatedEntityType(relatedType, navigationName);
+            return HasMany(navigationName, FindRelatedEntityType(relatedType, navigationName));
+        }
 
-            InternalRelationshipBuilder relationship;
-            using (var batch = Builder.Metadata.Model.ConventionDispatcher.DelayConventions())
+        private CollectionNavigationBuilder HasMany(string navigationName, EntityType relatedEntityType)
+        {
+            var skipNavigation = navigationName != null ? Builder.Metadata.FindSkipNavigation(navigationName) : null;
+
+            InternalRelationshipBuilder relationship = null;
+            if (skipNavigation == null)
             {
-                relationship = relatedEntityType.Builder
-                    .HasRelationship(Builder.Metadata, ConfigurationSource.Explicit)
-                    .IsUnique(false, ConfigurationSource.Explicit)
-                    .HasEntityTypes(Builder.Metadata, relatedEntityType, ConfigurationSource.Explicit).HasNavigation(
-                        navigationName,
-                        pointsToPrincipal: false,
-                        ConfigurationSource.Explicit);
-                relationship = batch.Run(relationship);
+                relationship = Builder
+                    .HasRelationship(relatedEntityType, navigationName, ConfigurationSource.Explicit, targetIsPrincipal: false)
+                    .IsUnique(false, ConfigurationSource.Explicit);
             }
 
             return new CollectionNavigationBuilder(
                 Builder.Metadata,
                 relatedEntityType,
-                navigationName,
-                relationship.Metadata);
+                new MemberIdentity(navigationName),
+                relationship?.Metadata,
+                skipNavigation);
         }
 
         /// <summary>
@@ -879,7 +868,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures this entity to have seed data. It is used to generate data motion migrations.
         /// </summary>
         /// <param name="data">
-        ///     An array of seed data represented by anonymous types.
+        ///     A collection of seed data represented by anonymous types.
         /// </param>
         /// <returns> An object that can be used to configure the model data. </returns>
         public virtual DataBuilder HasData([NotNull] IEnumerable<object> data)

@@ -479,7 +479,59 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="navigationName"> The name of the navigation. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the configuration can be applied. </returns>
-        bool CanAddNavigation([NotNull] string navigationName, bool fromDataAnnotation = false);
+        [Obsolete("Use CanHaveNavigation")]
+        bool CanAddNavigation([NotNull] string navigationName, bool fromDataAnnotation = false)
+            => CanHaveNavigation(navigationName, fromDataAnnotation);
+
+        /// <summary>
+        ///     Returns a value indicating whether the given navigation can be added to this entity type.
+        /// </summary>
+        /// <param name="navigationName"> The name of the navigation. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the configuration can be applied. </returns>
+        bool CanHaveNavigation([NotNull] string navigationName, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Configures a skip navigation between this and the target entity type.
+        /// </summary>
+        /// <param name="navigationToTarget"> The navigation property. </param>
+        /// <param name="targetEntityType"> The entity type that the navigation targets. </param>
+        /// <param name="collection"> Whether the navigation property is a collection property. </param>
+        /// <param name="onDependent">
+        ///     Whether the navigation property is defined on the dependent side of the underlying foreign key.
+        /// </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     An object that can be used to configure the relationship if it exists on the entity type,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        IConventionSkipNavigationBuilder HasSkipNavigation(
+            [NotNull] MemberInfo navigationToTarget,
+            [NotNull] IConventionEntityType targetEntityType,
+            bool collection = true,
+            bool onDependent = false,
+            bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Configures a skip navigation between this and the target entity type.
+        /// </summary>
+        /// <param name="navigationName"> The navigation property name. </param>
+        /// <param name="targetEntityType"> The entity type that the navigation targets. </param>
+        /// <param name="collection"> Whether the navigation property is a collection property. </param>
+        /// <param name="onDependent">
+        ///     Whether the navigation property is defined on the dependent side of the underlying foreign key.
+        /// </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     An object that can be used to configure the relationship if it exists on the entity type,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        IConventionSkipNavigationBuilder HasSkipNavigation(
+            [NotNull] string navigationName,
+            [NotNull] IConventionEntityType targetEntityType,
+            bool collection = true,
+            bool onDependent = false,
+            bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Specifies a LINQ predicate expression that will automatically be applied to any queries targeting
@@ -491,8 +543,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the query filter was set,
         ///     <c>null</c> otherwise.
         /// </returns>
-        IConventionEntityTypeBuilder HasQueryFilter(
-            [CanBeNull] LambdaExpression filter, bool fromDataAnnotation = false);
+        IConventionEntityTypeBuilder HasQueryFilter([CanBeNull] LambdaExpression filter, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given query filter can be set from the current configuration source.

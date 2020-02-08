@@ -1916,6 +1916,20 @@ GROUP BY [o].[CustomerID]");
             AssertSql(" ");
         }
 
+        public override async Task GroupBy_scalar_aggregate_in_set_operation(bool async)
+        {
+            await base.GroupBy_scalar_aggregate_in_set_operation(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], 0 AS [Sequence]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'
+UNION
+SELECT [o].[CustomerID], 1 AS [Sequence]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

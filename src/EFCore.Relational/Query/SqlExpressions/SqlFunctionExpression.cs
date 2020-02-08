@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             [NotNull] string name,
             [NotNull] Type type,
             [CanBeNull] RelationalTypeMapping typeMapping)
-            => CreateNiladic(instance, name, nullResultAllowed: true, instancPropagatesNullability: false, type, typeMapping);
+            => CreateNiladic(instance, name, nullResultAllowed: true, instancePropagatesNullability: false, type, typeMapping);
 
         public static SqlFunctionExpression Create(
             [NotNull] SqlExpression instance,
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 name,
                 arguments,
                 nullResultAllowed: true,
-                instancPropagatesNullability: false,
+                instancePropagatesNullability: false,
                 argumentsPropagateNullability: arguments.Select(a => false),
                 type,
                 typeMapping);
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 niladic: true,
                 arguments: null,
                 nullResultAllowed,
-                instancPropagatesNullability: null,
+                instancePropagatesNullability: null,
                 argumentsPropagateNullability: null,
                 builtIn: true,
                 type,
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 niladic: true,
                 arguments: null,
                 nullResultAllowed,
-                instancPropagatesNullability: null,
+                instancePropagatesNullability: null,
                 argumentsPropagateNullability: null,
                 builtIn: true,
                 type,
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             [NotNull] SqlExpression instance,
             [NotNull] string name,
             bool nullResultAllowed,
-            bool instancPropagatesNullability,
+            bool instancePropagatesNullability,
             [NotNull] Type type,
             [CanBeNull] RelationalTypeMapping typeMapping)
         {
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 niladic: true,
                 arguments: null,
                 nullResultAllowed,
-                instancPropagatesNullability,
+                instancePropagatesNullability,
                 argumentsPropagateNullability: null,
                 builtIn: true,
                 type,
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             [NotNull] string name,
             [NotNull] IEnumerable<SqlExpression> arguments,
             bool nullResultAllowed,
-            bool instancPropagatesNullability,
+            bool instancePropagatesNullability,
             [NotNull] IEnumerable<bool> argumentsPropagateNullability,
             [NotNull] Type type,
             [CanBeNull] RelationalTypeMapping typeMapping)
@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 niladic: false,
                 arguments,
                 nullResultAllowed,
-                instancPropagatesNullability,
+                instancePropagatesNullability,
                 argumentsPropagateNullability,
                 builtIn: true,
                 type,
@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 niladic: false,
                 arguments,
                 nullResultAllowed,
-                instancPropagatesNullability: null,
+                instancePropagatesNullability: null,
                 argumentsPropagateNullability,
                 builtIn: true,
                 type,
@@ -214,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 niladic: false,
                 arguments,
                 nullResultAllowed,
-                instancPropagatesNullability: null,
+                instancePropagatesNullability: null,
                 argumentsPropagateNullability,
                 builtIn: false,
                 type,
@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             bool niladic,
             [CanBeNull] IEnumerable<SqlExpression> arguments,
             bool nullResultAllowed,
-            bool? instancPropagatesNullability,
+            bool? instancePropagatesNullability,
             [CanBeNull] IEnumerable<bool> argumentsPropagateNullability,
             bool builtIn,
             [NotNull] Type type,
@@ -245,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             IsBuiltIn = builtIn;
             Arguments = (arguments ?? Array.Empty<SqlExpression>()).ToList();
             NullResultAllowed = nullResultAllowed;
-            InstancPropagatesNullability = instancPropagatesNullability;
+            InstancePropagatesNullability = instancePropagatesNullability;
             ArgumentsPropagateNullability = (argumentsPropagateNullability ?? Array.Empty<bool>()).ToList();
         }
 
@@ -270,7 +270,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool? InstancPropagatesNullability { get; private set; }
+        public virtual bool? InstancePropagatesNullability { get; private set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -302,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     IsNiladic,
                     arguments,
                     NullResultAllowed,
-                    InstancPropagatesNullability,
+                    InstancePropagatesNullability,
                     ArgumentsPropagateNullability,
                     IsBuiltIn,
                     Type,
@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 IsNiladic,
                 Arguments,
                 NullResultAllowed,
-                InstancPropagatesNullability,
+                InstancePropagatesNullability,
                 ArgumentsPropagateNullability,
                 IsBuiltIn,
                 Type,
@@ -334,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     IsNiladic,
                     arguments,
                     NullResultAllowed,
-                    InstancPropagatesNullability,
+                    InstancePropagatesNullability,
                     ArgumentsPropagateNullability,
                     IsBuiltIn,
                     Type,

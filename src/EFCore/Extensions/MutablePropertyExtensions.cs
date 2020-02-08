@@ -189,7 +189,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="comparer"> The comparer, or <c>null</c> to remove any previously set comparer. </param>
+        [Obsolete("Use SetKeyValueComparer. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
         public static void SetStructuralValueComparer([NotNull] this IMutableProperty property, [CanBeNull] ValueComparer comparer)
-            => property.AsProperty().SetStructuralValueComparer(comparer, ConfigurationSource.Explicit);
+            => property.SetKeyValueComparer(comparer);
     }
 }

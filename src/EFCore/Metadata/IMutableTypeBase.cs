@@ -46,6 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets all the ignored members.
         /// </summary>
         /// <returns> The list of ignored member names. </returns>
-        IReadOnlyList<string> GetIgnoredMembers();
+        IEnumerable<string> GetIgnoredMembers();
     }
 }

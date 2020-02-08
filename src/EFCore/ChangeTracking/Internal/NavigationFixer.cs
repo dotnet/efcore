@@ -864,9 +864,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             IProperty principalProperty,
             object dependentValue,
             object principalValue)
-            => (principalProperty.GetKeyValueComparer()
-                    ?? principalProperty.GetValueComparer()
-                    ?? principalProperty.GetTypeMapping().KeyComparer)
+            => (principalProperty.GetKeyValueComparer())
                 ?.Equals(dependentValue, principalValue)
                 ?? StructuralComparisons.StructuralEqualityComparer.Equals(
                     dependentValue,

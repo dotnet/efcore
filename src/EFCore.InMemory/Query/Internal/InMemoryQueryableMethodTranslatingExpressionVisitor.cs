@@ -50,6 +50,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         protected override QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor()
             => new InMemoryQueryableMethodTranslatingExpressionVisitor(this);
 
+        [Obsolete("Use overload which takes IEntityType.")]
         protected override ShapedQueryExpression CreateShapedQueryExpression(Type elementType)
         {
             Check.NotNull(elementType, nameof(elementType));
@@ -57,7 +58,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return CreateShapedQueryExpression(_model.FindEntityType(elementType));
         }
 
-        private static ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType)
+        protected override ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType)
+            => CreateShapedQueryExpressionStatic(entityType);
+
+        private static ShapedQueryExpression CreateShapedQueryExpressionStatic(IEntityType entityType)
         {
             var queryExpression = new InMemoryQueryExpression(entityType);
 
@@ -1033,7 +1037,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 var foreignKey = navigation.ForeignKey;
                 if (navigation.IsCollection)
                 {
-                    var innerShapedQuery = CreateShapedQueryExpression(targetEntityType);
+                    var innerShapedQuery = CreateShapedQueryExpressionStatic(targetEntityType);
                     var innerQueryExpression = (InMemoryQueryExpression)innerShapedQuery.QueryExpression;
 
                     var makeNullable = foreignKey.PrincipalKey.Properties
@@ -1081,7 +1085,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 var innerShaper = entityProjectionExpression.BindNavigation(navigation);
                 if (innerShaper == null)
                 {
-                    var innerShapedQuery = CreateShapedQueryExpression(targetEntityType);
+                    var innerShapedQuery = CreateShapedQueryExpressionStatic(targetEntityType);
                     var innerQueryExpression = (InMemoryQueryExpression)innerShapedQuery.QueryExpression;
 
                     var makeNullable = foreignKey.PrincipalKey.Properties
