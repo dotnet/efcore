@@ -4057,13 +4057,14 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             return base.Anonymous_projection_skip_take_empty_collection_FirstOrDefault(async);
         }
 
-        public override async Task Checked_context_with_addition_does_not_fail(bool isAsync)
+        public override async Task Checked_context_with_arithmetic_does_not_fail(bool isAsync)
         {
-            await base.Checked_context_with_addition_does_not_fail(isAsync);
+            await base.Checked_context_with_arithmetic_does_not_fail(isAsync);
 
-            AssertSql(@"SELECT c
+            AssertSql(
+                @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""OrderDetail"") AND ((c[""Quantity""] + 1) = 5))
+WHERE ((c[""Discriminator""] = ""OrderDetail"") AND ((((c[""Quantity""] + 1) = 5) AND ((c[""Quantity""] - 1) = 3)) AND ((c[""Quantity""] * 1) = c[""Quantity""])))
 ORDER BY c[""OrderID""]");
         }
 

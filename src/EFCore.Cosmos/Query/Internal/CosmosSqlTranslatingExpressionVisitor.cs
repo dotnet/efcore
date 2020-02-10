@@ -269,7 +269,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 _ => binaryExpression.NodeType
             };
 
-
             var left = TryRemoveImplicitConvert(binaryExpression.Left);
             var right = TryRemoveImplicitConvert(binaryExpression.Right);
 

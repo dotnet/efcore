@@ -5694,14 +5694,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Checked_context_with_addition_does_not_fail(bool isAsync)
+        public virtual Task Checked_context_with_arithmetic_does_not_fail(bool isAsync)
         {
             checked
             {
                 return AssertQuery(
                     isAsync,
                     ss => ss.Set<OrderDetail>()
-                       .Where(w => w.Quantity + 1 == 5)
+                       .Where(w => w.Quantity + 1 == 5 && w.Quantity - 1 == 3 && w.Quantity * 1 == w.Quantity)
                        .OrderBy(o => o.OrderID),
                     entryCount: 55,
                     assertOrder: true,

@@ -148,26 +148,6 @@ FROM ""Squads"" AS ""s""
 WHERE ""s"".""Banner5"" = @__byteArrayParam_0");
         }
 
-        public override async Task Checked_context_with_cast_does_not_fail(bool isAsync)
-        {
-            await base.Checked_context_with_cast_does_not_fail(isAsync);
-
-            AssertSql(
-                @"SELECT ""l"".""Name"", ""l"".""Discriminator"", ""l"".""LocustHordeId"", ""l"".""ThreatLevel"", ""l"".""DefeatedByNickname"", ""l"".""DefeatedBySquadId"", ""l"".""HighCommandId""
-FROM ""LocustLeaders"" AS ""l""
-WHERE ""l"".""Discriminator"" IN ('LocustLeader', 'LocustCommander') AND (CAST(""l"".""ThreatLevel"" AS INTEGER) >= 5)");
-        }
-
-        public override async Task Checked_context_with_addition_does_not_fail(bool isAsync)
-        {
-            await base.Checked_context_with_addition_does_not_fail(isAsync);
-            
-            AssertSql(
-                @"SELECT ""l"".""Name"", ""l"".""Discriminator"", ""l"".""LocustHordeId"", ""l"".""ThreatLevel"", ""l"".""DefeatedByNickname"", ""l"".""DefeatedBySquadId"", ""l"".""HighCommandId""
-FROM ""LocustLeaders"" AS ""l""
-WHERE ""l"".""Discriminator"" IN ('LocustLeader', 'LocustCommander') AND (CAST(""l"".""ThreatLevel"" AS INTEGER) >= (5 + CAST(""l"".""ThreatLevel"" AS INTEGER)))");
-        }
-
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
