@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var original2 = EqualsExpression.Parameters[1];
 
             return new ReplacingExpressionVisitor(
-                    new Dictionary<Expression, Expression> { { original1, leftExpression }, { original2, rightExpression } })
+                    new Expression[] { original1, original2 }, new[] { leftExpression, rightExpression })
                 .Visit(EqualsExpression.Body);
         }
 

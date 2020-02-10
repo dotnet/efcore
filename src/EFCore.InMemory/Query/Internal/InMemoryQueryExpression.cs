@@ -468,10 +468,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             var resultValueBufferExpressions = new List<Expression>();
             var projectionMapping = new Dictionary<ProjectionMember, Expression>();
             var replacingVisitor = new ReplacingExpressionVisitor(
-                new Dictionary<Expression, Expression>
-                {
-                    { CurrentParameter, outerParameter }, { innerQueryExpression.CurrentParameter, innerParameter }
-                });
+                new Expression[] { CurrentParameter, innerQueryExpression.CurrentParameter },
+                new Expression[] { outerParameter, innerParameter });
 
             var index = 0;
             var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
@@ -583,11 +581,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             var resultValueBufferExpressions = new List<Expression>();
             var projectionMapping = new Dictionary<ProjectionMember, Expression>();
             var replacingVisitor = new ReplacingExpressionVisitor(
-                new Dictionary<Expression, Expression>
-                {
-                    { CurrentParameter, MakeMemberAccess(outerParameter, outerMemberInfo) },
-                    { innerQueryExpression.CurrentParameter, innerParameter }
-                });
+                new Expression[] { CurrentParameter, innerQueryExpression.CurrentParameter },
+                new Expression[] { MakeMemberAccess(outerParameter, outerMemberInfo), innerParameter});
 
             var index = 0;
             outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
@@ -684,10 +679,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             var resultValueBufferExpressions = new List<Expression>();
             var projectionMapping = new Dictionary<ProjectionMember, Expression>();
             var replacingVisitor = new ReplacingExpressionVisitor(
-                new Dictionary<Expression, Expression>
-                {
-                    { CurrentParameter, outerParameter }, { innerQueryExpression.CurrentParameter, innerParameter }
-                });
+                new Expression[] { CurrentParameter, innerQueryExpression.CurrentParameter },
+                new Expression[] { outerParameter, innerParameter });
 
             var index = 0;
             var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
@@ -810,11 +803,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             var resultValueBufferExpressions = new List<Expression>();
             var projectionMapping = new Dictionary<ProjectionMember, Expression>();
             var replacingVisitor = new ReplacingExpressionVisitor(
-                new Dictionary<Expression, Expression>
-                {
-                    { CurrentParameter, MakeMemberAccess(outerParameter, outerMemberInfo) },
-                    { innerQueryExpression.CurrentParameter, innerParameter }
-                });
+                new Expression[] { CurrentParameter, innerQueryExpression.CurrentParameter },
+                new Expression[] { MakeMemberAccess(outerParameter, outerMemberInfo), innerParameter});
             var index = 0;
 
             EntityProjectionExpression copyEntityProjectionToOuter(EntityProjectionExpression entityProjection)
