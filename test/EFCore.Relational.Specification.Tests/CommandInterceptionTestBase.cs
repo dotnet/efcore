@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore
                 using (context.Database.BeginTransaction())
                 {
                     string nonQuery =
-                        NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE Id = 77");
+                        NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 77");
 
                     using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
                     var result = async
@@ -347,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore
                 using (context.Database.BeginTransaction())
                 {
                     string nonQuery =
-                        NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE Id = 77");
+                        NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 77");
 
                     using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
                     var result = async
@@ -533,7 +533,7 @@ namespace Microsoft.EntityFrameworkCore
                 using (context.Database.BeginTransaction())
                 {
                     string nonQuery =
-                        NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE Id = 77");
+                        NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 77");
 
                     using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
                     var result = async
@@ -559,7 +559,7 @@ namespace Microsoft.EntityFrameworkCore
                 : base(DbCommandMethod.ExecuteNonQuery)
             {
                 MutatedSql =
-                    testBase.NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE Id = 78");
+                    testBase.NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 78");
             }
 
             public override InterceptionResult<int> NonQueryExecuting(
@@ -739,7 +739,7 @@ namespace Microsoft.EntityFrameworkCore
                 using (context.Database.BeginTransaction())
                 {
                     string nonQuery =
-                        NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE Id = 78");
+                        NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 78");
 
                     using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
                     var result = async
@@ -764,7 +764,7 @@ namespace Microsoft.EntityFrameworkCore
             public QueryReplacingNonQueryCommandInterceptor(CommandInterceptionTestBase testBase)
                 : base(DbCommandMethod.ExecuteNonQuery)
             {
-                commandText = testBase.NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE Id = 77");
+                commandText = testBase.NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 77");
             }
 
             public override InterceptionResult<int> NonQueryExecuting(
@@ -1008,7 +1008,7 @@ namespace Microsoft.EntityFrameworkCore
                 using (context.Database.BeginTransaction())
                 {
                     string nonQuery =
-                        NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE Id = 78");
+                        NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 78");
 
                     using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
                     var result = async
@@ -1062,7 +1062,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true, true)]
         public virtual async Task Intercept_query_that_throws(bool async, bool inject)
         {
-            const string badSql = "SELECT * FROM TheVoid";
+            string badSql = NormalizeDelimitersInRawString("SELECT * FROM [TheVoid]");
 
             var (context, interceptor) = CreateContext<PassiveReaderCommandInterceptor>(inject);
             using (context)
@@ -1131,7 +1131,7 @@ namespace Microsoft.EntityFrameworkCore
             var (context, interceptor) = CreateContext<PassiveNonQueryCommandInterceptor>(inject);
             using (context)
             {
-                const string nonQuery = "DELETE FROM TheVoid WHERE Id = 555";
+                string nonQuery = NormalizeDelimitersInRawString("DELETE FROM [TheVoid] WHERE [Id] = 555");
 
                 try
                 {
@@ -1207,7 +1207,7 @@ namespace Microsoft.EntityFrameworkCore
                 using (context.Database.BeginTransaction())
                 {
                     string nonQuery =
-                        NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE Id = 77");
+                        NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 77");
 
                     var exception = async
                         ? await Assert.ThrowsAsync<Exception>(() => context.Database.ExecuteSqlRawAsync(nonQuery))
@@ -1341,7 +1341,7 @@ namespace Microsoft.EntityFrameworkCore
             using (context.Database.BeginTransaction())
             {
                 string nonQuery =
-                    NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE Id = 78");
+                    NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 78");
 
                 Assert.Equal(
                     7,
@@ -1872,6 +1872,5 @@ namespace Microsoft.EntityFrameworkCore
 
         private string NormalizeDelimitersInRawString(string sql)
             => ((RelationalTestStore)Fixture.TestStore).NormalizeDelimitersInRawString(sql);
-
     }
 }
