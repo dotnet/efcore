@@ -41,6 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return expression;
             }
 
+            // We use two arrays rather than a dictionary because hash calculation here can be prohibitively expensive
+            // for deep trees. Locality of reference makes arrays better for the small number of replacements anyway.
             for (var i = 0; i < _originals.Length; i++)
             {
                 if (expression.Equals(_originals[i]))
