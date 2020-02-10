@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -14,7 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class ReplacingExpressionVisitor : ExpressionVisitor
     {
-        private readonly IDictionary<Expression, Expression> _replacements;
+        private readonly Expression[] _originals;
+        private readonly Expression[] _replacements;
 
         public static Expression Replace([NotNull] Expression original, [NotNull] Expression replacement, [NotNull] Expression tree)
         {
@@ -22,14 +22,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(replacement, nameof(replacement));
             Check.NotNull(tree, nameof(tree));
 
-            return new ReplacingExpressionVisitor(
-                new Dictionary<Expression, Expression> { { original, replacement } }).Visit(tree);
+            return new ReplacingExpressionVisitor(new[] { original }, new[] { replacement }).Visit(tree);
         }
 
-        public ReplacingExpressionVisitor([NotNull] IDictionary<Expression, Expression> replacements)
+        public ReplacingExpressionVisitor([NotNull] Expression[] originals, [NotNull] Expression[] replacements)
         {
+            Check.NotNull(originals, nameof(originals));
             Check.NotNull(replacements, nameof(replacements));
 
+            _originals = originals;
             _replacements = replacements;
         }
 
@@ -40,9 +41,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return expression;
             }
 
-            if (_replacements.TryGetValue(expression, out var replacement))
+            // We use two arrays rather than a dictionary because hash calculation here can be prohibitively expensive
+            // for deep trees. Locality of reference makes arrays better for the small number of replacements anyway.
+            for (var i = 0; i < _originals.Length; i++)
             {
-                return replacement;
+                if (expression.Equals(_originals[i]))
+                {
+                    return _replacements[i];
+                }
             }
 
             return base.Visit(expression);
