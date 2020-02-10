@@ -11,17 +11,23 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class ReplacingExpressionVisitor : ExpressionVisitor
     {
-        private readonly IDictionary<Expression, Expression> _replacements;
+        private readonly Expression[] _originals;
+        private readonly Expression[] _replacements;
 
         public static Expression Replace(Expression original, Expression replacement, Expression tree)
         {
-            return new ReplacingExpressionVisitor(
-                new Dictionary<Expression, Expression> { { original, replacement } }).Visit(tree);
+            return new ReplacingExpressionVisitor(new[] { original }, new[] { replacement }).Visit(tree);
+        }
+
+        public ReplacingExpressionVisitor(Expression[] originals, Expression[] replacements)
+        {
+            _originals = originals;
+            _replacements = replacements;
         }
 
         public ReplacingExpressionVisitor(IDictionary<Expression, Expression> replacements)
+            : this(replacements.Keys.ToArray(), replacements.Values.ToArray())
         {
-            _replacements = replacements;
         }
 
         public override Expression Visit(Expression expression)
@@ -31,9 +37,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return expression;
             }
 
-            if (_replacements.TryGetValue(expression, out var replacement))
+            // We use two arrays rather than a dictionary because hash calculation here can be prohibitively expensive
+            // for deep trees. Locality of reference makes arrays better for the small number of replacements anyway.
+            for (var i = 0; i < _originals.Length; i++)
             {
-                return replacement;
+                if (expression.Equals(_originals[i]))
+                {
+                    return _replacements[i];
+                }
             }
 
             return base.Visit(expression);
