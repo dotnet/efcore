@@ -5708,5 +5708,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                     elementAsserter: (e, a) => { AssertEqual(e, a); });
             }
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Checked_context_with_case_to_same_nullable_type_does_not_fail(bool isAsync)
+        {
+            checked
+            {
+                return AssertMax(
+                    isAsync,
+                    ss => ss.Set<OrderDetail>(),
+                    ss => ss.Set<OrderDetail>(),
+                    detail => (short?)detail.Quantity,
+                    detail => (short?)detail.Quantity
+                );
+            }
+        }
     }
 }
