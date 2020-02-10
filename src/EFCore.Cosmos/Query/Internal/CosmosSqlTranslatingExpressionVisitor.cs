@@ -262,12 +262,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             }
 
             var uncheckedNodeTypeVariant = binaryExpression.NodeType switch
-                                           {
-                                               ExpressionType.AddChecked      => ExpressionType.Add,
-                                               ExpressionType.SubtractChecked => ExpressionType.Subtract,
-                                               ExpressionType.MultiplyChecked => ExpressionType.Multiply,
-                                               _                              => binaryExpression.NodeType
-                                           };
+            {
+                ExpressionType.AddChecked => ExpressionType.Add,
+                ExpressionType.SubtractChecked => ExpressionType.Subtract,
+                ExpressionType.MultiplyChecked => ExpressionType.Multiply,
+                _ => binaryExpression.NodeType
+            };
 
 
             var left = TryRemoveImplicitConvert(binaryExpression.Left);
