@@ -490,7 +490,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 if (sharingTypes.Count > 0)
                 {
-                    bool discriminatorAdded = AddDiscriminatorCondition(selectExpression, entityType);
+                    var discriminatorAdded = AddDiscriminatorCondition(selectExpression, entityType);
 
                     var linkingFks = entityType.GetRootType().FindForeignKeys(entityType.FindPrimaryKey().Properties)
                         .Where(
@@ -508,14 +508,28 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         if (!skipJoins)
                         {
-                            AddInnerJoin(selectExpression, linkingFks[0], sharingTypes, skipInnerJoins: false);
+                            var first = true;
 
-                            foreach (var otherFk in linkingFks.Skip(1))
+                            foreach (var foreignKey in linkingFks)
                             {
-                                var otherSelectExpression = new SelectExpression(entityType);
+                                if (!(entityType.FindOwnership() == foreignKey
+                                    && foreignKey.PrincipalEntityType.BaseType == null))
+                                {
+                                    var otherSelectExpression = first
+                                        ? selectExpression
+                                        : new SelectExpression(entityType);
 
-                                AddInnerJoin(otherSelectExpression, otherFk, sharingTypes, skipInnerJoins: false);
-                                selectExpression.ApplyUnion(otherSelectExpression, distinct: true);
+                                    AddInnerJoin(otherSelectExpression, foreignKey, sharingTypes, skipInnerJoins: false);
+
+                                    if (first)
+                                    {
+                                        first = false;
+                                    }
+                                    else
+                                    {
+                                        selectExpression.ApplyUnion(otherSelectExpression, distinct: true);
+                                    }
+                                }
                             }
                         }
                     }
