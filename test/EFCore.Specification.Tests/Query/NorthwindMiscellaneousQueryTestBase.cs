@@ -5691,5 +5691,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Take(1)
                     .Select(e => e.Customer.Orders.FirstOrDefault()));
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Checked_context_with_addition_does_not_fail(bool isAsync)
+        {
+            checked
+            {
+                return AssertQuery(
+                    isAsync,
+                    ss => ss.Set<OrderDetail>()
+                       .Where(w => w.Quantity + 1 == 5)
+                       .OrderBy(o => o.OrderID),
+                    entryCount: 55,
+                    assertOrder: true,
+                    elementAsserter: (e, a) => { AssertEqual(e, a); });
+            }
+        }
     }
 }

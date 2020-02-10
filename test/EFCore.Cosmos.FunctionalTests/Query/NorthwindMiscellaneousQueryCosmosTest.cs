@@ -4057,6 +4057,16 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             return base.Anonymous_projection_skip_take_empty_collection_FirstOrDefault(async);
         }
 
+        public override async Task Checked_context_with_addition_does_not_fail(bool isAsync)
+        {
+            await base.Checked_context_with_addition_does_not_fail(isAsync);
+
+            AssertSql(@"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""OrderDetail"") AND ((c[""Quantity""] + 1) = 5))
+ORDER BY c[""OrderID""]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
