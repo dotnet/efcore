@@ -5164,6 +5164,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
 
         }
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_subquery_single_nested_subquery2(bool async)
@@ -5196,6 +5197,32 @@ namespace Microsoft.EntityFrameworkCore.Query
                             }
                         });
                 });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_with_outside_reference_to_joined_table_correctly_translated_to_apply(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from l1 in ss.Set<Level1>() 
+                      join l2 in ss.Set<Level2>() on l1.Id equals l2.Level1_Required_Id
+                      join l3 in ss.Set<Level3>() on l2.Id equals l3.Level2_Required_Id
+                      join l4 in ss.Set<Level4>() on l3.Id equals l4.Level3_Required_Id
+                      from other in ss.Set<Level1>().Where(x => x.Id <= l2.Id && x.Name == l4.Name).DefaultIfEmpty()
+                      select l1);
+        }
+
+        [ConditionalTheory(Skip = "issue #19095")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Nested_SelectMany_correlated_with_join_table_correctly_translated_to_apply(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>().SelectMany(
+                l1 => l1.OneToMany_Optional1.DefaultIfEmpty().SelectMany(
+                    l2 => l2.OneToOne_Required_PK2.OneToMany_Optional3.DefaultIfEmpty()
+                    .Select(l4 => new { l1Name = l1.Name, l2Name = l2.OneToOne_Required_PK2.Name, l3Name = l4.OneToOne_Optional_PK_Inverse4.Name }))));
         }
     }
 }
