@@ -12,6 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class ReplacingExpressionVisitor : ExpressionVisitor
     {
+        private readonly bool _quirkMode;
+
         private readonly Expression[] _originals;
         private readonly Expression[] _replacements;
 
@@ -24,7 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public ReplacingExpressionVisitor(Expression[] originals, Expression[] replacements)
         {
-            if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue19737", out var isEnabled) && isEnabled)
+            _quirkMode = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue19737", out var enabled) && enabled;
+
+            if (_quirkMode)
             {
                 _quirkReplacements = new Dictionary<Expression, Expression>();
                 for (var i = 0; i < originals.Length; i++)
@@ -41,7 +45,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public ReplacingExpressionVisitor(IDictionary<Expression, Expression> replacements)
         {
-            if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue19737", out var isEnabled) && isEnabled)
+            _quirkMode = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue19737", out var enabled) && enabled;
+
+            if (_quirkMode)
             {
                 _quirkReplacements = replacements;
             }
@@ -59,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return expression;
             }
 
-            if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue19737", out var isEnabled) && isEnabled)
+            if (_quirkMode)
             {
                 if (_quirkReplacements.TryGetValue(expression, out var replacement))
                 {
