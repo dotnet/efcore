@@ -19,6 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
     [DisplayName(nameof(QueryCompilationTests))]
     public abstract class QueryCompilationTests
     {
+        public const int OperationsPerInvoke = 10;
+
         private OrdersContextBase _context;
         private IQueryable<Product> _simpleQuery;
         private IQueryable<DTO> _complexQuery;
@@ -70,28 +72,28 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
             _context.Dispose();
         }
 
-        [Benchmark]
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public virtual void ToList()
         {
-            for (var i = 0; i < 10; i++)
+            for (var i = 0; i < OperationsPerInvoke; i++)
             {
                 _simpleQuery.ToList();
             }
         }
 
-        [Benchmark]
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public virtual void FilterOrderProject()
         {
-            for (var i = 0; i < 10; i++)
+            for (var i = 0; i < OperationsPerInvoke; i++)
             {
                 _complexQuery.ToList();
             }
         }
 
-        [Benchmark]
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public virtual void MultipleJoins()
         {
-            for (var i = 0; i < 10; i++)
+            for (var i = 0; i < OperationsPerInvoke; i++)
             {
                 _multipleJoinQuery.ToList();
             }

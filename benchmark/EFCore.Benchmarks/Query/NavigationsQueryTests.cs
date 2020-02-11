@@ -16,8 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
         private AdventureWorksContextBase _context;
         private IQueryable<Store> _query;
 
-        protected virtual int QueriesPerIteration => 10;
-        protected virtual int UnfilteredCount => 466;
+        public const int OperationsPerInvoke = 10;
+        public const int UnfilteredCount = 466;
 
         [Params(true, false)]
         public bool Async { get; set; }
@@ -44,10 +44,10 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
             _context.Dispose();
         }
 
-        [Benchmark]
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public virtual async Task PredicateAcrossOptionalNavigation()
         {
-            for (var i = 0; i < QueriesPerIteration; i++)
+            for (var i = 0; i < OperationsPerInvoke; i++)
             {
                 if (Async)
                 {

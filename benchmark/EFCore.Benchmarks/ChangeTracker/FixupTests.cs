@@ -17,6 +17,10 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
     {
         public abstract class FixupBase
         {
+            protected const int Customers = 5000;
+            protected const int OrdersPerCustomer = 2;
+            protected const int TotalOrders = Customers * OrdersPerCustomer;
+
             private OrdersFixtureBase _fixture;
 
             protected List<Customer> _customers;
@@ -33,12 +37,12 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
             public virtual void CheckData()
             {
                 _fixture = CreateFixture();
-                _fixture.Initialize(0, 5000, 2, 0);
+                _fixture.Initialize(0, Customers, OrdersPerCustomer, 0);
 
                 using (var context = _fixture.CreateContext())
                 {
-                    Assert.Equal(5000, context.Customers.Count());
-                    Assert.Equal(10000, context.Orders.Count());
+                    Assert.Equal(Customers, context.Customers.Count());
+                    Assert.Equal(TotalOrders, context.Orders.Count());
                 }
             }
 
@@ -47,9 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
                 _context = _fixture.CreateContext();
                 _context.ChangeTracker.AutoDetectChangesEnabled = AutoDetectChanges;
 
-                _customers = _fixture.CreateCustomers(5000, setPrimaryKeys: true);
-                _ordersWithoutPk = _fixture.CreateOrders(_customers, ordersPerCustomer: 2, setPrimaryKeys: false);
-                _ordersWithPk = _fixture.CreateOrders(_customers, ordersPerCustomer: 2, setPrimaryKeys: true);
+                _customers = _fixture.CreateCustomers(Customers, setPrimaryKeys: true);
+                _ordersWithoutPk = _fixture.CreateOrders(_customers, ordersPerCustomer: OrdersPerCustomer, setPrimaryKeys: false);
+                _ordersWithPk = _fixture.CreateOrders(_customers, ordersPerCustomer: OrdersPerCustomer, setPrimaryKeys: true);
             }
 
             [IterationCleanup]
@@ -68,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
                 _context.Customers.AttachRange(_customers);
             }
 
-            [Benchmark]
+            [Benchmark(OperationsPerInvoke = TotalOrders)]
             public virtual void AddChildren()
             {
                 foreach (var order in _ordersWithoutPk)
@@ -77,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
                 }
             }
 
-            [Benchmark]
+            [Benchmark(OperationsPerInvoke = TotalOrders)]
             public virtual void AttachChildren()
             {
                 foreach (var order in _ordersWithPk)
@@ -86,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
                 }
             }
 
-            [Benchmark]
+            [Benchmark(OperationsPerInvoke = TotalOrders)]
             public virtual void QueryChildren()
             {
                 _context.Orders.ToList();
@@ -102,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
                 _context.Orders.AttachRange(_ordersWithPk);
             }
 
-            [Benchmark]
+            [Benchmark(OperationsPerInvoke = Customers)]
             public virtual void AddParents()
             {
                 foreach (var customer in _customers)
@@ -111,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
                 }
             }
 
-            [Benchmark]
+            [Benchmark(OperationsPerInvoke = Customers)]
             public virtual void AttachParents()
             {
                 foreach (var customer in _customers)
@@ -120,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
                 }
             }
 
-            [Benchmark]
+            [Benchmark(OperationsPerInvoke = Customers)]
             public virtual void QueryParents()
             {
                 _context.Customers.ToList();

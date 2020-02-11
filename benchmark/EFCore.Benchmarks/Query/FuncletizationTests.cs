@@ -16,7 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
     {
         private OrdersContextBase _context;
 
-        protected virtual int FuncletizationIterationCount => 100;
+        public const int OperationsPerInvoke = 100;
+
         protected abstract OrdersFixtureBase CreateFixture();
 
         [GlobalSetup]
@@ -36,34 +37,34 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
             _context.Dispose();
         }
 
-        [Benchmark]
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public virtual void NewQueryInstance()
         {
             var val = 11;
-            for (var i = 0; i < FuncletizationIterationCount; i++)
+            for (var i = 0; i < OperationsPerInvoke; i++)
             {
                 _context.Products.Where(p => p.ProductId < val).ToList();
             }
         }
 
-        [Benchmark]
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public virtual void SameQueryInstance()
         {
             var val = 11;
             var query = _context.Products.Where(p => p.ProductId < val);
 
-            for (var i = 0; i < FuncletizationIterationCount; i++)
+            for (var i = 0; i < OperationsPerInvoke; i++)
             {
                 // ReSharper disable once PossibleMultipleEnumeration
                 query.ToList();
             }
         }
 
-        [Benchmark]
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public virtual void ValueFromObject()
         {
             var valueHolder = new ValueHolder();
-            for (var i = 0; i < FuncletizationIterationCount; i++)
+            for (var i = 0; i < OperationsPerInvoke; i++)
             {
                 _context.Products.Where(p => p.ProductId < valueHolder.SecondLevelProperty).ToList();
             }

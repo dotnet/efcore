@@ -15,6 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
     {
         public abstract class DbSetOperationBase
         {
+            public const int OperationsPerInvoke = 20000;
+
             private OrdersFixtureBase _fixture;
 
             protected List<Customer> _customersWithoutPk;
@@ -31,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
             {
                 _fixture = CreateFixture();
                 _fixture.Initialize(0, 0, 0, 0);
-                _customersWithoutPk = _fixture.CreateCustomers(20000, setPrimaryKeys: false);
-                _customersWithPk = _fixture.CreateCustomers(20000, setPrimaryKeys: true);
+                _customersWithoutPk = _fixture.CreateCustomers(OperationsPerInvoke, setPrimaryKeys: false);
+                _customersWithPk = _fixture.CreateCustomers(OperationsPerInvoke, setPrimaryKeys: true);
             }
 
             public virtual void InitializeContext()
@@ -56,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
                 base.InitializeContext();
             }
 
-            [Benchmark]
+            [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
             public virtual void Add()
             {
                 foreach (var customer in _customersWithoutPk)
@@ -65,13 +67,13 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
                 }
             }
 
-            [Benchmark]
+            [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
             public virtual void AddRange()
             {
                 _context.Customers.AddRange(_customersWithoutPk);
             }
 
-            [Benchmark]
+            [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
             public virtual void Attach()
             {
                 foreach (var customer in _customersWithPk)
@@ -80,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
                 }
             }
 
-            [Benchmark]
+            [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
             public virtual void AttachRange()
             {
                 _context.Customers.AttachRange(_customersWithPk);
@@ -96,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
                 _context.Customers.AttachRange(_customersWithPk);
             }
 
-            [Benchmark]
+            [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
             public virtual void Remove()
             {
                 foreach (var customer in _customersWithPk)
@@ -105,13 +107,13 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
                 }
             }
 
-            [Benchmark]
+            [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
             public virtual void RemoveRange()
             {
                 _context.Customers.RemoveRange(_customersWithPk);
             }
 
-            [Benchmark]
+            [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
             public virtual void Update()
             {
                 foreach (var customer in _customersWithPk)
@@ -120,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
                 }
             }
 
-            [Benchmark]
+            [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
             public virtual void UpdateRange()
             {
                 _context.Customers.UpdateRange(_customersWithPk);

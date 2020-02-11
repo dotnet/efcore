@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Initialization
         protected abstract AdventureWorksContextBase CreateContext();
         protected abstract ConventionSet CreateConventionSet();
 
-        [Benchmark]
+        [Benchmark(OperationsPerInvoke = 10000)]
         public virtual void CreateAndDisposeUnusedContext()
         {
             for (var i = 0; i < 10000; i++)
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Initialization
             }
         }
 
-        [Benchmark]
+        [Benchmark(OperationsPerInvoke = 1000)]
         public virtual void InitializeAndQuery_AdventureWorks()
         {
             for (var i = 0; i < 1000; i++)
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Initialization
             }
         }
 
-        [Benchmark]
+        [Benchmark(OperationsPerInvoke = 100)]
         public virtual void InitializeAndSaveChanges_AdventureWorks()
         {
             for (var i = 0; i < 100; i++)
