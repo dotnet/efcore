@@ -950,21 +950,29 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private Expression ProcessOrderByThenBy(
             NavigationExpansionExpression source, MethodInfo genericMethod, LambdaExpression keySelector, bool thenBy)
         {
-            var lambdaBody = ReplacingExpressionVisitor.Replace(
-                keySelector.Parameters[0],
-                source.PendingSelector,
-                keySelector.Body);
-
-            lambdaBody = new ExpandingExpressionVisitor(this, source).Visit(lambdaBody);
-            lambdaBody = _subqueryMemberPushdownExpressionVisitor.Visit(lambdaBody);
-
-            if (thenBy)
+            Expression keySelectorBody;
+            if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue18904", out var isEnabled) && isEnabled)
             {
-                source.AppendPendingOrdering(genericMethod, lambdaBody);
+                keySelectorBody = ExpandNavigationsInLambdaExpression(source, keySelector);
             }
             else
             {
-                source.AddPendingOrdering(genericMethod, lambdaBody);
+                keySelectorBody = ReplacingExpressionVisitor.Replace(
+                    keySelector.Parameters[0],
+                    source.PendingSelector,
+                    keySelector.Body);
+
+                keySelectorBody = new ExpandingExpressionVisitor(this, source).Visit(keySelectorBody);
+                keySelectorBody = _subqueryMemberPushdownExpressionVisitor.Visit(keySelectorBody);
+            }
+
+            if (thenBy)
+            {
+                source.AppendPendingOrdering(genericMethod, keySelectorBody);
+            }
+            else
+            {
+                source.AddPendingOrdering(genericMethod, keySelectorBody);
             }
 
             return source;
@@ -1148,8 +1156,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 foreach (var (orderingMethod, keySelector) in source.PendingOrderings)
                 {
-                    var lambdaBody = Visit(keySelector);
-                    lambdaBody = _pendingSelectorExpandingExpressionVisitor.Visit(lambdaBody);
+                    Expression lambdaBody;
+                    if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue18904", out var isEnabled) && isEnabled)
+                    {
+                        lambdaBody = keySelector;
+                    }
+                    else
+                    {
+                        lambdaBody = _pendingSelectorExpandingExpressionVisitor.Visit(Visit(keySelector));
+                    }
 
                     var keySelectorLambda = GenerateLambda(lambdaBody, source.CurrentParameter);
 
