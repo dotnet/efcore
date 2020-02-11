@@ -2416,7 +2416,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             CustomerID = g.Key,
                             Sequence = 1
                         })),
-                elementSorter: e => e.CustomerID);
+                elementSorter: e => (e.CustomerID, e.Sequence));
         }
 
         #endregion

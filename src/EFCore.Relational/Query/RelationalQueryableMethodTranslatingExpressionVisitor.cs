@@ -350,7 +350,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var original2 = resultSelector.Parameters[1];
 
                 var newResultSelectorBody = new ReplacingExpressionVisitor(
-                        new Dictionary<Expression, Expression> { { original1, translatedKey }, { original2, groupByShaper } })
+                        new Expression[] { original1, original2 },
+                        new[] { translatedKey, groupByShaper })
                     .Visit(resultSelector.Body);
 
                 newResultSelectorBody = ExpandWeakEntities(selectExpression, newResultSelectorBody);

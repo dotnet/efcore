@@ -7474,6 +7474,26 @@ END
 FROM [Weapons] AS [w]
 GROUP BY [w].[SynergyWithId]");
         }
+        
+        public override async Task Checked_context_with_cast_does_not_fail(bool isAsync)
+        {
+            await base.Checked_context_with_cast_does_not_fail(isAsync);
+
+            AssertSql(
+                @"SELECT [l].[Name], [l].[Discriminator], [l].[LocustHordeId], [l].[ThreatLevel], [l].[DefeatedByNickname], [l].[DefeatedBySquadId], [l].[HighCommandId]
+FROM [LocustLeaders] AS [l]
+WHERE [l].[Discriminator] IN (N'LocustLeader', N'LocustCommander') AND (CAST([l].[ThreatLevel] AS tinyint) >= CAST(5 AS tinyint))");
+        }
+
+        public override async Task Checked_context_with_addition_does_not_fail(bool isAsync)
+        {
+            await base.Checked_context_with_addition_does_not_fail(isAsync);
+
+            AssertSql(
+                @"SELECT [l].[Name], [l].[Discriminator], [l].[LocustHordeId], [l].[ThreatLevel], [l].[DefeatedByNickname], [l].[DefeatedBySquadId], [l].[HighCommandId]
+FROM [LocustLeaders] AS [l]
+WHERE [l].[Discriminator] IN (N'LocustLeader', N'LocustCommander') AND (CAST([l].[ThreatLevel] AS bigint) >= (CAST(5 AS bigint) + CAST([l].[ThreatLevel] AS bigint)))");
+        }
 
         public override async Task TimeSpan_Hours(bool async)
         {

@@ -4973,6 +4973,26 @@ LEFT JOIN (
 ) AS [t1] ON [t].[CustomerID] = [t1].[CustomerID]");
         }
 
+        public override async Task Checked_context_with_arithmetic_does_not_fail(bool isAsync)
+        {
+            await base.Checked_context_with_arithmetic_does_not_fail(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE ((([o].[Quantity] + CAST(1 AS smallint)) = CAST(5 AS smallint)) AND (([o].[Quantity] - CAST(1 AS smallint)) = CAST(3 AS smallint))) AND (([o].[Quantity] * CAST(1 AS smallint)) = [o].[Quantity])
+ORDER BY [o].[OrderID]");
+        }
+
+        public override async Task Checked_context_with_case_to_same_nullable_type_does_not_fail(bool isAsync)
+        {
+            await base.Checked_context_with_case_to_same_nullable_type_does_not_fail(isAsync);
+
+            AssertSql(
+                @"SELECT MAX([o].[Quantity])
+FROM [Order Details] AS [o]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

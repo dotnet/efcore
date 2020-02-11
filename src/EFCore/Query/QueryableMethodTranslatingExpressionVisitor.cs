@@ -486,7 +486,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var replacement2 = AccessInnerTransparentField(transparentIdentifierType, transparentIdentifierParameter);
             var newResultSelector = Expression.Lambda(
                 new ReplacingExpressionVisitor(
-                        new Dictionary<Expression, Expression> { { original1, replacement1 }, { original2, replacement2 } })
+                    new[] { original1, original2 }, new[] { replacement1, replacement2 })
                     .Visit(resultSelector.Body),
                 transparentIdentifierParameter);
 

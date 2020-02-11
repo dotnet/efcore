@@ -563,16 +563,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return Visit(ConvertAnonymousObjectEqualityComparison(binaryExpression));
             }
 
+            var uncheckedNodeTypeVariant = binaryExpression.NodeType switch
+            {
+                ExpressionType.AddChecked => ExpressionType.Add,
+                ExpressionType.SubtractChecked => ExpressionType.Subtract,
+                ExpressionType.MultiplyChecked => ExpressionType.Multiply,
+                _ => binaryExpression.NodeType
+            };
+
             var left = TryRemoveImplicitConvert(binaryExpression.Left);
             var right = TryRemoveImplicitConvert(binaryExpression.Right);
 
             return TranslationFailed(binaryExpression.Left, Visit(left), out var sqlLeft)
                 || TranslationFailed(binaryExpression.Right, Visit(right), out var sqlRight)
                 ? null
-                : binaryExpression.NodeType == ExpressionType.Coalesce
+                : uncheckedNodeTypeVariant == ExpressionType.Coalesce
                     ? SqlExpressionFactory.Coalesce(sqlLeft, sqlRight)
                     : (Expression)SqlExpressionFactory.MakeBinary(
-                        binaryExpression.NodeType,
+                        uncheckedNodeTypeVariant,
                         sqlLeft,
                         sqlRight,
                         null);
@@ -726,6 +734,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return SqlExpressionFactory.Negate(sqlOperand);
 
                 case ExpressionType.Convert:
+                case ExpressionType.ConvertChecked:
                 case ExpressionType.TypeAs:
                     // Object convert needs to be converted to explicit cast when mismatching types
                     if (operand.Type.IsInterface

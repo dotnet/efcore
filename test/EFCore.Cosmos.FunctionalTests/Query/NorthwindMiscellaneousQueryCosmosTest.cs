@@ -4057,6 +4057,26 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             return base.Anonymous_projection_skip_take_empty_collection_FirstOrDefault(async);
         }
 
+        public override async Task Checked_context_with_arithmetic_does_not_fail(bool isAsync)
+        {
+            await base.Checked_context_with_arithmetic_does_not_fail(isAsync);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""OrderDetail"") AND ((((c[""Quantity""] + 1) = 5) AND ((c[""Quantity""] - 1) = 3)) AND ((c[""Quantity""] * 1) = c[""Quantity""])))
+ORDER BY c[""OrderID""]");
+        }
+
+        public override async Task Checked_context_with_case_to_same_nullable_type_does_not_fail(bool isAsync)
+        {
+            await base.Checked_context_with_case_to_same_nullable_type_does_not_fail(isAsync);
+
+            AssertSql(@"SELECT MAX(c[""Quantity""]) AS c
+FROM root c
+WHERE (c[""Discriminator""] = ""OrderDetail"")");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

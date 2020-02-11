@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -35,14 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         private Expression InlineLambdaExpression(LambdaExpression lambdaExpression, ReadOnlyCollection<Expression> arguments)
-        {
-            var replacements = new Dictionary<Expression, Expression>(arguments.Count);
-            for (var i = 0; i < lambdaExpression.Parameters.Count; i++)
-            {
-                replacements.Add(lambdaExpression.Parameters[i], arguments[i]);
-            }
-
-            return new ReplacingExpressionVisitor(replacements).Visit(lambdaExpression.Body);
-        }
+            => new ReplacingExpressionVisitor(
+                lambdaExpression.Parameters.ToArray<Expression>(), arguments.ToArray())
+                .Visit(lambdaExpression.Body);
     }
 }

@@ -261,6 +261,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         ifFalse));
             }
 
+            var uncheckedNodeTypeVariant = binaryExpression.NodeType switch
+            {
+                ExpressionType.AddChecked => ExpressionType.Add,
+                ExpressionType.SubtractChecked => ExpressionType.Subtract,
+                ExpressionType.MultiplyChecked => ExpressionType.Multiply,
+                _ => binaryExpression.NodeType
+            };
+
             var left = TryRemoveImplicitConvert(binaryExpression.Left);
             var right = TryRemoveImplicitConvert(binaryExpression.Right);
 
@@ -271,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 || TranslationFailed(binaryExpression.Right, right, out var sqlRight)
                 ? null
                 : _sqlExpressionFactory.MakeBinary(
-                    binaryExpression.NodeType,
+                    uncheckedNodeTypeVariant,
                     sqlLeft,
                     sqlRight,
                     null);
@@ -324,6 +332,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     return _sqlExpressionFactory.Negate(sqlOperand);
 
                 case ExpressionType.Convert:
+                case ExpressionType.ConvertChecked:
                     // Object convert needs to be converted to explicit cast when mismatching types
                     if (operand.Type.IsInterface
                         && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)
