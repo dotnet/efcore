@@ -19,9 +19,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
         public override Expression Process(Expression query)
         {
-            query = new StringEqualityConvertingExpressionVisitor(RelationalDependencies.SqlExpressionFactory).Visit(query);
-
             query = base.Process(query);
+
+            query = new StringEqualityConvertingExpressionVisitor(RelationalDependencies.SqlExpressionFactory).Visit(query);
 
             return query;
         }

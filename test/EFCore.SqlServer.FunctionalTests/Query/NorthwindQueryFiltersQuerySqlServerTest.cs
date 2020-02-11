@@ -123,7 +123,7 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
         FROM [Customers] AS [c0]
-        WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c0].[CompanyName] IS NOT NULL AND (LEFT([c0].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))
+        WHERE (@__ef_filter__TenantPrefix_0 LIKE N'') OR ([c0].[CompanyName] IS NOT NULL AND (LEFT([c0].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))
     ) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
     WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
 ) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
@@ -175,7 +175,7 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
         FROM [Customers] AS [c]
-        WHERE (@__ef_filter__TenantPrefix_1 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_1)) = @__ef_filter__TenantPrefix_1))
+        WHERE (@__ef_filter__TenantPrefix_1 LIKE N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_1)) = @__ef_filter__TenantPrefix_1))
     ) AS [t] ON [o0].[CustomerID] = [t].[CustomerID]
     WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
 ) AS [t0] ON [o].[OrderID] = [t0].[OrderID]
@@ -207,7 +207,7 @@ INNER JOIN (
     FROM [Order Details] AS [o0]
     WHERE [o0].[Quantity] > @__ef_filter___quantity_1
 ) AS [t1] ON [t0].[OrderID] = [t1].[OrderID]
-WHERE ((@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))) AND ([t1].[Discount] < CAST(10 AS real))");
+WHERE ((@__ef_filter__TenantPrefix_0 LIKE N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))) AND ([t1].[Discount] < CAST(10 AS real))");
         }
 
         [ConditionalFact]
