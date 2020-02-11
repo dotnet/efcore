@@ -508,26 +508,41 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         if (!skipJoins)
                         {
-                            var first = true;
-
-                            foreach (var foreignKey in linkingFks)
+                            if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue18299", out var isEnabled) && isEnabled)
                             {
-                                if (!(entityType.FindOwnership() == foreignKey
-                                    && foreignKey.PrincipalEntityType.BaseType == null))
+                                AddInnerJoin(selectExpression, linkingFks[0], sharingTypes, skipInnerJoins: false);
+
+                                foreach (var otherFk in linkingFks.Skip(1))
                                 {
-                                    var otherSelectExpression = first
-                                        ? selectExpression
-                                        : new SelectExpression(entityType);
+                                    var otherSelectExpression = new SelectExpression(entityType);
 
-                                    AddInnerJoin(otherSelectExpression, foreignKey, sharingTypes, skipInnerJoins: false);
+                                    AddInnerJoin(otherSelectExpression, otherFk, sharingTypes, skipInnerJoins: false);
+                                    selectExpression.ApplyUnion(otherSelectExpression, distinct: true);
+                                }
+                            }
+                            else
+                            {
+                                var first = true;
 
-                                    if (first)
+                                foreach (var foreignKey in linkingFks)
+                                {
+                                    if (!(entityType.FindOwnership() == foreignKey
+                                        && foreignKey.PrincipalEntityType.BaseType == null))
                                     {
-                                        first = false;
-                                    }
-                                    else
-                                    {
-                                        selectExpression.ApplyUnion(otherSelectExpression, distinct: true);
+                                        var otherSelectExpression = first
+                                            ? selectExpression
+                                            : new SelectExpression(entityType);
+
+                                        AddInnerJoin(otherSelectExpression, foreignKey, sharingTypes, skipInnerJoins: false);
+
+                                        if (first)
+                                        {
+                                            first = false;
+                                        }
+                                        else
+                                        {
+                                            selectExpression.ApplyUnion(otherSelectExpression, distinct: true);
+                                        }
                                     }
                                 }
                             }
