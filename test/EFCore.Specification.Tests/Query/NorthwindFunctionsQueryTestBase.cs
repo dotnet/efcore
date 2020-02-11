@@ -79,6 +79,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_StartsWith_Parameter_with_whitespace(bool async)
+        {
+            var pattern = "hello";
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.StartsWith(pattern)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task String_EndsWith_Literal(bool async)
         {
             return AssertQuery(
@@ -119,6 +129,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_EndsWith_Parameter_with_whitespace(bool async)
+        {
+            var pattern = "hello";
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.EndsWith(pattern)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task String_Contains_Literal(bool async)
         {
             return AssertQuery(
@@ -155,6 +175,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Customer>().Where(c => c.ContactName.Contains(LocalMethod1())),
                 entryCount: 19);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_Contains_Parameter_with_whitespace(bool async)
+        {
+            var pattern = "     ";
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains(pattern)));
         }
 
         [ConditionalTheory]

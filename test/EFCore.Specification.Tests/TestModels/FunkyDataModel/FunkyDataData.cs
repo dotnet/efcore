@@ -157,6 +157,22 @@ namespace Microsoft.EntityFrameworkCore.TestModels.FunkyDataModel
                     FirstName = "B[[a^r",
                     LastName = "B[[",
                     NullableBool = true
+                },
+                new FunkyCustomer
+                {
+                    Id = 20,
+                    FirstName = "WithTrailing ",
+                    LastName = "WithoutTrailing"
+                },
+                new FunkyCustomer
+                {
+                    Id = 21,
+                    FirstName = "With%Wildcard"
+                },
+                new FunkyCustomer
+                {
+                    Id = 22,
+                    FirstName = "WithTrailingAnd%Wildcard "
                 }
             };
     }

@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             // if there are no whenClauses left (e.g. their tests evaluated to false):
             // - if there is Else block, return it
-            // - if there is no Else block, return null 
+            // - if there is no Else block, return null
             if (whenClauses.Count == 0)
             {
                 return elseResult == null
@@ -392,8 +392,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             var (match, matchNullable) = VisitInternal<SqlExpression>(likeExpression.Match);
             var (pattern, patternNullable) = VisitInternal<SqlExpression>(likeExpression.Pattern);
             var (escapeChar, escapeCharNullable) = VisitInternal<SqlExpression>(likeExpression.EscapeChar);
-            _nullable = matchNullable || patternNullable || escapeCharNullable;
 
+            if (match is SqlConstantExpression matchConstant && matchConstant.Value is null
+                || pattern is SqlConstantExpression patternConstant && patternConstant.Value is null
+                || escapeChar is SqlConstantExpression escapeCharConstant && escapeCharConstant.Value is null)
+            {
+                _nullable = false;
+                return SqlExpressionFactory.Constant(false, likeExpression.TypeMapping);
+            }
+
+            _nullable = matchNullable || patternNullable || escapeCharNullable;
             return likeExpression.Update(match, pattern, escapeChar);
         }
 

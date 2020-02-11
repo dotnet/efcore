@@ -574,6 +574,34 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_equals_with_trailing_whitespace_constant(bool async)
+            => AssertQuery(
+                async,
+                ss => ss.Set<FunkyCustomer>().Where(c => c.LastName == "WithoutTrailing ").Select(c => c.FirstName));
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_equals_with_trailing_whitespace_column(bool async)
+            => AssertQuery(
+                async,
+                ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName == "WithTrailing").Select(c => c.FirstName));
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_equals_with_like_wildcard(bool async)
+            => AssertQuery(
+                async,
+                ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName == "With%Wildcard").Select(c => c.FirstName));
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_equals_with_trailing_whitespace_and_like_wildcard(bool async)
+            => AssertQuery(
+                async,
+                ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName == "WithTrailingAnd%Wildcard").Select(c => c.FirstName));
+
         protected FunkyDataContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()

@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         _sqlExpressionFactory.Constant(null, stringTypeMapping));
                 }
 
-                return constantString.Any(c => IsLikeWildChar(c))
+                return constantString.Any(IsLikeWildChar)
                     ? _sqlExpressionFactory.Like(
                         instance,
                         _sqlExpressionFactory.Constant(
