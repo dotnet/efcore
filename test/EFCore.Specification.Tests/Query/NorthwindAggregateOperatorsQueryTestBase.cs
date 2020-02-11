@@ -1324,7 +1324,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertSingleResult(
                 async,
                 syncQuery: ss => ss.Set<Customer>().Select(c => c.CustomerID).Contains("ALFKI"),
-                asyncQuery: ss => ss.Set<Customer>().Select(c => c.CustomerID).ContainsAsync("ALFKI"));
+                asyncQuery: ss => ss.Set<Customer>().Select(c => c.CustomerID).ContainsAsync("ALFKI", default));
         }
 
         [ConditionalTheory]

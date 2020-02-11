@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ComplexNavigationsDefaultData(),
                 entitySorters,
                 entityAsserters,
-                CanExecuteQueryString);
+                CanExecuteQueryString,
+                CreateExpectedQueryRewritingVisitor());
     }
 }

@@ -19,8 +19,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             ISetSource expectedData,
             Dictionary<Type, object> entitySorters,
             Dictionary<Type, object> entityAsserters,
-            bool canExecuteQueryString)
-            : base(contextCreator, expectedData, entitySorters, entityAsserters)
+            bool canExecuteQueryString,
+            ExpectedQueryRewritingVisitor expectedQueryRewritingVisitor = null)
+            : base(contextCreator, expectedData, entitySorters, entityAsserters, expectedQueryRewritingVisitor)
         {
             _canExecuteQueryString = canExecuteQueryString;
         }

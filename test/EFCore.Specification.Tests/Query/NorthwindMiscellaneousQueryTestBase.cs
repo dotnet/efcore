@@ -1093,7 +1093,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 syncQuery: ss => ss.Set<Customer>().All(
                     c1 => ss.Set<Customer>().Any(c2 => ss.Set<Customer>().Any(c3 => c1.CustomerID == c3.CustomerID))),
                 asyncQuery: ss => ss.Set<Customer>().AllAsync(
-                    c1 => ss.Set<Customer>().Any(c2 => ss.Set<Customer>().Any(c3 => c1.CustomerID == c3.CustomerID))));
+                    c1 => ss.Set<Customer>().Any(c2 => ss.Set<Customer>().Any(c3 => c1.CustomerID == c3.CustomerID)),
+                    default));
         }
 
         [ConditionalTheory]
@@ -1107,7 +1108,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         c2 => ss.Set<Customer>().Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))),
                 asyncQuery: ss => ss.Set<Customer>().AllAsync(
                     c1 => ss.Set<Customer>().Any(
-                        c2 => ss.Set<Customer>().Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))));
+                        c2 => ss.Set<Customer>().Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID)),
+                    default));
         }
 
         [ConditionalTheory]
@@ -4409,7 +4411,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 syncQuery: ss => ss.Set<Customer>().Select(
                     c => new { c.CustomerID }).Distinct().Count(n => n.CustomerID.StartsWith("A")),
                 asyncQuery: ss => ss.Set<Customer>().Select(
-                    c => new { c.CustomerID }).Distinct().CountAsync(n => n.CustomerID.StartsWith("A")));
+                    c => new { c.CustomerID }).Distinct().CountAsync(n => n.CustomerID.StartsWith("A"), default));
         }
 
         [ConditionalTheory]
@@ -4441,7 +4443,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 syncQuery: ss => ss.Set<Customer>().Select(c => new { A = c.CustomerID + c.City }).Distinct()
                     .Count(n => n.A.StartsWith("A")),
                 asyncQuery: ss
-                    => ss.Set<Customer>().Select(c => new { A = c.CustomerID + c.City }).Distinct().CountAsync(n => n.A.StartsWith("A")));
+                    => ss.Set<Customer>().Select(c => new { A = c.CustomerID + c.City }).Distinct().CountAsync(n => n.A.StartsWith("A"), default));
         }
 
         [ConditionalTheory]
@@ -4524,7 +4526,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 syncQuery: ss => ss.Set<Customer>().Select(
                     c => new DTO<string> { Property = c.CustomerID }).Distinct().Count(n => n.Property.StartsWith("A")),
                 asyncQuery: ss => ss.Set<Customer>().Select(
-                    c => new DTO<string> { Property = c.CustomerID }).Distinct().CountAsync(n => n.Property.StartsWith("A")));
+                    c => new DTO<string> { Property = c.CustomerID }).Distinct().CountAsync(n => n.Property.StartsWith("A"), default));
         }
 
         [ConditionalTheory]
@@ -4560,7 +4562,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 syncQuery: ss => ss.Set<Customer>().Select(
                     c => new DTO<string> { Property = c.CustomerID + c.City }).Distinct().Count(n => n.Property.StartsWith("A")),
                 asyncQuery: ss => ss.Set<Customer>().Select(
-                    c => new DTO<string> { Property = c.CustomerID + c.City }).Distinct().CountAsync(n => n.Property.StartsWith("A")));
+                    c => new DTO<string> { Property = c.CustomerID + c.City }).Distinct().CountAsync(n => n.Property.StartsWith("A"), default));
         }
 
         [ConditionalTheory]

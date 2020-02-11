@@ -176,11 +176,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             }
 
             public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
-                => new AsyncEnumerable<TElement>(RewriteShadowPropertyAccess(expression));
+                => new AsyncEnumerable<TElement>(expression);
 
             public TResult Execute<TResult>(Expression expression)
                 => ((IQueryProvider)_enumerableQuery)
-                    .Execute<TResult>(RewriteShadowPropertyAccess(expression));
+                    .Execute<TResult>(expression);
 
             public IEnumerator<T> GetEnumerator() => ((IQueryable<T>)_enumerableQuery).GetEnumerator();
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -188,31 +188,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             public Expression Expression => ((IQueryable)_enumerableQuery).Expression;
             public Type ElementType => typeof(T);
             public IQueryProvider Provider => this;
-
-            private static Expression RewriteShadowPropertyAccess(Expression expression)
-                => new ShadowStateAccessRewriter().Visit(expression);
-
-            private class ShadowStateAccessRewriter : ExpressionVisitor
-            {
-                protected override Expression VisitMethodCall(MethodCallExpression expression)
-                    => expression.Method.IsEFPropertyMethod()
-                        ? Expression.Property(
-                            RemoveConvert(expression.Arguments[0]),
-                            Expression.Lambda<Func<string>>(expression.Arguments[1]).Compile().Invoke())
-                        : base.VisitMethodCall(expression);
-            }
-
-            private static Expression RemoveConvert(Expression expression)
-            {
-                if (expression is UnaryExpression unaryExpression
-                    && (expression.NodeType == ExpressionType.Convert
-                        || expression.NodeType == ExpressionType.ConvertChecked))
-                {
-                    return RemoveConvert(unaryExpression.Operand);
-                }
-
-                return expression;
-            }
 
             public IQueryable CreateQuery(Expression expression)
             {

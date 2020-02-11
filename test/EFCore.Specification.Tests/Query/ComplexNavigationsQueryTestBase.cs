@@ -53,8 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Level1>().Where(l => EF.Property<int>(l.OneToOne_Optional_FK1, "Id") == 0),
-                ss => ss.Set<Level1>().Where(l => l.OneToOne_Optional_FK1.MaybeScalar(x => x.Id) == 0));
+                ss => ss.Set<Level1>().Where(l => EF.Property<int>(l.OneToOne_Optional_FK1, "Id") == 0));
         }
 
         [ConditionalTheory]
@@ -63,8 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Level1>().Where(l => EF.Property<int>(l.OneToOne_Required_FK1, "Id") > 7),
-                ss => ss.Set<Level1>().Where(l => l.OneToOne_Required_FK1.MaybeScalar(x => x.Id) > 7));
+                ss => ss.Set<Level1>().Where(l => EF.Property<int>(l.OneToOne_Required_FK1, "Id") > 7));
         }
 
         [ConditionalTheory]
@@ -73,8 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Level2>().Where(l => EF.Property<int>(l.OneToOne_Required_FK_Inverse2, "Id") > 7),
-                ss => ss.Set<Level2>().Where(l => l.OneToOne_Required_FK_Inverse2.Id > 7));
+                ss => ss.Set<Level2>().Where(l => EF.Property<int>(l.OneToOne_Required_FK_Inverse2, "Id") > 7));
         }
 
         [ConditionalTheory]
@@ -83,8 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Level1>().Where(l => EF.Property<int>(EF.Property<Level2>(l, "OneToOne_Required_FK1"), "Id") == 7),
-                ss => ss.Set<Level1>().Where(l => l.OneToOne_Required_FK1.MaybeScalar(x => x.Id) == 7));
+                ss => ss.Set<Level1>().Where(l => EF.Property<int>(EF.Property<Level2>(l, "OneToOne_Required_FK1"), "Id") == 7));
         }
 
         [ConditionalTheory]
@@ -93,8 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Level2>().Where(l => EF.Property<int>(EF.Property<Level1>(l, "OneToOne_Required_FK_Inverse2"), "Id") == 7),
-                ss => ss.Set<Level2>().Where(l => l.OneToOne_Required_FK_Inverse2.Id == 7));
+                ss => ss.Set<Level2>().Where(l => EF.Property<int>(EF.Property<Level1>(l, "OneToOne_Required_FK_Inverse2"), "Id") == 7));
         }
 
         [ConditionalTheory]
@@ -103,8 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Level1>().Where(l => EF.Property<Level2>(l, "OneToOne_Required_FK1").Id == 7),
-                ss => ss.Set<Level1>().Where(l => l.OneToOne_Required_FK1.MaybeScalar(x => x.Id) == 7));
+                ss => ss.Set<Level1>().Where(l => EF.Property<Level2>(l, "OneToOne_Required_FK1").Id == 7));
         }
 
         [ConditionalTheory]
@@ -113,8 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Level1>().Where(l => EF.Property<int>(l.OneToOne_Required_FK1, "Id") == 7),
-                ss => ss.Set<Level1>().Where(l => l.OneToOne_Required_FK1.MaybeScalar(x => x.Id) == 7));
+                ss => ss.Set<Level1>().Where(l => EF.Property<int>(l.OneToOne_Required_FK1, "Id") == 7));
         }
 
         [ConditionalTheory]
@@ -123,8 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Level2>().Where(l => EF.Property<int>(l.OneToOne_Required_FK_Inverse2, "Id") == 7),
-                ss => ss.Set<Level2>().Where(l => l.OneToOne_Required_FK_Inverse2.Id == 7));
+                ss => ss.Set<Level2>().Where(l => EF.Property<int>(l.OneToOne_Required_FK_Inverse2, "Id") == 7));
         }
 
         [ConditionalTheory]
@@ -148,8 +140,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     l => l.OneToOne_Required_FK1 == new Level2 { Id = 1 }
                         || l.OneToOne_Required_FK1 == new Level2 { Id = 2 }),
                 ss => ss.Set<Level1>().Where(
-                    l => l.OneToOne_Required_FK1.MaybeScalar(x => x.Id) == 1
-                        || l.OneToOne_Required_FK1.MaybeScalar(x => x.Id) == 2));
+                    l => l.OneToOne_Required_FK1.Id == 1
+                        || l.OneToOne_Required_FK1.Id == 2));
         }
 
         [ConditionalTheory]
@@ -257,14 +249,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss =>
-                    from e1 in ss.Set<Level1>()
-                    join e2 in ss.Set<Level2>() on e1.Id equals e2.OneToOne_Optional_FK_Inverse2.Id
-                    select new { Id1 = e1.Id, Id2 = e2.Id },
-                ss =>
-                    from e1 in ss.Set<Level1>()
-                    join e2 in ss.Set<Level2>() on e1.Id equals e2.OneToOne_Optional_FK_Inverse2.MaybeScalar(x => x.Id)
-                    select new { Id1 = e1.Id, Id2 = e2.Id },
+                ss => from e1 in ss.Set<Level1>()
+                      join e2 in ss.Set<Level2>() on e1.Id equals e2.OneToOne_Optional_FK_Inverse2.Id
+                      select new { Id1 = e1.Id, Id2 = e2.Id },
                 e => (e.Id1, e.Id2));
         }
 
@@ -274,14 +261,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss =>
-                    from e1 in ss.Set<Level1>()
-                    join e2 in ss.Set<Level2>() on e1.Id equals e2.OneToOne_Required_FK_Inverse2.Id
-                    select new { Id1 = e1.Id, Id2 = e2.Id },
-                ss =>
-                    from e1 in ss.Set<Level1>()
-                    join e2 in ss.Set<Level2>() on e1.Id equals e2.OneToOne_Required_FK_Inverse2.Id
-                    select new { Id1 = e1.Id, Id2 = e2.Id },
+                ss => from e1 in ss.Set<Level1>()
+                      join e2 in ss.Set<Level2>() on e1.Id equals e2.OneToOne_Required_FK_Inverse2.Id
+                      select new { Id1 = e1.Id, Id2 = e2.Id },
                 e => (e.Id1, e.Id2));
         }
 
@@ -293,9 +275,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => from e2 in ss.Set<Level2>()
                       where e2.OneToOne_Optional_PK_Inverse2.Id > 5
-                      select e2.Id,
-                ss => from e2 in ss.Set<Level2>()
-                      where e2.OneToOne_Optional_PK_Inverse2.MaybeScalar(x => x.Id) > 5
                       select e2.Id);
         }
 
@@ -346,11 +325,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Level1>().GroupBy(
                         l1 => l1.OneToOne_Required_PK1.OneToOne_Required_PK2.Name,
                         l1 => new { Id = (int?)l1.OneToOne_Required_PK1.Id ?? 0 })
-                    .Where(g => g.Min(l1 => l1.Id) > 0)
-                    .Select(g => g.Count()),
-                ss => ss.Set<Level1>().GroupBy(
-                        l1 => l1.OneToOne_Required_PK1.OneToOne_Required_PK2.Name,
-                        l1 => new { Id = l1.OneToOne_Required_PK1.MaybeScalar(x => x.Id) ?? 0 })
                     .Where(g => g.Min(l1 => l1.Id) > 0)
                     .Select(g => g.Count()));
         }
@@ -422,9 +396,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => from e1 in ss.Set<Level1>()
                       where EF.Property<string>(EF.Property<Level2>(e1, "OneToOne_Optional_FK1"), "Name") == "L2 01"
-                      select e1,
-                ss => from e1 in ss.Set<Level1>()
-                      where e1.OneToOne_Optional_FK1.Name == "L2 01"
                       select e1);
         }
 
@@ -451,9 +422,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => from e1 in ss.Set<Level1>()
                       where e1.OneToOne_Optional_FK1.Name.StartsWith(e1.OneToOne_Optional_FK1.Name)
-                      select e1,
-                ss => from e1 in ss.Set<Level1>()
-                      where e1.OneToOne_Optional_FK1.Name.MaybeScalar(x => x.StartsWith(x)) == true
                       select e1);
         }
 
@@ -512,14 +480,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss =>
-                    from e1 in ss.Set<Level1>()
-                    join e2 in ss.Set<Level2>() on e1.OneToOne_Optional_FK1.Id equals e2.Id
-                    select new { Id1 = e1.Id, Id2 = e2.Id },
-                ss =>
-                    from e1 in ss.Set<Level1>()
-                    join e2 in ss.Set<Level2>() on e1.OneToOne_Optional_FK1.MaybeScalar(x => x.Id) equals e2.Id
-                    select new { Id1 = e1.Id, Id2 = e2.Id },
+                ss => from e1 in ss.Set<Level1>()
+                      join e2 in ss.Set<Level2>() on e1.OneToOne_Optional_FK1.Id equals e2.Id
+                      select new { Id1 = e1.Id, Id2 = e2.Id },
                 e => (e.Id1, e.Id2));
         }
 
@@ -529,15 +492,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss =>
-                    from e1 in ss.Set<Level1>()
-                    join e3 in ss.Set<Level3>() on e1.OneToOne_Required_FK1.OneToOne_Optional_FK2.Id equals e3.Id
-                    select new { Id1 = e1.Id, Id3 = e3.Id },
-                ss =>
-                    from e1 in ss.Set<Level1>()
-                    join e3 in ss.Set<Level3>()
-                    on e1.OneToOne_Required_FK1.OneToOne_Optional_FK2.MaybeScalar(x => x.Id) equals e3.Id
-                    select new { Id1 = e1.Id, Id3 = e3.Id },
+                ss => from e1 in ss.Set<Level1>()
+                      join e3 in ss.Set<Level3>() on e1.OneToOne_Required_FK1.OneToOne_Optional_FK2.Id equals e3.Id
+                      select new { Id1 = e1.Id, Id3 = e3.Id },
                 e => (e.Id1, e.Id3));
         }
 
@@ -547,14 +504,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss =>
-                    from e3 in ss.Set<Level3>()
-                    join e1 in ss.Set<Level1>() on e3.OneToOne_Required_FK_Inverse3.OneToOne_Optional_FK_Inverse2.Id equals e1.Id
-                    select new { Id3 = e3.Id, Id1 = e1.Id },
-                ss =>
-                    from e3 in ss.Set<Level3>()
-                    join e1 in ss.Set<Level1>() on e3.OneToOne_Required_FK_Inverse3.OneToOne_Optional_FK_Inverse2.MaybeScalar(x => x.Id) equals e1.Id
-                    select new { Id3 = e3.Id, Id1 = e1.Id },
+                ss => from e3 in ss.Set<Level3>()
+                      join e1 in ss.Set<Level1>() on e3.OneToOne_Required_FK_Inverse3.OneToOne_Optional_FK_Inverse2.Id equals e1.Id
+                      select new { Id3 = e3.Id, Id1 = e1.Id },
                 e => (e.Id1, e.Id3));
         }
 
@@ -564,14 +516,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss =>
-                    from e2 in ss.Set<Level2>()
-                    join e1 in ss.Set<Level1>() on e2.Id equals e1.OneToOne_Optional_FK1.Id
-                    select new { Id2 = e2.Id, Id1 = e1.Id },
-                ss =>
-                    from e2 in ss.Set<Level2>()
-                    join e1 in ss.Set<Level1>() on e2.Id equals e1.OneToOne_Optional_FK1.MaybeScalar(x => x.Id)
-                    select new { Id2 = e2.Id, Id1 = e1.Id },
+                ss => from e2 in ss.Set<Level2>()
+                      join e1 in ss.Set<Level1>() on e2.Id equals e1.OneToOne_Optional_FK1.Id
+                      select new { Id2 = e2.Id, Id1 = e1.Id },
                 e => (e.Id2, e.Id1));
         }
 
@@ -584,15 +531,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => from e2 in ss.Set<Level2>()
                       join e1 in ss.Set<Level1>() on e2.Id equals e1.OneToOne_Optional_FK1.Id
                       join e3 in ss.Set<Level3>() on e2.Id equals e3.OneToOne_Optional_FK_Inverse3.Id
-                      select new
-                      {
-                          Id2 = e2.Id,
-                          Id1 = e1.Id,
-                          Id3 = e3.Id
-                      },
-                ss => from e2 in ss.Set<Level2>()
-                      join e1 in ss.Set<Level1>() on e2.Id equals e1.OneToOne_Optional_FK1.MaybeScalar(x => x.Id)
-                      join e3 in ss.Set<Level3>() on e2.Id equals e3.OneToOne_Optional_FK_Inverse3.MaybeScalar(x => x.Id)
                       select new
                       {
                           Id2 = e2.Id,
@@ -646,14 +584,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss =>
-                    from e1 in ss.Set<Level1>()
-                    join e2 in ss.Set<Level1>() on e1.Id equals e2.OneToMany_Optional_Self_Inverse1.Id
-                    select new { Id1 = e1.Id, Id2 = e2.Id },
-                ss =>
-                    from e1 in ss.Set<Level1>()
-                    join e2 in ss.Set<Level1>() on e1.Id equals e2.OneToMany_Optional_Self_Inverse1.MaybeScalar(x => x.Id)
-                    select new { Id1 = e1.Id, Id2 = e2.Id },
+                ss => from e1 in ss.Set<Level1>()
+                      join e2 in ss.Set<Level1>() on e1.Id equals e2.OneToMany_Optional_Self_Inverse1.Id
+                      select new { Id1 = e1.Id, Id2 = e2.Id },
                 e => (e.Id1, e.Id2));
         }
 
@@ -663,14 +596,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss =>
-                    from e3 in ss.Set<Level3>()
-                    join e1 in ss.Set<Level1>() on e3.Id equals e1.OneToOne_Required_FK1.OneToOne_Optional_FK2.Id
-                    select new { Id3 = e3.Id, Id1 = e1.Id },
-                ss =>
-                    from e3 in ss.Set<Level3>()
-                    join e1 in ss.Set<Level1>() on e3.Id equals e1.OneToOne_Required_FK1.OneToOne_Optional_FK2.MaybeScalar(x => x.Id)
-                    select new { Id3 = e3.Id, Id1 = e1.Id },
+                ss => from e3 in ss.Set<Level3>()
+                      join e1 in ss.Set<Level1>() on e3.Id equals e1.OneToOne_Required_FK1.OneToOne_Optional_FK2.Id
+                      select new { Id3 = e3.Id, Id1 = e1.Id },
                 e => (e.Id3, e.Id1));
         }
 
@@ -680,14 +608,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss =>
-                    from e3 in ss.Set<Level3>()
-                    join e1 in ss.Set<Level1>().OrderBy(ll => ll.Id) on e3.Id equals e1.OneToOne_Required_FK1.OneToOne_Optional_FK2.Id
-                    select new { Id3 = e3.Id, Id1 = e1.Id },
-                ss =>
-                    from e3 in ss.Set<Level3>()
-                    join e1 in ss.Set<Level1>().OrderBy(ll => ll.Id) on e3.Id equals e1.OneToOne_Required_FK1.OneToOne_Optional_FK2.MaybeScalar(x => x.Id)
-                    select new { Id3 = e3.Id, Id1 = e1.Id },
+                ss => from e3 in ss.Set<Level3>()
+                      join e1 in ss.Set<Level1>().OrderBy(ll => ll.Id) on e3.Id equals e1.OneToOne_Required_FK1.OneToOne_Optional_FK2.Id
+                      select new { Id3 = e3.Id, Id1 = e1.Id },
                 e => (e.Id3, e.Id1));
         }
 
@@ -835,13 +758,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     join l2 in ss.Set<Level2>() on l1.Id equals l2.Level1_Optional_Id into groupJoin
                     from l2 in groupJoin.DefaultIfEmpty()
 #pragma warning disable IDE0031 // Use null propagation
-                    select l2 == null ? null : l2.Name,
-#pragma warning restore IDE0031 // Use null propagation
-                ss =>
-                    from l1 in ss.Set<Level1>()
-                    join l2 in ss.Set<Level2>() on l1.Id equals l2.MaybeScalar(x => x.Level1_Optional_Id) into groupJoin
-                    from l2 in groupJoin.DefaultIfEmpty()
-#pragma warning disable IDE0031 // Use null propagation
                     select l2 == null ? null : l2.Name);
 #pragma warning restore IDE0031 // Use null propagation
         }
@@ -852,8 +768,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQueryScalar(
                 async,
-                ss => ss.Set<Level1>().Select(e => (int?)e.OneToOne_Optional_FK1.Id),
-                ss => ss.Set<Level1>().Select(e => e.OneToOne_Optional_FK1.MaybeScalar(x => x.Id)));
+                ss => ss.Set<Level1>().Select(e => (int?)e.OneToOne_Optional_FK1.Id));
         }
 
         [ConditionalTheory]
@@ -864,10 +779,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => from l1 in ss.Set<Level1>()
                       join l2 in ss.Set<Level2>() on l1.Id equals l2.Level1_Optional_Id into groupJoin
-                      from l2 in groupJoin.DefaultIfEmpty()
-                      select l2 == null ? null : (int?)l2.Id,
-                ss => from l1 in ss.Set<Level1>()
-                      join l2 in ss.Set<Level2>() on l1.Id equals l2.MaybeScalar(x => x.Level1_Optional_Id) into groupJoin
                       from l2 in groupJoin.DefaultIfEmpty()
                       select l2 == null ? null : (int?)l2.Id);
         }
@@ -943,8 +854,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQueryScalar(
                 async,
-                ss => ss.Set<Level1>().Select(e => (int?)e.OneToOne_Optional_FK1.OneToOne_Optional_FK2.Id),
-                ss => ss.Set<Level1>().Select(e => e.OneToOne_Optional_FK1.OneToOne_Optional_FK2.MaybeScalar(x => x.Id)));
+                ss => ss.Set<Level1>().Select(e => (int?)e.OneToOne_Optional_FK1.OneToOne_Optional_FK2.Id));
         }
 
         [ConditionalTheory]
@@ -1034,8 +944,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQueryScalar(
                 async,
-                ss => ss.Set<Level1>().Select(e => (int?)e.OneToOne_Required_FK1.OneToOne_Required_FK2.Id),
-                ss => ss.Set<Level1>().Select(e => e.OneToOne_Required_FK1.OneToOne_Required_FK2.MaybeScalar(x => x.Id)));
+                ss => ss.Set<Level1>().Select(e => (int?)e.OneToOne_Required_FK1.OneToOne_Required_FK2.Id));
         }
 
         [ConditionalTheory]
@@ -1054,9 +963,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQueryScalar(
                 async,
                 ss => from l1 in ss.Set<Level1>()
-                      select (int?)l1.OneToOne_Optional_FK1.OneToOne_Required_FK2.Id,
-                ss => from l1 in ss.Set<Level1>()
-                      select l1.OneToOne_Optional_FK1.OneToOne_Required_FK2.MaybeScalar(x => x.Id));
+                      select (int?)l1.OneToOne_Optional_FK1.OneToOne_Required_FK2.Id);
         }
 
         [ConditionalTheory]
@@ -1104,7 +1011,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss =>
                     from l1 in ss.Set<Level1>()
                     from l2 in ss.Set<Level2>()
-                    where l1.Id == l2.OneToOne_Optional_FK_Inverse2.MaybeScalar(x => x.Id)
+                    where l1.Id == l2.OneToOne_Optional_FK_Inverse2.Id
                     select new { Id1 = l1.Id, Id2 = l2.Id },
                 e => (e.Id1, e.Id2));
         }
@@ -1123,7 +1030,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss =>
                     from l1 in ss.Set<Level1>()
                     from l2 in ss.Set<Level2>()
-                    where l1.OneToOne_Optional_FK1.MaybeScalar(x => x.Id) == l2.Id
+                    where l1.OneToOne_Optional_FK1.Id == l2.Id
                     select new { Id1 = l1.Id, Id2 = l2.Id },
                 e => (e.Id1, e.Id2));
         }
@@ -1186,10 +1093,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Where(e => e.OneToOne_Required_FK1.OneToOne_Required_FK2 == e.OneToOne_Required_FK1.OneToOne_Optional_FK2
                         && e.OneToOne_Required_FK1.OneToOne_Optional_FK2.Id != 7)
                     .Select(e => new { e.Name, Id = (int?)e.OneToOne_Required_FK1.OneToOne_Optional_FK2.Id }),
-                ss => ss.Set<Level1>()
-                    .Where(e => e.OneToOne_Required_FK1.OneToOne_Required_FK2 == e.OneToOne_Required_FK1.OneToOne_Optional_FK2
-                        && e.OneToOne_Required_FK1.OneToOne_Optional_FK2.MaybeScalar(x => x.Id) != 7)
-                    .Select(e => new { e.Name, Id = e.OneToOne_Required_FK1.OneToOne_Optional_FK2.MaybeScalar(x => x.Id) }),
                 elementSorter: e => (e.Name, e.Id));
         }
 
@@ -1199,23 +1102,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss =>
-                    from e in ss.Set<Level3>()
-                    where e.OneToOne_Required_FK_Inverse3.OneToOne_Required_FK_Inverse2
-                        == e.OneToOne_Required_FK_Inverse3.OneToOne_Optional_FK_Inverse2
-                        && e.OneToOne_Required_FK_Inverse3.OneToOne_Optional_FK_Inverse2.Id != 7
-                    select new { e.Name, Id = (int?)e.OneToOne_Required_FK_Inverse3.OneToOne_Optional_FK_Inverse2.Id },
-                ss =>
-                    from e in ss.Set<Level3>()
-                    where e.OneToOne_Required_FK_Inverse3.OneToOne_Required_FK_Inverse2
-                        == e.OneToOne_Required_FK_Inverse3.OneToOne_Optional_FK_Inverse2
-                        && e.OneToOne_Required_FK_Inverse3.OneToOne_Optional_FK_Inverse2.MaybeScalar(x => x.Id)
-                        != 7
-                    select new
-                    {
-                        e.Name,
-                        Id = e.OneToOne_Required_FK_Inverse3.OneToOne_Optional_FK_Inverse2.MaybeScalar(x => x.Id)
-                    },
+                ss => from e in ss.Set<Level3>()
+                      where e.OneToOne_Required_FK_Inverse3.OneToOne_Required_FK_Inverse2
+                          == e.OneToOne_Required_FK_Inverse3.OneToOne_Optional_FK_Inverse2
+                          && e.OneToOne_Required_FK_Inverse3.OneToOne_Optional_FK_Inverse2.Id != 7
+                      select new { e.Name, Id = (int?)e.OneToOne_Required_FK_Inverse3.OneToOne_Optional_FK_Inverse2.Id },
                 e => (e.Name, e.Id));
         }
 
@@ -1339,10 +1230,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertAverage(
                 async,
                 ss => ss.Set<Level1>().Select(e => (int?)e.OneToOne_Optional_FK1.Level1_Required_Id),
-                ss => ss.Set<Level1>().Select(
-                    e => e.OneToOne_Optional_FK1.MaybeScalar(x => x.Level1_Required_Id)),
-                actualSelector: e => e,
-                expectedSelector: e => e);
+                selector: e => e);
         }
 
         [ConditionalTheory]
@@ -1351,8 +1239,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertAverage(
                 async,
-                ss => ss.Set<Level1>().Select(e => (int?)e.OneToOne_Optional_FK1.Level1_Required_Id),
-                ss => ss.Set<Level1>().Select(e => e.OneToOne_Optional_FK1.MaybeScalar(x => x.Level1_Required_Id)));
+                ss => ss.Set<Level1>().Select(e => (int?)e.OneToOne_Optional_FK1.Level1_Required_Id));
         }
 
         [ConditionalTheory]
@@ -1658,16 +1545,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss =>
-                    from e1 in ss.Set<Level1>()
-                    join e2 in ss.Set<Level2>() on e1.Id equals e2.OneToOne_Optional_FK_Inverse2.Id
-                    where ss.Set<Level2>().Any(l2 => l2.Level1_Required_Id == e1.Id)
-                    select new { Name1 = e1.Name, Id2 = e2.Id },
-                ss =>
-                    from e1 in ss.Set<Level1>()
-                    join e2 in ss.Set<Level2>() on e1.Id equals e2.OneToOne_Optional_FK_Inverse2.MaybeScalar(x => x.Id)
-                    where ss.Set<Level2>().Any(l2 => l2.Level1_Required_Id == e1.Id)
-                    select new { Name1 = e1.Name, Id2 = e2.Id },
+                ss => from e1 in ss.Set<Level1>()
+                      join e2 in ss.Set<Level2>() on e1.Id equals e2.OneToOne_Optional_FK_Inverse2.Id
+                      where ss.Set<Level2>().Any(l2 => l2.Level1_Required_Id == e1.Id)
+                      select new { Name1 = e1.Name, Id2 = e2.Id },
                 e => (e.Name1, e.Id2));
         }
 
@@ -1722,7 +1603,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Level3>().OrderBy(l3 => l3.OneToOne_Required_FK_Inverse3.Id)
                     .Select(l3 => EF.Property<Level2>(l3, "OneToOne_Required_FK_Inverse3")),
-                ss => ss.Set<Level3>().OrderBy(l3 => l3.OneToOne_Required_FK_Inverse3.Id).Select(l3 => l3.OneToOne_Required_FK_Inverse3),
                 elementAsserter: (e, a) => AssertEqual(e, a),
                 assertOrder: true);
         }
@@ -1735,7 +1615,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Level3>().OrderBy(l3 => EF.Property<Level2>(l3, "OneToOne_Required_FK_Inverse3").Id)
                     .Select(l3 => l3.OneToOne_Required_FK_Inverse3),
-                ss => ss.Set<Level3>().OrderBy(l3 => l3.OneToOne_Required_FK_Inverse3.Id).Select(l3 => l3.OneToOne_Required_FK_Inverse3),
                 elementAsserter: (e, a) => AssertEqual(e, a),
                 assertOrder: true);
         }
@@ -1791,11 +1670,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Level1>()
                     .Select(l1 => l1.OneToOne_Optional_FK1)
                     .OrderBy(l2 => (int?)l2.Id)
-                    .Take(10)
-                    .Select(l2 => l2.OneToOne_Optional_FK2.Name),
-                ss => ss.Set<Level1>()
-                    .Select(l1 => l1.OneToOne_Optional_FK1)
-                    .OrderBy(l2 => l2.MaybeScalar(x => x.Id))
                     .Take(10)
                     .Select(l2 => l2.OneToOne_Optional_FK2.Name),
                 assertOrder: true);
@@ -2273,7 +2147,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       where l3 != null
                       select l1,
                 ss => from l1 in ss.Set<Level1>()
-                      from l3 in l1.OneToOne_Required_FK1.OneToMany_Optional2.MaybeDefaultIfEmpty() ?? new List<Level3>()
+                      from l3 in l1.OneToOne_Required_FK1.OneToMany_Optional2.DefaultIfEmpty() ?? new List<Level3>()
                       where l3 != null
                       select l1);
         }
@@ -2347,11 +2221,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                                   .DefaultIfEmpty())
                           on l1.Id equals l2.Level1_Optional_Id
                       select new { l1, l2 },
-               ss => from l1 in ss.Set<Level1>()
-                     join l2 in ss.Set<Level4>().SelectMany(
-                             l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3.OneToMany_Required_Self2.MaybeDefaultIfEmpty()) on
-                         l1.Id equals l2.MaybeScalar(x => x.Level1_Optional_Id)
-                     select new { l1, l2 },
                 elementSorter: e => (e.l1?.Id, e.l2?.Id),
                 elementAsserter: (e, a) =>
                 {
@@ -2366,16 +2235,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss
-                    => from l2 in ss.Set<Level4>().SelectMany(
-                           l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3.OneToMany_Required_Self2.DefaultIfEmpty())
-                       join l1 in ss.Set<Level1>() on l2.Level1_Optional_Id equals l1.Id
-                       select new { l2, l1 },
-                ss
-                    => from l2 in ss.Set<Level4>().SelectMany(
-                           l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3.OneToMany_Required_Self2.MaybeDefaultIfEmpty())
-                       join l1 in ss.Set<Level1>() on l2.MaybeScalar(x => x.Level1_Optional_Id) equals l1.Id
-                       select new { l2, l1 },
+                ss => from l2 in ss.Set<Level4>().SelectMany(
+                          l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3.OneToMany_Required_Self2.DefaultIfEmpty())
+                      join l1 in ss.Set<Level1>() on l2.Level1_Optional_Id equals l1.Id
+                      select new { l2, l1 },
                 elementSorter: e => (e.l2?.Id, e.l1?.Id),
                 elementAsserter: (e, a) =>
                 {
@@ -2386,18 +2249,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany3(
-            bool async)
+        public virtual Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany3(bool async)
         {
             return AssertQuery(
                 async,
                 ss => from l4 in ss.Set<Level1>().SelectMany(
                           l1 => l1.OneToOne_Required_FK1.OneToOne_Optional_FK2.OneToMany_Required3.DefaultIfEmpty())
                       join l2 in ss.Set<Level2>() on l4.Id equals l2.Id
-                      select new { l4, l2 },
-                ss => from l4 in ss.Set<Level1>().SelectMany(
-                          l1 => l1.OneToOne_Required_FK1.OneToOne_Optional_FK2.OneToMany_Required3.MaybeDefaultIfEmpty())
-                      join l2 in ss.Set<Level2>() on l4.MaybeScalar(x => x.Id) equals l2.Id
                       select new { l4, l2 },
                 elementSorter: e => (e.l4?.Id, e.l2?.Id),
                 elementAsserter: (e, a) =>
@@ -2414,18 +2272,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss
-                    => from l4 in ss.Set<Level1>().SelectMany(
-                           l1 => l1.OneToOne_Required_FK1.OneToOne_Optional_FK2.OneToMany_Required3.DefaultIfEmpty())
-                       join l2 in ss.Set<Level2>() on l4.Id equals l2.Id into grouping
-                       from l2 in grouping.DefaultIfEmpty()
-                       select new { l4, l2 },
-                ss
-                    => from l4 in ss.Set<Level1>().SelectMany(
-                           l1 => l1.OneToOne_Required_FK1.OneToOne_Optional_FK2.OneToMany_Required3.MaybeDefaultIfEmpty())
-                       join l2 in ss.Set<Level2>() on l4.MaybeScalar(x => x.Id) equals l2.Id into grouping
-                       from l2 in grouping.DefaultIfEmpty()
-                       select new { l4, l2 },
+                ss => from l4 in ss.Set<Level1>().SelectMany(
+                          l1 => l1.OneToOne_Required_FK1.OneToOne_Optional_FK2.OneToMany_Required3.DefaultIfEmpty())
+                      join l2 in ss.Set<Level2>() on l4.Id equals l2.Id into grouping
+                      from l2 in grouping.DefaultIfEmpty()
+                      select new { l4, l2 },
                 elementSorter: e => (e.l4?.Id, e.l2?.Id),
                 elementAsserter: (e, a) =>
                 {
@@ -2447,12 +2298,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                                   .DefaultIfEmpty())
                           on l4.Id equals l2.Id
                       select new { l4, l2 },
-                ss => from l4 in ss.Set<Level1>().SelectMany(
-                          l1 => l1.OneToOne_Required_FK1.OneToOne_Optional_FK2.OneToMany_Required3.MaybeDefaultIfEmpty())
-                      join l2 in ss.Set<Level4>().SelectMany(
-                              l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3.OneToMany_Required_Self2.MaybeDefaultIfEmpty())
-                          on l4.MaybeScalar(x => x.Id) equals l2.MaybeScalar(x => x.Id)
-                      select new { l4, l2 },
                 elementSorter: e => (e.l4?.Id, e.l2?.Id),
                 elementAsserter: (e, a) =>
                 {
@@ -2469,9 +2314,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => from l3 in ss.Set<Level4>().SelectMany(
                           l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Required_FK_Inverse3.OneToMany_Required2.DefaultIfEmpty())
-                      select l3.OneToOne_Required_FK_Inverse3.OneToOne_Required_PK_Inverse2,
-                ss => from l3 in ss.Set<Level4>().SelectMany(
-                          l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Required_FK_Inverse3.OneToMany_Required2.MaybeDefaultIfEmpty())
                       select l3.OneToOne_Required_FK_Inverse3.OneToOne_Required_PK_Inverse2);
         }
 
@@ -2484,8 +2326,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => from l3 in ss.Set<Level1>().SelectMany(l1 => l1.OneToOne_Optional_FK1.OneToMany_Optional2.DefaultIfEmpty())
-                      select l3.OneToOne_Required_FK_Inverse3.OneToOne_Required_PK_Inverse2,
-                ss => from l3 in ss.Set<Level1>().SelectMany(l1 => l1.OneToOne_Optional_FK1.OneToMany_Optional2.MaybeDefaultIfEmpty())
                       select l3.OneToOne_Required_FK_Inverse3.OneToOne_Required_PK_Inverse2);
         }
 
@@ -2515,13 +2355,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                           Property = l3.OneToOne_Optional_FK_Inverse3.OneToOne_Required_FK2.Name
                       },
                 ss => from l4 in ss.Set<Level1>().SelectMany(
-                          l1 => l1.OneToOne_Required_FK1.OneToOne_Optional_FK2.OneToMany_Required3.MaybeDefaultIfEmpty())
+                          l1 => l1.OneToOne_Required_FK1.OneToOne_Optional_FK2.OneToMany_Required3.DefaultIfEmpty())
                       join l2 in ss.Set<Level4>().SelectMany(
-                              l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3.OneToMany_Required_Self2.MaybeDefaultIfEmpty())
-                          on l4.MaybeScalar(x => x.Id) equals l2.MaybeScalar(x => x.Id)
+                              l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3.OneToMany_Required_Self2
+                                  .DefaultIfEmpty())
+                          on l4.Id equals l2.Id
                       join l3 in ss.Set<Level4>().SelectMany(
-                              l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Required_FK_Inverse3.OneToMany_Required2.MaybeDefaultIfEmpty())
-                          on l2.MaybeScalar(x => x.Id) equals l3.MaybeScalar(x => x.Id) into grouping
+                              l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Required_FK_Inverse3.OneToMany_Required2.DefaultIfEmpty())
+                          on l2.Id equals l3.Id into grouping
                       from l3 in grouping.DefaultIfEmpty()
                       where l4.OneToMany_Optional_Inverse4.Name != "Foo"
                       orderby l2.OneToOne_Optional_FK2.MaybeScalar(x => x.Id)
@@ -2608,7 +2449,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Level1>().Where(l1 => l1.OneToOne_Optional_FK1.OneToMany_Optional2.Distinct().Select(l3 => l3.Id).Contains(1)),
                 ss => ss.Set<Level1>().Where(
-                    l1 => l1.OneToOne_Optional_FK1.MaybeScalar(x => x.OneToMany_Optional2.Distinct().Select(l3 => l3.Id).Contains(1)) == true));
+                    l1 => l1.OneToOne_Optional_FK1.OneToMany_Optional2.MaybeScalar(x => x.Distinct().Select(l3 => l3.Id).Contains(1)) == true));
         }
 
         [ConditionalTheory]
@@ -2666,12 +2507,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Level2>()
                     .Where(l2o => l2o.Id == 7)
-                    .Where(
-                        l1 => EF.Property<string>(ss.Set<Level2>().OrderBy(l2i => l2i.Id).First().OneToOne_Required_FK_Inverse2, "Name")
-                            == "L1 02"),
-                ss => ss.Set<Level2>()
-                    .Where(l2o => l2o.Id == 7)
-                    .Where(l1 => ss.Set<Level2>().OrderBy(l2i => l2i.Id).First().OneToOne_Required_FK_Inverse2.Name == "L1 02"));
+                    .Where(l1 => EF.Property<string>(
+                        ss.Set<Level2>().OrderBy(l2i => l2i.Id).First().OneToOne_Required_FK_Inverse2, "Name") == "L1 02"));
         }
 
         [ConditionalTheory]
@@ -2693,16 +2530,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss =>
-                    from l2_nav in ss.Set<Level1>().Select(ll => ll.OneToOne_Optional_FK1)
-                    join l2 in ss.Set<Level2>() on l2_nav.Level1_Required_Id equals l2.Id into grouping
-                    from l2 in grouping.DefaultIfEmpty()
-                    select new { Id1 = (int?)l2_nav.Id, Id2 = (int?)l2.Id },
-                ss =>
-                    from l2_nav in ss.Set<Level1>().Select(ll => ll.OneToOne_Optional_FK1)
-                    join l2 in ss.Set<Level2>() on l2_nav.MaybeScalar(x => x.Level1_Required_Id) equals l2.Id into grouping
-                    from l2 in grouping.DefaultIfEmpty()
-                    select new { Id1 = l2_nav.MaybeScalar(x => x.Id), Id2 = l2.MaybeScalar(x => x.Id) },
+                ss => from l2_nav in ss.Set<Level1>().Select(ll => ll.OneToOne_Optional_FK1)
+                      join l2 in ss.Set<Level2>() on l2_nav.Level1_Required_Id equals l2.Id into grouping
+                      from l2 in grouping.DefaultIfEmpty()
+                      select new { Id1 = (int?)l2_nav.Id, Id2 = (int?)l2.Id },
                 elementSorter: e => e.Id1);
         }
 
@@ -2712,16 +2543,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss =>
-                    from l3 in ss.Set<Level3>()
-                    join l2_nav in ss.Set<Level1>().Select(ll => ll.OneToOne_Optional_FK1) on l3.Level2_Required_Id equals l2_nav.Id into grouping
-                    from l2_nav in grouping.DefaultIfEmpty()
-                    select new { Name1 = l3.Name, Name2 = l2_nav.Name },
-                ss =>
-                    from l3 in ss.Set<Level3>()
-                    join l2_nav in ss.Set<Level1>().Select(ll => ll.OneToOne_Optional_FK1) on l3.Level2_Required_Id equals l2_nav.MaybeScalar(x => x.Id) into grouping
-                    from l2_nav in grouping.DefaultIfEmpty()
-                    select new { Name1 = l3.Name, Name2 = l2_nav.Name },
+                ss => from l3 in ss.Set<Level3>()
+                      join l2_nav in ss.Set<Level1>().Select(ll => ll.OneToOne_Optional_FK1) on l3.Level2_Required_Id equals l2_nav.Id into grouping
+                      from l2_nav in grouping.DefaultIfEmpty()
+                      select new { Name1 = l3.Name, Name2 = l2_nav.Name },
                 elementSorter: e => (e.Name1, e.Name2));
         }
 
@@ -2739,15 +2564,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                           select l2_inner
                           on l3.Level2_Required_Id equals l2_outer.Id into grouping_outer
                       from l2_outer in grouping_outer.DefaultIfEmpty()
-                      select l2_outer.Name,
-                ss => from l3 in ss.Set<Level3>()
-                      join l2_outer in
-                          from l1_inner in ss.Set<Level1>()
-                          join l2_inner in ss.Set<Level2>() on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
-                          from l2_inner in grouping_inner.DefaultIfEmpty()
-                          select l2_inner
-                          on l3.Level2_Required_Id equals l2_outer.MaybeScalar(x => x.Id) into grouping_outer
-                      from l2_outer in grouping_outer.DefaultIfEmpty()
                       select l2_outer.Name);
         }
 
@@ -2764,15 +2580,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                           from l2_inner in grouping_inner.DefaultIfEmpty()
                           select l2_inner
                           on l3.Level2_Required_Id equals l2_outer.Id into grouping_outer
-                      from l2_outer in grouping_outer.DefaultIfEmpty()
-                      select new { entity = l2_outer, property = l2_outer.Name },
-                ss => from l3 in ss.Set<Level3>()
-                      join l2_outer in
-                          from l1_inner in ss.Set<Level1>()
-                          join l2_inner in ss.Set<Level2>() on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
-                          from l2_inner in grouping_inner.DefaultIfEmpty()
-                          select l2_inner
-                          on l3.Level2_Required_Id equals l2_outer.MaybeScalar(x => x.Id) into grouping_outer
                       from l2_outer in grouping_outer.DefaultIfEmpty()
                       select new { entity = l2_outer, property = l2_outer.Name },
                 elementSorter: e => e.property,
@@ -2802,15 +2609,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                           select l2_inner
                           on l3.Level2_Required_Id equals l2_outer.Id into grouping_outer
                       from l2_outer in grouping_outer.DefaultIfEmpty()
-                      select ClientMethodReturnSelf(l2_outer.Name),
-                ss => from l3 in ss.Set<Level3>()
-                      join l2_outer in
-                          from l1_inner in ss.Set<Level1>()
-                          join l2_inner in ss.Set<Level2>() on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
-                          from l2_inner in grouping_inner.DefaultIfEmpty()
-                          select l2_inner
-                          on l3.Level2_Required_Id equals l2_outer.MaybeScalar(x => x.Id) into grouping_outer
-                      from l2_outer in grouping_outer.DefaultIfEmpty()
                       select ClientMethodReturnSelf(l2_outer.Name));
         }
 
@@ -2827,15 +2625,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                           select l2_inner
                           on l1_outer.Id equals subquery.Level1_Optional_Id into grouping
                       from subquery in grouping.DefaultIfEmpty()
-                      select (int?)subquery.Id,
-                ss => from l1_outer in ss.Set<Level1>()
-                      join subquery in
-                          from l2_inner in ss.Set<Level2>()
-                          join l1_inner in ss.Set<Level1>() on l2_inner.Level1_Required_Id equals l1_inner.Id
-                          select l2_inner
-                          on l1_outer.Id equals subquery.Level1_Optional_Id into grouping
-                      from subquery in grouping.DefaultIfEmpty()
-                      select subquery.MaybeScalar(x => x.Id));
+                      select (int?)subquery.Id);
         }
 
         [ConditionalTheory]
@@ -2851,15 +2641,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                           select l2_inner
                           on l1_outer.Id equals subquery.Level1_Optional_Id into grouping
                       from subquery in grouping.DefaultIfEmpty()
-                      select subquery != null ? (int?)subquery.Id : null,
-                ss => from l1_outer in ss.Set<Level1>()
-                      join subquery in
-                          from l2_inner in ss.Set<Level2>()
-                          join l1_inner in ss.Set<Level1>() on l2_inner.Level1_Required_Id equals l1_inner.Id
-                          select l2_inner
-                          on l1_outer.Id equals subquery.Level1_Optional_Id into grouping
-                      from subquery in grouping.DefaultIfEmpty()
-                      select subquery.MaybeScalar(x => x.Id));
+                      select subquery != null ? (int?)subquery.Id : null);
         }
 
         [ConditionalTheory]
@@ -2876,16 +2658,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                           select l2_inner
                           on l1_outer.Id equals subquery.Level1_Required_Id into grouping
                       from subquery in grouping.DefaultIfEmpty()
-                      select (int?)subquery.Id,
-                ss => from l1_outer in ss.Set<Level1>()
-                      join subquery in
-                          from l2_inner in ss.Set<Level2>()
-                          join l1_inner in ss.Set<Level1>() on l2_inner.Level1_Required_Id equals l1_inner.Id into grouping_inner
-                          from l1_inner in grouping_inner.DefaultIfEmpty()
-                          select l2_inner
-                          on l1_outer.Id equals subquery.MaybeScalar(x => x.Level1_Required_Id) into grouping
-                      from subquery in grouping.DefaultIfEmpty()
-                      select subquery.MaybeScalar(x => x.Id));
+                      select (int?)subquery.Id);
         }
 
         [ConditionalTheory]
@@ -2954,16 +2727,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                          select l2).Take(2)
                     join l1_outer in ss.Set<Level1>() on x.Level1_Optional_Id equals l1_outer.Id into grouping_outer
                     from l1_outer in grouping_outer.DefaultIfEmpty()
-                    select l1_outer.Name,
-                ss =>
-                    from x in
-                        (from l1 in ss.Set<Level1>()
-                         join l2 in ss.Set<Level2>() on l1.Id equals l2.Level1_Optional_Id into grouping
-                         from l2 in grouping.DefaultIfEmpty()
-                         orderby l1.Id
-                         select l2).Take(2)
-                    join l1_outer in ss.Set<Level1>() on x.MaybeScalar(xx => xx.Level1_Optional_Id) equals l1_outer.Id into grouping_outer
-                    from l1_outer in grouping_outer.DefaultIfEmpty()
                     select l1_outer.Name);
         }
 
@@ -2982,16 +2745,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                          orderby l1.Id
                          select l2).Take(2)
                     join l1_outer in ss.Set<Level1>() on x.Level1_Optional_Id equals l1_outer.Id into grouping_outer
-                    from l1_outer in grouping_outer.DefaultIfEmpty()
-                    select l1_outer.Name,
-                ss =>
-                    from x in
-                        (from l1 in ss.Set<Level1>()
-                         join l2 in ss.Set<Level2>().OrderBy(ee => ee.Date) on l1.Id equals l2.Level1_Optional_Id into grouping
-                         from l2 in grouping.DefaultIfEmpty()
-                         orderby l1.Id
-                         select l2).Take(2)
-                    join l1_outer in ss.Set<Level1>() on x.MaybeScalar(xx => xx.Level1_Optional_Id) equals l1_outer.Id into grouping_outer
                     from l1_outer in grouping_outer.DefaultIfEmpty()
                     select l1_outer.Name);
         }
@@ -3313,18 +3066,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss =>
-                    from l1 in ss.Set<Level1>()
-                    join l2 in ss.Set<Level2>()
-                        on new { A = EF.Property<int?>(l1, "OneToMany_Optional_Self_Inverse1Id") }
-                        equals new { A = EF.Property<int?>(l2, "Level1_Optional_Id") }
-                    select l1,
-                ss =>
-                    from l1 in ss.Set<Level1>()
-                    join l2 in ss.Set<Level2>()
-                        on new { A = l1.OneToMany_Optional_Self_Inverse1.MaybeScalar(x => x.Id) }
-                        equals new { A = l2.Level1_Optional_Id }
-                    select l1);
+                ss => from l1 in ss.Set<Level1>()
+                      join l2 in ss.Set<Level2>()
+                          on new { A = EF.Property<int?>(l1, "OneToMany_Optional_Self_Inverse1Id") }
+                          equals new { A = EF.Property<int?>(l2, "Level1_Optional_Id") }
+                      select l1);
         }
 
         [ConditionalTheory]
@@ -3346,20 +3092,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                             A = EF.Property<int?>(l2, "Level1_Optional_Id"),
                             B = EF.Property<int?>(l2, "OneToMany_Optional_Self_Inverse2Id")
                         }
-                    select l1,
-                ss =>
-                    from l1 in ss.Set<Level1>()
-                    join l2 in ss.Set<Level2>()
-                        on new
-                        {
-                            A = l1.OneToMany_Optional_Self_Inverse1.MaybeScalar(x => x.Id),
-                            B = l1.OneToOne_Optional_Self1.MaybeScalar(x => x.Id)
-                        }
-                        equals new
-                        {
-                            A = l2.Level1_Optional_Id,
-                            B = l2.OneToMany_Optional_Self_Inverse2.MaybeScalar(x => x.Id)
-                        }
                     select l1);
         }
 
@@ -3377,18 +3109,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                          from l2_inner in grouping_inner.DefaultIfEmpty()
                          select l2_inner).Take(2)
                     join l2_outer in ss.Set<Level2>() on l1_outer.Id equals l2_outer.Level1_Optional_Id into grouping_outer
-                    from l2_outer in grouping_outer.DefaultIfEmpty()
-                    select l2_outer.Name,
-                ss =>
-                    from l1_outer in
-                        (from l1_inner in ss.Set<Level1>()
-                         orderby l1_inner.Id
-                         join l2_inner in ss.Set<Level2>() on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
-                         from l2_inner in grouping_inner.DefaultIfEmpty()
-                         select l2_inner).Take(2)
-                    join l2_outer in ss.Set<Level2>() on l1_outer.MaybeScalar(x => x.Id) equals l2_outer.Level1_Optional_Id
-                        into
-                        grouping_outer
                     from l2_outer in grouping_outer.DefaultIfEmpty()
                     select l2_outer.Name);
         }
@@ -3471,9 +3191,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                           .Select(i => i.OneToOne_Optional_PK_Inverse4 == l2.OneToOne_Required_FK2).Any()
                       select l2.Name,
                 ss => from l2 in ss.Set<Level2>()
-                      where l2.OneToOne_Required_FK2.MaybeScalar(
-                          x => x.OneToMany_Optional3.MaybeScalar(
-                              xx => xx.Select(i => i.OneToOne_Optional_PK_Inverse4 == x).Any())) == true
+                      where l2.OneToOne_Required_FK2.OneToMany_Optional3.MaybeScalar(
+                              x => x.Select(i => i.OneToOne_Optional_PK_Inverse4 == l2.OneToOne_Required_FK2).Any()) == true
                       select l2.Name);
         }
 
@@ -3488,9 +3207,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                           .Select(i => i.OneToOne_Optional_PK_Inverse4 == l2.OneToOne_Optional_PK2).Any()
                       select l2.Name,
                 ss => from l2 in ss.Set<Level2>()
-                      where l2.OneToOne_Required_FK2.MaybeScalar(
-                          x => x.OneToMany_Optional3.MaybeScalar(
-                              xx => xx.Select(i => i.OneToOne_Optional_PK_Inverse4 == l2.OneToOne_Optional_PK2).Any())) == true
+                      where l2.OneToOne_Required_FK2.OneToMany_Optional3.MaybeScalar(
+                              x => x.Select(i => i.OneToOne_Optional_PK_Inverse4 == l2.OneToOne_Optional_PK2).Any()) == true
                       select l2.Name);
         }
 
@@ -3632,10 +3350,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                               l1,
                               "OneToOne_Optional_FK1"),
                           "OneToMany_Optional2"),
-                ss => from l1 in ss.Set<Level1>()
-                      select l1.OneToOne_Optional_FK1.OneToMany_Optional2 ?? new List<Level3>(),
-                elementSorter: e => e.Count,
-                elementAsserter: (e, a) => AssertCollection(e, a));
+                elementSorter: e => e?.Count ?? 0,
+                elementAsserter: (e, a) => AssertCollection(e ?? new List<Level3>(), a));
         }
 
         [ConditionalTheory]
@@ -3646,17 +3362,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => from l1 in ss.Set<Level1>()
                       select new { l1.Id, l1.OneToOne_Optional_FK1.OneToMany_Optional2 },
-                ss => from l1 in ss.Set<Level1>()
-                      select new
-                      {
-                          l1.Id,
-                          OneToMany_Optional2 = l1.OneToOne_Optional_FK1.OneToMany_Optional2 ?? new List<Level3>()
-                      },
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Id, a.Id);
-                    AssertCollection(e.OneToMany_Optional2, a.OneToMany_Optional2);
+                    AssertCollection(e.OneToMany_Optional2 ?? new List<Level3>(), a.OneToMany_Optional2);
                 });
         }
 
@@ -3730,17 +3440,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => from l1 in ss.Set<Level1>()
                       select new { l1.OneToOne_Optional_FK1, l1.OneToOne_Optional_FK1.OneToMany_Optional2 },
-                ss => from l1 in ss.Set<Level1>()
-                      select new
-                      {
-                          l1.OneToOne_Optional_FK1,
-                          OneToMany_Optional2 = l1.OneToOne_Optional_FK1.OneToMany_Optional2 ?? new List<Level3>()
-                      },
                 elementSorter: e => e.OneToOne_Optional_FK1?.Id,
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.OneToOne_Optional_FK1?.Id, a.OneToOne_Optional_FK1?.Id);
-                    AssertCollection(e.OneToMany_Optional2, a.OneToMany_Optional2);
+                    AssertCollection(e.OneToMany_Optional2 ?? new List<Level3>(), a.OneToMany_Optional2);
                 });
         }
 
@@ -3793,9 +3497,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Level2>()
                     .Include(l2 => l2.OneToMany_Optional2)
                     .OrderBy(l2 => EF.Property<int>(l2, "Level1_Required_Id"))
-                    .ThenBy(l2 => l2.Name),
-                ss => ss.Set<Level2>()
-                    .OrderBy(l2 => l2.Level1_Required_Id)
                     .ThenBy(l2 => l2.Name),
                 new List<IExpectedInclude> { new ExpectedInclude<Level2>(e => e.OneToMany_Optional2, "OneToMany_Optional2") },
                 assertOrder: true);
@@ -4075,9 +3776,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Level1>()
                     .Include(l1 => l1.OneToOne_Optional_FK1.OneToMany_Optional2)
                     .OrderBy(l1 => (int?)l1.OneToOne_Optional_FK1.Id),
-                ss => ss.Set<Level1>()
-                    .Include(l1 => l1.OneToOne_Optional_FK1.OneToMany_Optional2)
-                    .OrderBy(l1 => l1.OneToOne_Optional_FK1.MaybeScalar(x => x.Id)),
                 expectedIncludes: new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Level1>(e => e.OneToOne_Optional_FK1, "OneToOne_Optional_FK1"),
@@ -5132,9 +4830,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Level1>().Where(w => w.Id == w.OneToOne_Optional_FK1.Id as int?),
-                ss => ss.Set<Level1>()
-                    .Where(w => w.Id == (w.OneToOne_Optional_FK1.MaybeScalar(x => x.Id) as int?)));
+                ss => ss.Set<Level1>().Where(w => w.Id == w.OneToOne_Optional_FK1.Id as int?));
         }
 
         [ConditionalTheory]

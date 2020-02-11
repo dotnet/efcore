@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -203,7 +204,80 @@ namespace Microsoft.EntityFrameworkCore.Query
                 CreateContext,
                 new ComplexNavigationsDefaultData(),
                 entitySorters,
-                entityAsserters);
+                entityAsserters,
+                CreateExpectedQueryRewritingVisitor());
+
+        private MemberInfo GetMemberInfo(Type sourceType, string name)
+            => sourceType.GetMember(name).Single();
+
+        protected virtual ExpectedQueryRewritingVisitor CreateExpectedQueryRewritingVisitor()
+            => new ExpectedQueryRewritingVisitor(new Dictionary<(Type, string), MemberInfo[]>
+                {
+                    {
+                        (typeof(Level1), "OneToMany_Optional_Self_Inverse1Id"),
+                        new []
+                        {
+                            GetMemberInfo(typeof(Level1), "OneToMany_Optional_Self_Inverse1"),
+                            GetMemberInfo(typeof(Level1), "Id")
+                        }
+                    },
+                    {
+                        (typeof(Level1), "OneToOne_Optional_Self1Id"),
+                        new []
+                        {
+                            GetMemberInfo(typeof(Level1), "OneToOne_Optional_Self1"),
+                            GetMemberInfo(typeof(Level1), "Id")
+                        }
+                    },
+                    {
+                        (typeof(Level2), "OneToMany_Optional_Self_Inverse2Id"),
+                        new []
+                        {
+                            GetMemberInfo(typeof(Level2), "OneToMany_Optional_Self_Inverse2"),
+                            GetMemberInfo(typeof(Level2), "Id")
+                        }
+                    },
+                    {
+                        (typeof(Level2), "OneToOne_Optional_Self2Id"),
+                        new []
+                        {
+                            GetMemberInfo(typeof(Level2), "OneToOne_Optional_Self2"),
+                            GetMemberInfo(typeof(Level2), "Id")
+                        }
+                    },
+                    {
+                        (typeof(Level3), "OneToMany_Optional_Self_Inverse3Id"),
+                        new []
+                        {
+                            GetMemberInfo(typeof(Level3), "OneToMany_Optional_Self_Inverse3"),
+                            GetMemberInfo(typeof(Level3), "Id")
+                        }
+                    },
+                    {
+                        (typeof(Level3), "OneToOne_Optional_Self3Id"),
+                        new []
+                        {
+                            GetMemberInfo(typeof(Level3), "OneToOne_Optional_Self3"),
+                            GetMemberInfo(typeof(Level3), "Id")
+                        }
+                    },
+                    {
+                        (typeof(Level4), "OneToMany_Optional_Self_Inverse4Id"),
+                        new []
+                        {
+                            GetMemberInfo(typeof(Level4), "OneToMany_Optional_Self_Inverse4"),
+                            GetMemberInfo(typeof(Level4), "Id")
+                        }
+                    },
+                    {
+                        (typeof(Level4), "OneToOne_Optional_Self4Id"),
+                        new []
+                        {
+                            GetMemberInfo(typeof(Level4), "OneToOne_Optional_Self4"),
+                            GetMemberInfo(typeof(Level4), "Id")
+                        }
+                    },
+                });
 
         public QueryAsserterBase QueryAsserter { get; set; }
 

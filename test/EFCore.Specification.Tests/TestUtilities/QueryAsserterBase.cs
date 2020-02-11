@@ -16,9 +16,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public virtual ISetSource ExpectedData { get; set; }
 
         public abstract Task AssertSingleResultTyped<TResult>(
-            Func<ISetSource, TResult> actualSyncQuery,
-            Func<ISetSource, Task<TResult>> actualAsyncQuery,
-            Func<ISetSource, TResult> expectedQuery,
+            Expression<Func<ISetSource, TResult>> actualSyncQuery,
+            Expression<Func<ISetSource, Task<TResult>>> actualAsyncQuery,
+            Expression<Func<ISetSource, TResult>> expectedQuery,
             Action<TResult, TResult> asserter,
             int entryCount,
             bool async,

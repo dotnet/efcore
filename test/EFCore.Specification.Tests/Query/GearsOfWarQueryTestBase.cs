@@ -950,8 +950,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<Gear>().Where(
-                    g => (null == EF.Property<string>(g, "LeaderNickname") ? (int?)null : g.LeaderNickname.Length) == 5 == (bool?)true),
-                ss => ss.Set<Gear>().Where(g => (null == g.LeaderNickname ? (int?)null : g.LeaderNickname.Length) == 5 == (bool?)true));
+                    g => (null == EF.Property<string>(g, "LeaderNickname") ? (int?)null : g.LeaderNickname.Length) == 5 == (bool?)true));
         }
 
         [ConditionalTheory]
@@ -963,9 +962,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Gear>().Where(
                     g => (null != g.LeaderNickname ? (int?)(EF.Property<string>(g, "LeaderNickname").Length) : (int?)null)
                         == 5
-                        == (bool?)true),
-                ss => ss.Set<Gear>().Where(
-                    g => (null != g.LeaderNickname ? (int?)(g.LeaderNickname.Length) : (int?)null) == 5 == (bool?)true));
+                        == (bool?)true));
         }
 
         [ConditionalTheory]
@@ -977,9 +974,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Gear>().Where(
                     g => (null != g.LeaderNickname ? (int?)EF.Property<string>(g, "LeaderNickname").Length : (int?)null)
                         == 5
-                        == (bool?)true),
-                ss => ss.Set<Gear>().Where(
-                    g => (null != g.LeaderNickname ? (int?)g.LeaderNickname.Length : (int?)null) == 5 == (bool?)true));
+                        == (bool?)true));
         }
 
         [ConditionalTheory]
@@ -1082,9 +1077,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Gear>().Select(
                     g => null != g.LeaderNickname
                         ? EF.Property<string>(g, "LeaderNickname").Length != EF.Property<string>(g, "LeaderNickname").Length
-                        : (bool?)null),
-                ss => ss.Set<Gear>().Select(
-                    g => null != g.LeaderNickname ? g.LeaderNickname.Length != g.LeaderNickname.Length : (bool?)null));
+                        : (bool?)null));
         }
 
         [ConditionalTheory]
@@ -1137,10 +1130,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => from t in ss.Set<CogTag>()
                       select EF.Property<City>(EF.Property<CogTag>(t.Gear, "Tag").Gear, "AssignedCity") != null
                           ? EF.Property<string>(EF.Property<Gear>(t.Gear.Tag, "Gear").AssignedCity, "Name")
-                          : null,
-                ss => from t in ss.Set<CogTag>()
-                      select t.Gear.Tag.Gear.AssignedCity != null
-                          ? t.Gear.Tag.Gear.AssignedCity.Name
                           : null);
         }
 
@@ -1308,9 +1297,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertFirst(
                 async,
                 ss => ss.Set<Weapon>().OrderBy(w => w.Id).Select(
-                    w => new Weapon { IsAutomatic = (bool?)w.SynergyWith.IsAutomatic ?? false }),
-                ss => ss.Set<Weapon>().OrderBy(w => w.Id).Select(
-                    w => new Weapon { IsAutomatic = w.SynergyWith.MaybeScalar(x => x.IsAutomatic) ?? false }));
+                    w => new Weapon { IsAutomatic = (bool?)w.SynergyWith.IsAutomatic ?? false }));
         }
 
         [ConditionalTheory]
@@ -2126,9 +2113,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 // ReSharper disable once RedundantTernaryExpression
-                ss => ss.Set<CogTag>().Where(t => t.Gear.HasSoulPatch ? true : false),
-                // ReSharper disable once RedundantTernaryExpression
-                ss => ss.Set<CogTag>().Where(t => (t.Gear.MaybeScalar(x => x.HasSoulPatch) == true) ? true : false));
+                ss => ss.Set<CogTag>().Where(t => t.Gear.HasSoulPatch ? true : false));
         }
 
         [ConditionalTheory]
@@ -2137,8 +2122,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<CogTag>().Where(t => t.Gear.HasSoulPatch || t.Note.Contains("Cole")),
-                ss => ss.Set<CogTag>().Where(t => t.Gear.MaybeScalar(x => x.HasSoulPatch) == true || t.Note.Contains("Cole")));
+                ss => ss.Set<CogTag>().Where(t => t.Gear.HasSoulPatch || t.Note.Contains("Cole")));
         }
 
         [ConditionalTheory]
@@ -2147,9 +2131,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQueryScalar(
                 async,
-                ss => ss.Set<CogTag>().Select(t => t.Gear.HasSoulPatch && t.Note.Contains("Cole")),
-                ss => ss.Set<CogTag>().Select(
-                    t => t.Gear.MaybeScalar(x => x.HasSoulPatch) == true && t.Note.Contains("Cole")));
+                ss => ss.Set<CogTag>().Select(t => t.Gear.HasSoulPatch && t.Note.Contains("Cole")));
         }
 
         [ConditionalTheory]
@@ -2750,14 +2732,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .OrderBy(g => g.Rank)
                     .Include(g => g.Tag)
                     .Where(g => g.HasSoulPatch)
-                    .Select(
-                        g => new { FullName = EF.Property<string>(g, "FullName") }),
-                ss => ss.Set<Gear>()
-                    .OrderBy(g => g.Rank)
-                    .Include(g => g.Tag)
-                    .Where(g => g.HasSoulPatch)
-                    .Select(
-                        g => new { g.FullName }),
+                    .Select(g => new { FullName = EF.Property<string>(g, "FullName") }),
                 assertOrder: true);
         }
 
@@ -3011,9 +2986,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     async,
                     ss => from g in ss.Set<Gear>()
                           where !g.HasSoulPatch && FavoriteWeapon(EF.Property<List<Weapon>>(g, "Weapons")).Name == "Cole's Gnasher"
-                          select g.Nickname,
-                    ss => from g in ss.Set<Gear>()
-                          where !g.HasSoulPatch && FavoriteWeapon(g.Weapons).Name == "Cole's Gnasher"
                           select g.Nickname));
         }
 
@@ -3128,11 +3100,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                           Name = EF.Property<string>(horde, "Name"),
                           Eradicated = EF.Property<bool>((LocustHorde)f, "Eradicated")
                       },
-                ss => from f in ss.Set<Faction>()
-                      where f is LocustHorde
-                      let horde = (LocustHorde)f
-                      orderby f.Name
-                      select new { horde.Name, Eradicated = (bool)((LocustHorde)f).Eradicated },
                 assertOrder: true);
         }
 
@@ -3183,10 +3150,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                       where f is LocustHorde
                       orderby f.Name
                       select new { f.Name, Threat = EF.Property<LocustCommander>((LocustHorde)f, "Commander").ThreatLevel },
-                ss => from f in ss.Set<Faction>()
-                      where f is LocustHorde
-                      orderby f.Name
-                      select new { f.Name, Threat = ((LocustHorde)f).Commander.ThreatLevel },
                 assertOrder: true);
         }
 
@@ -3358,10 +3321,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Faction>()
                     .Where(f => f is LocustHorde)
-                    .Select(f => EF.Property<string>((LocustHorde)f, "CommanderName") != null ? ((LocustHorde)f).CommanderName : null),
-                ss => ss.Set<Faction>()
-                    .Where(f => f is LocustHorde)
-                    .Select(f => ((LocustHorde)f).CommanderName != null ? ((LocustHorde)f).CommanderName : null));
+                    .Select(f => EF.Property<string>((LocustHorde)f, "CommanderName") != null ? ((LocustHorde)f).CommanderName : null));
         }
 
         [ConditionalTheory]
@@ -3372,10 +3332,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Faction>()
                     .Where(f => f is LocustHorde)
-                    .Select(f => EF.Property<string>((LocustHorde)f, "CommanderName") != null ? ((LocustHorde)f).Eradicated : null),
-                ss => ss.Set<Faction>()
-                    .Where(f => f is LocustHorde)
-                    .Select(f => ((LocustHorde)f).CommanderName != null ? ((LocustHorde)f).Eradicated : null));
+                    .Select(f => EF.Property<string>((LocustHorde)f, "CommanderName") != null ? ((LocustHorde)f).Eradicated : null));
         }
 
         [ConditionalTheory]
@@ -3387,9 +3344,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Faction>().OfType<LocustHorde>()
                     .Select(
                         h => new { h.Id, Leaders = EF.Property<ICollection<LocustLeader>>(h.Commander.CommandingFaction, "Leaders") }),
-                ss => ss.Set<Faction>().OfType<LocustHorde>()
-                    .Select(
-                        h => new { h.Id, Leaders = (ICollection<LocustLeader>)h.Commander.CommandingFaction.Leaders }),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
                 {
@@ -3407,9 +3361,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Faction>().OfType<LocustHorde>()
                     .Select(
                         h => new { h.Id, Gears = EF.Property<ICollection<Gear>>((Officer)h.Commander.DefeatedBy, "Reports") }),
-                ss => ss.Set<Faction>().OfType<LocustHorde>()
-                    .Select(
-                        h => new { h.Id, Gears = ((Officer)h.Commander.DefeatedBy).Reports }),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
                 {
@@ -3431,14 +3382,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         {
                             f.Id,
                             Gears = EF.Property<ICollection<Gear>>((Officer)((LocustHorde)f).Commander.DefeatedBy, "Reports")
-                        }),
-                ss => ss.Set<Faction>()
-                    .Where(f => f is LocustHorde)
-                    .Select(
-                        f => new
-                        {
-                            f.Id,
-                            Gears = ((Officer)((LocustHorde)f).Commander.DefeatedBy).Reports
                         }),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
@@ -4818,13 +4761,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         grouping
                     from h in grouping.DefaultIfEmpty()
                     where h.Eradicated != true
-                    select h,
-                ss =>
-                    from ll in ss.Set<LocustLeader>()
-                    join h in ss.Set<Faction>().OfType<LocustHorde>().Where(f => f.Name == "Swarm") on ll.Name equals h.CommanderName into
-                        grouping
-                    from h in grouping.DefaultIfEmpty()
-                    where h.MaybeScalar(x => x.Eradicated) != true
                     select h);
         }
 

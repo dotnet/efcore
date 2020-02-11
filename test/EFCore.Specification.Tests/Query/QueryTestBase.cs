@@ -123,8 +123,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected Task AssertSingleResult<TResult>(
             bool async,
-            Func<ISetSource, TResult> syncQuery,
-            Func<ISetSource, Task<TResult>> asyncQuery,
+            Expression<Func<ISetSource, TResult>> syncQuery,
+            Expression<Func<ISetSource, Task<TResult>>> asyncQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
             [CallerMemberName] string testMethodName = null)
@@ -132,9 +132,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected Task AssertSingleResult<TResult>(
             bool async,
-            Func<ISetSource, TResult> actualSyncQuery,
-            Func<ISetSource, Task<TResult>> actualAsyncQuery,
-            Func<ISetSource, TResult> expectedQuery,
+            Expression<Func<ISetSource, TResult>> actualSyncQuery,
+            Expression<Func<ISetSource, Task<TResult>>> actualAsyncQuery,
+            Expression<Func<ISetSource, TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
             [CallerMemberName] string testMethodName = null)

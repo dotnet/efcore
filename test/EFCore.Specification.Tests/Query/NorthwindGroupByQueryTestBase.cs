@@ -2198,7 +2198,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertSingleResult(
                 async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.Sum(gg => gg.OrderID)).Count(),
-                ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.Sum(gg => gg.OrderID)).CountAsync());
+                ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.Sum(gg => gg.OrderID)).CountAsync(default));
         }
 
         [ConditionalTheory(Skip = "Issue #18836")]
@@ -2214,7 +2214,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => (from o in ss.Set<Order>()
                        group o by new { o.CustomerID }
                        into g
-                       select g.Where(e => e.OrderID < 10300).Count()).LongCountAsync());
+                       select g.Where(e => e.OrderID < 10300).Count()).LongCountAsync(default));
         }
 
         [ConditionalTheory]

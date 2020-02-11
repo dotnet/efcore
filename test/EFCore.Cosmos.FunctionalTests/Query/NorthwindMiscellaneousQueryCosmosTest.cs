@@ -1003,7 +1003,8 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                 asyncQuery: ss => ss.Set<Customer>()
                     .AllAsync(
                         c1 => c1.CustomerID == "ALFKI"
-                            && ss.Set<Customer>().Any(c2 => ss.Set<Customer>().Any(c3 => c1.CustomerID == c3.CustomerID))));
+                            && ss.Set<Customer>().Any(c2 => ss.Set<Customer>().Any(c3 => c1.CustomerID == c3.CustomerID)),
+                        default));
 
             AssertSql(
                 @"SELECT c
@@ -1029,7 +1030,8 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                             && ss.Set<Customer>()
                                 .Any(
                                     c2 => ss.Set<Customer>()
-                                        .Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))));
+                                        .Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID)),
+                                default));
 
             AssertSql(
                 @"SELECT c
