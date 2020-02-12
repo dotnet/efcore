@@ -6,6 +6,7 @@
       This must be reset in order for Build.props to evaluate a list of projects to be tested on Helix.
     -->
     <ProjectToBuild Condition="'$(ProjectToBuild)' == '$(MSBuildProjectFullPath)'"/>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <Import Project="..\targets\Helix.Common.props" />
