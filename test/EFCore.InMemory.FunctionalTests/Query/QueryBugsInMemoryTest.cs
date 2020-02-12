@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -662,6 +663,109 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             public int Id { get; set; }
+        }
+
+        #endregion
+
+        #region Bug19708
+
+        [ConditionalFact]
+        public virtual void GroupJoin_SelectMany_in_defining_query_is_flattened()
+        {
+            using (CreateScratch<MyContext19708>(Seed19708, "19708"))
+            {
+                using var context = new MyContext19708();
+
+                var query = context.Set<CustomerView19708>().ToList();
+
+                Assert.Collection(query,
+                    t => AssertCustomerView(t, 1, "First", 1, "FirstChild"),
+                    t => AssertCustomerView(t, 2, "Second", 2, "SecondChild1"),
+                    t => AssertCustomerView(t, 2, "Second", 3, "SecondChild2"),
+                    t => AssertCustomerView(t, 3, "Third", null, ""));
+            }
+
+            static void AssertCustomerView(
+                CustomerView19708 actual, int id, string name, int? customerMembershipId, string customerMembershipName)
+            {
+                Assert.Equal(id, actual.Id);
+                Assert.Equal(name, actual.Name);
+                Assert.Equal(customerMembershipId, actual.CustomerMembershipId);
+                Assert.Equal(customerMembershipName, actual.CustomerMembershipName);
+            }
+        }
+
+        private class MyContext19708 : DbContext
+        {
+            public DbSet<Customer19708> Customers { get; set; }
+            public DbSet<CustomerMembership19708> CustomerMemberships { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("19708");
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<CustomerView19708>().HasNoKey().ToQuery(Build_Customers_Sql_View_InMemory());
+            }
+
+            private Expression<Func<IQueryable<CustomerView19708>>> Build_Customers_Sql_View_InMemory()
+            {
+                Expression<Func<IQueryable<CustomerView19708>>> query = () =>
+                    from customer in Customers
+                    join customerMembership in CustomerMemberships on customer.Id equals customerMembership.CustomerId into
+                        nullableCustomerMemberships
+                    from customerMembership in nullableCustomerMemberships.DefaultIfEmpty()
+                    select new CustomerView19708
+                    {
+                        Id = customer.Id,
+                        Name = customer.Name,
+                        CustomerMembershipId = customerMembership != null ? customerMembership.Id : default(int?),
+                        CustomerMembershipName = customerMembership != null ? customerMembership.Name : ""
+                    };
+                return query;
+            }
+        }
+
+        private static void Seed19708(MyContext19708 context)
+        {
+            var customer1 = new Customer19708 { Name = "First" };
+            var customer2 = new Customer19708 { Name = "Second" };
+            var customer3 = new Customer19708 { Name = "Third" };
+
+            var customerMembership1 = new CustomerMembership19708 { Name = "FirstChild", Customer = customer1 };
+            var customerMembership2 = new CustomerMembership19708 { Name = "SecondChild1", Customer = customer2 };
+            var customerMembership3 = new CustomerMembership19708 { Name = "SecondChild2", Customer = customer2 };
+
+            context.AddRange(customer1, customer2, customer3);
+            context.AddRange(customerMembership1, customerMembership2, customerMembership3);
+
+            context.SaveChanges();
+        }
+
+        private class Customer19708
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        private class CustomerMembership19708
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public int CustomerId { get; set; }
+            public Customer19708 Customer { get; set; }
+        }
+
+        private class CustomerView19708
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public int? CustomerMembershipId { get; set; }
+            public string CustomerMembershipName { get; set; }
         }
 
         #endregion
