@@ -182,6 +182,33 @@ stages:
                   artifactType: Container
                   parallel: true
 
+          - job: Helix x64
+            pool:
+              ${{ if eq(variables['System.TeamProject'], 'public') }}:
+                name: NetCorePublic-Pool
+                queue: BuildPool.Windows.10.Amd64.VS2017.Open
+              ${{ if ne(variables['System.TeamProject'], 'public') }}:
+                name: NetCoreInternal-Pool
+                queue: BuildPool.Windows.10.Amd64.VS2017
+            variables:
+              - _InternalBuildArgs: ''
+              - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+                - group: DotNet-Blob-Feed
+                - _SignType: real
+                - _PublishBlobFeedUrl: https://dotnetfeed.blob.core.windows.net/aspnet-entityframeworkcore/index.json
+                - _DotNetPublishToBlobFeed: true
+                - _InternalBuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:DotNetPublishBlobFeedKey=$(dotnetfeed-storage-access-key-1) /p:DotNetPublishBlobFeedUrl=$(_PublishBlobFeedUrl) /p:DotNetPublishToBlobFeed=$(_DotNetPublishToBlobFeed) /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines) /p:DotNetArtifactsCategory=$(_DotNetArtifactsCategory) /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+            steps:
+              - script: .\build.cmd -ci -test -projects eng\helix\helix.proj /p:IsRequiredCheck=true /p:IsHelixJob=true /p:BuildAllProjects=true /p:BuildNative=true /p:ASPNETCORE_TEST_LOG_DIR=artifacts/log -bl
+                displayName: Run build.cmd helix target
+                env:
+                  SYSTEM_ACCESSTOKEN: $(System.AccessToken) # We need to set this env var to publish helix results to Azure Dev Ops
+            artifacts:
+              - name: Helix_logs
+                path: artifacts/log/
+                publishOnError: true
+                includeForks: true
+
 - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
   - template: eng\common\templates\post-build\post-build.yml
     parameters:
