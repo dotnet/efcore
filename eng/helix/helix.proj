@@ -30,62 +30,27 @@
     <ProjectToBuild Condition="'$(ProjectToBuild)' == '$(MSBuildProjectFullPath)'"/>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <IsWindowsHelixQueue>false</IsWindowsHelixQueue>
-    <IsWindowsHelixQueue Condition="$(HelixTargetQueue.Contains('Windows')) or $(HelixTargetQueue.Contains('windows'))">true</IsWindowsHelixQueue>
+  <PropertyGroup Condition="'$(BuildAllConfigurations)' == 'true'">
+    <!-- Use helix feature to include dotnet CLI for every workitem and add it to the path -->
+    <IncludeDotNetCli>true</IncludeDotNetCli>
+    <DotNetCliPackageType>sdk</DotNetCliPackageType>
+
+    <GlobalJsonContent>$([System.IO.File]::ReadAllText('$(RepoRoot)global.json'))</GlobalJsonContent>
+    <DotNetCliVersion>$([System.Text.RegularExpressions.Regex]::Match($(GlobalJsonContent), '(%3F&lt;="dotnet": ").*(%3F=")'))</DotNetCliVersion>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectToBuild Include="$(RepoRoot)src\**\*.csproj" />
-  </ItemGroup>
-
-  <Target Name="Gather" BeforeTargets="Build">
-    <MSBuild Projects="@(ProjectToBuild)"
-              Targets="CreateHelixPayload">
-      <Output TaskParameter="TargetOutputs" ItemName="HelixWorkItem" />
-    </MSBuild>
-  </Target>
-
-  <Target Name="CreateHelixPayload" Returns="@(HelixWorkItem)">
-    <MSBuild Projects="$(MSBuildProjectFullPath)"
-             Targets="_CreateHelixWorkItem"
-             Properties="TargetFramework=%(TargetFrameworks.Identity);">
-      <Output TaskParameter="TargetOutputs" ItemName="HelixWorkItem" />
-    </MSBuild>
-  </Target>
-
-  <Target Name="_PublishHelixArchive" DependsOnTargets="Publish" >
-    <ZipDirectory Condition="'$(HelixUseArchive)' == 'true'" SourceDirectory="$(PublishDir)" DestinationFile="$(PublishDir)../$(HelixTestName).zip" Overwrite="true" />
-    <RemoveDir Condition="'$(HelixUseArchive)' == 'true'" Directories="$(PublishDir)" />
-  </Target>
-
-  <Target Name="_CreateHelixWorkItem" Returns="@(HelixWorkItem)">
-
-    <ItemGroup>
-      <HelixContent Include="$(OutputPath)/Microsoft.VisualStudio.TestPlatform.Extension.Xunit.Xml.TestAdapter.dll" />
-      <HelixContent Include="$(OutputPath)/Microsoft.VisualStudio.TestPlatform.Extension.Xunit.Xml.TestLogger.dll" />
-    </ItemGroup>
-
-    <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="_PublishHelixArchive" RemoveProperties="HelixTargetQueue;TestRunId" />
-
-    <ConvertToAbsolutePath Paths="$(PublishDir)">
-      <Output TaskParameter="AbsolutePaths" PropertyName="PublishAbsoluteDir" />
-    </ConvertToAbsolutePath>
-    <ItemGroup>
-      <HelixWorkItem Include="$(HelixTestName)">
-        <PayloadArchive Condition="'$(HelixUseArchive)' == 'true'">$(PublishAbsoluteDir)../$(HelixTestName).zip</PayloadArchive>
-        <PayloadDirectory Condition="'$(HelixUseArchive)' == 'false'">$(PublishAbsoluteDir)</PayloadDirectory>
-        <TestAssembly>$(TargetFileName)</TestAssembly>
-        <PreCommands>@(HelixPreCommand)</PreCommands>
-        <PostCommands>@(HelixPostCommand)</PostCommands>
-        <Command Condition="$(IsWindowsHelixQueue)">call runtests.cmd $(TargetFileName) $(NETCoreSdkVersion) $(MicrosoftNETCoreAppRuntimeVersion) $(TargetArchitecture)</Command>
-        <Command Condition="!$(IsWindowsHelixQueue)">./runtests.sh $(TargetFileName) $(NETCoreSdkVersion) $(MicrosoftNETCoreAppRuntimeVersion)  $(TargetArchitecture)</Command>
-        <Timeout>$(HelixTimeout)</Timeout>
-      </HelixWorkItem>
-    </ItemGroup>
-  </Target>
 
   <ItemGroup>
-    <PackageReference Include="XunitXml.TestLogger" Version="2.1.26" />
+    <XUnitProject Include="$(RepoRoot)\test\ef.Tests\ef.Tests.csproj"/>
   </ItemGroup>
+  <PropertyGroup>
+    <!-- TargetFramework to publish the xunit test projects for -->
+    <XUnitPublishTargetFramework>netcoreapp3.1</XUnitPublishTargetFramework>
+    <!-- TargetFramework of the xunit.runner.dll to use when running the tests -->
+    <XUnitRuntimeTargetFramework>netcoreapp3.1</XUnitRuntimeTargetFramework>
+    <!-- PackageVersion of xunit.runner.console to use -->
+    <XUnitRunnerVersion>$(XUnitVersion)</XUnitRunnerVersion>
+    <!-- Additional command line arguments to pass to xunit.console.exe -->
+    <XUnitArguments></XUnitArguments>
+  </PropertyGroup>
 </Project>
