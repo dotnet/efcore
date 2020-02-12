@@ -29,20 +29,24 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(query, nameof(query));
 
-            query = new EnumerableToQueryableMethodConvertingExpressionVisitor().Visit(query);
-            query = new QueryMetadataExtractingExpressionVisitor(_queryCompilationContext).Visit(query);
             query = new InvocationExpressionRemovingExpressionVisitor().Visit(query);
+
+            query = NormalizeQueryableMethodCall(query);
+
             query = new VBToCSharpConvertingExpressionVisitor().Visit(query);
             query = new AllAnyToContainsRewritingExpressionVisitor().Visit(query);
-            query = new GroupJoinFlatteningExpressionVisitor().Visit(query);
             query = new NullCheckRemovingExpressionVisitor().Visit(query);
             query = new EntityEqualityRewritingExpressionVisitor(_queryCompilationContext).Rewrite(query);
             query = new SubqueryMemberPushdownExpressionVisitor(_queryCompilationContext.Model).Visit(query);
-            query = new NavigationExpandingExpressionVisitor(_queryCompilationContext, Dependencies.EvaluatableExpressionFilter).Expand(
+            query = new NavigationExpandingExpressionVisitor(this, _queryCompilationContext, Dependencies.EvaluatableExpressionFilter).Expand(
                 query);
             query = new FunctionPreprocessingExpressionVisitor().Visit(query);
 
             return query;
         }
+
+        public virtual Expression NormalizeQueryableMethodCall([NotNull] Expression expression)
+            => new QueryableMethodNormalizingExpressionVisitor(_queryCompilationContext)
+            .Visit(Check.NotNull(expression, nameof(expression)));
     }
 }

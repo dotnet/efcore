@@ -6968,6 +6968,154 @@ WHERE [b].[Discriminator] IN (N'BaseEntity19138', N'SubEntity19138')");
 
         #endregion
 
+        #region Issue19708
+
+        [ConditionalFact]
+        public void GroupJoin_SelectMany_in_query_filter_gets_flattened()
+        {
+            using var _ = CreateDatabase19708();
+            using var context = new BugContext19708(_options);
+
+            var query = context.CustomerFilters.ToList();
+
+            AssertSql(
+                @"SELECT [c].[CustomerId], [c].[CustomerMembershipId]
+FROM [CustomerFilters] AS [c]
+WHERE (
+    SELECT COUNT(*)
+    FROM [Customers] AS [c0]
+    LEFT JOIN [CustomerMemberships] AS [c1] ON [c0].[Id] = [c1].[CustomerId]
+    WHERE [c1].[Id] IS NOT NULL AND ([c0].[Id] = [c].[CustomerId])) > 0");
+        }
+
+        [ConditionalFact]
+        public void GroupJoin_SelectMany_in_defining_query_gets_flattened()
+        {
+            using var _ = CreateDatabase19708();
+            using var context = new BugContext19708(_options);
+
+            var query = context.Set<CustomerView19708>().ToList();
+
+            Assert.Collection(query,
+                t => AssertCustomerView(t, 1, "First", 1, "FirstChild"),
+                t => AssertCustomerView(t, 2, "Second", 2, "SecondChild1"),
+                t => AssertCustomerView(t, 2, "Second", 3, "SecondChild2"),
+                t => AssertCustomerView(t, 3, "Third", null, ""));
+
+            static void AssertCustomerView(
+                CustomerView19708 actual, int id, string name, int? customerMembershipId, string customerMembershipName)
+            {
+                Assert.Equal(id, actual.Id);
+                Assert.Equal(name, actual.Name);
+                Assert.Equal(customerMembershipId, actual.CustomerMembershipId);
+                Assert.Equal(customerMembershipName, actual.CustomerMembershipName);
+            }
+
+            AssertSql(
+                @"SELECT [c].[Id], [c].[Name], [c0].[Id], [c0].[CustomerId], [c0].[Name]
+FROM [Customers] AS [c]
+LEFT JOIN [CustomerMemberships] AS [c0] ON [c].[Id] = [c0].[CustomerId]");
+        }
+
+        private SqlServerTestStore CreateDatabase19708()
+            => CreateTestStore(
+                () => new BugContext19708(_options),
+                context =>
+                {
+                    var customer1 = new Customer19708 { Name = "First" };
+                    var customer2 = new Customer19708 { Name = "Second" };
+                    var customer3 = new Customer19708 { Name = "Third" };
+
+                    var customerMembership1 = new CustomerMembership19708 { Name = "FirstChild", Customer = customer1 };
+                    var customerMembership2 = new CustomerMembership19708 { Name = "SecondChild1", Customer = customer2 };
+                    var customerMembership3 = new CustomerMembership19708 { Name = "SecondChild2", Customer = customer2 };
+
+                    context.AddRange(customer1, customer2, customer3);
+                    context.AddRange(customerMembership1, customerMembership2, customerMembership3);
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        private class BugContext19708 : DbContext
+        {
+            public BugContext19708(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Customer19708> Customers { get; set; }
+            public DbSet<CustomerMembership19708> CustomerMemberships { get; set; }
+            public DbSet<CustomerFilter19708> CustomerFilters { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<CustomerFilter19708>()
+                    .HasQueryFilter(e => (from a in (from c in Customers
+                                                    join cm in CustomerMemberships on c.Id equals cm.CustomerId into g
+                                                    from cm in g.DefaultIfEmpty()
+                                                    select new
+                                                    {
+                                                        c.Id,
+                                                        CustomerMembershipId = (int?)cm.Id
+                                                    })
+                                         where a.CustomerMembershipId != null && a.Id == e.CustomerId
+                                         select a).Count() > 0)
+                    .HasKey(e => e.CustomerId);
+
+                modelBuilder.Entity<CustomerView19708>().HasNoKey().ToQuery(Build_Customers_Sql_View_InMemory());
+            }
+
+            private Expression<Func<IQueryable<CustomerView19708>>> Build_Customers_Sql_View_InMemory()
+            {
+                Expression<Func<IQueryable<CustomerView19708>>> query = () =>
+                    from customer in Customers
+                    join customerMembership in CustomerMemberships on customer.Id equals customerMembership.CustomerId into
+                        nullableCustomerMemberships
+                    from customerMembership in nullableCustomerMemberships.DefaultIfEmpty()
+                    select new CustomerView19708
+                    {
+                        Id = customer.Id,
+                        Name = customer.Name,
+                        CustomerMembershipId = customerMembership != null ? customerMembership.Id : default(int?),
+                        CustomerMembershipName = customerMembership != null ? customerMembership.Name : ""
+                    };
+                return query;
+            }
+        }
+
+        private class Customer19708
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        private class CustomerMembership19708
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public int CustomerId { get; set; }
+            public Customer19708 Customer { get; set; }
+        }
+
+        private class CustomerFilter19708
+        {
+            public int CustomerId { get; set; }
+            public int CustomerMembershipId { get; set; }
+        }
+
+        private class CustomerView19708
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public int? CustomerMembershipId { get; set; }
+            public string CustomerMembershipName { get; set; }
+        }
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
