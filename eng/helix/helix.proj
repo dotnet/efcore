@@ -1,65 +1,91 @@
-<Project Sdk="Microsoft.DotNet.Helix.Sdk" DefaultTargets="Test" TreatAsLocalProperty="ProjectToBuild">
+<Project Sdk="Microsoft.DotNet.Helix.Sdk" DefaultTargets="Test">
+  <PropertyGroup>
+    <HelixSource>pr/default/</HelixSource>
+    <HelixType>tests/default/</HelixType>
+    <HelixBuild>$(Build.BuildNumber).$(TargetArchitecture)</HelixBuild>
+    <Creator>efcore</Creator>
+    <WaitForWorkItemCompletion>true</WaitForWorkItemCompletion>
+    <EnableAzurePipelinesReporter>true</EnableAzurePipelinesReporter>
+    <EnableXUnitReporter>true</EnableXUnitReporter>
 
+
+
+    <!-- The helix queue this job should run on. -->
+    <HelixTargetQueue>Windows.10.Amd64.Open</HelixTargetQueue>
+
+    <!--
+      The set of helix queues to send jobs to.
+      This property is multiplexed over just like <TargetFrameworks> for C# projects.
+      The project is built once per entry in this list with <HelixTargetQueue> set to the current list element value.
+
+    -->
+    <HelixTargetQueues>Windows.10.Amd64.Open;Ubuntu.1804.Amd64.Open;OSX.1014.Amd64.Open</HelixTargetQueues>
+
+  </PropertyGroup>
   <PropertyGroup>
     <!--
       When invoking helix.proj for the whole repo with build.cmd, ProjectToBuild will be set to the path to this project.
       This must be reset in order for Build.props to evaluate a list of projects to be tested on Helix.
     -->
     <ProjectToBuild Condition="'$(ProjectToBuild)' == '$(MSBuildProjectFullPath)'"/>
-    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
-  <Import Project="..\targets\Helix.Common.props" />
+  <PropertyGroup>
+    <IsWindowsHelixQueue>false</IsWindowsHelixQueue>
+    <IsWindowsHelixQueue Condition="$(HelixTargetQueue.Contains('Windows')) or $(HelixTargetQueue.Contains('windows'))">true</IsWindowsHelixQueue>
+  </PropertyGroup>
 
   <ItemGroup>
     <ProjectToBuild Include="$(RepoRoot)src\**\*.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <HelixTargetQueue Include="@(HelixAvailableTargetQueue)" />
-  </ItemGroup>
-
-  <PropertyGroup>
-    <HelixBuild>private-$(USERNAME)</HelixBuild>
-    <HelixBuild Condition=" '$(USERNAME)' == '' ">private-$(USER)</HelixBuild>
-    <IsExternal>true</IsExternal>
-    <SkipInvalidConfigurations>true</SkipInvalidConfigurations>
-    <MaxRetryCount Condition="'$(MaxRetryCount)' == ''">2</MaxRetryCount>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(ContinuousIntegrationBuild)' == 'true' ">
-    <HelixType>ci</HelixType>
-    <Creator>efcore</Creator>
-    <HelixBuild>$(BUILD_BUILDNUMBER).$(TargetArchitecture).$(SYSTEM_JOBATTEMPT)</HelixBuild>
-    <WaitForWorkItemCompletion>true</WaitForWorkItemCompletion>
-    <EnableAzurePipelinesReporter>true</EnableAzurePipelinesReporter>
-    <EnableXUnitReporter>true</EnableXUnitReporter>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(ContinuousIntegrationBuild)' != 'true' ">
-    <HelixType>dev</HelixType>
-    <Creator>$(USERNAME)</Creator>
-    <Creator Condition="'$(USERNAME)' == ''">$(USER)</Creator>
-    <HelixBuild>$([System.DateTime]::Now.ToString('yyyyMMddHHmm'))</HelixBuild>
-  </PropertyGroup>
-
-  <!-- Items with the type "HelixProperties" will become arbitrary JSON associated with the job -->
-  <!-- NOTE: These are global to the whole Job, so don't include project-specific content here. -->
-  <ItemGroup>
-    <HelixProperties Include="buildNumber" Value="$(BUILD_BUILDNUMBER)" />
-    <HelixProperties Include="buildId" Value="$(BUILD_BUILDID)" />
-    <HelixProperties Include="azdoProject" Value="$(SYSTEM_TEAMPROJECT)" />
-    <HelixProperties Include="buildDefinition" Value="$(BUILD_DEFINITIONNAME)" />
-    <HelixProperties Include="commitSha" Value="$(BUILD_SOURCEVERSION)" />
-    <HelixProperties Include="branch" Value="$(BUILD_SOURCEBRANCH)" />
-  </ItemGroup>
-
   <Target Name="Gather" BeforeTargets="Build">
     <MSBuild Projects="@(ProjectToBuild)"
-              Targets="CreateHelixPayload"
-              SkipNonexistentTargets="true">
+              Targets="CreateHelixPayload">
       <Output TaskParameter="TargetOutputs" ItemName="HelixWorkItem" />
     </MSBuild>
   </Target>
 
+  <Target Name="CreateHelixPayload" Returns="@(HelixWorkItem)">
+    <MSBuild Projects="$(MSBuildProjectFullPath)"
+             Targets="_CreateHelixWorkItem"
+             Properties="TargetFramework=%(TargetFrameworks.Identity);">
+      <Output TaskParameter="TargetOutputs" ItemName="HelixWorkItem" />
+    </MSBuild>
+  </Target>
+
+  <Target Name="_PublishHelixArchive" DependsOnTargets="Publish" >
+    <ZipDirectory Condition="'$(HelixUseArchive)' == 'true'" SourceDirectory="$(PublishDir)" DestinationFile="$(PublishDir)../$(HelixTestName).zip" Overwrite="true" />
+    <RemoveDir Condition="'$(HelixUseArchive)' == 'true'" Directories="$(PublishDir)" />
+  </Target>
+
+  <Target Name="_CreateHelixWorkItem" Returns="@(HelixWorkItem)">
+
+    <ItemGroup>
+      <HelixContent Include="$(OutputPath)/Microsoft.VisualStudio.TestPlatform.Extension.Xunit.Xml.TestAdapter.dll" />
+      <HelixContent Include="$(OutputPath)/Microsoft.VisualStudio.TestPlatform.Extension.Xunit.Xml.TestLogger.dll" />
+    </ItemGroup>
+
+    <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="_PublishHelixArchive" RemoveProperties="HelixTargetQueue;TestRunId" />
+
+    <ConvertToAbsolutePath Paths="$(PublishDir)">
+      <Output TaskParameter="AbsolutePaths" PropertyName="PublishAbsoluteDir" />
+    </ConvertToAbsolutePath>
+    <ItemGroup>
+      <HelixWorkItem Include="$(HelixTestName)">
+        <PayloadArchive Condition="'$(HelixUseArchive)' == 'true'">$(PublishAbsoluteDir)../$(HelixTestName).zip</PayloadArchive>
+        <PayloadDirectory Condition="'$(HelixUseArchive)' == 'false'">$(PublishAbsoluteDir)</PayloadDirectory>
+        <TestAssembly>$(TargetFileName)</TestAssembly>
+        <PreCommands>@(HelixPreCommand)</PreCommands>
+        <PostCommands>@(HelixPostCommand)</PostCommands>
+        <Command Condition="$(IsWindowsHelixQueue)">call runtests.cmd $(TargetFileName) $(NETCoreSdkVersion) $(MicrosoftNETCoreAppRuntimeVersion) $(TargetArchitecture)</Command>
+        <Command Condition="!$(IsWindowsHelixQueue)">./runtests.sh $(TargetFileName) $(NETCoreSdkVersion) $(MicrosoftNETCoreAppRuntimeVersion)  $(TargetArchitecture)</Command>
+        <Timeout>$(HelixTimeout)</Timeout>
+      </HelixWorkItem>
+    </ItemGroup>
+  </Target>
+
+  <ItemGroup>
+    <PackageReference Include="XunitXml.TestLogger" Version="2.1.26" />
+  </ItemGroup>
 </Project>

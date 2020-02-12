@@ -46,11 +46,10 @@ stages:
         enablePublishUsingPipelines: ${{ variables._PublishUsingPipelines }}
         enablePublishTestResults: true
         enableTelemetry: true
-        helixRepo: dotnet/efcore
         jobs:
           - job: Helix_x64
             steps:
-              - script: .\build.cmd -ci -test -projects eng\helix\helix.proj /p:BuildAllProjects=true
+              - script: .\build.cmd -ci -test -projects eng\helix\helix.proj
                 displayName: Run build.cmd helix target
                 env:
                   SYSTEM_ACCESSTOKEN: $(System.AccessToken) # We need to set this env var to publish helix results to Azure Dev Ops

@@ -3,9 +3,7 @@
 test_binary_path="$1"
 dotnet_sdk_version="$2"
 dotnet_runtime_version="$3"
-helix_queue_name="$4"
-target_arch="$5"
-quarantined="$6"
+target_arch="$4"
 
 RESET="\033[0m"
 RED="\033[0;31m"
@@ -28,9 +26,6 @@ export DOTNET_MULTILEVEL_LOOKUP=0
 export DOTNET_CLI_HOME="$DIR/.home$RANDOM"
 
 export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
-
-# Used by SkipOnHelix attribute
-export helix="$helix_queue_name"
 
 RESET="\033[0m"
 RED="\033[0;31m"
@@ -100,26 +95,11 @@ fi
 
 exit_code=0
 
-# We need to specify all possible quarantined filters that apply to this environment, because the quarantine attribute
-# only puts the explicit filter traits the user provided in the flaky attribute
-# Filter syntax: https://github.com/Microsoft/vstest-docs/blob/master/docs/filter.md
-NONQUARANTINE_FILTER="Flaky:All!=true&Flaky:Helix:All!=true&Flaky:Helix:Queue:All!=true&Flaky:Helix:Queue:$helix_queue_name!=true"
-QUARANTINE_FILTER="Flaky:All=true|Flaky:Helix:All=true|Flaky:Helix:Queue:All=true|Flaky:Helix:Queue:$helix_queue_name=true"
-if [ "$quarantined" == true ]; then
-    echo "Running all tests including quarantined."
-    $DOTNET_ROOT/dotnet vstest $test_binary_path --logger:xunit --TestCaseFilter:"$QUARANTINE_FILTER"
-    if [ $? != 0 ]; then
-        echo "Quarantined tests failed!" 1>&2
-        # DO NOT EXIT
-    fi
-else
-    echo "Running non-quarantined tests."
-    $DOTNET_ROOT/dotnet vstest $test_binary_path --logger:xunit --TestCaseFilter:"$NONQUARANTINE_FILTER"
-    exit_code=$?
-    if [ $exit_code != 0 ]; then
-        echo "Non-quarantined tests failed!" 1>&2
-        # DO NOT EXIT
-    fi
+$DOTNET_ROOT/dotnet vstest $test_binary_path --logger:xunit
+exit_code=$?
+if [ $exit_code != 0 ]; then
+	echo "Tests failed!" 1>&2
+	# DO NOT EXIT
 fi
 
 echo "Copying TestResults/TestResults to ."
