@@ -12,6 +12,9 @@
 
   <ItemGroup>
     <ProjectToBuild Include="$(RepoRoot)src\**\*.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <HelixTargetQueue Include="@(HelixAvailableTargetQueue)" />
   </ItemGroup>
 
