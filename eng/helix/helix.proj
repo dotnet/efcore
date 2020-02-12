@@ -2,7 +2,7 @@
   <PropertyGroup>
     <HelixSource>pr/default/</HelixSource>
     <HelixType>tests/default/</HelixType>
-    <HelixBuild>$(Build.BuildNumber).$(TargetArchitecture)</HelixBuild>
+    <HelixBuild>$(BUILD_BUILDNUMBER).$(TargetArchitecture)</HelixBuild>
     <Creator>efcore</Creator>
     <WaitForWorkItemCompletion>true</WaitForWorkItemCompletion>
     <EnableAzurePipelinesReporter>true</EnableAzurePipelinesReporter>
