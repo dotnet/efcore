@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
@@ -281,9 +282,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [InlineData("DefaultValue", "DefaultValueSql")]
         [InlineData("DefaultValue", "ComputedColumnSql")]
         [InlineData("DefaultValueSql", "ComputedColumnSql")]
-        [InlineData("SqlServerValueGenerationStrategy", "DefaultValue")]
-        [InlineData("SqlServerValueGenerationStrategy", "DefaultValueSql")]
-        [InlineData("SqlServerValueGenerationStrategy", "ComputedColumnSql")]
         public void Metadata_throws_when_setting_conflicting_serverGenerated_values(string firstConfiguration, string secondConfiguration)
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -295,6 +293,49 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             VerifyError(
                 RelationalStrings.ConflictingColumnServerGeneration(firstConfiguration, "NullableInt", secondConfiguration),
+                modelBuilder.Model);
+        }
+
+        [ConditionalTheory]
+        [InlineData(SqlServerValueGenerationStrategy.IdentityColumn, "DefaultValueSql")]
+        [InlineData(SqlServerValueGenerationStrategy.IdentityColumn, "ComputedColumnSql")]
+        [InlineData(SqlServerValueGenerationStrategy.SequenceHiLo, "DefaultValueSql")]
+        [InlineData(SqlServerValueGenerationStrategy.SequenceHiLo, "ComputedColumnSql")]
+        public void SqlServerValueGenerationStrategy_warns_when_setting_conflicting_value_generation_strategies(
+            SqlServerValueGenerationStrategy sqlServerValueGenerationStrategy, string conflictingValueGenerationStrategy)
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            var propertyBuilder = modelBuilder.Entity<Dog>().Property<int>("Id");
+
+            propertyBuilder.Metadata.SetValueGenerationStrategy(sqlServerValueGenerationStrategy);
+            ConfigureProperty(propertyBuilder.Metadata, conflictingValueGenerationStrategy, "NEXT VALUE FOR [Id]");
+
+            VerifyWarning(
+                SqlServerResources.LogConflictingValueGenerationStrategies(new TestLogger<SqlServerLoggingDefinitions>())
+                    .GenerateMessage(sqlServerValueGenerationStrategy.ToString(), conflictingValueGenerationStrategy, "Id", nameof(Dog)),
+                modelBuilder.Model);
+        }
+
+        [ConditionalTheory]
+        [InlineData(SqlServerValueGenerationStrategy.IdentityColumn)]
+        [InlineData(SqlServerValueGenerationStrategy.SequenceHiLo)]
+        public void SqlServerValueGenerationStrategy_warns_when_setting_conflicting_DefaultValue(
+            SqlServerValueGenerationStrategy sqlServerValueGenerationStrategy)
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            var propertyBuilder = modelBuilder.Entity<Dog>().Property<int>("Id");
+
+            propertyBuilder.Metadata.SetValueGenerationStrategy(sqlServerValueGenerationStrategy);
+            ConfigureProperty(propertyBuilder.Metadata, "DefaultValue", "2");
+
+            VerifyWarnings( new[] {
+                SqlServerResources.LogConflictingValueGenerationStrategies(new TestLogger<SqlServerLoggingDefinitions>())
+                    .GenerateMessage(sqlServerValueGenerationStrategy.ToString(), "DefaultValue", "Id", nameof(Dog)),
+                RelationalResources.LogKeyHasDefaultValue(new TestLogger<SqlServerLoggingDefinitions>())
+                    .GenerateMessage("Id", nameof(Dog))
+                },
                 modelBuilder.Model);
         }
 
