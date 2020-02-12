@@ -242,7 +242,7 @@
     <value>The '{methodName}' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.</value>
   </data>
   <data name="LogConflictingValueGenerationStrategies" xml:space="preserve">
-    <value>Both the SqlServerValueGenerationStrategy {generationStrategy} and {otherGenerationStrategy} have been set on property '{propertyName}' on entity '{entityName}'. Usually this is a mistake. Only use these at the same time if you are sure you understand the consequences.</value>
+    <value>Both the SqlServerValueGenerationStrategy {generationStrategy} and {otherGenerationStrategy} have been set on property '{propertyName}' on entity type '{entityName}'. Usually this is a mistake. Only use these at the same time if you are sure you understand the consequences.</value>
     <comment>Warning SqlServerEventId.ConflictingValueGenerationStrategiesWarning string string string string</comment>
   </data>
 </root>

@@ -574,7 +574,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Both the SqlServerValueGenerationStrategy {generationStrategy} and {otherGenerationStrategy} have been set on property '{propertyName}' on entity '{entityName}'. Usually this is a mistake. Only use these at the same time if you are sure you understand the consequences.
+        ///     Both the SqlServerValueGenerationStrategy {generationStrategy} and {otherGenerationStrategy} have been set on property '{propertyName}' on entity type '{entityName}'. Usually this is a mistake. Only use these at the same time if you are sure you understand the consequences.
         /// </summary>
         public static EventDefinition<string, string, string, string> LogConflictingValueGenerationStrategies([NotNull] IDiagnosticsLogger logger)
         {

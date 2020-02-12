@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             if (property.GetValueGenerationStrategyConfigurationSource() != null
                 && property.GetValueGenerationStrategy() != SqlServerValueGenerationStrategy.None)
             {
-                var generationStrategy = property.GetValueGenerationStrategy().ToString();
+                var generationStrategy = property.GetValueGenerationStrategy();
 
                 if (property.GetDefaultValue() != null)
                 {

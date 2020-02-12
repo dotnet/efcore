@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public ConflictingValueGenerationStrategiesEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] string sqlServerValueGenerationStrategy,
+            SqlServerValueGenerationStrategy sqlServerValueGenerationStrategy,
             [NotNull] string otherValueGenerationStrategy,
             [NotNull] IProperty property)
             : base(eventDefinition, messageGenerator)
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The SQL Server value generation strategy.
         /// </summary>
-        public virtual string SqlServerValueGenerationStrategy { get; }
+        public virtual SqlServerValueGenerationStrategy SqlServerValueGenerationStrategy { get; }
 
         /// <summary>
         ///     The other value generation strategy.

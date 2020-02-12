@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         /// </summary>
         public static void ConflictingValueGenerationStrategiesWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
-            [NotNull] string sqlServerValueGenerationStrategy,
+            SqlServerValueGenerationStrategy sqlServerValueGenerationStrategy,
             [NotNull] string otherValueGenerationStrategy,
             [NotNull] IProperty property)
         {
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, sqlServerValueGenerationStrategy, otherValueGenerationStrategy,
+                definition.Log(diagnostics, sqlServerValueGenerationStrategy.ToString(), otherValueGenerationStrategy,
                     property.Name, property.DeclaringEntityType.DisplayName());
             }
 
@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             var d = (EventDefinition<string, string, string, string>)definition;
             var p = (ConflictingValueGenerationStrategiesEventData)payload;
             return d.GenerateMessage(
-                p.SqlServerValueGenerationStrategy,
+                p.SqlServerValueGenerationStrategy.ToString(),
                 p.OtherValueGenerationStrategy,
                 p.Property.Name,
                 p.Property.DeclaringEntityType.DisplayName());
