@@ -182,7 +182,7 @@ stages:
                   artifactType: Container
                   parallel: true
 
-          - job: Helix x64
+          - job: Helix_x64
             pool:
               ${{ if eq(variables['System.TeamProject'], 'public') }}:
                 name: NetCorePublic-Pool
