@@ -48,10 +48,9 @@ stages:
         enableTelemetry: true
         jobs:
           - job: Helix_x64
-            steps:
+            steps:            
               - script: .\restore.cmd -ci
                 displayName: Restore packages
-            steps:
               - script: .\build.cmd -ci -projects eng\helix\helix.proj
                 displayName: Run build.cmd helix target
                 env:
