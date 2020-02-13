@@ -1,0 +1,42 @@
+<Project>
+
+  <PropertyGroup>
+    <IsWindowsHelixQueue>false</IsWindowsHelixQueue>
+    <IsWindowsHelixQueue Condition="$(HelixTargetQueue.Contains('Windows')) or $(HelixTargetQueue.Contains('windows'))">true</IsWindowsHelixQueue>
+  </PropertyGroup>
+
+  <!-- Build the actual helix work items to send to helix queues -->
+  <Target Name="CreateHelixPayload" Returns="@(HelixWorkItem)">
+    <MSBuild Projects="$(MSBuildProjectFullPath)"
+             Targets="_CreateHelixPayloadInner"
+             Properties="TargetFramework=%(_TargetFrameworks.Identity);">
+      <Output TaskParameter="TargetOutputs" ItemName="HelixWorkItem" />
+    </MSBuild>
+  </Target>
+
+  <ItemGroup>
+    <PackageReference Include="XunitXml.TestLogger" Version="2.1.26" />
+  </ItemGroup>
+
+  <Target Name="_CreateHelixWorkItem" Condition="$(BuildHelixPayload)">
+    <ConvertToAbsolutePath Paths="$(PublishDir)">
+      <Output TaskParameter="AbsolutePaths" PropertyName="PublishAbsoluteDir" />
+    </ConvertToAbsolutePath>
+    <ItemGroup>
+      <HelixWorkItem Include="$(HelixTestName)">
+        <PayloadArchive Condition="'$(HelixUseArchive)' == 'true'">$(PublishAbsoluteDir)../$(HelixTestName).zip</PayloadArchive>
+        <PayloadDirectory Condition="'$(HelixUseArchive)' == 'false'">$(PublishAbsoluteDir)</PayloadDirectory>
+        <TestAssembly>$(TargetFileName)</TestAssembly>
+        <PreCommands>@(HelixPreCommand)</PreCommands>
+        <PostCommands>@(HelixPostCommand)</PostCommands>
+        <Command Condition="$(IsWindowsHelixQueue)">call runtests.cmd $(TargetFileName) $(NETCoreSdkVersion) $(MicrosoftNETCoreAppRuntimeVersion) $(TargetArchitecture)</Command>
+        <Command Condition="!$(IsWindowsHelixQueue)">./runtests.sh $(TargetFileName) $(NETCoreSdkVersion) $(MicrosoftNETCoreAppRuntimeVersion) $(TargetArchitecture)</Command>
+        <Timeout>$(HelixTimeout)</Timeout>
+      </HelixWorkItem>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="_CreateHelixPayloadInner" Returns="@(HelixWorkItem)" DependsOnTargets="Publish;_CreateHelixWorkItem">
+  </Target>
+
+</Project>
