@@ -32,6 +32,9 @@ variables:
     value: pr/dotnet/efcore/$(Build.SourceBranch)
   - name: _HelixTestType
     value: test/product/
+  
+  
+  
   - name: _XUnitProject
     value: $(Build.SourcesDirectory)/test/EFCore.Tests/EFCore.Tests.csproj
   - name: _XUnitTargetFramework
@@ -67,18 +70,19 @@ stages:
           name: NetCorePublic-Pool
           queue: BuildPool.Windows.10.Amd64.VS2017.Open
         steps:
+        - script: build.cmd -ci
+          displayName: Build
+        - script: .dotnet/dotnet build test/EFCore.Tests/EFCore.Tests.csproj /t:Publish
+          displayName: Publish tests
+        - script: cp eng/runtests.cmd artifacts/bin/EFCore.Tests/Release/netcoreapp3.1/publish/
+          displayName: Copy runtests
         - template: /eng/common/templates/steps/send-to-helix.yml
           parameters:
             HelixSource: $(_HelixSource)
             HelixType: $(_HelixTestType)
             HelixTargetQueues: Windows.10.Amd64.Open
-            XUnitProjects: $(_XUnitProject)
-            XUnitPublishTargetFramework: $(_XUnitTargetFramework)
-            XUnitRuntimeTargetFramework: $(_XUnitTargetFramework)
-            XUnitRunnerVersion: $(_XUnitRunnerVersion)
-            IncludeDotNetCli: true
-            DotNetCliPackageType: $(_DotNetCliPackageType)
-            DotNetCliVersion: $(_DotNetCliVersion)
+            WorkItemDirectory: artifacts\bin\EFCore.Tests\Release\netcoreapp3.1\publish
+            WorkItemCommand: runtests.cmd Microsoft.EntityFrameworkCore.Tests.dll 3.1.100 3.1.0-rtm.19565.2 x64
             EnableXUnitReporter: true
             WaitForWorkItemCompletion: true
             Creator: efcore
