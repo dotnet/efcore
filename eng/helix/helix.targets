@@ -22,7 +22,7 @@
     <PackageReference Include="XunitXml.TestLogger" Version="2.1.26" />
   </ItemGroup>
 
-  <Target Name="_CreateHelixWorkItem" Condition="$(BuildHelixPayload)">
+  <Target Name="_CreateHelixWorkItem">
     <ConvertToAbsolutePath Paths="$(PublishDir)">
       <Output TaskParameter="AbsolutePaths" PropertyName="PublishAbsoluteDir" />
     </ConvertToAbsolutePath>
