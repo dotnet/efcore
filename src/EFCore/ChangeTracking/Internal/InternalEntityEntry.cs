@@ -1149,12 +1149,28 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         WritePropertyValue(propertyBase, value, isMaterialization);
 
-                        if (currentValueType != CurrentValueType.Normal
-                            && !_temporaryValues.IsEmpty)
+                        var useNewBehavior
+                            = !AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue19137", out var isEnabled) || !isEnabled;
+
+                        if (useNewBehavior)
                         {
-                            var defaultValue = asProperty.ClrType.GetDefaultValue();
-                            var storeGeneratedIndex = asProperty.GetStoreGeneratedIndex();
-                            _temporaryValues.SetValue(asProperty, defaultValue, storeGeneratedIndex);
+                            if (currentValueType != CurrentValueType.Normal
+                                && !_temporaryValues.IsEmpty)
+                            {
+                                var defaultValue = asProperty.ClrType.GetDefaultValue();
+                                var storeGeneratedIndex = asProperty.GetStoreGeneratedIndex();
+                                _temporaryValues.SetValue(asProperty, defaultValue, storeGeneratedIndex);
+                            }
+                        }
+                        else
+                        {
+                            if (currentValueType != CurrentValueType.Normal
+                                && !_temporaryValues.IsEmpty
+                                && equals(value, asProperty.ClrType.GetDefaultValue()))
+                            {
+                                var storeGeneratedIndex = asProperty.GetStoreGeneratedIndex();
+                                _temporaryValues.SetValue(asProperty, value, storeGeneratedIndex);
+                            }
                         }
                     }
                     else

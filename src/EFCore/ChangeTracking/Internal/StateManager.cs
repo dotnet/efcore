@@ -960,6 +960,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var doCascadeDelete = force || CascadeDeleteTiming != CascadeTiming.Never;
             var principalIsDetached = entry.EntityState == EntityState.Detached;
+            var useNewBehavior = !AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue18982", out var isEnabled) || !isEnabled;
 
             foreignKeys ??= entry.EntityType.GetReferencingForeignKeys();
             foreach (var fk in foreignKeys)
@@ -981,10 +982,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 || fk.DeleteBehavior == DeleteBehavior.ClientCascade)
                             && doCascadeDelete)
                         {
-                            var cascadeState = principalIsDetached
-                                || dependent.EntityState == EntityState.Added
+                            var cascadeState = useNewBehavior
+                                ? (principalIsDetached
+                                    || dependent.EntityState == EntityState.Added
+                                        ? EntityState.Detached
+                                        : EntityState.Deleted)
+                                : (dependent.EntityState == EntityState.Added
                                     ? EntityState.Detached
-                                    : EntityState.Deleted;
+                                    : EntityState.Deleted);
 
                             if (SensitiveLoggingEnabled)
                             {
@@ -999,7 +1004,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                             CascadeDelete(dependent, force);
                         }
-                        else if (!principalIsDetached)
+                        else if (!useNewBehavior
+                            || !principalIsDetached)
                         {
                             foreach (var dependentProperty in fk.Properties)
                             {

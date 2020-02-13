@@ -3400,78 +3400,64 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [InlineData(true)]
         public void Fixup_works_when_changing_state_from_Detached_to_Modified(bool detachDependent)
         {
-            using (var context = new OwnedModifiedContext(Guid.NewGuid().ToString()))
+            using var context = new OwnedModifiedContext(Guid.NewGuid().ToString());
+
+            var details = new ProductDetails { Color = "C1", Size = "S1" };
+            var product = new Product { Name = "Product1", Details = details };
+
+            context.Add(product);
+
+            Assert.True(context.ChangeTracker.HasChanges());
+
+            context.SaveChanges();
+
+            Assert.False(context.ChangeTracker.HasChanges());
+
+            Assert.Equal(2, context.ChangeTracker.Entries().Count());
+            Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(details).State);
+
+            context.Entry(product).State = EntityState.Detached;
+            if (detachDependent)
             {
-                var details = new ProductDetails { Color = "C1", Size = "S1" };
-
-                var product = new Product { Name = "Product1", Details = details };
-
-                context.Add(product);
-                context.SaveChanges();
-
-                Assert.Equal(2, context.ChangeTracker.Entries().Count());
-                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(details).State);
-
-                context.Entry(product).State = EntityState.Detached;
-                if (detachDependent)
-                {
-                    context.Entry(details).State = EntityState.Detached;
-                }
-
-                if (detachDependent)
-                {
-                    Assert.Empty(context.ChangeTracker.Entries());
-                }
-                else
-                {
-                    Assert.Single(context.ChangeTracker.Entries());
-                    Assert.Equal(EntityState.Deleted, context.Entry(details).State);
-                }
-
-                var newDetails = new ProductDetails { Color = "C2", Size = "S2" };
-
-                var newProduct = new Product
-                {
-                    Id = product.Id,
-                    Name = "Product1NewName",
-                    Details = newDetails
-                };
-
-                context.Update(newProduct);
-
-                if (detachDependent)
-                {
-                    Assert.Equal(2, context.ChangeTracker.Entries().Count());
-                }
-                else
-                {
-                    Assert.Equal(3, context.ChangeTracker.Entries().Count());
-                    Assert.Equal(EntityState.Deleted, context.Entry(details).State);
-                }
-
-                Assert.Equal(EntityState.Modified, context.Entry(newProduct).State);
-                Assert.Equal(EntityState.Modified, context.Entry(newDetails).State);
-
-                Assert.Same(details, product.Details);
-                Assert.Equal("C1", product.Details.Color);
-                Assert.Same(newDetails, newProduct.Details);
-                Assert.Equal("C2", newProduct.Details.Color);
-
-                if (detachDependent)
-                {
-                    context.SaveChanges();
-
-                    Assert.Equal(2, context.ChangeTracker.Entries().Count());
-                    Assert.Equal(EntityState.Unchanged, context.Entry(newProduct).State);
-                    Assert.Equal(EntityState.Unchanged, context.Entry(newDetails).State);
-                }
-                else
-                {
-                    // Because attempting to update an entity after it has been deleted
-                    Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges());
-                }
+                context.Entry(details).State = EntityState.Detached;
             }
+
+            Assert.False(context.ChangeTracker.HasChanges());
+
+            Assert.Empty(context.ChangeTracker.Entries());
+            Assert.Equal(EntityState.Detached, context.Entry(details).State);
+
+            var newDetails = new ProductDetails { Color = "C2", Size = "S2" };
+
+            var newProduct = new Product
+            {
+                Id = product.Id,
+                Name = "Product1NewName",
+                Details = newDetails
+            };
+
+            context.Update(newProduct);
+
+            Assert.True(context.ChangeTracker.HasChanges());
+
+            Assert.Equal(2, context.ChangeTracker.Entries().Count());
+
+            Assert.Equal(EntityState.Modified, context.Entry(newProduct).State);
+            Assert.Equal(EntityState.Modified, context.Entry(newDetails).State);
+
+            Assert.Same(details, product.Details);
+            Assert.Equal("C1", product.Details.Color);
+            Assert.Same(newDetails, newProduct.Details);
+            Assert.Equal("C2", newProduct.Details.Color);
+
+            context.SaveChanges();
+
+            Assert.False(context.ChangeTracker.HasChanges());
+
+            Assert.Equal(2, context.ChangeTracker.Entries().Count());
+            Assert.Equal(EntityState.Unchanged, context.Entry(newProduct).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(newDetails).State);
         }
 
         private class Product
