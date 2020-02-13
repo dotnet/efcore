@@ -103,14 +103,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 codeOptions.SuppressConnectionStringWarning = true;
             }
 
-            if (codeOptions.ConnectionString == null)
-            {
-                codeOptions.ConnectionString = connectionString;
-            }
-
             if (_databaseModelFactory.OverriddenConnectionString != null)
             {
                 codeOptions.ConnectionString = _databaseModelFactory.OverriddenConnectionString;
+            }
+            else if (codeOptions.ConnectionString == null)
+            {
+                codeOptions.ConnectionString = connectionString;
             }
 
             var databaseModel = _databaseModelFactory.Create(resolvedConnectionString, databaseOptions);

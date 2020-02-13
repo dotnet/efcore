@@ -167,6 +167,37 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Assert.DoesNotContain("#warning", result.ContextFile.Code);
         }
 
+        [ConditionalFact]
+        public void ScaffoldModel_works_with_overridden_connection_string()
+        {
+            var resolver = new TestNamedConnectionStringResolver("Data Source=Test");
+            var databaseModelFactory = new TestDatabaseModelFactory();
+            databaseModelFactory.OverriddenConnectionString = "Data Source=OverriddenConnectionString";
+            var scaffolder = new ServiceCollection()
+                .AddEntityFrameworkDesignTimeServices()
+                .AddSingleton<INamedConnectionStringResolver>(resolver)
+                .AddSingleton<IDatabaseModelFactory>(databaseModelFactory)
+                .AddSingleton<IRelationalTypeMappingSource, TestRelationalTypeMappingSource>()
+                .AddSingleton<LoggingDefinitions, TestRelationalLoggingDefinitions>()
+                .AddSingleton<IProviderConfigurationCodeGenerator, TestProviderCodeGenerator>()
+                .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
+                .BuildServiceProvider()
+                .GetRequiredService<IReverseEngineerScaffolder>();
+
+            var result = scaffolder.ScaffoldModel(
+                "Name=DefaultConnection",
+                new DatabaseModelFactoryOptions(),
+                new ModelReverseEngineerOptions(),
+                new ModelCodeGenerationOptions
+                {
+                    ModelNamespace = "Foo"
+                });
+
+            Assert.Contains("Data Source=OverriddenConnectionString", result.ContextFile.Code);
+            Assert.DoesNotContain("Name=DefaultConnection", result.ContextFile.Code);
+            Assert.DoesNotContain("Data Source=Test", result.ContextFile.Code);
+        }
+
         private class TestNamedConnectionStringResolver : INamedConnectionStringResolver
         {
             private readonly string _resolvedConnectionString;

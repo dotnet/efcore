@@ -36,6 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <summary>
         ///     Overrides the connection string for scaffolding only.
         /// </summary>
-        string? OverriddenConnectionString { get; set; }
+        string? OverriddenConnectionString { get; [param: NotNull] set; }
     }
 }
