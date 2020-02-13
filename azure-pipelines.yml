@@ -26,6 +26,25 @@ variables:
   - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
     - group: DotNet-EFCore-SDLValidation-Params
 
+  - name: _HelixType
+    value: build/product
+  - name: _HelixSource
+    value: pr/dotnet/efcore/$(Build.SourceBranch)
+  - name: _HelixTestType
+    value: test/product/
+  - name: _XUnitProject
+    value: $(Build.SourcesDirectory)/test/EFCore.Tests/EFCore.Tests.csproj
+  - name: _XUnitTargetFramework
+    value: netcoreapp3.1
+  - name: _XUnitRunnerVersion
+    value: 2.4.1
+  - name: _DotNetCliPackageType
+    value: sdk
+  - name: _DotNetCliVersion
+    value: 3.1.100
+  - name: _HelixAccessToken
+    value: ''
+
 trigger:
   - master
   - release/*
@@ -35,170 +54,32 @@ trigger:
 pr: ['*']
 
 stages:
-- stage: build
-  displayName: Build
-  jobs:
-    - template: eng/common/templates/jobs/jobs.yml
+ - stage: build
+   displayName: Build
+   jobs:
+    - template: /eng/common/templates/job/job.yml
       parameters:
-        enableMicrobuild: true
-        enablePublishBuildArtifacts: true
-        enablePublishBuildAssets: true
-        enablePublishUsingPipelines: ${{ variables._PublishUsingPipelines }}
-        enablePublishTestResults: true
+        name: Windows_NT
         enableTelemetry: true
+        enablePublishBuildArtifacts: true
         helixRepo: dotnet/efcore
-        jobs:
-          - job: Windows
-            pool:
-              ${{ if eq(variables['System.TeamProject'], 'public') }}:
-                name: NetCorePublic-Pool
-                queue: BuildPool.Windows.10.Amd64.VS2017.Open
-              ${{ if ne(variables['System.TeamProject'], 'public') }}:
-                name: NetCoreInternal-Pool
-                queue: BuildPool.Windows.10.Amd64.VS2017
-            variables:
-              - _InternalBuildArgs: ''
-              - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-                - group: DotNet-Blob-Feed
-                - _SignType: real
-                - _PublishBlobFeedUrl: https://dotnetfeed.blob.core.windows.net/aspnet-entityframeworkcore/index.json
-                - _DotNetPublishToBlobFeed: true
-                - _InternalBuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:DotNetPublishBlobFeedKey=$(dotnetfeed-storage-access-key-1) /p:DotNetPublishBlobFeedUrl=$(_PublishBlobFeedUrl) /p:DotNetPublishToBlobFeed=$(_DotNetPublishToBlobFeed) /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines) /p:DotNetArtifactsCategory=$(_DotNetArtifactsCategory) /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
-            steps:
-              - task: NuGetCommand@2
-                displayName: 'Clear NuGet caches'
-                condition: succeeded()
-                inputs:
-                  command: custom
-                  arguments: 'locals all -clear'
-              - script: "echo ##vso[build.addbuildtag]daily-build"
-                condition: and(ne(variables['Build.Reason'], 'PullRequest'), ne(variables['IsFinalBuild'], 'true'))
-                displayName: 'Set CI tags'
-              - script: "echo ##vso[build.addbuildtag]release-candidate"
-                condition: and(ne(variables['Build.Reason'], 'PullRequest'), eq(variables['IsFinalBuild'], 'true'))
-                displayName: 'Set CI tags'
-              - ${{ if ne(variables['System.TeamProject'], 'public') }}:
-                - task: PowerShell@2
-                  displayName: Setup Private Feeds Credentials
-                  inputs:
-                    filePath: $(Build.SourcesDirectory)/eng/common/SetupNugetSources.ps1
-                    arguments: -ConfigFile $(Build.SourcesDirectory)/NuGet.config -Password $Env:Token
-                  env:
-                    Token: $(dn-bot-dnceng-artifact-feeds-rw)
-              - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs) $(_InternalRuntimeDownloadArgs)
-                env:
-                  Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
-                name: Build
-              - task: PublishBuildArtifacts@1
-                displayName: Upload TestResults
-                condition: always()
-                continueOnError: true
-                inputs:
-                  pathtoPublish: artifacts/TestResults/$(_BuildConfig)/
-                  artifactName: $(Agent.Os)_$(Agent.JobName) TestResults
-                  artifactType: Container
-                  parallel: true
-              - task: PublishBuildArtifacts@1
-                displayName: Upload artifacts
-                condition: and(succeeded(), eq(variables['system.pullrequest.isfork'], false))
-                inputs:
-                  pathtoPublish: 'artifacts/packages/'
-                  artifactName: packages
-                  artifactType: Container
-                  parallel: true
-
-          - job: macOS
-            pool:
-              vmImage: macOS-10.13
-            steps:
-              # HACK: Use an older version to work around #16667
-              - bash: brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/835ae521c065524abdf66578e68032fa24bce514/Formula/libspatialite.rb
-                displayName: Install SpatiaLite
-                continueOnError: true
-              - ${{ if ne(variables['System.TeamProject'], 'public') }}:
-                - task: Bash@3
-                  displayName: Setup Private Feeds Credentials
-                  inputs:
-                    filePath: $(Build.SourcesDirectory)/eng/common/SetupNugetSources.sh
-                    arguments: $(Build.SourcesDirectory)/NuGet.config $Token
-                  env:
-                    Token: $(dn-bot-dnceng-artifact-feeds-rw)
-              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --binaryLog --prepareMachine $(_InternalRuntimeDownloadArgs)
-                env:
-                  Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
-                name: Build
-              - task: PublishBuildArtifacts@1
-                displayName: Upload TestResults
-                condition: always()
-                continueOnError: true
-                inputs:
-                  pathtoPublish: artifacts/TestResults/$(_BuildConfig)/
-                  artifactName: $(Agent.Os)_$(Agent.JobName) TestResults
-                  artifactType: Container
-                  parallel: true
-
-          - job: Linux
-            timeoutInMinutes: 120
-            pool:
-              vmImage: ubuntu-16.04
-            variables:
-              - _runCounter: $[counter(variables['Build.Reason'], 0)]
-              - ${{ if and(eq(variables['System.TeamProject'], 'public'), eq(variables['system.pullrequest.isfork'], false), notin(variables['Build.Reason'], 'PullRequest', 'Schedule', 'BuildCompletion')) }}:
-                - _CosmosConnectionUrl: 'true'
-            steps:
-              - bash: sudo apt-get install -y libsqlite3-mod-spatialite
-                displayName: Install SpatiaLite
-                continueOnError: true
-              - bash: |
-                    echo "##vso[task.setvariable variable=_CosmosConnectionUrl]https://ef-nightly-test.documents.azure.com:443/"
-                    echo "##vso[task.setvariable variable=_CosmosToken]$(ef-nightly-cosmos-key)"
-                displayName: Prepare to run Cosmos tests on ef-nightly-test
-                condition: and(eq(variables['_CosmosConnectionUrl'], 'true'), or(endsWith(variables['_runCounter'], '0'), endsWith(variables['_runCounter'], '2'), endsWith(variables['_runCounter'], '4'), endsWith(variables['_runCounter'], '6'), endsWith(variables['_runCounter'], '8')))
-              - bash: |
-                    echo "##vso[task.setvariable variable=_CosmosConnectionUrl]https://ef-pr-test.documents.azure.com:443/"
-                    echo "##vso[task.setvariable variable=_CosmosToken]$(ef-pr-cosmos-test)"
-                displayName: Prepare to run Cosmos tests on ef-pr-test
-                condition: and(eq(variables['_CosmosConnectionUrl'], 'true'), or(endsWith(variables['_runCounter'], '1'), endsWith(variables['_runCounter'], '3'), endsWith(variables['_runCounter'], '5'), endsWith(variables['_runCounter'], '7'), endsWith(variables['_runCounter'], '9')))
-              - ${{ if ne(variables['System.TeamProject'], 'public') }}:
-                - task: Bash@3
-                  displayName: Setup Private Feeds Credentials
-                  inputs:
-                    filePath: $(Build.SourcesDirectory)/eng/common/SetupNugetSources.sh
-                    arguments: $(Build.SourcesDirectory)/NuGet.config $Token
-                  env:
-                    Token: $(dn-bot-dnceng-artifact-feeds-rw)
-              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
-                env:
-                  Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
-                  Test__Cosmos__AuthToken: $(_CosmosToken)
-                name: Build
-              - task: PublishBuildArtifacts@1
-                displayName: Upload TestResults
-                condition: always()
-                continueOnError: true
-                inputs:
-                  pathtoPublish: artifacts/TestResults/$(_BuildConfig)/
-                  artifactName: $(Agent.Os)_$(Agent.JobName) TestResults
-                  artifactType: Container
-                  parallel: true
-
-- ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-  - template: eng\common\templates\post-build\post-build.yml
-    parameters:
-      # Symbol validation isn't being very reliable lately. This should be enabled back
-      # once this issue is resolved: https://github.com/dotnet/arcade/issues/2871
-      enableSymbolValidation: false
-      # This is to enable SDL runs part of Post-Build Validation Stage
-      SDLValidationParameters:
-        enable: true
-        continueOnError: false
-        params: ' -SourceToolsList @("policheck","credscan")
-        -TsaInstanceURL $(_TsaInstanceURL)
-        -TsaProjectName $(_TsaProjectName)
-        -TsaNotificationEmail $(_TsaNotificationEmail)
-        -TsaCodebaseAdmin $(_TsaCodebaseAdmin)
-        -TsaBugAreaPath $(_TsaBugAreaPath)
-        -TsaIterationPath $(_TsaIterationPath)
-        -TsaRepositoryName "EntityFrameworkCore"
-        -TsaCodebaseName "EntityFrameworkCore"
-        -TsaPublish $True'
+        pool:
+          name: NetCorePublic-Pool
+          queue: BuildPool.Windows.10.Amd64.VS2017.Open
+        steps:
+        - template: /eng/common/templates/steps/send-to-helix.yml
+          parameters:
+            HelixSource: $(_HelixSource)
+            HelixType: $(_HelixTestType)
+            HelixTargetQueues: Windows.10.Amd64.Open
+            XUnitProjects: $(_XUnitProject)
+            XUnitPublishTargetFramework: $(_XUnitTargetFramework)
+            XUnitRuntimeTargetFramework: $(_XUnitTargetFramework)
+            XUnitRunnerVersion: $(_XUnitRunnerVersion)
+            IncludeDotNetCli: true
+            DotNetCliPackageType: $(_DotNetCliPackageType)
+            DotNetCliVersion: $(_DotNetCliVersion)
+            EnableXUnitReporter: true
+            WaitForWorkItemCompletion: true
+            Creator: efcore
+            condition: succeeded()
