@@ -67,5 +67,9 @@
       <Uri>https://github.com/dotnet/arcade</Uri>
       <Sha>2086e534f12e6116889ee480646ef54c1f781887</Sha>
     </Dependency>
+    <Dependency Name="Microsoft.DotNet.Helix.Sdk" Version="5.0.0-beta.20116.1">
+      <Uri>https://github.com/dotnet/arcade</Uri>
+      <Sha>2086e534f12e6116889ee480646ef54c1f781887</Sha>
+    </Dependency>
   </ToolsetDependencies>
 </Dependencies>
