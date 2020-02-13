@@ -28,8 +28,7 @@
     </ConvertToAbsolutePath>
     <ItemGroup>
       <HelixWorkItem Include="$(HelixTestName)">
-        <PayloadArchive Condition="'$(HelixUseArchive)' == 'true'">$(PublishAbsoluteDir)../$(HelixTestName).zip</PayloadArchive>
-        <PayloadDirectory Condition="'$(HelixUseArchive)' == 'false'">$(PublishAbsoluteDir)</PayloadDirectory>
+        <PayloadDirectory>$(PublishAbsoluteDir)</PayloadDirectory>
         <TestAssembly>$(TargetFileName)</TestAssembly>
         <Command Condition="$(IsWindowsHelixQueue)">call runtests.cmd $(TargetFileName) $(NETCoreSdkVersion) $(MicrosoftNETCoreAppRuntimeVersion) $(TargetArchitecture)</Command>
         <Command Condition="!$(IsWindowsHelixQueue)">./runtests.sh $(TargetFileName) $(NETCoreSdkVersion) $(MicrosoftNETCoreAppRuntimeVersion) $(TargetArchitecture)</Command>
