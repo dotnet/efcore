@@ -49,7 +49,10 @@ stages:
         jobs:
           - job: Helix_x64
             steps:
-              - script: .\build.cmd -ci -test -projects eng\helix\helix.proj
+              - script: .\restore.cmd -ci
+                displayName: Restore packages
+            steps:
+              - script: .\build.cmd -ci -projects eng\helix\helix.proj
                 displayName: Run build.cmd helix target
                 env:
                   SYSTEM_ACCESSTOKEN: $(System.AccessToken) # We need to set this env var to publish helix results to Azure Dev Ops
