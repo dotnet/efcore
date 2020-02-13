@@ -12,7 +12,7 @@
       <_TargetFrameworks Include="$(TargetFrameworks);$(TargetFramework)" />
     </ItemGroup>
     <MSBuild Projects="$(MSBuildProjectFullPath)"
-             Targets="_CreateHelixPayloadInner"
+             Targets="_CreateHelixWorkItem"
              Properties="TargetFramework=%(_TargetFrameworks.Identity);">
       <Output TaskParameter="TargetOutputs" ItemName="HelixWorkItem" />
     </MSBuild>
@@ -31,16 +31,11 @@
         <PayloadArchive Condition="'$(HelixUseArchive)' == 'true'">$(PublishAbsoluteDir)../$(HelixTestName).zip</PayloadArchive>
         <PayloadDirectory Condition="'$(HelixUseArchive)' == 'false'">$(PublishAbsoluteDir)</PayloadDirectory>
         <TestAssembly>$(TargetFileName)</TestAssembly>
-        <PreCommands>@(HelixPreCommand)</PreCommands>
-        <PostCommands>@(HelixPostCommand)</PostCommands>
         <Command Condition="$(IsWindowsHelixQueue)">call runtests.cmd $(TargetFileName) $(NETCoreSdkVersion) $(MicrosoftNETCoreAppRuntimeVersion) $(TargetArchitecture)</Command>
         <Command Condition="!$(IsWindowsHelixQueue)">./runtests.sh $(TargetFileName) $(NETCoreSdkVersion) $(MicrosoftNETCoreAppRuntimeVersion) $(TargetArchitecture)</Command>
         <Timeout>$(HelixTimeout)</Timeout>
       </HelixWorkItem>
     </ItemGroup>
-  </Target>
-
-  <Target Name="_CreateHelixPayloadInner" Returns="@(HelixWorkItem)" DependsOnTargets="Publish;_CreateHelixWorkItem">
   </Target>
 
 </Project>
