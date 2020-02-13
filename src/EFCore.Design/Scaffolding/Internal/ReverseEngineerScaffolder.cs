@@ -108,6 +108,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 codeOptions.ConnectionString = connectionString;
             }
 
+            if (_databaseModelFactory.OverriddenConnectionString != null)
+            {
+                codeOptions.ConnectionString = _databaseModelFactory.OverriddenConnectionString;
+            }
+
             var databaseModel = _databaseModelFactory.Create(resolvedConnectionString, databaseOptions);
             var model = _factory.Create(databaseModel, modelOptions.UseDatabaseNames);
 

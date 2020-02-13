@@ -191,6 +191,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             public DatabaseModel Create(DbConnection connection, DatabaseModelFactoryOptions options)
                 => throw new NotImplementedException();
+
+            public string OverriddenConnectionString { get; set; }
         }
     }
 }
