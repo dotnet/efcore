@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         private static DatabaseColumn IdColumn => new DatabaseColumn { Name = "Id", StoreType = "int" };
 
-        private static readonly DatabasePrimaryKey IdPrimaryKey = new DatabasePrimaryKey { Columns = { IdColumn } };
+        private static DatabasePrimaryKey IdPrimaryKey => new DatabasePrimaryKey { Columns = { new DatabaseColumnRef("Id") } };
 
         public RelationalDatabaseModelFactoryTest()
         {
@@ -539,6 +539,61 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             Assert.Same(parent, principalKey.DeclaringEntityType);
             Assert.Same(parent.GetProperties().First(), principalKey.Properties[0]);
+        }
+
+        [ConditionalFact]
+        public void Foreign_key_from_keyless_table()
+        {
+            var databaseModel = new DatabaseModel
+            {
+                Tables =
+                {
+                    new DatabaseTable
+                    {
+                        Name = "Master",
+                        Columns =
+                        {
+                            new DatabaseColumn
+                            {
+                                Name = "Id",
+                                StoreType = "int"
+                            }
+                        },
+                        PrimaryKey = new DatabasePrimaryKey
+                        {
+                            Columns = { new DatabaseColumnRef("Id") }
+                        }
+                    },
+                    new DatabaseTable
+                    {
+                        Name = "Detail",
+                        Columns =
+                        {
+                            new DatabaseColumn
+                            {
+                                Name = "MasterId",
+                                StoreType = "int"
+                            }
+                        },
+                        ForeignKeys =
+                        {
+                            new DatabaseForeignKey
+                            {
+                                PrincipalTable = new DatabaseTableRef("Master"),
+                                Columns = { new DatabaseColumnRef("MasterId") },
+                                PrincipalColumns = { new DatabaseColumnRef("Id") }
+                            }
+                        }
+                    }
+                }
+            };
+
+            var model = _factory.Create(databaseModel, useDatabaseNames: false);
+
+            var detail = model.FindEntityType("Detail");
+            var foreignKey = Assert.Single(detail.GetForeignKeys());
+            Assert.Equal("Master", foreignKey.DependentToPrincipal.Name);
+            Assert.Null(foreignKey.PrincipalToDependent);
         }
 
         [ConditionalFact]

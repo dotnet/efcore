@@ -860,6 +860,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             foreignKey.HasDependentToPrincipal(dependentEndNavigationPropertyName);
 
+            if ((!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue18633", out var isEnabled)
+                    || !isEnabled)
+                && foreignKey.DeclaringEntityType.FindPrimaryKey() == null)
+            {
+                return;
+            }
+
             var principalEndExistingIdentifiers = ExistingIdentifiers(foreignKey.PrincipalEntityType);
             var principalEndNavigationPropertyCandidateName = foreignKey.IsSelfReferencing()
                 ? string.Format(
