@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.DotNet.Helix.Sdk" DefaultTargets="Test">
+  <PropertyGroup>
+    <HelixType>test/product/</HelixType>
+    <HelixBuild>$(BUILD_BUILDNUMBER)</HelixBuild>
+    <HelixTargetQueues>$(HelixTargetQueues)</HelixTargetQueues>
+    <Creator>$(Creator)</Creator>
+    <HelixAccessToken>$(HelixAccessToken)</HelixAccessToken>
+
+    <IncludeDotNetCli>true</IncludeDotNetCli>
+    <DotNetCliPackageType>sdk</DotNetCliPackageType>
+    <DotNetCliVersion>3.1.100</DotNetCliVersion>
+
+    <EnableAzurePipelinesReporter>true</EnableAzurePipelinesReporter>
+    <FailOnTestFailure>true</FailOnTestFailure>
+    <EnableXUnitReporter>true</EnableXUnitReporter>
+    <FailOnMissionControlTestFailure>true</FailOnMissionControlTestFailure>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <XUnitProject Include="$(RepoRoot)/test/**/*.csproj"/>
+    <XUnitProject Remove="$(RepoRoot)/test/EFCore.Specification.Tests/*.csproj"/>
+    <XUnitProject Remove="$(RepoRoot)/test/EFCore.Relational.Specification.Tests/*.csproj"/>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <XUnitPublishTargetFramework>netcoreapp3.1</XUnitPublishTargetFramework>
+    <XUnitRuntimeTargetFramework>netcoreapp2.0</XUnitRuntimeTargetFramework>
+    <XUnitRunnerVersion>2.4.1</XUnitRunnerVersion>
+    <XUnitArguments></XUnitArguments>
+    <XUnitWorkItemTimeout>00:30:00</XUnitWorkItemTimeout>
+  </PropertyGroup>
+</Project>

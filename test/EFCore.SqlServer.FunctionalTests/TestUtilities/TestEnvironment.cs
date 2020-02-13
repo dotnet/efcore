@@ -48,25 +48,31 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     return _fullTextInstalled.Value;
                 }
 
-                using (var sqlConnection = new SqlConnection(SqlServerTestStore.CreateConnectionString("master")))
+                try
                 {
-                    sqlConnection.Open();
-
-                    using var command = new SqlCommand(
-                        "SELECT FULLTEXTSERVICEPROPERTY('IsFullTextInstalled')", sqlConnection);
-                    var result = (int)command.ExecuteScalar();
-
-                    _fullTextInstalled = result == 1;
-
-                    if (_fullTextInstalled.Value)
+                    using (var sqlConnection = new SqlConnection(SqlServerTestStore.CreateConnectionString("master")))
                     {
-                        var flag = GetFlag("SupportsFullTextSearch");
+                        sqlConnection.Open();
 
-                        if (flag.HasValue)
+                        using var command = new SqlCommand(
+                            "SELECT FULLTEXTSERVICEPROPERTY('IsFullTextInstalled')", sqlConnection);
+                        var result = (int)command.ExecuteScalar();
+
+                        _fullTextInstalled = result == 1;
+
+                        if (_fullTextInstalled.Value)
                         {
-                            return flag.Value;
+                            var flag = GetFlag("SupportsFullTextSearch");
+
+                            if (flag.HasValue)
+                            {
+                                return flag.Value;
+                            }
                         }
                     }
+                }
+                catch (PlatformNotSupportedException)
+                {
                 }
 
                 _fullTextInstalled = false;
