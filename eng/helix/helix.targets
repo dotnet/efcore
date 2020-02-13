@@ -7,6 +7,10 @@
 
   <!-- Build the actual helix work items to send to helix queues -->
   <Target Name="CreateHelixPayload" Returns="@(HelixWorkItem)">
+    <ItemGroup>
+      <_TargetFrameworks Remove="@(_TargetFrameworks)" />
+      <_TargetFrameworks Include="$(TargetFrameworks);$(TargetFramework)" />
+    </ItemGroup>
     <MSBuild Projects="$(MSBuildProjectFullPath)"
              Targets="_CreateHelixPayloadInner"
              Properties="TargetFramework=%(_TargetFrameworks.Identity);">
