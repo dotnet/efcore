@@ -30,10 +30,5 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <param name="options"> The options specifying which metadata to read. </param>
         /// <returns> The database model. </returns>
         public abstract DatabaseModel Create(DbConnection connection, DatabaseModelFactoryOptions options);
-
-        /// <summary>
-        ///     Overrides the connection string for scaffolding only.
-        /// </summary>
-        public virtual string? OverriddenConnectionString { get; set; }
     }
 }

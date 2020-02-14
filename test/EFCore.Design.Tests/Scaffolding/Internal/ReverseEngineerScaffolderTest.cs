@@ -8,6 +8,7 @@ using System.IO;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -172,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             var resolver = new TestNamedConnectionStringResolver("Data Source=Test");
             var databaseModelFactory = new TestDatabaseModelFactory();
-            databaseModelFactory.OverriddenConnectionString = "Data Source=OverriddenConnectionString";
+            databaseModelFactory.ScaffoldedConnectionString = "Data Source=ScaffoldedConnectionString";
             var scaffolder = new ServiceCollection()
                 .AddEntityFrameworkDesignTimeServices()
                 .AddSingleton<INamedConnectionStringResolver>(resolver)
@@ -193,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     ModelNamespace = "Foo"
                 });
 
-            Assert.Contains("Data Source=OverriddenConnectionString", result.ContextFile.Code);
+            Assert.Contains("Data Source=ScaffoldedConnectionString", result.ContextFile.Code);
             Assert.DoesNotContain("Name=DefaultConnection", result.ContextFile.Code);
             Assert.DoesNotContain("Data Source=Test", result.ContextFile.Code);
         }
@@ -212,12 +213,18 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private class TestDatabaseModelFactory : IDatabaseModelFactory
         {
             public string ConnectionString { get; set; }
+            public string ScaffoldedConnectionString { get; set; }
 
             public DatabaseModel Create(string connectionString, DatabaseModelFactoryOptions options)
             {
                 ConnectionString = connectionString;
+                var databaseModel = new DatabaseModel();
+                if (ScaffoldedConnectionString != null)
+                {
+                    databaseModel[ScaffoldingAnnotationNames.ConnectionString] = ScaffoldedConnectionString;
+                }
 
-                return new DatabaseModel();
+                return databaseModel;
             }
 
             public DatabaseModel Create(DbConnection connection, DatabaseModelFactoryOptions options)

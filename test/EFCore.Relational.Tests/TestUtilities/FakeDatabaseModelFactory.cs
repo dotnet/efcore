@@ -15,7 +15,5 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public virtual DatabaseModel Create(DbConnection connection, DatabaseModelFactoryOptions options)
             => throw new NotImplementedException();
-
-        public string OverriddenConnectionString { get; set; }
     }
 }

@@ -63,5 +63,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             model.SetAnnotation(
                 ScaffoldingAnnotationNames.DatabaseName,
                 Check.NullButNotEmpty(value, nameof(value)));
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static string GetConnectionString([NotNull] this IModel model)
+            => (string)model[ScaffoldingAnnotationNames.ConnectionString];
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static void SetConnectionString([NotNull] this IMutableModel model, [NotNull] string value) =>
+            model.SetAnnotation(
+                ScaffoldingAnnotationNames.ConnectionString,
+                Check.NotEmpty(value, nameof(value)));
     }
 }
