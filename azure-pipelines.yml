@@ -72,7 +72,7 @@ stages:
         steps:
         - script: build.cmd -ci
           displayName: Build
-        - script: @(DOTNET_ROOT)/dotnet build test/EFCore.Tests/EFCore.Tests.csproj /t:Publish
+        - script: /.dotnet/dotnet build test/EFCore.Tests/EFCore.Tests.csproj /t:Publish
           displayName: Publish tests
         - script: cp eng/runtests.cmd artifacts/bin/EFCore.Tests/Release/netcoreapp3.1/publish/
           displayName: Copy runtests
