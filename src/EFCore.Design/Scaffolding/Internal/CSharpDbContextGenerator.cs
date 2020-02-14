@@ -126,9 +126,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _sb.AppendLine($"public partial class {contextName} : DbContext");
             _sb.AppendLine("{");
 
-            if (!string.IsNullOrEmpty(model.GetConnectionString()))
+            var modelConnectionString = model.GetConnectionString();
+            if (!string.IsNullOrEmpty(modelConnectionString))
             {
-                connectionString = model.GetConnectionString();
+                connectionString = modelConnectionString;
             }
 
             using (_sb.Indent())
