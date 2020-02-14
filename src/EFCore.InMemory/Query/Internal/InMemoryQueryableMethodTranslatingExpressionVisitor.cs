@@ -258,11 +258,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 var original2 = resultSelector.Parameters[1];
 
                 var newResultSelectorBody = new ReplacingExpressionVisitor(
-                    new Dictionary<Expression, Expression>
-                    {
-                        { original1, ((GroupByShaperExpression)source.ShaperExpression).KeySelector },
-                        { original2, source.ShaperExpression }
-                    }).Visit(resultSelector.Body);
+                        new Expression[] { original1, original2 },
+                        new[] { ((GroupByShaperExpression)source.ShaperExpression).KeySelector, source.ShaperExpression })
+                    .Visit(resultSelector.Body);
 
                 newResultSelectorBody = ExpandWeakEntities(inMemoryQueryExpression, newResultSelectorBody);
 

@@ -880,11 +880,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var currentTree = new NavigationTreeNode(outerSource.CurrentTree, innerSource.CurrentTree);
             var pendingSelector = new ReplacingExpressionVisitor(
-                new Dictionary<Expression, Expression>
-                {
-                    { resultSelector.Parameters[0], outerSource.PendingSelector },
-                    { resultSelector.Parameters[1], innerSource.PendingSelector }
-                }).Visit(resultSelector.Body);
+                new Expression[] { resultSelector.Parameters[0], resultSelector.Parameters[1] },
+                new[] { outerSource.PendingSelector, innerSource.PendingSelector })
+                .Visit(resultSelector.Body);
             var parameterName = GetParameterName("ti");
 
             return new NavigationExpansionExpression(source, currentTree, pendingSelector, parameterName);
@@ -937,11 +935,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var currentTree = new NavigationTreeNode(outerSource.CurrentTree, innerSource.CurrentTree);
             var pendingSelector = new ReplacingExpressionVisitor(
-                new Dictionary<Expression, Expression>
-                {
-                    { resultSelector.Parameters[0], outerSource.PendingSelector },
-                    { resultSelector.Parameters[1], innerPendingSelector }
-                }).Visit(resultSelector.Body);
+                new Expression[] { resultSelector.Parameters[0], resultSelector.Parameters[1] },
+                new[] { outerSource.PendingSelector, innerPendingSelector})
+                .Visit(resultSelector.Body);
             var parameterName = GetParameterName("ti");
 
             return new NavigationExpansionExpression(source, currentTree, pendingSelector, parameterName);
@@ -1060,10 +1056,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var pendingSelector = resultSelector == null
                     ? innerTree
                     : new ReplacingExpressionVisitor(
-                        new Dictionary<Expression, Expression>
-                        {
-                            { resultSelector.Parameters[0], source.PendingSelector }, { resultSelector.Parameters[1], innerTree }
-                        }).Visit(resultSelector.Body);
+                        new Expression[] { resultSelector.Parameters[0], resultSelector.Parameters[1] },
+                        new[] { source.PendingSelector, innerTree })
+                        .Visit(resultSelector.Body);
                 var parameterName = GetParameterName("ti");
 
                 return new NavigationExpansionExpression(newSource, currentTree, pendingSelector, parameterName);
