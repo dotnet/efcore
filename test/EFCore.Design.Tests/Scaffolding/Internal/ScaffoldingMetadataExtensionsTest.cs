@@ -53,5 +53,17 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Null(extensions.GetDatabaseName());
         }
+
+        [ConditionalFact]
+        public void It_sets_gets_connection_string()
+        {
+            var model = new Model();
+
+            Assert.Null(model.GetConnectionString());
+
+            model.SetConnectionString("OverriddenConnectionString");
+
+            Assert.Equal("OverriddenConnectionString", model.GetConnectionString());
+        }
     }
 }
