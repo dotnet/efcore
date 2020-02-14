@@ -31,6 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
     {
         private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
         private readonly bool _loadSpatialite;
+        private readonly int? _commandTimeout;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -51,14 +52,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             if (optionsExtension != null)
             {
                 _loadSpatialite = optionsExtension.LoadSpatialite;
-                if (_loadSpatialite)
+
+                var relationalOptions = RelationalOptionsExtension.Extract(dependencies.ContextOptions);
+                _commandTimeout = relationalOptions.CommandTimeout;
+
+                if (relationalOptions.Connection != null)
                 {
-                    var relationalOptions = RelationalOptionsExtension.Extract(dependencies.ContextOptions);
-                    if (relationalOptions.Connection != null)
-                    {
-                        // TODO: Provide a better hook to do this for both external connections and ones created by EF
-                        SpatialiteLoader.Load(relationalOptions.Connection);
-                    }
+                    InitializeDbConnection(relationalOptions.Connection);
                 }
             }
         }
@@ -72,11 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         protected override DbConnection CreateDbConnection()
         {
             var connection = new SqliteConnection(GetCheckedConnectionString());
-
-            if (_loadSpatialite)
-            {
-                SpatialiteLoader.Load(connection);
-            }
+            InitializeDbConnection(connection);
 
             return connection;
         }
@@ -94,6 +90,20 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             var contextOptions = new DbContextOptionsBuilder().UseSqlite(connectionStringBuilder.ToString()).Options;
 
             return new SqliteRelationalConnection(Dependencies.With(contextOptions), _rawSqlCommandBuilder);
+        }
+
+        private void InitializeDbConnection(DbConnection connection)
+        {
+            if (_loadSpatialite)
+            {
+                SpatialiteLoader.Load(connection);
+            }
+
+            if (connection is SqliteConnection sqliteConnection
+                && _commandTimeout.HasValue)
+            {
+                sqliteConnection.DefaultTimeout = _commandTimeout.Value;
+            }
         }
     }
 }
