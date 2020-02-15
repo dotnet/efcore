@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             _table = table;
             _updateAdapter = updateAdapter;
             _createElement = createElement;
-            _comparer = new EntryComparer(IsMainEntityType);
+            _comparer = new EntryComparer(table);
         }
 
         /// <summary>
@@ -176,17 +176,17 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
         private sealed class EntryComparer : IComparer<IUpdateEntry>
         {
-            private readonly Func<IEntityType, bool> _isMain;
+            private readonly ITable _table;
 
-            public EntryComparer(Func<IEntityType, bool> isMain)
+            public EntryComparer(ITable table)
             {
-                _isMain = isMain;
+                _table = table;
             }
 
             public int Compare(IUpdateEntry x, IUpdateEntry y)
-                => _isMain(x.EntityType)
+                => _table.GetInternalForeignKeys(x.EntityType) == null
                     ? -1
-                    : _isMain(y.EntityType)
+                    : _table.GetInternalForeignKeys(y.EntityType) == null
                         ? 1
                         : StringComparer.Ordinal.Compare(x.EntityType.Name, y.EntityType.Name);
         }

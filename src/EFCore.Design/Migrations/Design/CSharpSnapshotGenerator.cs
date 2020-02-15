@@ -62,7 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.ChangeTrackingStrategy,
                 CoreAnnotationNames.OwnedTypes,
                 RelationalAnnotationNames.CheckConstraints,
-                RelationalAnnotationNames.Tables);
+                RelationalAnnotationNames.Tables,
+                RelationalAnnotationNames.Views);
 
             if (annotations.Count > 0)
             {
@@ -497,6 +498,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 annotations,
                 RelationalAnnotationNames.ColumnType,
                 RelationalAnnotationNames.TableColumnMappings,
+                RelationalAnnotationNames.ViewColumnMappings,
                 CoreAnnotationNames.ValueGeneratorFactory,
                 CoreAnnotationNames.PropertyAccessMode,
                 CoreAnnotationNames.ChangeTrackingStrategy,
@@ -787,7 +789,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.DefiningQuery,
                 CoreAnnotationNames.QueryFilter,
                 RelationalAnnotationNames.CheckConstraints,
-                RelationalAnnotationNames.TableMappings);
+                RelationalAnnotationNames.TableMappings,
+                RelationalAnnotationNames.ViewMappings);
 
             if (annotations.Count > 0)
             {

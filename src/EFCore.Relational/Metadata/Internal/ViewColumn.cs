@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class TableMapping : Annotatable, ITableMapping
+    public class ViewColumn : Annotatable, IViewColumn
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -22,21 +22,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public TableMapping(
-            [NotNull] IEntityType entityType,
-            [NotNull] Table table,
-            bool includesDerivedTypes)
+        public ViewColumn([NotNull] string name, [NotNull] string type, [NotNull] View view)
         {
-            EntityType = entityType;
-            Table = table;
-            IncludesDerivedTypes = includesDerivedTypes;
+            Name = name;
+            Type = type;
+            View = view;
         }
 
         /// <inheritdoc/>
-        public virtual IEntityType EntityType { get; }
+        public virtual string Name { get; }
 
         /// <inheritdoc/>
-        public virtual ITable Table { get; }
+        public virtual IView View { get; }
+
+        /// <inheritdoc/>
+        public virtual string Type { get; }
+
+        /// <inheritdoc/>
+        public virtual bool IsNullable { get; set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -44,10 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SortedSet<IColumnMapping> ColumnMappings { get; } = new SortedSet<IColumnMapping>(ColumnMappingComparer.Instance);
-
-        /// <inheritdoc/>
-        public virtual bool IncludesDerivedTypes { get; }
+        public virtual SortedSet<ViewColumnMapping> PropertyMappings { get; }
+            = new SortedSet<ViewColumnMapping>(ViewColumnMappingComparer.Instance);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -58,24 +59,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         /// <inheritdoc/>
-        ITableBase ITableMappingBase.Table
+        IEnumerable<IViewColumnMapping> IViewColumn.PropertyMappings
         {
             [DebuggerStepThrough]
-            get => Table;
+            get => PropertyMappings;
         }
 
         /// <inheritdoc/>
-        IEnumerable<IColumnMapping> ITableMapping.ColumnMappings
+        IEnumerable<IColumnMappingBase> IColumnBase.PropertyMappings
         {
             [DebuggerStepThrough]
-            get => ColumnMappings;
+            get => PropertyMappings;
         }
 
         /// <inheritdoc/>
-        IEnumerable<IColumnMappingBase> ITableMappingBase.ColumnMappings
+        ITableBase IColumnBase.Table
         {
             [DebuggerStepThrough]
-            get => ColumnMappings;
+            get => View;
         }
     }
 }

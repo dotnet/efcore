@@ -2,10 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using System.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -15,16 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class Table : TableBase, ITable
+    public class ViewMappingComparer : IEqualityComparer<IViewMapping>, IComparer<IViewMapping>
     {
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Table([NotNull] string name, [CanBeNull] string schema)
-            : base(name, schema)
+        private ViewMappingComparer()
         {
         }
 
@@ -34,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SortedSet<TableMapping> EntityTypeMappings { get; } = new SortedSet<TableMapping>(TableMappingComparer.Instance);
+        public static readonly ViewMappingComparer Instance = new ViewMappingComparer();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -42,16 +34,41 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SortedDictionary<string, Column> Columns { get; } = new SortedDictionary<string, Column>(StringComparer.Ordinal);
+        public virtual int Compare(IViewMapping x, IViewMapping y)
+        {
+            var result = EntityTypePathComparer.Instance.Compare(x.EntityType, y.EntityType);
+            if (result != 0)
+            {
+                return result;
+            }
 
-        /// <inheritdoc/>
-        public virtual bool IsMigratable { get; set; }
+            result = StringComparer.Ordinal.Compare(x.View.Name, y.View.Name);
+            if (result != 0)
+            {
+                return result;
+            }
 
-        /// <inheritdoc/>
-        public virtual IColumn FindColumn(string name)
-            => Columns.TryGetValue(name, out var column)
-                ? column
-                : null;
+            result = StringComparer.Ordinal.Compare(x.View.Schema, y.View.Schema);
+            if (result != 0)
+            {
+                return result;
+            }
+
+            result = x.IncludesDerivedTypes.CompareTo(y.IncludesDerivedTypes);
+            if (result != 0)
+            {
+                return result;
+            }
+
+            result = x.ColumnMappings.Count().CompareTo(y.ColumnMappings.Count());
+            if (result != 0)
+            {
+                return result;
+            }
+
+            return x.ColumnMappings.Zip(y.ColumnMappings, (xc, yc) => ViewColumnMappingComparer.Instance.Compare(xc, yc))
+                .FirstOrDefault(r => r != 0);
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -59,51 +76,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+        public virtual bool Equals(IViewMapping x, IViewMapping y)
+            => x.EntityType == y.EntityType
+                && x.View == y.View
+                && x.IncludesDerivedTypes == y.IncludesDerivedTypes
+                && StructuralComparisons.StructuralEqualityComparer.Equals(x.ColumnMappings, y.ColumnMappings);
 
-        /// <inheritdoc/>
-        IEnumerable<IColumnBase> ITableBase.Columns
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual int GetHashCode(IViewMapping obj)
         {
-            [DebuggerStepThrough]
-            get => Columns.Values;
+            var hashCode = new HashCode();
+            hashCode.Add(obj.EntityType, EntityTypePathComparer.Instance);
+            hashCode.Add(obj.View.Name);
+            hashCode.Add(obj.View.Schema);
+            foreach (var columnMapping in obj.ColumnMappings)
+            {
+                hashCode.Add(columnMapping, ViewColumnMappingComparer.Instance);
+            }
+            hashCode.Add(obj.IncludesDerivedTypes);
+            return hashCode.ToHashCode();
         }
-
-        /// <inheritdoc/>
-        IEnumerable<IColumn> ITable.Columns
-        {
-            [DebuggerStepThrough]
-            get => Columns.Values;
-        }
-
-        /// <inheritdoc/>
-        IEnumerable<ITableMapping> ITable.EntityTypeMappings
-        {
-            [DebuggerStepThrough]
-            get => EntityTypeMappings;
-        }
-
-        /// <inheritdoc/>
-        IEnumerable<ITableMappingBase> ITableBase.EntityTypeMappings
-        {
-            [DebuggerStepThrough]
-            get => EntityTypeMappings;
-        }
-
-        /// <inheritdoc/>
-        IColumnBase ITableBase.FindColumn(string name) => FindColumn(name);
-
-        /// <inheritdoc/>
-        IEnumerable<IForeignKey> ITableBase.GetInternalForeignKeys(IEntityType entityType)
-            => InternalForeignKeys != null
-                && InternalForeignKeys.TryGetValue(entityType, out var foreignKeys)
-                ? foreignKeys
-                : null;
-
-        /// <inheritdoc/>
-        IEnumerable<IForeignKey> ITableBase.GetReferencingInternalForeignKeys(IEntityType entityType)
-            => ReferencingInternalForeignKeys != null
-                && ReferencingInternalForeignKeys.TryGetValue(entityType, out var foreignKeys)
-                ? foreignKeys
-                : null;
     }
 }

@@ -580,15 +580,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var sourceMigrationsAnnotations = MigrationsAnnotations.For(GetRootType(source)).ToList();
             var targetMigrationsAnnotations = MigrationsAnnotations.For(GetRootType(target)).ToList();
 
-            if (source.GetComment() != target.GetComment()
+            if (source.Comment != target.Comment
                 || HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
             {
                 var alterTableOperation = new AlterTableOperation
                 {
                     Name = target.Name,
                     Schema = target.Schema,
-                    Comment = target.GetComment(),
-                    OldTable = { Comment = source.GetComment() }
+                    Comment = target.Comment,
+                    OldTable = { Comment = source.Comment }
                 };
 
                 alterTableOperation.AddAnnotations(targetMigrationsAnnotations);
@@ -601,7 +601,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     target.Columns.Select(c => c.PropertyMappings.First().Property), diffContext)
                 .Concat(Diff(GetKeys(source), GetKeys(target), diffContext))
                 .Concat(Diff(GetIndexes(source), GetIndexes(target), diffContext))
-                .Concat(Diff(source.GetCheckConstraints(), target.GetCheckConstraints(), diffContext));
+                .Concat(Diff(source.CheckConstraints, target.CheckConstraints, diffContext));
 
             foreach (var operation in operations)
             {
@@ -630,7 +630,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 Schema = target.Schema,
                 Name = target.Name,
-                Comment = target.GetComment()
+                Comment = target.Comment
             };
             createTableOperation.AddAnnotations(MigrationsAnnotations.For(entityType));
 
@@ -646,7 +646,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 GetKeys(target).Where(k => !k.IsPrimaryKey()).SelectMany(k => Add(k, diffContext))
                     .Cast<AddUniqueConstraintOperation>());
             createTableOperation.CheckConstraints.AddRange(
-                target.GetCheckConstraints().SelectMany(c => Add(c, diffContext))
+                target.CheckConstraints.SelectMany(c => Add(c, diffContext))
                     .Cast<CreateCheckConstraintOperation>());
 
             foreach (var targetMapping in target.EntityTypeMappings)
@@ -953,11 +953,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 };
             }
 
+            var sourceTypeMapping = sourceMapping.TypeMapping ?? TypeMappingSource.GetMapping(source);
+            var targetTypeMapping = targetMapping.TypeMapping ?? TypeMappingSource.GetMapping(target);
+
+            var sourceColumnType = sourceColumn.Type
+                ?? sourceTypeMapping.StoreType;
+            var targetColumnType = targetColumn.Type
+                ?? targetTypeMapping.StoreType;
+
             var sourceMigrationsAnnotations = MigrationsAnnotations.For(source).ToList();
             var targetMigrationsAnnotations = MigrationsAnnotations.For(target).ToList();
 
             var isNullableChanged = sourceColumn.IsNullable != targetColumn.IsNullable;
-            var columnTypeChanged = sourceColumn.Type != targetColumn.Type;
+            var columnTypeChanged = sourceColumnType != targetColumnType;
 
             if (isNullableChanged
                 || columnTypeChanged
@@ -980,11 +988,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 };
 
                 Initialize(
-                    alterColumnOperation, target, targetMapping.TypeMapping,
+                    alterColumnOperation, target, targetTypeMapping,
                     targetColumn.IsNullable, targetMigrationsAnnotations, inline: true);
 
                 Initialize(
-                    alterColumnOperation.OldColumn, source, sourceMapping.TypeMapping,
+                    alterColumnOperation.OldColumn, source, sourceTypeMapping,
                     sourceColumn.IsNullable, sourceMigrationsAnnotations, inline: true);
 
                 yield return alterColumnOperation;
@@ -2200,7 +2208,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         private ValueConverter GetValueConverter(IProperty property)
-            => property.GetValueConverter() ?? property.GetRelationalTypeMapping().Converter;
+            => property.GetValueConverter() ?? property.FindRelationalTypeMapping()?.Converter;
 
         private static IEntityType GetRootType(ITable table)
             => table.EntityTypeMappings.Select(m => m.EntityType).FirstOrDefault(

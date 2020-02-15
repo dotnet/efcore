@@ -751,7 +751,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private void AddConditions(
             SelectExpression selectExpression,
             IEntityType entityType,
-            ICollection<IEntityType> sharingTypes = null,
+            ITableBase table = null,
             bool skipJoins = false)
         {
             if (entityType.FindPrimaryKey() == null)
@@ -760,54 +760,46 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
             else
             {
-                sharingTypes ??= new HashSet<IEntityType>(
-                    entityType.Model.GetEntityTypes()
-                        .Where(
-                            et => et.FindPrimaryKey() != null
-                                && et.GetTableName() == entityType.GetTableName()
-                                && et.GetSchema() == entityType.GetSchema()));
-
-                if (sharingTypes.Count > 0)
+                var tableMappings = entityType.GetViewOrTableMappings();
+                if (tableMappings == null)
                 {
-                    var discriminatorAdded = AddDiscriminatorCondition(selectExpression, entityType);
+                    return;
+                }
 
-                    var linkingFks = entityType.GetRootType().FindForeignKeys(entityType.FindPrimaryKey().Properties)
-                        .Where(
-                            fk => fk.PrincipalKey.IsPrimaryKey()
-                                && fk.PrincipalEntityType != entityType
-                                && sharingTypes.Contains(fk.PrincipalEntityType))
-                        .ToList();
+                table ??= tableMappings.Single().Table;
+                var discriminatorAdded = AddDiscriminatorCondition(selectExpression, entityType);
 
-                    if (linkingFks.Count > 0)
+                var linkingFks = table.GetInternalForeignKeys(entityType);
+                if (linkingFks != null
+                    && linkingFks.Any())
+                {
+                    if (!discriminatorAdded)
                     {
-                        if (!discriminatorAdded)
-                        {
-                            AddOptionalDependentConditions(selectExpression, entityType, sharingTypes);
-                        }
+                        AddOptionalDependentConditions(selectExpression, entityType, table);
+                    }
 
-                        if (!skipJoins)
-                        {
-                            var first = true;
+                    if (!skipJoins)
+                    {
+                        var first = true;
 
-                            foreach (var foreignKey in linkingFks)
+                        foreach (var foreignKey in linkingFks)
+                        {
+                            if (!(entityType.FindOwnership() == foreignKey
+                                && foreignKey.PrincipalEntityType.BaseType == null))
                             {
-                                if (!(entityType.FindOwnership() == foreignKey
-                                    && foreignKey.PrincipalEntityType.BaseType == null))
+                                var otherSelectExpression = first
+                                    ? selectExpression
+                                    : new SelectExpression(entityType);
+
+                                AddInnerJoin(otherSelectExpression, foreignKey, table, skipInnerJoins: false);
+
+                                if (first)
                                 {
-                                    var otherSelectExpression = first
-                                        ? selectExpression
-                                        : new SelectExpression(entityType);
-
-                                    AddInnerJoin(otherSelectExpression, foreignKey, sharingTypes, skipInnerJoins: false);
-
-                                    if (first)
-                                    {
-                                        first = false;
-                                    }
-                                    else
-                                    {
-                                        selectExpression.ApplyUnion(otherSelectExpression, distinct: true);
-                                    }
+                                    first = false;
+                                }
+                                else
+                                {
+                                    selectExpression.ApplyUnion(otherSelectExpression, distinct: true);
                                 }
                             }
                         }
@@ -817,9 +809,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private void AddInnerJoin(
-            SelectExpression selectExpression, IForeignKey foreignKey, ICollection<IEntityType> sharingTypes, bool skipInnerJoins)
+            SelectExpression selectExpression, IForeignKey foreignKey, ITableBase table, bool skipInnerJoins)
         {
-            var joinPredicate = GenerateJoinPredicate(selectExpression, foreignKey, sharingTypes, skipInnerJoins, out var innerSelect);
+            var joinPredicate = GenerateJoinPredicate(selectExpression, foreignKey, table, skipInnerJoins, out var innerSelect);
 
             selectExpression.AddInnerJoin(innerSelect, joinPredicate, null);
         }
@@ -827,7 +819,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private SqlExpression GenerateJoinPredicate(
             SelectExpression selectExpression,
             IForeignKey foreignKey,
-            ICollection<IEntityType> sharingTypes,
+            ITableBase table,
             bool skipInnerJoins,
             out SelectExpression innerSelect)
         {
@@ -840,7 +832,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             AddConditions(
                 innerSelect,
                 outerIsPrincipal ? foreignKey.DeclaringEntityType : foreignKey.PrincipalEntityType,
-                sharingTypes,
+                table,
                 skipInnerJoins);
 
             var innerEntityProjection = GetMappedEntityProjectionExpression(innerSelect);
@@ -886,7 +878,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private void AddOptionalDependentConditions(
-            SelectExpression selectExpression, IEntityType entityType, ICollection<IEntityType> sharingTypes)
+            SelectExpression selectExpression, IEntityType entityType, ITableBase table)
         {
             SqlExpression predicate = null;
             var requiredNonPkProperties = entityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
@@ -935,10 +927,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         var otherSelectExpression = new SelectExpression(entityType);
 
-                        var sameTable = sharingTypes.Contains(referencingFk.DeclaringEntityType);
+                        var sameTable = table.GetInternalForeignKeys(referencingFk.DeclaringEntityType) != null;
                         AddInnerJoin(
                             otherSelectExpression, referencingFk,
-                            sameTable ? sharingTypes : null,
+                            sameTable ? table : null,
                             skipInnerJoins: sameTable);
                         selectExpression.ApplyUnion(otherSelectExpression, distinct: true);
                     }

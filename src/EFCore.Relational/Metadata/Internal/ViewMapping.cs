@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class TableMapping : Annotatable, ITableMapping
+    public class ViewMapping : Annotatable, IViewMapping
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -22,13 +22,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public TableMapping(
+        public ViewMapping(
             [NotNull] IEntityType entityType,
-            [NotNull] Table table,
+            [NotNull] View view,
             bool includesDerivedTypes)
         {
             EntityType = entityType;
-            Table = table;
+            View = view;
             IncludesDerivedTypes = includesDerivedTypes;
         }
 
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IEntityType EntityType { get; }
 
         /// <inheritdoc/>
-        public virtual ITable Table { get; }
+        public virtual IView View { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -44,7 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SortedSet<IColumnMapping> ColumnMappings { get; } = new SortedSet<IColumnMapping>(ColumnMappingComparer.Instance);
+        public virtual SortedSet<IViewColumnMapping> ColumnMappings { get; }
+            = new SortedSet<IViewColumnMapping>(ViewColumnMappingComparer.Instance);
 
         /// <inheritdoc/>
         public virtual bool IncludesDerivedTypes { get; }
@@ -61,11 +62,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ITableBase ITableMappingBase.Table
         {
             [DebuggerStepThrough]
-            get => Table;
+            get => View;
         }
 
         /// <inheritdoc/>
-        IEnumerable<IColumnMapping> ITableMapping.ColumnMappings
+        IEnumerable<IViewColumnMapping> IViewMapping.ColumnMappings
         {
             [DebuggerStepThrough]
             get => ColumnMappings;

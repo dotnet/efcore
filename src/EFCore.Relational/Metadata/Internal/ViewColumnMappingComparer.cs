@@ -1,10 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -14,29 +12,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class TableMapping : Annotatable, ITableMapping
+    public class ViewColumnMappingComparer : IEqualityComparer<IViewColumnMapping>, IComparer<IViewColumnMapping>
     {
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public TableMapping(
-            [NotNull] IEntityType entityType,
-            [NotNull] Table table,
-            bool includesDerivedTypes)
+        private ViewColumnMappingComparer()
         {
-            EntityType = entityType;
-            Table = table;
-            IncludesDerivedTypes = includesDerivedTypes;
         }
-
-        /// <inheritdoc/>
-        public virtual IEntityType EntityType { get; }
-
-        /// <inheritdoc/>
-        public virtual ITable Table { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -44,10 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SortedSet<IColumnMapping> ColumnMappings { get; } = new SortedSet<IColumnMapping>(ColumnMappingComparer.Instance);
-
-        /// <inheritdoc/>
-        public virtual bool IncludesDerivedTypes { get; }
+        public static readonly ViewColumnMappingComparer Instance = new ViewColumnMappingComparer();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -55,27 +32,45 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
-
-        /// <inheritdoc/>
-        ITableBase ITableMappingBase.Table
+        public virtual int Compare(IViewColumnMapping x, IViewColumnMapping y)
         {
-            [DebuggerStepThrough]
-            get => Table;
+            var result = StringComparer.Ordinal.Compare(x.Property.IsColumnNullable(), y.Property.IsColumnNullable());
+            if (result != 0)
+            {
+                return result;
+            }
+
+            result = StringComparer.Ordinal.Compare(x.Property.Name, y.Property.Name);
+            if (result != 0)
+            {
+                return result;
+            }
+
+            return StringComparer.Ordinal.Compare(x.Column.Name, y.Column.Name);
         }
 
-        /// <inheritdoc/>
-        IEnumerable<IColumnMapping> ITableMapping.ColumnMappings
-        {
-            [DebuggerStepThrough]
-            get => ColumnMappings;
-        }
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool Equals(IViewColumnMapping x, IViewColumnMapping y)
+            => x.Property == y.Property
+                && x.Column == y.Column;
 
-        /// <inheritdoc/>
-        IEnumerable<IColumnMappingBase> ITableMappingBase.ColumnMappings
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual int GetHashCode(IViewColumnMapping obj)
         {
-            [DebuggerStepThrough]
-            get => ColumnMappings;
+            var hashCode = new HashCode();
+            hashCode.Add(obj.Property.Name);
+            hashCode.Add(obj.Column.Name);
+            return hashCode.ToHashCode();
         }
     }
 }
