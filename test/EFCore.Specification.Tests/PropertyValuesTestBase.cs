@@ -1262,53 +1262,53 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Detached, false)]
         public async Task Reload_when_entity_deleted_in_store_can_happen_for_any_state(EntityState state, bool async)
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+
+            var office = new Office { Number = "35" };
+            var mailRoom = new MailRoom { id = 36 };
+            var building = Building.Create(Guid.NewGuid(), "Bag End", 77);
+
+            building.Offices.Add(office);
+            building.PrincipalMailRoom = mailRoom;
+            office.Building = building;
+            mailRoom.Building = building;
+
+            var entry = context.Entry(building);
+
+            context.Attach(building);
+            entry.State = state;
+
+            if (async)
             {
-                var office = new Office { Number = "35" };
-                var mailRoom = new MailRoom { id = 36 };
-                var building = Building.Create(Guid.NewGuid(), "Bag End", 77);
+                await entry.ReloadAsync();
+            }
+            else
+            {
+                entry.Reload();
+            }
 
-                building.Offices.Add(office);
-                building.PrincipalMailRoom = mailRoom;
-                office.Building = building;
-                mailRoom.Building = building;
+            Assert.Equal("Bag End", entry.Property(e => e.Name).OriginalValue);
+            Assert.Equal("Bag End", entry.Property(e => e.Name).CurrentValue);
+            Assert.Equal("Bag End", building.Name);
 
-                var entry = context.Entry(building);
-
-                context.Attach(building);
-                entry.State = state;
-
-                if (async)
-                {
-                    await entry.ReloadAsync();
-                }
-                else
-                {
-                    entry.Reload();
-                }
-
-                Assert.Equal("Bag End", entry.Property(e => e.Name).OriginalValue);
-                Assert.Equal("Bag End", entry.Property(e => e.Name).CurrentValue);
-                Assert.Equal("Bag End", building.Name);
-
-                if (state == EntityState.Added)
-                {
-                    Assert.Equal(EntityState.Added, entry.State);
-                    Assert.Same(mailRoom, building.PrincipalMailRoom);
-                    Assert.Contains(office, building.Offices);
-                }
-                else
-                {
-                    Assert.Equal(EntityState.Detached, entry.State);
-                    Assert.Null(mailRoom.Building);
-
-                    Assert.Equal(EntityState.Detached, context.Entry(office.Building).State);
-                    Assert.Same(building, office.Building);
-                }
-
+            if (state == EntityState.Added)
+            {
+                Assert.Equal(EntityState.Added, entry.State);
                 Assert.Same(mailRoom, building.PrincipalMailRoom);
                 Assert.Contains(office, building.Offices);
             }
+            else
+            {
+                Assert.Equal(EntityState.Detached, entry.State);
+                Assert.Same(mailRoom, building.PrincipalMailRoom);
+                Assert.Contains(office, building.Offices);
+
+                Assert.Equal(EntityState.Detached, context.Entry(office.Building).State);
+                Assert.Same(building, office.Building);
+            }
+
+            Assert.Same(mailRoom, building.PrincipalMailRoom);
+            Assert.Contains(office, building.Offices);
         }
 
         [ConditionalFact]

@@ -7,6 +7,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
@@ -2577,11 +2579,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [ConditionalFact]
         public void Use_correct_entity_after_SetValues()
         {
-            var detachedProduct = new ProductX { Description = "Heavy Engine XT3" };
+            var detachedProduct = new ProductX
+            {
+                Description = "Heavy Engine XT3"
+            };
 
-            var detachedRoom = new ContainerRoomX { Number = 1, Product = detachedProduct };
+            var detachedRoom = new ContainerRoomX
+            {
+                Number = 1,
+                Product = detachedProduct
+            };
 
-            var detachedContainer = new ContainerX { Name = "C1", Rooms = { detachedRoom } };
+            var detachedContainer = new ContainerX
+            {
+                Name = "C1",
+                Rooms =
+                {
+                    detachedRoom
+                }
+            };
 
             using (var context = new EscapeRoom(nameof(EscapeRoom)))
             {
@@ -2591,7 +2607,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             using (var context = new EscapeRoom(nameof(EscapeRoom)))
             {
-                var attachedProduct = new ProductX { Id = detachedProduct.Id, Description = "Heavy Engine XT3" };
+                var attachedProduct = new ProductX
+                {
+                    Id = detachedProduct.Id,
+                    Description = "Heavy Engine XT3"
+                };
 
                 var attachedRoom = new ContainerRoomX
                 {
@@ -2606,7 +2626,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     Id = detachedContainer.Id,
                     Name = "C1",
-                    Rooms = { attachedRoom }
+                    Rooms =
+                    {
+                        attachedRoom
+                    }
                 };
 
                 context.Attach(attached);
@@ -2676,13 +2699,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             using (var context = new BadHashDay("BadHashDay"))
             {
                 context.AddRange(
-                    new ParentX { Id = 101, Name = "Parent1" },
-                    new ChildX { Id = 201, Name = "Child1" },
+                    new ParentX
+                    {
+                        Id = 101, Name = "Parent1"
+                    },
+                    new ChildX
+                    {
+                        Id = 201, Name = "Child1"
+                    },
                     new ParentChildX
                     {
-                        ParentId = 101,
-                        ChildId = 201,
-                        SortOrder = 1
+                        ParentId = 101, ChildId = 201, SortOrder = 1
                     });
 
                 context.SaveChanges();
@@ -2706,7 +2733,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     SortOrder = 1
                 };
 
-                parent.ParentChildren = new List<ParentChildX> { newJoin };
+                parent.ParentChildren = new List<ParentChildX>
+                {
+                    newJoin
+                };
 
                 Assert.Equal(3, context.ChangeTracker.Entries().Count());
                 Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
@@ -2802,27 +2832,59 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     .IsRequired();
 
                 modelBuilder.Entity<ParentChildX>().HasKey(
-                    x => new { x.ParentId, x.ChildId });
+                    x => new
+                    {
+                        x.ParentId, x.ChildId
+                    });
             }
         }
 
         [ConditionalFact]
         public void Detached_entity_is_not_replaced_by_tracked_entity()
         {
-            using (var context = new BadBeeContext(nameof(BadBeeContext)))
+            var detachedProduct = new ProductX { Description = "Heavy Engine XT3" };
+
+            var detachedRoom = new ContainerRoomX { Number = 1, Product = detachedProduct };
+
+            var detachedContainer = new ContainerX { Name = "C1", Rooms = { detachedRoom } };
+
+            using (var context = new EscapeRoom(nameof(EscapeRoom)))
             {
-                var b1 = new EntityB { EntityBId = 1 };
-                context.BEntities.Attach(b1);
+                context.Add(detachedContainer);
+                context.SaveChanges();
+            }
 
-                var b2 = new EntityB { EntityBId = 1 };
+            using (var context = new EscapeRoom(nameof(EscapeRoom)))
+            {
+                var attachedProduct = new ProductX { Id = detachedProduct.Id, Description = "Heavy Engine XT3" };
 
-                var a = new EntityA { EntityAId = 1, EntityB = b2 };
+                var attachedRoom = new ContainerRoomX
+                {
+                    Id = detachedRoom.Id,
+                    ContainerId = detachedRoom.ContainerId,
+                    Number = 1,
+                    ProductId = detachedRoom.ProductId,
+                    Product = attachedProduct
+                };
 
-                Assert.Equal(
-                    CoreStrings.IdentityConflict(
-                        nameof(EntityB),
-                        $"{{'{nameof(EntityB.EntityBId)}'}}"),
-                    Assert.Throws<InvalidOperationException>(() => context.Add(a)).Message);
+                var attached = new ContainerX
+                {
+                    Id = detachedContainer.Id,
+                    Name = "C1",
+                    Rooms = { attachedRoom }
+                };
+
+                context.Attach(attached);
+
+                detachedRoom.Product = null;
+                detachedRoom.ProductId = null;
+
+                context.Entry(attachedRoom).CurrentValues.SetValues(detachedRoom);
+
+                context.SaveChanges();
+
+                // Fails - see #16546
+                //Assert.Equal(EntityState.Unchanged, context.Entry(attachedRoom).State);
             }
         }
 

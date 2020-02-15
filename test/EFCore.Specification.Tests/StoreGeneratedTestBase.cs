@@ -510,6 +510,129 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).Identity));
         }
 
+        [ConditionalFact] // Issue #19137
+        public void Clearing_optional_FK_does_not_leave_temporary_value()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var product = new OptionalProduct();
+                    context.Add(product);
+
+                    var productEntry = context.Entry(product);
+                    Assert.Equal(EntityState.Added, productEntry.State);
+
+                    Assert.Equal(0, product.Id);
+                    Assert.True(productEntry.Property(e => e.Id).CurrentValue < 0);
+                    Assert.True(productEntry.Property(e => e.Id).IsTemporary);
+
+                    Assert.Null(product.CategoryId);
+                    Assert.Null(productEntry.Property(e => e.CategoryId).CurrentValue);
+                    Assert.False(productEntry.Property(e => e.CategoryId).IsTemporary);
+
+                    context.SaveChanges();
+
+                    productEntry = context.Entry(product);
+                    Assert.Equal(EntityState.Unchanged, productEntry.State);
+
+                    Assert.Equal(1, product.Id);
+                    Assert.Equal(1, productEntry.Property(e => e.Id).CurrentValue);
+                    Assert.False(productEntry.Property(e => e.Id).IsTemporary);
+
+                    Assert.Null(product.CategoryId);
+                    Assert.Null(productEntry.Property(e => e.CategoryId).CurrentValue);
+                    Assert.False(productEntry.Property(e => e.CategoryId).IsTemporary);
+
+                    var category = new OptionalCategory();
+                    product.Category = category;
+
+                    productEntry = context.Entry(product);
+                    Assert.Equal(EntityState.Modified, productEntry.State);
+
+                    Assert.Equal(1, product.Id);
+                    Assert.Equal(1, productEntry.Property(e => e.Id).CurrentValue);
+                    Assert.False(productEntry.Property(e => e.Id).IsTemporary);
+
+                    Assert.Null(product.CategoryId);
+                    Assert.True(productEntry.Property(e => e.CategoryId).CurrentValue < 0);
+                    Assert.True(productEntry.Property(e => e.CategoryId).IsTemporary);
+
+                    var categoryEntry = context.Entry(category);
+                    Assert.Equal(EntityState.Added, categoryEntry.State);
+                    Assert.Equal(0, category.Id);
+                    Assert.True(categoryEntry.Property(e => e.Id).CurrentValue < 0);
+                    Assert.True(categoryEntry.Property(e => e.Id).IsTemporary);
+
+                    context.SaveChanges();
+
+                    productEntry = context.Entry(product);
+                    Assert.Equal(EntityState.Unchanged, productEntry.State);
+
+                    Assert.Equal(1, product.Id);
+                    Assert.Equal(1, productEntry.Property(e => e.Id).CurrentValue);
+                    Assert.False(productEntry.Property(e => e.Id).IsTemporary);
+
+                    Assert.Equal(1, product.CategoryId);
+                    Assert.Equal(1, productEntry.Property(e => e.CategoryId).CurrentValue);
+                    Assert.False(productEntry.Property(e => e.CategoryId).IsTemporary);
+
+                    categoryEntry = context.Entry(category);
+                    Assert.Equal(EntityState.Unchanged, categoryEntry.State);
+                    Assert.Equal(1, category.Id);
+                    Assert.Equal(1, categoryEntry.Property(e => e.Id).CurrentValue);
+                    Assert.False(categoryEntry.Property(e => e.Id).IsTemporary);
+
+                    product.Category = null;
+
+                    productEntry = context.Entry(product);
+                    Assert.Equal(EntityState.Modified, productEntry.State);
+
+                    Assert.Equal(1, product.Id);
+                    Assert.Equal(1, productEntry.Property(e => e.Id).CurrentValue);
+                    Assert.False(productEntry.Property(e => e.Id).IsTemporary);
+
+                    Assert.Null(product.CategoryId);
+                    Assert.Null(productEntry.Property(e => e.CategoryId).CurrentValue);
+                    Assert.False(productEntry.Property(e => e.CategoryId).IsTemporary);
+
+                    categoryEntry = context.Entry(category);
+                    Assert.Equal(EntityState.Unchanged, categoryEntry.State);
+                    Assert.Equal(1, category.Id);
+                    Assert.Equal(1, categoryEntry.Property(e => e.Id).CurrentValue);
+
+                    context.SaveChanges();
+
+                    productEntry = context.Entry(product);
+                    Assert.Equal(EntityState.Unchanged, productEntry.State);
+
+                    Assert.Equal(1, product.Id);
+                    Assert.Null(product.CategoryId);
+                    Assert.False(productEntry.Property(e => e.Id).IsTemporary);
+
+                    Assert.Equal(1, productEntry.Property(e => e.Id).CurrentValue);
+                    Assert.Null(productEntry.Property(e => e.CategoryId).CurrentValue);
+                    Assert.False(productEntry.Property(e => e.CategoryId).IsTemporary);
+
+                    categoryEntry = context.Entry(category);
+                    Assert.Equal(EntityState.Unchanged, categoryEntry.State);
+                    Assert.Equal(1, category.Id);
+                    Assert.Equal(1, categoryEntry.Property(e => e.Id).CurrentValue);
+                    Assert.False(categoryEntry.Property(e => e.Id).IsTemporary);
+                });
+        }
+
+        protected class OptionalProduct
+        {
+            public int Id { get; set; }
+            public int?  CategoryId { get; set; }
+            public OptionalCategory Category { get; set; }
+        }
+
+        protected class OptionalCategory
+        {
+            public int Id { get; set; }
+        }
+
         [ConditionalFact]
         public virtual void Identity_property_on_Added_entity_with_temporary_value_gets_value_from_store_even_if_same()
         {
@@ -1535,6 +1658,8 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.NullableAsNonNullable).HasField("_nullableAsNonNullable").ValueGeneratedOnAddOrUpdate();
                         b.Property(e => e.NonNullableAsNullable).HasField("_nonNullableAsNullable").ValueGeneratedOnAddOrUpdate();
                     });
+
+                modelBuilder.Entity<OptionalProduct>();
             }
         }
     }
