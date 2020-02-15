@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     historyRepository,
                     reporter,
                     new MockProvider(),
-                    new SnapshotModelProcessor(reporter, services.GetRequiredService<ProviderConventionSetBuilderDependencies>()),
+                    new SnapshotModelProcessor(reporter),
                     new Migrator(
                         migrationAssembly,
                         historyRepository,

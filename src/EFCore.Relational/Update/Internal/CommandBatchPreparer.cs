@@ -180,9 +180,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 }
 
                 var entityType = entry.EntityType;
-                var table = entityType.GetTableName();
-                var schema = entityType.GetSchema();
-                var tableKey = (table, schema);
+                var table = entityType.GetTableMappings().Single().Table;
+                var tableKey = (table.Name, table.Schema);
 
                 ModificationCommand command;
                 var isMainEntry = true;
@@ -208,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 else
                 {
                     command = new ModificationCommand(
-                        table, schema, generateParameterName, _sensitiveLoggingEnabled, comparer: null);
+                        table.Name, table.Schema, generateParameterName, _sensitiveLoggingEnabled, comparer: null);
                 }
 
                 command.AddEntry(entry, isMainEntry);

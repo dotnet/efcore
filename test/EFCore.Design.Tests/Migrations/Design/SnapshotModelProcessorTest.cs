@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            new SnapshotModelProcessor(reporter, null).Process(model);
+            new SnapshotModelProcessor(reporter).Process(model);
 
             AssertAnnotations(model);
             AssertAnnotations(entityType);
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            new SnapshotModelProcessor(reporter, null).Process(model);
+            new SnapshotModelProcessor(reporter).Process(model);
 
             Assert.Equal("warn: " + DesignStrings.MultipleAnnotationConflict("DefaultSchema"), reporter.Messages.Single());
             Assert.Equal(2, model.GetAnnotations().Count());
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            new SnapshotModelProcessor(reporter, null).Process(model);
+            new SnapshotModelProcessor(reporter).Process(model);
 
             Assert.Equal("warn: " + DesignStrings.MultipleAnnotationConflict("DefaultSchema"), reporter.Messages.Single());
             Assert.Equal(2, model.GetAnnotations().Count());
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            new SnapshotModelProcessor(reporter, null).Process(model);
+            new SnapshotModelProcessor(reporter).Process(model);
 
             Assert.Empty(reporter.Messages);
 
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            new SnapshotModelProcessor(reporter, null).Process(model);
+            new SnapshotModelProcessor(reporter).Process(model);
 
             Assert.Empty(reporter.Messages);
 
@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
 
             var reporter = new TestOperationReporter();
-            new SnapshotModelProcessor(reporter, null).Process(model);
+            new SnapshotModelProcessor(reporter).Process(model);
 
             Assert.Empty(reporter.Messages);
             Assert.Equal(
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var differ = context.GetService<IMigrationsModelDiffer>();
             var snapshot = (ModelSnapshot)Activator.CreateInstance(snapshotType);
             var reporter = new TestOperationReporter();
-            var processor = new SnapshotModelProcessor(reporter, context.GetService<ProviderConventionSetBuilderDependencies>());
+            var processor = new SnapshotModelProcessor(reporter);
 
             var differences = differ.GetDifferences(processor.Process(snapshot.Model), context.Model);
 
@@ -195,6 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private void AddAnnotations(IMutableAnnotatable element)
         {
             foreach (var annotationName in GetAnnotationNames()
+                .Where(a => a != RelationalAnnotationNames.MaxIdentifierLength)
                 .Select(a => "Unicorn" + a.Substring(RelationalAnnotationNames.Prefix.Length - 1)))
             {
                 element[annotationName] = "Value";
@@ -203,7 +204,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private void AssertAnnotations(IMutableAnnotatable element)
         {
-            foreach (var annotationName in GetAnnotationNames())
+            foreach (var annotationName in GetAnnotationNames()
+                .Where(a => a != RelationalAnnotationNames.MaxIdentifierLength
+                    && a != RelationalAnnotationNames.Tables
+                    && a != RelationalAnnotationNames.TableMappings
+                    && a != RelationalAnnotationNames.TableColumnMappings
+                    && a != RelationalAnnotationNames.Views
+                    && a != RelationalAnnotationNames.ViewMappings
+                    && a != RelationalAnnotationNames.ViewColumnMappings))
             {
                 Assert.Equal("Value", (string)element[annotationName]);
             }

@@ -65,11 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         internal SelectExpression(IEntityType entityType)
-            : this(
-                entityType, new TableExpression(
-                    entityType.GetTableName(),
-                    entityType.GetSchema(),
-                    entityType.GetTableName().Substring(0, 1).ToLower()))
+            : this(entityType, new TableExpression(entityType.GetViewOrTableMappings().Single().Table))
         {
         }
 
@@ -78,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 entityType, new FromSqlExpression(
                     sql,
                     arguments,
-                    (entityType.GetTableName() ?? entityType.GetViewName() ?? entityType.ShortName()).Substring(0, 1).ToLower()))
+                    (entityType.GetViewOrTableMappings()?.Single().Table.Name ?? entityType.ShortName()).Substring(0, 1).ToLower()))
         {
         }
 

@@ -25,7 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
     public class SnapshotModelProcessor : ISnapshotModelProcessor
     {
         private readonly IOperationReporter _operationReporter;
-        private readonly ProviderConventionSetBuilderDependencies _conventionDependencies;
         private readonly HashSet<string> _relationalNames;
 
         /// <summary>
@@ -35,11 +34,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SnapshotModelProcessor(
-            [NotNull] IOperationReporter operationReporter,
-            [NotNull] ProviderConventionSetBuilderDependencies conventionDependencies)
+            [NotNull] IOperationReporter operationReporter)
         {
             _operationReporter = operationReporter;
-            _conventionDependencies = conventionDependencies;
             _relationalNames = new HashSet<string>(
                 typeof(RelationalAnnotationNames)
                     .GetRuntimeFields()
@@ -81,12 +78,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
             }
 
-            if (model is IConventionModel conventionModel
-                && _conventionDependencies != null)
+            if (model is IConventionModel conventionModel)
             {
-                var typeMappingConvention = new TypeMappingConvention(_conventionDependencies);
-                typeMappingConvention.ProcessModelFinalizing(conventionModel.Builder, null);
-
                 model = new RelationalModelConvention().ProcessModelFinalized(conventionModel);
             }
 

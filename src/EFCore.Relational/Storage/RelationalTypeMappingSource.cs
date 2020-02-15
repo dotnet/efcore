@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
         public override CoreTypeMapping FindMapping(IProperty property)
         {
-            var mapping = property.FindRelationalMapping();
+            var mapping = property.FindRelationalTypeMapping();
             if (mapping != null)
             {
                 return mapping;

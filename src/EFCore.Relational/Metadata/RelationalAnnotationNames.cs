@@ -113,5 +113,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The name for column mappings annotations.
         /// </summary>
         public const string TableColumnMappings = Prefix + "TableColumnMappings";
+
+        /// <summary>
+        ///     The name for tables annotation.
+        /// </summary>
+        public const string Views = Prefix + "Views";
+
+        /// <summary>
+        ///     The name for table mappings annotations.
+        /// </summary>
+        public const string ViewMappings = Prefix + "ViewMappings";
+
+        /// <summary>
+        ///     The name for column mappings annotations.
+        /// </summary>
+        public const string ViewColumnMappings = Prefix + "ViewColumnMappings";
     }
 }

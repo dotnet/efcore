@@ -244,7 +244,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 RelationalAnnotationNames.CheckConstraints,
                 RelationalAnnotationNames.Tables,
                 RelationalAnnotationNames.TableMappings,
-                RelationalAnnotationNames.TableColumnMappings
+                RelationalAnnotationNames.TableColumnMappings,
+                RelationalAnnotationNames.Views,
+                RelationalAnnotationNames.ViewMappings,
+                RelationalAnnotationNames.ViewColumnMappings
             };
 
             var ignoredAnnotationTypes = new List<string>
