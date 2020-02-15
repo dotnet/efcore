@@ -549,7 +549,6 @@ namespace Microsoft.EntityFrameworkCore
                     product.Category = category;
 
                     Assert.True(context.ChangeTracker.HasChanges());
-
                     productEntry = context.Entry(product);
                     Assert.Equal(EntityState.Modified, productEntry.State);
 
@@ -570,7 +569,6 @@ namespace Microsoft.EntityFrameworkCore
                     context.SaveChanges();
 
                     Assert.False(context.ChangeTracker.HasChanges());
-
                     productEntry = context.Entry(product);
                     Assert.Equal(EntityState.Unchanged, productEntry.State);
 
