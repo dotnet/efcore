@@ -960,7 +960,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var doCascadeDelete = force || CascadeDeleteTiming != CascadeTiming.Never;
             var principalIsDetached = entry.EntityState == EntityState.Detached;
-            var useNewBehavior = !AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue18982", out var isEnabled) || !isEnabled;
 
             foreignKeys ??= entry.EntityType.GetReferencingForeignKeys();
             foreach (var fk in foreignKeys)
