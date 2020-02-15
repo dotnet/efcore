@@ -151,32 +151,28 @@ namespace Microsoft.EntityFrameworkCore
                 @"SELECT TOP(1) [s].[UniqueNo], [s].[MaxLengthProperty], [s].[Name], [s].[RowVersion], [t].[UniqueNo], [t].[AdditionalDetails_Name], [t0].[UniqueNo], [t0].[Details_Name]
 FROM [Sample] AS [s]
 LEFT JOIN (
-    SELECT [s0].[UniqueNo], [s0].[AdditionalDetails_Name], [s1].[UniqueNo] AS [UniqueNo0]
+    SELECT [s0].[UniqueNo], [s0].[AdditionalDetails_Name]
     FROM [Sample] AS [s0]
-    INNER JOIN [Sample] AS [s1] ON [s0].[UniqueNo] = [s1].[UniqueNo]
     WHERE [s0].[AdditionalDetails_Name] IS NOT NULL
 ) AS [t] ON [s].[UniqueNo] = [t].[UniqueNo]
 LEFT JOIN (
-    SELECT [s2].[UniqueNo], [s2].[Details_Name], [s3].[UniqueNo] AS [UniqueNo0]
-    FROM [Sample] AS [s2]
-    INNER JOIN [Sample] AS [s3] ON [s2].[UniqueNo] = [s3].[UniqueNo]
-    WHERE [s2].[Details_Name] IS NOT NULL
+    SELECT [s1].[UniqueNo], [s1].[Details_Name]
+    FROM [Sample] AS [s1]
+    WHERE [s1].[Details_Name] IS NOT NULL
 ) AS [t0] ON [s].[UniqueNo] = [t0].[UniqueNo]
 WHERE [s].[UniqueNo] = 1",
                 //
                 @"SELECT TOP(1) [s].[UniqueNo], [s].[MaxLengthProperty], [s].[Name], [s].[RowVersion], [t].[UniqueNo], [t].[AdditionalDetails_Name], [t0].[UniqueNo], [t0].[Details_Name]
 FROM [Sample] AS [s]
 LEFT JOIN (
-    SELECT [s0].[UniqueNo], [s0].[AdditionalDetails_Name], [s1].[UniqueNo] AS [UniqueNo0]
+    SELECT [s0].[UniqueNo], [s0].[AdditionalDetails_Name]
     FROM [Sample] AS [s0]
-    INNER JOIN [Sample] AS [s1] ON [s0].[UniqueNo] = [s1].[UniqueNo]
     WHERE [s0].[AdditionalDetails_Name] IS NOT NULL
 ) AS [t] ON [s].[UniqueNo] = [t].[UniqueNo]
 LEFT JOIN (
-    SELECT [s2].[UniqueNo], [s2].[Details_Name], [s3].[UniqueNo] AS [UniqueNo0]
-    FROM [Sample] AS [s2]
-    INNER JOIN [Sample] AS [s3] ON [s2].[UniqueNo] = [s3].[UniqueNo]
-    WHERE [s2].[Details_Name] IS NOT NULL
+    SELECT [s1].[UniqueNo], [s1].[Details_Name]
+    FROM [Sample] AS [s1]
+    WHERE [s1].[Details_Name] IS NOT NULL
 ) AS [t0] ON [s].[UniqueNo] = [t0].[UniqueNo]
 WHERE [s].[UniqueNo] = 1",
                 //

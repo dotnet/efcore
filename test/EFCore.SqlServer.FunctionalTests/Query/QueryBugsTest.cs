@@ -2294,18 +2294,16 @@ WHERE [e].[Name] IS NULL");
                     @"SELECT [m].[Id], [m].[Title], [t].[Id], [t].[Details_Info], [t1].[Id], [t1].[Movie9202Id], [t1].[Name], [t1].[Id0], [t1].[Details_Info]
 FROM [Movies] AS [m]
 LEFT JOIN (
-    SELECT [m0].[Id], [m0].[Details_Info], [m1].[Id] AS [Id0]
+    SELECT [m0].[Id], [m0].[Details_Info]
     FROM [Movies] AS [m0]
-    INNER JOIN [Movies] AS [m1] ON [m0].[Id] = [m1].[Id]
     WHERE [m0].[Details_Info] IS NOT NULL
 ) AS [t] ON [m].[Id] = [t].[Id]
 LEFT JOIN (
     SELECT [a].[Id], [a].[Movie9202Id], [a].[Name], [t0].[Id] AS [Id0], [t0].[Details_Info]
     FROM [Actors] AS [a]
     LEFT JOIN (
-        SELECT [a0].[Id], [a0].[Details_Info], [a1].[Id] AS [Id0]
+        SELECT [a0].[Id], [a0].[Details_Info]
         FROM [Actors] AS [a0]
-        INNER JOIN [Actors] AS [a1] ON [a0].[Id] = [a1].[Id]
         WHERE [a0].[Details_Info] IS NOT NULL
     ) AS [t0] ON [a].[Id] = [t0].[Id]
 ) AS [t1] ON [m].[Id] = [t1].[Movie9202Id]
@@ -2331,18 +2329,16 @@ ORDER BY [m].[Id], [t1].[Id]");
                     @"SELECT [m].[Id], [m].[Title], [t].[Id], [t].[Details_Info], [t1].[Id], [t1].[Movie9202Id], [t1].[Name], [t1].[Id0], [t1].[Details_Info]
 FROM [Movies] AS [m]
 LEFT JOIN (
-    SELECT [m0].[Id], [m0].[Details_Info], [m1].[Id] AS [Id0]
+    SELECT [m0].[Id], [m0].[Details_Info]
     FROM [Movies] AS [m0]
-    INNER JOIN [Movies] AS [m1] ON [m0].[Id] = [m1].[Id]
     WHERE [m0].[Details_Info] IS NOT NULL
 ) AS [t] ON [m].[Id] = [t].[Id]
 LEFT JOIN (
     SELECT [a].[Id], [a].[Movie9202Id], [a].[Name], [t0].[Id] AS [Id0], [t0].[Details_Info]
     FROM [Actors] AS [a]
     LEFT JOIN (
-        SELECT [a0].[Id], [a0].[Details_Info], [a1].[Id] AS [Id0]
+        SELECT [a0].[Id], [a0].[Details_Info]
         FROM [Actors] AS [a0]
-        INNER JOIN [Actors] AS [a1] ON [a0].[Id] = [a1].[Id]
         WHERE [a0].[Details_Info] IS NOT NULL
     ) AS [t0] ON [a].[Id] = [t0].[Id]
 ) AS [t1] ON [m].[Id] = [t1].[Movie9202Id]
@@ -4344,9 +4340,8 @@ LEFT JOIN (
     END AS [c], [t].[Turnovers_AmountIn], [a].[Id], [a].[Partner13157Id]
     FROM [Address13157] AS [a]
     LEFT JOIN (
-        SELECT [a0].[Id], [a0].[Turnovers_AmountIn], [a1].[Id] AS [Id0]
+        SELECT [a0].[Id], [a0].[Turnovers_AmountIn]
         FROM [Address13157] AS [a0]
-        INNER JOIN [Address13157] AS [a1] ON [a0].[Id] = [a1].[Id]
         WHERE [a0].[Turnovers_AmountIn] IS NOT NULL
     ) AS [t] ON [a].[Id] = [t].[Id]
 ) AS [t0] ON [p].[Id] = [t0].[Partner13157Id]
@@ -5434,9 +5429,8 @@ WHERE EXISTS (
                     @"SELECT [r].[Id], [r].[IsRemoved], [r].[Removed], [r].[RemovedByUser], [t].[Id], [t].[OwnedEntity_OwnedValue]
 FROM [RemovableEntities] AS [r]
 LEFT JOIN (
-    SELECT [r0].[Id], [r0].[OwnedEntity_OwnedValue], [r1].[Id] AS [Id0]
+    SELECT [r0].[Id], [r0].[OwnedEntity_OwnedValue]
     FROM [RemovableEntities] AS [r0]
-    INNER JOIN [RemovableEntities] AS [r1] ON [r0].[Id] = [r1].[Id]
     WHERE [r0].[OwnedEntity_OwnedValue] IS NOT NULL
 ) AS [t] ON [r].[Id] = [t].[Id]
 WHERE [r].[IsRemoved] <> CAST(1 AS bit)");
@@ -5475,9 +5469,8 @@ WHERE [r].[IsRemoved] = CAST(1 AS bit)");
                     @"SELECT [r].[Id], [r].[IsRemoved], [r].[Removed], [r].[RemovedByUser], [t].[Id], [t].[OwnedEntity_OwnedValue]
 FROM [RemovableEntities] AS [r]
 LEFT JOIN (
-    SELECT [r0].[Id], [r0].[OwnedEntity_OwnedValue], [r1].[Id] AS [Id0]
+    SELECT [r0].[Id], [r0].[OwnedEntity_OwnedValue]
     FROM [RemovableEntities] AS [r0]
-    INNER JOIN [RemovableEntities] AS [r1] ON [r0].[Id] = [r1].[Id]
     WHERE [r0].[OwnedEntity_OwnedValue] IS NOT NULL
 ) AS [t] ON [r].[Id] = [t].[Id]
 WHERE [t].[OwnedEntity_OwnedValue] = N'Abc'");
