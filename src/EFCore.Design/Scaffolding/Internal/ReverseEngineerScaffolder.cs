@@ -109,6 +109,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             var databaseModel = _databaseModelFactory.Create(resolvedConnectionString, databaseOptions);
+            var modelConnectionString = (string?)(databaseModel[ScaffoldingAnnotationNames.ConnectionString]);
+            if (!string.IsNullOrEmpty(modelConnectionString))
+            {
+                codeOptions.ConnectionString = modelConnectionString;
+                databaseModel.RemoveAnnotation(ScaffoldingAnnotationNames.ConnectionString);
+            }
+
             var model = _factory.Create(databaseModel, modelOptions.UseDatabaseNames);
 
             if (model == null)
@@ -124,12 +131,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 codeOptions.ContextName = !string.IsNullOrEmpty(annotatedName)
                     ? _code.Identifier(annotatedName + DbContextSuffix)
                     : DefaultDbContextName;
-            }
-
-            var modelConnectionString = model.GetConnectionString();
-            if (!string.IsNullOrEmpty(modelConnectionString))
-            {
-                codeOptions.ConnectionString = modelConnectionString;
             }
 
             var codeGenerator = ModelCodeGeneratorSelector.Select(codeOptions.Language);
