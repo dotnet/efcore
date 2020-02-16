@@ -2768,6 +2768,44 @@ FROM [Customers] AS [c]
 WHERE (@__NewLine_0 = N'') OR (CHARINDEX(@__NewLine_0, [c].[CustomerID]) > 0)");
         }
 
+        public override async Task Concat_string_int(bool async)
+        {
+            await base.Concat_string_int(async);
+
+            AssertSql(
+                @"SELECT CAST([o].[OrderID] AS nchar(5)) + [o].[CustomerID]
+FROM [Orders] AS [o]");
+        }
+
+        public override async Task Concat_int_string(bool async)
+        {
+            await base.Concat_int_string(async);
+
+            AssertSql(
+                @"SELECT COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nchar(5))
+FROM [Orders] AS [o]");
+        }
+
+        public override async Task Concat_parameter_string_int(bool async)
+        {
+            await base.Concat_parameter_string_int(async);
+
+            AssertSql(
+                @"@__parameter_0='-' (Size = 4000)
+
+SELECT @__parameter_0 + CAST([o].[OrderID] AS nvarchar(max))
+FROM [Orders] AS [o]");
+        }
+
+        public override async Task Concat_constant_string_int(bool async)
+        {
+            await base.Concat_constant_string_int(async);
+
+            AssertSql(
+                @"SELECT N'-' + CAST([o].[OrderID] AS nvarchar(max))
+FROM [Orders] AS [o]");
+        }
+
         public override async Task String_concat_with_navigation1(bool async)
         {
             await base.String_concat_with_navigation1(async);
