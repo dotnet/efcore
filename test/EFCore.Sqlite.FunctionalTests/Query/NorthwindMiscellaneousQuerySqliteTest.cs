@@ -242,6 +242,41 @@ FROM (
 
         public override Task AsQueryable_in_query_server_evals(bool async) => null;
 
+        [ConditionalTheory(Skip = "Issue #19990")]
+        public override async Task Concat_string_int(bool async)
+        {
+            await base.Concat_string_int(async);
+        }
+
+        public override async Task Concat_int_string(bool async)
+        {
+            await base.Concat_int_string(async);
+
+            AssertSql(
+                @"SELECT COALESCE(""o"".""CustomerID"", '') || CAST(""o"".""OrderID"" AS TEXT)
+FROM ""Orders"" AS ""o""");
+        }
+
+        public override async Task Concat_parameter_string_int(bool async)
+        {
+            await base.Concat_parameter_string_int(async);
+
+            AssertSql(
+                @"@__parameter_0='-' (Size = 1)
+
+SELECT @__parameter_0 || CAST(""o"".""OrderID"" AS TEXT)
+FROM ""Orders"" AS ""o""");
+        }
+
+        public override async Task Concat_constant_string_int(bool async)
+        {
+            await base.Concat_constant_string_int(async);
+
+            AssertSql(
+                @"SELECT '-' || CAST(""o"".""OrderID"" AS TEXT)
+FROM ""Orders"" AS ""o""");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
