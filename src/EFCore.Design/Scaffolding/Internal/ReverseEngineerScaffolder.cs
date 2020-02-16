@@ -126,6 +126,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     : DefaultDbContextName;
             }
 
+            var modelConnectionString = model.GetConnectionString();
+            if (!string.IsNullOrEmpty(modelConnectionString))
+            {
+                codeOptions.ConnectionString = modelConnectionString;
+            }
+
             var codeGenerator = ModelCodeGeneratorSelector.Select(codeOptions.Language);
 
             return codeGenerator.GenerateModel(model, codeOptions);
