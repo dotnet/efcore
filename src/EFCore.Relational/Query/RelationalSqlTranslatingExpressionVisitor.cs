@@ -262,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     if (sqlExpression.TypeMapping == null)
                     {
-                        throw new InvalidOperationException("Null TypeMapping in Sql Tree");
+                        throw new InvalidOperationException(CoreStrings.NullTypeMappingInSqlTree);
                     }
                 }
 
@@ -408,7 +408,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return CompensateForValueConverter(result);
                 }
 
-                throw new InvalidOperationException("EF.Property called with wrong property name.");
+                throw new InvalidOperationException(CoreStrings.EFPropertyCalledWithWrongPropertyName);
             }
 
             // EF Indexer property

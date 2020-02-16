@@ -169,6 +169,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 GetString("FunctionOnClient", nameof(methodName)),
                 methodName);
 
+        /// <summary>
+        ///     Unknown operator type encountered in SqlUnaryExpression.
+        /// </summary>
+        public static string UnknownOperatorTypeInSqlUnaryExpression
+            => GetString("UnknownOperatorTypeInSqlUnaryExpression");
+
+        /// <summary>
+        ///     When generating migrations SQL for {operation}, can't produce unterminated SQL with comments
+        /// </summary>
+        public static string CannotProduceUnterminatedSQLWithComments([CanBeNull] object operation)
+            => string.Format(
+                GetString("CannotProduceUnterminatedSQLWithComments", nameof(operation)),
+                operation);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

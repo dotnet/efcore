@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -452,8 +453,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                     if (!includeExpression.Navigation.IsEmbedded())
                     {
-                        throw new InvalidOperationException(
-                            "Non-embedded IncludeExpression is not supported: " + includeExpression.Print());
+                        throw new InvalidOperationException(CosmosStrings.NonEmbeddedIncludeNotSupported(includeExpression.Print()));
                     }
 
                     _includedNavigations.Push(includeExpression.Navigation);

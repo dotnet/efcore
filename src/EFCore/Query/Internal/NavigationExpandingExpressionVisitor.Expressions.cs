@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -105,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         NavigationTreeExpression navigationTree => (EntityReference)navigationTree.Value,
                         OwnedNavigationReference ownedNavigationReference => ownedNavigationReference.EntityReference,
-                        _ => throw new InvalidOperationException("Invalid expression type stored in NavigationMap."),
+                        _ => throw new InvalidOperationException(CoreStrings.InvalidExpressionTypeStoredInNavigationMap),
                     };
 
                     this[navigation] = entityReference.IncludePaths;

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -130,8 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     break;
 
                 default:
-                    throw new InvalidOperationException(
-                        $"The unary expression operator type {sqlUnaryExpression.OperatorType} is not supported.");
+                    throw new InvalidOperationException(CoreStrings.UnsupportedUnary);
             }
 
             return new SqlUnaryExpression(
@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
 
                 default:
-                    throw new InvalidOperationException("Incorrect operatorType for SqlBinaryExpression");
+                    throw new InvalidOperationException(CoreStrings.IncorrectOperatorType);
             }
 
             return new SqlBinaryExpression(
@@ -687,8 +687,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (typeMapping == null)
             {
-                throw new InvalidOperationException(
-                    $"The subquery '{subquery.Print()}' references type '{sqlExpression.Type}' for which no type mapping could be found.");
+                throw new InvalidOperationException(RelationalStrings.NoTypeMappingFoundForSubquery(subquery.Print(), sqlExpression.Type));
             }
 
             item = ApplyTypeMapping(item, typeMapping);

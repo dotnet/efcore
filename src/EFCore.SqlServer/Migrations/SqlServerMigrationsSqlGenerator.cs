@@ -120,8 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             if (!terminate
                 && operation.Comment != null)
             {
-                throw new ArgumentException(
-                    $"When generating migrations SQL for {nameof(AddColumnOperation)}, can't produce unterminated SQL with comments");
+                throw new ArgumentException(SqlServerStrings.CannotProduceUnterminatedSQLWithComments(nameof(AddColumnOperation)));
             }
 
             if (IsIdentity(operation))
@@ -480,8 +479,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             if (!terminate
                 && operation.Comment != null)
             {
-                throw new ArgumentException(
-                    $"When generating migrations SQL for {nameof(CreateTableOperation)}, can't produce unterminated SQL with comments");
+                throw new ArgumentException(SqlServerStrings.CannotProduceUnterminatedSQLWithComments(nameof(CreateTableOperation)));
             }
 
             base.Generate(operation, model, builder, terminate: false);

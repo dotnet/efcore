@@ -135,9 +135,6 @@
   <data name="NoProviderConfigured" xml:space="preserve">
     <value>No relational database providers are configured. Configure a database provider using OnConfiguring or by creating an ImmutableDbContextOptions with a database provider configured and passing it to the context.</value>
   </data>
-  <data name="ConnectionAndConnectionString" xml:space="preserve">
-    <value>Both an existing DbConnection and a connection string have been configured. When an existing DbConnection is used the connection string must be set on that connection.</value>
-  </data>
   <data name="NoConnectionOrConnectionString" xml:space="preserve">
     <value>A relational store has been configured without specifying either the DbConnection or connection string to use.</value>
   </data>
@@ -228,9 +225,6 @@
   </data>
   <data name="BadSequenceString" xml:space="preserve">
     <value>Unable to deserialize sequence from model metadata. See inner exception for details.</value>
-  </data>
-  <data name="BadCheckConstraintString" xml:space="preserve">
-    <value>Unable to deserialize check constraint from model metadata. See inner exception for details.</value>
   </data>
   <data name="MigrationNotFound" xml:space="preserve">
     <value>The migration '{migrationName}' was not found.</value>
@@ -350,12 +344,6 @@
   <data name="ConflictingOriginalRowValuesSensitive" xml:space="preserve">
     <value>The instance of entity type '{firstEntityType}' and the instance of entity type '{secondEntityType}' are mapped to the same row with the key value '{keyValue}', but have different original property values '{firstConflictingValues}' and '{secondConflictingValues}' mapped to {columns}.</value>
   </data>
-  <data name="SharedRowEntryCountMismatch" xml:space="preserve">
-    <value>The entity of type '{entityType}' is sharing the table '{tableName}' with entities of type '{missingEntityType}', but there is no entity of this type with the same key value that has been marked as '{state}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
-  </data>
-  <data name="SharedRowEntryCountMismatchSensitive" xml:space="preserve">
-    <value>The entity of type '{entityType}' is sharing the table '{tableName}' with entities of type '{missingEntityType}', but there is no entity of this type with the same key value '{keyValue}' that has been marked as '{state}'.</value>
-  </data>
   <data name="IncorrectDefaultValueType" xml:space="preserve">
     <value>Cannot set default value '{value}' of type '{valueType}' on property '{property}' of type '{propertyType}' in entity type '{entityType}'.</value>
   </data>
@@ -450,9 +438,6 @@
   <data name="InvalidMinBatchSize" xml:space="preserve">
     <value>The specified MinBatchSize value is not valid. It must be a positive number.</value>
   </data>
-  <data name="ExpectedNonNullParameter" xml:space="preserve">
-    <value>Expected a non-null value for query parameter '{parameter}'.</value>
-  </data>
   <data name="LogAmbientTransactionEnlisted" xml:space="preserve">
     <value>Enlisted in an ambient transaction with isolation level '{isolationLevel}'.</value>
     <comment>Debug RelationalEventId.AmbientTransactionEnlisted string</comment>
@@ -476,38 +461,47 @@
   <data name="DerivedTypeTable" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be mapped to a table because it is derived from '{baseType}'. Only base entity types can be mapped to a table.</value>
   </data>
-  <data name="RelationalCloneNotImplemented" xml:space="preserve">
-    <value>The '{mapping}' does not support 2.2 style type mapping. The database provider needs to be updated to support the full set of mapping customization.</value>
-  </data>
-  <data name="CaseElseResultTypeUnexpected" xml:space="preserve">
-    <value>The result type of '{elseResultType}' in the else clause is invalid. The expected type is '{resultType}'.</value>
-  </data>
-  <data name="CaseWhenClauseResultTypeUnexpected" xml:space="preserve">
-    <value>The result type of '{whenResultType}' in a when clause is invalid. The expected type is '{resultType}'.</value>
-  </data>
-  <data name="CaseWhenClauseTestTypeUnexpected" xml:space="preserve">
-    <value>The operand type of '{whenOperandType}' in a when clause is invalid. The expected type is '{expectedWhenOperandType}'.</value>
-  </data>
-  <data name="SqlFunctionArgumentsAndMappingsMismatch" xml:space="preserve">
-    <value>The number of argument type mappings does not match the number of arguments.</value>
-  </data>
-  <data name="SqlFunctionNullArgumentMapping" xml:space="preserve">
-    <value>One of the specified argument type mappings was null.</value>
-  </data>
-  <data name="SqlFunctionUnexpectedInstanceMapping" xml:space="preserve">
-    <value>An instance type mapping was specified without an instance expression.</value>
-  </data>
   <data name="MissingConcurrencyColumn" xml:space="preserve">
     <value>Entity type '{entityType}' doesn't contain a property mapped to the store-generated concurrency token column '{missingColumn}' that is used by another entity type sharing the table '{table}'. Add a store-generated property mapped to the same column to '{entityType}'. It can be in shadow state.</value>
   </data>
   <data name="PendingAmbientTransaction" xml:space="preserve">
     <value>This connection was used with an ambient transaction. The original ambient transaction needs to be completed before this connection can be used outside of it.</value>
   </data>
-  <data name="SetOperationNotWithinEntityTypeHierarchy" xml:space="preserve">
-    <value>Set operations (Union, Concat, Intersect, Except) are only supported over entity types within the same type hierarchy.</value>
-  </data>
   <data name="FromSqlNonComposable" xml:space="preserve">
     <value>FromSqlRaw or FromSqlInterpolated was called with non-composable SQL and with a query composing over it. Consider calling `AsEnumerable` after the FromSqlRaw or FromSqlInterpolated method to perform the composition on the client side.</value>
+  </data>
+  <data name="NoneRelationalTypeMappingOnARelationalTypeMappingSource" xml:space="preserve">
+    <value>FindMapping on a 'RelationalTypeMappingSource' with a non-relational 'TypeMappingInfo'.</value>
+  </data>
+  <data name="TooFewReaderFields" xml:space="preserve">
+    <value>The underlying reader doesn't have as many fields as expected.</value>
+  </data>
+  <data name="InvalidKeySelectorForGroupBy" xml:space="preserve">
+    <value>Invalid keySelector for Group By.</value>
+  </data>
+  <data name="ProjectionMappingCountMismatch" xml:space="preserve">
+    <value>Different projection mapping count in set operation.</value>
+  </data>
+  <data name="SetOperationsNotAllowedAfterClientEvaluation" xml:space="preserve">
+    <value>Can't process set operations after client evaluation, consider moving the operation before the last Select() call (see issue #16243).</value>
+  </data>
+  <data name="SetOperationsOnDifferentStoreTypes" xml:space="preserve">
+    <value>Set operations over different store types are currently unsupported.</value>
+  </data>
+  <data name="ClientGroupByNotSupported" xml:space="preserve">
+    <value>Client side GroupBy is not supported.</value>
+  </data>
+  <data name="UnexpectedJoinPredicateShape" xml:space="preserve">
+    <value>Unexpected join predicate shape: {predicate}.</value>
+  </data>
+  <data name="NoTypeMappingFoundForSubquery" xml:space="preserve">
+    <value>The subquery '{subquery}' references type '{type}' for which no type mapping could be found.</value>
+  </data>
+  <data name="EitherOfTwoValuesMustBeNull" xml:space="preserve">
+    <value>Either {param1} or {param2} must be null.</value>
+  </data>
+  <data name="UnknownProjectionMappingType" xml:space="preserve">
+    <value>Non-matching or unknown projection mapping type in set operation ({type1} and {type2}).</value>
   </data>
   <data name="NestedAmbientTransactionError" xml:space="preserve">
     <value>Internal ambient transaction is to be completed prior to the root one.</value>

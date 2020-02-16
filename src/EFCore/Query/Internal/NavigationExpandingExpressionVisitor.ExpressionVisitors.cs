@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -497,10 +498,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     if (inverseNavigation != null
                         && referenceIncludeTreeNode.ContainsKey(inverseNavigation))
                     {
-                        throw new InvalidOperationException(
-                            $"The Include path '{navigation.Name}->{inverseNavigation.Name}' results in a cycle. "
-                            + "Cycles are not allowed in no-tracking queries. "
-                            + "Either use a tracking query or remove the cycle.");
+                        throw new InvalidOperationException(CoreStrings.IncludeWithCycle(navigation.Name, inverseNavigation.Name));
                     }
 
                     VerifyNoCycles(referenceIncludeTreeNode);

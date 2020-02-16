@@ -937,7 +937,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var fieldCount = FieldCount;
                 if (FieldCount < _columns.Count)
                 {
-                    throw new InvalidOperationException("The underlying reader doesn't have as many fields as expected.");
+                    throw new InvalidOperationException(RelationalStrings.TooFewReaderFields);
                 }
 
                 _columnTypeCases = Enumerable.Repeat(TypeCase.Empty, fieldCount).ToArray();

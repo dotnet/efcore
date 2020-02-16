@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -58,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             public override void Run(ConventionDispatcher dispatcher)
-                => throw new NotImplementedException("Immediate convention scope cannot be run again");
+                => throw new NotImplementedException(CoreStrings.ImmediateConventionScopeCannotBeRunAgain);
 
             public IConventionModelBuilder OnModelFinalizing([NotNull] IConventionModelBuilder modelBuilder)
             {

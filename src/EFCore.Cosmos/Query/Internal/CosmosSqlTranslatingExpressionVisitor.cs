@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
@@ -83,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 if (node is SqlExpression sqlExpression
                     && sqlExpression.TypeMapping == null)
                 {
-                    throw new InvalidOperationException("Null TypeMapping in Sql Tree");
+                    throw new InvalidOperationException(CoreStrings.NullTypeMappingInSqlTree);
                 }
 
                 return base.VisitExtension(node);

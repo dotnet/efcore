@@ -557,14 +557,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 language, service);
 
         /// <summary>
-        ///     Reverting migration '{name}'.
-        /// </summary>
-        public static string RevertingMigration([CanBeNull] object name)
-            => string.Format(
-                GetString("RevertingMigration", nameof(name)),
-                name);
-
-        /// <summary>
         ///     Finding design-time services referenced by assembly '{startupAssembly}'.
         /// </summary>
         public static string FindingReferencedServices([CanBeNull] object startupAssembly)
@@ -625,6 +617,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static string UsingHostingServices
             => GetString("UsingHostingServices");
+
+        /// <summary>
+        ///      Unhandled enum value '{enumValue}'.
+        /// </summary>
+        public static string UnhandledEnumValue([CanBeNull] object enumValue)
+            => string.Format(
+                GetString("UnhandledEnumValue", nameof(enumValue)),
+                enumValue);
 
         private static string GetString(string name, params string[] formatterNames)
         {

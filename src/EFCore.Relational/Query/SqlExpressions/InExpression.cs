@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -71,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             if (values != null
                 && subquery != null)
             {
-                throw new ArgumentException($"Either {nameof(values)} or {nameof(subquery)} must be null");
+                throw new ArgumentException(RelationalStrings.EitherOfTwoValuesMustBeNull(nameof(values), nameof(subquery)));
             }
 
             return item != Item || subquery != Subquery || values != Values

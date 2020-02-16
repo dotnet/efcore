@@ -119,14 +119,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             await using var enumerator = asyncEnumerable.GetAsyncEnumerator(cancellationToken);
             if (!await enumerator.MoveNextAsync())
             {
-                throw new InvalidOperationException("Sequence contains no elements");
+                throw new InvalidOperationException(CoreStrings.SequenceContainsNoElements);
             }
 
             var result = enumerator.Current;
 
             if (await enumerator.MoveNextAsync())
             {
-                throw new InvalidOperationException("Sequence contains more than one element");
+                throw new InvalidOperationException(CoreStrings.SequenceContainsMoreThanOneElement);
             }
 
             return result;
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (await enumerator.MoveNextAsync())
             {
-                throw new InvalidOperationException("Sequence contains more than one element");
+                throw new InvalidOperationException(CoreStrings.SequenceContainsMoreThanOneElement);
             }
 
             return result;
@@ -292,10 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         if (entityType.FindOwnership() is IForeignKey ownership
                             && !ContainsOwner(ownership.PrincipalEntityType))
                         {
-                            throw new InvalidOperationException(
-                                "A tracking query projects owned entity without corresponding owner in result. "
-                                + "Owned entities cannot be tracked without their owner. "
-                                + "Either include the owner entity in the result or make query non-tracking using AsNoTracking().");
+                            throw new InvalidOperationException(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner);
                         }
                     }
 

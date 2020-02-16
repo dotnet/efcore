@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -51,7 +52,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 && !property.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    $"Called EntityProjectionExpression.BindProperty() with incorrect IProperty. EntityType:{EntityType.DisplayName()}, Property:{property.Name}");
+                    CoreStrings.EntityProjectionExpressionCalledWithIncorrectInterface(
+                        "BindProperty", nameof(IProperty), EntityType.DisplayName(), $"Property:{property.Name}"));
             }
 
             return _readExpressionMap[property];
@@ -63,8 +65,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    "Called EntityProjectionExpression.AddNavigationBinding() with incorrect INavigation. "
-                    + $"EntityType:{EntityType.DisplayName()}, Property:{navigation.Name}");
+                    CoreStrings.EntityProjectionExpressionCalledWithIncorrectInterface(
+                        "AddNavigationBinding", nameof(INavigation), EntityType.DisplayName(), $"Property:{navigation.Name}"));
             }
 
             _navigationExpressionsCache[navigation] = entityShaper;
@@ -76,8 +78,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    "Called EntityProjectionExpression.BindNavigation() with incorrect INavigation. "
-                    + $"EntityType:{EntityType.DisplayName()}, Property:{navigation.Name}");
+                    CoreStrings.EntityProjectionExpressionCalledWithIncorrectInterface(
+                        "BindNavigation", nameof(INavigation), EntityType.DisplayName(), $"Property:{navigation.Name}"));
             }
 
             return _navigationExpressionsCache.TryGetValue(navigation, out var expression)

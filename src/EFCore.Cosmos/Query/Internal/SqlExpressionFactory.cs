@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     break;
 
                 default:
-                    throw new InvalidOperationException("Incorrect operatorType for SqlBinaryExpression");
+                    throw new InvalidOperationException(CoreStrings.IncorrectOperatorType);
             }
 
             return new SqlBinaryExpression(
