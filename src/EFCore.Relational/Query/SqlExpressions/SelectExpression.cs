@@ -319,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     break;
 
                 default:
-                    throw new InvalidOperationException("Invalid keySelector for Group By");
+                    throw new InvalidOperationException(RelationalStrings.InvalidKeySelectorForGroupBy);
             }
         }
 
@@ -548,21 +548,19 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 SetOperationType.Except => (SetOperationBase)new ExceptExpression("t", select1, select2, distinct),
                 SetOperationType.Intersect => new IntersectExpression("t", select1, select2, distinct),
                 SetOperationType.Union => new UnionExpression("t", select1, select2, distinct),
-                _ => throw new InvalidOperationException($"Invalid {nameof(setOperationType)}: {setOperationType}")
+                _ => throw new InvalidOperationException(CoreStrings.InvalidSwitch(nameof(setOperationType), setOperationType))
             };
 
             if (_projection.Any()
                 || select2._projection.Any())
             {
-                throw new InvalidOperationException(
-                    "Can't process set operations after client evaluation, consider moving the operation"
-                    + " before the last Select() call (see issue #16243)");
+                throw new InvalidOperationException(RelationalStrings.SetOperationsNotAllowedAfterClientEvaluation);
             }
 
             if (select1._projectionMapping.Count != select2._projectionMapping.Count)
             {
                 // Should not be possible after compiler checks
-                throw new InvalidOperationException("Different projection mapping count in set operation");
+                throw new InvalidOperationException(RelationalStrings.ProjectionMappingCountMismatch);
             }
 
             foreach (var joinedMapping in select1._projectionMapping.Join(
@@ -585,7 +583,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     // TODO: with #15586 we'll be able to also allow different store types which are implicitly convertible to one another.
                     if (innerColumn1.TypeMapping.StoreType != innerColumn2.TypeMapping.StoreType)
                     {
-                        throw new InvalidOperationException("Set operations over different store types are currently unsupported");
+                        throw new InvalidOperationException(RelationalStrings.SetOperationsOnDifferentStoreTypes);
                     }
 
                     var alias = GenerateUniqueAlias(
@@ -609,8 +607,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     continue;
                 }
 
-                throw new InvalidOperationException(
-                    $"Non-matching or unknown projection mapping type in set operation ({joinedMapping.Value1.GetType().Name} and {joinedMapping.Value2.GetType().Name})");
+                throw new InvalidOperationException(RelationalStrings.UnknownProjectionMappingType(joinedMapping.Value1.GetType().Name, joinedMapping.Value2.GetType().Name));
             }
 
             Offset = null;
@@ -630,8 +627,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             {
                 if (projection1.EntityType != projection2.EntityType)
                 {
-                    throw new InvalidOperationException(
-                        "Set operations over different entity types are currently unsupported (see Issue#16298)");
+                    throw new InvalidOperationException(RelationalStrings.SetOperationsOnDifferentStoreTypes);
                 }
 
                 var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
@@ -1406,7 +1402,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 JoinType.CrossJoin => new CrossJoinExpression(innerTable),
                 JoinType.CrossApply => new CrossApplyExpression(innerTable),
                 JoinType.OuterApply => (TableExpressionBase)new OuterApplyExpression(innerTable),
-                _ => throw new InvalidOperationException($"Invalid {nameof(joinType)}: {joinType}")
+                _ => throw new InvalidOperationException(CoreStrings.InvalidSwitch(nameof(joinType), joinType))
             };
 
             _tables.Add(joinTable);

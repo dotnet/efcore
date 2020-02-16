@@ -137,4 +137,10 @@
   <data name="UpdateConcurrencyTokenExceptionSensitive" xml:space="preserve">
     <value>Conflicts were detected for instance of entity type '{entityType}' with the key value '{keyValue}' on the concurrency token property values {conflictingValues}, with corresponding database values {databaseValues}.</value>
   </data>
+  <data name="InvalidStateEncountered" xml:space="preserve">
+    <value>Invalid {state} encountered.</value>
+  </data>
+  <data name="DefaultIfEmptyAppliedAfterProjection" xml:space="preserve">
+    <value>Cannot apply DefaultIfEmpty after a client-evaluated projection.</value>
+  </data>
 </root>

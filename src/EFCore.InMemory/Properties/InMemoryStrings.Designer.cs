@@ -49,6 +49,20 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
                 GetString("UpdateConcurrencyTokenExceptionSensitive", nameof(entityType), nameof(keyValue), nameof(conflictingValues), nameof(databaseValues)),
                 entityType, keyValue, conflictingValues, databaseValues);
 
+        /// <summary>
+        ///      Invalid {state} encountered.
+        /// </summary>
+        public static string InvalidStateEncountered([CanBeNull] object state)
+            => string.Format(
+                GetString("InvalidStateEncountered", nameof(state)),
+                state);
+
+        /// <summary>
+        ///      Cannot apply DefaultIfEmpty after a client-evaluated projection.
+        /// </summary>
+        public static string DefaultIfEmptyAppliedAfterProjection
+            => GetString("DefaultIfEmptyAppliedAfterProjection");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

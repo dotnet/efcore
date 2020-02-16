@@ -1269,8 +1269,89 @@
   <data name="LastUsedWithoutOrderBy" xml:space="preserve">
     <value>Queries performing '{method}' operation must have a deterministic sort order. Rewrite the query to apply an OrderBy clause on the sequence before calling '{method}'.</value>
   </data>
+  <data name="ImmediateConventionScopeCannotBeRunAgain" xml:space="preserve">
+    <value>Immediate convention scope cannot be run again.</value>
+  </data>
+  <data name="UnknownEntity" xml:space="preserve">
+    <value>Unknown {entity}.</value>
+  </data>
+  <data name="UnhandledExpressionNode" xml:space="preserve">
+    <value>Unhandled expression node type '{nodeType}'.</value>
+  </data>
+  <data name="UnhandledMemberBinding" xml:space="preserve">
+    <value>Unhandled member binding type '{bindingType}'.</value>
+  </data>
+  <data name="InvalidIncludePath" xml:space="preserve">
+    <value>Invalid include path '{navigationChain}', couldn't find navigation for '{navigationName}'.</value>
+  </data>
+  <data name="InvalidLambdaExpressionInsideInclude" xml:space="preserve">
+    <value>Lambda expression used inside Include is not valid.</value>
+  </data>
+  <data name="IncludeOnNonEntity" xml:space="preserve">
+    <value>Include has been used on non entity queryable.</value>
+  </data>
+  <data name="CannotConvertQueryableToEnumerableMethod" xml:space="preserve">
+    <value>Unable to convert queryable method to enumerable method.</value>
+  </data>
+  <data name="InvalidTypeConversationWithInclude" xml:space="preserve">
+    <value>Invalid type conversion when specifying include.</value>
+  </data>
+  <data name="InvalidExpressionTypeStoredInNavigationMap" xml:space="preserve">
+    <value>Invalid expression type stored in NavigationMap.</value>
+  </data>
+  <data name="IncludeWithCycle" xml:space="preserve">
+    <value>The Include path '{navigationName}->{inverseNavigationName}' results in a cycle. Cycles are not allowed in no-tracking queries. Either use a tracking query or remove the cycle.</value>
+  </data>
+  <data name="UnhandledMethod" xml:space="preserve">
+    <value>Unhandled method '{methodName}'.</value>
+  </data>
+  <data name="RuntimeParameterMissingParameter" xml:space="preserve">
+    <value>Runtime parameter extraction lambda must have one QueryContext parameter.</value>
+  </data>
+  <data name="SequenceContainsNoElements" xml:space="preserve">
+    <value>Sequence contains no elements.</value>
+  </data>
+  <data name="SequenceContainsMoreThanOneElement" xml:space="preserve">
+    <value>Sequence contains more than one element.</value>
+  </data>
+  <data name="OwnedEntitiesCannotBeTrackedWithoutTheirOwner" xml:space="preserve">
+    <value>A tracking query projects owned entity without corresponding owner in result. Owned entities cannot be tracked without their owner. Either include the owner entity in the result or make query non-tracking using AsNoTracking().</value>
+  </data>
+  <data name="VisitIsNotAllowed" xml:space="preserve">
+    <value>Calling {visitMethodName} is not allowed. Visit expression manually for relevant part.</value>
+  </data>
+  <data name="EntityProjectionExpressionCalledWithIncorrectInterface" xml:space="preserve">
+    <value>Called EntityProjectionExpression.{methodName}() with incorrect {interfaceType}. EntityType:{entityType}, {entityValue}</value>
+  </data>
+  <data name="UnsupportedUnary" xml:space="preserve">
+    <value>Unsupported Unary operator type specified.</value>
+  </data>
+  <data name="IncorrectOperatorType" xml:space="preserve">
+    <value>Incorrect operatorType for SqlBinaryExpression.</value>
+  </data>
+  <data name="NullTypeMappingInSqlTree" xml:space="preserve">
+    <value>Null TypeMapping in Sql Tree.</value>
+  </data>
+  <data name="VisitChildrenMustBeOverridden" xml:space="preserve">
+    <value>VisitChildren must be overridden in class deriving from SqlExpression.</value>
+  </data>
+  <data name="UnsupportedBinaryOperator" xml:space="preserve">
+    <value>Unsupported Binary operator type specified.</value>
+  </data>
+  <data name="EFPropertyCalledWithWrongPropertyName" xml:space="preserve">
+    <value>EF.Property called with wrong property name.</value>
+  </data>
+  <data name="InvalidStateEncountered" xml:space="preserve">
+    <value>Invalid {state} encountered.</value>
+  </data>
+  <data name="DefaultIfEmptyAppliedAfterProjection" xml:space="preserve">
+    <value>Cannot apply DefaultIfEmpty after a client-evaluated projection.</value>
+  </data>  
   <data name="LogConflictingKeylessAndKeyAttributes" xml:space="preserve">
     <value>Conflicting attributes have been applied: the 'Key' attribute on property '{property}' and the 'Keyless' attribute on its entity '{entity}'. Note that the entity will have no key unless you use fluent API to override this.</value>
     <comment>Warning CoreEventId.ConflictingKeylessAndKeyAttributesWarning string string</comment>
+  </data>
+  <data name="InvalidSwitch" xml:space="preserve">
+    <value>Invalid {name}: {value}</value>
   </data>
 </root>

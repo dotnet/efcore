@@ -7,6 +7,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -746,7 +747,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         : nameof(PropertyBuilder.ValueGeneratedOnAddOrUpdate),
                     ValueGenerated.OnUpdate => nameof(PropertyBuilder.ValueGeneratedOnUpdate),
                     ValueGenerated.Never => nameof(PropertyBuilder.ValueGeneratedNever),
-                    _ => throw new InvalidOperationException($"Unhandled enum value '{nameof(ValueGenerated)}.{valueGenerated}'")
+                    _ => throw new InvalidOperationException(DesignStrings.UnhandledEnumValue($"{nameof(ValueGenerated)}.{valueGenerated}"))
                 };
 
                 lines.Add($".{methodName}()");

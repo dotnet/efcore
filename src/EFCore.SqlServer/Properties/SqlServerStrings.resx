@@ -245,4 +245,10 @@
     <value>Both the SqlServerValueGenerationStrategy {generationStrategy} and {otherGenerationStrategy} have been set on property '{propertyName}' on entity type '{entityName}'. Usually this is a mistake. Only use these at the same time if you are sure you understand the consequences.</value>
     <comment>Warning SqlServerEventId.ConflictingValueGenerationStrategiesWarning string string string string</comment>
   </data>
+  <data name="UnknownOperatorTypeInSqlUnaryExpression" xml:space="preserve">
+    <value>Unknown operator type encountered in SqlUnaryExpression.</value>
+  </data>
+  <data name="CannotProduceUnterminatedSQLWithComments" xml:space="preserve">
+    <value>When generating migrations SQL for {operation}, can't produce unterminated SQL with comments.</value>
+  </data>
 </root>

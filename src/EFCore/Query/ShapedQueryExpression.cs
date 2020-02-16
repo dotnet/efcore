@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -39,8 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public sealed override ExpressionType NodeType => ExpressionType.Extension;
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-            => throw new InvalidOperationException("Calling ShapedQueryExpression.VisitChildren is not allowed. " +
-                "Visit expression manually for relevant part.");
+            => throw new InvalidOperationException(CoreStrings.VisitIsNotAllowed($"{nameof(ShapedQueryExpression)}.{nameof(VisitChildren)}"));
 
         public virtual ShapedQueryExpression Update([NotNull] Expression queryExpression, [NotNull] Expression shaperExpression)
         {

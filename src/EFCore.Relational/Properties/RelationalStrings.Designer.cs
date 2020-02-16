@@ -65,12 +65,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("NoProviderConfigured");
 
         /// <summary>
-        ///     Both an existing DbConnection and a connection string have been configured. When an existing DbConnection is used the connection string must be set on that connection.
-        /// </summary>
-        public static string ConnectionAndConnectionString
-            => GetString("ConnectionAndConnectionString");
-
-        /// <summary>
         ///     A relational store has been configured without specifying either the DbConnection or connection string to use.
         /// </summary>
         public static string NoConnectionOrConnectionString
@@ -127,12 +121,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string BadSequenceString
             => GetString("BadSequenceString");
-
-        /// <summary>
-        ///     Unable to deserialize check constraint from model metadata. See inner exception for details.
-        /// </summary>
-        public static string BadCheckConstraintString
-            => GetString("BadCheckConstraintString");
 
         /// <summary>
         ///     The migration '{migrationName}' was not found.
@@ -271,22 +259,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ConflictingOriginalRowValuesSensitive", nameof(firstEntityType), nameof(secondEntityType), nameof(keyValue), nameof(firstConflictingValues), nameof(secondConflictingValues), nameof(columns)),
                 firstEntityType, secondEntityType, keyValue, firstConflictingValues, secondConflictingValues, columns);
-
-        /// <summary>
-        ///     The entity of type '{entityType}' is sharing the table '{tableName}' with entities of type '{missingEntityType}', but there is no entity of this type with the same key value that has been marked as '{state}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
-        /// </summary>
-        public static string SharedRowEntryCountMismatch([CanBeNull] object entityType, [CanBeNull] object tableName, [CanBeNull] object missingEntityType, [CanBeNull] object state)
-            => string.Format(
-                GetString("SharedRowEntryCountMismatch", nameof(entityType), nameof(tableName), nameof(missingEntityType), nameof(state)),
-                entityType, tableName, missingEntityType, state);
-
-        /// <summary>
-        ///     The entity of type '{entityType}' is sharing the table '{tableName}' with entities of type '{missingEntityType}', but there is no entity of this type with the same key value '{keyValue}' that has been marked as '{state}'.
-        /// </summary>
-        public static string SharedRowEntryCountMismatchSensitive([CanBeNull] object entityType, [CanBeNull] object tableName, [CanBeNull] object missingEntityType, [CanBeNull] object keyValue, [CanBeNull] object state)
-            => string.Format(
-                GetString("SharedRowEntryCountMismatchSensitive", nameof(entityType), nameof(tableName), nameof(missingEntityType), nameof(keyValue), nameof(state)),
-                entityType, tableName, missingEntityType, keyValue, state);
 
         /// <summary>
         ///     Cannot set default value '{value}' of type '{valueType}' on property '{property}' of type '{propertyType}' in entity type '{entityType}'.
@@ -521,70 +493,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("InvalidMinBatchSize");
 
         /// <summary>
-        ///     Expected a non-null value for query parameter '{parameter}'.
-        /// </summary>
-        public static string ExpectedNonNullParameter([CanBeNull] object parameter)
-            => string.Format(
-                GetString("ExpectedNonNullParameter", nameof(parameter)),
-                parameter);
-
-        /// <summary>
         ///     The entity type '{entityType}' cannot be mapped to a table because it is derived from '{baseType}'. Only base entity types can be mapped to a table.
         /// </summary>
         public static string DerivedTypeTable([CanBeNull] object entityType, [CanBeNull] object baseType)
             => string.Format(
                 GetString("DerivedTypeTable", nameof(entityType), nameof(baseType)),
                 entityType, baseType);
-
-        /// <summary>
-        ///     The '{mapping}' does not support 2.2 style type mapping. The database provider needs to be updated to support the full set of mapping customization.
-        /// </summary>
-        public static string RelationalCloneNotImplemented([CanBeNull] object mapping)
-            => string.Format(
-                GetString("RelationalCloneNotImplemented", nameof(mapping)),
-                mapping);
-
-        /// <summary>
-        ///     The result type of '{elseResultType}' in the else clause is invalid. The expected type is '{resultType}'.
-        /// </summary>
-        public static string CaseElseResultTypeUnexpected([CanBeNull] object elseResultType, [CanBeNull] object resultType)
-            => string.Format(
-                GetString("CaseElseResultTypeUnexpected", nameof(elseResultType), nameof(resultType)),
-                elseResultType, resultType);
-
-        /// <summary>
-        ///     The result type of '{whenResultType}' in a when clause is invalid. The expected type is '{resultType}'.
-        /// </summary>
-        public static string CaseWhenClauseResultTypeUnexpected([CanBeNull] object whenResultType, [CanBeNull] object resultType)
-            => string.Format(
-                GetString("CaseWhenClauseResultTypeUnexpected", nameof(whenResultType), nameof(resultType)),
-                whenResultType, resultType);
-
-        /// <summary>
-        ///     The operand type of '{whenOperandType}' in a when clause is invalid. The expected type is '{expectedWhenOperandType}'.
-        /// </summary>
-        public static string CaseWhenClauseTestTypeUnexpected([CanBeNull] object whenOperandType, [CanBeNull] object expectedWhenOperandType)
-            => string.Format(
-                GetString("CaseWhenClauseTestTypeUnexpected", nameof(whenOperandType), nameof(expectedWhenOperandType)),
-                whenOperandType, expectedWhenOperandType);
-
-        /// <summary>
-        ///     The number of argument type mappings does not match the number of arguments.
-        /// </summary>
-        public static string SqlFunctionArgumentsAndMappingsMismatch
-            => GetString("SqlFunctionArgumentsAndMappingsMismatch");
-
-        /// <summary>
-        ///     One of the specified argument type mappings was null.
-        /// </summary>
-        public static string SqlFunctionNullArgumentMapping
-            => GetString("SqlFunctionNullArgumentMapping");
-
-        /// <summary>
-        ///     An instance type mapping was specified without an instance expression.
-        /// </summary>
-        public static string SqlFunctionUnexpectedInstanceMapping
-            => GetString("SqlFunctionUnexpectedInstanceMapping");
 
         /// <summary>
         ///     Entity type '{entityType}' doesn't contain a property mapped to the store-generated concurrency token column '{missingColumn}' that is used by another entity type sharing the table '{table}'. Add a store-generated property mapped to the same column to '{entityType}'. It can be in shadow state.
@@ -601,16 +515,84 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("PendingAmbientTransaction");
 
         /// <summary>
-        ///     Set operations (Union, Concat, Intersect, Except) are only supported over entity types within the same type hierarchy.
-        /// </summary>
-        public static string SetOperationNotWithinEntityTypeHierarchy
-            => GetString("SetOperationNotWithinEntityTypeHierarchy");
-
-        /// <summary>
         ///     FromSqlRaw or FromSqlInterpolated was called with non-composable SQL and with a query composing over it. Consider calling `AsEnumerable` after the FromSqlRaw or FromSqlInterpolated method to perform the composition on the client side.
         /// </summary>
         public static string FromSqlNonComposable
             => GetString("FromSqlNonComposable");
+
+        /// <summary>
+        ///     FindMapping on a 'RelationalTypeMappingSource' with a non-relational 'TypeMappingInfo'.
+        /// </summary>
+        public static string NoneRelationalTypeMappingOnARelationalTypeMappingSource
+            => GetString("NoneRelationalTypeMappingOnARelationalTypeMappingSource");
+
+        /// <summary>
+        ///     The underlying reader doesn't have as many fields as expected.
+        /// </summary>
+        public static string TooFewReaderFields
+            => GetString("TooFewReaderFields");
+
+        /// <summary>
+        ///     Invalid keySelector for Group By.
+        /// </summary>
+        public static string InvalidKeySelectorForGroupBy
+            => GetString("InvalidKeySelectorForGroupBy");
+
+        /// <summary>
+        ///     Different projection mapping count in set operation.
+        /// </summary>
+        public static string ProjectionMappingCountMismatch
+            => GetString("ProjectionMappingCountMismatch");
+
+        /// <summary>
+        ///     Can't process set operations after client evaluation, consider moving the operation before the last Select() call (see issue #16243).
+        /// </summary>
+        public static string SetOperationsNotAllowedAfterClientEvaluation
+            => GetString("SetOperationsNotAllowedAfterClientEvaluation");
+
+        /// <summary>
+        ///     Set operations over different store types are currently unsupported.
+        /// </summary>
+        public static string SetOperationsOnDifferentStoreTypes
+            => GetString("SetOperationsOnDifferentStoreTypes");
+
+        /// <summary>
+        ///     Client side GroupBy is not supported.
+        /// </summary>
+        public static string ClientGroupByNotSupported
+            => GetString("ClientGroupByNotSupported");
+
+        /// <summary>
+        ///     Unexpected join predicate shape: {predicate}.
+        /// </summary>
+        public static string UnexpectedJoinPredicateShape([CanBeNull] object predicate)
+            => string.Format(
+                GetString("UnexpectedJoinPredicateShape", nameof(predicate)),
+                predicate);
+
+        /// <summary>
+        ///     The subquery '{subquery}' references type '{type}' for which no type mapping could be found.
+        /// </summary>
+        public static string NoTypeMappingFoundForSubquery([CanBeNull] object subquery, [CanBeNull] object type)
+            => string.Format(
+                GetString("UnexpectedJoinPredicateShape", nameof(subquery), nameof(type)),
+                subquery, type);
+
+        /// <summary>
+        ///     Either {param1} or {param2} must be null.
+        /// </summary>
+        public static string EitherOfTwoValuesMustBeNull([CanBeNull] object param1, [CanBeNull] object param2)
+            => string.Format(
+                GetString("EitherOfTwoValuesMustBeNull", nameof(param1), nameof(param2)),
+                param1, param2);
+
+        /// <summary>
+        ///     Non-matching or unknown projection mapping type in set operation ({type1} and {type2})
+        /// </summary>
+        public static string UnknownProjectionMappingType([CanBeNull] object type1, [CanBeNull] object type2)
+            => string.Format(
+                GetString("UnknownProjectionMappingType", nameof(type1), nameof(type2)),
+                type1, type2);
 
         /// <summary>
         ///     Internal ambient transaction is to be completed prior to the root one.

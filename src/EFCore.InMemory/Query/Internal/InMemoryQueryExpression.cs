@@ -7,6 +7,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
@@ -185,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             projectionBindingExpression.QueryExpression, index, projectionBindingExpression.Type);
                     }
 
-                    throw new InvalidOperationException("Invalid ProjectionMapping.");
+                    throw new InvalidOperationException(InMemoryStrings.InvalidStateEncountered("ProjectionMapping"));
                 }
 
                 return base.Visit(expression);
@@ -267,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             if (_valueBufferSlots.Count != 0)
             {
-                throw new InvalidOperationException("Cannot apply DefaultIfEmpty after a client-evaluated projection.");
+                throw new InvalidOperationException(InMemoryStrings.DefaultIfEmptyAppliedAfterProjection);
             }
 
             var result = new Dictionary<ProjectionMember, Expression>();

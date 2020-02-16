@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -39,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private static ExpressionType VerifyOperator(ExpressionType operatorType)
             => _allowedOperators.Contains(operatorType)
                 ? operatorType
-                : throw new InvalidOperationException("Unsupported Binary operator type specified.");
+                : throw new InvalidOperationException(CoreStrings.UnsupportedBinaryOperator);
 
         public SqlBinaryExpression(
             ExpressionType operatorType,

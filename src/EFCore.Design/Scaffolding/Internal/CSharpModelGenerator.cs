@@ -4,6 +4,7 @@
 using System;
 using System.IO;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -79,17 +80,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (options.ContextName == null)
             {
-                throw new ArgumentException($"{nameof(options.ContextName)} cannot be null", nameof(options));
+                throw new ArgumentException(CoreStrings.ArgumentPropertyNull(nameof(options.ContextName), nameof(options)), nameof(options));
             }
 
             if (options.ConnectionString == null)
             {
-                throw new ArgumentException($"{nameof(options.ConnectionString)} cannot be null", nameof(options));
+                throw new ArgumentException(CoreStrings.ArgumentPropertyNull(nameof(options.ConnectionString), nameof(options)), nameof(options));
             }
 
             if (options.ModelNamespace == null)
             {
-                throw new ArgumentException($"{nameof(options.ModelNamespace)} cannot be null", nameof(options));
+                throw new ArgumentException(CoreStrings.ArgumentPropertyNull(nameof(options.ModelNamespace), nameof(options)), nameof(options));
             }
 
             var generatedCode = CSharpDbContextGenerator.WriteCode(

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -116,7 +117,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 && !property.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    $"Called EntityProjectionExpression.GetProperty() with incorrect IProperty. EntityType:{EntityType.DisplayName()}, Property:{property.Name}");
+                    CoreStrings.EntityProjectionExpressionCalledWithIncorrectInterface(
+                        "GetProperty", nameof(IProperty), EntityType.DisplayName(), $"Property:{property.Name}"));
             }
 
             if (!_propertyExpressionsCache.TryGetValue(property, out var expression))
@@ -147,7 +149,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    $"Called EntityProjectionExpression.GetNavigation() with incorrect INavigation. EntityType:{EntityType.DisplayName()}, Navigation:{navigation.Name}");
+                    CoreStrings.EntityProjectionExpressionCalledWithIncorrectInterface(
+                        "GetNavigation", nameof(INavigation), EntityType.DisplayName(), $"Navigation:{navigation.Name}"));
             }
 
             if (!_navigationExpressionsCache.TryGetValue(navigation, out var expression))

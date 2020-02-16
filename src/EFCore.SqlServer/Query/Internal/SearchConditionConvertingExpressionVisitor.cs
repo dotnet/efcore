@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
@@ -292,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     break;
 
                 default:
-                    throw new InvalidOperationException("Unknown operator type encountered in SqlUnaryExpression.");
+                    throw new InvalidOperationException(SqlServerStrings.UnknownOperatorTypeInSqlUnaryExpression);
             }
 
             var operand = (SqlExpression)Visit(sqlUnaryExpression.Operand);
