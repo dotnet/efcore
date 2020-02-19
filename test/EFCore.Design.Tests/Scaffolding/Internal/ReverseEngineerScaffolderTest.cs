@@ -8,6 +8,7 @@ using System.IO;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -167,6 +168,37 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Assert.DoesNotContain("#warning", result.ContextFile.Code);
         }
 
+        [ConditionalFact]
+        public void ScaffoldModel_works_with_overridden_connection_string()
+        {
+            var resolver = new TestNamedConnectionStringResolver("Data Source=Test");
+            var databaseModelFactory = new TestDatabaseModelFactory();
+            databaseModelFactory.ScaffoldedConnectionString = "Data Source=ScaffoldedConnectionString";
+            var scaffolder = new ServiceCollection()
+                .AddEntityFrameworkDesignTimeServices()
+                .AddSingleton<INamedConnectionStringResolver>(resolver)
+                .AddSingleton<IDatabaseModelFactory>(databaseModelFactory)
+                .AddSingleton<IRelationalTypeMappingSource, TestRelationalTypeMappingSource>()
+                .AddSingleton<LoggingDefinitions, TestRelationalLoggingDefinitions>()
+                .AddSingleton<IProviderConfigurationCodeGenerator, TestProviderCodeGenerator>()
+                .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
+                .BuildServiceProvider()
+                .GetRequiredService<IReverseEngineerScaffolder>();
+
+            var result = scaffolder.ScaffoldModel(
+                "Name=DefaultConnection",
+                new DatabaseModelFactoryOptions(),
+                new ModelReverseEngineerOptions(),
+                new ModelCodeGenerationOptions
+                {
+                    ModelNamespace = "Foo"
+                });
+
+            Assert.Contains("Data Source=ScaffoldedConnectionString", result.ContextFile.Code);
+            Assert.DoesNotContain("Name=DefaultConnection", result.ContextFile.Code);
+            Assert.DoesNotContain("Data Source=Test", result.ContextFile.Code);
+        }
+
         private class TestNamedConnectionStringResolver : INamedConnectionStringResolver
         {
             private readonly string _resolvedConnectionString;
@@ -181,12 +213,18 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private class TestDatabaseModelFactory : IDatabaseModelFactory
         {
             public string ConnectionString { get; set; }
+            public string ScaffoldedConnectionString { get; set; }
 
             public DatabaseModel Create(string connectionString, DatabaseModelFactoryOptions options)
             {
                 ConnectionString = connectionString;
+                var databaseModel = new DatabaseModel();
+                if (ScaffoldedConnectionString != null)
+                {
+                    databaseModel[ScaffoldingAnnotationNames.ConnectionString] = ScaffoldedConnectionString;
+                }
 
-                return new DatabaseModel();
+                return databaseModel;
             }
 
             public DatabaseModel Create(DbConnection connection, DatabaseModelFactoryOptions options)
