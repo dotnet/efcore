@@ -148,6 +148,30 @@ FROM ""Squads"" AS ""s""
 WHERE ""s"".""Banner5"" = @__byteArrayParam_0");
         }
 
+        [ConditionalTheory(Skip = "PR #19774")]
+        public override Task TimeSpan_Hours(bool async) => base.TimeSpan_Hours(async);
+
+        [ConditionalTheory(Skip = "PR #19774")]
+        public override Task TimeSpan_Minutes(bool async) => base.TimeSpan_Minutes(async);
+
+        [ConditionalTheory(Skip = "PR #19774")]
+        public override Task TimeSpan_Seconds(bool async) => base.TimeSpan_Seconds(async);
+
+        [ConditionalTheory(Skip = "PR #19774")]
+        public override Task TimeSpan_Milliseconds(bool async) => base.TimeSpan_Milliseconds(async);
+
+        [ConditionalTheory(Skip = "PR #19774")]
+        public override Task Where_TimeSpan_Hours(bool async) => base.Where_TimeSpan_Hours(async);
+
+        [ConditionalTheory(Skip = "PR #19774")]
+        public override Task Where_TimeSpan_Minutes(bool async) => base.Where_TimeSpan_Minutes(async);
+
+        [ConditionalTheory(Skip = "PR #19774")]
+        public override Task Where_TimeSpan_Seconds(bool async) => base.Where_TimeSpan_Seconds(async);
+
+        [ConditionalTheory(Skip = "PR #19774")]
+        public override Task Where_TimeSpan_Milliseconds(bool async) => base.Where_TimeSpan_Milliseconds(async);
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
