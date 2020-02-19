@@ -509,6 +509,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.True(entityTypeBuilder.Property<byte[]>(nameof(F.Timestamp)).Metadata.IsConcurrencyToken);
         }
 
+        [ConditionalFact]
+        public void BackingFieldAttribute_overrides_configuration_from_convention_source()
+        {
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
+
+            var propertyBuilder = entityTypeBuilder.Property(typeof(int?), "BackingFieldProperty", ConfigurationSource.Explicit);
+
+            RunConvention(propertyBuilder);
+
+            // also asserts that the default backing field, _backingFieldProperty, was _not_ chosen
+            Assert.Equal("_backingFieldForAttribute", propertyBuilder.Metadata.GetFieldName());
+        }
+
+        [ConditionalFact]
+        public void BackingFieldAttribute_does_not_override_configuration_from_explicit_source()
+        {
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
+
+            var propertyBuilder = entityTypeBuilder.Property(typeof(int?), "BackingFieldProperty", ConfigurationSource.Explicit);
+
+            propertyBuilder.HasField("_backingFieldForFluentApi", ConfigurationSource.Explicit);
+
+            RunConvention(propertyBuilder);
+
+            // also asserts that the default backing field, _backingFieldProperty, was _not_ chosen
+            Assert.Equal("_backingFieldForFluentApi", propertyBuilder.Metadata.GetFieldName());
+        }
+
         #endregion
 
         [ConditionalFact]
@@ -537,6 +565,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var context = new ConventionContext<IConventionPropertyBuilder>(
                 propertyBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
 
+            new BackingFieldConvention(dependencies)
+                .ProcessPropertyAdded(propertyBuilder, context);
+
             new ConcurrencyCheckAttributeConvention(dependencies)
                 .ProcessPropertyAdded(propertyBuilder, context);
 
@@ -556,6 +587,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 .ProcessPropertyAdded(propertyBuilder, context);
 
             new TimestampAttributeConvention(dependencies)
+                .ProcessPropertyAdded(propertyBuilder, context);
+
+            new BackingFieldAttributeConvention(dependencies)
                 .ProcessPropertyAdded(propertyBuilder, context);
         }
 
@@ -607,6 +641,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             [Required]
             private int? PrivateProperty { get; set; }
+
+            private int? _backingFieldProperty; // selected by convention
+            private int? _backingFieldForAttribute;
+            private int? _backingFieldForFluentApi;
+
+            [BackingField("_backingFieldForAttribute")]
+            private int? BackingFieldProperty
+            {
+                get => _backingFieldForAttribute;
+                set
+                {
+                    _backingFieldProperty = value;
+                    _backingFieldForAttribute = value;
+                    _backingFieldForFluentApi = value;
+                }
+            }
         }
 
         private class B
