@@ -351,6 +351,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     return null;
                 }
             }
+            else
+            {
+                builder.HasNoKey();
+            }
 
             VisitUniqueConstraints(builder, table.UniqueConstraints);
             VisitIndexes(builder, table.Indexes);
@@ -854,6 +858,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     uniquifier: NavigationUniquifier);
 
             foreignKey.HasDependentToPrincipal(dependentEndNavigationPropertyName);
+
+            if (foreignKey.DeclaringEntityType.IsKeyless)
+            {
+                return;
+            }
 
             var principalEndExistingIdentifiers = ExistingIdentifiers(foreignKey.PrincipalEntityType);
             var principalEndNavigationPropertyCandidateName = foreignKey.IsSelfReferencing()

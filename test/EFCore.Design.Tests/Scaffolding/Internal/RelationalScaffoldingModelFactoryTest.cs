@@ -508,6 +508,37 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         [ConditionalFact]
+        public void Foreign_key_from_keyless_table()
+        {
+            var databaseModel = new DatabaseModel();
+            var masterTable = new DatabaseTable(databaseModel, "Master");
+            var idColumn = new DatabaseColumn(masterTable, "Id", "int");
+            masterTable.Columns.Add(idColumn);
+            masterTable.PrimaryKey = new DatabasePrimaryKey(masterTable, null)
+            {
+                Columns = { idColumn }
+            };
+            databaseModel.Tables.Add(masterTable);
+            var detailTable = new DatabaseTable(databaseModel, "Detail");
+            var masterIdColumn = new DatabaseColumn(detailTable, "MasterId", "int");
+            detailTable.Columns.Add(masterIdColumn);
+            detailTable.ForeignKeys.Add(
+                new DatabaseForeignKey(detailTable, null, masterTable)
+                {
+                    Columns = { masterIdColumn },
+                    PrincipalColumns = { idColumn }
+                });
+            databaseModel.Tables.Add(detailTable);
+
+            var model = _factory.Create(databaseModel, useDatabaseNames: false);
+
+            var detail = model.FindEntityType("Detail");
+            var foreignKey = Assert.Single(detail.GetForeignKeys());
+            Assert.Equal("Master", foreignKey.DependentToPrincipal.Name);
+            Assert.Null(foreignKey.PrincipalToDependent);
+        }
+
+        [ConditionalFact]
         public void Foreign_key_to_unique_constraint()
         {
             var keyColumn = new DatabaseColumn(Table, "Key", "int") { IsNullable = false };
