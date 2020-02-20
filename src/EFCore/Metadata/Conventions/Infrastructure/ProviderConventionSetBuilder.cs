@@ -109,6 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             var maxLengthAttributeConvention = new MaxLengthAttributeConvention(Dependencies);
             var stringLengthAttributeConvention = new StringLengthAttributeConvention(Dependencies);
             var timestampAttributeConvention = new TimestampAttributeConvention(Dependencies);
+            var backingFieldAttributeConvention = new BackingFieldAttributeConvention(Dependencies);
 
             conventionSet.PropertyAddedConventions.Add(backingFieldConvention);
             conventionSet.PropertyAddedConventions.Add(concurrencyCheckAttributeConvention);
@@ -118,6 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.PropertyAddedConventions.Add(maxLengthAttributeConvention);
             conventionSet.PropertyAddedConventions.Add(stringLengthAttributeConvention);
             conventionSet.PropertyAddedConventions.Add(timestampAttributeConvention);
+            conventionSet.PropertyAddedConventions.Add(backingFieldAttributeConvention);
             conventionSet.PropertyAddedConventions.Add(keyAttributeConvention);
             conventionSet.PropertyAddedConventions.Add(keyDiscoveryConvention);
             conventionSet.PropertyAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
