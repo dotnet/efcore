@@ -617,6 +617,37 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(parent, single.Parent);
         }
 
+        [ConditionalFact]
+        public virtual void Eager_load_one_to_one_non_virtual_reference_to_owned_type()
+        {
+            using var context = CreateContext(lazyLoadingEnabled: true);
+
+            var owner = context.Set<NonVirtualOwner>().Single();
+            var addressReferenceEntry = context.Entry(owner).References.First();
+
+            Assert.Equal("Address", addressReferenceEntry.Metadata.Name);
+            Assert.True(addressReferenceEntry.IsLoaded);
+            Assert.Equal("Paradise Alley", owner.Address.Street);
+        }
+
+        // Tests issue https://github.com/dotnet/efcore/issues/19847
+        [ConditionalFact]
+        public virtual void Setting_reference_to_owned_type_to_null_is_allowed_on_non_virtual_navigation()
+        {
+            using var context = CreateContext(lazyLoadingEnabled: true);
+
+            var owner = context.Set<NonVirtualOwner>().Single();
+            owner.Address = null;
+            context.Attach(owner);
+            context.Update(owner);
+
+            Assert.Null(owner.Address);
+
+            context.ChangeTracker.DetectChanges();
+
+            Assert.Null(owner.Address);
+        }
+
         [ConditionalTheory]
         [InlineData(EntityState.Unchanged)]
         [InlineData(EntityState.Modified)]
@@ -2352,6 +2383,22 @@ namespace Microsoft.EntityFrameworkCore
             public virtual Called Called { set; get; }
         }
 
+        public class NonVirtualOwner
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int Id { get; set; }
+
+            // note: _not_ virtual
+            public OwnedAddress Address { get; set; }
+        }
+
+        [Owned]
+        public class OwnedAddress
+        {
+            public string Street { get; set; }
+            public string PostalCode { get; set; }
+        }
+
         protected DbContext CreateContext(bool lazyLoadingEnabled = false)
         {
             var context = Fixture.CreateContext();
@@ -2546,6 +2593,8 @@ namespace Microsoft.EntityFrameworkCore
                             .WithOne()
                             .HasForeignKey<Address>(prop => prop.PyrsonId);
                     });
+
+                modelBuilder.Entity<NonVirtualOwner>();
             }
 
             protected override void Seed(DbContext context)
@@ -2627,6 +2676,13 @@ namespace Microsoft.EntityFrameworkCore
                     new Pyrson(new FullName(FirstName.Create("Amila"), LastName.Create("Udayanga")))
                     {
                         Address = new Address { Line1 = "Line1", Line2 = "Line2" }
+                    });
+
+                context.Add(
+                    new NonVirtualOwner
+                    {
+                        Id = 100,
+                        Address = new OwnedAddress { Street = "Paradise Alley", PostalCode = "WEEEEEE" }
                     });
 
                 context.SaveChanges();
