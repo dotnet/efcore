@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Initializes a new instance of the <see cref="BackingFieldAttribute" /> class.
         /// </summary>
-        /// <param name="name">The name of the backing field.</param>
+        /// <param name="name"> The name of the backing field. </param>
         public BackingFieldAttribute([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
