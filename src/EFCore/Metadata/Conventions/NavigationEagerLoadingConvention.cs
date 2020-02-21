@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     A convention that configures the navigations to owned entity types as eager loaded.
     /// </summary>
-    public class NavigationEagerLoadingConvention : IForeignKeyOwnershipChangedConvention
+    public class NavigationEagerLoadingConvention : IForeignKeyOwnershipChangedConvention, INavigationAddedConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="NavigationEagerLoadingConvention" />.
@@ -35,6 +35,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionRelationshipBuilder relationshipBuilder, IConventionContext<IConventionRelationshipBuilder> context)
         {
             relationshipBuilder.Metadata.PrincipalToDependent?.SetIsEagerLoaded(relationshipBuilder.Metadata.IsOwnership);
+        }
+
+        public virtual void ProcessNavigationAdded(IConventionRelationshipBuilder relationshipBuilder,
+            IConventionNavigation navigation, IConventionContext<IConventionNavigation> context)
+        {
+            if (navigation.ForeignKey.IsOwnership)
+            {
+                navigation.SetIsEagerLoaded(true);
+            }
         }
     }
 }
