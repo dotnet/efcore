@@ -368,5 +368,29 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
 
             return (EventDefinition<string, string>)definition;
         }
+
+        /// <summary>
+        ///     A connection of an unexpected type ({type}) is being used. The SQL functions prefixed with 'ef_' could not be created automatically. Manually define them if you encounter errors while querying.
+        /// </summary>
+        public static EventDefinition<string> LogUnexpectedConnectionType([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogUnexpectedConnectionType;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogUnexpectedConnectionType,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        SqliteEventId.UnexpectedConnectionTypeWarning,
+                        LogLevel.Warning,
+                        "SqliteEventId.UnexpectedConnectionTypeWarning",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            SqliteEventId.UnexpectedConnectionTypeWarning,
+                            _resourceManager.GetString("LogUnexpectedConnectionType"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
     }
 }

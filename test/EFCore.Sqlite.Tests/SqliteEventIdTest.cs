@@ -27,7 +27,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 { typeof(string), () => "Fake" },
                 { typeof(IEntityType), () => entityType },
-                { typeof(ISequence), () => new FakeSequence() }
+                { typeof(ISequence), () => new FakeSequence() },
+                { typeof(Type), () => typeof(object) }
             };
 
             TestEventLogging(

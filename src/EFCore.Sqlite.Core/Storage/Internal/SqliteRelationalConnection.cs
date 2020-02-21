@@ -1,12 +1,16 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data.Common;
+using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,6 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
     public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationalConnection
     {
         private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Infrastructure> _logger;
         private readonly bool _loadSpatialite;
         private readonly int? _commandTimeout;
 
@@ -41,12 +46,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// </summary>
         public SqliteRelationalConnection(
             [NotNull] RelationalConnectionDependencies dependencies,
-            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder)
+            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
             : base(dependencies)
         {
             Check.NotNull(rawSqlCommandBuilder, nameof(rawSqlCommandBuilder));
 
             _rawSqlCommandBuilder = rawSqlCommandBuilder;
+            _logger = logger;
 
             var optionsExtension = dependencies.ContextOptions.Extensions.OfType<SqliteOptionsExtension>().FirstOrDefault();
             if (optionsExtension != null)
@@ -89,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
 
             var contextOptions = new DbContextOptionsBuilder().UseSqlite(connectionStringBuilder.ToString()).Options;
 
-            return new SqliteRelationalConnection(Dependencies.With(contextOptions), _rawSqlCommandBuilder);
+            return new SqliteRelationalConnection(Dependencies.With(contextOptions), _rawSqlCommandBuilder, _logger);
         }
 
         private void InitializeDbConnection(DbConnection connection)
@@ -99,10 +106,34 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                 SpatialiteLoader.Load(connection);
             }
 
-            if (connection is SqliteConnection sqliteConnection
-                && _commandTimeout.HasValue)
+            if (connection is SqliteConnection sqliteConnection)
             {
-                sqliteConnection.DefaultTimeout = _commandTimeout.Value;
+                if (_commandTimeout.HasValue)
+                {
+                    sqliteConnection.DefaultTimeout = _commandTimeout.Value;
+                }
+
+                sqliteConnection.CreateFunction<object, object, object>(
+                    "ef_mod",
+                    (dividend, divisor) =>
+                    {
+                        if (dividend == null || divisor == null)
+                        {
+                            return null;
+                        }
+                        if (dividend is string s)
+                        {
+                            return decimal.Parse(s, CultureInfo.InvariantCulture) %
+                                Convert.ToDecimal(divisor, CultureInfo.InvariantCulture);
+                        }
+
+                        return Convert.ToDouble(dividend, CultureInfo.InvariantCulture) %
+                            Convert.ToDouble(divisor, CultureInfo.InvariantCulture);
+                    });
+            }
+            else
+            {
+                _logger.UnexpectedConnectionTypeWarning(connection.GetType());
             }
         }
     }

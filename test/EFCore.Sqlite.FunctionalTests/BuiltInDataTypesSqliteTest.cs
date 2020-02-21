@@ -1358,6 +1358,8 @@ namespace Microsoft.EntityFrameworkCore
                     Id = 216,
                     PartitionId = 204,
                     TestDecimal = 3.000000000000003m,
+                    TestDouble = 1.5,
+                    TestSingle = 1.5f,
                     TestUnsignedInt64 = 10000000000000000001
                 });
 
@@ -1369,11 +1371,15 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         Id = e.Id,
                         TestDecimal = e.TestDecimal % 2.000000000000002m,
+                        TestDouble = e.TestDouble % 1.0,
+                        TestSingle = e.TestSingle % 1.0f,
                         TestUnsignedInt64 = e.TestUnsignedInt64 % 10000000000000000000
                     })
                 .First(e => e.Id == 216);
 
             Assert.Equal(1.000000000000001m, result.TestDecimal);
+            Assert.Equal(0.5, result.TestDouble);
+            Assert.Equal(0.5f, result.TestSingle);
             Assert.Equal(1ul, result.TestUnsignedInt64);
         }
 

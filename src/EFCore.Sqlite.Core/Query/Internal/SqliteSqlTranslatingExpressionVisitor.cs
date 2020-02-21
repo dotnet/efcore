@@ -59,7 +59,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     typeof(TimeSpan),
                     typeof(ulong)
                 },
-                [ExpressionType.Modulo] = new HashSet<Type> { typeof(decimal), typeof(ulong) },
+                [ExpressionType.Modulo] = new HashSet<Type>
+                {
+                    typeof(ulong)
+                },
                 [ExpressionType.Multiply] = new HashSet<Type>
                 {
                     typeof(decimal),
@@ -74,6 +77,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     typeof(TimeSpan)
                 }
             };
+
+        private static readonly IReadOnlyCollection<Type> _functionModuloTypes = new HashSet<Type>
+        {
+            typeof(decimal),
+            typeof(double),
+            typeof(float)
+        };
 
         public SqliteSqlTranslatingExpressionVisitor(
             [NotNull] RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
@@ -131,12 +141,30 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 return null;
             }
 
-            return visitedExpression is SqlBinaryExpression sqlBinary
-                && _restrictedBinaryExpressions.TryGetValue(sqlBinary.OperatorType, out var restrictedTypes)
-                && (restrictedTypes.Contains(GetProviderType(sqlBinary.Left))
-                    || restrictedTypes.Contains(GetProviderType(sqlBinary.Right)))
-                    ? null
-                    : visitedExpression;
+            if (visitedExpression is SqlBinaryExpression sqlBinary)
+            {
+                if (sqlBinary.OperatorType == ExpressionType.Modulo
+                    && (_functionModuloTypes.Contains(GetProviderType(sqlBinary.Left))
+                        || _functionModuloTypes.Contains(GetProviderType(sqlBinary.Right))))
+                {
+                    return SqlExpressionFactory.Function(
+                        "ef_mod",
+                        new[] { sqlBinary.Left, sqlBinary.Right },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { true, true },
+                        visitedExpression.Type,
+                        visitedExpression.TypeMapping);
+                }
+
+                if (_restrictedBinaryExpressions.TryGetValue(sqlBinary.OperatorType, out var restrictedTypes)
+                    && (restrictedTypes.Contains(GetProviderType(sqlBinary.Left))
+                        || restrictedTypes.Contains(GetProviderType(sqlBinary.Right))))
+                {
+                    return null;
+                }
+            }
+
+            return visitedExpression;
         }
 
         public override SqlExpression TranslateAverage(Expression expression)

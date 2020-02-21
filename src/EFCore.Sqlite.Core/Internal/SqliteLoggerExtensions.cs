@@ -1,9 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
 {
@@ -300,6 +303,42 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
             }
 
             // No DiagnosticsSource events because these are purely design-time messages
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static void UnexpectedConnectionTypeWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
+            [NotNull] Type connectionType)
+        {
+            var definition = SqliteResources.LogUnexpectedConnectionType(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics, connectionType.DisplayName());
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new UnexpectedConnectionTypeEventData(
+                    definition,
+                    UnexpectedConnectionTypeWarning,
+                    connectionType);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        private static string UnexpectedConnectionTypeWarning(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (UnexpectedConnectionTypeEventData)payload;
+
+            return d.GenerateMessage(p.ConnectionType.DisplayName());
         }
     }
 }
