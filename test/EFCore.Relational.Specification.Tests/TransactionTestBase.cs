@@ -435,6 +435,100 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public virtual void SaveChanges_allows_nested_ambient_transactions()
+        {
+            if (!AmbientTransactionsSupported)
+            {
+                return;
+            }
+
+            if (TestStore.ConnectionState == ConnectionState.Closed)
+            {
+                TestStore.OpenConnection();
+            }
+
+            using (var context = CreateContext())
+            {
+                using (var tr = new TransactionScope())
+                {
+                    context.Add(new TransactionCustomer { Id = 77, Name = "Bobbie" });
+                    context.SaveChanges();
+                    tr.Complete();
+                    TestStore.CloseConnection();
+                    using (var nestedTransaction = new TransactionScope(TransactionScopeOption.RequiresNew))
+                    {
+                        context.Add(new TransactionOrder { Id = 300, Name = "Order3" });
+                        context.SaveChanges();
+                        nestedTransaction.Complete();
+                        TestStore.CloseConnection();
+                    }
+                }
+                Assert.Equal(
+                    new List<int>
+                    {
+                        1,
+                        2,
+                        77
+                    },
+                    context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
+                Assert.Equal(
+                    new List<int>
+                    {
+                        100,
+                        200,
+                        300
+                    },
+                    context.Set<TransactionOrder>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void SaveChanges_allows_independent_ambient_transaction_commits()
+        {
+            if (!AmbientTransactionsSupported)
+            {
+                return;
+            }
+
+            if (TestStore.ConnectionState == ConnectionState.Closed)
+            {
+                TestStore.OpenConnection();
+            }
+
+            using (var context = CreateContext())
+            {
+                using (var tr = new TransactionScope())
+                {
+                    context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
+                    context.SaveChanges();
+                    TestStore.CloseConnection();
+                    using (var nestedTransaction = new TransactionScope(TransactionScopeOption.RequiresNew))
+                    {
+                        context.Add(new TransactionOrder { Id = 300, Name = "Order3" });
+                        context.SaveChanges();
+                        nestedTransaction.Complete();
+                        TestStore.CloseConnection();
+                    }
+                }
+                Assert.Equal(
+                    new List<int>
+                    {
+                        1,
+                        2
+                    },
+                    context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
+                Assert.Equal(
+                    new List<int>
+                    {
+                        100,
+                        200,
+                        300
+                    },
+                    context.Set<TransactionOrder>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
+            }
+        }
+
+        [ConditionalFact]
         public virtual void SaveChanges_uses_enlisted_transaction_after_ambient_transaction()
         {
             if (!AmbientTransactionsSupported)
@@ -1231,11 +1325,19 @@ namespace Microsoft.EntityFrameworkCore
                         ps.Property(c => c.Id).ValueGeneratedNever();
                         ps.ToTable("Customers");
                     });
+                modelBuilder.Entity<TransactionOrder>(
+                    ps =>
+                    {
+                        ps.Property(c => c.Id).ValueGeneratedNever();
+                        ps.ToTable("Orders");
+                    });
             }
 
             protected override void Seed(PoolableDbContext context)
             {
                 context.AddRange(Customers);
+                context.AddRange(Orders);
+
                 context.SaveChanges();
             }
         }
@@ -1245,11 +1347,15 @@ namespace Microsoft.EntityFrameworkCore
             new TransactionCustomer { Id = 1, Name = "Bob" }, new TransactionCustomer { Id = 2, Name = "Dave" }
         };
 
-        protected class TransactionCustomer
+        protected static readonly IReadOnlyList<TransactionOrder> Orders = new List<TransactionOrder>
+        {
+            new TransactionOrder { Id = 100, Name = "Order1" }, new TransactionOrder { Id = 200, Name = "Order2" }
+        };
+
+        protected abstract class TransactionEntity
         {
             public int Id { get; set; }
             public string Name { get; set; }
-
             public override bool Equals(object obj)
             {
                 return !(obj is TransactionCustomer otherCustomer)
@@ -1261,6 +1367,10 @@ namespace Microsoft.EntityFrameworkCore
             public override string ToString() => "Id = " + Id + ", Name = " + Name;
 
             public override int GetHashCode() => HashCode.Combine(Id, Name);
+
         }
+        protected class TransactionCustomer : TransactionEntity { }
+
+        protected class TransactionOrder : TransactionEntity { }
     }
 }
