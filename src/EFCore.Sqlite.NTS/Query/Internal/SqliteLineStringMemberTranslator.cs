@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                                 _sqlExpressionFactory.Function(
                                     functionName,
                                     new[] { instance },
-                                    nullResultAllowed: false,
+                                    nullable: false,
                                     argumentsPropagateNullability: new[] { false },
                                     returnType))
                         },
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     : (SqlExpression)_sqlExpressionFactory.Function(
                         functionName,
                         new[] { instance },
-                        nullResultAllowed: true,
+                        nullable: true,
                         argumentsPropagateNullability: new[] { true },
                         returnType);
             }

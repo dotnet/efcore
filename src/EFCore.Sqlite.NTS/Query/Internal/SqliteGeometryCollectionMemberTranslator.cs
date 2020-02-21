@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 ? _sqlExpressionFactory.Function(
                     "NumGeometries",
                     new[] { instance },
-                    nullResultAllowed: true,
+                    nullable: true,
                     argumentsPropagateNullability: new[] { true },
                     returnType)
                 : null;

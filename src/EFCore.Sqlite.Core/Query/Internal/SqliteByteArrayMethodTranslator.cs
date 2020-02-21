@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     : _sqlExpressionFactory.Function(
                         "char",
                         new[] { arguments[1] },
-                        nullResultAllowed: false,
+                        nullable: false,
                         argumentsPropagateNullability: new[] { false },
                         typeof(string));
 
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     _sqlExpressionFactory.Function(
                         "instr",
                         new[] { source, value },
-                        nullResultAllowed: true,
+                        nullable: true,
                         argumentsPropagateNullability: new[] { true, true },
                         typeof(int)),
                     _sqlExpressionFactory.Constant(0));

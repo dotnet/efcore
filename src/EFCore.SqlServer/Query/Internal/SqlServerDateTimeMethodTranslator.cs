@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                                 _sqlExpressionFactory.Convert(arguments[0], typeof(int)),
                                 instance
                             },
-                            nullResultAllowed: true,
+                            nullable: true,
                             argumentsPropagateNullability: new[] { false, true, true },
                             instance.Type,
                             instance.TypeMapping);

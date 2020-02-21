@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         instance,
                         functionName,
                         Array.Empty<SqlExpression>(),
-                        nullResultAllowed: true,
+                        nullable: true,
                         instancePropagatesNullability: true,
                         argumentsPropagateNullability: Array.Empty<bool>(),
                         returnType,
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                             instance,
                             "STGeometryType",
                             Array.Empty<SqlExpression>(),
-                            nullResultAllowed: true,
+                            nullable: true,
                             instancePropagatesNullability: true,
                             argumentsPropagateNullability: Array.Empty<bool>(),
                             typeof(string)),
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     return _sqlExpressionFactory.Function(
                         instance,
                         "STSrid",
-                        nullResultAllowed: true,
+                        nullable: true,
                         instancePropagatesNullability: true,
                         returnType);
                 }

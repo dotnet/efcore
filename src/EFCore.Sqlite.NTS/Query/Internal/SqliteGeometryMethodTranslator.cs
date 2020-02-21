@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                                 _sqlExpressionFactory.Function(
                                     functionName,
                                     finalArguments,
-                                    nullResultAllowed: false,
+                                    nullable: false,
                                     finalArguments.Select(a => false),
                                     method.ReturnType))
                             },
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 return _sqlExpressionFactory.Function(
                         functionName,
                         finalArguments,
-                        nullResultAllowed: true,
+                        nullable: true,
                         finalArguments.Select(a => true),
                         method.ReturnType);
             }
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                             arguments[0],
                             _sqlExpressionFactory.Constant(1))
                     },
-                    nullResultAllowed: true,
+                    nullable: true,
                     argumentsPropagateNullability: new[] { true, true },
                     method.ReturnType);
             }
@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     _sqlExpressionFactory.Function(
                         "Distance",
                         new[] { instance, arguments[0] },
-                        nullResultAllowed: true,
+                        nullable: true,
                         argumentsPropagateNullability: new[] { true, true },
                         typeof(double)),
                     arguments[1]);

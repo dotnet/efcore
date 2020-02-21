@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     return _sqlExpressionFactory.Function(
                         "DATEPART",
                         new[] { _sqlExpressionFactory.Fragment(datePart), instance },
-                        nullResultAllowed: true,
+                        nullable: true,
                         argumentsPropagateNullability: new[] { false, true },
                         returnType);
                 }
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         return _sqlExpressionFactory.Function(
                             "CONVERT",
                             new[] { _sqlExpressionFactory.Fragment("date"), instance },
-                            nullResultAllowed: true,
+                            nullable: true,
                             argumentsPropagateNullability: new[] { false, true },
                             returnType,
                             declaringType == typeof(DateTime)
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         return _sqlExpressionFactory.Function(
                             declaringType == typeof(DateTime) ? "GETDATE" : "SYSDATETIMEOFFSET",
                             Array.Empty<SqlExpression>(),
-                            nullResultAllowed: false,
+                            nullable: false,
                             argumentsPropagateNullability: Array.Empty<bool>(),
                             returnType);
 
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         var serverTranslation = _sqlExpressionFactory.Function(
                             declaringType == typeof(DateTime) ? "GETUTCDATE" : "SYSUTCDATETIME",
                             Array.Empty<SqlExpression>(),
-                            nullResultAllowed: false,
+                            nullable: false,
                             argumentsPropagateNullability: Array.Empty<bool>(),
                             returnType);
 
@@ -100,11 +100,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                                 _sqlExpressionFactory.Function(
                                     "GETDATE",
                                     Array.Empty<SqlExpression>(),
-                                    nullResultAllowed: false,
+                                    nullable: false,
                                     argumentsPropagateNullability: Array.Empty<bool>(),
                                     typeof(DateTime))
                             },
-                            nullResultAllowed: true,
+                            nullable: true,
                             argumentsPropagateNullability: new[] { false, true },
                             returnType);
                 }

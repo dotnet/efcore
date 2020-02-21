@@ -1287,7 +1287,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 sqlUnaryExpression.TypeMapping));
                     }
 
-                    if (!sqlFunctionExpression.NullResultAllowed)
+                    if (!sqlFunctionExpression.IsNullable)
                     {
                         // when we know that function can't be nullable:
                         // non_nullable_function() is null-> false
@@ -1306,39 +1306,33 @@ namespace Microsoft.EntityFrameworkCore.Query
                         nullabilityPropagationElements.Add(sqlFunctionExpression.Instance);
                     }
 
-                    for (var i = 0; i < sqlFunctionExpression.Arguments.Count; i++)
+                    if (!sqlFunctionExpression.IsNiladic)
                     {
-                        if (sqlFunctionExpression.ArgumentsPropagateNullability[i])
+                        for (var i = 0; i < sqlFunctionExpression.Arguments.Count; i++)
                         {
-                            nullabilityPropagationElements.Add(sqlFunctionExpression.Arguments[i]);
+                            if (sqlFunctionExpression.ArgumentsPropagateNullability[i])
+                            {
+                                nullabilityPropagationElements.Add(sqlFunctionExpression.Arguments[i]);
+                            }
                         }
                     }
 
+                    // function(a, b) IS NULL -> a IS NULL || b IS NULL
+                    // function(a, b) IS NOT NULL -> a IS NOT NULL && b IS NOT NULL
                     if (nullabilityPropagationElements.Count > 0)
                     {
-                        var result = ProcessNullNotNull(
-                            SqlExpressionFactory.MakeUnary(
-                                sqlUnaryExpression.OperatorType,
-                                nullabilityPropagationElements[0],
-                                sqlUnaryExpression.Type,
-                                sqlUnaryExpression.TypeMapping),
-                            operandNullable: null);
-
-                        foreach (var element in nullabilityPropagationElements.Skip(1))
-                        {
-                            result = SimplifyLogicalSqlBinaryExpression(
+                        var result = nullabilityPropagationElements
+                            .Select(e => ProcessNullNotNull(
+                                SqlExpressionFactory.MakeUnary(
+                                    sqlUnaryExpression.OperatorType,
+                                    e,
+                                    sqlUnaryExpression.Type,
+                                    sqlUnaryExpression.TypeMapping),
+                                operandNullable: null))
+                            .Aggregate((r, e) => SimplifyLogicalSqlBinaryExpression(
                                 sqlUnaryExpression.OperatorType == ExpressionType.Equal
-                                    ? SqlExpressionFactory.OrElse(
-                                        result,
-                                        ProcessNullNotNull(
-                                            SqlExpressionFactory.IsNull(element),
-                                            operandNullable: null))
-                                    : SqlExpressionFactory.AndAlso(
-                                        result,
-                                        ProcessNullNotNull(
-                                            SqlExpressionFactory.IsNotNull(element),
-                                            operandNullable: null)));
-                        }
+                                    ? SqlExpressionFactory.OrElse(r, e)
+                                    : SqlExpressionFactory.AndAlso(r, e)));
 
                         return result;
                     }

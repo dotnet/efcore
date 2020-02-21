@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     instance,
                     "STNumGeometries",
                     Array.Empty<SqlExpression>(),
-                    nullResultAllowed: true,
+                    nullable: true,
                     instancePropagatesNullability: true,
                     argumentsPropagateNullability: Array.Empty<bool>(),
                     returnType);

@@ -376,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return SqlFunctionExpression.Create(
                 "COALESCE",
                 typeMappedArguments,
-                nullResultAllowed: true,
+                nullable: true,
                 // COALESCE is handled separately since it's only nullable if *both* arguments are null
                 argumentsPropagateNullability: new[] { false, false },
                 resultType,
@@ -487,21 +487,24 @@ namespace Microsoft.EntityFrameworkCore.Query
             return new CaseExpression(typeMappedWhenClauses, elseResult);
         }
 
+        [Obsolete("Use overload that explicitly specifies value for 'argumentsPropagateNullability' argument.")]
         public virtual SqlFunctionExpression Function(
             string name,
             IEnumerable<SqlExpression> arguments,
             Type returnType,
             RelationalTypeMapping typeMapping = null)
-            => Function(name, arguments, nullResultAllowed: true, argumentsPropagateNullability: arguments.Select(a => false), returnType, typeMapping);
+            => Function(name, arguments, nullable: true, argumentsPropagateNullability: arguments.Select(a => false), returnType, typeMapping);
 
+        [Obsolete("Use overload that explicitly specifies value for 'argumentsPropagateNullability' argument.")]
         public virtual SqlFunctionExpression Function(
             string schema,
             string name,
             IEnumerable<SqlExpression> arguments,
             Type returnType,
             RelationalTypeMapping typeMapping = null)
-            => Function(schema, name, arguments, nullResultAllowed: true, argumentsPropagateNullability: arguments.Select(a => false), returnType, typeMapping);
+            => Function(schema, name, arguments, nullable: true, argumentsPropagateNullability: arguments.Select(a => false), returnType, typeMapping);
 
+        [Obsolete("Use overload that explicitly specifies values for 'instancePropagatesNullability' and 'argumentsPropagateNullability' arguments.")]
         public virtual SqlFunctionExpression Function(
             SqlExpression instance,
             string name,
@@ -512,25 +515,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                 instance,
                 name,
                 arguments,
-                nullResultAllowed: true,
+                nullable: true,
                 instancePropagatesNullability: false,
                 argumentsPropagateNullability: arguments.Select(a => false),
                 returnType,
                 typeMapping);
 
         public virtual SqlFunctionExpression Function(string name, Type returnType, RelationalTypeMapping typeMapping = null)
-            => Function(name, nullResultAllowed: true, returnType, typeMapping);
+            => Function(name, nullable: true, returnType, typeMapping);
 
         public virtual SqlFunctionExpression Function(string schema, string name, Type returnType, RelationalTypeMapping typeMapping = null)
-            => Function(schema, name, nullResultAllowed: true, returnType, typeMapping);
+            => Function(schema, name, nullable: true, returnType, typeMapping);
 
+        [Obsolete("Use overload that explicitly specifies value for 'instancePropagatesNullability' argument.")]
         public virtual SqlFunctionExpression Function(SqlExpression instance, string name, Type returnType, RelationalTypeMapping typeMapping = null)
-            => Function(instance, name, nullResultAllowed: true, instancePropagatesNullability: false, returnType, typeMapping);
+            => Function(instance, name, nullable: true, instancePropagatesNullability: false, returnType, typeMapping);
 
         public virtual SqlFunctionExpression Function(
             string name,
             IEnumerable<SqlExpression> arguments,
-            bool nullResultAllowed,
+            bool nullable,
             IEnumerable<bool> argumentsPropagateNullability,
             Type returnType,
             RelationalTypeMapping typeMapping = null)
@@ -549,7 +553,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return SqlFunctionExpression.Create(
                 name,
                 typeMappedArguments,
-                nullResultAllowed,
+                nullable,
                 argumentsPropagateNullability,
                 returnType,
                 typeMapping);
@@ -559,7 +563,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             string schema,
             string name,
             IEnumerable<SqlExpression> arguments,
-            bool nullResultAllowed,
+            bool nullable,
             IEnumerable<bool> argumentsPropagateNullability,
             Type returnType,
             RelationalTypeMapping typeMapping = null)
@@ -578,7 +582,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 schema,
                 name,
                 typeMappedArguments,
-                nullResultAllowed,
+                nullable,
                 argumentsPropagateNullability,
                 returnType,
                 typeMapping);
@@ -588,7 +592,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             SqlExpression instance,
             string name,
             IEnumerable<SqlExpression> arguments,
-            bool nullResultAllowed,
+            bool nullable,
             bool instancePropagatesNullability,
             IEnumerable<bool> argumentsPropagateNullability,
             Type returnType,
@@ -609,34 +613,34 @@ namespace Microsoft.EntityFrameworkCore.Query
                 instance,
                 name,
                 typeMappedArguments,
-                nullResultAllowed,
+                nullable,
                 instancePropagatesNullability,
                 argumentsPropagateNullability,
                 returnType,
                 typeMapping);
         }
 
-        public virtual SqlFunctionExpression Function(string name, bool nullResultAllowed, Type returnType, RelationalTypeMapping typeMapping = null)
+        public virtual SqlFunctionExpression Function(string name, bool nullable, Type returnType, RelationalTypeMapping typeMapping = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(returnType, nameof(returnType));
 
-            return SqlFunctionExpression.CreateNiladic(name, nullResultAllowed, returnType, typeMapping);
+            return SqlFunctionExpression.CreateNiladic(name, nullable, returnType, typeMapping);
         }
 
-        public virtual SqlFunctionExpression Function(string schema, string name, bool nullResultAllowed, Type returnType, RelationalTypeMapping typeMapping = null)
+        public virtual SqlFunctionExpression Function(string schema, string name, bool nullable, Type returnType, RelationalTypeMapping typeMapping = null)
         {
             Check.NotEmpty(schema, nameof(schema));
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(returnType, nameof(returnType));
 
-            return SqlFunctionExpression.CreateNiladic(schema, name, nullResultAllowed, returnType, typeMapping);
+            return SqlFunctionExpression.CreateNiladic(schema, name, nullable, returnType, typeMapping);
         }
 
         public virtual SqlFunctionExpression Function(
             SqlExpression instance,
             string name,
-            bool nullResultAllowed,
+            bool nullable,
             bool instancePropagatesNullability,
             Type returnType,
             RelationalTypeMapping typeMapping = null)
@@ -647,7 +651,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return SqlFunctionExpression.CreateNiladic(
                 ApplyDefaultTypeMapping(instance),
                 name,
-                nullResultAllowed,
+                nullable,
                 instancePropagatesNullability,
                 returnType,
                 typeMapping);

@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                                 arguments[0],
                                 _sqlExpressionFactory.Constant(2))
                         },
-                        nullResultAllowed: true,
+                        nullable: true,
                         instancePropagatesNullability: true,
                         argumentsPropagateNullability: new[] { true },
                         method.ReturnType,
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                             arguments[0],
                             _sqlExpressionFactory.Constant(1))
                     },
-                    nullResultAllowed: true,
+                    nullable: true,
                     instancePropagatesNullability: true,
                     argumentsPropagateNullability: new[] { true },
                     method.ReturnType,

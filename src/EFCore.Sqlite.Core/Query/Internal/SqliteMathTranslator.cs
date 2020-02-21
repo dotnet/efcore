@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 return _sqlExpressionFactory.Function(
                     sqlFunctionName,
                     finalArguments,
-                    nullResultAllowed: true,
+                    nullable: true,
                     argumentsPropagateNullability: finalArguments.Select(a => true).ToList(),
                     method.ReturnType,
                     typeMapping);

@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     _sqlExpressionFactory.Function(
                         "ISDATE",
                         new[] { arguments[1] },
-                        nullResultAllowed: true,
+                        nullable: true,
                         argumentsPropagateNullability: new[] { true },
                         _methodInfo.ReturnType),
                     _methodInfo.ReturnType)

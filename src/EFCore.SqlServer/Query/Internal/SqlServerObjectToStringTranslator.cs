@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     ? _sqlExpressionFactory.Function(
                         "CONVERT",
                         new[] { _sqlExpressionFactory.Fragment(storeType), instance },
-                        nullResultAllowed: true,
+                        nullable: true,
                         argumentsPropagateNullability: new bool[] { false, true },
                         typeof(string))
                     : null;

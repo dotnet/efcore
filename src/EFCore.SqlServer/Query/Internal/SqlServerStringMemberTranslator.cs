@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     _sqlExpressionFactory.Function(
                         "LEN",
                         new[] { instance },
-                        nullResultAllowed: true,
+                        nullable: true,
                         argumentsPropagateNullability: new[] { true },
                         typeof(long)),
                     returnType);

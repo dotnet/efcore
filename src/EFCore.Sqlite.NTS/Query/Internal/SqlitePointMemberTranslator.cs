@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 ? _sqlExpressionFactory.Function(
                     functionName,
                     new[] { instance },
-                    nullResultAllowed: true,
+                    nullable: true,
                     argumentsPropagateNullability: new[] { true },
                     returnType)
                 : null;

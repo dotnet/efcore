@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     ? SqlExpressionFactory.Function(
                         "length",
                         new[] { sqlExpression },
-                        nullResultAllowed: true,
+                        nullable: true,
                         argumentsPropagateNullability: new[] { true },
                         typeof(int))
                     : null;

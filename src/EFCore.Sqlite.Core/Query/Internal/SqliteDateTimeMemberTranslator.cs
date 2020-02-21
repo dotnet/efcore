@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                                 _sqlExpressionFactory.Function(
                                     "julianday",
                                     new[] { instance },
-                                    nullResultAllowed: true,
+                                    nullable: true,
                                     argumentsPropagateNullability: new[] { true },
                                     typeof(double)),
                                 _sqlExpressionFactory.Constant(1721425.5)), // NB: Result of julianday('0001-01-01 00:00:00')
@@ -137,12 +137,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                                     modifiers),
                                 _sqlExpressionFactory.Constant("0")
                             },
-                            nullResultAllowed: true,
+                            nullable: true,
                             argumentsPropagateNullability: new[] { true, false },
                             returnType),
                         _sqlExpressionFactory.Constant(".")
                     },
-                    nullResultAllowed: true,
+                    nullable: true,
                     argumentsPropagateNullability: new[] { true, false },
                     returnType);
             }

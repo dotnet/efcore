@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     SqlExpressionFactory.Function(
                         "AVG",
                         new[] { sqlExpression },
-                        nullResultAllowed: true,
+                        nullable: true,
                         argumentsPropagateNullability: new[] { false },
                         typeof(double)),
                     sqlExpression.Type,
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 : (SqlExpression)SqlExpressionFactory.Function(
                     "AVG",
                     new[] { sqlExpression },
-                    nullResultAllowed: true,
+                    nullable: true,
                     argumentsPropagateNullability: new[] { false },
                     sqlExpression.Type,
                     sqlExpression.TypeMapping);
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqlExpressionFactory.Function(
                     "COUNT",
                     new[] { SqlExpressionFactory.Fragment("*") },
-                    nullResultAllowed: false,
+                    nullable: false,
                     argumentsPropagateNullability: new[] { false },
                     typeof(int)));
         }
@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqlExpressionFactory.Function(
                     "COUNT",
                     new[] { SqlExpressionFactory.Fragment("*") },
-                    nullResultAllowed: false,
+                    nullable: false,
                     argumentsPropagateNullability: new[] { false },
                     typeof(long)));
         }
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ? SqlExpressionFactory.Function(
                     "MAX",
                     new[] { sqlExpression },
-                    nullResultAllowed: true,
+                    nullable: true,
                     argumentsPropagateNullability: new[] { false },
                     sqlExpression.Type,
                     sqlExpression.TypeMapping)
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ? SqlExpressionFactory.Function(
                     "MIN",
                     new[] { sqlExpression },
-                    nullResultAllowed: true,
+                    nullable: true,
                     argumentsPropagateNullability: new[] { false },
                     sqlExpression.Type,
                     sqlExpression.TypeMapping)
@@ -210,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     SqlExpressionFactory.Function(
                         "SUM",
                         new[] { sqlExpression },
-                        nullResultAllowed: true,
+                        nullable: true,
                         argumentsPropagateNullability: new[] { false },
                         typeof(double)),
                     inputType,
@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 : (SqlExpression)SqlExpressionFactory.Function(
                     "SUM",
                     new[] { sqlExpression },
-                    nullResultAllowed: true,
+                    nullable: true,
                     argumentsPropagateNullability: new[] { false },
                     inputType,
                     sqlExpression.TypeMapping);

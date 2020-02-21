@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         instance: e.First(),
                         "STDistance",
                         arguments: e.Skip(1),
-                        nullResultAllowed: true,
+                        nullable: true,
                         instancePropagatesNullability: true,
                         argumentsPropagateNullability: e.Skip(1).Select(a => true),
                         typeof(double),

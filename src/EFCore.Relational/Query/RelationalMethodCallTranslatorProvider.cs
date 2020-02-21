@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         dbFunction.Schema,
                         dbFunction.Name,
                         arguments,
-                        nullResultAllowed: true,
+                        nullable: true,
                         argumentsPropagateNullability: arguments.Select(a => false).ToList(),
                         method.ReturnType);
             }

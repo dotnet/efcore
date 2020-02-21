@@ -355,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return _sqlExpressionFactory.Function(
                     "DATEDIFF",
                     new[] { _sqlExpressionFactory.Fragment(datePart), startDate, endDate },
-                    nullResultAllowed: true,
+                    nullable: true,
                     argumentsPropagateNullability: new[] { false, true, true },
                     typeof(int));
             }

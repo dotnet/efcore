@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                             _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping),
                             _sqlExpressionFactory.ApplyTypeMapping(argument, stringTypeMapping)
                         },
-                        nullResultAllowed: true,
+                        nullable: true,
                         argumentsPropagateNullability: new[] { true, true },
                         method.ReturnType),
                     _sqlExpressionFactory.Constant(1));
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                         _sqlExpressionFactory.ApplyTypeMapping(firstArgument, stringTypeMapping),
                         _sqlExpressionFactory.ApplyTypeMapping(secondArgument, stringTypeMapping)
                     },
-                    nullResultAllowed: true,
+                    nullable: true,
                     argumentsPropagateNullability: new[] { true, true, true },
                     method.ReturnType,
                     stringTypeMapping);
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 return _sqlExpressionFactory.Function(
                     _toLowerMethodInfo.Equals(method) ? "lower" : "upper",
                     new[] { instance },
-                    nullResultAllowed: true,
+                    nullable: true,
                     argumentsPropagateNullability: new[] { true },
                     method.ReturnType,
                     instance.TypeMapping);
@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 return _sqlExpressionFactory.Function(
                     "substr",
                     new[] { instance, _sqlExpressionFactory.Add(arguments[0], _sqlExpressionFactory.Constant(1)), arguments[1] },
-                    nullResultAllowed: true,
+                    nullable: true,
                     argumentsPropagateNullability: new[] { true, true, true },
                     method.ReturnType,
                     instance.TypeMapping);
@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                         _sqlExpressionFactory.Function(
                             "trim",
                             new[] { argument },
-                            nullResultAllowed: true,
+                            nullable: true,
                             argumentsPropagateNullability: new[] { true },
                             argument.Type,
                             argument.TypeMapping),
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                         _sqlExpressionFactory.Function(
                             "instr",
                             new[] { instance, pattern },
-                            nullResultAllowed: true,
+                            nullable: true,
                             argumentsPropagateNullability: new[] { true, true },
                             typeof(int)),
                         _sqlExpressionFactory.Constant(0)));
@@ -276,11 +276,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                                     _sqlExpressionFactory.Function(
                                         "length",
                                         new[] { pattern },
-                                        nullResultAllowed: true,
+                                        nullable: true,
                                         argumentsPropagateNullability: new[] { true },
                                         typeof(int))
                                 },
-                                nullResultAllowed: true,
+                                nullable: true,
                                 argumentsPropagateNullability: new[] { true, false, true },
                                 typeof(string),
                                 stringTypeMapping),
@@ -301,11 +301,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                                 _sqlExpressionFactory.Function(
                                     "length",
                                     new[] { pattern },
-                                    nullResultAllowed: true,
+                                    nullable: true,
                                     argumentsPropagateNullability: new[] { true },
                                     typeof(int)))
                         },
-                        nullResultAllowed: true,
+                        nullable: true,
                         argumentsPropagateNullability: new[] { true, true },
                         typeof(string),
                         stringTypeMapping),
@@ -373,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 functionName,
                 sqlArguments,
 
-                nullResultAllowed: true,
+                nullable: true,
                 argumentsPropagateNullability: sqlArguments.Select(a => true).ToList(),
                 typeof(string),
                 typeMapping);

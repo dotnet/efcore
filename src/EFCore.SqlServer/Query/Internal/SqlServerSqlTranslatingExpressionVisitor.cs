@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 var dataLengthSqlFunction = SqlExpressionFactory.Function(
                     "DATALENGTH",
                     new[] { sqlExpression },
-                    nullResultAllowed: true,
+                    nullable: true,
                     argumentsPropagateNullability: new bool[] { true },
                     isBinaryMaxDataType ? typeof(long) : typeof(int));
 
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 SqlExpressionFactory.Function(
                     "COUNT_BIG",
                     new[] { SqlExpressionFactory.Fragment("*") },
-                    nullResultAllowed: true,
+                    nullable: false,
                     argumentsPropagateNullability: new[] { false },
                     typeof(long)));
         }

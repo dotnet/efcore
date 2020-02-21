@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         SqlFunctionExpression Function(
             [NotNull] string name,
             [NotNull] IEnumerable<SqlExpression> arguments,
-            bool nullResultAllowed,
+            bool nullable,
             [NotNull] IEnumerable<bool> argumentsPropagateNullability,
             [NotNull] Type returnType,
             [CanBeNull] RelationalTypeMapping typeMapping = null);
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [CanBeNull] string schema,
             [NotNull] string name,
             [NotNull] IEnumerable<SqlExpression> arguments,
-            bool nullResultAllowed,
+            bool nullable,
             [NotNull] IEnumerable<bool> argumentsPropagateNullability,
             [NotNull] Type returnType,
             [CanBeNull] RelationalTypeMapping typeMapping = null);
@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [CanBeNull] SqlExpression instance,
             [NotNull] string name,
             [NotNull] IEnumerable<SqlExpression> arguments,
-            bool nullResultAllowed,
+            bool nullable,
             bool instancePropagatesNullability,
             [NotNull] IEnumerable<bool> argumentsPropagateNullability,
             [NotNull] Type returnType,
@@ -160,21 +160,21 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         SqlFunctionExpression Function(
             [NotNull] string name,
-            bool nullResultAllowed,
+            bool nullable,
             [NotNull] Type returnType,
             [CanBeNull] RelationalTypeMapping typeMapping = null);
 
         SqlFunctionExpression Function(
             [NotNull] string schema,
             [NotNull] string name,
-            bool nullResultAllowed,
+            bool nullable,
             [NotNull] Type returnType,
             [CanBeNull] RelationalTypeMapping typeMapping = null);
 
         SqlFunctionExpression Function(
             [CanBeNull] SqlExpression instance,
             [NotNull] string name,
-            bool nullResultAllowed,
+            bool nullable,
             bool instancePropagatesNullability,
             [NotNull] Type returnType,
             [CanBeNull] RelationalTypeMapping typeMapping = null);

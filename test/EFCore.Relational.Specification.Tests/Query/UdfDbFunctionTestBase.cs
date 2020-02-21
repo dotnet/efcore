@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .HasTranslation(args => SqlFunctionExpression.Create(
                         "IsDate",
                         args,
-                        nullResultAllowed: true,
+                        nullable: true,
                         argumentsPropagateNullability: args.Select(a => true).ToList(),
                         isDateMethodInfo.ReturnType,
                         null));
@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .HasTranslation(args => SqlFunctionExpression.Create(
                         "len",
                         args,
-                        nullResultAllowed: true,
+                        nullable: true,
                         argumentsPropagateNullability: args.Select(a => true).ToList(),
                         methodInfo.ReturnType,
                         null));
@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .HasTranslation(args => SqlFunctionExpression.Create(
                         "IsDate",
                         args,
-                        nullResultAllowed: true,
+                        nullable: true,
                         argumentsPropagateNullability: args.Select(a => true).ToList(),
                         isDateMethodInfo2.ReturnType,
                         null));
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .HasTranslation(args => SqlFunctionExpression.Create(
                         "len",
                         args,
-                        nullResultAllowed: true,
+                        nullable: true,
                         argumentsPropagateNullability: args.Select(a => true).ToList(),
                         methodInfo2.ReturnType,
                         null));

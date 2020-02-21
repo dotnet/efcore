@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return _sqlExpressionFactory.Function(
                     value.FunctionName,
                     arguments.Skip(1),
-                    nullResultAllowed: true,
+                    nullable: true,
                     argumentsPropagateNullability: arguments.Skip(1).Select(a => true),
                     _dateFromPartsMethodInfo.ReturnType,
                     _typeMappingSource.FindMapping(_dateFromPartsMethodInfo.ReturnType, value.ReturnType));

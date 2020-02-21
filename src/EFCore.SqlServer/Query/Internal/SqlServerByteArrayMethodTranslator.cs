@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     _sqlExpressionFactory.Function(
                         "CHARINDEX",
                         new[] { value, source },
-                        nullResultAllowed: true,
+                        nullable: true,
                         argumentsPropagateNullability: new[] { true, true },
                         typeof(int)),
                     _sqlExpressionFactory.Constant(0));

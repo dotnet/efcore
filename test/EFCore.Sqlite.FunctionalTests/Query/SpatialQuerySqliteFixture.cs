@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     e => SqlFunctionExpression.Create(
                         "Distance",
                         arguments: e,
-                        nullResultAllowed: true,
+                        nullable: true,
                         argumentsPropagateNullability: e.Select(a => true).ToList(),
                         typeof(double),
                         null)));

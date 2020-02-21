@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return _sqlExpressionFactory.Function(
                     sqlFunctionName,
                     newArguments,
-                    nullResultAllowed: true,
+                    nullable: true,
                     argumentsPropagateNullability: newArguments.Select(a => true).ToArray(),
                     method.ReturnType,
                     sqlFunctionName == "SIGN" ? null : typeMapping);
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return _sqlExpressionFactory.Function(
                     "ROUND",
                     new[] { argument, _sqlExpressionFactory.Constant(0), _sqlExpressionFactory.Constant(1) },
-                    nullResultAllowed: true,
+                    nullable: true,
                     argumentsPropagateNullability: new[] { true, false, false },
                     method.ReturnType,
                     argument.TypeMapping);
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return _sqlExpressionFactory.Function(
                     "ROUND",
                     new[] { argument, digits },
-                    nullResultAllowed: true,
+                    nullable: true,
                     argumentsPropagateNullability: new[] { true, true },
                     method.ReturnType,
                     argument.TypeMapping);

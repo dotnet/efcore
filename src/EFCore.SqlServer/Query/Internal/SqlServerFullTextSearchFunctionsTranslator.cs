@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return _sqlExpressionFactory.Function(
                     functionName,
                     functionArguments,
-                    nullResultAllowed: true,
+                    nullable: true,
                     // TODO: don't propagate for now
                     argumentsPropagateNullability: functionArguments.Select(a => false).ToList(),
                     typeof(bool));

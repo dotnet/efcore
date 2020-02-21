@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             return sqlExpressionFactory.Function(
                 "strftime",
                 finalArguments,
-                nullResultAllowed: true,
+                nullable: true,
                 argumentsPropagateNullability: finalArguments.Select(a => true),
                 returnType,
                 typeMapping);

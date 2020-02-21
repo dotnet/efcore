@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 return _sqlExpressionFactory.Function(
                     "InteriorRingN",
                     new[] { instance, _sqlExpressionFactory.Add(arguments[0], _sqlExpressionFactory.Constant(1)) },
-                    nullResultAllowed: true,
+                    nullable: true,
                     argumentsPropagateNullability: new [] { true, true },
                     method.ReturnType);
             }
