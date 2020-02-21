@@ -457,9 +457,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             if (key == null)
             {
-                var line = new List<string> { $".{nameof(EntityTypeBuilder.HasNoKey)}()" };
+                if (!useDataAnnotations)
+                {
+                    var line = new List<string> { $".{nameof(EntityTypeBuilder.HasNoKey)}()" };
 
-                AppendMultiLineFluentApi(entityType, line);
+                    AppendMultiLineFluentApi(entityType, line);
+                }
 
                 return;
             }

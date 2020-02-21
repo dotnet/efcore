@@ -66,6 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 _sb.AppendLine("using System.ComponentModel.DataAnnotations;");
                 _sb.AppendLine("using System.ComponentModel.DataAnnotations.Schema;");
+                _sb.AppendLine("using Microsoft.EntityFrameworkCore;"); // For attributes coming out of Abstractions
             }
 
             foreach (var ns in entityType.GetProperties()
@@ -132,7 +133,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             Check.NotNull(entityType, nameof(entityType));
 
+            GenerateKeylessAttribute(entityType);
             GenerateTableAttribute(entityType);
+        }
+
+        private void GenerateKeylessAttribute(IEntityType entityType)
+        {
+            if (entityType.FindPrimaryKey() == null)
+            {
+                _sb.AppendLine(new AttributeWriter(nameof(KeylessAttribute)));
+            }
         }
 
         private void GenerateTableAttribute(IEntityType entityType)
@@ -156,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     tableAttribute.AddParameter($"{nameof(TableAttribute.Schema)} = {_code.Literal(schema)}");
                 }
 
-                _sb.AppendLine(tableAttribute.ToString());
+                _sb.AppendLine(tableAttribute);
             }
         }
 
@@ -278,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                 lengthAttribute.AddParameter(_code.Literal(maxLength.Value));
 
-                _sb.AppendLine(lengthAttribute.ToString());
+                _sb.AppendLine(lengthAttribute);
             }
         }
 
@@ -288,7 +298,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 && property.ClrType.IsNullableType()
                 && !property.IsPrimaryKey())
             {
-                _sb.AppendLine(new AttributeWriter(nameof(RequiredAttribute)).ToString());
+                _sb.AppendLine(new AttributeWriter(nameof(RequiredAttribute)));
             }
         }
 
@@ -351,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         foreignKeyAttribute.AddParameter($"nameof({navigation.ForeignKey.Properties.First().Name})");
                     }
 
-                    _sb.AppendLine(foreignKeyAttribute.ToString());
+                    _sb.AppendLine(foreignKeyAttribute);
                 }
             }
         }
@@ -372,7 +382,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             ? $"nameof({inverseNavigation.DeclaringEntityType.Name}.{inverseNavigation.Name})"
                             : _code.Literal(inverseNavigation.Name));
 
-                    _sb.AppendLine(inversePropertyAttribute.ToString());
+                    _sb.AppendLine(inversePropertyAttribute);
                 }
             }
         }
