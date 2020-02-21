@@ -123,6 +123,8 @@ namespace Microsoft.EntityFrameworkCore
             public int Id { get; set; }
 
             public string Name { get; set; }
+
+            public LazyNonVirtualOwnedNavEntity Owner { get; set; }
         }
 
         public class LazyHiddenFieldEntity
