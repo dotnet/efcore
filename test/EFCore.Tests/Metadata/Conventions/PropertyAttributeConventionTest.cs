@@ -509,6 +509,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.True(entityTypeBuilder.Property<byte[]>(nameof(F.Timestamp)).Metadata.IsConcurrencyToken);
         }
 
+        #endregion
+
+        #region BackingFieldAttribute
+
         [ConditionalFact]
         public void BackingFieldAttribute_overrides_configuration_from_convention_source()
         {
@@ -574,13 +578,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             new DatabaseGeneratedAttributeConvention(dependencies)
                 .ProcessPropertyAdded(propertyBuilder, context);
 
-            new KeyAttributeConvention(dependencies)
+            new RequiredPropertyAttributeConvention(dependencies)
                 .ProcessPropertyAdded(propertyBuilder, context);
 
             new MaxLengthAttributeConvention(dependencies)
-                .ProcessPropertyAdded(propertyBuilder, context);
-
-            new RequiredPropertyAttributeConvention(dependencies)
                 .ProcessPropertyAdded(propertyBuilder, context);
 
             new StringLengthAttributeConvention(dependencies)
@@ -590,6 +591,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 .ProcessPropertyAdded(propertyBuilder, context);
 
             new BackingFieldAttributeConvention(dependencies)
+                .ProcessPropertyAdded(propertyBuilder, context);
+
+            new KeyAttributeConvention(dependencies)
                 .ProcessPropertyAdded(propertyBuilder, context);
         }
 
