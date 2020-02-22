@@ -511,6 +511,12 @@ FROM [LineStringEntity] AS [l]");
 FROM [PointEntity] AS [p]");
         }
 
+        // No SqlServer Translation
+        public override Task Normalized(bool async)
+        {
+            return Task.CompletedTask;
+        }
+
         public override async Task NumGeometries(bool async)
         {
             await base.NumGeometries(async);

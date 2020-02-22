@@ -936,6 +936,22 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Normalized(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Normalized = e.Polygon.Normalized() }),
+                ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Normalized = e.Polygon == null ? null : e.Polygon.Normalized() }),
+                elementSorter: x => x.Id,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+                    Assert.Equal(e.Normalized, a.Normalized, GeometryComparer.Instance);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task NumGeometries(bool async)
         {
             return AssertQuery(
