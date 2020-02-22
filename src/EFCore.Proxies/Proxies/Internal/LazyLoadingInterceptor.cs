@@ -7,6 +7,7 @@ using Castle.DynamicProxy;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 {
@@ -68,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                     var navigation = _entityType.FindNavigation(navigationName);
 
                     if (navigation != null
-                        && !navigation.IsEagerLoaded)
+                        && !navigation.IsLoadedByOwner())
                     {
                         _loader.Load(invocation.Proxy, navigationName);
                     }
