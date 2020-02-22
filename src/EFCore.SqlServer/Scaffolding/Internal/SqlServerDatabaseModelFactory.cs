@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                 "nvarchar"
             };
 
-        private const string NamePartRegex
+        private const string _namePartRegex
             = @"(?:(?:\[(?<part{0}>(?:(?:\]\])|[^\]])+)\])|(?<part{0}>[^\.\[\]]+))";
 
         private static readonly Regex _partExtractor
@@ -60,8 +60,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                 string.Format(
                     CultureInfo.InvariantCulture,
                     @"^{0}(?:\.{1})?$",
-                    string.Format(CultureInfo.InvariantCulture, NamePartRegex, 1),
-                    string.Format(CultureInfo.InvariantCulture, NamePartRegex, 2)),
+                    string.Format(CultureInfo.InvariantCulture, _namePartRegex, 1),
+                    string.Format(CultureInfo.InvariantCulture, _namePartRegex, 2)),
                 RegexOptions.Compiled,
                 TimeSpan.FromMilliseconds(1000));
 
@@ -75,6 +75,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                 { "int", new[] { -2147483648L, 2147483647L } },
                 { "bigint", new[] { -9223372036854775808L, 9223372036854775807L } }
             };
+
+        private byte? _compatibilityLevel;
+        private int? _engineEdition;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -125,6 +128,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 
             try
             {
+                _compatibilityLevel = GetCompatibilityLevel(connection);
+                _engineEdition = GetEngineEdition(connection);
+
                 databaseModel.DatabaseName = connection.Database;
                 databaseModel.DefaultSchema = GetDefaultSchema(connection);
 
@@ -135,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                 var tableList = options.Tables.ToList();
                 var tableFilter = GenerateTableFilter(tableList.Select(Parse).ToList(), schemaFilter);
 
-                if (SupportsSequences(connection))
+                if (SupportsSequences())
                 {
                     GetSequences(connection, databaseModel, schemaFilter, typeAliases);
                 }
@@ -166,10 +172,33 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
             }
             finally
             {
+                _compatibilityLevel = null;
+                _engineEdition = null;
+
                 if (!connectionStartedOpen)
                 {
                     connection.Close();
                 }
+            }
+
+            static int GetEngineEdition(DbConnection connection)
+            {
+                using var command = connection.CreateCommand();
+                command.CommandText = @"
+SELECT SERVERPROPERTY('EngineEdition');";
+                return (int)command.ExecuteScalar();
+            }
+
+            static byte GetCompatibilityLevel(DbConnection connection)
+            {
+                using var command = connection.CreateCommand();
+                command.CommandText = $@"
+SELECT compatibility_level
+FROM sys.databases
+WHERE name = '{connection.Database}';";
+
+                var result = command.ExecuteScalar();
+                return result != null ? Convert.ToByte(result) : (byte)0;
             }
         }
 
@@ -420,8 +449,8 @@ WHERE "
             using var command = connection.CreateCommand();
             var tables = new List<DatabaseTable>();
 
-            var supportsMemoryOptimizedTable = SupportsMemoryOptimizedTable(connection);
-            var supportsTemporalTable = SupportsTemporalTable(connection);
+            var supportsMemoryOptimizedTable = SupportsMemoryOptimizedTable();
+            var supportsTemporalTable = SupportsTemporalTable();
 
             var commandText = @"
 SELECT
@@ -592,7 +621,7 @@ LEFT JOIN [sys].[extended_properties] AS [e] ON [e].[major_id] = [o].[object_id]
 LEFT JOIN [sys].[computed_columns] AS [cc] ON [c].[object_id] = [cc].[object_id] AND [c].[column_id] = [cc].[column_id]
 LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_object_id] AND [c].[column_id] = [dc].[parent_column_id]";
 
-            if (SupportsTemporalTable(connection))
+            if (SupportsTemporalTable())
             {
                 commandText += " WHERE [c].[is_hidden] = 0";
             }
@@ -804,7 +833,7 @@ JOIN [sys].[columns] AS [c] ON [ic].[object_id] = [c].[object_id] AND [ic].[colu
 WHERE "
                 + tableFilter;
 
-            if (SupportsTemporalTable(connection))
+            if (SupportsTemporalTable())
             {
                 commandText += @"
 AND CAST([i].[object_id] AS nvarchar(12)) + '#' + CAST([i].[index_id] AS nvarchar(12)) NOT IN
@@ -1074,63 +1103,32 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
             }
         }
 
-        private bool SupportsTemporalTable(DbConnection connection)
+        private bool SupportsTemporalTable()
         {
-            return CompatibilityLevel(connection) >= 130 && EngineEdition(connection) != 6;
+            return _compatibilityLevel >= 130 && _engineEdition != 6;
         }
 
-        private bool SupportsMemoryOptimizedTable(DbConnection connection)
+        private bool SupportsMemoryOptimizedTable()
         {
-            return CompatibilityLevel(connection) >= 120 && EngineEdition(connection) != 6;
+            return _compatibilityLevel >= 120 && _engineEdition != 6;
         }
 
-        private bool SupportsSequences(DbConnection connection)
+        private bool SupportsSequences()
         {
-            return CompatibilityLevel(connection) >= 110 && EngineEdition(connection) != 6;
-        }
-
-        private int EngineEdition(DbConnection connection)
-        {
-            using var command = connection.CreateCommand();
-            command.CommandText = @"
-SELECT SERVERPROPERTY('EngineEdition');";
-            return (int)command.ExecuteScalar();
-        }
-
-        private byte CompatibilityLevel(DbConnection connection)
-        {
-            using var command = connection.CreateCommand();
-            command.CommandText = $@"
-SELECT compatibility_level
-FROM sys.databases
-WHERE name = '{connection.Database}';";
-
-            var result = command.ExecuteScalar();
-            return result != null ? Convert.ToByte(result) : (byte)0;
+            return _compatibilityLevel >= 110 && _engineEdition != 6;
         }
 
         private static string DisplayName(string? schema, string name)
             => (!string.IsNullOrEmpty(schema) ? schema + "." : "") + name;
 
         private static ReferentialAction? ConvertToReferentialAction(string? onDeleteAction)
-        {
-            switch (onDeleteAction)
+            => onDeleteAction switch
             {
-                case "NO_ACTION":
-                    return ReferentialAction.NoAction;
-
-                case "CASCADE":
-                    return ReferentialAction.Cascade;
-
-                case "SET_NULL":
-                    return ReferentialAction.SetNull;
-
-                case "SET_DEFAULT":
-                    return ReferentialAction.SetDefault;
-
-                default:
-                    return null;
-            }
-        }
+                "NO_ACTION" => ReferentialAction.NoAction,
+                "CASCADE" => ReferentialAction.Cascade,
+                "SET_NULL" => ReferentialAction.SetNull,
+                "SET_DEFAULT" => ReferentialAction.SetDefault,
+                _ => null,
+            };
     }
 }
