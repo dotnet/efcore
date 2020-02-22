@@ -1769,5 +1769,29 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
 
             return (EventDefinition<string>)definition;
         }
+
+        /// <summary>
+        ///     The OnUpdate ReferentialAction will be reset to the default value after renaming the foreign key '{name}' to '{newName}' in table '{tableName}'
+        /// </summary>
+        public static EventDefinition<string, string, string> LogMigrationOnUpdateReferentialActionResetToDefaultWarning([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogMigrationOnUpdateReferentialActionResetToDefaultWarning;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogMigrationOnUpdateReferentialActionResetToDefaultWarning,
+                    () => new EventDefinition<string, string, string>(
+                        logger.Options,
+                        RelationalEventId.MigrationOnUpdateReferentialActionResetToDefaultWarning,
+                        LogLevel.Warning,
+                        "RelationalEventId.MigrationOnUpdateReferentialActionResetToDefaultWarning",
+                        level => LoggerMessage.Define<string, string, string>(
+                            level,
+                            RelationalEventId.MigrationOnUpdateReferentialActionResetToDefaultWarning,
+                            _resourceManager.GetString("LogMigrationOnUpdateReferentialActionResetToDefaultWarning"))));
+            }
+
+            return (EventDefinition<string, string, string>)definition;
+        }
     }
 }

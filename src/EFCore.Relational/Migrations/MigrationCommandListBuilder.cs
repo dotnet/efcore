@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     new MigrationCommand(
                         _commandBuilder.Build(),
                         _dependencies.CurrentContext.Context,
-                        _dependencies.Logger,
+                        _dependencies.CommandLogger,
                         suppressTransaction));
 
                 _commandBuilder = _dependencies.CommandBuilderFactory.Create();

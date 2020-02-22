@@ -124,7 +124,8 @@ Statement3
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
-            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Migrations>();
+            var commandLogger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
             var generationHelper = new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies());
             var migrationsAnnotations = new MigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies());
             var relationalAnnotations = new RelationalAnnotationProvider(new RelationalAnnotationProviderDependencies());
@@ -143,6 +144,7 @@ Statement3
                     new CurrentDbContext(new FakeDbContext()),
                     new LoggingOptions(),
                     logger,
+                    commandLogger,
                     migrationsAnnotations,
                     relationalAnnotations));
         }

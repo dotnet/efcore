@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -117,6 +118,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         protected virtual IUpdateSqlGenerator SqlGenerator
             => Dependencies.UpdateSqlGenerator;
+
+        /// <summary>
+        ///     The <see cref="IDiagnosticsLogger{T}" /> of type <see cref="DbLoggerCategory.Migrations" />.
+        /// </summary>
+        protected virtual IDiagnosticsLogger<DbLoggerCategory.Migrations> Logger
+            => Dependencies.Logger;
 
         /// <summary>
         ///     Gets a comparer that can be used to compare two product versions.
@@ -454,6 +461,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 // Todo: Have a look at his and possibly fix it after https://github.com/dotnet/efcore/issues/4073 has been closed.
                 //OnUpdate = Whatever it was, we've reset it to default now
             };
+            Logger.MigrationOnUpdateReferentialActionResetToDefaultWarning(operation);
+
             addOperation.AddAnnotations(RelationalAnnotations.For(foreignKey));
 
             Generate(dropOperation, model, builder, terminate: false);

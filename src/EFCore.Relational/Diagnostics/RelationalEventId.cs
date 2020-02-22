@@ -65,6 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             MigrationsNotApplied,
             MigrationsNotFound,
             MigrationAttributeMissingWarning,
+            MigrationOnUpdateReferentialActionResetToDefaultWarning,
 
             // Query events
             QueryClientEvaluationWarning = CoreEventId.RelationalBaseId + 500,
@@ -495,6 +496,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId MigrationAttributeMissingWarning = MakeMigrationsId(Id.MigrationAttributeMissingWarning);
+
+        /// <summary>
+        ///     <para>
+        ///         An OnUpdate ReferentialAction is reset to default
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="EventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId MigrationOnUpdateReferentialActionResetToDefaultWarning = MakeMigrationsId(Id.MigrationOnUpdateReferentialActionResetToDefaultWarning);
 
         private static readonly string _queryPrefix = DbLoggerCategory.Query.Name + ".";
         private static EventId MakeQueryId(Id id) => new EventId((int)id, _queryPrefix + id);

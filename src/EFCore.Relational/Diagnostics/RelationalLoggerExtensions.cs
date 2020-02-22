@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Update;
@@ -3394,6 +3395,41 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var d = (EventDefinition<string>)definition;
             var p = (MigrationTypeEventData)payload;
             return d.GenerateMessage(p.MigrationType.Name);
+        }
+
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.MigrationAttributeMissingWarning" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="renameForeignKeyOperation"> The <see cref="RenameForeignKeyOperation"/> causing the warning. </param>
+        public static void MigrationOnUpdateReferentialActionResetToDefaultWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
+            [NotNull] RenameForeignKeyOperation renameForeignKeyOperation)
+        {
+            var definition = RelationalResources.LogMigrationOnUpdateReferentialActionResetToDefaultWarning(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics, renameForeignKeyOperation.Name, renameForeignKeyOperation.NewName, renameForeignKeyOperation.Table);
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new RenameForeignKeyEventData(
+                    definition,
+                    MigrationOnUpdateReferentialActionResetToDefaultWarning,
+                    renameForeignKeyOperation);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        private static string MigrationOnUpdateReferentialActionResetToDefaultWarning(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string, string>)definition;
+            var o = ((RenameForeignKeyEventData)payload).RenameForeignKeyOperation;
+            return d.GenerateMessage(o.Name, o.NewName, o.Table);
         }
 
         /// <summary>

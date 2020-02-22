@@ -64,7 +64,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] IRelationalTypeMappingSource typeMappingSource,
             [NotNull] ICurrentDbContext currentContext,
             [NotNull] ILoggingOptions loggingOptions,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Migrations> logger,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger,
             [NotNull] IMigrationsAnnotationProvider migrationsAnnotations,
             [NotNull] IRelationalAnnotationProvider relationalAnnotations)
         {
@@ -75,6 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(currentContext, nameof(currentContext));
             Check.NotNull(loggingOptions, nameof(loggingOptions));
             Check.NotNull(logger, nameof(logger));
+            Check.NotNull(commandLogger, nameof(commandLogger));
             Check.NotNull(migrationsAnnotations, nameof(migrationsAnnotations));
             Check.NotNull(relationalAnnotations, nameof(relationalAnnotations));
 
@@ -85,6 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             CurrentContext = currentContext;
             LoggingOptions = loggingOptions;
             Logger = logger;
+            CommandLogger = commandLogger;
             MigrationsAnnotations = migrationsAnnotations;
             RelationalAnnotations = relationalAnnotations;
         }
@@ -121,8 +124,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         /// <summary>
         ///     The database command logger.
+        ///     A logger for commands.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Database.Command> Logger { get; }
+        public IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger { get; }
+
+        /// <summary>
+        ///     A logger for migrations.
+        /// </summary>
+        public IDiagnosticsLogger<DbLoggerCategory.Migrations> Logger { get; }
 
         /// <summary>
         ///     The migrations annotations to use.
@@ -148,6 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 CurrentContext,
                 LoggingOptions,
                 Logger,
+                CommandLogger,
                 MigrationsAnnotations,
                 RelationalAnnotations);
 
@@ -165,6 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 CurrentContext,
                 LoggingOptions,
                 Logger,
+                CommandLogger,
                 MigrationsAnnotations,
                 RelationalAnnotations);
 
@@ -182,6 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 CurrentContext,
                 LoggingOptions,
                 Logger,
+                CommandLogger,
                 MigrationsAnnotations,
                 RelationalAnnotations);
 
@@ -199,6 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 CurrentContext,
                 LoggingOptions,
                 Logger,
+                CommandLogger,
                 MigrationsAnnotations,
                 RelationalAnnotations);
 
@@ -216,6 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 currentContext,
                 LoggingOptions,
                 Logger,
+                CommandLogger,
                 MigrationsAnnotations,
                 RelationalAnnotations);
 
@@ -233,6 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 CurrentContext,
                 loggingOptions,
                 Logger,
+                CommandLogger,
                 MigrationsAnnotations,
                 RelationalAnnotations);
 
@@ -241,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="logger"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public MigrationsSqlGeneratorDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
+        public MigrationsSqlGeneratorDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Migrations> logger)
             => new MigrationsSqlGeneratorDependencies(
                 CommandBuilderFactory,
                 UpdateSqlGenerator,
@@ -250,6 +265,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 CurrentContext,
                 LoggingOptions,
                 logger,
+                CommandLogger,
+                MigrationsAnnotations,
+                RelationalAnnotations);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="commandLogger"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public MigrationsSqlGeneratorDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
+            => new MigrationsSqlGeneratorDependencies(
+                CommandBuilderFactory,
+                UpdateSqlGenerator,
+                SqlGenerationHelper,
+                TypeMappingSource,
+                CurrentContext,
+                LoggingOptions,
+                Logger,
+                commandLogger,
                 MigrationsAnnotations,
                 RelationalAnnotations);
 
@@ -267,6 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 CurrentContext,
                 LoggingOptions,
                 Logger,
+                CommandLogger,
                 migrationsAnnotations,
                 RelationalAnnotations);
 
@@ -284,6 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 CurrentContext,
                 LoggingOptions,
                 Logger,
+                CommandLogger,
                 MigrationsAnnotations,
                 relationalAnnotations);
     }

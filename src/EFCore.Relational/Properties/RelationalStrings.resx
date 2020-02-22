@@ -593,4 +593,8 @@
   <data name="UniqueConstraintNotFound" xml:space="preserve">
     <value>The unique constraint '{uniqueConstraintName}' was not found.</value>
   </data>
+  <data name="LogMigrationOnUpdateReferentialActionResetToDefaultWarning" xml:space="preserve">
+    <value>The OnUpdate ReferentialAction will be reset to the default value after renaming the foreign key '{name}' to '{newName}' in table '{tableName}'</value>
+    <comment>Warning RelationalEventId.MigrationOnUpdateReferentialActionResetToDefaultWarning string string string</comment>
+  </data>
 </root>
