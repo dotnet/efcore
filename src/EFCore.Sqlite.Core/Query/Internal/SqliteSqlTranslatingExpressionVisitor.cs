@@ -59,10 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     typeof(TimeSpan),
                     typeof(ulong)
                 },
-                [ExpressionType.Modulo] = new HashSet<Type>
-                {
-                    typeof(ulong)
-                },
+                [ExpressionType.Modulo] = new HashSet<Type> { typeof(ulong) },
                 [ExpressionType.Multiply] = new HashSet<Type>
                 {
                     typeof(decimal),
@@ -98,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             Check.NotNull(unaryExpression, nameof(unaryExpression));
 
             if (unaryExpression.NodeType == ExpressionType.ArrayLength
-                 && unaryExpression.Operand.Type == typeof(byte[]))
+                && unaryExpression.Operand.Type == typeof(byte[]))
             {
                 return base.Visit(unaryExpression.Operand) is SqlExpression sqlExpression
                     ? SqlExpressionFactory.Function(
@@ -149,6 +146,71 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 {
                     return SqlExpressionFactory.Function(
                         "ef_mod",
+                        new[] { sqlBinary.Left, sqlBinary.Right },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { true, true },
+                        visitedExpression.Type,
+                        visitedExpression.TypeMapping);
+                }
+
+                if (sqlBinary.OperatorType == ExpressionType.GreaterThan
+                    && (_functionModuloTypes.Contains(GetProviderType(sqlBinary.Left))
+                        || _functionModuloTypes.Contains(GetProviderType(sqlBinary.Right))))
+                {
+                    return SqlExpressionFactory.Function(
+                        "ef_compare_gt",
+                        new[] { sqlBinary.Left, sqlBinary.Right },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { true, true },
+                        visitedExpression.Type,
+                        visitedExpression.TypeMapping);
+                }
+
+                if (sqlBinary.OperatorType == ExpressionType.GreaterThanOrEqual
+                    && (_functionModuloTypes.Contains(GetProviderType(sqlBinary.Left))
+                        || _functionModuloTypes.Contains(GetProviderType(sqlBinary.Right))))
+                {
+                    return SqlExpressionFactory.Function(
+                        "ef_compare_geq",
+                        new[] { sqlBinary.Left, sqlBinary.Right },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { true, true },
+                        visitedExpression.Type,
+                        visitedExpression.TypeMapping);
+                }
+
+                if (sqlBinary.OperatorType == ExpressionType.LessThan
+                    && (_functionModuloTypes.Contains(GetProviderType(sqlBinary.Left))
+                        || _functionModuloTypes.Contains(GetProviderType(sqlBinary.Right))))
+                {
+                    return SqlExpressionFactory.Function(
+                        "ef_compare_lt",
+                        new[] { sqlBinary.Left, sqlBinary.Right },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { true, true },
+                        visitedExpression.Type,
+                        visitedExpression.TypeMapping);
+                }
+
+                if (sqlBinary.OperatorType == ExpressionType.LessThanOrEqual
+                    && (_functionModuloTypes.Contains(GetProviderType(sqlBinary.Left))
+                        || _functionModuloTypes.Contains(GetProviderType(sqlBinary.Right))))
+                {
+                    return SqlExpressionFactory.Function(
+                        "ef_compare_leq",
+                        new[] { sqlBinary.Left, sqlBinary.Right },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { true, true },
+                        visitedExpression.Type,
+                        visitedExpression.TypeMapping);
+                }
+
+                if (sqlBinary.OperatorType == ExpressionType.Equal
+                    && (_functionModuloTypes.Contains(GetProviderType(sqlBinary.Left))
+                        || _functionModuloTypes.Contains(GetProviderType(sqlBinary.Right))))
+                {
+                    return SqlExpressionFactory.Function(
+                        "ef_compare_eq",
                         new[] { sqlBinary.Left, sqlBinary.Right },
                         nullable: true,
                         argumentsPropagateNullability: new[] { true, true },
