@@ -2736,10 +2736,17 @@ namespace Microsoft.EntityFrameworkCore
 
                 modelBuilder.Entity<NonVirtualOneToOneOwner>();
                 modelBuilder.Entity<VirtualOneToOneOwner>();
-                modelBuilder.Entity<NonVirtualOneToManyOwner>();
-                modelBuilder.Entity<VirtualOneToManyOwner>();
-                modelBuilder.Entity<ExplicitLazyLoadNonVirtualOneToManyOwner>();
-                modelBuilder.Entity<ExplicitLazyLoadVirtualOneToManyOwner>();
+
+                // Note: Sqlite does not support auto-increment on composite keys
+                // so have to redefine the key for this to work in Sqlite
+                modelBuilder.Entity<NonVirtualOneToManyOwner>()
+                    .OwnsMany(o => o.Addresses, a => a.HasKey("Id"));
+                modelBuilder.Entity<VirtualOneToManyOwner>()
+                    .OwnsMany(o => o.Addresses, a => a.HasKey("Id"));
+                modelBuilder.Entity<ExplicitLazyLoadNonVirtualOneToManyOwner>()
+                    .OwnsMany(o => o.Addresses, a => a.HasKey("Id"));
+                modelBuilder.Entity<ExplicitLazyLoadVirtualOneToManyOwner>()
+                    .OwnsMany(o => o.Addresses, a => a.HasKey("Id"));
             }
 
             protected override void Seed(DbContext context)
