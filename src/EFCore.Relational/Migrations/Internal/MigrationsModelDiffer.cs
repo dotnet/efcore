@@ -54,6 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private static readonly Type[] _renameOperationTypes =
         {
+            typeof(RenameCheckConstraintOperation),
             typeof(RenameColumnOperation),
             typeof(RenameForeignKeyOperation),
             typeof(RenameIndexOperation),
@@ -1505,7 +1506,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Add,
                 Remove,
                 (s, t, c) => c.GetTable(s.EntityType) == c.FindSource(c.GetTable(t.EntityType))
-                    && string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
                     && string.Equals(s.Sql, t.Sql, StringComparison.OrdinalIgnoreCase));
 
         /// <summary>
@@ -1516,7 +1516,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
             [NotNull] ICheckConstraint source, [NotNull] ICheckConstraint target, [NotNull] DiffContext diffContext)
-            => Enumerable.Empty<MigrationOperation>();
+        {
+            var targetEntityType = target.EntityType;
+            var sourceName = source.Name;
+            var targetName = target.Name;
+
+            if (sourceName != targetName)
+            {
+                yield return new RenameCheckConstraintOperation
+                {
+                    Schema = targetEntityType.GetSchema(),
+                    Table = targetEntityType.GetTableName(),
+                    Name = sourceName,
+                    NewName = targetName
+                };
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

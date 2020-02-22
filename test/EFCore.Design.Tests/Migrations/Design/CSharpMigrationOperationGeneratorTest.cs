@@ -2350,6 +2350,52 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         [ConditionalFact]
+        public void RenameCheckConstraintOperation_required_args()
+        {
+            Test(
+                new RenameCheckConstraintOperation
+                {
+                    Name = "CK_Post_Title_IsTiCase",
+                    NewName = "CK_Post_Title_IsTitleCase"
+                },
+                "mb.RenameCheckConstraint(" + _eol +
+                "    name: \"CK_Post_Title_IsTiCase\"," + _eol +
+                "    newName: \"CK_Post_Title_IsTitleCase\");",
+                o =>
+                {
+                    Assert.Equal("CK_Post_Title_IsTiCase", o.Name);
+                    Assert.Equal("CK_Post_Title_IsTitleCase", o.NewName);
+                    Assert.Null(o.Table);
+                    Assert.Null(o.Schema);
+                });
+        }
+
+        [ConditionalFact]
+        public void RenameCheckConstraintOperation_all_args()
+        {
+            Test(
+                new RenameForeignKeyOperation
+                {
+                    Name = "CK_Post_Title_IsTiCase",
+                    Schema = "dbo",
+                    Table = "Post",
+                    NewName = "CK_Post_Title_IsTitleCase"
+                },
+                "mb.RenameForeignKey(" + _eol +
+                "    name: \"CK_Post_Title_IsTiCase\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    table: \"Post\"," + _eol +
+                "    newName: \"CK_Post_Title_IsTitleCase\");",
+                o =>
+                {
+                    Assert.Equal("CK_Post_Title_IsTiCase", o.Name);
+                    Assert.Equal("dbo", o.Schema);
+                    Assert.Equal("Post", o.Table);
+                    Assert.Equal("CK_Post_Title_IsTitleCase", o.NewName);
+                });
+        }
+
+        [ConditionalFact]
         public void RenameForeignKeyOperation_required_args()
         {
             Test(

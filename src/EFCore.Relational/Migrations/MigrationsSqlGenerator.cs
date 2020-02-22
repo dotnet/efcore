@@ -62,6 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     { typeof(DropUniqueConstraintOperation), (g, o, m, b) => g.Generate((DropUniqueConstraintOperation)o, m, b) },
                     { typeof(DropCheckConstraintOperation), (g, o, m, b) => g.Generate((DropCheckConstraintOperation)o, m, b) },
                     { typeof(EnsureSchemaOperation), (g, o, m, b) => g.Generate((EnsureSchemaOperation)o, m, b) },
+                    { typeof(RenameCheckConstraintOperation), (g, o, m, b) => g.Generate((RenameCheckConstraintOperation)o, m, b) },
                     { typeof(RenameColumnOperation), (g, o, m, b) => g.Generate((RenameColumnOperation)o, m, b) },
                     { typeof(RenameForeignKeyOperation), (g, o, m, b) => g.Generate((RenameForeignKeyOperation)o, m, b) },
                     { typeof(RenameIndexOperation), (g, o, m, b) => g.Generate((RenameIndexOperation)o, m, b) },
@@ -358,12 +359,58 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         /// <summary>
         ///     <para>
-        ///         Can be overridden by database providers to build commands for the given <see cref="RenameForeignKeyOperation" />
+        ///         Can be overridden by database providers to build commands for the given <see cref="RenameCheckConstraintOperation" />
         ///         by making calls on the given <see cref="MigrationCommandListBuilder" />.
         ///     </para>
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to build the commands. </param>
+        protected virtual void Generate(
+            [NotNull] RenameCheckConstraintOperation  operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            var checkConstraint = model?.GetRelationalModel().FindTable(operation.Table, operation.Schema).CheckConstraints
+                .FirstOrDefault(c => c.Name == operation.Name);
+
+            if (checkConstraint == null)
+            {
+                throw new ArgumentException(
+                    // Todo: Create string resource
+                    RelationalStrings.ForeignKeyNotFound(operation.Name), nameof(operation));
+            }
+
+            var dropOperation = new DropCheckConstraintOperation
+            {
+                Schema = operation.Schema,
+                Table = operation.Table,
+                Name = operation.Name
+            };
+            dropOperation.AddAnnotations(MigrationsAnnotations.ForRemove(checkConstraint));
+
+            var addOperation = new CreateCheckConstraintOperation
+            {
+                Schema = operation.Schema,
+                Table = operation.Table,
+                Name = operation.NewName,
+                Sql = checkConstraint.Sql
+            };
+            addOperation.AddAnnotations(RelationalAnnotations.For(checkConstraint));
+
+            Generate(dropOperation, model, builder);
+            builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+
+            Generate(addOperation, model, builder);
+        }
+
+        /// <summary>
         ///     <para>
-        ///         Note that the default implementation of this method throws <see cref="NotImplementedException" />. Providers
-        ///         must override if they are to support this kind of operation.
+        ///         Can be overridden by database providers to build commands for the given <see cref="RenameForeignKeyOperation" />
+        ///         by making calls on the given <see cref="MigrationCommandListBuilder" />.
         ///     </para>
         /// </summary>
         /// <param name="operation"> The operation. </param>
@@ -441,10 +488,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         Can be overridden by database providers to build commands for the given <see cref="RenamePrimaryKeyOperation" />
         ///         by making calls on the given <see cref="MigrationCommandListBuilder" />.
         ///     </para>
-        ///     <para>
-        ///         Note that the default implementation of this method throws <see cref="NotImplementedException" />. Providers
-        ///         must override if they are to support this kind of operation.
-        ///     </para>
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
@@ -492,10 +535,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     <para>
         ///         Can be overridden by database providers to build commands for the given <see cref="RenameUniqueConstraintOperation" />
         ///         by making calls on the given <see cref="MigrationCommandListBuilder" />.
-        ///     </para>
-        ///     <para>
-        ///         Note that the default implementation of this method throws <see cref="NotImplementedException" />. Providers
-        ///         must override if they are to support this kind of operation.
         ///     </para>
         /// </summary>
         /// <param name="operation"> The operation. </param>

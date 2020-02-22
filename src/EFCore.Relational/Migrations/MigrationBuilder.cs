@@ -1012,6 +1012,35 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
+        ///     Builds an <see cref="RenameCheckConstraintOperation" /> to rename an existing check constraint.
+        /// </summary>
+        /// <param name="name"> The name of the check constraint to be renamed.</param>
+        /// <param name="newName"> The new name for the check constraint. </param>
+        /// <param name="table"> The table that the check constraint belongs to. </param>
+        /// <param name="schema"> The schema that contains the table, or <c>null</c> to use the default schema. </param>
+        /// <returns> A builder to allow annotations to be added to the operation. </returns>
+        public virtual OperationBuilder<RenameCheckConstraintOperation> RenameCheckConstraint(
+            [NotNull] string name,
+            [NotNull] string newName,
+            [CanBeNull] string table = null,
+            [CanBeNull] string schema = null)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotEmpty(newName, nameof(newName));
+
+            var operation = new RenameCheckConstraintOperation
+            {
+                Schema = schema,
+                Table = table,
+                Name = name,
+                NewName = newName
+            };
+            Operations.Add(operation);
+
+            return new OperationBuilder<RenameCheckConstraintOperation>(operation);
+        }
+
+        /// <summary>
         ///     Builds an <see cref="RenameForeignKeyOperation" /> to rename an existing primary key.
         /// </summary>
         /// <param name="name"> The name of the primary key to be renamed.</param>

@@ -471,6 +471,9 @@ CREATE INDEX ""foo"" ON ""People"" (""FirstName"");");
         public override Task Drop_check_constraint()
             => AssertNotSupportedAsync(base.Drop_check_constraint, SqliteStrings.InvalidMigrationOperation("DropCheckConstraintOperation"));
 
+        public override Task Rename_check_constraint()
+            => AssertNotSupportedAsync(base.Rename_check_constraint, SqliteStrings.InvalidMigrationOperation("RenameCheckConstraintOperation"));
+
         public override Task Create_sequence()
             => AssertNotSupportedAsync(base.Create_sequence, SqliteStrings.SequencesNotSupported);
 

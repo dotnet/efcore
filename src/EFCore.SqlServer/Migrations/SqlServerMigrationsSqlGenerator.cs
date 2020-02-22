@@ -385,6 +385,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected override void Generate(
+            RenameCheckConstraintOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            Rename(
+                Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema),
+                operation.NewName,
+                builder);
+            builder.EndCommand(suppressTransaction: IsMemoryOptimized(operation, model, operation.Schema, operation.Table));
+        }
+
+        /// <summary>
+        ///     Builds commands for the given <see cref="RenameForeignKeyOperation" />
+        ///     by making calls on the given <see cref="MigrationCommandListBuilder" />.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to build the commands. </param>
+        protected override void Generate(
             RenameForeignKeyOperation operation,
             IModel model,
             MigrationCommandListBuilder builder)

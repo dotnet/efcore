@@ -1605,6 +1605,14 @@ ALTER TABLE [People] ALTER COLUMN [SomeField] nvarchar(450) NOT NULL;",
                 @"ALTER TABLE [People] DROP CONSTRAINT [CK_Foo];");
         }
 
+        public override async Task Rename_check_constraint()
+        {
+            await base.Rename_check_constraint();
+
+            AssertSql(
+                @"EXEC sp_rename N'[CK_Foo]', N'CK_Bar';");
+        }
+
         public override async Task Create_sequence()
         {
             await base.Create_sequence();

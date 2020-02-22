@@ -2577,18 +2577,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }),
                 operations =>
                 {
-                    Assert.Equal(2, operations.Count);
+                    Assert.Equal(1, operations.Count);
 
-                    var dropOperation = Assert.IsType<DropCheckConstraintOperation>(operations[0]);
-                    Assert.Equal("dbo", dropOperation.Schema);
-                    Assert.Equal("Pelican", dropOperation.Table);
-                    Assert.Equal("CK_Flamingo_AlternateId", dropOperation.Name);
-
-                    var createOperation = Assert.IsType<CreateCheckConstraintOperation>(operations[1]);
-                    Assert.Equal("dbo", createOperation.Schema);
-                    Assert.Equal("Pelican", createOperation.Table);
-                    Assert.Equal("CK_Flamingo", createOperation.Name);
-                    Assert.Equal("AlternateId > Id", createOperation.Sql);
+                    var renameOperation = Assert.IsType<RenameCheckConstraintOperation>(operations[0]);
+                    Assert.Equal("dbo", renameOperation.Schema);
+                    Assert.Equal("Pelican", renameOperation.Table);
+                    Assert.Equal("CK_Flamingo_AlternateId", renameOperation.Name);
+                    Assert.Equal("CK_Flamingo", renameOperation.NewName);
                 });
         }
 
