@@ -94,12 +94,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         CaseExpression Case([NotNull] SqlExpression operand, [NotNull] params CaseWhenClause[] whenClauses);
         CaseExpression Case([NotNull] IReadOnlyList<CaseWhenClause> whenClauses, [CanBeNull] SqlExpression elseResult);
 
+        [Obsolete("Use overload that explicitly specifies value for 'argumentsPropagateNullability' argument.")]
         SqlFunctionExpression Function(
             [NotNull] string name,
             [NotNull] IEnumerable<SqlExpression> arguments,
             [NotNull] Type returnType,
             [CanBeNull] RelationalTypeMapping typeMapping = null);
 
+        [Obsolete("Use overload that explicitly specifies value for 'argumentsPropagateNullability' argument.")]
         SqlFunctionExpression Function(
             [CanBeNull] string schema,
             [NotNull] string name,
@@ -107,6 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] Type returnType,
             [CanBeNull] RelationalTypeMapping typeMapping = null);
 
+        [Obsolete("Use overload that explicitly specifies value for 'argumentsPropagateNullability' argument.")]
         SqlFunctionExpression Function(
             [CanBeNull] SqlExpression instance,
             [NotNull] string name,
@@ -125,6 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] Type returnType,
             [CanBeNull] RelationalTypeMapping typeMapping = null);
 
+        [Obsolete("Use overload that explicitly specifies value for 'argumentsPropagateNullability' argument.")]
         SqlFunctionExpression Function(
             [CanBeNull] SqlExpression instance,
             [NotNull] string name,

@@ -39,7 +39,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     {
                         _sqlExpressionFactory.Fragment(value),
                         instance
-                    }, returnType);
+                    },
+                    nullable: true,
+                    argumentsPropagateNullability: new [] { false, true },
+                    returnType);
             }
 
             return null;
