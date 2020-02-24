@@ -126,8 +126,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var entityBuilder = modelBuilder.Entity<KeyClash>();
 
-            Assert.False(entityBuilder.Metadata.IsKeyless);
-            Assert.NotNull(entityBuilder.Metadata.FindPrimaryKey());
+            Assert.True(entityBuilder.Metadata.IsKeyless);
+            Assert.Null(entityBuilder.Metadata.FindPrimaryKey());
         }
 
         #endregion

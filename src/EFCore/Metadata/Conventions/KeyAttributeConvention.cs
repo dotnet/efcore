@@ -47,6 +47,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return;
             }
 
+            if (entityType.IsKeyless
+                && entityType.GetIsKeylessConfigurationSource().Overrides(ConfigurationSource.DataAnnotation))
+            {
+                // TODO: Log a warning that KeyAttribute is being ignored. See issue#20014
+                // This code path will also be hit when entity is marked as Keyless explicitly
+                return;
+            }
+
             var entityTypeBuilder = entityType.Builder;
             var currentKey = entityTypeBuilder.Metadata.FindPrimaryKey();
             var properties = new List<string> { propertyBuilder.Metadata.Name };
