@@ -11,6 +11,7 @@
     <DotNetCliVersion>3.1.100</DotNetCliVersion>
 
     <EnableAzurePipelinesReporter>true</EnableAzurePipelinesReporter>
+    <EnableAzurePipelinesReporter Condition= "'$(IsFork)' == 'true'">false</EnableAzurePipelinesReporter>
     <FailOnTestFailure>true</FailOnTestFailure>
     <EnableXUnitReporter>true</EnableXUnitReporter>
     <FailOnMissionControlTestFailure>true</FailOnMissionControlTestFailure>

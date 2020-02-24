@@ -203,6 +203,9 @@ stages:
                   value: efcore
                 - name: _HelixAccessToken
                   value: '' # Needed for public queues
+                - ${{ if eq(variables['system.pullrequest.isfork'], true) }}:
+                  - name: IsFork
+                    value: true
               - ${{ if ne(variables['System.TeamProject'], 'public') }}:
                 - name: HelixTargetQueues
                   value: Windows.10.Amd64
@@ -244,6 +247,9 @@ stages:
                   value: efcore
                 - name: _HelixAccessToken
                   value: '' # Needed for public queues
+                - ${{ if eq(variables['system.pullrequest.isfork'], true) }}:
+                  - name: IsFork
+                    value: true
               - ${{ if ne(variables['System.TeamProject'], 'public') }}:
                 - name: HelixTargetQueues
                   value: Ubuntu.1804.Amd64;OSX.1014.Amd64
