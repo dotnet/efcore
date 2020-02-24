@@ -120,14 +120,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         [ConditionalFact]
-        public void KeyAttribute_overrides_keyless_attribute()
+        public void KeyAttribute_does_not_override_keyless_attribute()
         {
             var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
             var entityBuilder = modelBuilder.Entity<KeyClash>();
 
-            Assert.False(entityBuilder.Metadata.IsKeyless);
-            Assert.NotNull(entityBuilder.Metadata.FindPrimaryKey());
+            Assert.True(entityBuilder.Metadata.IsKeyless);
+            Assert.Null(entityBuilder.Metadata.FindPrimaryKey());
         }
 
         #endregion

@@ -70,6 +70,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         void HasNoKey(bool? keyless, bool fromDataAnnotation = false);
 
         /// <summary>
+        ///     Returns the configuration source for the IsKeyless property.
+        /// </summary>
+        /// <returns> The configuration source for the IsKeyless property. </returns>
+        ConfigurationSource? GetIsKeylessConfigurationSource();
+
+        /// <summary>
         ///     Sets the primary key for this entity type.
         /// </summary>
         /// <param name="properties"> The properties that make up the primary key. </param>

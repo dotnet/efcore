@@ -94,6 +94,23 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Warns_on_attempt_to_set_key_when_entity_is_keyless()
+        {
+            var model = CreateConventionalModelBuilder().Model;
+
+            var entity = model.AddEntityType(typeof(KeylessAndKeyConflict));
+
+            VerifyWarning(
+                CoreResources.LogConflictingKeylessAndKeyConfiguration(
+                    new TestLogger<TestLoggingDefinitions>())
+                    .GenerateMessage("NotAKey", nameof(KeylessAndKeyConflict)),
+                model);
+
+            Assert.True(entity.IsKeyless);
+            Assert.Null(entity.FindPrimaryKey());
+        }
+
+        [ConditionalFact]
         public virtual void Ignores_custom_converter_for_collection_type_with_comparer()
         {
             var convertedProperty = CreateConvertedCollectionProperty();
