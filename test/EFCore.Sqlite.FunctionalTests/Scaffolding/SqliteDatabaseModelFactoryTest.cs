@@ -320,6 +320,45 @@ DROP TABLE FirstDependent;
 DROP TABLE PrincipalTable;");
         }
 
+        [ConditionalFact]
+        public void Create_composite_foreign_key_with_default_columns()
+        {
+            Test(
+                @"
+                    CREATE TABLE MinimalFKTest1 (
+                        Id1 INTEGER,
+                        Id2 INTEGER,
+                        Id3 INTEGER,
+                        PRIMARY KEY (Id2, Id3, Id1)
+                    );
+
+                    CREATE TABLE MinimalFKTest2 (
+                        Id3 INTEGER,
+                        Id2 INTEGER,
+                        Id1 INTEGER,
+                        FOREIGN KEY (Id3, Id1, Id2) REFERENCES MinimalFKTest1
+                    )
+                ",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    Assert.Equal(2, dbModel.Tables.Count);
+
+                    var table = dbModel.Tables.Single(t => t.Name == "MinimalFKTest2");
+
+                    var foreignKey = Assert.Single(table.ForeignKeys);
+                    Assert.Equal(new[] { "Id3", "Id1", "Id2" }, foreignKey.Columns.Select(c => c.Name));
+                    Assert.Equal("MinimalFKTest1", foreignKey.PrincipalTable.Name);
+                    Assert.Equal(new[] { "Id2", "Id3", "Id1" }, foreignKey.PrincipalColumns.Select(c => c.Name));
+
+                },
+                @"
+                    DROP TABLE MinimalFKTest2;
+                    DROP TABLE MinimalFKTest1;
+                ");
+        }
+
         #endregion
 
         #region ColumnFacets
