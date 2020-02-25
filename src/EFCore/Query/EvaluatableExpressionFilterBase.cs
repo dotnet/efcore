@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             foreach (var plugin in Dependencies.Plugins)
             {
-                if (!plugin.IsEvaluatableExpression(expression, model))
+                if (!plugin.IsEvaluatableExpression(expression))
                 {
                     return false;
                 }
