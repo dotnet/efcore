@@ -2919,7 +2919,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="property"> The property which is being defined as part of a key. </param>
         public static void ConflictingKeylessAndKeyConfigurationWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             [NotNull] IProperty property)
         {
             var definition = CoreResources.LogConflictingKeylessAndKeyConfiguration(diagnostics);

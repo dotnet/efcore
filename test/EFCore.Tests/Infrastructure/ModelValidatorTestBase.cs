@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Linq;
@@ -106,13 +105,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         protected class F : D
         {
-        }
-
-        [Keyless]
-        protected class KeylessAndKeyConflict
-        {
-            [Key] // should be ignored because of Keyless above
-            public int NotAKey { get; set; }
         }
 
         protected abstract class Abstract : A

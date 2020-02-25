@@ -3911,7 +3911,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The property '{property}' is being defined as being part of a key, but its entity '{entity}' is defined as being keyless.
+        ///     Conflicting attributes have been applied: the 'Key' attribute on property '{property}' and the 'Keyless' attribute on its entity '{entity}'. Note that the entity will have no key unless you use fluent API to override this.
         /// </summary>
         public static EventDefinition<string, string> LogConflictingKeylessAndKeyConfiguration([NotNull] IDiagnosticsLogger logger)
         {
