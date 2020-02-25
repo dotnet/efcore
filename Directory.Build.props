@@ -14,11 +14,6 @@
 
   <PropertyGroup>
     <DefaultNetCoreTargetFramework>netcoreapp3.1</DefaultNetCoreTargetFramework>
-
-    <!-- Working around https://github.com/NuGet/Home/issues/8467 -->
-    <NoWarn>$(NoWarn);NU5131</NoWarn>
-    <!-- TODO - remove this line once we use embedded package icons -->
-    <NoWarn>$(NoWarn);NU5048</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup>
