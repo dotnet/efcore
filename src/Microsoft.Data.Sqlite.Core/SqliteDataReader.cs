@@ -545,6 +545,16 @@ namespace Microsoft.Data.Sqlite
                     : _record.GetStream(ordinal);
 
         /// <summary>
+        ///     Retrieves data as a <see cref="TextReader" />.
+        /// </summary>
+        /// <param name="ordinal">The zero-based column ordinal.</param>
+        /// <returns>The returned object.</returns>
+        public override TextReader GetTextReader(int ordinal)
+            => IsDBNull(ordinal)
+                ? (TextReader)new StringReader(string.Empty)
+                : new StreamReader(GetStream(ordinal), Encoding.UTF8);
+
+        /// <summary>
         ///     Gets the value of the specified column.
         /// </summary>
         /// <typeparam name="T">The type of the value.</typeparam>
