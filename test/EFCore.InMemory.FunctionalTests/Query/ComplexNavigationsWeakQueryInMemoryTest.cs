@@ -59,5 +59,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return base.OrderBy_collection_count_ThenBy_reference_navigation(async);
         }
+
+        [ConditionalTheory(Skip = "issue #19967")]
+        public override Task SelectMany_with_outside_reference_to_joined_table_correctly_translated_to_apply(bool async)
+        {
+            return base.SelectMany_with_outside_reference_to_joined_table_correctly_translated_to_apply(async);
+        }
     }
 }

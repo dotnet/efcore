@@ -4460,6 +4460,23 @@ ORDER BY (
     WHERE [l0].[Id] IS NOT NULL AND ([l0].[Id] = [l2].[OneToMany_Required_Inverse3Id])), [l1].[Name]");
         }
 
+        public override async Task SelectMany_with_outside_reference_to_joined_table_correctly_translated_to_apply(bool async)
+        {
+            await base.SelectMany_with_outside_reference_to_joined_table_correctly_translated_to_apply(async);
+
+            AssertSql(
+                @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
+FROM [LevelOne] AS [l]
+INNER JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
+INNER JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Level2_Required_Id]
+INNER JOIN [LevelFour] AS [l2] ON [l1].[Id] = [l2].[Level3_Required_Id]
+OUTER APPLY (
+    SELECT [l3].[Id], [l3].[Date], [l3].[Name], [l3].[OneToMany_Optional_Self_Inverse1Id], [l3].[OneToMany_Required_Self_Inverse1Id], [l3].[OneToOne_Optional_Self1Id]
+    FROM [LevelOne] AS [l3]
+    WHERE ([l3].[Id] <= [l0].[Id]) AND (([l2].[Name] = [l3].[Name]) OR ([l2].[Name] IS NULL AND [l3].[Name] IS NULL))
+) AS [t]");
+        }
+
         private void AssertSql(params string[] expected) => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
 }

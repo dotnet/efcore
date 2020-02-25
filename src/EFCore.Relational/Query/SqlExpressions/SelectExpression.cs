@@ -882,7 +882,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             var joinPredicate = TryExtractJoinKey(innerSelectExpression);
-            var containsOuterReference = new SelectExpressionCorrelationFindingExpressionVisitor(Tables)
+            var containsOuterReference = new SelectExpressionCorrelationFindingExpressionVisitor(this)
                 .ContainsOuterReference(innerSelectExpression);
             if (containsOuterReference && joinPredicate != null)
             {
@@ -1152,12 +1152,15 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         private class SelectExpressionCorrelationFindingExpressionVisitor : ExpressionVisitor
         {
-            private readonly IReadOnlyList<TableExpressionBase> _tables;
+            private readonly SelectExpression _outerSelectExpression;
             private bool _containsOuterReference;
 
-            public SelectExpressionCorrelationFindingExpressionVisitor(IReadOnlyList<TableExpressionBase> tables)
+            private readonly bool _quirkMode19825;
+
+            public SelectExpressionCorrelationFindingExpressionVisitor(SelectExpression outerSelectExpression)
             {
-                _tables = tables;
+                _outerSelectExpression = outerSelectExpression;
+                _quirkMode19825 = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue19825", out var enabled) && enabled;
             }
 
             public bool ContainsOuterReference(SelectExpression selectExpression)
@@ -1176,12 +1179,25 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     return expression;
                 }
 
-                if (expression is ColumnExpression columnExpression
-                    && _tables.Contains(columnExpression.Table))
+                if (_quirkMode19825)
                 {
-                    _containsOuterReference = true;
+                    if (expression is ColumnExpression columnExpression
+                        && _outerSelectExpression.Tables.Contains(columnExpression.Table))
+                    {
+                        _containsOuterReference = true;
 
-                    return expression;
+                        return expression;
+                    }
+                }
+                else
+                {
+                    if (expression is ColumnExpression columnExpression
+                        && _outerSelectExpression.ContainsTableReference(columnExpression.Table))
+                    {
+                        _containsOuterReference = true;
+
+                        return expression;
+                    }
                 }
 
                 return base.Visit(expression);
@@ -1230,7 +1246,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 joinPredicate = TryExtractJoinKey(innerSelectExpression);
                 if (joinPredicate != null)
                 {
-                    var containsOuterReference = new SelectExpressionCorrelationFindingExpressionVisitor(Tables)
+                    var containsOuterReference = new SelectExpressionCorrelationFindingExpressionVisitor(this)
                         .ContainsOuterReference(innerSelectExpression);
                     if (containsOuterReference)
                     {
