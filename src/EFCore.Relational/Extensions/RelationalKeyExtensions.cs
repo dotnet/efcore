@@ -32,14 +32,14 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The default key constraint name that would be used for this key. </returns>
         public static string GetDefaultName([NotNull] this IKey key)
         {
-            var sharedTablePrincipalPrimaryKeyProperty = key.Properties[0].FindSharedTableRootPrimaryKeyProperty();
+            var sharedTablePrincipalPrimaryKeyProperty = key.Properties[0].FindSharedRootPrimaryKeyProperty();
             if (sharedTablePrincipalPrimaryKeyProperty != null)
             {
                 return sharedTablePrincipalPrimaryKeyProperty.FindContainingPrimaryKey().GetName();
             }
 
             var builder = new StringBuilder();
-            var tableName = key.DeclaringEntityType.GetTableName();
+            var tableName = key.DeclaringEntityType.GetTableName() ?? key.DeclaringEntityType.GetViewName();
 
             if (key.IsPrimaryKey())
             {

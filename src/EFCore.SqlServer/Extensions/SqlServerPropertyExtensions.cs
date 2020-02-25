@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore
                 return (SqlServerValueGenerationStrategy)annotation;
             }
 
-            var sharedTablePrincipalPrimaryKeyProperty = property.FindSharedTableRootPrimaryKeyProperty();
+            var sharedTablePrincipalPrimaryKeyProperty = property.FindSharedRootPrimaryKeyProperty();
             if (sharedTablePrincipalPrimaryKeyProperty != null)
             {
                 return sharedTablePrincipalPrimaryKeyProperty.GetValueGenerationStrategy()

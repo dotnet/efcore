@@ -96,8 +96,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return;
             }
 
-            var oldLink = pk.Properties.First().FindSharedTableLink(oldTable, oldSchema);
-            var newLink = pk.Properties.First().FindSharedTableLink();
+            var oldLink = pk.Properties.First().FindSharedObjectLink(oldTable, oldSchema);
+            var newLink = pk.Properties.First().FindSharedObjectLink();
 
             if (oldLink == null
                 && newLink == null)
