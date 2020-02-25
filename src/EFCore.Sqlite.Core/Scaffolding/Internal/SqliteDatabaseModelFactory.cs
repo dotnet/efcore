@@ -12,12 +12,15 @@ using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+using static SQLitePCL.raw;
 
 #nullable enable
 
@@ -231,10 +234,31 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 
                 _logger.ColumnFound(table.Name, columnName, dataType, notNull, defaultValue);
 
+                var autoIncrement = 0;
+                if (connection is SqliteConnection sqliteConnection
+                    && !(table is DatabaseView))
+                {
+                    var db = sqliteConnection.Handle;
+                    var rc = sqlite3_table_column_metadata(
+                        db,
+                        connection.Database,
+                        table.Name,
+                        columnName,
+                        out var _,
+                        out var _,
+                        out var _,
+                        out var _,
+                        out autoIncrement);
+                    SqliteException.ThrowExceptionForRC(rc, db);
+                }
+
                 table.Columns.Add(new DatabaseColumn(table, columnName, dataType)
                 {
                     IsNullable = !notNull,
-                    DefaultValueSql = defaultValue
+                    DefaultValueSql = defaultValue,
+                    ValueGenerated = autoIncrement != 0
+                        ? ValueGenerated.OnAdd
+                        : default(ValueGenerated?)
                 });
             }
         }

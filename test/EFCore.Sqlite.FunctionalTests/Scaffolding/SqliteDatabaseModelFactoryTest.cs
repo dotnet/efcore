@@ -8,6 +8,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Sqlite.Design.Internal;
@@ -416,6 +417,35 @@ CREATE TABLE DefaultValue (
                     Assert.Null(column.DefaultValueSql);
                 },
                 "DROP TABLE DefaultValueClr");
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Column_ValueGenerated_is_set(bool autoIncrement)
+        {
+            Test(
+                $@"
+                    CREATE TABLE AutoIncTest (
+                        Id INTEGER PRIMARY KEY {(autoIncrement ? "AUTOINCREMENT" : null)}
+                    )
+                ",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var table = Assert.Single(dbModel.Tables);
+                    Assert.Equal("AutoIncTest", table.Name);
+
+                    var column = Assert.Single(table.Columns);
+                    Assert.Equal("Id", column.Name);
+                    Assert.Equal(
+                        autoIncrement
+                            ? ValueGenerated.OnAdd
+                            : default(ValueGenerated?),
+                        column.ValueGenerated);
+                },
+                "DROP TABLE AutoIncTest");
         }
 
         #endregion
