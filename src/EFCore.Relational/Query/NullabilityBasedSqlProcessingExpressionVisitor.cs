@@ -421,6 +421,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 VisitInternal<SqlExpression>(projectionExpression.Expression).ResultExpression);
         }
 
+        protected override Expression VisitQueryableSqlFunctionExpression(QueryableSqlFunctionExpression queryableFunctionExpression)
+            => Check.NotNull(queryableFunctionExpression, nameof(queryableFunctionExpression));
+
         protected override Expression VisitRowNumber(RowNumberExpression rowNumberExpression)
         {
             Check.NotNull(rowNumberExpression, nameof(rowNumberExpression));

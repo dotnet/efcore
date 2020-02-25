@@ -25,6 +25,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             public string Something { get; set; }
         }
 
+        [ConditionalFact(Skip = "Issue#20051")]
+        public void Model_differ_does_not_detect_queryable_function_result_type()
+        {
+            Execute(
+                _ => { },
+                modelBuilder => modelBuilder.Entity<TestQueryType>().ToQueryableFunctionResultType(),
+                result => Assert.Equal(0, result.Count));
+        }
+
         [ConditionalFact]
         public void Model_differ_does_not_detect_views()
         {

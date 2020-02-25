@@ -454,6 +454,9 @@ namespace Microsoft.EntityFrameworkCore
                 return true;
             }
 
+            if (entityType.FindAnnotation(RelationalAnnotationNames.QueryableFunctionResultType) != null)
+                return true;
+
             var viewDefinition = entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinition);
             if (viewDefinition == null)
             {

@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var sqlExpressionFactory = relationalDependencies.SqlExpressionFactory;
             _sqlTranslator = relationalDependencies.RelationalSqlTranslatingExpressionVisitorFactory.Create(model, this);
             _weakEntityExpandingExpressionVisitor = new WeakEntityExpandingExpressionVisitor(_sqlTranslator, sqlExpressionFactory);
-            _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator);
+            _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator, model);
             _model = model;
             _sqlExpressionFactory = sqlExpressionFactory;
             _subquery = false;
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             _model = parentVisitor._model;
             _sqlTranslator = parentVisitor._sqlTranslator;
             _weakEntityExpandingExpressionVisitor = parentVisitor._weakEntityExpandingExpressionVisitor;
-            _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator);
+            _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator, _model);
             _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
             _subquery = true;
         }
@@ -77,13 +77,30 @@ namespace Microsoft.EntityFrameworkCore.Query
                     queryable.EntityType, _sqlExpressionFactory.Select(queryable.EntityType, sql, methodCallExpression.Arguments[2]));
             }
 
+            var dbFunction = this._model.FindDbFunction(methodCallExpression.Method);
+            if (dbFunction != null && dbFunction.IsIQueryable)
+            {
+                return CreateShapedQueryExpression(methodCallExpression);
+            }
+
             return base.VisitMethodCall(methodCallExpression);
         }
 
         protected override QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor()
             => new RelationalQueryableMethodTranslatingExpressionVisitor(this);
 
-        [Obsolete("Use overload which takes IEntityType.")]
+        protected virtual ShapedQueryExpression CreateShapedQueryExpression([NotNull] MethodCallExpression methodCallExpression)
+        {
+            var sqlFuncExpression = _sqlTranslator.TranslateMethodCall(methodCallExpression) as SqlFunctionExpression;
+
+            var elementType = methodCallExpression.Method.ReturnType.GetGenericArguments()[0];
+            var entityType =_model.FindEntityType(elementType);
+            var queryExpression = _sqlExpressionFactory.Select(entityType, sqlFuncExpression);
+
+            return CreateShapedQueryExpression(entityType, queryExpression);
+        }
+
+		[Obsolete("Use overload which takes IEntityType.")]
         protected override ShapedQueryExpression CreateShapedQueryExpression(Type elementType)
         {
             Check.NotNull(elementType, nameof(elementType));

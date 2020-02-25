@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -20,6 +21,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class DbFunctionMetadataTests
     {
+        public class Foo
+        {
+            public int I { get; set; }
+            public int J { get; set; }
+        }
+
         public class MyNonDbContext
         {
             public int NonStatic()
@@ -160,6 +167,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             [DbFunction]
             public override int VirtualBase() => throw new Exception();
+
+            [DbFunction]
+            public IQueryable<Foo> QueryableNoParams() => throw new Exception();
+
+            [DbFunction]
+            public IQueryable<Foo> QueryableSingleParam(int i) => throw new Exception();
+
+            public IQueryable<Foo> QueryableSingleParam(Expression<Func<int>> i) => throw new Exception();
+
+            [DbFunction]
+            public IQueryable<Foo> QueryableMultiParam(int i, double j) => throw new Exception();
+
+            public IQueryable<Foo> QueryableMultiParam(Expression<Func<int>> i, double j) => throw new Exception();
+
+            public IQueryable<Foo> QueryableMultiParam(Expression<Func<int>> i, Expression<Func<double>> j) => throw new Exception();
         }
 
         public static MethodInfo MethodAmi = typeof(TestMethods).GetRuntimeMethod(
@@ -173,6 +195,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public static MethodInfo MethodHmi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodH));
 
+        public static MethodInfo MethodJmi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodJ));
+        
         public class TestMethods
         {
             public static int Foo => 1;
@@ -208,6 +232,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
 
             public static int MethodI()
+            {
+                throw new Exception();
+            }
+
+            public static IQueryable<TestMethods> MethodJ()
             {
                 throw new Exception();
             }
@@ -638,6 +667,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("MinA", funcA.Metadata.Name);
             Assert.Equal("Min", funcB.Metadata.Name);
             Assert.NotEqual(funcA.Metadata.Name, funcB.Metadata.Name);
+        }
+
+        [ConditionalFact]
+        public void Find_Queryable_Single_Expression_Overload()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var funcA = modelBuilder.HasDbFunction(typeof(MyDerivedContext).GetMethod(nameof(MyDerivedContext.QueryableSingleParam), new Type[] { typeof(int) }));
+            var funcB = modelBuilder.HasDbFunction(typeof(MyDerivedContext).GetMethod(nameof(MyDerivedContext.QueryableSingleParam), new Type[] { typeof(Expression<Func<int>>) }));
+
+            Assert.Equal("QueryableSingleParam", funcA.Metadata.Name);
+            Assert.Equal("QueryableSingleParam", funcB.Metadata.Name);
+            Assert.Equal(funcA.Metadata, funcB.Metadata);
+        }
+
+        [ConditionalFact]
+        public void Find_Queryable_Multiple_Expression_Overload()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var funcA = modelBuilder.HasDbFunction(typeof(MyDerivedContext).GetMethod(nameof(MyDerivedContext.QueryableMultiParam), new Type[] { typeof(int), typeof(double) }));
+            var funcB = modelBuilder.HasDbFunction(typeof(MyDerivedContext).GetMethod(nameof(MyDerivedContext.QueryableMultiParam), new Type[] { typeof(Expression<Func<int>>), typeof(double) }));
+            var funcC = modelBuilder.HasDbFunction(typeof(MyDerivedContext).GetMethod(nameof(MyDerivedContext.QueryableMultiParam), new Type[] { typeof(Expression<Func<int>>), typeof(Expression<Func<double>>) }));
+
+            Assert.Equal("QueryableMultiParam", funcA.Metadata.Name);
+            Assert.Equal("QueryableMultiParam", funcB.Metadata.Name);
+            Assert.Equal("QueryableMultiParam", funcC.Metadata.Name);
+
+            Assert.Equal(funcA.Metadata, funcB.Metadata);
+            Assert.Equal(funcA.Metadata, funcC.Metadata);
+            Assert.Equal(funcB.Metadata, funcC.Metadata);
         }
 
         private ModelBuilder GetModelBuilder(DbContext dbContext = null)

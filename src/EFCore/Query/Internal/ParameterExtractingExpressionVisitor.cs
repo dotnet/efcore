@@ -3,15 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -55,12 +54,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             _evaluatableExpressionFindingExpressionVisitor
                 = new EvaluatableExpressionFindingExpressionVisitor(evaluatableExpressionFilter, model, parameterize);
-
             _parameterValues = parameterValues;
             _logger = logger;
             _parameterize = parameterize;
             _generateContextAccessors = generateContextAccessors;
-
             if (_generateContextAccessors)
             {
                 _contextParameterReplacingExpressionVisitor = new ContextParameterReplacingExpressionVisitor(contextType);
@@ -153,8 +150,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
         {
-            Check.NotNull(conditionalExpression, nameof(conditionalExpression));
-
             var newTestExpression = TryGetConstantValue(conditionalExpression.Test) ?? Visit(conditionalExpression.Test);
 
             if (newTestExpression is ConstantExpression constantTestExpression
@@ -179,8 +174,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
-            Check.NotNull(binaryExpression, nameof(binaryExpression));
-
             switch (binaryExpression.NodeType)
             {
                 case ExpressionType.Coalesce:
@@ -251,8 +244,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
-            Check.NotNull(constantExpression, nameof(constantExpression));
-
             if (constantExpression.Value is IEntityQueryable detachableContext)
             {
                 var queryProvider = ((IQueryable)constantExpression.Value).Provider;
@@ -527,8 +518,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
             {
-                Check.NotNull(lambdaExpression, nameof(lambdaExpression));
-
                 var oldInLambda = _inLambda;
                 _inLambda = true;
 
@@ -542,8 +531,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
             {
-                Check.NotNull(memberInitExpression, nameof(memberInitExpression));
-
                 Visit(memberInitExpression.Bindings, VisitMemberBinding);
 
                 // Cannot make parameter for NewExpression if Bindings cannot be evaluated
@@ -557,8 +544,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitListInit(ListInitExpression listInitExpression)
             {
-                Check.NotNull(listInitExpression, nameof(listInitExpression));
-
                 Visit(listInitExpression.Initializers, VisitElementInit);
 
                 // Cannot make parameter for NewExpression if Initializers cannot be evaluated
@@ -572,7 +557,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
-                Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+                if (_evaluatableExpressionFilter.IsQueryableFunction(methodCallExpression, _model)
+                        && !_inLambda)
+                {
+                    _evaluatable = false;
+                }
 
                 Visit(methodCallExpression.Object);
                 var parameterInfos = methodCallExpression.Method.GetParameters();
@@ -613,18 +602,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitMember(MemberExpression memberExpression)
             {
-                Check.NotNull(memberExpression, nameof(memberExpression));
-
                 _containsClosure = memberExpression.Expression != null
                     || !(memberExpression.Member is FieldInfo fieldInfo && fieldInfo.IsInitOnly);
-
                 return base.VisitMember(memberExpression);
             }
 
             protected override Expression VisitParameter(ParameterExpression parameterExpression)
             {
-                Check.NotNull(parameterExpression, nameof(parameterExpression));
-
                 _evaluatable = _allowedParameters.Contains(parameterExpression);
 
                 return base.VisitParameter(parameterExpression);
@@ -632,8 +616,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitConstant(ConstantExpression constantExpression)
             {
-                Check.NotNull(constantExpression, nameof(constantExpression));
-
                 _evaluatable = !(constantExpression.Value is IEntityQueryable)
                     && !(constantExpression.Value is IQueryable);
 

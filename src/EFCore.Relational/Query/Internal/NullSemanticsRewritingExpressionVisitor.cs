@@ -656,6 +656,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return sqlFunctionExpression.Update(newInstance, newArguments);
         }
 
+        protected override Expression VisitQueryableSqlFunctionExpression(QueryableSqlFunctionExpression queryableFunctionExpression)
+        {
+            Check.NotNull(queryableFunctionExpression, nameof(queryableFunctionExpression));
+
+            return queryableFunctionExpression;
+        }
+
         protected override Expression VisitSqlParameter(SqlParameterExpression sqlParameterExpression)
         {
             Check.NotNull(sqlParameterExpression, nameof(sqlParameterExpression));

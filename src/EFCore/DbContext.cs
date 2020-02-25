@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -1679,6 +1680,22 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         IServiceProvider IInfrastructure<IServiceProvider>.Instance => InternalServiceProvider;
+
+        /// <summary>
+        /// Creates a query expression, which represents a function call, against the query store.
+        /// </summary>
+        /// <typeparam name="TResult"> The result type of the query expression </typeparam>
+        /// <param name="expression"> The query expression to create. </param>
+        /// <returns> An IQueryable representing the query. </returns>
+        protected virtual IQueryable<TResult> CreateQuery<TResult>([NotNull] Expression<Func<IQueryable<TResult>>> expression)
+        {
+            //should we add this method as an extension in relational?  That would require making DbContextDependencies public.
+            //Is there a 3rd way?
+
+            Check.NotNull(expression, nameof(expression));
+
+            return DbContextDependencies.QueryProvider.CreateQuery<TResult>(expression.Body);
+        }
 
         #region Hidden System.Object members
 

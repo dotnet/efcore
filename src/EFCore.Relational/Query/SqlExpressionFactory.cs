@@ -752,6 +752,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             return selectExpression;
         }
 
+        public virtual SelectExpression Select(IEntityType entityType, SqlFunctionExpression expression)
+        {
+            var selectExpression = new SelectExpression(entityType, expression);
+            AddConditions(selectExpression, entityType);
+
+            return selectExpression;
+        }
+
         private void AddConditions(
             SelectExpression selectExpression,
             IEntityType entityType,

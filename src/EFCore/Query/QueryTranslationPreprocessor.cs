@@ -11,16 +11,19 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class QueryTranslationPreprocessor
     {
         private readonly QueryCompilationContext _queryCompilationContext;
+        private readonly INavigationExpandingExpressionVisitorFactory _navigationExpandingExpressionVisitorFactory;
 
         public QueryTranslationPreprocessor(
             [NotNull] QueryTranslationPreprocessorDependencies dependencies,
-            [NotNull] QueryCompilationContext queryCompilationContext)
+            [NotNull] QueryCompilationContext queryCompilationContext,
+            [NotNull] INavigationExpandingExpressionVisitorFactory navigationExpandingExpressionVisitorFactory)
         {
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
             Dependencies = dependencies;
             _queryCompilationContext = queryCompilationContext;
+            _navigationExpandingExpressionVisitorFactory = navigationExpandingExpressionVisitorFactory;
         }
 
         protected virtual QueryTranslationPreprocessorDependencies Dependencies { get; }
@@ -38,8 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             query = new NullCheckRemovingExpressionVisitor().Visit(query);
             query = new EntityEqualityRewritingExpressionVisitor(_queryCompilationContext).Rewrite(query);
             query = new SubqueryMemberPushdownExpressionVisitor(_queryCompilationContext.Model).Visit(query);
-            query = new NavigationExpandingExpressionVisitor(this, _queryCompilationContext, Dependencies.EvaluatableExpressionFilter).Expand(
-                query);
+            query = _navigationExpandingExpressionVisitorFactory.Create(this, _queryCompilationContext, Dependencies.EvaluatableExpressionFilter)
+                .Expand(query);
             query = new FunctionPreprocessingExpressionVisitor().Visit(query);
 
             return query;
