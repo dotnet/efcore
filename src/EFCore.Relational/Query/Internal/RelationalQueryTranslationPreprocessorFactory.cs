@@ -21,20 +21,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         private readonly QueryTranslationPreprocessorDependencies _dependencies;
         private readonly RelationalQueryTranslationPreprocessorDependencies _relationalDependencies;
+        private readonly INavigationExpandingExpressionVisitorFactory _navigationExpandingExpressionVisitorFactory;
 
         public RelationalQueryTranslationPreprocessorFactory(
             [NotNull] QueryTranslationPreprocessorDependencies dependencies,
-            [NotNull] RelationalQueryTranslationPreprocessorDependencies relationalDependencies)
+            [NotNull] RelationalQueryTranslationPreprocessorDependencies relationalDependencies,
+            [NotNull] INavigationExpandingExpressionVisitorFactory navigationExpandingExpressionVisitorFactory)
         {
             _dependencies = dependencies;
             _relationalDependencies = relationalDependencies;
+            _navigationExpandingExpressionVisitorFactory = navigationExpandingExpressionVisitorFactory;
         }
 
         public virtual QueryTranslationPreprocessor Create(QueryCompilationContext queryCompilationContext)
         {
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
-            return new RelationalQueryTranslationPreprocessor(_dependencies, _relationalDependencies, queryCompilationContext);
+            return new RelationalQueryTranslationPreprocessor(_dependencies, _relationalDependencies, queryCompilationContext, _navigationExpandingExpressionVisitorFactory);
         }
     }
 }

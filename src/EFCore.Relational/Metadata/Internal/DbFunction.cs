@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -73,6 +74,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new ArgumentException(
                     RelationalStrings.DbFunctionInvalidReturnType(
                         methodInfo.DisplayName(), methodInfo.ReturnType.ShortDisplayName()));
+            }
+
+            if (methodInfo.ReturnType.IsGenericType
+                && methodInfo.ReturnType.GetGenericTypeDefinition() == typeof(IQueryable<>))
+            {
+                IsIQueryable = true;
+
+                //todo - if the generic argument is not usuable as an entitytype should we throw here?  IE IQueryable<int>
+                //the built in entitytype will throw is the type is not a class
+                if (model.FindEntityType(methodInfo.ReturnType.GetGenericArguments()[0]) == null)
+                {
+                    model.AddEntityType(methodInfo.ReturnType.GetGenericArguments()[0]).SetAnnotation(RelationalAnnotationNames.QueryableFunctionResultType, null);
+                }
             }
 
             MethodInfo = methodInfo;
@@ -316,6 +330,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual bool IsIQueryable { get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual void SetTranslation(
             [CanBeNull] Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation,
             ConfigurationSource configurationSource)
@@ -345,7 +367,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static DbFunction FindDbFunction(
             [NotNull] IModel model,
             [NotNull] MethodInfo methodInfo)
-            => model[BuildAnnotationName(methodInfo)] as DbFunction;
+        {
+            var dbFunction = model[BuildAnnotationName(methodInfo)] as DbFunction;
+
+            if (dbFunction == null
+                && methodInfo.GetParameters().Any(p => p.ParameterType.IsGenericType && p.ParameterType.GetGenericTypeDefinition() == typeof(Expression<>)))
+            {
+                var parameters = methodInfo.GetParameters().Select(p => p.ParameterType.IsGenericType
+                                        && p.ParameterType.GetGenericTypeDefinition() == typeof(Expression<>)
+                                        && p.ParameterType.GetGenericArguments()[0].GetGenericTypeDefinition() == typeof(Func<>)
+                                    ? p.ParameterType.GetGenericArguments()[0].GetGenericArguments()[0]
+                                    : p.ParameterType).ToArray();
+
+                var nonExpressionMethod = methodInfo.DeclaringType.GetMethod(methodInfo.Name, parameters);
+
+                dbFunction =  nonExpressionMethod != null
+                                ? model[BuildAnnotationName(nonExpressionMethod)] as DbFunction
+                                : null;
+            }
+
+            return dbFunction;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

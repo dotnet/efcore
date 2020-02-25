@@ -11,8 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         public RelationalQueryTranslationPreprocessor(
             [NotNull] QueryTranslationPreprocessorDependencies dependencies,
             [NotNull] RelationalQueryTranslationPreprocessorDependencies relationalDependencies,
-            [NotNull] QueryCompilationContext queryCompilationContext)
-            : base(dependencies, queryCompilationContext)
+            [NotNull] QueryCompilationContext queryCompilationContext,
+            [NotNull] INavigationExpandingExpressionVisitorFactory navigationExpandingExpressionVisitorFactory)
+            : base(dependencies, queryCompilationContext, navigationExpandingExpressionVisitorFactory)
         {
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
 

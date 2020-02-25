@@ -27,5 +27,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="model"> The model. </param>
         /// <returns> True if the expression can be evaluated; false otherwise. </returns>
         bool IsEvaluatableExpression([NotNull] Expression expression, [NotNull] IModel model);
+
+        /// <summary>
+        ///     Checks whether the given expression is a queryable function
+        /// </summary>
+        /// <param name="expression"> The expression. </param>
+        /// <param name="model"> The model. </param>
+        /// <returns> True if the expression is a queryable function </returns>
+        bool IsQueryableFunction([NotNull] Expression expression, [NotNull] IModel model);
     }
 }

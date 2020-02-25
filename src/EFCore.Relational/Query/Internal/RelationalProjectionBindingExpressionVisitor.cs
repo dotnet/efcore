@@ -9,6 +9,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -22,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private SelectExpression _selectExpression;
         private bool _clientEval;
+        private readonly IModel _model;
 
         private readonly IDictionary<ProjectionMember, Expression> _projectionMapping
             = new Dictionary<ProjectionMember, Expression>();
@@ -30,10 +32,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         public RelationalProjectionBindingExpressionVisitor(
             [NotNull] RelationalQueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor,
-            [NotNull] RelationalSqlTranslatingExpressionVisitor sqlTranslatingExpressionVisitor)
+            [NotNull] RelationalSqlTranslatingExpressionVisitor sqlTranslatingExpressionVisitor,
+            [NotNull] IModel model)
         {
             _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
             _sqlTranslator = sqlTranslatingExpressionVisitor;
+            _model = model;
         }
 
         public virtual Expression Translate([NotNull] SelectExpression selectExpression, [NotNull] Expression expression)
@@ -240,6 +244,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && newExpression.Members == null)
             {
                 return null;
+            }
+
+            if (newExpression.Arguments.Any(arg => arg is MethodCallExpression methodCallExp && _model.FindDbFunction(methodCallExp.Method)?.IsIQueryable == true))
+            {
+                throw new InvalidOperationException(RelationalStrings.DbFunctionCantProjectIQueryable());
             }
 
             var newArguments = new Expression[newExpression.Arguments.Count];

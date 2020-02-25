@@ -1998,19 +1998,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task SelectMany_mixed(bool async)
         {
             return AssertTranslationFailed(
-                () => AssertQuery(
-                    async,
-                    ss => from e1 in ss.Set<Employee>().OrderBy(e => e.EmployeeID).Take(2)
-                            from s in new[] { "a", "b" }
-                            from c in ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(2)
-                            select new
-                            {
-                                e1,
-                                s,
-                                c
-                            },
-                    e => (e.e1.EmployeeID, e.c.CustomerID),
-                    entryCount: 4));
+              () => AssertQuery(
+                  async,
+                  ss => from e1 in ss.Set<Employee>().OrderBy(e => e.EmployeeID).Take(2)
+                        from s in new[] { "a", "b" }
+                        from c in ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(2)
+                        select new
+                        {
+                            e1,
+                            s,
+                            c
+                        },
+                  e => (e.e1.EmployeeID, e.c.CustomerID),
+                  entryCount: 4));
         }
 
         [ConditionalTheory]
