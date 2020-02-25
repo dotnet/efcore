@@ -553,7 +553,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             CurrentTransaction = null;
             EnlistedTransaction = null;
-            if (clearAmbient && _ambientTransactions.Any())
+            if (clearAmbient && _ambientTransactions.Count > 0)
             {
                 while (_ambientTransactions.Any(t => t != null))
                 {
