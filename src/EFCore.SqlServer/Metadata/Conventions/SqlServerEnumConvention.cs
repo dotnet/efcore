@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <inheritdoc />
         public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
         {
-            StringBuilder sql = null;
+            StringBuilder sql = new StringBuilder();
 
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
@@ -52,14 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                             continue;
                         }
 
-                        if (sql == null)
-                        {
-                            sql = new StringBuilder();
-                        }
-                        else
-                        {
-                            sql.Clear();
-                        }
+                        sql.Clear();
 
                         sql.Append("[");
                         sql.Append(property.GetColumnName());
