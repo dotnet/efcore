@@ -13,7 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class ReplacingExpressionVisitor : ExpressionVisitor
     {
-        private readonly bool _quirkMode;
+        private readonly bool _quirkMode19737;
+        private readonly bool _quirkMode19087;
 
         private readonly Expression[] _originals;
         private readonly Expression[] _replacements;
@@ -27,9 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public ReplacingExpressionVisitor(Expression[] originals, Expression[] replacements)
         {
-            _quirkMode = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue19737", out var enabled) && enabled;
+            _quirkMode19737 = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue19737", out var enabled) && enabled;
+            _quirkMode19087 = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue19087", out var enabled2) && enabled2;
 
-            if (_quirkMode)
+            if (_quirkMode19737)
             {
                 _quirkReplacements = new Dictionary<Expression, Expression>();
                 for (var i = 0; i < originals.Length; i++)
@@ -46,9 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public ReplacingExpressionVisitor(IDictionary<Expression, Expression> replacements)
         {
-            _quirkMode = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue19737", out var enabled) && enabled;
+            _quirkMode19737 = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue19737", out var enabled) && enabled;
 
-            if (_quirkMode)
+            if (_quirkMode19737)
             {
                 _quirkReplacements = replacements;
             }
@@ -66,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return expression;
             }
 
-            if (_quirkMode)
+            if (_quirkMode19737)
             {
                 if (_quirkReplacements.TryGetValue(expression, out var replacement))
                 {
@@ -108,11 +110,23 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
 
-            if (innerExpression is MemberInitExpression memberInitExpression
-                && memberInitExpression.Bindings.SingleOrDefault(
-                    mb => mb.Member.IsSameAs(memberExpression.Member)) is MemberAssignment memberAssignment)
+            if (_quirkMode19087)
             {
-                return memberAssignment.Expression;
+                if (innerExpression is MemberInitExpression memberInitExpression
+                    && memberInitExpression.Bindings.SingleOrDefault(
+                        mb => mb.Member == memberExpression.Member) is MemberAssignment memberAssignment)
+                {
+                    return memberAssignment.Expression;
+                }
+            }
+            else
+            {
+                if (innerExpression is MemberInitExpression memberInitExpression
+                    && memberInitExpression.Bindings.SingleOrDefault(
+                        mb => mb.Member.IsSameAs(memberExpression.Member)) is MemberAssignment memberAssignment)
+                {
+                    return memberAssignment.Expression;
+                }
             }
 
             return memberExpression.Update(innerExpression);
