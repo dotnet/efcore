@@ -2914,15 +2914,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     Logs for the <see cref="CoreEventId.ConflictingKeylessAndKeyConfigurationWarning" /> event.
+        ///     Logs for the <see cref="CoreEventId.ConflictingKeylessAndKeyAttributesWarning" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="property"> The property which is being defined as part of a key. </param>
-        public static void ConflictingKeylessAndKeyConfigurationWarning(
+        public static void ConflictingKeylessAndKeyAttributesWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             [NotNull] IProperty property)
         {
-            var definition = CoreResources.LogConflictingKeylessAndKeyConfiguration(diagnostics);
+            var definition = CoreResources.LogConflictingKeylessAndKeyAttributes(diagnostics);
 
             if (diagnostics.ShouldLog(definition))
             {
@@ -2933,14 +2933,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             {
                 var eventData = new PropertyEventData(
                     definition,
-                    ConflictingKeylessAndKeyConfigurationWarning,
+                    ConflictingKeylessAndKeyAttributesWarning,
                     property);
 
                 diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
 
-        private static string ConflictingKeylessAndKeyConfigurationWarning(EventDefinitionBase definition, EventData payload)
+        private static string ConflictingKeylessAndKeyAttributesWarning(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (PropertyEventData)payload;

@@ -42,12 +42,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionContext context)
         {
             var entityType = propertyBuilder.Metadata.DeclaringEntityType;
-            if (entityType.IsKeyless
-                && ConfigurationSource.DataAnnotation == entityType.GetIsKeylessConfigurationSource())
+            if (entityType.IsKeyless)
             {
-                Dependencies.Logger
-                    .ConflictingKeylessAndKeyConfigurationWarning(propertyBuilder.Metadata);
-                return;
+                switch (entityType.GetIsKeylessConfigurationSource())
+                {
+                    case ConfigurationSource.DataAnnotation:
+                        Dependencies.Logger
+                            .ConflictingKeylessAndKeyAttributesWarning(propertyBuilder.Metadata);
+                        return;
+
+                    case ConfigurationSource.Explicit:
+                        // fluent API overrides the attribute - no warning
+                        return;
+                }
             }
 
             if (entityType.BaseType != null)

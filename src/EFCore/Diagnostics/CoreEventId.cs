@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             RequiredAttributeInverted,
             RequiredAttributeOnCollection,
             CollectionWithoutComparer,
-            ConflictingKeylessAndKeyConfigurationWarning,
+            ConflictingKeylessAndKeyAttributesWarning,
 
             // ChangeTracking events
             DetectChangesStarting = CoreBaseId + 800,
@@ -629,7 +629,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
-        public static readonly EventId ConflictingKeylessAndKeyConfigurationWarning = MakeModelId(Id.ConflictingKeylessAndKeyConfigurationWarning);
+        public static readonly EventId ConflictingKeylessAndKeyAttributesWarning = MakeModelId(Id.ConflictingKeylessAndKeyAttributesWarning);
 
         private static readonly string _changeTrackingPrefix = DbLoggerCategory.ChangeTracking.Name + ".";
         private static EventId MakeChangeTrackingId(Id id) => new EventId((int)id, _changeTrackingPrefix + id);

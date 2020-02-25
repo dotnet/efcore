@@ -3913,22 +3913,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     Conflicting attributes have been applied: the 'Key' attribute on property '{property}' and the 'Keyless' attribute on its entity '{entity}'. Note that the entity will have no key unless you use fluent API to override this.
         /// </summary>
-        public static EventDefinition<string, string> LogConflictingKeylessAndKeyConfiguration([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string> LogConflictingKeylessAndKeyAttributes([NotNull] IDiagnosticsLogger logger)
         {
-            var definition = ((LoggingDefinitions)logger.Definitions).LogConflictingKeylessAndKeyConfiguration;
+            var definition = ((LoggingDefinitions)logger.Definitions).LogConflictingKeylessAndKeyAttributes;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((LoggingDefinitions)logger.Definitions).LogConflictingKeylessAndKeyConfiguration,
+                    ref ((LoggingDefinitions)logger.Definitions).LogConflictingKeylessAndKeyAttributes,
                     () => new EventDefinition<string, string>(
                         logger.Options,
-                        CoreEventId.ConflictingKeylessAndKeyConfigurationWarning,
+                        CoreEventId.ConflictingKeylessAndKeyAttributesWarning,
                         LogLevel.Warning,
-                        "CoreEventId.ConflictingKeylessAndKeyConfigurationWarning",
+                        "CoreEventId.ConflictingKeylessAndKeyAttributesWarning",
                         level => LoggerMessage.Define<string, string>(
                             level,
-                            CoreEventId.ConflictingKeylessAndKeyConfigurationWarning,
-                            _resourceManager.GetString("LogConflictingKeylessAndKeyConfiguration"))));
+                            CoreEventId.ConflictingKeylessAndKeyAttributesWarning,
+                            _resourceManager.GetString("LogConflictingKeylessAndKeyAttributes"))));
             }
 
             return (EventDefinition<string, string>)definition;

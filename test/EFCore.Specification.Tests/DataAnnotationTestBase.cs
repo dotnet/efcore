@@ -777,7 +777,7 @@ namespace Microsoft.EntityFrameworkCore
             var logEntry = Fixture.ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Warning, logEntry.Level);
             Assert.Equal(
-                CoreResources.LogConflictingKeylessAndKeyConfiguration(new TestLogger<TestLoggingDefinitions>())
+                CoreResources.LogConflictingKeylessAndKeyAttributes(new TestLogger<TestLoggingDefinitions>())
                     .GenerateMessage("NotAKey", nameof(KeylessAndKeyAttributes)),
                 logEntry.Message);
         }
@@ -2373,7 +2373,7 @@ namespace Microsoft.EntityFrameworkCore
                         .Log(CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning)
                         .Log(CoreEventId.ForeignKeyAttributesOnBothNavigationsWarning)
                         .Log(CoreEventId.ForeignKeyAttributesOnBothPropertiesWarning)
-                        .Log(CoreEventId.ConflictingKeylessAndKeyConfigurationWarning));
+                        .Log(CoreEventId.ConflictingKeylessAndKeyAttributesWarning));
 
             protected override bool ShouldLogCategory(string logCategory)
                 => logCategory == DbLoggerCategory.Model.Name;
