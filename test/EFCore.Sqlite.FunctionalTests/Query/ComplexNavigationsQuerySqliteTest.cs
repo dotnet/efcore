@@ -30,5 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return base.Include_inside_subquery(isAsync);
         }
+
+        // Sqlite does not support cross/outer apply
+        public override Task SelectMany_with_outside_reference_to_joined_table_correctly_translated_to_apply(bool async) => null;
     }
 }
