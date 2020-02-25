@@ -58,7 +58,9 @@ namespace Microsoft.EntityFrameworkCore
                 else
                 {
                     var ownerType = ownership.PrincipalEntityType;
-                    if (entityType.GetTableName() == ownerType.GetTableName()
+                    var table = entityType.GetTableName();
+                    if (table != null
+                        && table == ownerType.GetTableName()
                         && entityType.GetSchema() == ownerType.GetSchema())
                     {
                         if (builder == null)
@@ -81,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore
             var baseName = property.Name;
             if (builder != null)
             {
-                builder.Append(property.Name);
+                builder.Append(baseName);
                 baseName = builder.ToString();
             }
 
@@ -120,6 +122,102 @@ namespace Microsoft.EntityFrameworkCore
             => property.FindAnnotation(RelationalAnnotationNames.ColumnName)?.GetConfigurationSource();
 
         /// <summary>
+        ///     Returns the name of the view column to which the property is mapped.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The name of the view column to which the property is mapped. </returns>
+        public static string GetViewColumnName([NotNull] this IProperty property)
+            => (string)property[RelationalAnnotationNames.ViewColumnName]
+                ?? GetDefaultViewColumnName(property);
+
+        /// <summary>
+        ///     Returns the default view column name to which the property would be mapped.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The default view column name to which the property would be mapped. </returns>
+        public static string GetDefaultViewColumnName([NotNull] this IProperty property)
+        {
+            var sharedTablePrincipalPrimaryKeyProperty = property.FindSharedViewRootPrimaryKeyProperty();
+            if (sharedTablePrincipalPrimaryKeyProperty != null)
+            {
+                return sharedTablePrincipalPrimaryKeyProperty.GetViewColumnName();
+            }
+
+            var entityType = property.DeclaringEntityType;
+            StringBuilder builder = null;
+            do
+            {
+                var ownership = entityType.GetForeignKeys().SingleOrDefault(fk => fk.IsOwnership);
+                if (ownership == null)
+                {
+                    entityType = null;
+                }
+                else
+                {
+                    var ownerType = ownership.PrincipalEntityType;
+                    var viewName = entityType.GetViewName();
+                    if (viewName != null
+                        && viewName == ownerType.GetViewName()
+                        && entityType.GetViewSchema() == ownerType.GetViewSchema())
+                    {
+                        if (builder == null)
+                        {
+                            builder = new StringBuilder();
+                        }
+
+                        builder.Insert(0, "_");
+                        builder.Insert(0, ownership.PrincipalToDependent.Name);
+                        entityType = ownerType;
+                    }
+                    else
+                    {
+                        entityType = null;
+                    }
+                }
+            }
+            while (entityType != null);
+
+            if (builder == null)
+            {
+                return property.GetColumnName();
+            }
+
+            builder.Append(property.Name);
+            return Uniquifier.Truncate(builder.ToString(), property.DeclaringEntityType.Model.GetMaxIdentifierLength());
+        }
+
+        /// <summary>
+        ///     Sets the view column to which the property is mapped.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="name"> The name to set. </param>
+        public static void SetViewColumnName([NotNull] this IMutableProperty property, [CanBeNull] string name)
+            => property.SetOrRemoveAnnotation(
+                RelationalAnnotationNames.ViewColumnName,
+                Check.NullButNotEmpty(name, nameof(name)));
+
+        /// <summary>
+        ///     Sets the view column to which the property is mapped.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="name"> The name to set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void SetViewColumnName(
+            [NotNull] this IConventionProperty property, [CanBeNull] string name, bool fromDataAnnotation = false)
+            => property.SetOrRemoveAnnotation(
+                RelationalAnnotationNames.ViewColumnName,
+                Check.NullButNotEmpty(name, nameof(name)),
+                fromDataAnnotation);
+
+        /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for the view column name.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for the view column name. </returns>
+        public static ConfigurationSource? GetViewColumnNameConfigurationSource([NotNull] this IConventionProperty property)
+            => property.FindAnnotation(RelationalAnnotationNames.ViewColumnName)?.GetConfigurationSource();
+
+        /// <summary>
         ///     Returns the database type of the column to which the property is mapped.
         /// </summary>
         /// <param name="property"> The property. </param>
@@ -137,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static string GetDefaultColumnType(IProperty property)
         {
-            var sharedTablePrincipalPrimaryKeyProperty = property.FindSharedTableRootPrimaryKeyProperty();
+            var sharedTablePrincipalPrimaryKeyProperty = property.FindSharedRootPrimaryKeyProperty();
             return sharedTablePrincipalPrimaryKeyProperty != null
                 ? sharedTablePrincipalPrimaryKeyProperty.GetColumnType()
                 : property.FindRelationalTypeMapping()?.StoreType;
@@ -211,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore
                 return sql;
             }
 
-            var sharedTablePrincipalPrimaryKeyProperty = property.FindSharedTableRootPrimaryKeyProperty();
+            var sharedTablePrincipalPrimaryKeyProperty = property.FindSharedRootPrimaryKeyProperty();
             if (sharedTablePrincipalPrimaryKeyProperty != null)
             {
                 return GetDefaultValueSql(sharedTablePrincipalPrimaryKeyProperty);
@@ -264,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore
                 return sql;
             }
 
-            var sharedTablePrincipalPrimaryKeyProperty = property.FindSharedTableRootPrimaryKeyProperty();
+            var sharedTablePrincipalPrimaryKeyProperty = property.FindSharedRootPrimaryKeyProperty();
             if (sharedTablePrincipalPrimaryKeyProperty != null)
             {
                 return GetComputedColumnSql(sharedTablePrincipalPrimaryKeyProperty);
@@ -317,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore
                 return value;
             }
 
-            var sharedTablePrincipalPrimaryKeyProperty = property.FindSharedTableRootPrimaryKeyProperty();
+            var sharedTablePrincipalPrimaryKeyProperty = property.FindSharedRootPrimaryKeyProperty();
             if (sharedTablePrincipalPrimaryKeyProperty != null)
             {
                 return GetDefaultValue(sharedTablePrincipalPrimaryKeyProperty);
@@ -442,7 +540,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Checks whether or not the column mapped to the given <see cref="IProperty" /> will be nullable
+        ///         Checks whether the column mapped to the given <see cref="IProperty" /> will be nullable
         ///         or not when created in the database.
         ///     </para>
         ///     <para>
@@ -456,15 +554,30 @@ namespace Microsoft.EntityFrameworkCore
             => !property.IsPrimaryKey()
                 && (property.DeclaringEntityType.BaseType != null
                     || property.IsNullable
-                    || IsTableSplitting(property.DeclaringEntityType));
-
-        private static bool IsTableSplitting(IEntityType entityType)
-            => entityType.FindPrimaryKey()?.Properties[0].FindSharedTableLink() != null;
+                    || property.DeclaringEntityType.FindPrimaryKey()?.Properties[0].FindSharedObjectLink() != null);
 
         /// <summary>
         ///     <para>
-        ///         Finds the <see cref="IProperty" /> that represents the same primary key property
-        ///         as the given property, but potentially in a shared root table.
+        ///         Checks whether or not the column mapped to the given <see cref="IProperty" /> will be nullable
+        ///         or not when created in the database.
+        ///     </para>
+        ///     <para>
+        ///         This can depend not just on the property itself, but also how it is mapped. For example,
+        ///         non-nullable properties in a TPH type hierarchy will be mapped to nullable columns.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The <see cref="IProperty" />. </param>
+        /// <returns> <c>True</c> if the mapped column is nullable; <c>false</c> otherwise. </returns>
+        public static bool IsViewColumnNullable([NotNull] this IProperty property)
+            => !property.IsPrimaryKey()
+                && (property.DeclaringEntityType.BaseType != null
+                    || property.IsNullable
+                    || property.DeclaringEntityType.FindPrimaryKey()?.Properties[0].FindSharedObjectLink(StoreObjectType.View) != null);
+
+        /// <summary>
+        ///     <para>
+        ///         Finds the <see cref="IProperty" /> that is mapped to the same column as primary key property
+        ///         as the given property, but potentially in a shared table and is not in a shared table foreign key.
         ///     </para>
         ///     <para>
         ///         This type is typically used by database providers (and other extensions). It is generally
@@ -474,6 +587,40 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The property found, or <code>null</code> if none was found.</returns>
         public static IProperty FindSharedTableRootPrimaryKeyProperty([NotNull] this IProperty property)
+            => FindSharedObjectRootPrimaryKeyProperty(property, StoreObjectType.Table);
+
+        /// <summary>
+        ///     <para>
+        ///         Finds the <see cref="IProperty" /> that is mapped to the same database object as primary key property
+        ///         as the given property, but potentially in a shared object and is not in a shared object foreign key.
+        ///     </para>
+        ///     <para>
+        ///         This type is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The property found, or <code>null</code> if none was found.</returns>
+        public static IProperty FindSharedRootPrimaryKeyProperty([NotNull] this IProperty property)
+            => FindSharedObjectRootPrimaryKeyProperty(property, StoreObjectType.Table)
+            ?? FindSharedObjectRootPrimaryKeyProperty(property, StoreObjectType.View);
+
+        /// <summary>
+        ///     <para>
+        ///         Finds the <see cref="IProperty" /> that is mapped to the same column as primary key property
+        ///         as the given property, but potentially in a shared view and is not in a shared view foreign key.
+        ///     </para>
+        ///     <para>
+        ///         This type is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The property found, or <code>null</code> if none was found.</returns>
+        public static IProperty FindSharedViewRootPrimaryKeyProperty([NotNull] this IProperty property)
+            => FindSharedObjectRootPrimaryKeyProperty(property, StoreObjectType.View);
+
+        private static IProperty FindSharedObjectRootPrimaryKeyProperty([NotNull] IProperty property, StoreObjectType storeObjectType)
         {
             Check.NotNull(property, nameof(property));
 
@@ -481,7 +628,7 @@ namespace Microsoft.EntityFrameworkCore
             HashSet<IEntityType> visitedTypes = null;
             while (true)
             {
-                var linkingRelationship = principalProperty.FindSharedTableLink();
+                var linkingRelationship = principalProperty.FindSharedObjectLink(storeObjectType);
                 if (linkingRelationship == null)
                 {
                     break;
@@ -516,7 +663,7 @@ namespace Microsoft.EntityFrameworkCore
                 return value;
             }
 
-            var sharedTablePrincipalPrimaryKeyProperty = property.FindSharedTableRootPrimaryKeyProperty();
+            var sharedTablePrincipalPrimaryKeyProperty = property.FindSharedRootPrimaryKeyProperty();
             if (sharedTablePrincipalPrimaryKeyProperty != null)
             {
                 return GetComment(sharedTablePrincipalPrimaryKeyProperty);

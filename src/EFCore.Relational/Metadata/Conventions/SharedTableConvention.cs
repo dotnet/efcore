@@ -69,7 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             foreach (var entityType in model.GetEntityTypes())
             {
                 var tableName = (Schema: entityType.GetSchema(), TableName: entityType.GetTableName());
-                if (tableName.TableName == null)
+                if (tableName.TableName == null
+                    || entityType.FindPrimaryKey() == null)
                 {
                     continue;
                 }
@@ -83,7 +84,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 if (entityTypes.Count > 0)
                 {
                     var shouldUniquifyTable = ShouldUniquify(entityType, entityTypes);
-
                     if (shouldUniquifyTable)
                     {
                         if (entityType[RelationalAnnotationNames.TableName] == null)

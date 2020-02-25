@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
 
@@ -20,8 +21,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IForeignKey FindSharedTableLink([NotNull] this IProperty property)
-            => property.FindSharedTableLink(property.DeclaringEntityType.GetTableName(), property.DeclaringEntityType.GetSchema());
+        public static IForeignKey FindSharedObjectLink(
+            [NotNull] this IProperty property,
+            StoreObjectType objectType = StoreObjectType.Table)
+        {
+            switch (objectType)
+            {
+                case StoreObjectType.Table:
+                    return property.FindSharedObjectLink(
+                        property.DeclaringEntityType.GetTableName(),
+                        property.DeclaringEntityType.GetSchema(),
+                        objectType);
+                case StoreObjectType.View:
+                    return property.FindSharedObjectLink(
+                        property.DeclaringEntityType.GetViewName(),
+                        property.DeclaringEntityType.GetViewSchema(),
+                        objectType);
+                default:
+                    throw new NotImplementedException(objectType.ToString());
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -29,10 +48,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IForeignKey FindSharedTableLink([NotNull] this IProperty property, [CanBeNull] string table, [CanBeNull] string schema)
+        public static IForeignKey FindSharedObjectLink(
+            [NotNull] this IProperty property,
+            [CanBeNull] string name,
+            [CanBeNull] string schema,
+            StoreObjectType objectType = StoreObjectType.Table)
         {
             var pk = property.FindContainingPrimaryKey();
-            if (pk == null)
+            if (pk == null
+                || name == null)
             {
                 return null;
             }
@@ -48,10 +72,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 var principalEntityType = fk.PrincipalEntityType;
-                if (table == principalEntityType.GetTableName()
-                    && schema == principalEntityType.GetSchema())
+                switch (objectType)
                 {
-                    return fk;
+                    case StoreObjectType.Table:
+                        if (name == principalEntityType.GetTableName()
+                            && schema == principalEntityType.GetSchema())
+                        {
+                            return fk;
+                        }
+                        break;
+                    case StoreObjectType.View:
+                        if (name == principalEntityType.GetViewName()
+                            && schema == principalEntityType.GetViewSchema())
+                        {
+                            return fk;
+                        }
+                        break;
+                    default:
+                        throw new NotImplementedException(objectType.ToString());
                 }
             }
 

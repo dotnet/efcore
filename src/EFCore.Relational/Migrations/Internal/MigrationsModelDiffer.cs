@@ -864,8 +864,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 (s, t, c) => PropertyStructureEquals(s, t));
 
         private bool PropertyStructureEquals(IProperty source, IProperty target)
-            =>
-                source.ClrType == target.ClrType
+            => source.ClrType == target.ClrType
                 && source.IsConcurrencyToken == target.IsConcurrencyToken
                 && source.ValueGenerated == target.ValueGenerated
                 && source.GetMaxLength() == target.GetMaxLength()

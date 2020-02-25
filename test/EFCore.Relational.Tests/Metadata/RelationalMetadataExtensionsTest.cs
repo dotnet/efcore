@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             entityType.SetTableName(null);
 
-            Assert.Equal("Customer", entityType.GetTableName());
+            Assert.Null(entityType.GetTableName());
         }
 
         [ConditionalFact]
@@ -115,6 +115,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             entityType.SetSchema(null);
 
             Assert.Null(entityType.GetSchema());
+        }
+
+        [ConditionalFact]
+        public void Can_get_table_and_schema_name_for_non_owned_entity_types_with_defining_navigation()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+
+            var orderType = modelBuilder
+                .Entity<Order>()
+                .Metadata;
+
+            var customerType = modelBuilder.Model.AddEntityType(typeof(Customer), nameof(Order.Customer), orderType);
+
+            Assert.Equal("Order_Customer", customerType.GetTableName());
+
+            orderType.SetTableName(null);
+
+            Assert.Equal("Customer_Customer", customerType.GetTableName());
+
+            customerType.SetTableName("Customizer");
+
+            Assert.Equal("Customizer", customerType.GetTableName());
         }
 
         [ConditionalFact]
@@ -589,6 +611,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             public int OrderId { get; set; }
             public int CustomerId { get; set; }
+            public Customer Customer { get; set; }
         }
     }
 }

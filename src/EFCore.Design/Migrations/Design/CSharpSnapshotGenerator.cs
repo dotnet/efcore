@@ -438,6 +438,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 nameof(RelationalPropertyBuilderExtensions.HasColumnName),
                 stringBuilder);
 
+            GenerateFluentApiForAnnotation(
+                ref annotations,
+                RelationalAnnotationNames.ViewColumnName,
+                nameof(RelationalPropertyBuilderExtensions.HasViewColumnName),
+                stringBuilder);
+
             stringBuilder
                 .AppendLine()
                 .Append(".")
