@@ -966,5 +966,16 @@ namespace Microsoft.EntityFrameworkCore
             int fractions,
             int precision)
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(TimeFromParts)));
+
+        /// <summary>
+        ///     Returns the number of bytes used to represent any expression.
+        /// </summary>
+        /// <param name="_">The DbFunctions instance.</param>
+        /// <param name="arg">The value to be examined for data length.</param>
+        /// <returns>The number of bytes in the input value.</returns>
+        public static int? DataLength(
+            [CanBeNull] this DbFunctions _,
+            string arg)
+            => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DataLength)));
     }
 }
