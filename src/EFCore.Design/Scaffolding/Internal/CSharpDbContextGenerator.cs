@@ -263,15 +263,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             RemoveAnnotation(ref annotations, ChangeDetector.SkipDetectChangesAnnotation);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.MaxIdentifierLength);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.CheckConstraints);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.Sequences);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.Tables);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.Views);
             RemoveAnnotation(ref annotations, ScaffoldingAnnotationNames.DatabaseName);
             RemoveAnnotation(ref annotations, ScaffoldingAnnotationNames.EntityTypeErrors);
 
             var annotationsToRemove = new List<IAnnotation>();
-            annotationsToRemove.AddRange(
-                annotations.Where(
-                    a => a.Name.StartsWith(RelationalAnnotationNames.SequencePrefix, StringComparison.Ordinal)));
 
             var lines = new List<string>();
 

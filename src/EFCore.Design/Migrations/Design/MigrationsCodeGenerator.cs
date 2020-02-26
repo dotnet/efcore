@@ -242,6 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.DefiningQuery,
                 CoreAnnotationNames.QueryFilter,
                 RelationalAnnotationNames.CheckConstraints,
+                RelationalAnnotationNames.Sequences,
                 RelationalAnnotationNames.Tables,
                 RelationalAnnotationNames.TableMappings,
                 RelationalAnnotationNames.TableColumnMappings,
@@ -252,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             var ignoredAnnotationTypes = new List<string>
             {
-                RelationalAnnotationNames.DbFunction, RelationalAnnotationNames.SequencePrefix
+                RelationalAnnotationNames.DbFunction
             };
 
             return items.SelectMany(

@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
@@ -61,6 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             if (version != null)
             {
                 ProcessElement(model, version);
+                UpdateSequences(model, version);
 
                 foreach (var entityType in model.GetEntityTypes())
                 {
@@ -138,6 +138,34 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         }
                     }
                 }
+            }
+        }
+
+        private void UpdateSequences(IModel model, string version)
+        {
+            if ((!version.StartsWith("1.", StringComparison.Ordinal)
+                 && !version.StartsWith("2.", StringComparison.Ordinal)
+                 && !version.StartsWith("3.", StringComparison.Ordinal))
+                || !(model is IMutableModel mutableModel))
+            {
+                return;
+            }
+
+            var sequences = model.GetAnnotations()
+#pragma warning disable CS0618 // Type or member is obsolete
+                .Where(a => a.Name.StartsWith(RelationalAnnotationNames.SequencePrefix, StringComparison.Ordinal))
+                .Select(a => new Sequence(model, a.Name));
+#pragma warning restore CS0618 // Type or member is obsolete
+
+            var sequencesDictionary = new SortedDictionary<(string, string), Sequence>();
+            foreach (var sequence in sequences)
+            {
+                sequencesDictionary[(sequence.Name, sequence.Schema)] = sequence;
+            }
+
+            if (sequencesDictionary.Count > 0)
+            {
+                mutableModel[RelationalAnnotationNames.Sequences] = sequencesDictionary;
             }
         }
 

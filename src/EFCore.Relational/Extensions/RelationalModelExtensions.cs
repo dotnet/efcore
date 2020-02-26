@@ -149,12 +149,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     the given schema was found.
         /// </returns>
         public static ISequence FindSequence([NotNull] this IModel model, [NotNull] string name, [CanBeNull] string schema = null)
-        {
-            Check.NotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, nameof(schema));
-
-            return Sequence.FindSequence(model, name, schema);
-        }
+            => Sequence.FindSequence(
+                Check.NotNull(model, nameof(model)), Check.NotEmpty(name, nameof(name)), Check.NullButNotEmpty(schema, nameof(schema)));
 
         /// <summary>
         ///     Finds an <see cref="IMutableSequence" /> with the given name.
@@ -194,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The sequence. </returns>
         public static IMutableSequence AddSequence(
             [NotNull] this IMutableModel model, [NotNull] string name, [CanBeNull] string schema = null)
-            => new Sequence(model, name, schema, ConfigurationSource.Explicit);
+            => Sequence.AddSequence(model, name, schema, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     Either returns the existing <see cref="IMutableSequence" /> with the given name in the given schema
@@ -207,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The sequence. </returns>
         public static IConventionSequence AddSequence(
             [NotNull] this IConventionModel model, [NotNull] string name, [CanBeNull] string schema = null, bool fromDataAnnotation = false)
-            => new Sequence(
+            => Sequence.AddSequence(
                 (IMutableModel)model, name, schema,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -223,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static IMutableSequence RemoveSequence(
             [NotNull] this IMutableModel model, [NotNull] string name, [CanBeNull] string schema = null)
-            => (IMutableSequence)Sequence.RemoveSequence(model, name, schema);
+            => Sequence.RemoveSequence(model, name, schema);
 
         /// <summary>
         ///     Removes the <see cref="IConventionSequence" /> with the given name.
@@ -243,22 +239,22 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns all <see cref="ISequence" />s contained in the model.
         /// </summary>
         /// <param name="model"> The model to get the sequences in. </param>
-        public static IReadOnlyList<ISequence> GetSequences([NotNull] this IModel model)
-            => Sequence.GetSequences(model, RelationalAnnotationNames.SequencePrefix).ToList();
+        public static IEnumerable<ISequence> GetSequences([NotNull] this IModel model)
+            => Sequence.GetSequences(model);
 
         /// <summary>
         ///     Returns all <see cref="IMutableSequence" />s contained in the model.
         /// </summary>
         /// <param name="model"> The model to get the sequences in. </param>
-        public static IReadOnlyList<IMutableSequence> GetSequences([NotNull] this IMutableModel model)
-            => (IReadOnlyList<IMutableSequence>)((IModel)model).GetSequences();
+        public static IEnumerable<IMutableSequence> GetSequences([NotNull] this IMutableModel model)
+            => (IEnumerable<IMutableSequence>)((IModel)model).GetSequences();
 
         /// <summary>
         ///     Returns all <see cref="IConventionSequence" />s contained in the model.
         /// </summary>
         /// <param name="model"> The model to get the sequences in. </param>
-        public static IReadOnlyList<IConventionSequence> GetSequences([NotNull] this IConventionModel model)
-            => (IReadOnlyList<IConventionSequence>)((IModel)model).GetSequences();
+        public static IEnumerable<IConventionSequence> GetSequences([NotNull] this IConventionModel model)
+            => (IEnumerable<IConventionSequence>)((IModel)model).GetSequences();
 
         /// <summary>
         ///     Finds a <see cref="IDbFunction" /> that is mapped to the method represented by the given <see cref="MethodInfo" />.

@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -82,7 +84,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     The prefix for serialized sequence annotations.
         /// </summary>
+        [Obsolete("All sequences are stored in a single annotation now")]
         public const string SequencePrefix = Prefix + "Sequence:";
+
+        /// <summary>
+        ///     The name for sequence annotation.
+        /// </summary>
+        public const string Sequences = Prefix + "Sequences";
 
         /// <summary>
         ///     The name for check constraint annotations.
@@ -95,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string Filter = Prefix + "Filter";
 
         /// <summary>
-        ///     The name for DbFunction annotations.
+        ///     The name for DbFunction annotation.
         /// </summary>
         public const string DbFunction = Prefix + "DbFunction";
 

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -583,7 +584,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var sequences = model.GetSequences();
 
-            Assert.Equal(2, sequences.Count);
+            Assert.Equal(2, sequences.Count());
             Assert.Contains(sequences, s => s.Name == "Fibonacci");
             Assert.Contains(sequences, s => s.Name == "Golomb");
         }

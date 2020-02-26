@@ -449,29 +449,28 @@ namespace Microsoft.EntityFrameworkCore
                 return entityType.BaseType.IsIgnoredByMigrations();
             }
 
-            if (entityType.GetDefiningQuery() != null)
+            if (entityType.GetTableName() != null)
             {
-                return true;
+                return false;
             }
 
             if (entityType.FindAnnotation(RelationalAnnotationNames.QueryableFunctionResultType) != null)
                 return true;
 
             var viewDefinition = entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinition);
-            if (viewDefinition == null)
+            if (viewDefinition?.Value != null)
             {
-                var ownership = entityType.FindOwnership();
-                if (ownership != null
-                    && ownership.IsUnique
-                    && entityType.FindAnnotation(RelationalAnnotationNames.TableName) == null)
-                {
-                    return ownership.PrincipalEntityType.IsIgnoredByMigrations();
-                }
-
                 return false;
             }
 
-            return viewDefinition.Value == null;
+            var ownership = entityType.FindOwnership();
+            if (ownership != null
+                && ownership.IsUnique)
+            {
+                return ownership.PrincipalEntityType.IsIgnoredByMigrations();
+            }
+
+            return true;
         }
     }
 }
