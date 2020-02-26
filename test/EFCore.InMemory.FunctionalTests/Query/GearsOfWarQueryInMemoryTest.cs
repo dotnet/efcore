@@ -82,5 +82,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return base.Group_by_on_StartsWith_with_null_parameter_as_argument(async);
         }
+
+        [ConditionalTheory(Skip = "issue #18284")]
+        public override Task Enum_closure_typed_as_underlying_type_generates_correct_parameter_type(bool async)
+        {
+            return base.Enum_closure_typed_as_underlying_type_generates_correct_parameter_type(async);
+        }
     }
 }
