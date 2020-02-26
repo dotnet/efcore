@@ -42,6 +42,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionContext context)
         {
             var entityType = propertyBuilder.Metadata.DeclaringEntityType;
+            if (entityType.IsKeyless)
+            {
+                switch (entityType.GetIsKeylessConfigurationSource())
+                {
+                    case ConfigurationSource.DataAnnotation:
+                        Dependencies.Logger
+                            .ConflictingKeylessAndKeyAttributesWarning(propertyBuilder.Metadata);
+                        return;
+
+                    case ConfigurationSource.Explicit:
+                        // fluent API overrides the attribute - no warning
+                        return;
+                }
+            }
+
             if (entityType.BaseType != null)
             {
                 return;

@@ -1269,4 +1269,8 @@
   <data name="LastUsedWithoutOrderBy" xml:space="preserve">
     <value>Queries performing '{method}' operation must have a deterministic sort order. Rewrite the query to apply an OrderBy clause on the sequence before calling '{method}'.</value>
   </data>
+  <data name="LogConflictingKeylessAndKeyAttributes" xml:space="preserve">
+    <value>Conflicting attributes have been applied: the 'Key' attribute on property '{property}' and the 'Keyless' attribute on its entity '{entity}'. Note that the entity will have no key unless you use fluent API to override this.</value>
+    <comment>Warning CoreEventId.ConflictingKeylessAndKeyAttributesWarning string string</comment>
+  </data>
 </root>

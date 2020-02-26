@@ -765,6 +765,49 @@ namespace Microsoft.EntityFrameworkCore
             return modelBuilder;
         }
 
+        [ConditionalFact]
+        public virtual void Keyless_and_key_attributes_which_conflict_cause_warning()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entity = modelBuilder.Entity<KeylessAndKeyAttributes>();
+
+            Assert.True(entity.Metadata.IsKeyless);
+            Assert.Null(entity.Metadata.FindPrimaryKey());
+
+            var logEntry = Fixture.ListLoggerFactory.Log.Single();
+            Assert.Equal(LogLevel.Warning, logEntry.Level);
+            Assert.Equal(
+                CoreResources.LogConflictingKeylessAndKeyAttributes(new TestLogger<TestLoggingDefinitions>())
+                    .GenerateMessage("NotAKey", nameof(KeylessAndKeyAttributes)),
+                logEntry.Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Keyless_fluent_api_and_key_attribute_do_not_cause_warning()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entity = modelBuilder.Entity<KeylessFluentApiAndKeyAttribute>();
+            entity.HasNoKey();
+
+            Assert.True(entity.Metadata.IsKeyless);
+            Assert.Null(entity.Metadata.FindPrimaryKey());
+
+            Assert.Empty(Fixture.ListLoggerFactory.Log);
+        }
+
+        [ConditionalFact]
+        public virtual void Key_fluent_api_and_keyless_attribute_do_not_cause_warning()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entity = modelBuilder.Entity<KeyFluentApiAndKeylessAttribute>();
+            entity.HasKey("MyKey");
+
+            Assert.False(entity.Metadata.IsKeyless);
+            Assert.NotNull(entity.Metadata.FindPrimaryKey());
+
+            Assert.Empty(Fixture.ListLoggerFactory.Log);
+        }
+
         private class CompositeKeyAttribute
         {
             [Key]
@@ -2319,6 +2362,9 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Ignore<BookLabel>();
                 modelBuilder.Entity<BookDetails>();
                 modelBuilder.Entity<Book>().Property(d => d.Id).ValueGeneratedNever();
+                modelBuilder.Entity<KeylessAndKeyAttributes>();
+                modelBuilder.Entity<KeylessFluentApiAndKeyAttribute>();
+                modelBuilder.Entity<KeyFluentApiAndKeylessAttribute>();
             }
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
@@ -2326,7 +2372,8 @@ namespace Microsoft.EntityFrameworkCore
                     c => c
                         .Log(CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning)
                         .Log(CoreEventId.ForeignKeyAttributesOnBothNavigationsWarning)
-                        .Log(CoreEventId.ForeignKeyAttributesOnBothPropertiesWarning));
+                        .Log(CoreEventId.ForeignKeyAttributesOnBothPropertiesWarning)
+                        .Log(CoreEventId.ConflictingKeylessAndKeyAttributesWarning));
 
             protected override bool ShouldLogCategory(string logCategory)
                 => logCategory == DbLoggerCategory.Model.Name;
@@ -2403,6 +2450,25 @@ namespace Microsoft.EntityFrameworkCore
         protected class Details
         {
             public string Name { get; set; }
+        }
+
+        [Keyless]
+        protected class KeylessAndKeyAttributes
+        {
+            [Key]
+            public int NotAKey { get; set; }
+        }
+
+        protected class KeylessFluentApiAndKeyAttribute
+        {
+            [Key]
+            public int NotAKey { get; set; }
+        }
+
+        [Keyless]
+        protected class KeyFluentApiAndKeylessAttribute
+        {
+            public int MyKey { get; set; }
         }
     }
 }
