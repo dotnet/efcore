@@ -111,7 +111,5 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return base.IsEvaluatableExpression(expression, model);
         }
-
-        public virtual bool IsQueryableFunction(Expression expression, IModel model) => false;
     }
 }
