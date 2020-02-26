@@ -5,7 +5,6 @@ using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -74,18 +73,5 @@ namespace Microsoft.EntityFrameworkCore
         [Obsolete("Use INavigation.IsEagerLoaded")]
         public static bool IsEagerLoaded([NotNull] this INavigation navigation)
             => Check.NotNull(navigation, nameof(navigation)).IsEagerLoaded;
-
-        /// <summary>
-        ///     Gets a value indicating whether the given navigation property
-        ///     is loaded when the owner is loaded.
-        /// </summary>
-        /// <param name="navigation"> The navigation property to check. </param>
-        /// <returns>
-        ///     True if the given navigation property represents an ownership
-        ///     relationship as so will be loaded when the owner is loaded.
-        /// </returns>
-        [DebuggerStepThrough]
-        public static bool IsLoadedByOwner([NotNull] this INavigation navigation)
-            => (bool?)navigation.FindAnnotation(CoreAnnotationNames.LoadedByOwner)?.Value == true;
     }
 }

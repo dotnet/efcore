@@ -136,7 +136,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
 
             var cascadeDeleteConvention = new CascadeDeleteConvention(Dependencies);
             var foreignKeyAttributeConvention = new ForeignKeyAttributeConvention(Dependencies);
-            var navigationOwnerLoadingConvention = new NavigationOwnerLoadingConvention(Dependencies);
 
             conventionSet.ForeignKeyAddedConventions.Add(foreignKeyAttributeConvention);
             conventionSet.ForeignKeyAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
@@ -190,7 +189,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.NavigationAddedConventions.Add(inversePropertyAttributeConvention);
             conventionSet.NavigationAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.NavigationAddedConventions.Add(relationshipDiscoveryConvention);
-            conventionSet.NavigationAddedConventions.Add(navigationOwnerLoadingConvention);
 
             conventionSet.NavigationRemovedConventions.Add(relationshipDiscoveryConvention);
 
