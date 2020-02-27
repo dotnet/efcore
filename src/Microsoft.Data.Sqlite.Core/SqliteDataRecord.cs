@@ -18,7 +18,7 @@ namespace Microsoft.Data.Sqlite
         private readonly byte[][] _blobCache;
         private readonly int?[] _typeCache;
         private bool _stepped;
-        private int? _rowidOrdinal;
+        private int? _rowOrdinalCache;
 
         public SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnection connection)
         {
@@ -27,6 +27,7 @@ namespace Microsoft.Data.Sqlite
             _connection = connection;
             _blobCache = new byte[FieldCount][];
             _typeCache = new int?[FieldCount];
+            _rowOrdinalCache = null;
         }
 
         public virtual object this[string name]
@@ -198,33 +199,32 @@ namespace Microsoft.Data.Sqlite
 
         public virtual long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
         {
-            using var stream = GetStream(ordinal);
+            var blob = GetStream(ordinal);
 
-            if (buffer == null)
+            long bytesToRead = blob.Length - dataOffset;
+            if (buffer != null)
             {
-                return stream.Length - dataOffset;
+                bytesToRead = Math.Min(bytesToRead, length);
+                using (var binaryReader = new BinaryReader(blob))
+                {
+                    Array.Copy(binaryReader.ReadBytes((int)blob.Length), dataOffset, buffer, bufferOffset, bytesToRead);
+                }
             }
 
-            stream.Position = dataOffset;
-
-            return stream.Read(buffer, bufferOffset, length);
+            return bytesToRead;
         }
 
         public virtual long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
         {
-            using var stream = GetStream(ordinal);
-            using var reader = new StreamReader(stream, Encoding.UTF8);
+            var textStream = GetStream(ordinal);
+            long charsToRead = textStream.Length - dataOffset;
 
-            for (var position = 0; position < dataOffset; position++)
+            using (var streamReader = new StreamReader(textStream, Encoding.UTF8))
             {
-                if (reader.Read() == -1)
-                {
-                    // NB: Message is provided by the framework
-                    throw new ArgumentOutOfRangeException(nameof(dataOffset), dataOffset, message: null);
-                }
+                Array.Copy(streamReader.ReadToEnd().ToCharArray(), dataOffset, buffer, bufferOffset, Math.Min(charsToRead, length));
             }
 
-            return reader.Read(buffer, bufferOffset, length);
+            return charsToRead;
         }
 
         public virtual Stream GetStream(int ordinal)
@@ -238,10 +238,14 @@ namespace Microsoft.Data.Sqlite
             var blobDatabaseName = sqlite3_column_database_name(Handle, ordinal).utf8_to_string();
             var blobTableName = sqlite3_column_table_name(Handle, ordinal).utf8_to_string();
 
-            if (!_rowidOrdinal.HasValue)
-            {
-                _rowidOrdinal = -1;
+            int rowidOrdinal = -1;
 
+            if (_rowOrdinalCache.HasValue)
+            {
+                rowidOrdinal = _rowOrdinalCache.Value;
+            }
+            else
+            {
                 for (var i = 0; i < FieldCount; i++)
                 {
                     if (i == ordinal)
@@ -264,7 +268,7 @@ namespace Microsoft.Data.Sqlite
                     var columnName = sqlite3_column_origin_name(Handle, i).utf8_to_string();
                     if (columnName == "rowid")
                     {
-                        _rowidOrdinal = i;
+                        rowidOrdinal = i;
                         break;
                     }
 
@@ -282,21 +286,19 @@ namespace Microsoft.Data.Sqlite
                     if (string.Equals(dataType, "INTEGER", StringComparison.OrdinalIgnoreCase)
                         && primaryKey != 0)
                     {
-                        _rowidOrdinal = i;
+                        _rowOrdinalCache = rowidOrdinal = i;
                         break;
                     }
                 }
-
-                Debug.Assert(_rowidOrdinal.HasValue);
             }
 
-            if (_rowidOrdinal.Value < 0)
+            if (rowidOrdinal < 0)
             {
                 return new MemoryStream(GetCachedBlob(ordinal), false);
             }
 
             var blobColumnName = sqlite3_column_origin_name(Handle, ordinal).utf8_to_string();
-            var rowid = GetInt32(_rowidOrdinal.Value);
+            var rowid = GetInt32(rowidOrdinal);
 
             return new SqliteBlob(_connection, blobTableName, blobColumnName, rowid, readOnly: true);
         }
