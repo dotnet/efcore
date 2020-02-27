@@ -581,7 +581,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type1, type2);
 
         /// <summary>
-        ///     Internal ambient transaction is to be completed prior to the root one.
+        ///     Root ambient transaction was completed before the nested transaction. The more nested transactions should be completed first.
         /// </summary>
         public static string NestedAmbientTransactionError
             => GetString("NestedAmbientTransactionError");

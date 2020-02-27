@@ -498,6 +498,6 @@
     <value>Non-matching or unknown projection mapping type in set operation ({type1} and {type2}).</value>
   </data>
   <data name="NestedAmbientTransactionError" xml:space="preserve">
-    <value>Internal ambient transaction is to be completed prior to the root one.</value>
+    <value>Root ambient transaction was completed before the nested transaction. The more nested transactions should be completed first.</value>
   </data>
 </root>
