@@ -279,6 +279,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var dbFunc1 = modelBuilder.HasDbFunction(dup1methodInfo).HasName("Dup1").Metadata;
             var dbFunc2 = modelBuilder.HasDbFunction(dup2methodInfo).HasName("Dup2").Metadata;
 
+            modelBuilder.FinalizeModel();
+
             Assert.Equal("Dup1", dbFunc1.Name);
             Assert.Equal("Dup2", dbFunc2.Name);
         }
@@ -288,6 +290,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var context = new MyDerivedContext();
             var modelBuilder = GetModelBuilder(context);
+
+            modelBuilder.FinalizeModel();
 
             foreach (var function in MyBaseContext.FunctionNames)
             {
@@ -316,6 +320,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     .GetRuntimeMethod(nameof(MyDerivedContext.InstancePublicBase), Array.Empty<Type>());
 
             var dbFunc = modelBuilder.HasDbFunction(methodInfo).Metadata;
+
+            modelBuilder.FinalizeModel();
 
             Assert.Equal("InstancePublicBase", dbFunc.Name);
             Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
@@ -355,6 +361,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var dbFuncBuilder = modelBuilder.HasDbFunction(MethodAmi);
             var dbFunc = dbFuncBuilder.Metadata;
 
+            modelBuilder.FinalizeModel();
+
             Assert.Equal("MethodA", dbFunc.Name);
             Assert.Null(dbFunc.Schema);
             Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
@@ -367,6 +375,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var dbFuncBuilder = modelBuilder.HasDbFunction(() => TestMethods.MethodA(null, default));
             var dbFunc = dbFuncBuilder.Metadata;
+
+            modelBuilder.FinalizeModel();
 
             Assert.Equal("MethodA", dbFunc.Name);
             Assert.Null(dbFunc.Schema);
@@ -408,6 +418,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var dbFunc = dbFuncBuilder.Metadata;
 
+            modelBuilder.FinalizeModel();
+
             Assert.Equal("foo", dbFunc.Name);
             Assert.Equal("bar", dbFunc.Schema);
             Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
@@ -422,6 +434,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var dbFunc = modelBuilder.HasDbFunction(MethodAmi).Metadata;
 
+            modelBuilder.FinalizeModel();
+
             Assert.Equal("foo", dbFunc.Name);
             Assert.Equal("bar", dbFunc.Schema);
             Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
@@ -434,6 +448,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi);
             var dbFunc = dbFuncBuilder.Metadata;
+
+            modelBuilder.FinalizeModel();
 
             Assert.Equal("MethodFoo", dbFunc.Name);
             Assert.Equal("bar", dbFunc.Schema);
@@ -451,6 +467,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var dbFunc = dbFuncBuilder.Metadata;
 
+            modelBuilder.FinalizeModel();
+
             Assert.Equal("foo", dbFunc.Name);
             Assert.Equal("bar", dbFunc.Schema);
             Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
@@ -464,6 +482,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder.HasDbFunction(MethodBmi, funcBuilder => funcBuilder.HasName("foo").HasSchema("bar"));
 
             var dbFunc = modelBuilder.HasDbFunction(MethodBmi).Metadata;
+
+            modelBuilder.FinalizeModel();
 
             Assert.Equal("foo", dbFunc.Name);
             Assert.Equal("bar", dbFunc.Schema);
@@ -479,6 +499,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var dbFuncBuilder = modelBuilder.HasDbFunction(MethodAmi);
 
+            modelBuilder.FinalizeModel();
+
             Assert.Equal("dbo", dbFuncBuilder.Metadata.Schema);
         }
 
@@ -488,6 +510,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = GetModelBuilder();
 
             var dbFuncBuilder = modelBuilder.HasDbFunction(MethodAmi).HasStoreType("int(8)");
+
+            modelBuilder.FinalizeModel();
 
             Assert.Equal("int(8)", dbFuncBuilder.Metadata.StoreType);
         }
@@ -501,6 +525,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var dbFuncBuilder = modelBuilder.HasDbFunction(MethodAmi).HasSchema("bar");
 
+            modelBuilder.FinalizeModel();
+
             Assert.Equal("bar", dbFuncBuilder.Metadata.Schema);
         }
 
@@ -512,6 +538,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder.HasDefaultSchema("dbo");
 
             var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi);
+
+            modelBuilder.FinalizeModel();
 
             Assert.Equal("bar", dbFuncBuilder.Metadata.Schema);
         }
@@ -528,6 +556,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("abc", dbFuncBuilder.Metadata.Schema);
 
             modelBuilder.HasDefaultSchema("xyz");
+
+            modelBuilder.FinalizeModel();
 
             Assert.Equal("xyz", dbFuncBuilder.Metadata.Schema);
         }
@@ -561,6 +591,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var dbFuncBuilder = modelBuilder.HasDbFunction(MethodImi);
             var dbFunc = dbFuncBuilder.Metadata;
 
+            modelBuilder.FinalizeModel();
+
             Assert.Equal(0, dbFunc.Parameters.Count);
         }
 
@@ -584,6 +616,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi);
             var dbFunc = dbFuncBuilder.Metadata;
 
+            modelBuilder.FinalizeModel();
+
             Assert.Equal(2, dbFunc.Parameters.Count);
 
             Assert.Equal("c", dbFunc.Parameters[0].Name);
@@ -602,6 +636,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var dbFunc = dbFuncBuilder.Metadata;
 
             dbFuncBuilder.HasParameter("c");
+
+            modelBuilder.FinalizeModel();
 
             Assert.Equal(2, dbFunc.Parameters.Count);
 
@@ -622,6 +658,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             dbFuncBuilder.HasParameter("c");
 
+            modelBuilder.FinalizeModel();
+
             Assert.Equal(2, dbFunc.Parameters.Count);
 
             Assert.Equal("c", dbFunc.Parameters[0].Name);
@@ -640,6 +678,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var dbFunc = dbFuncBuilder.Metadata;
 
             dbFuncBuilder.HasParameter("c").HasStoreType("varchar(max)");
+
+            modelBuilder.FinalizeModel();
 
             Assert.Equal(2, dbFunc.Parameters.Count);
 
@@ -664,40 +704,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             funcA.HasName("MinA");
 
+            modelBuilder.FinalizeModel();
+
             Assert.Equal("MinA", funcA.Metadata.Name);
             Assert.Equal("Min", funcB.Metadata.Name);
             Assert.NotEqual(funcA.Metadata.Name, funcB.Metadata.Name);
-        }
-
-        [ConditionalFact]
-        public void Find_Queryable_Single_Expression_Overload()
-        {
-            var modelBuilder = GetModelBuilder();
-
-            var funcA = modelBuilder.HasDbFunction(typeof(MyDerivedContext).GetMethod(nameof(MyDerivedContext.QueryableSingleParam), new Type[] { typeof(int) }));
-            var funcB = modelBuilder.HasDbFunction(typeof(MyDerivedContext).GetMethod(nameof(MyDerivedContext.QueryableSingleParam), new Type[] { typeof(Expression<Func<int>>) }));
-
-            Assert.Equal("QueryableSingleParam", funcA.Metadata.Name);
-            Assert.Equal("QueryableSingleParam", funcB.Metadata.Name);
-            Assert.Equal(funcA.Metadata, funcB.Metadata);
-        }
-
-        [ConditionalFact]
-        public void Find_Queryable_Multiple_Expression_Overload()
-        {
-            var modelBuilder = GetModelBuilder();
-
-            var funcA = modelBuilder.HasDbFunction(typeof(MyDerivedContext).GetMethod(nameof(MyDerivedContext.QueryableMultiParam), new Type[] { typeof(int), typeof(double) }));
-            var funcB = modelBuilder.HasDbFunction(typeof(MyDerivedContext).GetMethod(nameof(MyDerivedContext.QueryableMultiParam), new Type[] { typeof(Expression<Func<int>>), typeof(double) }));
-            var funcC = modelBuilder.HasDbFunction(typeof(MyDerivedContext).GetMethod(nameof(MyDerivedContext.QueryableMultiParam), new Type[] { typeof(Expression<Func<int>>), typeof(Expression<Func<double>>) }));
-
-            Assert.Equal("QueryableMultiParam", funcA.Metadata.Name);
-            Assert.Equal("QueryableMultiParam", funcB.Metadata.Name);
-            Assert.Equal("QueryableMultiParam", funcC.Metadata.Name);
-
-            Assert.Equal(funcA.Metadata, funcB.Metadata);
-            Assert.Equal(funcA.Metadata, funcC.Metadata);
-            Assert.Equal(funcB.Metadata, funcC.Metadata);
         }
 
         private ModelBuilder GetModelBuilder(DbContext dbContext = null)
@@ -709,7 +720,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var relationalDependencies = CreateRelationalDependencies();
             var dbFunctionAttributeConvention = new RelationalDbFunctionAttributeConvention(dependencies, relationalDependencies);
             conventionSet.ModelInitializedConventions.Add(dbFunctionAttributeConvention);
-            conventionSet.ModelAnnotationChangedConventions.Add(dbFunctionAttributeConvention);
+            conventionSet.ModelFinalizingConventions.Add(dbFunctionAttributeConvention);
             conventionSet.ModelFinalizingConventions.Add(new DbFunctionTypeMappingConvention(dependencies, relationalDependencies));
 
             return new ModelBuilder(conventionSet);

@@ -475,15 +475,6 @@ FROM [dbo].[GetCustomerOrderCountByYear](@__customerId_0) AS [o]
 ORDER BY [o].[Count] DESC");
         }
 
-        public override void QF_Stand_Alone_Nested()
-        {
-            base.QF_Stand_Alone_Nested();
-
-            AssertSql(@"SELECT [o].[Count], [o].[CustomerId], [o].[Year]
-FROM [dbo].[GetCustomerOrderCountByYear]([dbo].[AddValues](-2, 3)) AS [o]
-ORDER BY [o].[Count] DESC");
-        }
-
         public override void QF_CrossApply_Correlated_Select_Anonymous()
         {
             base.QF_CrossApply_Correlated_Select_Anonymous();

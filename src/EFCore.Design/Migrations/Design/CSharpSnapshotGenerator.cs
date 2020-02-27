@@ -55,7 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             var annotations = model.GetAnnotations().ToList();
 
-            IgnoreAnnotationTypes(annotations, RelationalAnnotationNames.DbFunction);
             IgnoreAnnotations(
                 annotations,
                 ChangeDetector.SkipDetectChangesAnnotation,
@@ -63,6 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.OwnedTypes,
                 RelationalAnnotationNames.CheckConstraints,
                 RelationalAnnotationNames.Sequences,
+                RelationalAnnotationNames.DbFunctions,
                 RelationalAnnotationNames.Tables,
                 RelationalAnnotationNames.Views);
 

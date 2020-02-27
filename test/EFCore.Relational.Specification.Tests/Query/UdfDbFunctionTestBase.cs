@@ -196,16 +196,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 public int CustomerId { get; set; }
 
                 public DateTime OrderDate { get; set; }
-        }
+            }
 
             public IQueryable<OrderByYear> GetCustomerOrderCountByYear(int customerId)
             {
                 return CreateQuery(() => GetCustomerOrderCountByYear(customerId));
-            }
-
-            public IQueryable<OrderByYear> GetCustomerOrderCountByYear(Expression<Func<int>> customerId2)
-            {
-                return CreateQuery(() => GetCustomerOrderCountByYear(customerId2));
             }
 
             public class TopSellingProduct
@@ -336,7 +331,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 //Table
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerOrderCountByYear), new[] { typeof(int) }));
-                modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerOrderCountByYear), new[] { typeof(Expression<Func<int>>) }));
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetTopTwoSellingProducts)));
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetTopSellingProductsForCustomer)));
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCreditCards)));
@@ -1486,23 +1480,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var orders = (from c in context.GetCustomerOrderCountByYear(1)
                               orderby c.Count descending
                               select c).ToList();
-
-                Assert.Equal(2, orders.Count);
-                Assert.Equal(2, orders[0].Count);
-                Assert.Equal(2000, orders[0].Year);
-                Assert.Equal(1, orders[1].Count);
-                Assert.Equal(2001, orders[1].Year);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void QF_Stand_Alone_Nested()
-        {
-            using (var context = CreateContext())
-            {
-                var orders = (from r in context.GetCustomerOrderCountByYear(() => context.AddValues(-2, 3))
-                              orderby r.Count descending
-                              select r).ToList();
 
                 Assert.Equal(2, orders.Count);
                 Assert.Equal(2, orders[0].Count);
