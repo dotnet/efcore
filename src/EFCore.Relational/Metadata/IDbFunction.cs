@@ -25,6 +25,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         string Schema { get; }
 
         /// <summary>
+        ///     The name of the function in the model.
+        /// </summary>
+        string ModelName { get; }
+
+        /// <summary>
         ///     The <see cref="IModel" /> in which this function is defined.
         /// </summary>
         IModel Model { get; }

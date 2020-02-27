@@ -23,14 +23,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     {
         private readonly IModel _model;
 
-        private string _name { get; set; }
-        private string _schema { get; set; }
-        private long? _startValue { get; set; }
-        private int? _incrementBy { get; set; }
-        private long? _minValue { get; set; }
-        private long? _maxValue { get; set; }
-        private Type _clrType { get; set; }
-        private bool? _isCyclic { get; set; }
+        private readonly string _name;
+        private readonly string _schema;
+        private long? _startValue;
+        private int? _incrementBy;
+        private long? _minValue;
+        private long? _maxValue;
+        private Type _clrType;
+        private bool? _isCyclic;
 
         private ConfigurationSource _configurationSource;
         private ConfigurationSource? _startValueConfigurationSource;
@@ -95,9 +95,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Sequence(
-            [NotNull] IMutableModel model,
             [NotNull] string name,
             [CanBeNull] string schema,
+            [NotNull] IModel model,
             ConfigurationSource configurationSource)
         {
             Check.NotEmpty(name, nameof(name));
@@ -107,6 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _name = name;
             _schema = schema;
             _configurationSource = configurationSource;
+            Builder = new SequenceBuilder(this);
         }
 
         /// <summary>
@@ -133,6 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _maxValue = data.MaxValue;
             _clrType = data.ClrType;
             _isCyclic = data.IsCyclic;
+            Builder = new SequenceBuilder(this);
         }
 
         /// <summary>
@@ -172,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static Sequence AddSequence(
             [NotNull] IMutableModel model, [NotNull] string name, [CanBeNull] string schema, ConfigurationSource configurationSource)
         {
-            var sequence = new Sequence(model, name, schema, configurationSource);
+            var sequence = new Sequence(name, schema, model, configurationSource);
             var sequences = (SortedDictionary<(string, string), Sequence>)model[RelationalAnnotationNames.Sequences];
             if (sequences == null)
             {
@@ -190,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IMutableSequence RemoveSequence([NotNull] IMutableModel model, [NotNull] string name, [CanBeNull] string schema)
+        public static Sequence RemoveSequence([NotNull] IMutableModel model, [NotNull] string name, [CanBeNull] string schema)
         {
             var sequences = (SortedDictionary<(string, string), Sequence>)model[RelationalAnnotationNames.Sequences];
             if (sequences == null
@@ -200,6 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             sequences.Remove((name, schema));
+            sequence.Builder = null;
 
             return sequence;
         }
@@ -210,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IMutableModel Model => (IMutableModel)_model;
+        public virtual SequenceBuilder Builder { get; private set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -218,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionSequenceBuilder IConventionSequence.Builder => new SequenceBuilder(this);
+        public virtual IModel Model => _model;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -491,7 +494,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionModel IConventionSequence.Model => (IConventionModel)Model;
+        IConventionSequenceBuilder IConventionSequence.Builder => Builder;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -499,7 +502,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IModel ISequence.Model => _model;
+        IMutableModel IMutableSequence.Model => (IMutableModel)Model;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IConventionModel IConventionSequence.Model => (IConventionModel)Model;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

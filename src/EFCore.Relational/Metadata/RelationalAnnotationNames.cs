@@ -105,7 +105,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     The name for DbFunction annotation.
         /// </summary>
+        [Obsolete("Use DbFunctions")]
         public const string DbFunction = Prefix + "DbFunction";
+
+        /// <summary>
+        ///     The name for functions annotation.
+        /// </summary>
+        public const string DbFunctions = Prefix + "DbFunctions";
 
         /// <summary>
         ///     The name for the annotation containing the maximum length for database identifiers.

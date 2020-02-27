@@ -1013,7 +1013,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
-        public void Detects_function_with_invalid_return_type_throws()
+        public void Detects_function_with_invalid_return_type()
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
