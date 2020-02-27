@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -615,6 +616,120 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Same(single, parent.SinglePkToPk);
             Assert.Same(parent, single.Parent);
+        }
+
+        [ConditionalFact]
+        public virtual void Eager_load_one_to_one_non_virtual_reference_to_owned_type()
+        {
+            using var context = CreateContext(lazyLoadingEnabled: true);
+
+            var owner = context.Set<NonVirtualOneToOneOwner>().Single();
+            var addressReferenceEntry = context.Entry(owner).References.First();
+
+            Assert.Equal("Address", addressReferenceEntry.Metadata.Name);
+            Assert.True(addressReferenceEntry.IsLoaded);
+            Assert.Equal("Paradise Alley", owner.Address.Street);
+        }
+
+        [ConditionalFact]
+        public virtual void Eager_load_one_to_one_virtual_reference_to_owned_type()
+        {
+            using var context = CreateContext(lazyLoadingEnabled: true);
+
+            var owner = context.Set<VirtualOneToOneOwner>().Single();
+            var addressReferenceEntry = context.Entry(owner).References.First();
+
+            Assert.Equal("Address", addressReferenceEntry.Metadata.Name);
+            Assert.True(addressReferenceEntry.IsLoaded);
+            Assert.Equal("Dead End", owner.Address.Street);
+        }
+
+        [ConditionalFact]
+        public virtual void Eager_load_one_to_many_non_virtual_collection_of_owned_types()
+        {
+            using var context = CreateContext(lazyLoadingEnabled: true);
+
+            var owner = context.Set<NonVirtualOneToManyOwner>().Single();
+            var addressesCollectionEntry = context.Entry(owner).Collections.First();
+
+            Assert.Equal("Addresses", addressesCollectionEntry.Metadata.Name);
+            Assert.True(addressesCollectionEntry.IsLoaded);
+            Assert.Single(owner.Addresses);
+        }
+
+        [ConditionalFact]
+        public virtual void Eager_load_one_to_many_virtual_collection_of_owned_types()
+        {
+            using var context = CreateContext(lazyLoadingEnabled: true);
+
+            var owner = context.Set<VirtualOneToManyOwner>().Single();
+            var addressesCollectionEntry = context.Entry(owner).Collections.First();
+
+            Assert.Equal("Addresses", addressesCollectionEntry.Metadata.Name);
+            Assert.True(addressesCollectionEntry.IsLoaded);
+            Assert.Equal(3, owner.Addresses.Count);
+        }
+
+        [ConditionalFact]
+        public virtual void Eager_load_one_to_many_non_virtual_collection_of_owned_types_with_explicit_lazy_load()
+        {
+            using var context = CreateContext(lazyLoadingEnabled: true);
+
+            var owner = context.Set<ExplicitLazyLoadNonVirtualOneToManyOwner>().Single();
+            var addressesCollectionEntry = context.Entry(owner).Collections.First();
+
+            Assert.Equal("Addresses", addressesCollectionEntry.Metadata.Name);
+            Assert.True(addressesCollectionEntry.IsLoaded);
+            Assert.Single(owner.Addresses);
+        }
+
+        [ConditionalFact]
+        public virtual void Eager_load_one_to_many_virtual_collection_of_owned_types_with_explicit_lazy_load()
+        {
+            using var context = CreateContext(lazyLoadingEnabled: true);
+
+            var owner = context.Set<ExplicitLazyLoadVirtualOneToManyOwner>().Single();
+            var addressesCollectionEntry = context.Entry(owner).Collections.First();
+
+            Assert.Equal("Addresses", addressesCollectionEntry.Metadata.Name);
+            Assert.True(addressesCollectionEntry.IsLoaded);
+            Assert.Single(owner.Addresses);
+        }
+
+        // Tests issue https://github.com/dotnet/efcore/issues/19847 (non-virtual)
+        [ConditionalFact]
+        public virtual void Setting_reference_to_owned_type_to_null_is_allowed_on_non_virtual_navigation()
+        {
+            using var context = CreateContext(lazyLoadingEnabled: true);
+
+            var owner = context.Set<NonVirtualOneToOneOwner>().Single();
+            owner.Address = null;
+            context.Attach(owner);
+            context.Update(owner);
+
+            Assert.Null(owner.Address);
+
+            context.ChangeTracker.DetectChanges();
+
+            Assert.Null(owner.Address);
+        }
+
+        // Tests issue https://github.com/dotnet/efcore/issues/19847 (virtual)
+        [ConditionalFact]
+        public virtual void Setting_reference_to_owned_type_to_null_is_allowed_on_virtual_navigation()
+        {
+            using var context = CreateContext(lazyLoadingEnabled: true);
+
+            var owner = context.Set<VirtualOneToOneOwner>().Single();
+            owner.Address = null;
+            context.Attach(owner);
+            context.Update(owner);
+
+            Assert.Null(owner.Address);
+
+            context.ChangeTracker.DetectChanges();
+
+            Assert.Null(owner.Address);
         }
 
         [ConditionalTheory]
@@ -2352,6 +2467,78 @@ namespace Microsoft.EntityFrameworkCore
             public virtual Called Called { set; get; }
         }
 
+        public class NonVirtualOneToOneOwner
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int Id { get; set; }
+
+            // note: _not_ virtual
+            public OwnedAddress Address { get; set; }
+        }
+
+        public class VirtualOneToOneOwner
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int Id { get; set; }
+
+            public virtual OwnedAddress Address { get; set; }
+        }
+
+        public class NonVirtualOneToManyOwner
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int Id { get; set; }
+
+            // note: _not_ virtual
+            public List<OwnedAddress> Addresses { get; set; }
+        }
+
+        public class VirtualOneToManyOwner
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int Id { get; set; }
+
+            public virtual List<OwnedAddress> Addresses { get; set; }
+        }
+
+        public class ExplicitLazyLoadNonVirtualOneToManyOwner
+        {
+            private ICollection<OwnedAddress> _addresses;
+            private ILazyLoader LazyLoader { get; set; }
+
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int Id { get; set; }
+
+            // note: _not_ virtual
+            public ICollection<OwnedAddress> Addresses
+            {
+                get => LazyLoader.Load(this, ref _addresses);
+                set => _addresses = value;
+            }
+        }
+
+        public class ExplicitLazyLoadVirtualOneToManyOwner
+        {
+            private ICollection<OwnedAddress> _addresses;
+            private ILazyLoader LazyLoader { get; set; }
+
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int Id { get; set; }
+
+            public virtual ICollection<OwnedAddress> Addresses
+            {
+                get => LazyLoader.Load(this, ref _addresses);
+                set => _addresses = value;
+            }
+        }
+
+        [Owned]
+        public class OwnedAddress
+        {
+            public string Street { get; set; }
+            public string PostalCode { get; set; }
+        }
+
         protected DbContext CreateContext(bool lazyLoadingEnabled = false)
         {
             var context = Fixture.CreateContext();
@@ -2546,6 +2733,20 @@ namespace Microsoft.EntityFrameworkCore
                             .WithOne()
                             .HasForeignKey<Address>(prop => prop.PyrsonId);
                     });
+
+                modelBuilder.Entity<NonVirtualOneToOneOwner>();
+                modelBuilder.Entity<VirtualOneToOneOwner>();
+
+                // Note: Sqlite does not support auto-increment on composite keys
+                // so have to redefine the key for this to work in Sqlite
+                modelBuilder.Entity<NonVirtualOneToManyOwner>()
+                    .OwnsMany(o => o.Addresses, a => a.HasKey("Id"));
+                modelBuilder.Entity<VirtualOneToManyOwner>()
+                    .OwnsMany(o => o.Addresses, a => a.HasKey("Id"));
+                modelBuilder.Entity<ExplicitLazyLoadNonVirtualOneToManyOwner>()
+                    .OwnsMany(o => o.Addresses, a => a.HasKey("Id"));
+                modelBuilder.Entity<ExplicitLazyLoadVirtualOneToManyOwner>()
+                    .OwnsMany(o => o.Addresses, a => a.HasKey("Id"));
             }
 
             protected override void Seed(DbContext context)
@@ -2627,6 +2828,62 @@ namespace Microsoft.EntityFrameworkCore
                     new Pyrson(new FullName(FirstName.Create("Amila"), LastName.Create("Udayanga")))
                     {
                         Address = new Address { Line1 = "Line1", Line2 = "Line2" }
+                    });
+
+                context.Add(
+                    new NonVirtualOneToOneOwner
+                    {
+                        Id = 100,
+                        Address = new OwnedAddress { Street = "Paradise Alley", PostalCode = "WEEEEEE" }
+                    });
+
+                context.Add(
+                    new VirtualOneToOneOwner
+                    {
+                        Id = 200,
+                        Address = new OwnedAddress { Street = "Dead End", PostalCode = "N0 WA1R" }
+                    });
+
+                context.Add(
+                    new NonVirtualOneToManyOwner
+                    {
+                        Id = 300,
+                        Addresses = new List<OwnedAddress>
+                            {
+                                new OwnedAddress { Street = "4 Privet Drive", PostalCode = "SURREY" }
+                            }
+                    });
+
+                context.Add(
+                    new VirtualOneToManyOwner
+                    {
+                        Id = 400,
+                        Addresses = new List<OwnedAddress>
+                            {
+                                new OwnedAddress { Street = "The Ministry", PostalCode = "MAG1C" },
+                                new OwnedAddress { Street = "Diagon Alley", PostalCode = "WC2H 0AW" },
+                                new OwnedAddress { Street = "Shell Cottage", PostalCode = "THE SEA" }
+                            }
+                    });
+
+                context.Add(
+                    new ExplicitLazyLoadNonVirtualOneToManyOwner
+                    {
+                        Id = 500,
+                        Addresses = new List<OwnedAddress>
+                            {
+                                new OwnedAddress { Street = "Spinner's End", PostalCode = "BE WA1R" }
+                            }
+                    });
+
+                context.Add(
+                    new ExplicitLazyLoadVirtualOneToManyOwner
+                    {
+                        Id = 600,
+                        Addresses = new List<OwnedAddress>
+                            {
+                                new OwnedAddress { Street = "12 Grimmauld Place", PostalCode = "L0N D0N" }
+                            }
                     });
 
                 context.SaveChanges();

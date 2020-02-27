@@ -26,13 +26,20 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Throws_if_non_virtual_navigation()
+        public void Throws_if_non_virtual_navigation_to_non_owned_type()
         {
             using var context = new LazyContext<LazyNonVirtualNavEntity>();
             Assert.Equal(
                 ProxiesStrings.NonVirtualProperty(nameof(LazyNonVirtualNavEntity.SelfRef), nameof(LazyNonVirtualNavEntity)),
                 Assert.Throws<InvalidOperationException>(
                     () => context.Model).Message);
+        }
+
+        [ConditionalFact]
+        public void Does_not_throw_if_non_virtual_navigation_to_owned_type()
+        {
+            using var context = new LazyContext<LazyNonVirtualOwnedNavEntity>();
+            var model = context.Model;
         }
 
         [ConditionalFact]
@@ -101,6 +108,23 @@ namespace Microsoft.EntityFrameworkCore
             public int Id { get; set; }
 
             public LazyNonVirtualNavEntity SelfRef { get; set; }
+        }
+
+        public class LazyNonVirtualOwnedNavEntity
+        {
+            public int Id { get; set; }
+
+            public OwnedNavEntity NavigationToOwned { get; set; }
+        }
+
+        [Owned]
+        public class OwnedNavEntity
+        {
+            public int Id { get; set; }
+
+            public string Name { get; set; }
+
+            public LazyNonVirtualOwnedNavEntity Owner { get; set; }
         }
 
         public class LazyHiddenFieldEntity

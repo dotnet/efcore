@@ -169,7 +169,8 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 
                             if (_options.UseLazyLoadingProxies)
                             {
-                                if (!navigation.PropertyInfo.GetMethod.IsVirtual)
+                                if (!navigation.PropertyInfo.GetMethod.IsVirtual
+                                    && !navigation.ForeignKey.IsOwnership)
                                 {
                                     throw new InvalidOperationException(
                                     ProxiesStrings.NonVirtualProperty(navigation.Name, entityType.DisplayName()));
