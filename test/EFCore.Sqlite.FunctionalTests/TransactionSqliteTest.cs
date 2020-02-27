@@ -33,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using var context = CreateContext();
                 context.Set<TransactionCustomer>().RemoveRange(context.Set<TransactionCustomer>());
+                context.Set<TransactionOrder>().RemoveRange(context.Set<TransactionOrder>());
                 context.SaveChanges();
 
                 Seed(context);
