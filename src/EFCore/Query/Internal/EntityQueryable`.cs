@@ -156,5 +156,38 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual QueryDebugView DebugView => new QueryDebugView(() => Expression.Print(), this.ToQueryString);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override bool Equals(object obj)
+            => obj != null
+                && (ReferenceEquals(this, obj)
+                    || obj is IEntityQueryable entityQueryable
+                        && entityQueryable.EntityType == _entityType);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override int GetHashCode() => _entityType?.GetHashCode() ?? 0;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override string ToString()
+            => _entityType != null
+            ? (_entityType.IsSharedType
+                ? $"DbSet<{_entityType.ClrType.ShortDisplayName()}>(\"{_entityType.Name}\")"
+                : $"DbSet<{_entityType.ClrType.ShortDisplayName()}>()")
+            : base.ToString();
     }
 }

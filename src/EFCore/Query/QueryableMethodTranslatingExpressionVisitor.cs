@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -37,8 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(constantExpression, nameof(constantExpression));
 
-            return constantExpression.IsEntityQueryable()
-                ? CreateShapedQueryExpression(((IEntityQueryable)constantExpression.Value).EntityType)
+            return constantExpression.Value is IEntityQueryable entityQueryable
+                ? CreateShapedQueryExpression(entityQueryable.EntityType)
                 : base.VisitConstant(constantExpression);
         }
 

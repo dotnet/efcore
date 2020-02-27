@@ -55,10 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             Check.NotNull(constantExpression, nameof(constantExpression));
 
-            return constantExpression.IsEntityQueryable()
-                ? new EntityReferenceExpression(
-                    constantExpression,
-                    ((IEntityQueryable)constantExpression.Value).EntityType)
+            return constantExpression.Value is IEntityQueryable entityQueryable
+                ? new EntityReferenceExpression(constantExpression, entityQueryable.EntityType)
                 : (Expression)constantExpression;
         }
 

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -138,9 +139,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [Obsolete("Use constantExpression.Value is IEntityQueryable instead.")]
         public static bool IsEntityQueryable([NotNull] this ConstantExpression constantExpression)
-            => constantExpression.Type.IsGenericType
-                && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>);
+            => constantExpression.Value is IEntityQueryable;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

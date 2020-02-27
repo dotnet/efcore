@@ -108,12 +108,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             Check.NotNull(constantExpression, nameof(constantExpression));
 
-            if (constantExpression.IsEntityQueryable())
+            if (constantExpression.Value is IEntityQueryable entityQueryable)
             {
-                var entityType = ((IEntityQueryable)constantExpression.Value).EntityType;
-                var definingQuery = entityType.GetDefiningQuery();
-                NavigationExpansionExpression navigationExpansionExpression;
-                if (definingQuery != null)
+                var entityType = entityQueryable.EntityType;
+                NavigationExpansionExpression navigationExpansionExpression = null;
+
+                // Only apply defining query if not a custom query root.
+                // This code will get removed when defining query is re-worked
+                if (constantExpression.Type.IsGenericType
+                    && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>)
+                    && entityType.GetDefiningQuery() is LambdaExpression definingQuery)
                 {
                     var processedDefiningQueryBody = _parameterExtractingExpressionVisitor.ExtractParameters(definingQuery.Body);
                     processedDefiningQueryBody = _queryTranslationPreprocessor.NormalizeQueryableMethodCall(processedDefiningQueryBody);
@@ -125,10 +129,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     processedDefiningQueryBody = Reduce(processedDefiningQueryBody);
                     navigationExpansionExpression = CreateNavigationExpansionExpression(processedDefiningQueryBody, entityType);
                 }
-                else
-                {
-                    navigationExpansionExpression = CreateNavigationExpansionExpression(constantExpression, entityType);
-                }
+
+                navigationExpansionExpression ??= CreateNavigationExpansionExpression(constantExpression, entityType);
 
                 return ApplyQueryFilter(navigationExpansionExpression);
             }
@@ -521,24 +523,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return methodCallExpression.Update(null, new[] { argument });
             }
 
-            if (method.IsGenericMethod
-                && method.Name == "FromSqlOnQueryable"
-                && methodCallExpression.Arguments.Count == 3
-                && methodCallExpression.Arguments[0] is ConstantExpression constantExpression
-                && methodCallExpression.Arguments[1] is ConstantExpression
-                && (methodCallExpression.Arguments[2] is ParameterExpression || methodCallExpression.Arguments[2] is ConstantExpression)
-                && constantExpression.IsEntityQueryable())
-            {
-                var entityType = ((IEntityQueryable)constantExpression.Value).EntityType;
-                var source = CreateNavigationExpansionExpression(constantExpression, entityType);
-                source.UpdateSource(
-                    methodCallExpression.Update(
-                        null,
-                        new[] { source.Source, methodCallExpression.Arguments[1], methodCallExpression.Arguments[2] }));
-
-                return ApplyQueryFilter(source);
-            }
-
             return ProcessUnknownMethod(methodCallExpression);
         }
 
@@ -915,7 +899,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var currentTree = new NavigationTreeNode(outerSource.CurrentTree, innerSource.CurrentTree);
             var pendingSelector = new ReplacingExpressionVisitor(
                 new Expression[] { resultSelector.Parameters[0], resultSelector.Parameters[1] },
-                new[] { outerSource.PendingSelector, innerPendingSelector})
+                new[] { outerSource.PendingSelector, innerPendingSelector })
                 .Visit(resultSelector.Body);
             var parameterName = GetParameterName("ti");
 

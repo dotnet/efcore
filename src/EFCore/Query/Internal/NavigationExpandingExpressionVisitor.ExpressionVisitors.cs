@@ -682,12 +682,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 Check.NotNull(constantExpression, nameof(constantExpression));
 
-                if (constantExpression.IsEntityQueryable())
+                if (constantExpression.Value is IEntityQueryable entityQueryable)
                 {
-                    var entityType = ((IEntityQueryable)constantExpression.Value).EntityType;
-                    if (entityType == _entityType)
+                    if (entityQueryable.EntityType == _entityType)
                     {
-                        return _navigationExpandingExpressionVisitor.CreateNavigationExpansionExpression(constantExpression, entityType);
+                        return _navigationExpandingExpressionVisitor.CreateNavigationExpansionExpression(constantExpression, _entityType);
                     }
                 }
 

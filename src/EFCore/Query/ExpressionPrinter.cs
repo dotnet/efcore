@@ -376,9 +376,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 printable.Print(this);
             }
-            else if (constantExpression.IsEntityQueryable())
+            else if (constantExpression.Value is IEntityQueryable entityQueryable)
             {
-                _stringBuilder.Append($"DbSet<{constantExpression.Type.GenericTypeArguments.First().ShortDisplayName()}>");
+                _stringBuilder.Append(entityQueryable.ToString());
             }
             else
             {

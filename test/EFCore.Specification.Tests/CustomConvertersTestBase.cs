@@ -570,7 +570,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using var context = CreateContext();
             Assert.Equal(
-                @"The LINQ expression 'DbSet<CollectionScalar>    .Where(c => c.Tags        .Any())' could not be translated. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
+                @"The LINQ expression 'DbSet<CollectionScalar>()    .Where(c => c.Tags        .Any())' could not be translated. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
                 Assert.Throws<InvalidOperationException>(
                     () => context.Set<CollectionScalar>().Where(e => e.Tags.Any()).ToList())
                     .Message.Replace("\r", "").Replace("\n", ""));
@@ -581,7 +581,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using var context = CreateContext();
             Assert.Equal(
-                @"The LINQ expression 'DbSet<CollectionScalar>    .Where(c => c.Tags.Count == 2)' could not be translated. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
+                @"The LINQ expression 'DbSet<CollectionScalar>()    .Where(c => c.Tags.Count == 2)' could not be translated. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
                 Assert.Throws<InvalidOperationException>(
                     () => context.Set<CollectionScalar>().Where(e => e.Tags.Count == 2).ToList())
                     .Message.Replace("\r", "").Replace("\n", ""));
@@ -599,7 +599,7 @@ namespace Microsoft.EntityFrameworkCore
             using var context = CreateContext();
             var sameRole = Roles.Seller;
             Assert.Equal(
-                @"The LINQ expression 'DbSet<CollectionEnum>    .Where(c => c.Roles.Contains(__sameRole_0))' could not be translated. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
+                @"The LINQ expression 'DbSet<CollectionEnum>()    .Where(c => c.Roles.Contains(__sameRole_0))' could not be translated. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
                 Assert.Throws<InvalidOperationException>(
                     () => context.Set<CollectionEnum>().Where(e => e.Roles.Contains(sameRole)).ToList())
                     .Message.Replace("\r", "").Replace("\n", ""));

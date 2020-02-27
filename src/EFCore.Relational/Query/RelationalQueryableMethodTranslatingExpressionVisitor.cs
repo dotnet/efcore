@@ -63,21 +63,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             _subquery = true;
         }
 
+        protected override Expression VisitConstant(ConstantExpression constantExpression)
+        {
+            return constantExpression.Value is IFromSqlQueryable fromSqlQueryable
+                ? CreateShapedQueryExpression(fromSqlQueryable)
+                : base.VisitConstant(constantExpression);
+        }
+
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
-            if (methodCallExpression.Method.DeclaringType == typeof(RelationalQueryableExtensions)
-                && methodCallExpression.Method.Name == nameof(RelationalQueryableExtensions.FromSqlOnQueryable))
-            {
-                var sql = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
-                var queryable = (IEntityQueryable)((ConstantExpression)methodCallExpression.Arguments[0]).Value;
-
-                return CreateShapedQueryExpression(
-                    queryable.EntityType, _sqlExpressionFactory.Select(queryable.EntityType, sql, methodCallExpression.Arguments[2]));
-            }
-
-            var dbFunction = this._model.FindDbFunction(methodCallExpression.Method);
+            var dbFunction = _model.FindDbFunction(methodCallExpression.Method);
             if (dbFunction != null && dbFunction.IsIQueryable)
             {
                 return CreateShapedQueryExpression(methodCallExpression);
@@ -94,13 +91,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             var sqlFuncExpression = _sqlTranslator.TranslateMethodCall(methodCallExpression) as SqlFunctionExpression;
 
             var elementType = methodCallExpression.Method.ReturnType.GetGenericArguments()[0];
-            var entityType =_model.FindEntityType(elementType);
+            var entityType = _model.FindEntityType(elementType);
             var queryExpression = _sqlExpressionFactory.Select(entityType, sqlFuncExpression);
 
             return CreateShapedQueryExpression(entityType, queryExpression);
         }
 
-		[Obsolete("Use overload which takes IEntityType.")]
+        [Obsolete("Use overload which takes IEntityType.")]
         protected override ShapedQueryExpression CreateShapedQueryExpression(Type elementType)
         {
             Check.NotNull(elementType, nameof(elementType));
@@ -116,6 +113,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(entityType, nameof(entityType));
 
             return CreateShapedQueryExpression(entityType, _sqlExpressionFactory.Select(entityType));
+        }
+
+        private ShapedQueryExpression CreateShapedQueryExpression(IFromSqlQueryable fromSqlQueryable)
+        {
+            Check.NotNull(fromSqlQueryable, nameof(fromSqlQueryable));
+
+            return CreateShapedQueryExpression(
+                fromSqlQueryable.EntityType,
+                _sqlExpressionFactory.Select(fromSqlQueryable.EntityType, fromSqlQueryable.Sql, fromSqlQueryable.Argument));
         }
 
         private static ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType, SelectExpression selectExpression)

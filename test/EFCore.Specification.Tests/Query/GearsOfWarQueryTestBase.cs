@@ -1504,7 +1504,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     @"(MaterializeCollectionNavigation(
     navigation: Navigation: Gear.Weapons,
     subquery: (NavigationExpansionExpression
-        Source: DbSet<Weapon>
+        Source: DbSet<Weapon>()
             .Where(w => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(w, ""OwnerFullName""))
         PendingSelector: w => (NavigationTreeExpression
             Value: (EntityReference: Weapon)
@@ -1519,7 +1519,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     .Concat((MaterializeCollectionNavigation(
         navigation: Navigation: Gear.Weapons,
         subquery: (NavigationExpansionExpression
-            Source: DbSet<Weapon>
+            Source: DbSet<Weapon>()
                 .Where(w0 => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(w0, ""OwnerFullName""))
             PendingSelector: w0 => (NavigationTreeExpression
                 Value: (EntityReference: Weapon)
@@ -1547,7 +1547,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     @"(MaterializeCollectionNavigation(
     navigation: Navigation: Gear.Weapons,
     subquery: (NavigationExpansionExpression
-        Source: DbSet<Weapon>
+        Source: DbSet<Weapon>()
             .Where(w => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(w, ""OwnerFullName""))
         PendingSelector: w => (NavigationTreeExpression
             Value: (EntityReference: Weapon)
@@ -1562,7 +1562,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     .Union((MaterializeCollectionNavigation(
         navigation: Navigation: Gear.Weapons,
         subquery: (NavigationExpansionExpression
-            Source: DbSet<Weapon>
+            Source: DbSet<Weapon>()
                 .Where(w0 => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(w0, ""OwnerFullName""))
             PendingSelector: w0 => (NavigationTreeExpression
                 Value: (EntityReference: Weapon)

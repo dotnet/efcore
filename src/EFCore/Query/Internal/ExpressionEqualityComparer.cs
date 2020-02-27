@@ -421,8 +421,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 => a.Value == b.Value
                     || (a.Value != null
                         && b.Value != null
-                        && (a.IsEntityQueryable() && b.IsEntityQueryable() && a.Value.GetType() == b.Value.GetType()
-                            || Equals(a.Value, b.Value)));
+                        && (Equals(a.Value, b.Value)));
 
             private bool CompareGoto(GotoExpression a, GotoExpression b)
                 => a.Kind == b.Kind

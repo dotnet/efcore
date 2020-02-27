@@ -227,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore
                 ExistingTestStore = Fixture.CreateTestStore(SqlServerTestStoreFactory.Instance, StoreName, Seed);
             }
 
-            [ConditionalFact]
+            [ConditionalFact(Skip = "#18682")]
             public async Task Can_use_one_context_nested_inside_another_of_a_different_type()
             {
                 var inMemoryServiceProvider = InMemoryFixture.DefaultServiceProvider;
