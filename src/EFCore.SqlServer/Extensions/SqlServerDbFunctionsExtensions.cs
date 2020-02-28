@@ -975,7 +975,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The number of bytes in the input value.</returns>
         public static long? DataLength(
             [CanBeNull] this DbFunctions _,
-            string arg)
+            [CanBeNull] string arg)
             => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DataLength)));
 
         /// <summary>
