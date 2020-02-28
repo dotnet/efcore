@@ -14,9 +14,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
     public class SqlServerDataLengthFunctionTranslator : IMethodCallTranslator
     {
-        private readonly ISqlExpressionFactory _sqlExpressionFactory;
-
-        private readonly HashSet<MethodInfo> _methodInfoDataLengthMapping
+        private static readonly HashSet<MethodInfo> _methodInfoDataLengthMapping
             = new HashSet<MethodInfo>
             {
                 typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
@@ -55,6 +53,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     nameof(SqlServerDbFunctionsExtensions.DataLength),
                     new[] { typeof(DbFunctions), typeof(Guid?) })
             };
+
+        private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         public SqlServerDataLengthFunctionTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {

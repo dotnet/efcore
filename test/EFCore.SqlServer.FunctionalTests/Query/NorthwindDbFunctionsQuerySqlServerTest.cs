@@ -967,6 +967,60 @@ WHERE '23:59:00' > TIMEFROMPARTS(23, 59, 59, [o].[OrderID] % 60, 2)");
             }
         }
 
+        [ConditionalFact]
+        public virtual void DataLength_column_compare()
+        {
+            using (var context = CreateContext())
+            {
+                var count = context.Orders
+                    .Count(c => c.OrderID < EF.Functions.DataLength(c.OrderDate));
+
+                Assert.Equal(0, count);
+
+                AssertSql(
+                    @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE CAST([o].[OrderID] AS bigint) < DATALENGTH([o].[OrderDate])");
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void DataLength_constant_compare()
+        {
+            using (var context = CreateContext())
+            {
+                var count = context.Orders
+                    .Count(c => 100 < EF.Functions.DataLength(c.OrderDate));
+
+                Assert.Equal(0, count);
+
+                AssertSql(
+                    @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE CAST(100 AS bigint) < DATALENGTH([o].[OrderDate])");
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void DataLength_compare_with_local_variable()
+        {
+            long lenght = 100;
+            using (var context = CreateContext())
+            {
+                var count = context.Orders
+                    .Count(c => lenght < EF.Functions.DataLength(c.OrderDate));
+
+                Assert.Equal(0, count);
+
+                AssertSql(
+                    @$"@__lenght_0='100' (Nullable = true)
+
+SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE @__lenght_0 < DATALENGTH([o].[OrderDate])");
+            }
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
