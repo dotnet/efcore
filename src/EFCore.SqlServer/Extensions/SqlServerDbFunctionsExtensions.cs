@@ -973,7 +973,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="arg">The value to be examined for data length.</param>
         /// <returns>The number of bytes in the input value.</returns>
-        public static int? DataLength(
+        public static long? DataLength(
             [CanBeNull] this DbFunctions _,
             string arg)
             => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DataLength)));
@@ -984,7 +984,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="arg">The value to be examined for data length.</param>
         /// <returns>The number of bytes in the input value.</returns>
-        public static int? DataLength(
+        public static long? DataLength(
             [CanBeNull] this DbFunctions _,
             bool? arg)
             => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DataLength)));
@@ -995,7 +995,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="arg">The value to be examined for data length.</param>
         /// <returns>The number of bytes in the input value.</returns>
-        public static int? DataLength(
+        public static long? DataLength(
             [CanBeNull] this DbFunctions _,
             double? arg)
             => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DataLength)));
@@ -1006,7 +1006,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="arg">The value to be examined for data length.</param>
         /// <returns>The number of bytes in the input value.</returns>
-        public static int? DataLength(
+        public static long? DataLength(
             [CanBeNull] this DbFunctions _,
             decimal? arg)
             => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DataLength)));
@@ -1017,7 +1017,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="arg">The value to be examined for data length.</param>
         /// <returns>The number of bytes in the input value.</returns>
-        public static int? DataLength(
+        public static long? DataLength(
             [CanBeNull] this DbFunctions _,
             DateTime? arg)
             => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DataLength)));
@@ -1028,7 +1028,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="arg">The value to be examined for data length.</param>
         /// <returns>The number of bytes in the input value.</returns>
-        public static int? DataLength(
+        public static long? DataLength(
             [CanBeNull] this DbFunctions _,
             TimeSpan? arg)
             => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DataLength)));
@@ -1039,7 +1039,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="arg">The value to be examined for data length.</param>
         /// <returns>The number of bytes in the input value.</returns>
-        public static int? DataLength(
+        public static long? DataLength(
             [CanBeNull] this DbFunctions _,
             DateTimeOffset? arg)
             => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DataLength)));
@@ -1050,7 +1050,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="arg">The value to be examined for data length.</param>
         /// <returns>The number of bytes in the input value.</returns>
-        public static int? DataLength(
+        public static long? DataLength(
             [CanBeNull] this DbFunctions _,
             byte[] arg)
             => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DataLength)));
@@ -1061,7 +1061,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="arg">The value to be examined for data length.</param>
         /// <returns>The number of bytes in the input value.</returns>
-        public static int? DataLength(
+        public static long? DataLength(
             [CanBeNull] this DbFunctions _,
             Guid? arg)
             => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DataLength)));
