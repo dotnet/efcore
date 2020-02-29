@@ -135,81 +135,16 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                             % Convert.ToDouble(divisor, CultureInfo.InvariantCulture);
                     });
 
-                CreateEfCompareFunctions(sqliteConnection);
+                sqliteConnection.CreateFunction(
+                    "ef_compare",
+                    (decimal? left, decimal? right) => left.HasValue && right.HasValue
+                        ? decimal.Compare(left.Value, right.Value)
+                        : default(int?),
+                    isDeterministic: true);
             }
             else
             {
                 _logger.UnexpectedConnectionTypeWarning(connection.GetType());
-            }
-        }
-
-        private void CreateEfCompareFunctions(SqliteConnection sqliteConnection)
-        {
-            var functions = new[]
-            {
-                ("ef_compare_gt", Comparer.Operator.GreaterThan),
-                ("ef_compare_geq", Comparer.Operator.GreaterThanOrEqual),
-                ("ef_compare_lt", Comparer.Operator.LessThan),
-                ("ef_compare_leq", Comparer.Operator.LessThanOrEqual),
-                ("ef_compare_eq", Comparer.Operator.Equal)
-            };
-
-            foreach (var function in functions)
-            {
-                sqliteConnection.CreateFunction<object, object, object>(
-                    function.Item1,
-                    (left, right) =>
-                    {
-                        if (left == null
-                            || right == null)
-                        {
-                            return null;
-                        }
-
-                        var leftSide = left is string leftAsString
-                            ? decimal.Parse(leftAsString, CultureInfo.CurrentCulture)
-                            : Convert.ToDecimal(left, CultureInfo.CurrentCulture);
-                        var rightSide = right is string rightAsString
-                            ? decimal.Parse(rightAsString, CultureInfo.CurrentCulture)
-                            : Convert.ToDecimal(right, CultureInfo.CurrentCulture);
-
-                        return Comparer.IsTrue(
-                            Convert.ToDecimal(leftSide, CultureInfo.CurrentCulture), function.Item2,
-                            Convert.ToDecimal(rightSide, CultureInfo.CurrentCulture));
-                    });
-            }
-        }
-
-        internal static class Comparer
-        {
-            public static bool IsTrue<T, U>(T value1, Operator comparisonOperator, U value2)
-                where T : U
-                where U : IComparable
-            {
-                switch (comparisonOperator)
-                {
-                    case Operator.GreaterThan:
-                        return value1.CompareTo(value2) > 0;
-                    case Operator.GreaterThanOrEqual:
-                        return value1.CompareTo(value2) >= 0;
-                    case Operator.LessThan:
-                        return value1.CompareTo(value2) < 0;
-                    case Operator.LessThanOrEqual:
-                        return value1.CompareTo(value2) <= 0;
-                    case Operator.Equal:
-                        return value1.CompareTo(value2) == 0;
-                    default:
-                        return false;
-                }
-            }
-
-            internal enum Operator
-            {
-                GreaterThan = 1,
-                GreaterThanOrEqual = 2,
-                LessThan = 3,
-                LessThanOrEqual = 4,
-                Equal = 5
             }
         }
     }

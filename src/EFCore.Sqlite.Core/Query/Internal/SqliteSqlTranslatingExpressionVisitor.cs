@@ -34,28 +34,24 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 [ExpressionType.GreaterThan] = new HashSet<Type>
                 {
                     typeof(DateTimeOffset),
-                    typeof(decimal),
                     typeof(TimeSpan),
                     typeof(ulong)
                 },
                 [ExpressionType.GreaterThanOrEqual] = new HashSet<Type>
                 {
                     typeof(DateTimeOffset),
-                    typeof(decimal),
                     typeof(TimeSpan),
                     typeof(ulong)
                 },
                 [ExpressionType.LessThan] = new HashSet<Type>
                 {
                     typeof(DateTimeOffset),
-                    typeof(decimal),
                     typeof(TimeSpan),
                     typeof(ulong)
                 },
                 [ExpressionType.LessThanOrEqual] = new HashSet<Type>
                 {
                     typeof(DateTimeOffset),
-                    typeof(decimal),
                     typeof(TimeSpan),
                     typeof(ulong)
                 },
@@ -153,69 +149,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                         visitedExpression.TypeMapping);
                 }
 
-                if (sqlBinary.OperatorType == ExpressionType.GreaterThan
-                    && (_functionModuloTypes.Contains(GetProviderType(sqlBinary.Left))
-                        || _functionModuloTypes.Contains(GetProviderType(sqlBinary.Right))))
+                if (AttemptDecimalCompare(sqlBinary))
                 {
-                    return SqlExpressionFactory.Function(
-                        "ef_compare_gt",
-                        new[] { sqlBinary.Left, sqlBinary.Right },
-                        nullable: true,
-                        argumentsPropagateNullability: new[] { true, true },
-                        visitedExpression.Type,
-                        visitedExpression.TypeMapping);
-                }
-
-                if (sqlBinary.OperatorType == ExpressionType.GreaterThanOrEqual
-                    && (_functionModuloTypes.Contains(GetProviderType(sqlBinary.Left))
-                        || _functionModuloTypes.Contains(GetProviderType(sqlBinary.Right))))
-                {
-                    return SqlExpressionFactory.Function(
-                        "ef_compare_geq",
-                        new[] { sqlBinary.Left, sqlBinary.Right },
-                        nullable: true,
-                        argumentsPropagateNullability: new[] { true, true },
-                        visitedExpression.Type,
-                        visitedExpression.TypeMapping);
-                }
-
-                if (sqlBinary.OperatorType == ExpressionType.LessThan
-                    && (_functionModuloTypes.Contains(GetProviderType(sqlBinary.Left))
-                        || _functionModuloTypes.Contains(GetProviderType(sqlBinary.Right))))
-                {
-                    return SqlExpressionFactory.Function(
-                        "ef_compare_lt",
-                        new[] { sqlBinary.Left, sqlBinary.Right },
-                        nullable: true,
-                        argumentsPropagateNullability: new[] { true, true },
-                        visitedExpression.Type,
-                        visitedExpression.TypeMapping);
-                }
-
-                if (sqlBinary.OperatorType == ExpressionType.LessThanOrEqual
-                    && (_functionModuloTypes.Contains(GetProviderType(sqlBinary.Left))
-                        || _functionModuloTypes.Contains(GetProviderType(sqlBinary.Right))))
-                {
-                    return SqlExpressionFactory.Function(
-                        "ef_compare_leq",
-                        new[] { sqlBinary.Left, sqlBinary.Right },
-                        nullable: true,
-                        argumentsPropagateNullability: new[] { true, true },
-                        visitedExpression.Type,
-                        visitedExpression.TypeMapping);
-                }
-
-                if (sqlBinary.OperatorType == ExpressionType.Equal
-                    && (_functionModuloTypes.Contains(GetProviderType(sqlBinary.Left))
-                        || _functionModuloTypes.Contains(GetProviderType(sqlBinary.Right))))
-                {
-                    return SqlExpressionFactory.Function(
-                        "ef_compare_eq",
-                        new[] { sqlBinary.Left, sqlBinary.Right },
-                        nullable: true,
-                        argumentsPropagateNullability: new[] { true, true },
-                        visitedExpression.Type,
-                        visitedExpression.TypeMapping);
+                    return DoDecimalCompare(visitedExpression, sqlBinary.OperatorType, sqlBinary.Left, sqlBinary.Right);
                 }
 
                 if (_restrictedBinaryExpressions.TryGetValue(sqlBinary.OperatorType, out var restrictedTypes)
@@ -295,5 +231,32 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 : (expression.TypeMapping?.Converter?.ProviderClrType
                     ?? expression.TypeMapping?.ClrType
                     ?? expression.Type).UnwrapNullableType();
+
+        private static bool AttemptDecimalCompare(SqlBinaryExpression sqlBinary)
+        {
+            return GetProviderType(sqlBinary.Left) == typeof(decimal)
+                && GetProviderType(sqlBinary.Right) == typeof(decimal);
+        }
+
+        private Expression DoDecimalCompare(SqlExpression visitedExpression, ExpressionType op, SqlExpression left, SqlExpression right)
+        {
+            var actual = SqlExpressionFactory.Function(
+                name: "ef_compare",
+                arguments: new[] { left, right },
+                nullable: true,
+                argumentsPropagateNullability: new[] { true, true },
+                visitedExpression.Type,
+                visitedExpression.TypeMapping);
+            var oracle = SqlExpressionFactory.Constant(0);
+
+            return op switch
+            {
+                ExpressionType.GreaterThan => SqlExpressionFactory.GreaterThan(left: actual, right: oracle),
+                ExpressionType.GreaterThanOrEqual => SqlExpressionFactory.GreaterThanOrEqual(left: actual, right: oracle),
+                ExpressionType.LessThan => SqlExpressionFactory.LessThan(left: actual, right: oracle),
+                ExpressionType.LessThanOrEqual => SqlExpressionFactory.LessThanOrEqual(left: actual, right: oracle),
+                _ => visitedExpression
+            };
+        }
     }
 }
