@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             Check.NotNull(method, nameof(method));
             Check.NotNull(arguments, nameof(arguments));
 
-            if (_methodInfoDataLengthMapping.TryGetValue(method, out _))
+            if (_methodInfoDataLengthMapping.Contains(method))
             {
                 return _sqlExpressionFactory.Function(
                     "DATALENGTH",
