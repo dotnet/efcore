@@ -129,10 +129,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
 
             var modelSnapshot = Dependencies.MigrationsAssembly.ModelSnapshot;
-            var lastModel = Dependencies.SnapshotModelProcessor.Process(modelSnapshot?.Model);
-            var upOperations = Dependencies.MigrationsModelDiffer.GetDifferences(lastModel, Dependencies.Model);
+            var lastModel = Dependencies.SnapshotModelProcessor.Process(modelSnapshot?.Model)?.GetRelationalModel();
+            var upOperations = Dependencies.MigrationsModelDiffer
+                .GetDifferences(lastModel, Dependencies.Model.GetRelationalModel());
             var downOperations = upOperations.Count > 0
-                ? Dependencies.MigrationsModelDiffer.GetDifferences(Dependencies.Model, lastModel)
+                ? Dependencies.MigrationsModelDiffer.GetDifferences(Dependencies.Model.GetRelationalModel(), lastModel)
                 : new List<MigrationOperation>();
             var migrationId = Dependencies.MigrationsIdGenerator.GenerateId(migrationName);
             var modelSnapshotNamespace = GetNamespace(modelSnapshot?.GetType(), migrationNamespace);
@@ -245,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 model = migration.TargetModel;
 
                 if (!Dependencies.MigrationsModelDiffer.HasDifferences(
-                    model, Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model)))
+                    model.GetRelationalModel(), Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model).GetRelationalModel()))
                 {
                     var applied = false;
                     try

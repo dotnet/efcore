@@ -83,6 +83,24 @@ namespace Microsoft.EntityFrameworkCore
                 return $"{mutableType.Name} should derive from {readonlyType.Name}";
             }
 
+            if (typeof(IAnnotation) != readonlyType)
+            {
+                if (!typeof(IAnnotatable).IsAssignableFrom(readonlyType))
+                {
+                    return $"{mutableType.Name} should derive from IAnnotatable";
+                }
+
+                if (!typeof(IMutableAnnotatable).IsAssignableFrom(mutableType))
+                {
+                    return $"{mutableType.Name} should derive from IMutableAnnotatable";
+                }
+
+                if (!typeof(IConventionAnnotatable).IsAssignableFrom(conventionType))
+                {
+                    return $"{mutableType.Name} should derive from IConventionAnnotatable";
+                }
+            }
+
             if (conventionBuilderType != null)
             {
                 var builderProperty = conventionType.GetProperty("Builder");

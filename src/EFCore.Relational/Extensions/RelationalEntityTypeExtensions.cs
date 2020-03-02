@@ -521,9 +521,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A value indicating whether the entity type is ignored by Migrations.</returns>
         public static bool IsIgnoredByMigrations([NotNull] this IEntityType entityType)
         {
-            if (entityType.BaseType != null)
+            if (entityType.BaseType != null
+                && entityType.BaseType.IsIgnoredByMigrations())
             {
-                return entityType.BaseType.IsIgnoredByMigrations();
+                return true;
             }
 
             if (entityType.GetTableName() != null)
@@ -532,7 +533,9 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             if (entityType.FindAnnotation(RelationalAnnotationNames.QueryableFunctionResultType) != null)
+            {
                 return true;
+            }
 
             var viewDefinition = entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinition);
             if (viewDefinition?.Value != null)

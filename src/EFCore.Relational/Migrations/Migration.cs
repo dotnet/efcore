@@ -37,6 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     var modelBuilder = new ModelBuilder(model);
                     BuildTargetModel(modelBuilder);
 
+                    model = (Model)RelationalModel.Add(model, null);
                     return model.FinalizeModel();
                 }
 

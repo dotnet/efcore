@@ -35,8 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     /// </summary>
     public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     {
-        private readonly IMigrationsAnnotationProvider _migrationsAnnotations;
-
         private IReadOnlyList<MigrationOperation> _operations;
         private int _variableCounter;
 
@@ -47,8 +45,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="migrationsAnnotations"> Provider-specific Migrations annotations to use. </param>
         public SqlServerMigrationsSqlGenerator(
             [NotNull] MigrationsSqlGeneratorDependencies dependencies,
-            [NotNull] IMigrationsAnnotationProvider migrationsAnnotations)
-            : base(dependencies) => _migrationsAnnotations = migrationsAnnotations;
+            [NotNull] IRelationalAnnotationProvider migrationsAnnotations)
+            : base(dependencies)
+        {
+        }
 
         /// <summary>
         ///     Generates commands from a list of operations.
@@ -212,8 +212,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            IEnumerable<IIndex> indexesToRebuild = null;
-            var property = FindProperty(model, operation.Schema, operation.Table, operation.Name);
+            IEnumerable<ITableIndex> indexesToRebuild = null;
+            var column = model?.GetRelationalModel().FindTable(operation.Table, operation.Schema)
+                ?.Columns.FirstOrDefault(c => c.Name == operation.Name);
 
             if (operation.ComputedColumnSql != null)
             {
@@ -223,9 +224,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Table = operation.Table,
                     Name = operation.Name
                 };
-                if (property != null)
+                if (column != null)
                 {
-                    dropColumnOperation.AddAnnotations(_migrationsAnnotations.ForRemove(property));
+                    dropColumnOperation.AddAnnotations(column.GetAnnotations());
                 }
 
                 var addColumnOperation = new AddColumnOperation
@@ -247,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 addColumnOperation.AddAnnotations(operation.GetAnnotations());
 
                 // TODO: Use a column rebuild instead
-                indexesToRebuild = GetIndexesToRebuild(property, operation).ToList();
+                indexesToRebuild = GetIndexesToRebuild(column, operation).ToList();
                 DropIndexes(indexesToRebuild, builder);
                 Generate(dropColumnOperation, model, builder, terminate: false);
                 builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
@@ -286,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             if (narrowed)
             {
-                indexesToRebuild = GetIndexesToRebuild(property, operation).ToList();
+                indexesToRebuild = GetIndexesToRebuild(column, operation).ToList();
                 DropIndexes(indexesToRebuild, builder);
             }
 
@@ -601,14 +602,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
+            var table = model?.GetRelationalModel().FindTable(operation.Table, operation.Schema);
             var nullableColumns = operation.Columns
-                .Where(
-                    c =>
-                    {
-                        var property = FindProperty(model, operation.Schema, operation.Table, c);
-
-                        return property?.IsColumnNullable() != false;
-                    })
+                .Where(c => table?.FindColumn(c)?.IsNullable != false)
                 .ToList();
 
             var memoryOptimized = IsMemoryOptimized(operation, model, operation.Schema, operation.Table);
@@ -1605,43 +1601,41 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     Gets the list of indexes that need to be rebuilt when the given property is changing.
+        ///     Gets the list of indexes that need to be rebuilt when the given column is changing.
         /// </summary>
-        /// <param name="property"> The property. </param>
+        /// <param name="column"> The column. </param>
         /// <param name="currentOperation"> The operation which may require a rebuild. </param>
         /// <returns> The list of indexes affected. </returns>
-        protected virtual IEnumerable<IIndex> GetIndexesToRebuild(
-            [CanBeNull] IProperty property,
+        protected virtual IEnumerable<ITableIndex> GetIndexesToRebuild(
+            [CanBeNull] IColumn column,
             [NotNull] MigrationOperation currentOperation)
         {
             Check.NotNull(currentOperation, nameof(currentOperation));
 
-            if (property == null)
+            if (column == null)
             {
                 yield break;
             }
 
+            var table = column.Table;
             var createIndexOperations = _operations.SkipWhile(o => o != currentOperation).Skip(1)
-                .OfType<CreateIndexOperation>().ToList();
-            foreach (var index in property.DeclaringEntityType.GetIndexes()
-                .Concat(property.DeclaringEntityType.GetDerivedTypes().SelectMany(et => et.GetDeclaredIndexes())))
+                .OfType<CreateIndexOperation>().Where(o => o.Table == table.Name && o.Schema == table.Schema).ToList();
+            foreach (var index in table.Indexes)
             {
-                var indexName = index.GetName();
+                var indexName = index.Name;
                 if (createIndexOperations.Any(o => o.Name == indexName))
                 {
                     continue;
                 }
 
-                if (index.Properties.Any(p => p == property))
+                if (index.Columns.Any(c => c == column))
                 {
                     yield return index;
                 }
-                else if (index.GetIncludeProperties() is IReadOnlyList<string> includeProperties)
+                else if (index[SqlServerAnnotationNames.Include] is IReadOnlyList<string> includeColumns
+                    && includeColumns.Contains(column.Name))
                 {
-                    if (includeProperties.Contains(property.Name))
-                    {
-                        yield return index;
-                    }
+                    yield return index;
                 }
             }
         }
@@ -1652,7 +1646,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="indexes"> The indexes to drop. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected virtual void DropIndexes(
-            [NotNull] IEnumerable<IIndex> indexes,
+            [NotNull] IEnumerable<ITableIndex> indexes,
             [NotNull] MigrationCommandListBuilder builder)
         {
             Check.NotNull(indexes, nameof(indexes));
@@ -1660,15 +1654,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             foreach (var index in indexes)
             {
+                var table = index.Table;
                 var operation = new DropIndexOperation
                 {
-                    Schema = index.DeclaringEntityType.GetSchema(),
-                    Table = index.DeclaringEntityType.GetTableName(),
-                    Name = index.GetName()
+                    Schema = table.Schema,
+                    Table = table.Name,
+                    Name = index.Name
                 };
-                operation.AddAnnotations(_migrationsAnnotations.ForRemove(index));
+                operation.AddAnnotations(index.GetAnnotations());
 
-                Generate(operation, index.DeclaringEntityType.Model, builder, terminate: false);
+                Generate(operation, table.Model.Model, builder, terminate: false);
                 builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
             }
         }
@@ -1679,7 +1674,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="indexes"> The indexes to create. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected virtual void CreateIndexes(
-            [NotNull] IEnumerable<IIndex> indexes,
+            [NotNull] IEnumerable<ITableIndex> indexes,
             [NotNull] MigrationCommandListBuilder builder)
         {
             Check.NotNull(indexes, nameof(indexes));
@@ -1687,18 +1682,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             foreach (var index in indexes)
             {
+                var table = index.Table;
                 var operation = new CreateIndexOperation
                 {
                     IsUnique = index.IsUnique,
-                    Name = index.GetName(),
-                    Schema = index.DeclaringEntityType.GetSchema(),
-                    Table = index.DeclaringEntityType.GetTableName(),
-                    Columns = index.Properties.Select(p => p.GetColumnName()).ToArray(),
-                    Filter = index.GetFilter()
+                    Name = index.Name,
+                    Schema = table.Schema,
+                    Table = table.Name,
+                    Columns = index.Columns.Select(c => c.Name).ToArray(),
+                    Filter = index.Filter
                 };
-                operation.AddAnnotations(_migrationsAnnotations.For(index));
+                operation.AddAnnotations(index.GetAnnotations());
 
-                Generate(operation, index.DeclaringEntityType.Model, builder, terminate: false);
+                Generate(operation, table.Model.Model, builder, terminate: false);
                 builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
             }
         }
@@ -1835,7 +1831,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         private bool IsMemoryOptimized(Annotatable annotatable, IModel model, string schema, string tableName)
             => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool?
-                ?? FindEntityTypes(model, schema, tableName)?.Any(t => t.IsMemoryOptimized()) == true;
+                ?? model?.GetRelationalModel().FindTable(tableName, schema)?[SqlServerAnnotationNames.MemoryOptimized] as bool? == true;
 
         private static bool IsMemoryOptimized(Annotatable annotatable)
             => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool? == true;

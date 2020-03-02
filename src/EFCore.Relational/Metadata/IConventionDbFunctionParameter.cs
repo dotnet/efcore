@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents a by-convention database function parameter in an <see cref="IConventionDbFunction" />.
     /// </summary>
-    public interface IConventionDbFunctionParameter : IDbFunctionParameter
+    public interface IConventionDbFunctionParameter : IConventionAnnotatable, IDbFunctionParameter
     {
         /// <summary>
         ///     The <see cref="IConventionDbFunction" /> to which this parameter belongs.
@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     The <see cref="IConventionDbFunctionParameterBuilder" /> for building a by-convention function parameter.
         /// </summary>
-        IConventionDbFunctionParameterBuilder Builder { get; }
+        new IConventionDbFunctionParameterBuilder Builder { get; }
 
         /// <summary>
         ///     Sets the store type of the parameter in the database.

@@ -1,10 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -60,53 +62,19 @@ namespace Microsoft.EntityFrameworkCore
             => model.FindAnnotation(RelationalAnnotationNames.DefaultSchema)?.GetConfigurationSource();
 
         /// <summary>
-        ///     Returns all the tables mapped in the model.
+        ///     Returns the database model.
         /// </summary>
-        /// <param name="model"> The model to get the tables for. </param>
-        /// <returns> All the tables mapped in the model. </returns>
-        public static IEnumerable<ITable> GetTables([NotNull] this IModel model) =>
-            ((IDictionary<(string, string), Table>)model[RelationalAnnotationNames.Tables])?.Values
-                ?? Enumerable.Empty<ITable>();
-
-        /// <summary>
-        ///     Gets the table with a given name. Returns <c>null</c> if no table with the given name is defined.
-        /// </summary>
-        /// <param name="model"> The model to get the table for. </param>
-        /// <param name="name"> The name of the table. </param>
-        /// <param name="schema"> The schema of the table. </param>
-        /// <returns> The table with a given name or <c>null</c> if no table with the given name is defined. </returns>
-        public static ITable FindTable([NotNull] this IModel model, [NotNull] string name, [CanBeNull] string schema)
+        /// <param name="model"> The model to get the database model for. </param>
+        /// <returns> The database model. </returns>
+        public static IRelationalModel GetRelationalModel([NotNull] this IModel model)
         {
-            Table table = null;
-            return ((IDictionary<(string, string), Table>)model[RelationalAnnotationNames.Tables])
-?.TryGetValue((name, schema), out table) == true
-                ? table
-                : null;
-        }
+            var databaseModel = (IRelationalModel)model[RelationalAnnotationNames.RelationalModel];
+            if (databaseModel == null)
+            {
+                throw new InvalidOperationException(RelationalStrings.DatabaseModelMissing);
+            }
 
-        /// <summary>
-        ///     Returns all the views mapped in the model.
-        /// </summary>
-        /// <param name="model"> The model to get the views for. </param>
-        /// <returns> All the views mapped in the model. </returns>
-        public static IEnumerable<IView> GetViews([NotNull] this IModel model) =>
-            ((IDictionary<(string, string), View>)model[RelationalAnnotationNames.Views])?.Values
-                ?? Enumerable.Empty<IView>();
-
-        /// <summary>
-        ///     Gets the view with a given name. Returns <c>null</c> if no view with the given name is defined.
-        /// </summary>
-        /// <param name="model"> The model to get the view for. </param>
-        /// <param name="name"> The name of the view. </param>
-        /// <param name="schema"> The schema of the view. </param>
-        /// <returns> The view with a given name or <c>null</c> if no view with the given name is defined. </returns>
-        public static IView FindView([NotNull] this IModel model, [NotNull] string name, [CanBeNull] string schema)
-        {
-            View view = null;
-            return ((IDictionary<(string, string), View>)model[RelationalAnnotationNames.Views])
-                ?.TryGetValue((name, schema), out view) == true
-                    ? view
-                    : null;
+            return databaseModel;
         }
 
         /// <summary>
@@ -295,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore
             => (IConventionDbFunction)((IModel)model).FindDbFunction(method);
 
         /// <summary>
-        ///     Finds a <see cref="IDbFunction" /> that is mapped to the method represented by the given <see cref="MethodInfo" />.
+        ///     Finds a <see cref="IDbFunction" /> that is mapped to the method represented by the given name.
         /// </summary>
         /// <param name="model"> The model to find the function in. </param>
         /// <param name="name"> The model name of the function. </param>
@@ -306,7 +274,7 @@ namespace Microsoft.EntityFrameworkCore
                 Check.NotNull(name, nameof(name)));
 
         /// <summary>
-        ///     Finds a <see cref="IMutableDbFunction" /> that is mapped to the method represented by the given <see cref="MethodInfo" />.
+        ///     Finds a <see cref="IMutableDbFunction" /> that is mapped to the method represented by the given name.
         /// </summary>
         /// <param name="model"> The model to find the function in. </param>
         /// <param name="name"> The model name of the function. </param>
@@ -315,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore
             => (IMutableDbFunction)((IModel)model).FindDbFunction(name);
 
         /// <summary>
-        ///     Finds a <see cref="IConventionDbFunction" /> that is mapped to the method represented by the given <see cref="MethodInfo" />.
+        ///     Finds a <see cref="IConventionDbFunction" /> that is mapped to the method represented by the given name.
         /// </summary>
         /// <param name="model"> The model to find the function in. </param>
         /// <param name="name"> The model name of the function. </param>

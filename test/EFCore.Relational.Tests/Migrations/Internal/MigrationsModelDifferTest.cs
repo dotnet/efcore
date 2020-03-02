@@ -6395,14 +6395,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o =>
                     {
                         var operation = Assert.IsType<DeleteDataOperation>(o);
-                        Assert.Equal("Table", operation.Table);
-                        AssertMultidimensionalArray(
-                            operation.KeyValues,
-                            v => Assert.Equal(43, v));
-                    },
-                    o =>
-                    {
-                        var operation = Assert.IsType<DeleteDataOperation>(o);
                         Assert.Equal("ReferencedTable", operation.Table);
                         AssertMultidimensionalArray(
                             operation.KeyValues,
@@ -6416,26 +6408,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             operation.Values,
                             v => Assert.Equal(42, v),
                             v => Assert.Equal(4343, v));
-                    },
-                    o =>
-                    {
-                        var operation = Assert.IsType<InsertDataOperation>(o);
-                        Assert.Equal("Table", operation.Table);
-                        AssertMultidimensionalArray(
-                            operation.Values,
-                            v => Assert.Equal(43, v),
-                            v => Assert.Equal(42, v));
                     }),
                 downOps => Assert.Collection(
                     downOps,
-                    o =>
-                    {
-                        var operation = Assert.IsType<DeleteDataOperation>(o);
-                        Assert.Equal("Table", operation.Table);
-                        AssertMultidimensionalArray(
-                            operation.KeyValues,
-                            v => Assert.Equal(43, v));
-                    },
                     o =>
                     {
                         var operation = Assert.IsType<DeleteDataOperation>(o);
@@ -6452,15 +6427,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             operation.Values,
                             v => Assert.Equal(42, v),
                             v => Assert.Equal(4242, v));
-                    },
-                    o =>
-                    {
-                        var operation = Assert.IsType<InsertDataOperation>(o);
-                        Assert.Equal("Table", operation.Table);
-                        AssertMultidimensionalArray(
-                            operation.Values,
-                            v => Assert.Equal(43, v),
-                            v => Assert.Equal(42, v));
                     }));
         }
 
@@ -7548,30 +7514,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o =>
                     {
                         var m = Assert.IsType<DeleteDataOperation>(o);
-                        Assert.Equal("Post", m.Table);
-                        AssertMultidimensionalArray(
-                            m.KeyValues,
-                            v => Assert.Equal(416, v));
-                    },
-                    o =>
-                    {
-                        var m = Assert.IsType<DeleteDataOperation>(o);
-                        Assert.Equal("Post", m.Table);
-                        AssertMultidimensionalArray(
-                            m.KeyValues,
-                            v => Assert.Equal(545, v));
-                    },
-                    o =>
-                    {
-                        var m = Assert.IsType<DeleteDataOperation>(o);
-                        Assert.Equal("Post", m.Table);
-                        AssertMultidimensionalArray(
-                            m.KeyValues,
-                            v => Assert.Equal(546, v));
-                    },
-                    o =>
-                    {
-                        var m = Assert.IsType<DeleteDataOperation>(o);
                         Assert.Equal("Blog", m.Table);
                         AssertMultidimensionalArray(
                             m.KeyValues,
@@ -7587,6 +7529,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     },
                     o =>
                     {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Equal("Post", m.Table);
+                        AssertMultidimensionalArray(
+                            m.KeyValues,
+                            v => Assert.Equal(546, v));
+                    },
+                    o =>
+                    {
                         var m = Assert.IsType<UpdateDataOperation>(o);
                         Assert.Equal("Blog", m.Table);
                         AssertMultidimensionalArray(
@@ -7598,21 +7548,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     },
                     o =>
                     {
-                        var m = Assert.IsType<InsertDataOperation>(o);
+                        var m = Assert.IsType<UpdateDataOperation>(o);
                         Assert.Equal("Post", m.Table);
                         AssertMultidimensionalArray(
-                            m.Values,
-                            v => Assert.Equal(416, v),
-                            v => Assert.Equal(316, v),
-                            v => Assert.Equal("Post To Non-existent BlogId", v));
-                    },
-                    o =>
-                    {
-                        var m = Assert.IsType<InsertDataOperation>(o);
-                        Assert.Equal("Post", m.Table);
+                            m.KeyValues,
+                            v => Assert.Equal(545, v));
                         AssertMultidimensionalArray(
                             m.Values,
-                            v => Assert.Equal(545, v),
                             v => Assert.Equal(32, v),
                             v => Assert.Equal("Original Title", v));
                     },
@@ -8167,7 +8109,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#15339")]
         public void Owner_pk_properties_appear_before_owned_pk_which_preserves_annotations()
         {
             Execute(

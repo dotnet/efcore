@@ -12,10 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    // Sealed for perf
-    public sealed class ViewColumnMappingComparer : IEqualityComparer<IViewColumnMapping>, IComparer<IViewColumnMapping>
+    public sealed class ColumnMappingBaseComparer : IEqualityComparer<IColumnMappingBase>, IComparer<IColumnMappingBase>
     {
-        private ViewColumnMappingComparer()
+        private ColumnMappingBaseComparer()
         {
         }
 
@@ -25,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static readonly ViewColumnMappingComparer Instance = new ViewColumnMappingComparer();
+        public static readonly ColumnMappingBaseComparer Instance = new ColumnMappingBaseComparer();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,9 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public int Compare(IViewColumnMapping x, IViewColumnMapping y)
+        public int Compare(IColumnMappingBase x, IColumnMappingBase y)
         {
-            var result = StringComparer.Ordinal.Compare(x.Property.IsViewColumnNullable(), y.Property.IsViewColumnNullable());
+            var result = StringComparer.Ordinal.Compare(x.Property.IsColumnNullable(), y.Property.IsColumnNullable());
             if (result != 0)
             {
                 return result;
@@ -47,7 +46,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return result;
             }
 
-            return StringComparer.Ordinal.Compare(x.Column.Name, y.Column.Name);
+            result = StringComparer.Ordinal.Compare(x.Column.Name, y.Column.Name);
+            if (result != 0)
+            {
+                return result;
+            }
+
+            result = EntityTypePathComparer.Instance.Compare(x.Property.DeclaringEntityType, y.Property.DeclaringEntityType);
+            if (result != 0)
+            {
+                return result;
+            }
+
+            result = StringComparer.Ordinal.Compare(x.Column.Table.Name, y.Column.Table.Name);
+            if (result != 0)
+            {
+                return result;
+            }
+
+            return StringComparer.Ordinal.Compare(x.Column.Table.Schema, y.Column.Table.Schema);
         }
 
         /// <summary>
@@ -56,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public bool Equals(IViewColumnMapping x, IViewColumnMapping y)
+        public bool Equals(IColumnMappingBase x, IColumnMappingBase y)
             => x.Property == y.Property
                 && x.Column == y.Column;
 
@@ -66,11 +83,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public int GetHashCode(IViewColumnMapping obj)
+        public int GetHashCode(IColumnMappingBase obj)
         {
             var hashCode = new HashCode();
             hashCode.Add(obj.Property.Name);
             hashCode.Add(obj.Column.Name);
+            hashCode.Add(obj.Property.DeclaringEntityType, EntityTypePathComparer.Instance);
+            hashCode.Add(obj.Column.Table.Name);
+            hashCode.Add(obj.Column.Table.Schema);
+
             return hashCode.ToHashCode();
         }
     }

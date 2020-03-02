@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     /// <summary>
     ///     A <see cref="MigrationOperation" /> to alter an existing table.
     /// </summary>
-    [DebuggerDisplay("ALTER TABLE {Table}")]
+    [DebuggerDisplay("ALTER TABLE {Name}")]
     public class AlterTableOperation : TableOperation, IAlterMigrationOperation
     {
         /// <summary>

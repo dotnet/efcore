@@ -280,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (property.GetMaxLength() != null)
             {
-                builder.Append(" MaxLength").Append(property.GetMaxLength());
+                builder.Append(" MaxLength(").Append(property.GetMaxLength()).Append(")");
             }
 
             if (property.IsUnicode() == false)

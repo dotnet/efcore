@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 Columns.Length == Values.GetLength(1),
                 $"The number of values doesn't match the number of keys (${Columns.Length})");
 
-            var table = model?.FindTable(Table, Schema);
+            var table = model?.GetRelationalModel().FindTable(Table, Schema);
             var properties = table != null
                 ? MigrationsModelDiffer.GetMappedProperties(table, Columns)
                 : null;

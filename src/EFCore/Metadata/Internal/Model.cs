@@ -903,6 +903,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IModel FinalizeModel()
         {
+            ConventionDispatcher.AssertNoScope();
             IModel finalizedModel = ConventionDispatcher.OnModelFinalizing(Builder)?.Metadata;
             if (finalizedModel != null)
             {

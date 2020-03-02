@@ -7,12 +7,10 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal
+namespace Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal
 {
     /// <summary>
     ///     <para>
@@ -27,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public class SqliteMigrationsAnnotationProvider : MigrationsAnnotationProvider
+    public class SqliteAnnotationProvider : RelationalAnnotationProvider
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -35,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqliteMigrationsAnnotationProvider([NotNull] MigrationsAnnotationProviderDependencies dependencies)
+        public SqliteAnnotationProvider([NotNull] RelationalAnnotationProviderDependencies dependencies)
             : base(dependencies)
         {
         }
@@ -46,10 +44,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override IEnumerable<IAnnotation> For(IModel model)
+        public override IEnumerable<IAnnotation> For(IRelationalModel model)
         {
-            if (model.GetEntityTypes().SelectMany(t => t.GetProperties()).Any(
-                p => SqliteTypeMappingSource.IsSpatialiteType(p.GetColumnType())))
+            if (model.Tables.SelectMany(t => t.Columns).Any(
+                c => SqliteTypeMappingSource.IsSpatialiteType(c.Type)))
             {
                 yield return new Annotation(SqliteAnnotationNames.InitSpatialMetaData, true);
             }
@@ -61,8 +59,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override IEnumerable<IAnnotation> For(IProperty property)
+        public override IEnumerable<IAnnotation> For(IColumn column)
         {
+            // Model validation ensures that these facets are the same on all mapped properties
+            var property = column.PropertyMappings.First().Property;
             if (property.ValueGenerated == ValueGenerated.OnAdd
                 && property.ClrType.UnwrapNullableType().IsInteger()
                 && !HasConverter(property))
@@ -84,6 +84,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal
         }
 
         private static bool HasConverter(IProperty property)
-            => property.FindTypeMapping()?.Converter != null;
+            => (property.GetValueConverter() ?? property.FindTypeMapping()?.Converter) != null;
     }
 }

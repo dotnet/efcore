@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents a check constraint in the <see cref="IMutableEntityType" />.
     /// </summary>
-    public interface IMutableCheckConstraint : ICheckConstraint
+    public interface IMutableCheckConstraint : ICheckConstraint, IMutableAnnotatable
     {
         /// <summary>
         ///     Gets the <see cref="IMutableEntityType" /> in which this check constraint is defined.

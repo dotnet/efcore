@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
 
             ConventionSet.AddAfter(
                 conventionSet.ModelFinalizedConventions,
-                new RelationalModelConvention(),
+                new RelationalModelConvention(Dependencies, RelationalDependencies),
                 typeof(ValidatingConvention));
 
             return conventionSet;

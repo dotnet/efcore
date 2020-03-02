@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public virtual void AddColumnOperation_with_rowversion_overridden()
         {
             Generate(
-                modelBuilder => modelBuilder.Entity("Person").Property<byte[]>("RowVersion"),
+                modelBuilder => modelBuilder.Entity<Person>().Property<byte[]>("RowVersion"),
                 new AddColumnOperation
                 {
                     Table = "Person",
@@ -154,8 +154,8 @@ ALTER TABLE [People] ALTER COLUMN [Id] int NOT NULL;
             Generate(
                 modelBuilder => modelBuilder
                     .HasAnnotation(CoreAnnotationNames.ProductVersion, "1.0.0-rtm")
-                    .Entity(
-                        "Person", x =>
+                    .Entity<Person>(
+                        x =>
                         {
                             x.Property<string>("Name").HasMaxLength(30);
                             x.HasIndex("Name");
@@ -187,8 +187,8 @@ ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;
             Generate(
                 modelBuilder => modelBuilder
                     .HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0")
-                    .Entity(
-                        "Person", x =>
+                    .Entity<Person>(
+                        x =>
                         {
                             x.Property<string>("Name").HasMaxLength(30);
                             x.HasIndex("Name");

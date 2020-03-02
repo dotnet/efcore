@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -67,8 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var historyRepository = new MockHistoryRepository();
 
             var services = RelationalTestHelpers.Instance.CreateContextServices();
-            IModel model = new Model();
-            model = new RelationalModelConvention().ProcessModelFinalized(model);
+            var model = new Model();
+            model[RelationalAnnotationNames.RelationalModel] = new RelationalModel(model);
 
             return new MigrationsScaffolder(
                 new MigrationsScaffolderDependencies(
@@ -79,7 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         new TestRelationalTypeMappingSource(
                             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                             TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                        new MigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()),
+                    new MigrationsAnnotationProvider(
+                        new MigrationsAnnotationProviderDependencies()),
                         services.GetRequiredService<IChangeDetector>(),
                         services.GetRequiredService<IUpdateAdapterFactory>(),
                         services.GetRequiredService<CommandBatchPreparerDependencies>()),
@@ -101,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     historyRepository,
                     reporter,
                     new MockProvider(),
-                    new SnapshotModelProcessor(reporter),
+                    new SnapshotModelProcessor(reporter, services.GetRequiredService<IConventionSetBuilder>()),
                     new Migrator(
                         migrationAssembly,
                         historyRepository,

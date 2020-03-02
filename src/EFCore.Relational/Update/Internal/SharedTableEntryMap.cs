@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 [NotNull] IUpdateAdapter updateAdapter)
         {
             var sharedTablesMap = new Dictionary<(string, string), SharedTableEntryMapFactory<TValue>>();
-            foreach (var table in model.GetTables())
+            foreach (var table in model.GetRelationalModel().Tables)
             {
                 if (!table.IsSplit)
                 {
@@ -118,17 +118,12 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool IsMainEntityType([NotNull] IEntityType entityType) => _table.GetInternalForeignKeys(entityType) == null;
+        public virtual bool IsMainEntityType([NotNull] IEntityType entityType) => !_table.GetInternalForeignKeys(entityType).Any();
 
         private IUpdateEntry GetMainEntry(IUpdateEntry entry)
         {
             var entityType = entry.EntityType.GetRootType();
             var foreignKeys = _table.GetInternalForeignKeys(entityType);
-            if (foreignKeys == null)
-            {
-                return entry;
-            }
-
             foreach (var foreignKey in foreignKeys)
             {
                 var principalEntry = _updateAdapter.FindPrincipal(entry, foreignKey);
@@ -159,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         {
             entries.Add(entry);
             var foreignKeys = _table.GetReferencingInternalForeignKeys(entry.EntityType);
-            if (foreignKeys == null)
+            if (!foreignKeys.Any())
             {
                 return;
             }
@@ -184,9 +179,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
 
             public int Compare(IUpdateEntry x, IUpdateEntry y)
-                => _table.GetInternalForeignKeys(x.EntityType) == null
+                => !_table.GetInternalForeignKeys(x.EntityType).Any()
                     ? -1
-                    : _table.GetInternalForeignKeys(y.EntityType) == null
+                    : !_table.GetInternalForeignKeys(y.EntityType).Any()
                         ? 1
                         : StringComparer.Ordinal.Compare(x.EntityType.Name, y.EntityType.Name);
         }

@@ -3,6 +3,9 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -30,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         [ConditionalFact]
         public virtual void AddColumnOperation_with_unicode_overridden()
             => Generate(
-                modelBuilder => modelBuilder.Entity("Person").Property<string>("Name").IsUnicode(false),
+                modelBuilder => modelBuilder.Entity<Person>().Property<string>("Name").IsUnicode(false),
                 new AddColumnOperation
                 {
                     Table = "Person",
@@ -69,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         [ConditionalFact]
         public virtual void AddColumnOperation_with_maxLength_overridden()
             => Generate(
-                modelBuilder => modelBuilder.Entity("Person").Property<string>("Name").HasMaxLength(30),
+                modelBuilder => modelBuilder.Entity<Person>().Property<string>("Name").HasMaxLength(30),
                 new AddColumnOperation
                 {
                     Table = "Person",
@@ -154,8 +157,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
             buildAction(modelBuilder);
 
-            var batch = TestHelpers.CreateContextServices().GetRequiredService<IMigrationsSqlGenerator>()
-                .Generate(operation, modelBuilder.Model);
+            var services = TestHelpers.CreateContextServices();
+
+            IModel model = modelBuilder.Model;
+            var conventionSet = services.GetRequiredService<IConventionSetBuilder>().CreateConventionSet();
+            var relationalModelConvention = conventionSet.ModelFinalizedConventions.OfType<RelationalModelConvention>().First();
+            model = relationalModelConvention.ProcessModelFinalized((IConventionModel)model);
+            model = ((IMutableModel)model).FinalizeModel();
+
+            var batch = services.GetRequiredService<IMigrationsSqlGenerator>().Generate(operation, modelBuilder.Model);
 
             Sql = string.Join(
                 "GO" + EOL + EOL,
@@ -164,5 +174,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         protected void AssertSql(string expected)
             => Assert.Equal(expected, Sql, ignoreLineEndingDifferences: true);
+
+        protected class Person
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
     }
 }

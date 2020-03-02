@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -79,6 +80,39 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
             foreach (var sequence in model.GetSequences())
             {
                 logger.SequenceConfiguredWarning(sequence);
+            }
+        }
+
+        protected override void ValidateCompatible(IProperty property, IProperty duplicateProperty, string columnName, string tableName)
+        {
+            base.ValidateCompatible(property, duplicateProperty, columnName, tableName);
+
+            var propertySrid = property.GetSrid();
+            var duplicatePropertySrid = duplicateProperty.GetSrid();
+            if (propertySrid != duplicatePropertySrid)
+            {
+                throw new InvalidOperationException(
+                    SqliteStrings.DuplicateColumnNameSridMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        tableName));
+            }
+
+            var propertyDimension = property.GetGeometricDimension();
+            var duplicatePropertyDimension = duplicateProperty.GetGeometricDimension();
+            if (propertyDimension != duplicatePropertyDimension)
+            {
+                throw new InvalidOperationException(
+                    SqliteStrings.DuplicateColumnNameDimensionMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        tableName));
             }
         }
     }

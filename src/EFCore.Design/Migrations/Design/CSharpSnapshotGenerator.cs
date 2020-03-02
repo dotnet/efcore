@@ -60,11 +60,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 ChangeDetector.SkipDetectChangesAnnotation,
                 CoreAnnotationNames.ChangeTrackingStrategy,
                 CoreAnnotationNames.OwnedTypes,
+                RelationalAnnotationNames.RelationalModel,
                 RelationalAnnotationNames.CheckConstraints,
                 RelationalAnnotationNames.Sequences,
-                RelationalAnnotationNames.DbFunctions,
-                RelationalAnnotationNames.Tables,
-                RelationalAnnotationNames.Views);
+                RelationalAnnotationNames.DbFunctions);
 
             if (annotations.Count > 0)
             {

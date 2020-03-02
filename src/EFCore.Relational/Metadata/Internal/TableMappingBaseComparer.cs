@@ -14,9 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     // Sealed for perf
-    public sealed class ViewMappingComparer : IEqualityComparer<IViewMapping>, IComparer<IViewMapping>
+    public sealed class TableMappingBaseComparer : IEqualityComparer<ITableMappingBase>, IComparer<ITableMappingBase>
     {
-        private ViewMappingComparer()
+        private TableMappingBaseComparer()
         {
         }
 
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static readonly ViewMappingComparer Instance = new ViewMappingComparer();
+        public static readonly TableMappingBaseComparer Instance = new TableMappingBaseComparer();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public int Compare(IViewMapping x, IViewMapping y)
+        public int Compare(ITableMappingBase x, ITableMappingBase y)
         {
             var result = EntityTypePathComparer.Instance.Compare(x.EntityType, y.EntityType);
             if (result != 0)
@@ -42,13 +42,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return result;
             }
 
-            result = StringComparer.Ordinal.Compare(x.View.Name, y.View.Name);
+            result = StringComparer.Ordinal.Compare(x.Table.Name, y.Table.Name);
             if (result != 0)
             {
                 return result;
             }
 
-            result = StringComparer.Ordinal.Compare(x.View.Schema, y.View.Schema);
+            result = StringComparer.Ordinal.Compare(x.Table.Schema, y.Table.Schema);
             if (result != 0)
             {
                 return result;
@@ -66,7 +66,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return result;
             }
 
-            return x.ColumnMappings.Zip(y.ColumnMappings, (xc, yc) => ViewColumnMappingComparer.Instance.Compare(xc, yc))
+            return x.ColumnMappings.Zip(y.ColumnMappings, (xc, yc) =>
+                {
+                    var columnResult = StringComparer.Ordinal.Compare(xc.Property.Name, yc.Property.Name);
+                    return columnResult != 0 ? columnResult : StringComparer.Ordinal.Compare(xc.Column.Name, yc.Column.Name);
+                })
                 .FirstOrDefault(r => r != 0);
         }
 
@@ -76,9 +80,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public bool Equals(IViewMapping x, IViewMapping y)
+        public bool Equals(ITableMappingBase x, ITableMappingBase y)
             => x.EntityType == y.EntityType
-                && x.View == y.View
+                && x.Table == y.Table
                 && x.IncludesDerivedTypes == y.IncludesDerivedTypes
                 && x.ColumnMappings.SequenceEqual(y.ColumnMappings);
 
@@ -88,15 +92,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public int GetHashCode(IViewMapping obj)
+        public int GetHashCode(ITableMappingBase obj)
         {
             var hashCode = new HashCode();
             hashCode.Add(obj.EntityType, EntityTypePathComparer.Instance);
-            hashCode.Add(obj.View.Name);
-            hashCode.Add(obj.View.Schema);
+            hashCode.Add(obj.Table.Name);
+            hashCode.Add(obj.Table.Schema);
             foreach (var columnMapping in obj.ColumnMappings)
             {
-                hashCode.Add(columnMapping, ViewColumnMappingComparer.Instance);
+                hashCode.Add(columnMapping.Property.Name);
+                hashCode.Add(columnMapping.Column.Name);
             }
             hashCode.Add(obj.IncludesDerivedTypes);
             return hashCode.ToHashCode();

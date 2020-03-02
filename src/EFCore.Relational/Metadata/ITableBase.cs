@@ -23,6 +23,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         string Schema { get; }
 
         /// <summary>
+        ///     Gets the database model.
+        /// </summary>
+        IRelationalModel Model { get; }
+
+        /// <summary>
         ///     Gets the value indicating whether multiple entity types are sharing the rows in the table.
         /// </summary>
         bool IsSplit { get; }

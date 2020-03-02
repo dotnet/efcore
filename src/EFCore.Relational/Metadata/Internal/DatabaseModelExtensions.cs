@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static class ColumnMappingExtensions
+    public static class DatabaseModelExtensions
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -22,35 +22,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static string ToDebugString(
-            [NotNull] this IColumnMapping columnMapping,
+            [NotNull] this IRelationalModel model,
             MetadataDebugStringOptions options,
             [NotNull] string indent = "")
         {
             var builder = new StringBuilder();
 
-            builder.Append(indent);
+            builder.Append(indent).Append("DatabaseModel: ");
 
-            var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
-            if (singleLine)
+            foreach (var table in model.Tables)
             {
-                builder.Append($"ColumnMapping: ");
+                builder.AppendLine().Append(table.ToDebugString(options, indent + "  "));
             }
 
-            builder
-                .Append(columnMapping.Property.DeclaringEntityType.DisplayName())
-                .Append(".")
-                .Append(columnMapping.Property.Name)
-                .Append(" - ");
-
-            builder
-                .Append(columnMapping.Column.Table.Name)
-                .Append(".")
-                .Append(columnMapping.Column.Name);
-
-            if (!singleLine &&
-                (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            foreach (var view in model.Views)
             {
-                builder.Append(columnMapping.AnnotationsToDebugString(indent + "  "));
+                builder.AppendLine().Append(view.ToDebugString(options, indent + "  "));
+            }
+
+            if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            {
+                builder.Append(model.AnnotationsToDebugString(indent));
             }
 
             return builder.ToString();

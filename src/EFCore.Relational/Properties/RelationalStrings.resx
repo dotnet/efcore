@@ -500,6 +500,21 @@
   <data name="NestedAmbientTransactionError" xml:space="preserve">
     <value>Root ambient transaction was completed before the nested transaction. The more nested transactions should be completed first.</value>
   </data>
+  <data name="DuplicateColumnNameConcurrencyTokenMismatch" xml:space="preserve">
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different concurrency token configuration.</value>
+  </data>
+  <data name="DuplicateColumnNameFixedLengthMismatch" xml:space="preserve">
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different fixed length configuration.</value>
+  </data>
+  <data name="DuplicateColumnNameMaxLengthMismatch" xml:space="preserve">
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different max lengths ('{maxLength1}' and '{maxLength2}').</value>
+  </data>
+  <data name="DuplicateColumnNameUnicodenessMismatch" xml:space="preserve">
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different unicode configuration</value>
+  </data>
+  <data name="DatabaseModelMissing" xml:space="preserve">
+    <value>The database model hasn't been initialized. The model needs to be finalized before the database model can be accessed.</value>
+  </data>
   <data name="DbFunctionQueryableCustomTranslation" xml:space="preserve">
     <value>Cannot set custom translation on the DbFunction '{function}' since it returns IQueryable type.</value>
   </data>

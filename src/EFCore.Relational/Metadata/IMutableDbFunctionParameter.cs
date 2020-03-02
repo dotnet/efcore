@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents a mutable database function parameter in an <see cref="IMutableDbFunction" />.
     /// </summary>
-    public interface IMutableDbFunctionParameter : IDbFunctionParameter
+    public interface IMutableDbFunctionParameter : IMutableAnnotatable, IDbFunctionParameter
     {
         /// <summary>
         ///     Gets the <see cref="IMutableDbFunction" /> to which this parameter belongs.

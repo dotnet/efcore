@@ -1177,36 +1177,39 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Gets the store/database type of a column given the provided metadata.
         /// </summary>
         /// <param name="schema"> The schema that contains the table, or <c>null</c> to use the default schema. </param>
-        /// <param name="table"> The table that contains the column. </param>
+        /// <param name="tableName"> The table that contains the column. </param>
         /// <param name="name"> The column name. </param>
         /// <param name="operation"> The column metadata. </param>
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <returns> The database/store type for the column. </returns>
         protected virtual string GetColumnType(
             [CanBeNull] string schema,
-            [NotNull] string table,
+            [NotNull] string tableName,
             [NotNull] string name,
             [NotNull] ColumnOperation operation,
             [CanBeNull] IModel model)
         {
-            Check.NotEmpty(table, nameof(table));
+            Check.NotEmpty(tableName, nameof(tableName));
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(operation, nameof(operation));
 
             var keyOrIndex = false;
 
-            var property = FindProperty(model, schema, table, name);
-            if (property != null)
+            var table = model?.GetRelationalModel().FindTable(tableName, schema);
+            var column = table?.FindColumn(name);
+            if (column != null)
             {
-                if (operation.IsUnicode == property.IsUnicode()
-                    && operation.MaxLength == property.GetMaxLength()
-                    && operation.IsFixedLength == property.IsFixedLength()
-                    && operation.IsRowVersion == (property.IsConcurrencyToken && property.ValueGenerated == ValueGenerated.OnAddOrUpdate))
+                if (operation.IsUnicode == column.IsUnicode
+                    && operation.MaxLength == column.MaxLength
+                    && operation.IsFixedLength == column.IsFixedLength
+                    && operation.IsRowVersion == column.IsRowVersion)
                 {
-                    return Dependencies.TypeMappingSource.FindMapping(property).StoreType;
+                    return column.Type;
                 }
 
-                keyOrIndex = property.IsKey() || property.IsForeignKey();
+                keyOrIndex = table.UniqueConstraints.Any(u => u.Columns.Contains(column))
+                    || table.ForeignKeyConstraints.Any(u => u.Columns.Contains(column))
+                    || table.Indexes.Any(u => u.Columns.Contains(column));
             }
 
             return Dependencies.TypeMappingSource.FindMapping(
@@ -1578,12 +1581,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <c>null</c> to use the default schema. </param>
         /// <param name="tableName"> The table name. </param>
         /// <returns> The list of types, which may be empty if no types are mapped to the given table. </returns>
+        [Obsolete("Use model?.GetRelationalModel().FindTable()")]
         protected virtual IEnumerable<IEntityType> FindEntityTypes(
             [CanBeNull] IModel model,
             [CanBeNull] string schema,
             [NotNull] string tableName)
-            => model?.GetEntityTypes().Where(
-                t => t.GetTableName() == tableName && t.GetSchema() == schema && !t.IsIgnoredByMigrations());
+            => model?.GetRelationalModel().FindTable(Check.NotEmpty(tableName, nameof(tableName)), schema)
+                ?.EntityTypeMappings.Select(m => m.EntityType);
 
         /// <summary>
         ///     <para>
@@ -1592,7 +1596,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     <para>
         ///         If multiple properties map to the same column, then the property returned is one chosen
         ///         arbitrarily. The model validator ensures that all properties mapped to a given column
-        ///         have consistent mappings.
+        ///         have consistent configuration.
         ///     </para>
         /// </summary>
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
@@ -1600,15 +1604,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="tableName"> The name of the table that contains the column. </param>
         /// <param name="columnName"> The column name. </param>
         /// <returns> The property found, or <c>null</c> if no property maps to the given column. </returns>
+        [Obsolete("Use model?.GetRelationalModel().FindTable().FindColumn()")]
         protected virtual IProperty FindProperty(
                 [CanBeNull] IModel model,
                 [CanBeNull] string schema,
                 [NotNull] string tableName,
                 [NotNull] string columnName)
-            // Any property that maps to the column will work because model validator has
-            // checked that all properties result in the same column definition.
-            => FindEntityTypes(model, schema, tableName)?.SelectMany(e => e.GetDeclaredProperties())
-                .FirstOrDefault(p => p.GetColumnName() == columnName);
+            => model?.GetRelationalModel().FindTable(Check.NotEmpty(tableName, nameof(tableName)), schema)
+                .Columns.FirstOrDefault(c => c.Name == columnName)?.PropertyMappings.First().Property;
 
         /// <summary>
         ///     Generates a SQL fragment to terminate the SQL command.
