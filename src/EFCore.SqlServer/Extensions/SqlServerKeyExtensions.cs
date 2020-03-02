@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static bool? GetDefaultIsClustered(IKey key)
         {
-            var sharedTablePrincipalPrimaryKeyProperty = key.Properties[0].FindSharedTableRootPrimaryKeyProperty();
+            var sharedTablePrincipalPrimaryKeyProperty = key.Properties[0].FindSharedRootPrimaryKeyProperty();
             return sharedTablePrincipalPrimaryKeyProperty?.FindContainingPrimaryKey().IsClustered();
         }
 

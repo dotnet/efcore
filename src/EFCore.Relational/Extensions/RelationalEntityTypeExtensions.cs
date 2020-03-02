@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -21,10 +22,24 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to get the table name for. </param>
         /// <returns> The name of the table to which the entity type is mapped. </returns>
-        public static string GetTableName([NotNull] this IEntityType entityType) =>
-            entityType.BaseType != null
-                ? entityType.GetRootType().GetTableName()
-                : (string)entityType[RelationalAnnotationNames.TableName] ?? GetDefaultTableName(entityType);
+        public static string GetTableName([NotNull] this IEntityType entityType)
+        {
+            if (entityType.BaseType != null)
+            {
+                return entityType.GetRootType().GetTableName();
+            }
+
+            var nameAnnotation = entityType.FindAnnotation(RelationalAnnotationNames.TableName);
+            if (nameAnnotation != null)
+            {
+                return (string)nameAnnotation.Value;
+            }
+
+            return ((entityType as IConventionEntityType)?.GetViewNameConfigurationSource() == null
+                && ((entityType as IConventionEntityType)?.GetDefiningQueryConfigurationSource() == null)
+                ? GetDefaultTableName(entityType)
+                : null);
+        }
 
         /// <summary>
         ///     Returns the default table name that would be used for this entity type.
@@ -33,11 +48,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The default name of the table to which the entity type would be mapped. </returns>
         public static string GetDefaultTableName([NotNull] this IEntityType entityType)
         {
-            if (entityType.GetDefiningQuery() != null)
-            {
-                return null;
-            }
-
             var ownership = entityType.FindOwnership();
             if (ownership != null
                 && ownership.IsUnique)
@@ -45,11 +55,16 @@ namespace Microsoft.EntityFrameworkCore
                 return ownership.PrincipalEntityType.GetTableName();
             }
 
-            return Uniquifier.Truncate(
-                entityType.HasDefiningNavigation()
-                    ? $"{entityType.DefiningEntityType.GetTableName()}_{entityType.DefiningNavigationName}"
-                    : entityType.ShortName(),
-                entityType.Model.GetMaxIdentifierLength());
+            var name = entityType.ShortName();
+            if (entityType.HasDefiningNavigation())
+            {
+                var definingTypeName = entityType.DefiningEntityType.GetTableName();
+                name = definingTypeName != null
+                    ? $"{definingTypeName}_{entityType.DefiningNavigationName}"
+                    : $"{entityType.DefiningNavigationName}_{name}";
+            }
+
+            return Uniquifier.Truncate(name, entityType.Model.GetMaxIdentifierLength());
         }
 
         /// <summary>
@@ -58,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to set the table name for. </param>
         /// <param name="name"> The name to set. </param>
         public static void SetTableName([NotNull] this IMutableEntityType entityType, [CanBeNull] string name)
-            => entityType.SetOrRemoveAnnotation(
+            => entityType.SetAnnotation(
                 RelationalAnnotationNames.TableName,
                 Check.NullButNotEmpty(name, nameof(name)));
 
@@ -70,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         public static void SetTableName(
             [NotNull] this IConventionEntityType entityType, [CanBeNull] string name, bool fromDataAnnotation = false)
-            => entityType.SetOrRemoveAnnotation(
+            => entityType.SetAnnotation(
                 RelationalAnnotationNames.TableName,
                 Check.NullButNotEmpty(name, nameof(name)),
                 fromDataAnnotation);
@@ -97,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns the default database schema that would be used for this entity type.
         /// </summary>
-        /// <param name="entityType"> The entity type to get the table name for. </param>
+        /// <param name="entityType"> The entity type to get the table schema for. </param>
         /// <returns> The default database schema to which the entity type would be mapped. </returns>
         public static string GetDefaultSchema([NotNull] this IEntityType entityType)
         {
@@ -109,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             return entityType.HasDefiningNavigation()
-                ? entityType.DefiningEntityType.GetSchema()
+                ? entityType.DefiningEntityType.GetSchema() ?? entityType.Model.GetDefaultSchema()
                 : entityType.Model.GetDefaultSchema();
         }
 
@@ -174,27 +189,118 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to get the view name for. </param>
         /// <returns> The name of the view to which the entity type is mapped. </returns>
-        public static string GetViewName([NotNull] this IEntityType entityType)
+        public static string GetViewName([NotNull] this IEntityType entityType) =>
+            entityType.BaseType != null
+                ? entityType.GetRootType().GetViewName()
+                : (string)entityType[RelationalAnnotationNames.ViewName]
+                    ?? (((entityType as IConventionEntityType)?.GetDefiningQueryConfigurationSource() == null)
+                        ? GetDefaultViewName(entityType)
+                        : null);
+
+        /// <summary>
+        ///     Returns the default view name that would be used for this entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the table name for. </param>
+        /// <returns> The default name of the table to which the entity type would be mapped. </returns>
+        public static string GetDefaultViewName([NotNull] this IEntityType entityType)
         {
-            if (entityType.BaseType != null)
-            {
-                return entityType.GetRootType().GetViewName();
-            }
+            var ownership = entityType.FindOwnership();
+            return ownership != null
+                && ownership.IsUnique
+                ? ownership.PrincipalEntityType.GetViewName()
+                : null;
+        }
 
-            if (entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinition) != null)
-            {
-                return entityType.GetTableName();
-            }
+        /// <summary>
+        ///     Sets the name of the view to which the entity type is mapped.
+        /// </summary>
+        /// <param name="entityType"> The entity type to set the view name for. </param>
+        /// <param name="name"> The name to set. </param>
+        public static void SetViewName([NotNull] this IMutableEntityType entityType, [CanBeNull] string name)
+            => entityType.SetAnnotation(
+                RelationalAnnotationNames.ViewName,
+                Check.NullButNotEmpty(name, nameof(name)));
 
+        /// <summary>
+        ///     Sets the name of the view to which the entity type is mapped.
+        /// </summary>
+        /// <param name="entityType"> The entity type to set the view name for. </param>
+        /// <param name="name"> The name to set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void SetViewName(
+            [NotNull] this IConventionEntityType entityType, [CanBeNull] string name, bool fromDataAnnotation = false)
+            => entityType.SetAnnotation(
+                RelationalAnnotationNames.ViewName,
+                Check.NullButNotEmpty(name, nameof(name)),
+                fromDataAnnotation);
+
+        /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for the view name.
+        /// </summary>
+        /// <param name="entityType"> The entity type to find configuration source for. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for the view name. </returns>
+        public static ConfigurationSource? GetViewNameConfigurationSource([NotNull] this IConventionEntityType entityType)
+            => entityType.FindAnnotation(RelationalAnnotationNames.ViewName)
+                ?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Returns the database schema that contains the mapped view.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the view schema for. </param>
+        /// <returns> The database schema that contains the mapped view. </returns>
+        public static string GetViewSchema([NotNull] this IEntityType entityType) =>
+            entityType.BaseType != null
+                ? entityType.GetRootType().GetViewSchema()
+                : (string)entityType[RelationalAnnotationNames.ViewSchema] ?? GetDefaultViewSchema(entityType);
+
+        /// <summary>
+        ///     Returns the default database schema that would be used for this entity view.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the view schema for. </param>
+        /// <returns> The default database schema to which the entity type would be mapped. </returns>
+        public static string GetDefaultViewSchema([NotNull] this IEntityType entityType)
+        {
             var ownership = entityType.FindOwnership();
             if (ownership != null
                 && ownership.IsUnique)
             {
-                return ownership.PrincipalEntityType.GetViewName();
+                return ownership.PrincipalEntityType.GetViewSchema();
             }
 
             return null;
         }
+
+        /// <summary>
+        ///     Sets the database schema that contains the mapped view.
+        /// </summary>
+        /// <param name="entityType"> The entity type to set the view schema for. </param>
+        /// <param name="value"> The value to set. </param>
+        public static void SetViewSchema([NotNull] this IMutableEntityType entityType, [CanBeNull] string value)
+            => entityType.SetOrRemoveAnnotation(
+                RelationalAnnotationNames.ViewSchema,
+                Check.NullButNotEmpty(value, nameof(value)));
+
+        /// <summary>
+        ///     Sets the database schema that contains the mapped view.
+        /// </summary>
+        /// <param name="entityType"> The entity type to set the view schema for. </param>
+        /// <param name="value"> The value to set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void SetViewSchema(
+            [NotNull] this IConventionEntityType entityType, [CanBeNull] string value, bool fromDataAnnotation = false)
+            => entityType.SetOrRemoveAnnotation(
+                RelationalAnnotationNames.ViewSchema,
+                Check.NullButNotEmpty(value, nameof(value)),
+                fromDataAnnotation);
+
+        /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for the view schema.
+        /// </summary>
+        /// <param name="entityType"> The entity type to find configuration source for. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for the view schema. </returns>
+        public static ConfigurationSource? GetViewSchemaConfigurationSource([NotNull] this IConventionEntityType entityType)
+            => entityType.FindAnnotation(RelationalAnnotationNames.ViewSchema)
+                ?.GetConfigurationSource();
 
         /// <summary>
         ///     Finds an <see cref="ICheckConstraint" /> with the given name.
@@ -343,26 +449,28 @@ namespace Microsoft.EntityFrameworkCore
                 return entityType.BaseType.IsIgnoredByMigrations();
             }
 
-            if (entityType.GetDefiningQuery() != null)
+            if (entityType.GetTableName() != null)
             {
-                return true;
-            }
-
-            var viewDefinition = entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinition);
-            if (viewDefinition == null)
-            {
-                var ownership = entityType.FindOwnership();
-                if (ownership != null
-                    && ownership.IsUnique
-                    && entityType.FindAnnotation(RelationalAnnotationNames.TableName) == null)
-                {
-                    return ownership.PrincipalEntityType.IsIgnoredByMigrations();
-                }
-
                 return false;
             }
 
-            return viewDefinition.Value == null;
+            if (entityType.FindAnnotation(RelationalAnnotationNames.QueryableFunctionResultType) != null)
+                return true;
+
+            var viewDefinition = entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinition);
+            if (viewDefinition?.Value != null)
+            {
+                return false;
+            }
+
+            var ownership = entityType.FindOwnership();
+            if (ownership != null
+                && ownership.IsUnique)
+            {
+                return ownership.PrincipalEntityType.IsIgnoredByMigrations();
+            }
+
+            return true;
         }
     }
 }

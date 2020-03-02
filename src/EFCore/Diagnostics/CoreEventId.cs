@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             ServiceProviderDebugInfo,
             RedundantAddServicesCallWarning,
 
-            // Model events
+            // Model and ModelValidation events
             ShadowPropertyCreated = CoreBaseId + 600,
             RedundantIndexRemoved,
             IncompatibleMatchingForeignKeyProperties,
@@ -102,6 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             RequiredAttributeInverted,
             RequiredAttributeOnCollection,
             CollectionWithoutComparer,
+            ConflictingKeylessAndKeyAttributesWarning,
 
             // ChangeTracking events
             DetectChangesStarting = CoreBaseId + 800,
@@ -614,6 +615,21 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId RedundantForeignKeyWarning = MakeModelValidationId(Id.RedundantForeignKeyWarning);
+
+        /// <summary>
+        ///     <para>
+        ///         A <see cref="KeylessAttribute"/> attribute on the entity type is conflicting
+        ///         with a <see cref="KeyAttribute"/> attribute on at least one of its properties.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="PropertyEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ConflictingKeylessAndKeyAttributesWarning = MakeModelId(Id.ConflictingKeylessAndKeyAttributesWarning);
 
         private static readonly string _changeTrackingPrefix = DbLoggerCategory.ChangeTracking.Name + ".";
         private static EventId MakeChangeTrackingId(Id id) => new EventId((int)id, _changeTrackingPrefix + id);

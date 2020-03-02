@@ -215,7 +215,7 @@ WHERE 3 = [dbo].[CustomerOrderCount](ABS([c].[Id]))");
             AssertSql(
                 @"SELECT TOP(1) [dbo].[IdentityString]([c].[FirstName])
 FROM [Orders] AS [o]
-LEFT JOIN [Customers] AS [c] ON [o].[CustomerId] = [c].[Id]
+INNER JOIN [Customers] AS [c] ON [o].[CustomerId] = [c].[Id]
 ORDER BY [o].[Id]");
         }
 
@@ -444,6 +444,394 @@ WHERE 3 = [dbo].[CustomerOrderCount](ABS([c].[Id]))");
 
         #endregion
 
+        #region Queryable Function Tests
+
+        public override void QF_Stand_Alone()
+        {
+            base.QF_Stand_Alone();
+
+            AssertSql(@"SELECT [t].[AmountSold], [t].[ProductId]
+FROM [dbo].[GetTopTwoSellingProducts]() AS [t]
+ORDER BY [t].[ProductId]");
+        }
+
+        public override void QF_Stand_Alone_With_Translation()
+        {
+            base.QF_Stand_Alone_With_Translation();
+
+            AssertSql(@"SELECT [t].[AmountSold], [t].[ProductId]
+FROM [dbo].[GetTopTwoSellingProducts]() AS [t]
+ORDER BY [t].[ProductId]");
+        }
+
+        public override void QF_Stand_Alone_Parameter()
+        {
+            base.QF_Stand_Alone_Parameter();
+
+            AssertSql(@"@__customerId_0='1'
+
+SELECT [o].[Count], [o].[CustomerId], [o].[Year]
+FROM [dbo].[GetCustomerOrderCountByYear](@__customerId_0) AS [o]
+ORDER BY [o].[Count] DESC");
+        }
+
+        public override void QF_CrossApply_Correlated_Select_Anonymous()
+        {
+            base.QF_CrossApply_Correlated_Select_Anonymous();
+
+            AssertSql(@"SELECT [c].[Id], [c].[LastName], [o].[Year], [o].[Count]
+FROM [Customers] AS [c]
+CROSS APPLY [dbo].[GetCustomerOrderCountByYear]([c].[Id]) AS [o]
+ORDER BY [c].[Id], [o].[Year]");
+        }
+
+        public override void QF_CrossApply_Correlated_Select_QF_Type()
+        {
+            base.QF_CrossApply_Correlated_Select_QF_Type();
+
+            AssertSql(@"SELECT [o].[Count], [o].[CustomerId], [o].[Year]
+FROM [Customers] AS [c]
+CROSS APPLY [dbo].[GetCustomerOrderCountByYear]([c].[Id]) AS [o]
+ORDER BY [o].[Year]");
+        }
+
+
+        public override void QF_Select_Direct_In_Anonymous()
+        {
+            base.QF_Select_Direct_In_Anonymous();
+
+            AssertSql(@"SELECT [t].[AmountSold], [t].[ProductId]
+FROM [dbo].[GetTopTwoSellingProducts]() AS [t]",
+
+@"SELECT [c].[Id]
+FROM [Customers] AS [c]");
+        }
+
+        public override void QF_Select_Correlated_Direct_With_Function_Query_Parameter_Correlated_In_Anonymous()
+        {
+            base.QF_Select_Correlated_Direct_With_Function_Query_Parameter_Correlated_In_Anonymous();
+
+            AssertSql(@"SELECT [c].[Id], [m].[OrderId], [m].[CustomerId], [m].[OrderDate]
+FROM [Customers] AS [c]
+OUTER APPLY [dbo].[GetOrdersWithMultipleProducts]([dbo].[AddValues]([c].[Id], 1)) AS [m]
+WHERE [c].[Id] = 1
+ORDER BY [c].[Id], [m].[OrderId]");
+        }
+
+        public override void QF_Select_Correlated_Subquery_In_Anonymous()
+        {
+            base.QF_Select_Correlated_Subquery_In_Anonymous();
+
+            AssertSql(@"SELECT [c].[Id], [t].[OrderId], [t].[CustomerId], [t].[OrderDate]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT [m].[OrderId], [m].[CustomerId], [m].[OrderDate]
+    FROM [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [m]
+    WHERE DATEPART(day, [m].[OrderDate]) = 21
+) AS [t]
+ORDER BY [c].[Id], [t].[OrderId]");
+        }
+
+        public override void QF_Select_Correlated_Subquery_In_Anonymous_Nested_With_QF()
+        {
+            base.QF_Select_Correlated_Subquery_In_Anonymous_Nested_With_QF();
+
+            AssertSql(@"SELECT [o].[CustomerId], [o].[OrderDate]
+FROM [Orders] AS [o]
+INNER JOIN (
+    SELECT [c].[Id], [c].[FirstName], [c].[LastName], [m].[OrderId], [m].[CustomerId], [m].[OrderDate]
+    FROM [Customers] AS [c]
+    CROSS APPLY [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [m]
+) AS [t] ON [o].[Id] = [t].[OrderId]");
+        }
+
+        public override void QF_Select_Correlated_Subquery_In_Anonymous_Nested()
+        {
+            base.QF_Select_Correlated_Subquery_In_Anonymous_Nested();
+
+            AssertSql(@"SELECT [t].[AmountSold], [t].[ProductId]
+FROM [dbo].[GetTopTwoSellingProducts]() AS [t]",
+
+                    @"SELECT [c].[Id], [t].[OrderId], [t].[OrderId0], [t].[CustomerId], [t].[OrderDate]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT [m].[OrderId], [m0].[OrderId] AS [OrderId0], [m0].[CustomerId], [m0].[OrderDate]
+    FROM [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [m]
+    OUTER APPLY [dbo].[GetOrdersWithMultipleProducts]([m].[CustomerId]) AS [m0]
+    WHERE DATEPART(day, [m].[OrderDate]) = 21
+) AS [t]
+ORDER BY [c].[Id], [t].[OrderId], [t].[OrderId0]");
+        }
+
+        public override void QF_Select_Correlated_Subquery_In_Anonymous_MultipleCollections()
+        {
+            base.QF_Select_Correlated_Subquery_In_Anonymous_MultipleCollections();
+
+            AssertSql(@"SELECT [c].[Id], [t0].[ProductId], [t1].[Id], [t1].[City], [t1].[CustomerId], [t1].[State], [t1].[Street]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT [t].[ProductId]
+    FROM [dbo].[GetTopTwoSellingProducts]() AS [t]
+    WHERE [t].[AmountSold] = 249
+) AS [t0]
+LEFT JOIN (
+    SELECT [a].[Id], [a].[City], [a].[CustomerId], [a].[State], [a].[Street]
+    FROM [Addresses] AS [a]
+    WHERE [a].[State] = N'NY'
+) AS [t1] ON [c].[Id] = [t1].[CustomerId]
+ORDER BY [c].[Id], [t1].[Id]");
+        }
+
+        public override void QF_Select_NonCorrelated_Subquery_In_Anonymous()
+        {
+            base.QF_Select_NonCorrelated_Subquery_In_Anonymous();
+
+            AssertSql(@"SELECT [c].[Id], [t0].[ProductId]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT [t].[ProductId]
+    FROM [dbo].[GetTopTwoSellingProducts]() AS [t]
+    WHERE [t].[AmountSold] = 249
+) AS [t0]
+ORDER BY [c].[Id]");
+        }
+
+        public override void QF_Select_NonCorrelated_Subquery_In_Anonymous_Parameter()
+        {
+            base.QF_Select_NonCorrelated_Subquery_In_Anonymous_Parameter();
+
+            AssertSql(
+                @"@__amount_0='27' (Nullable = true)
+
+SELECT [c].[Id], [t0].[ProductId]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT [t].[ProductId]
+    FROM [dbo].[GetTopTwoSellingProducts]() AS [t]
+    WHERE [t].[AmountSold] = @__amount_0
+) AS [t0]
+ORDER BY [c].[Id]");
+        }
+
+        public override void QF_Correlated_Select_In_Anonymous()
+        {
+            base.QF_Correlated_Select_In_Anonymous();
+
+            AssertSql(@"SELECT [c].[Id], [c].[LastName], [m].[OrderId], [m].[CustomerId], [m].[OrderDate]
+FROM [Customers] AS [c]
+OUTER APPLY [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [m]
+ORDER BY [c].[Id], [m].[OrderId]");
+        }
+
+        public override void QF_CrossApply_Correlated_Select_Result()
+        {
+            base.QF_CrossApply_Correlated_Select_Result();
+
+            AssertSql(@"SELECT [o].[Count], [o].[CustomerId], [o].[Year]
+FROM [Customers] AS [c]
+CROSS APPLY [dbo].[GetCustomerOrderCountByYear]([c].[Id]) AS [o]
+ORDER BY [o].[Count] DESC, [o].[Year] DESC");
+        }
+
+        public override void QF_CrossJoin_Not_Correlated()
+        {
+            base.QF_CrossJoin_Not_Correlated();
+
+            AssertSql(@"@__customerId_0='2'
+
+SELECT [c].[Id], [c].[LastName], [o].[Year], [o].[Count]
+FROM [Customers] AS [c]
+CROSS JOIN [dbo].[GetCustomerOrderCountByYear](@__customerId_0) AS [o]
+WHERE [c].[Id] = 2
+ORDER BY [o].[Count]");
+        }
+
+        public override void QF_CrossJoin_Parameter()
+        {
+            base.QF_CrossJoin_Parameter();
+
+            AssertSql(@"@__customerId_0='2'
+@__custId_1='2'
+
+SELECT [c].[Id], [c].[LastName], [o].[Year], [o].[Count]
+FROM [Customers] AS [c]
+CROSS JOIN [dbo].[GetCustomerOrderCountByYear](@__customerId_0) AS [o]
+WHERE [c].[Id] = @__custId_1
+ORDER BY [o].[Count]");
+        }
+
+        public override void QF_Join()
+        {
+            base.QF_Join();
+
+            AssertSql(@"SELECT [p].[Id], [p].[Name], [t].[AmountSold]
+FROM [Products] AS [p]
+INNER JOIN [dbo].[GetTopTwoSellingProducts]() AS [t] ON [p].[Id] = [t].[ProductId]
+ORDER BY [p].[Id]");
+        }
+
+        public override void QF_LeftJoin_Select_Anonymous()
+        {
+            base.QF_LeftJoin_Select_Anonymous();
+
+            AssertSql(@"SELECT [p].[Id], [p].[Name], [t].[AmountSold]
+FROM [Products] AS [p]
+LEFT JOIN [dbo].[GetTopTwoSellingProducts]() AS [t] ON [p].[Id] = [t].[ProductId]
+ORDER BY [p].[Id] DESC");
+        }
+
+        public override void QF_LeftJoin_Select_Result()
+        {
+            base.QF_LeftJoin_Select_Result();
+
+            AssertSql(@"SELECT [t].[AmountSold], [t].[ProductId]
+FROM [Products] AS [p]
+LEFT JOIN [dbo].[GetTopTwoSellingProducts]() AS [t] ON [p].[Id] = [t].[ProductId]
+ORDER BY [p].[Id] DESC");
+        }
+
+        public override void QF_OuterApply_Correlated_Select_QF()
+        {
+            base.QF_OuterApply_Correlated_Select_QF();
+
+            AssertSql(@"SELECT [o].[Count], [o].[CustomerId], [o].[Year]
+FROM [Customers] AS [c]
+OUTER APPLY [dbo].[GetCustomerOrderCountByYear]([c].[Id]) AS [o]
+ORDER BY [c].[Id], [o].[Year]");
+        }
+
+        public override void QF_OuterApply_Correlated_Select_Entity()
+        {
+            base.QF_OuterApply_Correlated_Select_Entity();
+
+            AssertSql(
+                @"SELECT [c].[Id], [c].[FirstName], [c].[LastName], [t].[Id], [t].[CreditCard_CreditCardType], [t].[CreditCard_Number], [p].[CustomerId], [p].[Id], [p].[Number], [p].[PhoneType]
+FROM [Customers] AS [c]
+OUTER APPLY [dbo].[GetCustomerOrderCountByYear]([c].[Id]) AS [o]
+LEFT JOIN (
+    SELECT [c0].[Id], [c0].[CreditCard_CreditCardType], [c0].[CreditCard_Number]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[CreditCard_CreditCardType] IS NOT NULL
+) AS [t] ON [c].[Id] = [t].[Id]
+LEFT JOIN [PhoneInformation] AS [p] ON [c].[Id] = [p].[CustomerId]
+WHERE [o].[Year] = 2000
+ORDER BY [c].[Id], [o].[Year], [p].[CustomerId], [p].[Id]");
+        }
+
+        public override void QF_OuterApply_Correlated_Select_Anonymous()
+        {
+            base.QF_OuterApply_Correlated_Select_Anonymous();
+
+            AssertSql(@"SELECT [c].[Id], [c].[LastName], [o].[Year], [o].[Count]
+FROM [Customers] AS [c]
+OUTER APPLY [dbo].[GetCustomerOrderCountByYear]([c].[Id]) AS [o]
+ORDER BY [c].[Id], [o].[Year]");
+        }
+
+        public override void QF_Nested()
+        {
+            base.QF_Nested();
+
+            AssertSql(@"@__custId_1='2'
+
+SELECT [c].[Id], [c].[LastName], [o].[Year], [o].[Count]
+FROM [Customers] AS [c]
+CROSS JOIN [dbo].[GetCustomerOrderCountByYear]([dbo].[AddValues](1, 1)) AS [o]
+WHERE [c].[Id] = @__custId_1
+ORDER BY [o].[Year]");
+        }
+
+        public override void QF_Correlated_Nested_Func_Call()
+        {
+            base.QF_Correlated_Nested_Func_Call();
+
+            AssertSql(@"@__custId_1='2'
+
+SELECT [c].[Id], [o].[Count], [o].[Year]
+FROM [Customers] AS [c]
+CROSS APPLY [dbo].[GetCustomerOrderCountByYear]([dbo].[AddValues]([c].[Id], 1)) AS [o]
+WHERE [c].[Id] = @__custId_1");
+        }
+
+        public override void QF_Correlated_Func_Call_With_Navigation()
+        {
+            base.QF_Correlated_Func_Call_With_Navigation();
+
+            AssertSql(@"SELECT [c].[Id], [t].[LastName], [t].[OrderId], [t].[Id]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT [c0].[LastName], [m].[OrderId], [c0].[Id]
+    FROM [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [m]
+    INNER JOIN [Customers] AS [c0] ON [m].[CustomerId] = [c0].[Id]
+) AS [t]
+ORDER BY [c].[Id], [t].[OrderId], [t].[Id]");
+        }
+
+        public override void QF_Owned_Many_NoTracking_Select_Owned()
+        {
+            base.QF_Owned_Many_NoTracking_Select_Owned();
+
+            AssertSql(@"SELECT [p].[CustomerId], [p].[Id], [p].[Number], [p].[PhoneType]
+FROM [Customers] AS [c]
+CROSS APPLY [dbo].[GetPhoneInformation]([c].[Id], N'234') AS [p]
+ORDER BY [p].[Number]");
+        }
+
+        public override void QF_Owned_Many_Tracked_Select_Owned()
+        {
+            base.QF_Owned_Many_Tracked_Select_Owned();
+
+            AssertSql(
+                @"SELECT [c].[Id], [c].[FirstName], [c].[LastName], [t].[Id], [t].[CreditCard_CreditCardType], [t].[CreditCard_Number], [p].[CustomerId], [p].[Id], [p0].[CustomerId], [p0].[Id], [p0].[Number], [p0].[PhoneType]
+FROM [Customers] AS [c]
+CROSS APPLY [dbo].[GetPhoneInformation]([c].[Id], N'234') AS [p]
+LEFT JOIN (
+    SELECT [c0].[Id], [c0].[CreditCard_CreditCardType], [c0].[CreditCard_Number]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[CreditCard_CreditCardType] IS NOT NULL
+) AS [t] ON [c].[Id] = [t].[Id]
+LEFT JOIN [PhoneInformation] AS [p0] ON [c].[Id] = [p0].[CustomerId]
+ORDER BY [c].[Id], [p].[CustomerId], [p].[Id], [p0].[CustomerId], [p0].[Id]");
+        }
+
+        public override void QF_Owned_One_NoTracking_Select_Owned()
+        {
+            base.QF_Owned_One_NoTracking_Select_Owned();
+
+            AssertSql(
+                @"SELECT [t].[Id], [t].[CreditCard_CreditCardType], [t].[CreditCard_Number]
+FROM [Customers] AS [c]
+CROSS APPLY (
+    SELECT [c0].[Id], [c0].[CreditCard_CreditCardType], [c0].[CreditCard_Number]
+    FROM [dbo].[GetCreditCards]([c].[Id]) AS [c0]
+    WHERE [c0].[CreditCard_CreditCardType] IS NOT NULL
+) AS [t]
+ORDER BY [t].[CreditCard_Number]");
+        }
+
+        public override void QF_Owned_One_Tracked()
+        {
+            base.QF_Owned_One_Tracked();
+
+            AssertSql(
+                @"SELECT [c].[Id], [c].[FirstName], [c].[LastName], [t0].[Id], [t0].[CreditCard_CreditCardType], [t0].[CreditCard_Number], [t].[Id], [t].[CreditCard_CreditCardType], [t].[CreditCard_Number], [p].[CustomerId], [p].[Id], [p].[Number], [p].[PhoneType]
+FROM [Customers] AS [c]
+CROSS APPLY (
+    SELECT [c0].[Id], [c0].[CreditCard_CreditCardType], [c0].[CreditCard_Number]
+    FROM [dbo].[GetCreditCards]([c].[Id]) AS [c0]
+    WHERE [c0].[CreditCard_CreditCardType] IS NOT NULL
+) AS [t]
+LEFT JOIN (
+    SELECT [c1].[Id], [c1].[CreditCard_CreditCardType], [c1].[CreditCard_Number]
+    FROM [Customers] AS [c1]
+    WHERE [c1].[CreditCard_CreditCardType] IS NOT NULL
+) AS [t0] ON [c].[Id] = [t0].[Id]
+LEFT JOIN [PhoneInformation] AS [p] ON [c].[Id] = [p].[CustomerId]
+ORDER BY [t].[CreditCard_Number], [c].[Id], [t].[Id], [p].[CustomerId], [p].[Id]");
+        }
+
+        #endregion
+
         public class SqlServer : UdfFixtureBase
         {
             protected override string StoreName { get; } = "UDFDbFunctionSqlServerTests";
@@ -514,6 +902,136 @@ WHERE 3 = [dbo].[CustomerOrderCount](ABS([c].[Id]))");
                                                     as
                                                     begin
                                                         return @customerName;
+                                                    end");
+
+                context.Database.ExecuteSqlRaw(
+                    @"create function [dbo].GetCustomerOrderCountByYear(@customerId int)
+                                                    returns @reports table
+                                                    (
+                                                        CustomerId int not null,
+                                                        Count int not null,
+                                                        Year int not null
+                                                    )
+                                                    as
+                                                    begin
+    
+                                                        insert into @reports
+                                                        select @customerId, count(id), year(orderDate)
+                                                        from orders
+                                                        where customerId = @customerId
+                                                        group by customerId, year(orderDate)
+                                                        order by year(orderDate)
+    
+                                                        return 
+                                                    end");
+
+                context.Database.ExecuteSqlRaw(
+                    @"create function [dbo].GetTopTwoSellingProducts()
+                                                    returns @products table
+                                                    (
+                                                        ProductId int not null,
+                                                        AmountSold int
+                                                    )
+                                                    as
+                                                    begin
+    
+                                                        insert into @products
+                                                        select top 2 ProductID, sum(Quantity) as totalSold
+                                                        from lineItem
+                                                        group by ProductID
+                                                        order by totalSold desc
+                                                        return 
+                                                    end");
+
+                context.Database.ExecuteSqlRaw(
+                    @"create function [dbo].GetTopSellingProductsForCustomer(@customerId int)
+                                                    returns @products table
+                                                    (
+                                                        ProductId int not null,
+                                                        AmountSold int
+                                                    )
+                                                    as
+                                                    begin
+    
+                                                        insert into @products
+                                                        select ProductID, sum(Quantity) as totalSold
+                                                        from lineItem li
+                                                        join orders o on o.id = li.orderId
+                                                        where o.customerId = @customerId
+                                                        group by ProductID
+                                                        
+                                                        return 
+                                                    end");
+
+                context.Database.ExecuteSqlRaw(
+                    @"create function [dbo].GetOrdersWithMultipleProducts(@customerId int)
+                                                    returns @orders table
+                                                    (
+                                                        OrderId int not null,
+                                                        CustomerId int not null,
+                                                        OrderDate dateTime2
+                                                    )
+                                                    as
+                                                    begin
+                                                        
+                                                        insert into @orders
+                                                        select o.id, @customerId, OrderDate
+                                                        from orders o
+                                                        join lineItem li on o.id = li.orderId
+                                                        where o.customerId = @customerId
+                                                        group by o.id, OrderDate
+                                                        having count(productId) > 1
+
+                                                        return 
+                                                    end");
+
+
+                context.Database.ExecuteSqlRaw(
+                   @"create function [dbo].[GetCreditCards] (@customerId int)
+                                                    returns @cc table
+                                                    (
+                                                        id int not null,
+                                                        CreditCard_CreditCardType int null,
+                                                        CreditCard_Number nvarchar(max)
+                                                    )
+                                                    as
+                                                    begin
+                                                        insert into @cc
+                                                        select id, CreditCard_CreditCardType, CreditCard_Number
+                                                        from customers c
+                                                        where c.CreditCard_CreditCardType is not null and c.CreditCard_Number is not null
+                                                        and c.id = @customerId
+
+                                                        return 
+                                                    end");
+
+                context.Database.ExecuteSqlRaw(
+                  @"create function [dbo].[GetPhoneInformation] (@customerId int, @areaCode nvarchar(3))
+                                                    returns @pn table
+                                                    (
+                                                        PhoneType int,
+                                                        Number nvarchar(max),
+                                                        CustomerId int not null,
+                                                        Id int not null
+                                                    )
+                                                    as
+                                                    begin
+                                                        insert into @pn
+                                                        select PhoneType, Number, CustomerId, Id
+                                                        from PhoneInformation pi
+                                                        where pi.customerId = @customerId
+                                                        and charindex(@areaCode, pi.number) = 1
+
+                                                        return 
+                                                    end");
+
+
+                context.Database.ExecuteSqlRaw(
+                    @"create function [dbo].[AddValues] (@a int, @b int)
+                                                    returns int
+                                                    as
+                                                    begin
+                                                        return @a + @b;
                                                     end");
 
                 context.SaveChanges();

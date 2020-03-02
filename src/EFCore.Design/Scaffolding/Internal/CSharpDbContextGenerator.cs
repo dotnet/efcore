@@ -263,15 +263,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             RemoveAnnotation(ref annotations, ChangeDetector.SkipDetectChangesAnnotation);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.MaxIdentifierLength);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.CheckConstraints);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.Sequences);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.Tables);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.Views);
             RemoveAnnotation(ref annotations, ScaffoldingAnnotationNames.DatabaseName);
             RemoveAnnotation(ref annotations, ScaffoldingAnnotationNames.EntityTypeErrors);
 
             var annotationsToRemove = new List<IAnnotation>();
-            annotationsToRemove.AddRange(
-                annotations.Where(
-                    a => a.Name.StartsWith(RelationalAnnotationNames.SequencePrefix, StringComparison.Ordinal)));
 
             var lines = new List<string>();
 
@@ -364,15 +362,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var annotations = entityType.GetAnnotations().ToList();
             RemoveAnnotation(ref annotations, CoreAnnotationNames.ConstructorBinding);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.TableName);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.Comment);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.Schema);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ViewName);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ViewSchema);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.TableMappings);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.ViewMappings);
             RemoveAnnotation(ref annotations, ScaffoldingAnnotationNames.DbSetName);
-
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.Comment);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.ViewDefinition);
-            var isView = entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinition) != null;
-            if (!useDataAnnotations || isView)
+
+            if (!useDataAnnotations || entityType.GetViewName() != null)
             {
                 GenerateTableName(entityType);
             }
@@ -533,9 +532,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var explicitSchema = schema != null && schema != defaultSchema;
             var explicitTable = explicitSchema || tableName != null && tableName != entityType.GetDbSetName();
-
-            var isView = entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinition) != null;
-            if (explicitTable || isView)
+            if (explicitTable)
             {
                 var parameterString = _code.Literal(tableName);
                 if (explicitSchema)
@@ -545,7 +542,29 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                 var lines = new List<string>
                 {
-                    $".{(isView ? nameof(RelationalEntityTypeBuilderExtensions.ToView) : nameof(RelationalEntityTypeBuilderExtensions.ToTable))}({parameterString})"
+                    $".{nameof(RelationalEntityTypeBuilderExtensions.ToTable)}({parameterString})"
+                };
+
+                AppendMultiLineFluentApi(entityType, lines);
+            }
+
+            var viewName = entityType.GetViewName();
+            var viewSchema = entityType.GetViewSchema();
+
+            var explicitViewSchema = viewSchema != null && viewSchema != defaultSchema;
+            var explicitViewTable = explicitViewSchema || viewName != null;
+
+            if (explicitViewTable)
+            {
+                var parameterString = _code.Literal(viewName);
+                if (explicitViewSchema)
+                {
+                    parameterString += ", " + _code.Literal(viewSchema);
+                }
+
+                var lines = new List<string>
+                {
+                    $".{nameof(RelationalEntityTypeBuilderExtensions.ToView)}({parameterString})"
                 };
 
                 AppendMultiLineFluentApi(entityType, lines);
@@ -614,6 +633,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             RemoveAnnotation(ref annotations, CoreAnnotationNames.TypeMapping);
             RemoveAnnotation(ref annotations, CoreAnnotationNames.Unicode);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.ColumnName);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ViewColumnName);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.ColumnType);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.DefaultValue);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.DefaultValueSql);
@@ -640,6 +660,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     lines.Add(
                         $".{nameof(RelationalPropertyBuilderExtensions.HasColumnName)}" +
+                        $"({_code.Literal(columnName)})");
+                }
+
+                var viewColumnName = property.GetViewColumnName();
+
+                if (viewColumnName != null
+                    && viewColumnName != columnName)
+                {
+                    lines.Add(
+                        $".{nameof(RelationalPropertyBuilderExtensions.HasViewColumnName)}" +
                         $"({_code.Literal(columnName)})");
                 }
 

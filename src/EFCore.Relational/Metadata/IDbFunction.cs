@@ -25,6 +25,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         string Schema { get; }
 
         /// <summary>
+        ///     The name of the function in the model.
+        /// </summary>
+        string ModelName { get; }
+
+        /// <summary>
         ///     The <see cref="IModel" /> in which this function is defined.
         /// </summary>
         IModel Model { get; }
@@ -33,6 +38,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The CLR method which maps to the function in the database.
         /// </summary>
         MethodInfo MethodInfo { get; }
+
+        /// <summary>
+        ///     Whether this method returns IQueryable
+        /// </summary>
+        bool IsIQueryable { get; }
 
         /// <summary>
         ///     The configured store type string

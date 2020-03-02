@@ -12,12 +12,15 @@ using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+using static SQLitePCL.raw;
 
 #nullable enable
 
@@ -231,10 +234,31 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 
                 _logger.ColumnFound(table.Name, columnName, dataType, notNull, defaultValue);
 
+                var autoIncrement = 0;
+                if (connection is SqliteConnection sqliteConnection
+                    && !(table is DatabaseView))
+                {
+                    var db = sqliteConnection.Handle;
+                    var rc = sqlite3_table_column_metadata(
+                        db,
+                        connection.Database,
+                        table.Name,
+                        columnName,
+                        out var _,
+                        out var _,
+                        out var _,
+                        out var _,
+                        out autoIncrement);
+                    SqliteException.ThrowExceptionForRC(rc, db);
+                }
+
                 table.Columns.Add(new DatabaseColumn(table, columnName, dataType)
                 {
                     IsNullable = !notNull,
-                    DefaultValueSql = defaultValue
+                    DefaultValueSql = defaultValue,
+                    ValueGenerated = autoIncrement != 0
+                        ? ValueGenerated.OnAdd
+                        : default(ValueGenerated?)
                 });
             }
         }
@@ -490,7 +514,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 
                 using var command2 = connection.CreateCommand();
                 command2.CommandText = new StringBuilder()
-                    .AppendLine("SELECT \"from\", \"to\"")
+                    .AppendLine("SELECT \"seq\", \"from\", \"to\"")
                     .AppendLine("FROM pragma_foreign_key_list(@table)")
                     .AppendLine("WHERE \"id\" = @id")
                     .AppendLine("ORDER BY \"seq\";")
@@ -512,17 +536,27 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                 {
                     while (reader2.Read())
                     {
-                        var columnName = reader2.GetString(0);
+                        var columnName = reader2.GetString(1);
                         var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
                             ?? table.Columns.FirstOrDefault(
                                 c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                         Check.DebugAssert(column != null, "column is null.");
 
-                        var principalColumnName = reader2.GetString(1);
-                        var principalColumn =
-                            foreignKey.PrincipalTable.Columns.FirstOrDefault(c => c.Name == principalColumnName)
-                            ?? foreignKey.PrincipalTable.Columns.FirstOrDefault(
-                                c => c.Name.Equals(principalColumnName, StringComparison.OrdinalIgnoreCase));
+                        var principalColumnName = reader2.IsDBNull(2) ? null : reader2.GetString(2);
+                        DatabaseColumn? principalColumn = null;
+                        if (principalColumnName != null)
+                        {
+                            principalColumn =
+                                foreignKey.PrincipalTable.Columns.FirstOrDefault(c => c.Name == principalColumnName)
+                                ?? foreignKey.PrincipalTable.Columns.FirstOrDefault(
+                                    c => c.Name.Equals(principalColumnName, StringComparison.OrdinalIgnoreCase));
+                        }
+                        else if (principalTable.PrimaryKey != null)
+                        {
+                            var seq = reader2.GetInt32(0);
+                            principalColumn = principalTable.PrimaryKey.Columns[seq];
+                        }
+
                         if (principalColumn == null)
                         {
                             invalid = true;

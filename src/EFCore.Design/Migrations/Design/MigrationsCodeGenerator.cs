@@ -242,6 +242,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.DefiningQuery,
                 CoreAnnotationNames.QueryFilter,
                 RelationalAnnotationNames.CheckConstraints,
+                RelationalAnnotationNames.Sequences,
+                RelationalAnnotationNames.DbFunctions,
                 RelationalAnnotationNames.Tables,
                 RelationalAnnotationNames.TableMappings,
                 RelationalAnnotationNames.TableColumnMappings,
@@ -250,18 +252,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 RelationalAnnotationNames.ViewColumnMappings
             };
 
-            var ignoredAnnotationTypes = new List<string>
-            {
-                RelationalAnnotationNames.DbFunction, RelationalAnnotationNames.SequencePrefix
-            };
-
             return items.SelectMany(
                 i => i.GetAnnotations().Select(
                         a => new { Annotatable = i, Annotation = a })
                     .Where(
                         a => a.Annotation.Value != null
-                             && !ignoredAnnotations.Contains(a.Annotation.Name)
-                             && !ignoredAnnotationTypes.Any(p => a.Annotation.Name.StartsWith(p, StringComparison.Ordinal)))
+                             && !ignoredAnnotations.Contains(a.Annotation.Name))
                     .SelectMany(a => GetProviderType(a.Annotatable, a.Annotation.Value.GetType()).GetNamespaces()));
         }
 

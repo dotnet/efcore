@@ -42,8 +42,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionContext context)
         {
             var entityType = propertyBuilder.Metadata.DeclaringEntityType;
+            if (entityType.IsKeyless)
+            {
+                switch (entityType.GetIsKeylessConfigurationSource())
+                {
+                    case ConfigurationSource.DataAnnotation:
+                        Dependencies.Logger
+                            .ConflictingKeylessAndKeyAttributesWarning(propertyBuilder.Metadata);
+                        return;
+
+                    case ConfigurationSource.Explicit:
+                        // fluent API overrides the attribute - no warning
+                        return;
+                }
+            }
+
             if (entityType.BaseType != null)
             {
+                return;
+            }
+
+            if (entityType.IsKeyless
+                && entityType.GetIsKeylessConfigurationSource().Overrides(ConfigurationSource.DataAnnotation))
+            {
+                // TODO: Log a warning that KeyAttribute is being ignored. See issue#20014
+                // This code path will also be hit when entity is marked as Keyless explicitly
                 return;
             }
 

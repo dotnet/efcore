@@ -332,31 +332,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         [ConditionalFact]
-        public virtual void Sequence_is_stored_in_snapshot_as_annotations()
-        {
-            Test(
-                builder =>
-                {
-                    builder.HasSequence<int>("Foo", "Bar")
-                        .StartsAt(2)
-                        .HasMin(1)
-                        .HasMax(3)
-                        .IncrementsBy(2)
-                        .IsCyclic();
-                },
-                AddBoilerPlate(
-                    @"
-            modelBuilder
-                .HasAnnotation(""Relational:MaxIdentifierLength"", 128)
-                .HasAnnotation(""Relational:Sequence:Bar.Foo"", ""'Foo', 'Bar', '2', '2', '1', '3', 'Int32', 'True'"")
-                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);"),
-                o =>
-                {
-                    Assert.Equal(3, o.GetAnnotations().Count());
-                });
-        }
-
-        [ConditionalFact(Skip = "Issue #14103")]
         public virtual void Sequence_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -370,15 +345,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         .IsCyclic();
                 },
                 AddBoilerPlate(
-                    @"
-            modelBuilder
-                .HasAnnotation(""Relational:MaxIdentifierLength"", 128)
-                .HasSequence<int>(""Foo"", ""Bar"")
-                        .StartsAt(2)
-                        .HasMin(1)
-                        .HasMax(3)
-                        .IncrementsBy(2)
-                        .IsCyclic();"),
+                    GetHeading()
+                    + @"
+            modelBuilder.HasSequence<int>(""Foo"", ""Bar"")
+                .StartsAt(2L)
+                .IncrementsBy(2)
+                .HasMin(1L)
+                .HasMax(3L)
+                .IsCyclic();"),
                 o =>
                 {
                     Assert.Equal(3, o.GetAnnotations().Count());

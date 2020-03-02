@@ -87,8 +87,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
 
             var dbFunctionAttributeConvention = new RelationalDbFunctionAttributeConvention(Dependencies, RelationalDependencies);
             conventionSet.ModelInitializedConventions.Add(dbFunctionAttributeConvention);
-            conventionSet.ModelAnnotationChangedConventions.Add(dbFunctionAttributeConvention);
 
+            conventionSet.ModelFinalizingConventions.Add(dbFunctionAttributeConvention);
+            conventionSet.ModelFinalizingConventions.Add(tableNameFromDbSetConvention);
             conventionSet.ModelFinalizingConventions.Add(storeGenerationConvention);
             conventionSet.ModelFinalizingConventions.Add(new SharedTableConvention(Dependencies, RelationalDependencies));
             conventionSet.ModelFinalizingConventions.Add(new DbFunctionTypeMappingConvention(Dependencies, RelationalDependencies));

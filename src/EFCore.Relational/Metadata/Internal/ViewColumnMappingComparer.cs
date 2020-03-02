@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual int Compare(IViewColumnMapping x, IViewColumnMapping y)
         {
-            var result = StringComparer.Ordinal.Compare(x.Property.IsColumnNullable(), y.Property.IsColumnNullable());
+            var result = StringComparer.Ordinal.Compare(x.Property.IsViewColumnNullable(), y.Property.IsViewColumnNullable());
             if (result != 0)
             {
                 return result;

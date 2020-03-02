@@ -161,7 +161,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            UpdateIsNullableConfigurationSource(configurationSource);
+            _isNullableConfigurationSource = configurationSource.Max(_isNullableConfigurationSource);
+
             _isNullable = nullable;
 
             if (isChanging)
@@ -179,9 +180,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ConfigurationSource? GetIsNullableConfigurationSource() => _isNullableConfigurationSource;
-
-        private void UpdateIsNullableConfigurationSource(ConfigurationSource configurationSource)
-            => _isNullableConfigurationSource = configurationSource.Max(_isNullableConfigurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -214,14 +212,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             _valueGenerated = valueGenerated;
 
-            if (valueGenerated == null)
-            {
-                _valueGeneratedConfigurationSource = null;
-            }
-            else
-            {
-                UpdateValueGeneratedConfigurationSource(configurationSource);
-            }
+            _valueGeneratedConfigurationSource = valueGenerated == null
+                ? (ConfigurationSource?)null
+                : configurationSource.Max(_valueGeneratedConfigurationSource);
         }
 
         private static ValueGenerated DefaultValueGenerated => ValueGenerated.Never;
@@ -233,9 +226,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ConfigurationSource? GetValueGeneratedConfigurationSource() => _valueGeneratedConfigurationSource;
-
-        private void UpdateValueGeneratedConfigurationSource(ConfigurationSource configurationSource)
-            => _valueGeneratedConfigurationSource = configurationSource.Max(_valueGeneratedConfigurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -262,14 +252,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 _isConcurrencyToken = concurrencyToken;
             }
 
-            if (concurrencyToken == null)
-            {
-                _isConcurrencyTokenConfigurationSource = null;
-            }
-            else
-            {
-                UpdateIsConcurrencyTokenConfigurationSource(configurationSource);
-            }
+            _isConcurrencyTokenConfigurationSource = concurrencyToken == null
+                ? (ConfigurationSource?)null
+                : configurationSource.Max(_isConcurrencyTokenConfigurationSource);
         }
 
         private static bool DefaultIsConcurrencyToken => false;
@@ -281,9 +266,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ConfigurationSource? GetIsConcurrencyTokenConfigurationSource() => _isConcurrencyTokenConfigurationSource;
-
-        private void UpdateIsConcurrencyTokenConfigurationSource(ConfigurationSource configurationSource)
-            => _isConcurrencyTokenConfigurationSource = configurationSource.Max(_isConcurrencyTokenConfigurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

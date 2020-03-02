@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -18,6 +20,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The name for column name annotations.
         /// </summary>
         public const string ColumnName = Prefix + "ColumnName";
+
+        /// <summary>
+        ///     The name for column name annotations.
+        /// </summary>
+        public const string ViewColumnName = Prefix + "ViewColumnName";
 
         /// <summary>
         ///     The name for column type annotations.
@@ -50,6 +57,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string Schema = Prefix + "Schema";
 
         /// <summary>
+        ///     The name for view name annotations.
+        /// </summary>
+        public const string ViewName = Prefix + "ViewName";
+
+        /// <summary>
+        ///     The name for view schema name annotations.
+        /// </summary>
+        public const string ViewSchema = Prefix + "ViewSchema";
+
+        /// <summary>
         ///     The name for comment annotations.
         /// </summary>
         public const string Comment = Prefix + "Comment";
@@ -67,7 +84,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     The prefix for serialized sequence annotations.
         /// </summary>
+        [Obsolete("All sequences are stored in a single annotation now")]
         public const string SequencePrefix = Prefix + "Sequence:";
+
+        /// <summary>
+        ///     The name for sequence annotation.
+        /// </summary>
+        public const string Sequences = Prefix + "Sequences";
 
         /// <summary>
         ///     The name for check constraint annotations.
@@ -80,9 +103,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string Filter = Prefix + "Filter";
 
         /// <summary>
-        ///     The name for DbFunction annotations.
+        ///     The name for DbFunction annotation.
         /// </summary>
+        [Obsolete("Use DbFunctions")]
         public const string DbFunction = Prefix + "DbFunction";
+
+        /// <summary>
+        ///     The name for functions annotation.
+        /// </summary>
+        public const string DbFunctions = Prefix + "DbFunctions";
 
         /// <summary>
         ///     The name for the annotation containing the maximum length for database identifiers.
@@ -128,5 +157,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The name for column mappings annotations.
         /// </summary>
         public const string ViewColumnMappings = Prefix + "ViewColumnMappings";
+
+        /// <summary>
+        ///     The definition of a Queryable Function Result Type.
+        /// </summary>
+        public const string QueryableFunctionResultType = Prefix + "QueryableFunctionResultType";
     }
 }

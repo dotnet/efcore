@@ -29,8 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 var tableName = entityType.GetTableName();
                 var viewName = entityType.GetViewName();
-                if (tableName != null
-                    && viewName == null)
+                if (tableName != null)
                 {
                     var schema = entityType.GetSchema();
                     if (!tables.TryGetValue((tableName, schema), out var table))
@@ -86,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (viewName != null)
                 {
-                    var schema = entityType.GetSchema();
+                    var schema = entityType.GetViewSchema();
                     if (!views.TryGetValue((viewName, schema), out var view))
                     {
                         view = new View(viewName, schema);
@@ -97,15 +96,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     foreach (var property in entityType.GetDeclaredProperties())
                     {
                         var typeMapping = property.FindRelationalTypeMapping();
-                        var columnName = property.GetColumnName();
+                        var columnName = property.GetViewColumnName();
                         var column = (ViewColumn)view.FindColumn(columnName);
                         if (column == null)
                         {
                             column = new ViewColumn(columnName, property.GetColumnType() ?? typeMapping.StoreType, view);
-                            column.IsNullable = property.IsColumnNullable();
+                            column.IsNullable = property.IsViewColumnNullable();
                             view.Columns.Add(columnName, column);
                         }
-                        else if (!property.IsColumnNullable())
+                        else if (!property.IsViewColumnNullable())
                         {
                             column.IsNullable = false;
                         }

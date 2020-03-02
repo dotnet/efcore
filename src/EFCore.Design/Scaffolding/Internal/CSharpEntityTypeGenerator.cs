@@ -152,9 +152,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var defaultSchema = entityType.Model.GetDefaultSchema();
 
             var schemaParameterNeeded = schema != null && schema != defaultSchema;
-            var isView = entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinition) != null;
+            var isView = entityType.GetViewName() != null;
             var tableAttributeNeeded = !isView && (schemaParameterNeeded || tableName != null && tableName != entityType.GetDbSetName());
-
             if (tableAttributeNeeded)
             {
                 var tableAttribute = new AttributeWriter(nameof(TableAttribute));

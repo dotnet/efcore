@@ -2,15 +2,19 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using IsolationLevel = System.Data.IsolationLevel;
@@ -39,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private int _openedCount;
         private bool _openedInternally;
         private int? _commandTimeout;
-        private Transaction _ambientTransaction;
+        private readonly ConcurrentStack<Transaction> _ambientTransactions;
         private DbConnection _connection;
 
         /// <summary>
@@ -76,6 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 _connectionOwned = true;
             }
+            _ambientTransactions = new ConcurrentStack<Transaction>();
         }
 
         /// <summary>
@@ -548,11 +553,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             CurrentTransaction = null;
             EnlistedTransaction = null;
-            if (clearAmbient
-                && _ambientTransaction != null)
+            if (clearAmbient && _ambientTransactions.Count > 0)
             {
-                _ambientTransaction.TransactionCompleted -= HandleTransactionCompleted;
-                _ambientTransaction = null;
+                while (_ambientTransactions.Any(t => t != null))
+                {
+                    _ambientTransactions.TryPop(out var ambientTransaction);
+                    if (ambientTransaction != null)
+                    {
+                        ambientTransaction.TransactionCompleted -= HandleTransactionCompleted;
+                    }
+                }
             }
 
             if (_openedCount < 0)
@@ -629,53 +639,52 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private void HandleAmbientTransactions()
         {
             var current = Transaction.Current;
-            if (current != null
-                && !SupportsAmbientTransactions)
+
+            if (current == null) 
+            {
+                var rootTransaction = _ambientTransactions.Any() && _ambientTransactions.TryPeek(out var transaction) ? transaction : null;
+
+                if (rootTransaction != null) 
+                {
+                    throw new InvalidOperationException(RelationalStrings.PendingAmbientTransaction);
+                }
+
+                return;
+            }
+
+            if (!SupportsAmbientTransactions)
             {
                 Dependencies.TransactionLogger.AmbientTransactionWarning(this, DateTimeOffset.UtcNow);
                 return;
             }
 
-            if (Equals(current, _ambientTransaction))
+            if (_ambientTransactions.Contains(current))
             {
                 return;
             }
 
-            if (_ambientTransaction != null)
-            {
-                throw new InvalidOperationException(RelationalStrings.PendingAmbientTransaction);
-            }
-
-            if (current != null)
-            {
-                Dependencies.TransactionLogger.AmbientTransactionEnlisted(this, current);
-            }
+            Dependencies.TransactionLogger.AmbientTransactionEnlisted(this, current);
+            current.TransactionCompleted += HandleTransactionCompleted;
 
             DbConnection.EnlistTransaction(current);
-
-            var ambientTransaction = _ambientTransaction;
-            if (ambientTransaction != null)
-            {
-                ambientTransaction.TransactionCompleted -= HandleTransactionCompleted;
-            }
-
-            if (current != null)
-            {
-                current.TransactionCompleted += HandleTransactionCompleted;
-            }
-
-            _ambientTransaction = current;
+            _ambientTransactions.Push(current);
         }
 
         private void HandleTransactionCompleted(object sender, TransactionEventArgs e)
         {
             // This could be invoked on a different thread at arbitrary time after the transaction completes
-            var ambientTransaction = _ambientTransaction;
+            _ambientTransactions.TryPeek(out var ambientTransaction);
+            if (e.Transaction != ambientTransaction)
+            {
+                throw new InvalidOperationException(RelationalStrings.NestedAmbientTransactionError);
+            }
+
             if (ambientTransaction != null)
             {
                 ambientTransaction.TransactionCompleted -= HandleTransactionCompleted;
-                _ambientTransaction = null;
             }
+
+            _ambientTransactions.TryPop(out var _);
         }
 
         /// <summary>

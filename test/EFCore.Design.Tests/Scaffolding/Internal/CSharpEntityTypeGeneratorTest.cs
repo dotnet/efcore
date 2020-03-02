@@ -330,8 +330,10 @@ namespace TestNamespace
                 model =>
                 {
                     var entityType = model.FindEntityType("TestNamespace.Vista");
-                    Assert.Equal("Vistas", entityType.GetTableName());
-                    Assert.Equal("dbo", entityType.GetSchema());
+                    Assert.Equal("Vistas", entityType.GetViewName());
+                    Assert.Null(entityType.GetTableName());
+                    Assert.Equal("dbo", entityType.GetViewSchema());
+                    Assert.Null(entityType.GetSchema());
                 });
         }
 

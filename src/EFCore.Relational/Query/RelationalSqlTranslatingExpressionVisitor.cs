@@ -9,6 +9,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -224,6 +225,30 @@ namespace Microsoft.EntityFrameworkCore.Query
                     sqlExpression.TypeMapping);
         }
 
+        public virtual Expression TranslateMethodCall([NotNull] MethodCallExpression methodCallExpression)
+        {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
+            if (TranslationFailed(methodCallExpression.Object, Visit(methodCallExpression.Object), out var sqlObject))
+            {
+                return null;
+            }
+
+            var arguments = new SqlExpression[methodCallExpression.Arguments.Count];
+            for (var i = 0; i < arguments.Length; i++)
+            {
+                var argument = methodCallExpression.Arguments[i];
+                if (TranslationFailed(argument, Visit(argument), out var sqlArgument))
+                {
+                    return null;
+                }
+
+                arguments[i] = sqlArgument;
+            }
+
+            return Dependencies.MethodCallTranslatorProvider.Translate(_model, sqlObject, methodCallExpression.Method, arguments);
+        }
+
         private sealed class SqlTypeMappingVerifyingExpressionVisitor : ExpressionVisitor
         {
             protected override Expression VisitExtension(Expression node)
@@ -231,7 +256,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Check.NotNull(node, nameof(node));
 
                 if (node is SqlExpression sqlExpression
-                    && !(node is SqlFragmentExpression))
+                    && !(node is SqlFragmentExpression)
+                    && !(node is SqlFunctionExpression sqlFunctionExpression
+                        && sqlFunctionExpression.Type.IsQueryableType()))
                 {
                     if (sqlExpression.TypeMapping == null)
                     {
@@ -470,24 +497,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             // MethodCall translators
-            if (TranslationFailed(methodCallExpression.Object, Visit(methodCallExpression.Object), out var sqlObject))
-            {
-                return null;
-            }
-
-            var arguments = new SqlExpression[methodCallExpression.Arguments.Count];
-            for (var i = 0; i < arguments.Length; i++)
-            {
-                var argument = methodCallExpression.Arguments[i];
-                if (TranslationFailed(argument, Visit(argument), out var sqlArgument))
-                {
-                    return null;
-                }
-
-                arguments[i] = sqlArgument;
-            }
-
-            return Dependencies.MethodCallTranslatorProvider.Translate(_model, sqlObject, methodCallExpression.Method, arguments);
+            return TranslateMethodCall(methodCallExpression);
         }
 
         private static Expression TryRemoveImplicitConvert(Expression expression)
@@ -658,7 +668,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(node, nameof(node));
 
-            return null;
+            return node.Body != null ? Visit(node.Body) : null;
         }
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
@@ -755,6 +765,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
 
                     break;
+
+                case ExpressionType.Quote:
+                    return operand;
             }
 
             return null;

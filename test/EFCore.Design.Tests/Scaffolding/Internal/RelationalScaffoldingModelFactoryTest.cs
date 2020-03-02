@@ -91,7 +91,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 },
                 view =>
                 {
-                    Assert.Equal("view", view.GetTableName());
+                    Assert.Equal("view", view.GetViewName());
+                    Assert.Null(view.GetTableName());
                     Assert.NotNull(view.FindAnnotation(RelationalAnnotationNames.ViewDefinition));
                 }
             );

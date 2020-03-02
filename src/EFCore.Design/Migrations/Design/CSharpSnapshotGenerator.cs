@@ -55,13 +55,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             var annotations = model.GetAnnotations().ToList();
 
-            IgnoreAnnotationTypes(annotations, RelationalAnnotationNames.DbFunction);
             IgnoreAnnotations(
                 annotations,
                 ChangeDetector.SkipDetectChangesAnnotation,
                 CoreAnnotationNames.ChangeTrackingStrategy,
                 CoreAnnotationNames.OwnedTypes,
                 RelationalAnnotationNames.CheckConstraints,
+                RelationalAnnotationNames.Sequences,
+                RelationalAnnotationNames.DbFunctions,
                 RelationalAnnotationNames.Tables,
                 RelationalAnnotationNames.Views);
 
@@ -79,6 +80,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 }
 
                 stringBuilder.AppendLine(";");
+            }
+
+            foreach (var sequence in model.GetSequences())
+            {
+                GenerateSequence(builderName, sequence, stringBuilder);
             }
 
             GenerateEntityTypes(builderName, Sort(model.GetEntityTypes().Where(et => !et.IsIgnoredByMigrations()).ToList()), stringBuilder);
@@ -339,6 +345,93 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
+        ///     Generates code for an <see cref="ISequence" />.
+        /// </summary>
+        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="sequence"> The sequence. </param>
+        /// <param name="stringBuilder"> The builder code is added to. </param>
+        protected virtual void GenerateSequence(
+            [NotNull] string builderName,
+            [NotNull] ISequence sequence,
+            [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            stringBuilder
+                .AppendLine()
+                .Append(builderName)
+                .Append(".HasSequence");
+
+            if (sequence.ClrType != Sequence.DefaultClrType)
+            {
+                stringBuilder
+                    .Append("<")
+                    .Append(Code.Reference(sequence.ClrType))
+                    .Append(">");
+            }
+
+            stringBuilder
+                .Append("(")
+                .Append(Code.Literal(sequence.Name));
+
+            if (!string.IsNullOrEmpty(sequence.Schema)
+                && sequence.Model.GetDefaultSchema() != sequence.Schema)
+            {
+                stringBuilder
+                    .Append(", ")
+                    .Append(Code.Literal(sequence.Schema));
+            }
+
+            stringBuilder.Append(")");
+
+            using (stringBuilder.Indent())
+            {
+                if (sequence.StartValue != Sequence.DefaultStartValue)
+                {
+                    stringBuilder
+                        .AppendLine()
+                        .Append(".StartsAt(")
+                        .Append(Code.Literal(sequence.StartValue))
+                        .Append(")");
+                }
+
+                if (sequence.IncrementBy != Sequence.DefaultIncrementBy)
+                {
+                    stringBuilder
+                        .AppendLine()
+                        .Append(".IncrementsBy(")
+                        .Append(Code.Literal(sequence.IncrementBy))
+                        .Append(")");
+                }
+
+                if (sequence.MinValue != Sequence.DefaultMinValue)
+                {
+                    stringBuilder
+                        .AppendLine()
+                        .Append(".HasMin(")
+                        .Append(Code.Literal(sequence.MinValue))
+                        .Append(")");
+                }
+
+                if (sequence.MaxValue != Sequence.DefaultMaxValue)
+                {
+                    stringBuilder
+                        .AppendLine()
+                        .Append(".HasMax(")
+                        .Append(Code.Literal(sequence.MaxValue))
+                        .Append(")");
+                }
+
+                if (sequence.IsCyclic != Sequence.DefaultIsCyclic)
+                {
+                    stringBuilder
+                        .AppendLine()
+                        .Append(".IsCyclic()");
+                }
+            }
+
+            stringBuilder.AppendLine(";");
+        }
+
+        /// <summary>
         ///     Generates code for <see cref="IProperty" /> objects.
         /// </summary>
         /// <param name="builderName"> The name of the builder variable. </param>
@@ -436,6 +529,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 ref annotations,
                 RelationalAnnotationNames.ColumnName,
                 nameof(RelationalPropertyBuilderExtensions.HasColumnName),
+                stringBuilder);
+
+            GenerateFluentApiForAnnotation(
+                ref annotations,
+                RelationalAnnotationNames.ViewColumnName,
+                nameof(RelationalPropertyBuilderExtensions.HasViewColumnName),
                 stringBuilder);
 
             stringBuilder
