@@ -219,6 +219,20 @@ namespace Microsoft.EntityFrameworkCore
                     () => context.CreateProxy<RedBullRb3>()).Message);
         }
 
+        // tests scenario in https://github.com/dotnet/efcore/issues/15958
+        [ConditionalFact]
+        public void Throws_if_attempt_to_add_proxy_type_to_model_builder()
+        {
+            Assert.Equal(
+                CoreStrings.AttemptToAddProxyTypeToModelBuilder("Castle.Proxies.EntityToBeProxiedProxy"),
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                    {
+                        var context = new CannotAddProxyTypeToModel();
+                        context.Set<EntityToBeProxied>().Add( new EntityToBeProxied { Id = 0 } );
+                    }).Message);
+        }
+
         public class March82GGtp
         {
             public virtual int Id { get; set; }
@@ -388,6 +402,38 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<March82GGtp>();
+        }
+
+        public class EntityToBeProxied
+        {
+            public virtual int Id { get; set; }
+        }
+
+        private class CannotAddProxyTypeToModel : DbContext
+        {
+            public DbSet<EntityToBeProxied> _entityToBeProxied { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .UseLazyLoadingProxies()
+                    .UseInternalServiceProvider(
+                        new ServiceCollection()
+                            .AddEntityFrameworkInMemoryDatabase()
+                            .AddEntityFrameworkProxies()
+                            .BuildServiceProvider())
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                    ;
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                var generator = new ProxyGenerator();
+                var proxy = generator.CreateClassProxy<EntityToBeProxied>();
+
+                // below should throw
+                modelBuilder.Entity(proxy.GetType());
+            }
         }
     }
 }

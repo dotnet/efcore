@@ -2417,16 +2417,16 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("InvalidLambdaExpressionInsideInclude");
 
         /// <summary>
-        ///     Unable to convert queryable method to enumerable method.
-        /// </summary>
-        public static string CannotConvertQueryableToEnumerableMethod
-            => GetString("CannotConvertQueryableToEnumerableMethod");
-
-        /// <summary>
         ///     Include has been used on non entity queryable.
         /// </summary>
         public static string IncludeOnNonEntity
             => GetString("IncludeOnNonEntity");
+
+        /// <summary>
+        ///     Unable to convert queryable method to enumerable method.
+        /// </summary>
+        public static string CannotConvertQueryableToEnumerableMethod
+            => GetString("CannotConvertQueryableToEnumerableMethod");
 
         /// <summary>
         ///     Invalid type conversion when specifying include.
@@ -2435,13 +2435,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("InvalidTypeConversationWithInclude");
 
         /// <summary>
-        ///      Invalid expression type stored in NavigationMap.
+        ///     Invalid expression type stored in NavigationMap.
         /// </summary>
         public static string InvalidExpressionTypeStoredInNavigationMap
             => GetString("InvalidExpressionTypeStoredInNavigationMap");
 
         /// <summary>
-        ///      The Include path '{navigationName}->{inverseNavigationName}' results in a cycle. Cycles are not allowed in no-tracking queries. Either use a tracking query or remove the cycle.
+        ///     The Include path '{navigationName}-&gt;{inverseNavigationName}' results in a cycle. Cycles are not allowed in no-tracking queries. Either use a tracking query or remove the cycle.
         /// </summary>
         public static string IncludeWithCycle([CanBeNull] object navigationName, [CanBeNull] object inverseNavigationName)
             => string.Format(
@@ -2449,7 +2449,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigationName, inverseNavigationName);
 
         /// <summary>
-        ///      Unhandled method '{methodName}'.
+        ///     Unhandled method '{methodName}'.
         /// </summary>
         public static string UnhandledMethod([CanBeNull] object methodName)
             => string.Format(
@@ -2457,31 +2457,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 methodName);
 
         /// <summary>
-        ///      Runtime parameter extraction lambda must have one QueryContext parameter.
+        ///     Runtime parameter extraction lambda must have one QueryContext parameter.
         /// </summary>
         public static string RuntimeParameterMissingParameter
             => GetString("RuntimeParameterMissingParameter");
 
         /// <summary>
-        ///      Sequence contains no elements.
+        ///     Sequence contains no elements.
         /// </summary>
         public static string SequenceContainsNoElements
             => GetString("SequenceContainsNoElements");
 
         /// <summary>
-        ///      Sequence contains more than one element.
+        ///     Sequence contains more than one element.
         /// </summary>
         public static string SequenceContainsMoreThanOneElement
             => GetString("SequenceContainsMoreThanOneElement");
 
         /// <summary>
-        ///      A tracking query projects owned entity without corresponding owner in result. Owned entities cannot be tracked without their owner. Either include the owner entity in the result or make query non-tracking using AsNoTracking().
+        ///     A tracking query projects owned entity without corresponding owner in result. Owned entities cannot be tracked without their owner. Either include the owner entity in the result or make query non-tracking using AsNoTracking().
         /// </summary>
         public static string OwnedEntitiesCannotBeTrackedWithoutTheirOwner
             => GetString("OwnedEntitiesCannotBeTrackedWithoutTheirOwner");
 
         /// <summary>
-        ///      Calling {visitMethodName} is not allowed. Visit expression manually for relevant part.
+        ///     Calling {visitMethodName} is not allowed. Visit expression manually for relevant part.
         /// </summary>
         public static string VisitIsNotAllowed([CanBeNull] object visitMethodName)
             => string.Format(
@@ -2489,7 +2489,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 visitMethodName);
 
         /// <summary>
-        ///      Called EntityProjectionExpression.{methodName}() with incorrect {interfaceType}. EntityType:{entityType}, {entityValue}
+        ///     Called EntityProjectionExpression.{methodName}() with incorrect {interfaceType}. EntityType:{entityType}, {entityValue}
         /// </summary>
         public static string EntityProjectionExpressionCalledWithIncorrectInterface([CanBeNull] object methodName, [CanBeNull] object interfaceType, [CanBeNull] object entityType, [CanBeNull] object entityValue)
             => string.Format(
@@ -2497,49 +2497,71 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 methodName, interfaceType, entityType, entityValue);
 
         /// <summary>
-        ///      Unsupported Unary operator type specified.
+        ///     Unsupported Unary operator type specified.
         /// </summary>
         public static string UnsupportedUnary
             => GetString("UnsupportedUnary");
 
         /// <summary>
-        ///      Incorrect operatorType for SqlBinaryExpression.
+        ///     Incorrect operatorType for SqlBinaryExpression.
         /// </summary>
         public static string IncorrectOperatorType
             => GetString("IncorrectOperatorType");
 
         /// <summary>
-        ///      Null TypeMapping in Sql Tree.
+        ///     Null TypeMapping in Sql Tree.
         /// </summary>
         public static string NullTypeMappingInSqlTree
             => GetString("NullTypeMappingInSqlTree");
 
         /// <summary>
-        ///      VisitChildren must be overridden in class deriving from SqlExpression.
+        ///     VisitChildren must be overridden in class deriving from SqlExpression.
         /// </summary>
         public static string VisitChildrenMustBeOverridden
             => GetString("VisitChildrenMustBeOverridden");
 
         /// <summary>
-        ///      Unsupported Binary operator type specified.
+        ///     Unsupported Binary operator type specified.
         /// </summary>
         public static string UnsupportedBinaryOperator
             => GetString("UnsupportedBinaryOperator");
 
         /// <summary>
-        ///      EF.Property called with wrong property name.
+        ///     EF.Property called with wrong property name.
         /// </summary>
         public static string EFPropertyCalledWithWrongPropertyName
             => GetString("EFPropertyCalledWithWrongPropertyName");
 
         /// <summary>
-        ///      Invalid {name}: {value}
+        ///     Invalid {state} encountered.
+        /// </summary>
+        public static string InvalidStateEncountered([CanBeNull] object state)
+            => string.Format(
+                GetString("InvalidStateEncountered", nameof(state)),
+                state);
+
+        /// <summary>
+        ///     Cannot apply DefaultIfEmpty after a client-evaluated projection.
+        /// </summary>
+        public static string DefaultIfEmptyAppliedAfterProjection
+            => GetString("DefaultIfEmptyAppliedAfterProjection");
+
+        /// <summary>
+        ///     Invalid {name}: {value}
         /// </summary>
         public static string InvalidSwitch([CanBeNull] object name, [CanBeNull] object value)
             => string.Format(
                 GetString("InvalidSwitch", nameof(name), nameof(value)),
                 name, value);
-        
+
+        /// <summary>
+        ///     Cannot add an entity type with type '{typeName}' to the model builder. It is a dynamically-generated proxy type.
+        /// </summary>
+        public static string AttemptToAddProxyTypeToModelBuilder([CanBeNull] object typeName)
+            => string.Format(
+                GetString("AttemptToAddProxyTypeToModelBuilder", nameof(typeName)),
+                typeName);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
