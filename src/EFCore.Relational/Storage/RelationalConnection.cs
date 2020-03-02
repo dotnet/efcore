@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Data;
 using System.Data.Common;
@@ -14,7 +13,6 @@ using System.Transactions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using IsolationLevel = System.Data.IsolationLevel;
@@ -642,7 +640,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             if (current == null) 
             {
-                var rootTransaction = _ambientTransactions.Any() && _ambientTransactions.TryPeek(out var transaction) ? transaction : null;
+                var rootTransaction = _ambientTransactions.Count > 0 && _ambientTransactions.TryPeek(out var transaction) ? transaction : null;
 
                 if (rootTransaction != null) 
                 {
