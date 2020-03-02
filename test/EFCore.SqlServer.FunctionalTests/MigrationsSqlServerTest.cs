@@ -591,7 +591,7 @@ EXEC sp_dropextendedproperty 'MS_Description', 'SCHEMA', @defaultSchema, 'TABLE'
                     var column = Assert.Single(table.Columns, c => c.Name == "SomeColumn");
                     Assert.False(column.IsNullable);
                     var index = Assert.Single(table.Indexes);
-                    // TODO: This is a scaffolding bug, #19351
+                    // TODO: This is a scaffolding bug, #17083
                     Assert.Equal(2, index.Columns.Count);
                     Assert.Contains(table.Columns.Single(c => c.Name == "SomeColumn"), index.Columns);
                     Assert.Contains(table.Columns.Single(c => c.Name == "SomeOtherColumn"), index.Columns);
@@ -693,7 +693,7 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;");
                 {
                     var table = Assert.Single(model.Tables);
                     var index = Assert.Single(table.Indexes);
-                    // TODO: This is a scaffolding bug, #19351
+                    // TODO: This is a scaffolding bug, #17083
                     Assert.Equal(3, index.Columns.Count);
                     Assert.Contains(table.Columns.Single(c => c.Name == "Name"), index.Columns);
                     Assert.Contains(table.Columns.Single(c => c.Name == "FirstName"), index.Columns);
@@ -951,7 +951,7 @@ ALTER TABLE [People] ALTER COLUMN [FirstName] nvarchar(450) NULL;",
                 {
                     var table = Assert.Single(model.Tables);
                     var index = Assert.Single(table.Indexes);
-                    // TODO: This is a scaffolding bug, #19351
+                    // TODO: This is a scaffolding bug, #17083
                     Assert.Equal(3, index.Columns.Count);
                     Assert.Contains(table.Columns.Single(c => c.Name == "Name"), index.Columns);
                     Assert.Contains(table.Columns.Single(c => c.Name == "FirstName"), index.Columns);
@@ -991,7 +991,7 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
                     var table = Assert.Single(model.Tables);
                     var index = Assert.Single(table.Indexes);
                     Assert.Equal("([Name] IS NOT NULL)", index.Filter);
-                    // TODO: This is a scaffolding bug, #19351
+                    // TODO: This is a scaffolding bug, #17083
                     Assert.Equal(3, index.Columns.Count);
                     Assert.Contains(table.Columns.Single(c => c.Name == "Name"), index.Columns);
                     Assert.Contains(table.Columns.Single(c => c.Name == "FirstName"), index.Columns);
@@ -1031,7 +1031,7 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
                     var table = Assert.Single(model.Tables);
                     var index = Assert.Single(table.Indexes);
                     Assert.True(index.IsUnique);
-                    // TODO: This is a scaffolding bug, #19351
+                    // TODO: This is a scaffolding bug, #17083
                     Assert.Equal(3, index.Columns.Count);
                     Assert.Contains(table.Columns.Single(c => c.Name == "Name"), index.Columns);
                     Assert.Contains(table.Columns.Single(c => c.Name == "FirstName"), index.Columns);
@@ -1073,7 +1073,7 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;",
                     var index = Assert.Single(table.Indexes);
                     Assert.True(index.IsUnique);
                     Assert.Equal("([Name] IS NOT NULL)", index.Filter);
-                    // TODO: This is a scaffolding bug, #19351
+                    // TODO: This is a scaffolding bug, #17083
                     Assert.Equal(3, index.Columns.Count);
                     Assert.Contains(table.Columns.Single(c => c.Name == "Name"), index.Columns);
                     Assert.Contains(table.Columns.Single(c => c.Name == "FirstName"), index.Columns);

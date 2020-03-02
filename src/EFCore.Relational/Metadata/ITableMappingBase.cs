@@ -12,22 +12,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface ITableMappingBase : IAnnotatable
     {
         /// <summary>
-        ///     The mapped entity type.
+        ///     Gets the mapped entity type.
         /// </summary>
         IEntityType EntityType { get; }
 
         /// <summary>
-        ///     The target table-like object.
+        ///     Gets the target table-like object.
         /// </summary>
         ITableBase Table { get; }
 
         /// <summary>
-        ///     The properties mapped to columns on the target table.
+        ///     Gets the properties mapped to columns on the target table.
         /// </summary>
         IEnumerable<IColumnMappingBase> ColumnMappings { get; }
 
         /// <summary>
-        ///     Indicates whether the inherited properties use the same mapping.
+        ///     Gets the value indicating whether the inherited properties use the same mapping.
         /// </summary>
         bool IncludesDerivedTypes { get; }
     }

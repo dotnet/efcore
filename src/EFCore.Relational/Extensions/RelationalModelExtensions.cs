@@ -83,8 +83,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns all the views mapped in the model.
         /// </summary>
-        /// <param name="model"> The model to get the tables for. </param>
-        /// <returns> All the tables mapped in the model. </returns>
+        /// <param name="model"> The model to get the views for. </param>
+        /// <returns> All the views mapped in the model. </returns>
         public static IEnumerable<IView> GetViews([NotNull] this IModel model) =>
             ((IDictionary<(string, string), View>)model[RelationalAnnotationNames.Views])?.Values
                 ?? Enumerable.Empty<IView>();

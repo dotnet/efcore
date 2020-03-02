@@ -798,6 +798,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var canUseDataAnnotations = true;
             var annotations = foreignKey.GetAnnotations().ToList();
 
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ForeignKeyMappings);
+
             var lines = new List<string>
             {
                 $".{nameof(EntityTypeBuilder.HasOne)}("

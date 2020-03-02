@@ -249,7 +249,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 RelationalAnnotationNames.TableColumnMappings,
                 RelationalAnnotationNames.Views,
                 RelationalAnnotationNames.ViewMappings,
-                RelationalAnnotationNames.ViewColumnMappings
+                RelationalAnnotationNames.ViewColumnMappings,
+                RelationalAnnotationNames.ForeignKeyMappings
             };
 
             return items.SelectMany(

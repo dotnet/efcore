@@ -1133,6 +1133,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             var annotations = foreignKey.GetAnnotations().ToList();
 
+            IgnoreAnnotations(
+                annotations,
+                RelationalAnnotationNames.ForeignKeyMappings);
+
             GenerateFluentApiForAnnotation(
                 ref annotations,
                 RelationalAnnotationNames.Name,

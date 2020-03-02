@@ -651,7 +651,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 AssertEqual(initialProperties, derivedDependentEntityType.GetProperties(), new PropertyComparer(false));
                 AssertEqual(initialKeys, derivedDependentEntityType.GetKeys());
                 AssertEqual(initialIndexes, derivedDependentEntityType.GetIndexes());
-                AssertEqual(initialForeignKeys, derivedDependentEntityType.GetForeignKeys());
+                AssertEqual(initialForeignKeys, derivedDependentEntityType.GetForeignKeys(), new ForeignKeyStrictComparer(false));
             }
 
             [ConditionalFact]

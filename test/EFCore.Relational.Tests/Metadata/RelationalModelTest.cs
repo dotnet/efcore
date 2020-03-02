@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -23,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(6, model.GetEntityTypes().Count());
             Assert.Equal(2, model.GetTables().Count());
             Assert.Empty(model.GetViews());
-            Assert.True(model.GetEntityTypes().All(et => et.GetViewMappings() == null));
+            Assert.True(model.GetEntityTypes().All(et => !et.GetViewMappings().Any()));
 
             AssertTables(model);
         }
@@ -36,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(6, model.GetEntityTypes().Count());
             Assert.Equal(2, model.GetViews().Count());
             Assert.Empty(model.GetTables());
-            Assert.True(model.GetEntityTypes().All(et => et.GetTableMappings() == null));
+            Assert.True(model.GetEntityTypes().All(et => !et.GetTableMappings().Any()));
 
             AssertViews(model);
         }
@@ -153,10 +154,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("default_datetime_mapping", orderDateMapping.TypeMapping.StoreType);
             Assert.Same(orderMapping, orderDateMapping.TableMapping);
 
+            var orderFk = orderType.GetForeignKeys().Single();
+            var orderFkConstraint = orderFk.GetConstraintMappings().Single();
+
+            Assert.Equal("FK_Order_Customer_CustomerId", orderFkConstraint.Name);
+            Assert.Equal(nameof(Order.CustomerId), orderFkConstraint.Columns.Single().Name);
+            Assert.Equal(nameof(Customer.Id), orderFkConstraint.PrincipalColumns.Single().Name);
+            Assert.Same(ordersTable, orderFkConstraint.Table);
+            Assert.Equal("Customer", orderFkConstraint.PrincipalTable.Name);
+            Assert.Equal(ReferentialAction.Cascade, orderFkConstraint.OnDeleteAction);
+            Assert.Equal(orderFk, orderFkConstraint.MappedForeignKeys.Single());
+            Assert.Same(orderFkConstraint, ordersTable.ForeignKeyConstraints.Single());
+
             var orderDetailsOwnership = orderType.FindNavigation(nameof(Order.Details)).ForeignKey;
             var orderDetailsType = orderDetailsOwnership.DeclaringEntityType;
             Assert.Same(ordersTable, orderDetailsType.GetTableMappings().Single().Table);
             Assert.Equal(ordersTable.GetReferencingInternalForeignKeys(orderType), ordersTable.GetInternalForeignKeys(orderDetailsType));
+            Assert.Empty(orderDetailsOwnership.GetConstraintMappings());
+            Assert.Empty(orderDetailsType.GetForeignKeys().Where(fk => fk != orderDetailsOwnership));
 
             var orderDetailsDate = orderDetailsType.FindProperty(nameof(OrderDetails.OrderDate));
             Assert.True(orderDetailsDate.IsColumnNullable());
@@ -172,6 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var customerType = model.FindEntityType(typeof(Customer));
             var customerTable = customerType.GetTableMappings().Single().Table;
             Assert.Equal("Customer", customerTable.Name);
+            Assert.Empty(customerTable.ForeignKeyConstraints);
 
             var specialCustomerType = model.FindEntityType(typeof(SpecialCustomer));
             Assert.Same(customerTable, specialCustomerType.GetTableMappings().Single().Table);
@@ -218,8 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 }
             });
 
-            var model = modelBuilder.FinalizeModel();
-            return model;
+            return modelBuilder.FinalizeModel();
         }
 
         protected virtual ModelBuilder CreateConventionModelBuilder() => RelationalTestHelpers.Instance.CreateConventionBuilder();

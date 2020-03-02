@@ -12,7 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class ViewColumnMappingComparer : IEqualityComparer<IViewColumnMapping>, IComparer<IViewColumnMapping>
+    // Sealed for perf
+    public sealed class ViewColumnMappingComparer : IEqualityComparer<IViewColumnMapping>, IComparer<IViewColumnMapping>
     {
         private ViewColumnMappingComparer()
         {
@@ -32,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int Compare(IViewColumnMapping x, IViewColumnMapping y)
+        public int Compare(IViewColumnMapping x, IViewColumnMapping y)
         {
             var result = StringComparer.Ordinal.Compare(x.Property.IsViewColumnNullable(), y.Property.IsViewColumnNullable());
             if (result != 0)
@@ -55,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool Equals(IViewColumnMapping x, IViewColumnMapping y)
+        public bool Equals(IViewColumnMapping x, IViewColumnMapping y)
             => x.Property == y.Property
                 && x.Column == y.Column;
 
@@ -65,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int GetHashCode(IViewColumnMapping obj)
+        public int GetHashCode(IViewColumnMapping obj)
         {
             var hashCode = new HashCode();
             hashCode.Add(obj.Property.Name);

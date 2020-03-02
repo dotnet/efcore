@@ -13,9 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     // Sealed for perf
-    public sealed class ForeignKeyComparer : IEqualityComparer<IForeignKey>, IComparer<IForeignKey>
+    public sealed class ForeignKeyConstraintComparer : IEqualityComparer<IForeignKeyConstraint>, IComparer<IForeignKeyConstraint>
     {
-        private ForeignKeyComparer()
+        private ForeignKeyConstraintComparer()
         {
         }
 
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static readonly ForeignKeyComparer Instance = new ForeignKeyComparer();
+        public static readonly ForeignKeyConstraintComparer Instance = new ForeignKeyConstraintComparer();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,22 +33,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public int Compare(IForeignKey x, IForeignKey y)
+        public int Compare(IForeignKeyConstraint x, IForeignKeyConstraint y)
         {
-            var result = PropertyListComparer.Instance.Compare(x.Properties, y.Properties);
+            var result = ColumnListComparer.Instance.Compare(x.Columns, y.Columns);
             if (result != 0)
             {
                 return result;
             }
 
-            result = PropertyListComparer.Instance.Compare(x.PrincipalKey.Properties, y.PrincipalKey.Properties);
+            result = ColumnListComparer.Instance.Compare(x.PrincipalColumns, y.PrincipalColumns);
             if (result != 0)
             {
                 return result;
             }
 
-            result = EntityTypePathComparer.Instance.Compare(x.PrincipalEntityType, y.PrincipalEntityType);
-            return result != 0 ? result : EntityTypePathComparer.Instance.Compare(x.DeclaringEntityType, y.DeclaringEntityType);
+            result = StringComparer.Ordinal.Compare(x.PrincipalTable.Name, y.PrincipalTable.Name);
+            return result != 0 ? result : StringComparer.Ordinal.Compare(x.Table.Name, y.Table.Name);
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public bool Equals(IForeignKey x, IForeignKey y)
+        public bool Equals(IForeignKeyConstraint x, IForeignKeyConstraint y)
             => Compare(x, y) == 0;
 
         /// <summary>
@@ -66,13 +66,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public int GetHashCode(IForeignKey obj)
+        public int GetHashCode(IForeignKeyConstraint obj)
         {
             var hashCode = new HashCode();
-            hashCode.Add(obj.PrincipalKey.Properties, PropertyListComparer.Instance);
-            hashCode.Add(obj.Properties, PropertyListComparer.Instance);
-            hashCode.Add(obj.PrincipalEntityType, EntityTypePathComparer.Instance);
-            hashCode.Add(obj.DeclaringEntityType, EntityTypePathComparer.Instance);
+            hashCode.Add(obj.Columns, ColumnListComparer.Instance);
+            hashCode.Add(obj.PrincipalColumns, ColumnListComparer.Instance);
+            hashCode.Add(obj.Table.Name);
+            hashCode.Add(obj.PrincipalTable.Name);
             return hashCode.ToHashCode();
         }
     }

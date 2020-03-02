@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IMutableEntityType DeclaringEntityType { get; }
 
         /// <summary>
-        ///     The <see cref="ServiceParameterBinding" /> for this property.
+        ///     Gets or sets <see cref="ServiceParameterBinding" /> for this property.
         /// </summary>
         new ServiceParameterBinding ParameterBinding { get; [param: CanBeNull] set; }
     }

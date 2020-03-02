@@ -2906,7 +2906,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o =>
                 {
                     var fk = o.FindEntityType(typeof(EntityWithTwoProperties)).GetForeignKeys().First();
-                    Assert.Equal(2, fk.GetAnnotations().Count());
+                    Assert.Equal(3, fk.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", fk["AnnotationName"]);
                     Assert.Equal("Constraint", fk["Relational:Name"]);
                 });

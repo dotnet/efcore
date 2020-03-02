@@ -9,12 +9,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IColumnMapping : IColumnMappingBase
     {
         /// <summary>
-        ///     The target column.
+        ///     Gets the target column.
         /// </summary>
         new IColumn Column { get; }
 
         /// <summary>
-        ///     The containing table mapping.
+        ///     Gets the containing table mapping.
         /// </summary>
         new ITableMapping TableMapping { get; }
     }

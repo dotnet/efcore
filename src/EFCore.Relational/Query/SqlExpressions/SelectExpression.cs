@@ -75,7 +75,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 entityType, new FromSqlExpression(
                     sql,
                     arguments,
-                    (entityType.GetViewOrTableMappings()?.Single().Table.Name ?? entityType.ShortName()).Substring(0, 1).ToLower()))
+                    (entityType.GetViewOrTableMappings().SingleOrDefault()?.Table.Name
+                        ?? entityType.ShortName()).Substring(0, 1).ToLower()))
         {
         }
 

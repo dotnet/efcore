@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
@@ -75,5 +76,14 @@ namespace Microsoft.EntityFrameworkCore
         public static ConfigurationSource? GetConstraintNameConfigurationSource([NotNull] this IConventionForeignKey foreignKey)
             => foreignKey.FindAnnotation(RelationalAnnotationNames.Name)
                 ?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Gets the foreign key constraints to which the foreign key is mapped.
+        /// </summary>
+        /// <param name="foreignKey"> The foreign key. </param>
+        /// <returns> The foreign key constraints to which the foreign key is mapped. </returns>
+        public static IEnumerable<IForeignKeyConstraint> GetConstraintMappings([NotNull] this IForeignKey foreignKey) =>
+            (IEnumerable<IForeignKeyConstraint>)foreignKey[RelationalAnnotationNames.ForeignKeyMappings]
+                ?? Enumerable.Empty<IForeignKeyConstraint>();
     }
 }

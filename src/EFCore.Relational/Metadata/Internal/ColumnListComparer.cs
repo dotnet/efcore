@@ -13,9 +13,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     // Sealed for perf
-    public sealed class ForeignKeyComparer : IEqualityComparer<IForeignKey>, IComparer<IForeignKey>
+    public sealed class ColumnListComparer : IComparer<IReadOnlyList<IColumn>>, IEqualityComparer<IReadOnlyList<IColumn>>
     {
-        private ForeignKeyComparer()
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static readonly ColumnListComparer Instance = new ColumnListComparer();
+
+        private ColumnListComparer()
         {
         }
 
@@ -25,30 +33,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static readonly ForeignKeyComparer Instance = new ForeignKeyComparer();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public int Compare(IForeignKey x, IForeignKey y)
+        public int Compare(IReadOnlyList<IColumn> x, IReadOnlyList<IColumn> y)
         {
-            var result = PropertyListComparer.Instance.Compare(x.Properties, y.Properties);
+            var result = x.Count - y.Count;
+
             if (result != 0)
             {
                 return result;
             }
 
-            result = PropertyListComparer.Instance.Compare(x.PrincipalKey.Properties, y.PrincipalKey.Properties);
-            if (result != 0)
+            var index = 0;
+            while ((result == 0)
+                && (index < x.Count))
             {
-                return result;
+                result = StringComparer.Ordinal.Compare(x[index].Name, y[index].Name);
+                index++;
             }
 
-            result = EntityTypePathComparer.Instance.Compare(x.PrincipalEntityType, y.PrincipalEntityType);
-            return result != 0 ? result : EntityTypePathComparer.Instance.Compare(x.DeclaringEntityType, y.DeclaringEntityType);
+            return result;
         }
 
         /// <summary>
@@ -57,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public bool Equals(IForeignKey x, IForeignKey y)
+        public bool Equals(IReadOnlyList<IColumn> x, IReadOnlyList<IColumn> y)
             => Compare(x, y) == 0;
 
         /// <summary>
@@ -66,14 +68,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public int GetHashCode(IForeignKey obj)
+        public int GetHashCode(IReadOnlyList<IColumn> obj)
         {
-            var hashCode = new HashCode();
-            hashCode.Add(obj.PrincipalKey.Properties, PropertyListComparer.Instance);
-            hashCode.Add(obj.Properties, PropertyListComparer.Instance);
-            hashCode.Add(obj.PrincipalEntityType, EntityTypePathComparer.Instance);
-            hashCode.Add(obj.DeclaringEntityType, EntityTypePathComparer.Instance);
-            return hashCode.ToHashCode();
+            var hash = new HashCode();
+            for (var i = 0; i < obj.Count; i++)
+            {
+                hash.Add(obj[i]);
+            }
+
+            return hash.ToHashCode();
         }
     }
 }

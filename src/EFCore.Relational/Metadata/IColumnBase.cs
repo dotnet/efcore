@@ -13,27 +13,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IColumnBase : IAnnotatable
     {
         /// <summary>
-        ///     The column name.
+        ///     Gets the column name.
         /// </summary>
         string Name { get; }
 
         /// <summary>
-        ///     The column type.
+        ///     Gets the column type.
         /// </summary>
         string Type { get; }
 
         /// <summary>
-        ///     Whether the column can contain NULL.
+        ///     Gets the value indicating whether the column can contain NULL.
         /// </summary>
         bool IsNullable { get; }
 
         /// <summary>
-        ///     The containing table-like object.
+        ///     Gets the containing table-like object.
         /// </summary>
         ITableBase Table { get; }
 
         /// <summary>
-        ///     The property mappings.
+        ///     Gets the property mappings.
         /// </summary>
         IEnumerable<IColumnMappingBase> PropertyMappings { get; }
     }

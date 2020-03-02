@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class ColumnMappingComparer : IEqualityComparer<IColumnMapping>, IComparer<IColumnMapping>
+    public sealed class ColumnMappingComparer : IEqualityComparer<IColumnMapping>, IComparer<IColumnMapping>
     {
         private ColumnMappingComparer()
         {
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int Compare(IColumnMapping x, IColumnMapping y)
+        public int Compare(IColumnMapping x, IColumnMapping y)
         {
             var result = StringComparer.Ordinal.Compare(x.Property.IsColumnNullable(), y.Property.IsColumnNullable());
             if (result != 0)
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool Equals(IColumnMapping x, IColumnMapping y)
+        public bool Equals(IColumnMapping x, IColumnMapping y)
             => x.Property == y.Property
                 && x.Column == y.Column;
 
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int GetHashCode(IColumnMapping obj)
+        public int GetHashCode(IColumnMapping obj)
         {
             var hashCode = new HashCode();
             hashCode.Add(obj.Property.Name);

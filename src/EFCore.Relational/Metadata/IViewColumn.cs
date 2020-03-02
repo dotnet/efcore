@@ -11,12 +11,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IViewColumn : IColumnBase
     {
         /// <summary>
-        ///     The containing view.
+        ///     Gets the containing view.
         /// </summary>
         IView View { get; }
 
         /// <summary>
-        ///     The property mappings.
+        ///     Gets the property mappings.
         /// </summary>
         new IEnumerable<IViewColumnMapping> PropertyMappings { get; }
     }

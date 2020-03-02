@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         DeleteBehavior DeleteBehavior { get; }
 
         /// <summary>
-        ///     Gets all skip navigations using this foreign key.
+        ///     Gets the skip navigations using this foreign key.
         /// </summary>
         /// <returns> The skip navigations using this foreign key. </returns>
         IEnumerable<ISkipNavigation> GetReferencingSkipNavigations()

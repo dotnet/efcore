@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Sql = sql;
             _configurationSource = configurationSource;
 
-            var dataDictionary = GetAnnotationsDictionary(EntityType);
+            var dataDictionary = GetConstraintsDictionary(EntityType);
             if (dataDictionary == null)
             {
                 dataDictionary = new Dictionary<string, CheckConstraint>();
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            return GetAnnotationsDictionary(entityType)?.Values ?? Enumerable.Empty<CheckConstraint>();
+            return GetConstraintsDictionary(entityType)?.Values ?? Enumerable.Empty<CheckConstraint>();
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static ICheckConstraint FindCheckConstraint(
             [NotNull] IEntityType entityType, [NotNull] string name)
         {
-            var dataDictionary = GetAnnotationsDictionary(entityType);
+            var dataDictionary = GetConstraintsDictionary(entityType);
 
             if (dataDictionary == null)
             {
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static bool RemoveCheckConstraint(
             [NotNull] IMutableEntityType entityType, [NotNull] string name)
         {
-            var dataDictionary = GetAnnotationsDictionary(entityType);
+            var dataDictionary = GetConstraintsDictionary(entityType);
 
             return dataDictionary?.Remove(name) ?? false;
         }
@@ -145,10 +145,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _configurationSource = configurationSource.Max(_configurationSource);
         }
 
-        private static Dictionary<string, CheckConstraint> GetAnnotationsDictionary(IEntityType entityType)
-        {
-            return (Dictionary<string, CheckConstraint>)entityType[RelationalAnnotationNames.CheckConstraints];
-        }
+        private static Dictionary<string, CheckConstraint> GetConstraintsDictionary(IEntityType entityType)
+            => (Dictionary<string, CheckConstraint>)entityType[RelationalAnnotationNames.CheckConstraints];
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

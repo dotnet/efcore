@@ -190,9 +190,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => ((IEntityType)this).GetDeclaredSkipNavigations().Cast<IMutableSkipNavigation>();
 
         /// <summary>
-        ///     Gets all skip navigation properties on this entity type.
+        ///     Gets the skip navigation properties on this entity type.
         /// </summary>
-        /// <returns> All skip navigation properties on this entity type. </returns>
+        /// <returns> The skip navigation properties on this entity type. </returns>
         new IEnumerable<IMutableSkipNavigation> GetSkipNavigations();
 
         /// <summary>

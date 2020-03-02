@@ -13,42 +13,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface ITableBase : IAnnotatable
     {
         /// <summary>
-        ///     The name of the table in the database.
+        ///     Gets the name of the table in the database.
         /// </summary>
         string Name { get; }
 
         /// <summary>
-        ///     The schema of the table in the database.
+        ///     Gets the schema of the table in the database.
         /// </summary>
         string Schema { get; }
 
         /// <summary>
-        ///     Returns a value indicating whether multiple entity types are sharing the rows in the table.
+        ///     Gets the value indicating whether multiple entity types are sharing the rows in the table.
         /// </summary>
         bool IsSplit { get; }
 
         /// <summary>
-        ///     The entity type mappings.
+        ///     Gets the entity type mappings.
         /// </summary>
         IEnumerable<ITableMappingBase> EntityTypeMappings { get; }
 
         /// <summary>
-        ///     The columns defined for this table.
+        ///     Gets the columns defined for this table.
         /// </summary>
         IEnumerable<IColumnBase> Columns { get; }
 
         /// <summary>
-        ///     Returns the column with a given name. Returns <c>null</c> if no column with the given name is defined.
+        ///     Gets the column with the given name. Returns <c>null</c> if no column with the given name is defined.
         /// </summary>
         IColumnBase FindColumn([NotNull] string name);
 
         /// <summary>
-        ///     Returns the foreign keys for the given entity type that point to other entity types sharing this table.
+        ///     Gets the foreign keys for the given entity type that point to other entity types sharing this table.
         /// </summary>
         IEnumerable<IForeignKey> GetInternalForeignKeys([NotNull] IEntityType entityType);
 
         /// <summary>
-        ///     Returns the foreign keys referencing the given entity type from other entity types sharing this table.
+        ///     Gets the foreign keys referencing the given entity type from other entity types sharing this table.
         /// </summary>
         IEnumerable<IForeignKey> GetReferencingInternalForeignKeys([NotNull] IEntityType entityType);
     }
