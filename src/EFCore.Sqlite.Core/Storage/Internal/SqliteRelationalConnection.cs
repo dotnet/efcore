@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                     });
 
                 sqliteConnection.CreateFunction(
-                    "ef_compare",
+                    name: "ef_compare",
                     (decimal? left, decimal? right) => left.HasValue && right.HasValue
                         ? decimal.Compare(left.Value, right.Value)
                         : default(int?),

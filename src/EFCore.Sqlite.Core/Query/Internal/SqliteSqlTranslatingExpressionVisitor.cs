@@ -232,22 +232,19 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     ?? expression.TypeMapping?.ClrType
                     ?? expression.Type).UnwrapNullableType();
 
-        private static bool AttemptDecimalCompare(SqlBinaryExpression sqlBinary)
-        {
-            return GetProviderType(sqlBinary.Left) == typeof(decimal)
-                && GetProviderType(sqlBinary.Right) == typeof(decimal);
-        }
+        private static bool AttemptDecimalCompare(SqlBinaryExpression sqlBinary) =>
+            GetProviderType(sqlBinary.Left) == typeof(decimal)
+            && GetProviderType(sqlBinary.Right) == typeof(decimal);
 
         private Expression DoDecimalCompare(SqlExpression visitedExpression, ExpressionType op, SqlExpression left, SqlExpression right)
         {
             var actual = SqlExpressionFactory.Function(
                 name: "ef_compare",
-                arguments: new[] { left, right },
+                new[] { left, right },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true, true },
-                visitedExpression.Type,
-                visitedExpression.TypeMapping);
-            var oracle = SqlExpressionFactory.Constant(0);
+                new[] { true, true },
+                typeof(int));
+            var oracle = SqlExpressionFactory.Constant(value: 0);
 
             return op switch
             {
