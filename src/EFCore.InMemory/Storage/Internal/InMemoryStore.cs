@@ -54,9 +54,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             lock (_lock)
             {
                 var entityType = property.DeclaringEntityType;
-                var key = _useNameMatching ? (object)entityType.Name : entityType;
 
-                return EnsureTable(key, entityType).GetIntegerValueGenerator<TProperty>(property);
+                return EnsureTable(entityType).GetIntegerValueGenerator<TProperty>(
+                    property,
+                    entityType.GetDerivedTypesInclusive().Select(type => EnsureTable(type)).ToArray());
             }
         }
 
@@ -170,8 +171,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 
                     Check.DebugAssert(!entityType.IsAbstract(), "entityType is abstract");
 
-                    var key = _useNameMatching ? (object)entityType.Name : entityType;
-                    var table = EnsureTable(key, entityType);
+                    var table = EnsureTable(entityType);
 
                     if (entry.SharedIdentityEntry != null)
                     {
@@ -206,19 +206,29 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         }
 
         // Must be called from inside the lock
-        private IInMemoryTable EnsureTable(object key, IEntityType entityType)
+        private IInMemoryTable EnsureTable(IEntityType entityType)
         {
             if (_tables == null)
             {
                 _tables = CreateTables();
             }
 
-            if (!_tables.TryGetValue(key, out var table))
+            IInMemoryTable baseTable = null;
+
+            var entityTypes = entityType.GetAllBaseTypesInclusive();
+            foreach (var currentEntityType in entityTypes)
             {
-                _tables.Add(key, table = _tableFactory.Create(entityType));
+                var key = _useNameMatching ? (object)currentEntityType.Name : currentEntityType;
+                if (!_tables.TryGetValue(key, out var table))
+                {
+                    _tables.Add(key, table = _tableFactory.Create(currentEntityType, baseTable));
+                }
+
+                baseTable = table;
             }
 
-            return table;
+
+            return _tables[_useNameMatching ? (object)entityType.Name : entityType];
         }
     }
 }
