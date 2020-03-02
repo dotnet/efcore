@@ -12,27 +12,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IDbFunctionParameter
     {
         /// <summary>
-        ///     The <see cref="IDbFunction" /> to which this parameter belongs.
+        ///     Gets the <see cref="IDbFunction" /> to which this parameter belongs.
         /// </summary>
         IDbFunction Function { get; }
 
         /// <summary>
-        ///     The parameter name.
+        ///     Gets the parameter name.
         /// </summary>
         string Name { get; }
 
         /// <summary>
-        ///     The parameter type.
+        ///     Gets the parameter type.
         /// </summary>
         Type ClrType { get; }
 
         /// <summary>
-        ///     The store (database) type of this parameter.
+        ///     Gets the store type of this parameter.
         /// </summary>
         string StoreType { get; }
 
         /// <summary>
-        ///     The <see cref="RelationalTypeMapping" /> for this parameter.
+        ///     Gets the <see cref="RelationalTypeMapping" /> for this parameter.
         /// </summary>
         RelationalTypeMapping TypeMapping { get; }
     }

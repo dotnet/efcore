@@ -278,7 +278,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The table columns to which the property is mapped. </returns>
         public static IEnumerable<IColumnMapping> GetTableColumnMappings([NotNull] this IProperty property) =>
-            (IEnumerable<IColumnMapping>)property[RelationalAnnotationNames.TableColumnMappings];
+            (IEnumerable<IColumnMapping>)property[RelationalAnnotationNames.TableColumnMappings]
+                ?? Enumerable.Empty<IColumnMapping>();
 
         /// <summary>
         ///     Returns the view or table columns to which the property is mapped.
@@ -286,7 +287,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The view or table columns to which the property is mapped. </returns>
         public static IEnumerable<IColumnMappingBase> GetViewOrTableColumnMappings([NotNull] this IProperty property) =>
-            (IEnumerable<IColumnMappingBase>)GetViewColumnMappings(property) ?? GetTableColumnMappings(property);
+            (IEnumerable<IColumnMappingBase>)(property[RelationalAnnotationNames.ViewColumnMappings]
+                ?? property[RelationalAnnotationNames.TableColumnMappings])
+                ?? Enumerable.Empty<IColumnMappingBase>();
 
         /// <summary>
         ///     Returns the view columns to which the property is mapped.
@@ -294,7 +297,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The view columns to which the property is mapped. </returns>
         public static IEnumerable<IViewColumnMapping> GetViewColumnMappings([NotNull] this IProperty property) =>
-            (IEnumerable<IViewColumnMapping>)property[RelationalAnnotationNames.ViewColumnMappings];
+            (IEnumerable<IViewColumnMapping>)property[RelationalAnnotationNames.ViewColumnMappings]
+                ?? Enumerable.Empty<IViewColumnMapping>();
 
         /// <summary>
         ///     Returns the SQL expression that is used as the default value for the column this property is mapped to.

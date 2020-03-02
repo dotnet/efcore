@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         string Name { get; }
 
         /// <summary>
-        ///     The <see cref="IEntityType" /> in which this check constraint is defined.
+        ///     Gets the <see cref="IEntityType" /> in which this check constraint is defined.
         /// </summary>
         IEntityType EntityType { get; }
 

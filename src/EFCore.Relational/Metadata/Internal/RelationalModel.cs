@@ -1,9 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -139,6 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 foreach (var table in tables.Values)
                 {
+                    PopulateForeignKeyConstraints(table);
                     PopulateInternalForeignKeys(table);
                 }
 
@@ -156,6 +160,118 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return model;
+        }
+
+        private static void PopulateForeignKeyConstraints(Table table)
+        {
+            foreach (var entityTypeMapping in ((ITable)table).EntityTypeMappings)
+            {
+                var entityType = entityTypeMapping.EntityType;
+                foreach (IConventionForeignKey foreignKey in entityType.GetForeignKeys())
+                {
+                    var principalMappings = foreignKey.PrincipalEntityType.GetTableMappings();
+                    if (principalMappings == null)
+                    {
+                        continue;
+                    }
+
+                    var name = foreignKey.GetConstraintName();
+                    var foreignKeyConstraints = foreignKey[RelationalAnnotationNames.ForeignKeyMappings] as SortedSet<ForeignKeyConstraint>;
+                    if (table.ForeignKeyConstraints.TryGetValue(name, out var constraint))
+                    {
+                        if (foreignKeyConstraints == null)
+                        {
+                            foreignKeyConstraints = new SortedSet<ForeignKeyConstraint>(ForeignKeyConstraintComparer.Instance);
+                            foreignKey.SetOrRemoveAnnotation(RelationalAnnotationNames.ForeignKeyMappings, foreignKeyConstraints);
+                        }
+
+                        foreignKeyConstraints.Add(constraint);
+
+                        constraint.ForeignKeyMappings.Add(foreignKey);
+                        continue;
+                    }
+
+                    var principalColumns = new Column[foreignKey.Properties.Count];
+                    Table principalTable = null;
+                    for (var i = 0; i < principalColumns.Length; i++)
+                    {
+                        var property = foreignKey.PrincipalKey.Properties[i];
+                        foreach (var columnMapping in property.GetTableColumnMappings())
+                        {
+                            if (principalColumns[i] != null
+                                && principalColumns[i] != columnMapping.Column)
+                            {
+                                // Principal property is mapped to multiple columns, so the constraint is not enforceable
+                                principalColumns[i] = null;
+                                break;
+                            }
+
+                            principalColumns[i] = (Column)columnMapping.Column;
+                        }
+
+                        if (principalColumns[i] == null)
+                        {
+                            principalColumns = null;
+                            break;
+                        }
+
+                        if (principalTable == null)
+                        {
+                            principalTable = (Table)principalColumns[i].Table;
+                        }
+                        else if (principalTable != principalColumns[i].Table)
+                        {
+                            // Principal properties are mapped to several tables, so the constraint is not enforceable
+                            principalColumns = null;
+                        }
+                    }
+
+                    if (principalColumns == null)
+                    {
+                        continue;
+                    }
+
+                    var columns = new Column[foreignKey.Properties.Count];
+                    for (var i = 0; i < columns.Length; i++)
+                    {
+                        var property = foreignKey.Properties[i];
+                        foreach (var columnMapping in property.GetTableColumnMappings())
+                        {
+                            if (columnMapping.TableMapping.Table == table)
+                            {
+                                columns[i] = (Column)columnMapping.Column;
+                                break;
+                            }
+                        }
+
+                        if (columns[i] == null)
+                        {
+                            columns = null;
+                            break;
+                        }
+                    }
+
+                    if (columns == null
+                        || StructuralComparisons.StructuralEqualityComparer.Equals(columns, principalColumns))
+                    {
+                        continue;
+                    }
+
+                    constraint = new ForeignKeyConstraint(
+                        name, table, principalTable, columns, principalColumns, ToReferentialAction(foreignKey.DeleteBehavior));
+                    constraint.ForeignKeyMappings.Add(foreignKey);
+
+                    if (foreignKeyConstraints == null)
+                    {
+                        foreignKeyConstraints = new SortedSet<ForeignKeyConstraint>(ForeignKeyConstraintComparer.Instance);
+                        foreignKey.SetOrRemoveAnnotation(RelationalAnnotationNames.ForeignKeyMappings, foreignKeyConstraints);
+                    }
+
+                    foreignKeyConstraints.Add(constraint);
+
+                    table.ForeignKeyConstraints.Add(name, constraint);
+                }
+            }
         }
 
         private static void PopulateInternalForeignKeys(TableBase table)
@@ -223,6 +339,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (referencingInternalForeignKeyMap != null)
             {
                 table.ReferencingInternalForeignKeys = referencingInternalForeignKeyMap;
+            }
+        }
+
+        private static ReferentialAction ToReferentialAction(DeleteBehavior deleteBehavior)
+        {
+            switch (deleteBehavior)
+            {
+                case DeleteBehavior.SetNull:
+                    return ReferentialAction.SetNull;
+                case DeleteBehavior.Cascade:
+                    return ReferentialAction.Cascade;
+                case DeleteBehavior.NoAction:
+                case DeleteBehavior.ClientNoAction:
+                case DeleteBehavior.ClientSetNull:
+                case DeleteBehavior.ClientCascade:
+                    return ReferentialAction.NoAction;
+                case DeleteBehavior.Restrict:
+                    return ReferentialAction.Restrict;
+                default:
+                    throw new NotImplementedException(deleteBehavior.ToString());
             }
         }
     }

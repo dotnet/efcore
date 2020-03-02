@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -232,6 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     && a != RelationalAnnotationNames.Views
                     && a != RelationalAnnotationNames.ViewMappings
                     && a != RelationalAnnotationNames.ViewColumnMappings
+                    && a != RelationalAnnotationNames.ForeignKeyMappings
 #pragma warning disable CS0618 // Type or member is obsolete
                     && a != RelationalAnnotationNames.SequencePrefix))
 #pragma warning restore CS0618 // Type or member is obsolete

@@ -11,12 +11,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IColumn : IColumnBase
     {
         /// <summary>
-        ///     The containing table.
+        ///     Gets the containing table.
         /// </summary>
         new ITable Table { get; }
 
         /// <summary>
-        ///     The property mappings.
+        ///     Gets the property mappings.
         /// </summary>
         new IEnumerable<IColumnMapping> PropertyMappings { get; }
     }

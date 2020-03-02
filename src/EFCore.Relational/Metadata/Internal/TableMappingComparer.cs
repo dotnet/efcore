@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class TableMappingComparer : IEqualityComparer<ITableMapping>, IComparer<ITableMapping>
+    // Sealed for perf
+    public sealed class TableMappingComparer : IEqualityComparer<ITableMapping>, IComparer<ITableMapping>
     {
         private TableMappingComparer()
         {
@@ -34,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int Compare(ITableMapping x, ITableMapping y)
+        public int Compare(ITableMapping x, ITableMapping y)
         {
             var result = EntityTypePathComparer.Instance.Compare(x.EntityType, y.EntityType);
             if (result != 0)
@@ -76,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool Equals(ITableMapping x, ITableMapping y)
+        public bool Equals(ITableMapping x, ITableMapping y)
             => x.EntityType == y.EntityType
                 && x.Table == y.Table
                 && x.IncludesDerivedTypes == y.IncludesDerivedTypes
@@ -88,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int GetHashCode(ITableMapping obj)
+        public int GetHashCode(ITableMapping obj)
         {
             var hashCode = new HashCode();
             hashCode.Add(obj.EntityType, EntityTypePathComparer.Instance);

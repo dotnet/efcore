@@ -12,22 +12,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IView : ITableBase
     {
         /// <summary>
-        ///     The entity type mappings.
+        ///     Gets the entity type mappings.
         /// </summary>
         new IEnumerable<IViewMapping> EntityTypeMappings { get; }
 
         /// <summary>
-        ///     The columns defined for this view.
+        ///     Gets the columns defined for this view.
         /// </summary>
         new IEnumerable<IViewColumn> Columns { get; }
 
         /// <summary>
-        ///     Returns the column with a given name. Returns <c>null</c> if no column with the given name is defined.
+        ///     Gets the column with the given name. Returns <c>null</c> if no column with the given name is defined.
         /// </summary>
         new IViewColumn FindColumn([NotNull] string name);
 
         /// <summary>
-        ///     The view definition or <c>null</c> if this view is not managed by migrations.
+        ///     Gets the view definition or <c>null</c> if this view is not managed by migrations.
         /// </summary>
         public string ViewDefinition { get; }
     }

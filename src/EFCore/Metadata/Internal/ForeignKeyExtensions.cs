@@ -314,6 +314,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append(" ToPrincipal: ").Append(foreignKey.DependentToPrincipal.Name);
             }
 
+            if (foreignKey.DeleteBehavior != DeleteBehavior.NoAction)
+            {
+                builder
+                    .Append(" ")
+                    .Append(foreignKey.DeleteBehavior);
+            }
+
             if (!singleLine &&
                 (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
             {

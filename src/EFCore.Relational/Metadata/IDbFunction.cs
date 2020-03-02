@@ -15,52 +15,52 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IDbFunction
     {
         /// <summary>
-        ///     The name of the function in the database.
+        ///     Gets the name of the function in the database.
         /// </summary>
         string Name { get; }
 
         /// <summary>
-        ///     The schema of the function in the database.
+        ///     Gets the schema of the function in the database.
         /// </summary>
         string Schema { get; }
 
         /// <summary>
-        ///     The name of the function in the model.
+        ///     Gets the name of the function in the model.
         /// </summary>
         string ModelName { get; }
 
         /// <summary>
-        ///     The <see cref="IModel" /> in which this function is defined.
+        ///     Gets the <see cref="IModel" /> in which this function is defined.
         /// </summary>
         IModel Model { get; }
 
         /// <summary>
-        ///     The CLR method which maps to the function in the database.
+        ///     Gets the CLR method which maps to the function in the database.
         /// </summary>
         MethodInfo MethodInfo { get; }
 
         /// <summary>
-        ///     Whether this method returns IQueryable
+        ///     Gets the value indicating whether this method returns IQueryable
         /// </summary>
         bool IsIQueryable { get; }
 
         /// <summary>
-        ///     The configured store type string
+        ///     Gets the configured store type string
         /// </summary>
         string StoreType { get; }
 
         /// <summary>
-        ///     The type mapping for the function's return type
+        ///     Gets the type mapping for the function's return type
         /// </summary>
         RelationalTypeMapping TypeMapping { get; }
 
         /// <summary>
-        ///     The parameters for this function
+        ///     Gets the parameters for this function
         /// </summary>
         IReadOnlyList<IDbFunctionParameter> Parameters { get; }
 
         /// <summary>
-        ///     A translation callback for performing custom translation of the method call into a SQL expression fragment.
+        ///     Gets the translation callback for performing custom translation of the method call into a SQL expression fragment.
         /// </summary>
         Func<IReadOnlyCollection<SqlExpression>, SqlExpression> Translation { get; }
     }

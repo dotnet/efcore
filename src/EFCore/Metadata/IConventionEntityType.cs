@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IConventionEntityType : IEntityType, IConventionTypeBase
     {
         /// <summary>
-        ///     Returns the configuration source for this entity type.
+        ///     Gets the configuration source for this entity type.
         /// </summary>
         /// <returns> The configuration source. </returns>
         ConfigurationSource GetConfigurationSource();
@@ -227,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     <para>
-        ///         Gets all skip navigation properties declared on this entity type.
+        ///         Gets the skip navigation properties declared on this entity type.
         ///     </para>
         ///     <para>
         ///         This method does not return skip navigation properties declared declared on base types.

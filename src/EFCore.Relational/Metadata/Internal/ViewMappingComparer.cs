@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class ViewMappingComparer : IEqualityComparer<IViewMapping>, IComparer<IViewMapping>
+    // Sealed for perf
+    public sealed class ViewMappingComparer : IEqualityComparer<IViewMapping>, IComparer<IViewMapping>
     {
         private ViewMappingComparer()
         {
@@ -34,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int Compare(IViewMapping x, IViewMapping y)
+        public int Compare(IViewMapping x, IViewMapping y)
         {
             var result = EntityTypePathComparer.Instance.Compare(x.EntityType, y.EntityType);
             if (result != 0)
@@ -76,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool Equals(IViewMapping x, IViewMapping y)
+        public bool Equals(IViewMapping x, IViewMapping y)
             => x.EntityType == y.EntityType
                 && x.View == y.View
                 && x.IncludesDerivedTypes == y.IncludesDerivedTypes
@@ -88,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int GetHashCode(IViewMapping obj)
+        public int GetHashCode(IViewMapping obj)
         {
             var hashCode = new HashCode();
             hashCode.Add(obj.EntityType, EntityTypePathComparer.Instance);

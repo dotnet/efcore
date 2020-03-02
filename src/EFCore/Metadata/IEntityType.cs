@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => GetSkipNavigations().Where(n => n.DeclaringEntityType == this);
 
         /// <summary>
-        ///     Gets all skip navigation properties on this entity type.
+        ///     Gets the skip navigation properties on this entity type.
         /// </summary>
         /// <returns> All skip navigation properties on this entity type. </returns>
         IEnumerable<ISkipNavigation> GetSkipNavigations();

@@ -16,32 +16,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IMutableDbFunction : IDbFunction
     {
         /// <summary>
-        ///     The name of the function in the database.
+        ///     Gets or sets the name of the function in the database.
         /// </summary>
         new string Name { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     The schema of the function in the database.
+        ///     Gets or sets the schema of the function in the database.
         /// </summary>
         new string Schema { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     The store type of the function in the database.
+        ///     Gets or sets the store type of the function in the database.
         /// </summary>
         new string StoreType { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     The type mapping of the function in the database.
+        ///     Gets or sets the type mapping of the function in the database.
         /// </summary>
         new RelationalTypeMapping TypeMapping { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     The <see cref="IMutableModel" /> in which this function is defined.
+        ///     Gets the <see cref="IMutableModel" /> in which this function is defined.
         /// </summary>
         new IMutableModel Model { get; }
 
         /// <summary>
-        ///     A translation callback for performing custom translation of the method call into a SQL expression fragment.
+        ///     Gets or sets the translation callback for performing custom translation of the method call into a SQL expression fragment.
         /// </summary>
         new Func<IReadOnlyCollection<SqlExpression>, SqlExpression> Translation { get; [param: CanBeNull] set; }
     }
