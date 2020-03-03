@@ -918,6 +918,23 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
                     return true;
                 }
+                case ExpressionType.Add:
+                {
+                    var binaryExpression = (BinaryExpression)expression;
+                    if (!HandleExpression(binaryExpression.Left, builder))
+                    {
+                        return false;
+                    }
+
+                    builder.Append(" + ");
+
+                    if (!HandleExpression(binaryExpression.Right, builder))
+                    {
+                        return false;
+                    }
+
+                    return true;
+                }
             }
 
             return false;
