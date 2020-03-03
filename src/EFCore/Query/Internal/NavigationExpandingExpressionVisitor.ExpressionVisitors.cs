@@ -177,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return ownedExpansion;
                 }
 
-                var innerQueryable = NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(targetType);
+                var innerQueryable = new QueryRootExpression(targetType);
                 var innerSource = (NavigationExpansionExpression)_navigationExpandingExpressionVisitor.Visit(innerQueryable);
                 if (entityReference.IncludePaths.ContainsKey(navigation))
                 {

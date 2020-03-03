@@ -1164,7 +1164,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         // entity information through. Construct a MethodCall wrapper for the predicate with the proper query root.
                         var filterWrapper = Expression.Call(
                             QueryableMethods.Where.MakeGenericMethod(rootEntityType.ClrType),
-                            NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(rootEntityType),
+                            new QueryRootExpression(rootEntityType),
                             filterPredicate);
                         var rewrittenFilterWrapper = (MethodCallExpression)_entityEqualityRewritingExpressionVisitor.Rewrite(filterWrapper);
                         filterPredicate = rewrittenFilterWrapper.Arguments[1].UnwrapLambdaFromQuote();
