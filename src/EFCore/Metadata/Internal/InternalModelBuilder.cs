@@ -21,8 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public class InternalModelBuilder : InternalAnnotatableBuilder<Model>, IConventionModelBuilder
     {
-        private const string DynamicProxyGenAssemblyName = "DynamicProxyGenAssembly2";
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -65,13 +63,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private InternalEntityTypeBuilder Entity(
             in TypeIdentity type, ConfigurationSource configurationSource, bool? shouldBeOwned)
         {
-            if (DynamicProxyGenAssemblyName.Equals(
-                type.Type?.Assembly.GetName().Name, StringComparison.Ordinal))
-            {
-                throw new InvalidOperationException(
-                CoreStrings.AttemptToAddProxyTypeToModelBuilder(type.Type.FullName));
-            }
-
             if (IsIgnored(type, configurationSource))
             {
                 return null;
@@ -159,13 +150,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             EntityType definingEntityType,
             ConfigurationSource configurationSource)
         {
-            if (DynamicProxyGenAssemblyName.Equals(
-                type.Type?.Assembly.GetName().Name, StringComparison.Ordinal))
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.AttemptToAddProxyTypeToModelBuilder(type.Type.FullName));
-            }
-
             if (IsIgnored(type, configurationSource))
             {
                 return null;

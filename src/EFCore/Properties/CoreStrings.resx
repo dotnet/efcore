@@ -1354,7 +1354,7 @@
   <data name="InvalidSwitch" xml:space="preserve">
     <value>Invalid {name}: {value}</value>
   </data>
-  <data name="AttemptToAddProxyTypeToModelBuilder" xml:space="preserve">
-    <value>Cannot add an entity type with type '{typeName}' to the model builder. It is a dynamically-generated proxy type.</value>
+  <data name="AttemptToCreateEntityTypeBasedOnProxyClass" xml:space="preserve">
+    <value>Cannot add an entity type with type '{typeName}'. That type is a dynamically-generated proxy type.</value>
   </data>
 </root>

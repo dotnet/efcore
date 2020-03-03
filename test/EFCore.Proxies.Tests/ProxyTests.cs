@@ -7,6 +7,8 @@ using Castle.DynamicProxy;
 using Castle.DynamicProxy.Generators;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -219,17 +221,30 @@ namespace Microsoft.EntityFrameworkCore
                     () => context.CreateProxy<RedBullRb3>()).Message);
         }
 
+        [ConditionalFact]
+        public void Throws_if_attempt_to_create_EntityType_based_on_proxy_class()
+        {
+            var model = new Model();
+            var generator = new ProxyGenerator();
+            var proxy = generator.CreateClassProxy<ClassToBeProxied>();
+
+            Assert.Equal(
+                CoreStrings.AttemptToCreateEntityTypeBasedOnProxyClass("Castle.Proxies.ClassToBeProxiedProxy"),
+                Assert.Throws<ArgumentException>(
+                    () => new EntityType(proxy.GetType(), model, ConfigurationSource.Explicit)).Message);
+        }
+
         // tests scenario in https://github.com/dotnet/efcore/issues/15958
         [ConditionalFact]
         public void Throws_if_attempt_to_add_proxy_type_to_model_builder()
         {
             Assert.Equal(
-                CoreStrings.AttemptToAddProxyTypeToModelBuilder("Castle.Proxies.EntityToBeProxiedProxy"),
-                Assert.Throws<InvalidOperationException>(
+                CoreStrings.AttemptToCreateEntityTypeBasedOnProxyClass("Castle.Proxies.ClassToBeProxiedProxy"),
+                Assert.Throws<ArgumentException>(
                     () =>
                     {
                         var context = new CannotAddProxyTypeToModel();
-                        context.Set<EntityToBeProxied>().Add( new EntityToBeProxied { Id = 0 } );
+                        context.Set<ClassToBeProxied>().Add( new ClassToBeProxied { Id = 0 } );
                     }).Message);
         }
 
@@ -404,14 +419,14 @@ namespace Microsoft.EntityFrameworkCore
                 => modelBuilder.Entity<March82GGtp>();
         }
 
-        public class EntityToBeProxied
+        public class ClassToBeProxied
         {
             public virtual int Id { get; set; }
         }
 
         private class CannotAddProxyTypeToModel : DbContext
         {
-            public DbSet<EntityToBeProxied> _entityToBeProxied { get; set; }
+            public DbSet<ClassToBeProxied> _entityToBeProxied { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
@@ -429,7 +444,7 @@ namespace Microsoft.EntityFrameworkCore
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 var generator = new ProxyGenerator();
-                var proxy = generator.CreateClassProxy<EntityToBeProxied>();
+                var proxy = generator.CreateClassProxy<ClassToBeProxied>();
 
                 // below should throw
                 modelBuilder.Entity(proxy.GetType());

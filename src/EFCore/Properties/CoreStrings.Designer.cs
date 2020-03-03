@@ -2555,11 +2555,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 name, value);
 
         /// <summary>
-        ///     Cannot add an entity type with type '{typeName}' to the model builder. It is a dynamically-generated proxy type.
+        ///     Cannot add an entity type with type '{typeName}'. That type is a dynamically-generated proxy type.
         /// </summary>
-        public static string AttemptToAddProxyTypeToModelBuilder([CanBeNull] object typeName)
+        public static string AttemptToCreateEntityTypeBasedOnProxyClass([CanBeNull] object typeName)
             => string.Format(
-                GetString("AttemptToAddProxyTypeToModelBuilder", nameof(typeName)),
+                GetString("AttemptToCreateEntityTypeBasedOnProxyClass", nameof(typeName)),
                 typeName);
 
         private static string GetString(string name, params string[] formatterNames)
