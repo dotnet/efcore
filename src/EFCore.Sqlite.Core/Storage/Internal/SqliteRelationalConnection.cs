@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -92,7 +93,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// </summary>
         public virtual ISqliteRelationalConnection CreateReadOnlyConnection()
         {
-            var connectionStringBuilder = new SqliteConnectionStringBuilder(GetCheckedConnectionString()) { Mode = SqliteOpenMode.ReadOnly };
+            var connectionStringBuilder =
+                new SqliteConnectionStringBuilder(GetCheckedConnectionString()) { Mode = SqliteOpenMode.ReadOnly };
 
             var contextOptions = new DbContextOptionsBuilder().UseSqlite(connectionStringBuilder.ToString()).Options;
 
@@ -117,19 +119,28 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                     "ef_mod",
                     (dividend, divisor) =>
                     {
-                        if (dividend == null || divisor == null)
+                        if (dividend == null
+                            || divisor == null)
                         {
                             return null;
                         }
+
                         if (dividend is string s)
                         {
-                            return decimal.Parse(s, CultureInfo.InvariantCulture) %
-                                Convert.ToDecimal(divisor, CultureInfo.InvariantCulture);
+                            return decimal.Parse(s, CultureInfo.InvariantCulture)
+                                % Convert.ToDecimal(divisor, CultureInfo.InvariantCulture);
                         }
 
-                        return Convert.ToDouble(dividend, CultureInfo.InvariantCulture) %
-                            Convert.ToDouble(divisor, CultureInfo.InvariantCulture);
+                        return Convert.ToDouble(dividend, CultureInfo.InvariantCulture)
+                            % Convert.ToDouble(divisor, CultureInfo.InvariantCulture);
                     });
+
+                sqliteConnection.CreateFunction(
+                    name: "ef_compare",
+                    (decimal? left, decimal? right) => left.HasValue && right.HasValue
+                        ? decimal.Compare(left.Value, right.Value)
+                        : default(int?),
+                    isDeterministic: true);
             }
             else
             {

@@ -34,35 +34,28 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 [ExpressionType.GreaterThan] = new HashSet<Type>
                 {
                     typeof(DateTimeOffset),
-                    typeof(decimal),
                     typeof(TimeSpan),
                     typeof(ulong)
                 },
                 [ExpressionType.GreaterThanOrEqual] = new HashSet<Type>
                 {
                     typeof(DateTimeOffset),
-                    typeof(decimal),
                     typeof(TimeSpan),
                     typeof(ulong)
                 },
                 [ExpressionType.LessThan] = new HashSet<Type>
                 {
                     typeof(DateTimeOffset),
-                    typeof(decimal),
                     typeof(TimeSpan),
                     typeof(ulong)
                 },
                 [ExpressionType.LessThanOrEqual] = new HashSet<Type>
                 {
                     typeof(DateTimeOffset),
-                    typeof(decimal),
                     typeof(TimeSpan),
                     typeof(ulong)
                 },
-                [ExpressionType.Modulo] = new HashSet<Type>
-                {
-                    typeof(ulong)
-                },
+                [ExpressionType.Modulo] = new HashSet<Type> { typeof(ulong) },
                 [ExpressionType.Multiply] = new HashSet<Type>
                 {
                     typeof(decimal),
@@ -98,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             Check.NotNull(unaryExpression, nameof(unaryExpression));
 
             if (unaryExpression.NodeType == ExpressionType.ArrayLength
-                 && unaryExpression.Operand.Type == typeof(byte[]))
+                && unaryExpression.Operand.Type == typeof(byte[]))
             {
                 return base.Visit(unaryExpression.Operand) is SqlExpression sqlExpression
                     ? SqlExpressionFactory.Function(
@@ -154,6 +147,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                         argumentsPropagateNullability: new[] { true, true },
                         visitedExpression.Type,
                         visitedExpression.TypeMapping);
+                }
+
+                if (AttemptDecimalCompare(sqlBinary))
+                {
+                    return DoDecimalCompare(visitedExpression, sqlBinary.OperatorType, sqlBinary.Left, sqlBinary.Right);
                 }
 
                 if (_restrictedBinaryExpressions.TryGetValue(sqlBinary.OperatorType, out var restrictedTypes)
@@ -233,5 +231,33 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 : (expression.TypeMapping?.Converter?.ProviderClrType
                     ?? expression.TypeMapping?.ClrType
                     ?? expression.Type).UnwrapNullableType();
+
+        private static bool AttemptDecimalCompare(SqlBinaryExpression sqlBinary) =>
+            GetProviderType(sqlBinary.Left) == typeof(decimal)
+            && GetProviderType(sqlBinary.Right) == typeof(decimal)
+            && new[]
+            {
+                ExpressionType.GreaterThan, ExpressionType.GreaterThanOrEqual, ExpressionType.LessThan, ExpressionType.LessThanOrEqual
+            }.Contains(sqlBinary.OperatorType);
+
+        private Expression DoDecimalCompare(SqlExpression visitedExpression, ExpressionType op, SqlExpression left, SqlExpression right)
+        {
+            var actual = SqlExpressionFactory.Function(
+                name: "ef_compare",
+                new[] { left, right },
+                nullable: true,
+                new[] { true, true },
+                typeof(int));
+            var oracle = SqlExpressionFactory.Constant(value: 0);
+
+            return op switch
+            {
+                ExpressionType.GreaterThan => SqlExpressionFactory.GreaterThan(left: actual, right: oracle),
+                ExpressionType.GreaterThanOrEqual => SqlExpressionFactory.GreaterThanOrEqual(left: actual, right: oracle),
+                ExpressionType.LessThan => SqlExpressionFactory.LessThan(left: actual, right: oracle),
+                ExpressionType.LessThanOrEqual => SqlExpressionFactory.LessThanOrEqual(left: actual, right: oracle),
+                _ => visitedExpression
+            };
+        }
     }
 }
