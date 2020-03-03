@@ -28,7 +28,7 @@ namespace Microsoft.Data.Sqlite
 
         private readonly List<sqlite3_stmt> _preparedStatements = new List<sqlite3_stmt>();
         private SqliteConnection _connection;
-        private string _commandText;
+        private string _commandText = string.Empty;
         private bool _prepared;
 
         /// <summary>
