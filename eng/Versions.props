@@ -18,7 +18,7 @@
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from nuget.org">
     <CastleCorePackageVersion>4.4.0</CastleCorePackageVersion>
-    <MicrosoftAzureCosmosPackageVersion>3.6.0</MicrosoftAzureCosmosPackageVersion>
+    <MicrosoftAzureCosmosPackageVersion>3.7.0-preview</MicrosoftAzureCosmosPackageVersion>
     <MicrosoftCodeAnalysisCSharpPackageVersion>3.3.1</MicrosoftCodeAnalysisCSharpPackageVersion>
     <MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>3.3.1</MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>
     <mod_spatialitePackageVersion>4.3.0.1</mod_spatialitePackageVersion>
