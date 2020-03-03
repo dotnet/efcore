@@ -7,7 +7,6 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -26,10 +25,19 @@ namespace Microsoft.EntityFrameworkCore.Query
             _type = typeof(IQueryable<>).MakeGenericType(entityType.ClrType);
         }
 
+        public QueryRootExpression([NotNull] IEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            EntityType = entityType;
+            QueryProvider = null;
+            _type = typeof(IQueryable<>).MakeGenericType(entityType.ClrType);
+        }
+
         public virtual IAsyncQueryProvider QueryProvider { get; }
         public virtual IEntityType EntityType { get; }
 
-        public virtual Expression DetachQueryProvider() => new QueryRootExpression(NullAsyncQueryProvider.Instance, EntityType);
+        public virtual Expression DetachQueryProvider() => new QueryRootExpression(EntityType);
         public override ExpressionType NodeType => ExpressionType.Extension;
         public override Type Type => _type;
         public override bool CanReduce => false;
