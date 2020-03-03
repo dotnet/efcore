@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -87,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     && memberExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>)
                     && _model != null)
                 {
-                    return NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(FindEntityType(memberExpression.Type));
+                    return new QueryRootExpression(FindEntityType(memberExpression.Type));
                 }
 
                 return base.VisitMember(memberExpression);
@@ -104,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     && methodCallExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>)
                     && _model != null)
                 {
-                    return NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(FindEntityType(methodCallExpression.Type));
+                    return new QueryRootExpression(FindEntityType(methodCallExpression.Type));
                 }
 
                 return base.VisitMethodCall(methodCallExpression);
