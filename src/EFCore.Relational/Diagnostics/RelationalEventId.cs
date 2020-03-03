@@ -72,6 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             QueryPossibleUnintendedUseOfEqualsWarning,
             QueryPossibleExceptionWithAggregateOperatorWarning,
             ValueConversionSqlLiteralWarning, // This warning has been removed.
+            TooManyIncludesWarning,
 
             // Model validation events
             ModelValidationKeyDefaultValueWarning = CoreEventId.RelationalBaseId + 600,
@@ -535,6 +536,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static readonly EventId QueryPossibleExceptionWithAggregateOperatorWarning =
             MakeQueryId(Id.QueryPossibleExceptionWithAggregateOperatorWarning);
+
+        /// <summary>
+        ///     <para>
+        ///         A query is using `Include` for more than one collection navigation property.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="QueryExpressionEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId TooManyIncludesWarning = MakeQueryId(Id.TooManyIncludesWarning);
 
         private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
         private static EventId MakeValidationId(Id id) => new EventId((int)id, _validationPrefix + id);

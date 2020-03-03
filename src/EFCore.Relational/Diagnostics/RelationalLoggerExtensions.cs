@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Update;
@@ -3699,6 +3700,47 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             return d.GenerateMessage(
                 p.Property.Name,
                 p.Property.DeclaringEntityType.DisplayName());
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.TooManyIncludesWarning" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="expressionPrinter"> Used to create a human-readable representation of the expression tree. </param>
+        /// <param name="queryExpression"> The query expression tree. </param>
+        public static void TooManyIncludesWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+            [NotNull] ExpressionPrinter expressionPrinter,
+            [NotNull] Expression queryExpression)
+        {
+            var definition = RelationalResources.LogTooManyIncludesWarning(diagnostics);
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    expressionPrinter.Print(queryExpression));
+            }
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new QueryExpressionEventData(
+                        definition,
+                        TooManyIncludesWarning,
+                        queryExpression,
+                        expressionPrinter));
+            }
+        }
+
+        private static string TooManyIncludesWarning(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (QueryExpressionEventData)payload;
+            return d.GenerateMessage(p.ExpressionPrinter.Print(p.Expression));
         }
 
         /// <summary>
