@@ -443,7 +443,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return _subquery
                 ? (Expression)null
-                : throw new NotImplementedException("Unhandled method: " + method.Name);
+                : throw new NotImplementedException(CoreStrings.UnhandledMethod(method.Name));
         }
 
         private sealed class EntityShaperNullableMarkingExpressionVisitor : ExpressionVisitor

@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -343,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             if (Limit != null
                 || Offset != null)
             {
-                throw new InvalidOperationException("Cosmos: Reverse without Limit or Offset.");
+                throw new InvalidOperationException(CosmosStrings.ReverseRequiresOffsetOrLimit);
             }
 
             var existingOrderings = _orderings.ToArray();

@@ -120,6 +120,34 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 GetString("UpdateConflict", nameof(itemId)),
                 itemId);
 
+        /// <summary>
+        ///      Non-embedded IncludeExpression is not supported: {expression}
+        /// </summary>
+        public static string NonEmbeddedIncludeNotSupported([CanBeNull] object expression)
+            => string.Format(
+                GetString("NonEmbeddedIncludeNotSupported", nameof(expression)),
+                expression);
+
+        /// <summary>
+        ///      Navigation '{entityType}.{navigationName}' doesn't point to an embedded entity.
+        /// </summary>
+        public static string NavigationPropertyIsNotAnEmbeddedEntity([CanBeNull] object entityType, [CanBeNull] object navigationName)
+            => string.Format(
+                GetString("NavigationPropertyIsNotAnEmbeddedEntity", nameof(entityType), nameof(navigationName)),
+                entityType, navigationName);
+
+        /// <summary>
+        ///      Offset is not supported without Limit.
+        /// </summary>
+        public static string OffsetRequiresLimit
+            => GetString("OffsetRequiresLimit");
+
+        /// <summary>
+        ///      Reverse is not supported without Limit or Offset.
+        /// </summary>
+        public static string ReverseRequiresOffsetOrLimit
+            => GetString("ReverseRequiresOffsetOrLimit");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

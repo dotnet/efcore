@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 
 // ReSharper disable SwitchStatementMissingSomeCases
@@ -216,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             break;
                         }
 
-                        throw new NotImplementedException($"Unhandled expression node type: {obj.NodeType}");
+                        throw new NotImplementedException(CoreStrings.UnhandledExpressionNode(obj.NodeType));
                 }
 
                 return hash.ToHashCode();
@@ -396,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             return left.Equals(right);
                         }
 
-                        throw new NotImplementedException($"Unhandled expression node type: {left.NodeType}");
+                        throw new NotImplementedException(CoreStrings.UnhandledExpressionNode(left.NodeType));
                 }
             }
 
@@ -652,7 +653,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         return CompareMemberBindingList(aMemberMemberBinding.Bindings, ((MemberMemberBinding)b).Bindings);
 
                     default:
-                        throw new InvalidOperationException("Unhandled member binding type: " + a.BindingType);
+                        throw new InvalidOperationException(CoreStrings.UnhandledMemberBinding(a.BindingType));
                 }
             }
 

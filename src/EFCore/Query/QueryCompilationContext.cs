@@ -111,9 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (valueExtractor.Parameters.Count != 1
                 || valueExtractor.Parameters[0] != QueryContextParameter)
             {
-                throw new ArgumentException(
-                    "Runtime parameter extraction lambda must have one QueryContext parameter",
-                    nameof(valueExtractor));
+                throw new ArgumentException(CoreStrings.RuntimeParameterMissingParameter, nameof(valueExtractor));
             }
 
             if (_runtimeParameters == null)

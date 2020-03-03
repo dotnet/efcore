@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -383,7 +384,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return VisitInternal<SqlExpression>(predicate, allowOptimizedExpansion: true).ResultExpression;
 
                 default:
-                    throw new InvalidOperationException("Unexpected join predicate shape: " + predicate);
+                    throw new InvalidOperationException(RelationalStrings.UnexpectedJoinPredicateShape(predicate));
             }
         }
 

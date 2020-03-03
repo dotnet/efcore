@@ -842,7 +842,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ExceptExpression _ => "EXCEPT",
                 IntersectExpression _ => "INTERSECT",
                 UnionExpression _ => "UNION",
-                _ => throw new InvalidOperationException("Unknown SetOperationType."),
+                _ => throw new InvalidOperationException(CoreStrings.UnknownEntity("SetOperationType")),
             };
 
             GenerateSetOperationOperand(setOperation, setOperation.Source1);

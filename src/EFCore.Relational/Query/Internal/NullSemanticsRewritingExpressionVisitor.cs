@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -224,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return newPredicate;
             }
 
-            throw new InvalidOperationException("Unexpected join predicate shape: " + predicate);
+            throw new InvalidOperationException(RelationalStrings.UnexpectedJoinPredicateShape(predicate));
         }
 
         protected override Expression VisitOrdering(OrderingExpression orderingExpression)

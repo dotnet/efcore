@@ -795,8 +795,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                         if (includeTreeNodes.Count == 0)
                         {
-                            throw new InvalidOperationException(
-                                "Invalid include path: '" + navigationChain + "' - couldn't find navigation for: '" + navigationName + "'");
+                            throw new InvalidOperationException(CoreStrings.InvalidIncludePath(navigationChain, navigationName));
                         }
                     }
                 }
@@ -809,7 +808,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var lastIncludeTree = PopulateIncludeTree(currentIncludeTreeNode, includeLambda.Body);
                     if (lastIncludeTree == null)
                     {
-                        throw new InvalidOperationException("Lambda expression used inside Include is not valid.");
+                        throw new InvalidOperationException(CoreStrings.InvalidLambdaExpressionInsideInclude);
                     }
 
                     entityReference.SetLastInclude(lastIncludeTree);
@@ -818,7 +817,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return source;
             }
 
-            throw new InvalidOperationException("Include has been used on non entity queryable.");
+            throw new InvalidOperationException(CoreStrings.IncludeOnNonEntity);
         }
 
         private NavigationExpansionExpression ProcessJoin(
@@ -1342,7 +1341,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
             }
 
-            throw new InvalidOperationException("Unable to convert queryable method to enumerable method.");
+            throw new InvalidOperationException(CoreStrings.CannotConvertQueryableToEnumerableMethod);
 
             static bool IsNumericType(Type type)
             {
@@ -1486,7 +1485,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         entityType = entityType.GetTypesInHierarchy().FirstOrDefault(et => et.ClrType == convertedType);
                         if (entityType == null)
                         {
-                            throw new InvalidOperationException("Invalid type conversion when specifying include.");
+                            throw new InvalidOperationException(CoreStrings.InvalidTypeConversationWithInclude);
                         }
                     }
 

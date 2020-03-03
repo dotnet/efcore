@@ -1187,7 +1187,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return destinationExpression;
                 }
 
-                throw new InvalidOperationException("Unknown type info");
+                throw new InvalidOperationException(CoreStrings.UnknownEntity("TypeInfo"));
             }
 
             public EntityReferenceExpression Update(Expression newUnderlying)

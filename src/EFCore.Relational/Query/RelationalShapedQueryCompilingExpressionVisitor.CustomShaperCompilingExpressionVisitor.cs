@@ -9,6 +9,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -568,7 +569,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 if (extensionExpression is GroupByShaperExpression)
                 {
-                    throw new InvalidOperationException("Client side GroupBy is not supported.");
+                    throw new InvalidOperationException(RelationalStrings.ClientGroupByNotSupported);
                 }
 
                 return base.VisitExtension(extensionExpression);

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -243,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 else
                 {
                     // TODO: See Issue#18923
-                    throw new InvalidOperationException("Cosmos Sql API does not support Offset without Limit.");
+                    throw new InvalidOperationException(CosmosStrings.OffsetRequiresLimit);
                 }
             }
 
