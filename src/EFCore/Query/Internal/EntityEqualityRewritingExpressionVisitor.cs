@@ -51,17 +51,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public virtual Expression Rewrite([NotNull] Expression expression)
             => Unwrap(Visit(expression));
 
-        protected override Expression VisitConstant(ConstantExpression constantExpression)
-        {
-            Check.NotNull(constantExpression, nameof(constantExpression));
-
-            return constantExpression.IsEntityQueryable()
-                ? new EntityReferenceExpression(
-                    constantExpression,
-                    ((IEntityQueryable)constantExpression.Value).EntityType)
-                : (Expression)constantExpression;
-        }
-
         protected override Expression VisitNew(NewExpression newExpression)
         {
             Check.NotNull(newExpression, nameof(newExpression));
@@ -939,11 +928,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             Check.NotNull(extensionExpression, nameof(extensionExpression));
 
-            // If the expression is an EntityReferenceExpression, simply returns it as all rewriting has already occurred.
-            // This is necessary when traversing wrapping expressions that have been injected into the lambda for parameters.
-            return extensionExpression is EntityReferenceExpression
-                ? extensionExpression
-                : base.VisitExtension(extensionExpression);
+            switch (extensionExpression)
+            {
+                // If the expression is an EntityReferenceExpression, simply returns it as all rewriting has already occurred.
+                // This is necessary when traversing wrapping expressions that have been injected into the lambda for parameters.
+                case EntityReferenceExpression _:
+                    return extensionExpression;
+
+                case QueryRootExpression queryRootExpression:
+                    return new EntityReferenceExpression(queryRootExpression, queryRootExpression.EntityType);
+
+                default:
+                    return base.VisitExtension(extensionExpression);
+            }
         }
 
         private Expression CreateKeyAccessExpression(

@@ -1503,13 +1503,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 CoreStrings.TranslationFailed(
                     @"MaterializeCollectionNavigation(
     navigation: Navigation: Gear.Weapons,
-    subquery: DbSet<Weapon>
+    subquery: DbSet<Weapon>()
         .Where(w => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(w, ""OwnerFullName""))
         .Where(i => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(i, ""OwnerFullName""))
     .AsQueryable()
     .Concat(MaterializeCollectionNavigation(
         navigation: Navigation: Gear.Weapons,
-        subquery: DbSet<Weapon>
+        subquery: DbSet<Weapon>()
             .Where(w0 => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(w0, ""OwnerFullName""))
             .Where(i => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(i, ""OwnerFullName"")))"),
                 message, ignoreLineEndingDifferences: true);
@@ -1528,13 +1528,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 CoreStrings.TranslationFailed(
                     @"MaterializeCollectionNavigation(
     navigation: Navigation: Gear.Weapons,
-    subquery: DbSet<Weapon>
+    subquery: DbSet<Weapon>()
         .Where(w => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(w, ""OwnerFullName""))
         .Where(i => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(i, ""OwnerFullName""))
     .AsQueryable()
     .Union(MaterializeCollectionNavigation(
         navigation: Navigation: Gear.Weapons,
-        subquery: DbSet<Weapon>
+        subquery: DbSet<Weapon>()
             .Where(w0 => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(w0, ""OwnerFullName""))
             .Where(i => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(i, ""OwnerFullName"")))"),
                 message, ignoreLineEndingDifferences: true);

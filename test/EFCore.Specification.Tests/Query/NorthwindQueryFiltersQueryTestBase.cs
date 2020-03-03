@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Client_eval()
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("DbSet<Product>    .Where(p => NorthwindContext.ClientMethod(p))"),
+                CoreStrings.TranslationFailed("DbSet<Product>()    .Where(p => NorthwindContext.ClientMethod(p))"),
                 RemoveNewLines(
                     Assert.Throws<InvalidOperationException>(
                         () => _context.Products.ToList()).Message));
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Included_one_to_many_query_with_client_eval()
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("DbSet<Product>    .Where(p => NorthwindContext.ClientMethod(p))"),
+                CoreStrings.TranslationFailed("DbSet<Product>()    .Where(p => NorthwindContext.ClientMethod(p))"),
                 RemoveNewLines(
                     Assert.Throws<InvalidOperationException>(
                         () => _context.Products.Include(p => p.OrderDetails).ToList()).Message));
