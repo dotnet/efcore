@@ -1501,35 +1501,17 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Assert.Equal(
                 CoreStrings.TranslationFailed(
-                    @"(MaterializeCollectionNavigation(
+                    @"MaterializeCollectionNavigation(
     navigation: Navigation: Gear.Weapons,
-    subquery: (NavigationExpansionExpression
-        Source: DbSet<Weapon>
-            .Where(w => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(w, ""OwnerFullName""))
-        PendingSelector: w => (NavigationTreeExpression
-            Value: (EntityReference: Weapon)
-            Expression: w)
-    )
-        .Where(i => EF.Property<string>((NavigationTreeExpression
-            Value: (EntityReference: Gear)
-            Expression: g), ""FullName"") != null && EF.Property<string>((NavigationTreeExpression
-            Value: (EntityReference: Gear)
-            Expression: g), ""FullName"") == EF.Property<string>(i, ""OwnerFullName"")))
+    subquery: DbSet<Weapon>
+        .Where(w => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(w, ""OwnerFullName""))
+        .Where(i => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(i, ""OwnerFullName""))
     .AsQueryable()
-    .Concat((MaterializeCollectionNavigation(
+    .Concat(MaterializeCollectionNavigation(
         navigation: Navigation: Gear.Weapons,
-        subquery: (NavigationExpansionExpression
-            Source: DbSet<Weapon>
-                .Where(w0 => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(w0, ""OwnerFullName""))
-            PendingSelector: w0 => (NavigationTreeExpression
-                Value: (EntityReference: Weapon)
-                Expression: w0)
-        )
-            .Where(i => EF.Property<string>((NavigationTreeExpression
-                Value: (EntityReference: Gear)
-                Expression: g), ""FullName"") != null && EF.Property<string>((NavigationTreeExpression
-                Value: (EntityReference: Gear)
-                Expression: g), ""FullName"") == EF.Property<string>(i, ""OwnerFullName""))))"),
+        subquery: DbSet<Weapon>
+            .Where(w0 => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(w0, ""OwnerFullName""))
+            .Where(i => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(i, ""OwnerFullName"")))"),
                 message, ignoreLineEndingDifferences: true);
         }
 
@@ -1544,35 +1526,17 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Assert.Equal(
                 CoreStrings.TranslationFailed(
-                    @"(MaterializeCollectionNavigation(
+                    @"MaterializeCollectionNavigation(
     navigation: Navigation: Gear.Weapons,
-    subquery: (NavigationExpansionExpression
-        Source: DbSet<Weapon>
-            .Where(w => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(w, ""OwnerFullName""))
-        PendingSelector: w => (NavigationTreeExpression
-            Value: (EntityReference: Weapon)
-            Expression: w)
-    )
-        .Where(i => EF.Property<string>((NavigationTreeExpression
-            Value: (EntityReference: Gear)
-            Expression: g), ""FullName"") != null && EF.Property<string>((NavigationTreeExpression
-            Value: (EntityReference: Gear)
-            Expression: g), ""FullName"") == EF.Property<string>(i, ""OwnerFullName"")))
+    subquery: DbSet<Weapon>
+        .Where(w => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(w, ""OwnerFullName""))
+        .Where(i => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(i, ""OwnerFullName""))
     .AsQueryable()
-    .Union((MaterializeCollectionNavigation(
+    .Union(MaterializeCollectionNavigation(
         navigation: Navigation: Gear.Weapons,
-        subquery: (NavigationExpansionExpression
-            Source: DbSet<Weapon>
-                .Where(w0 => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(w0, ""OwnerFullName""))
-            PendingSelector: w0 => (NavigationTreeExpression
-                Value: (EntityReference: Weapon)
-                Expression: w0)
-        )
-            .Where(i => EF.Property<string>((NavigationTreeExpression
-                Value: (EntityReference: Gear)
-                Expression: g), ""FullName"") != null && EF.Property<string>((NavigationTreeExpression
-                Value: (EntityReference: Gear)
-                Expression: g), ""FullName"") == EF.Property<string>(i, ""OwnerFullName""))))"),
+        subquery: DbSet<Weapon>
+            .Where(w0 => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(w0, ""OwnerFullName""))
+            .Where(i => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(i, ""OwnerFullName"")))"),
                 message, ignoreLineEndingDifferences: true);
         }
 
