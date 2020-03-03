@@ -486,7 +486,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             // DefaultIfEmpty with argument
                             // Index based lambda overloads of Where, SkipWhile, TakeWhile, Select, SelectMany
                             // IEqualityComparer overloads of Distinct, Contains, Join, Except, Intersect, Union, OrderBy, ThenBy, OrderByDescending, ThenByDescending, GroupBy
-                            throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
+                            throw new InvalidOperationException(CoreStrings.TranslationFailed(
+                                _reducingExpressionVisitor.Visit(methodCallExpression).Print()));
                     }
                 }
 

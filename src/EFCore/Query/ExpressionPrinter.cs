@@ -933,9 +933,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (extensionExpression is IPrintableExpression printable)
             {
-                _stringBuilder.Append("(");
                 printable.Print(this);
-                _stringBuilder.Append(")");
             }
             else
             {
