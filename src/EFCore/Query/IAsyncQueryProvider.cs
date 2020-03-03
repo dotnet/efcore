@@ -7,14 +7,11 @@ using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
-    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///         any release. You should only use it directly in your code with extreme caution and knowing that
-    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///         Defines method to execute queries asynchronously that are described by an IQueryable object.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
@@ -26,10 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public interface IAsyncQueryProvider : IQueryProvider
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Executes the strongly-typed query represented by a specified expression tree asynchronously.
         /// </summary>
         TResult ExecuteAsync<TResult>([NotNull] Expression expression, CancellationToken cancellationToken = default);
     }

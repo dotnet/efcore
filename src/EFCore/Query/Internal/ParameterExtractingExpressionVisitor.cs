@@ -236,31 +236,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && ((constantValue && nodeType == ExpressionType.OrElse)
                     || (!constantValue && nodeType == ExpressionType.AndAlso));
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitConstant(ConstantExpression constantExpression)
+        protected override Expression VisitExtension(Expression extensionExpression)
         {
-            if (constantExpression.Value is IEntityQueryable detachableContext)
+            if (extensionExpression is QueryRootExpression queryRootExpression)
             {
-                var queryProvider = ((IQueryable)constantExpression.Value).Provider;
+                var queryProvider = queryRootExpression.QueryProvider;
                 if (_currentQueryProvider == null)
                 {
                     _currentQueryProvider = queryProvider;
                 }
-                else if (!ReferenceEquals(queryProvider, _currentQueryProvider)
-                    && queryProvider.GetType() == _currentQueryProvider.GetType())
+                else if (!ReferenceEquals(queryProvider, _currentQueryProvider))
                 {
                     throw new InvalidOperationException(CoreStrings.ErrorInvalidQueryable);
                 }
 
-                return Expression.Constant(detachableContext.DetachContext());
+                return queryRootExpression.DetachQueryProvider();
             }
 
-            return base.VisitConstant(constantExpression);
+            return base.VisitExtension(extensionExpression);
         }
 
         private static Expression GenerateConstantExpression(object value, Type returnType)
@@ -616,8 +609,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitConstant(ConstantExpression constantExpression)
             {
-                _evaluatable = !(constantExpression.Value is IEntityQueryable)
-                    && !(constantExpression.Value is IQueryable);
+                _evaluatable = !(constantExpression.Value is IQueryable);
 
 #pragma warning disable RCS1096 // Use bitwise operation instead of calling 'HasFlag'.
                 _containsClosure

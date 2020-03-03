@@ -25,11 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class EntityQueryable<TResult>
         : IOrderedQueryable<TResult>,
             IAsyncEnumerable<TResult>,
-            IEntityQueryable,
             IListSource
     {
         private readonly IAsyncQueryProvider _queryProvider;
-        private readonly IEntityType _entityType;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -38,13 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public EntityQueryable([NotNull] IAsyncQueryProvider queryProvider, [NotNull] IEntityType entityType)
+            : this(queryProvider, new QueryRootExpression(queryProvider, entityType))
         {
-            Check.NotNull(queryProvider, nameof(queryProvider));
-            Check.NotNull(entityType, nameof(entityType));
-
-            _queryProvider = queryProvider;
-            _entityType = entityType;
-            Expression = Expression.Constant(this);
         }
 
         /// <summary>
@@ -112,23 +105,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual IAsyncEnumerator<TResult> GetAsyncEnumerator(CancellationToken cancellationToken = default)
             => _queryProvider.ExecuteAsync<IAsyncEnumerable<TResult>>(Expression).GetAsyncEnumerator(cancellationToken);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        IEntityQueryable IEntityQueryable.DetachContext()
-            => new EntityQueryable<TResult>(NullAsyncQueryProvider.Instance, _entityType);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        IEntityType IEntityQueryable.EntityType => _entityType;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
