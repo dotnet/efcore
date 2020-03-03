@@ -144,19 +144,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static DbFunction FindDbFunction(
-            [NotNull] IModel model,
-            [NotNull] MethodInfo methodInfo)
-        {
-            var functions = (SortedDictionary<string, DbFunction>)model[RelationalAnnotationNames.DbFunctions];
-            if (functions == null
-                || !functions.TryGetValue(GetFunctionName(methodInfo, methodInfo.GetParameters()), out var dbFunction))
-            {
-                return null;
-            }
-
-            return dbFunction;
-        }
+        public static DbFunction FindDbFunction([NotNull] IModel model, [NotNull] MethodInfo methodInfo)
+            => model[RelationalAnnotationNames.DbFunctions] is SortedDictionary<string, DbFunction> functions
+               && functions.TryGetValue(GetFunctionName(methodInfo, methodInfo.GetParameters()), out var dbFunction)
+                ? dbFunction
+                : null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -164,16 +156,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static DbFunction FindDbFunction(
-            [NotNull] IModel model,
-            [NotNull] string name)
-        {
-            var functions = (SortedDictionary<string, DbFunction>)model[RelationalAnnotationNames.DbFunctions];
-            return functions == null
-                || !functions.TryGetValue(name, out var dbFunction)
-                ? null
-                : dbFunction;
-        }
+        public static DbFunction FindDbFunction([NotNull] IModel model, [NotNull] string name)
+            => model[RelationalAnnotationNames.DbFunctions] is SortedDictionary<string, DbFunction> functions
+               && functions.TryGetValue(name, out var dbFunction)
+                ? dbFunction
+                : null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -208,16 +195,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private static SortedDictionary<string, DbFunction> GetOrCreateFunctions(IMutableModel model)
-        {
-            var functions = (SortedDictionary<string, DbFunction>)model[RelationalAnnotationNames.DbFunctions];
-            if (functions == null)
-            {
-                functions = new SortedDictionary<string, DbFunction>();
-                model[RelationalAnnotationNames.DbFunctions] = functions;
-            }
-
-            return functions;
-        }
+            => (SortedDictionary<string, DbFunction>)(
+                model[RelationalAnnotationNames.DbFunctions] ??= new SortedDictionary<string, DbFunction>());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -229,22 +208,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] IMutableModel model,
             [NotNull] MethodInfo methodInfo)
         {
-            var functions = (SortedDictionary<string, DbFunction>)model[RelationalAnnotationNames.DbFunctions];
-            if (functions == null)
+            if (model[RelationalAnnotationNames.DbFunctions] is SortedDictionary<string, DbFunction> functions)
             {
-                return null;
+                var name = GetFunctionName(methodInfo, methodInfo.GetParameters());
+                if (functions.TryGetValue(name, out var function))
+                {
+                    functions.Remove(name);
+                    function.Builder = null;
+
+                    return function;
+                }
             }
 
-            var name = GetFunctionName(methodInfo, methodInfo.GetParameters());
-            if (!functions.TryGetValue(name, out var function))
-            {
-                return null;
-            }
-
-            functions.Remove(name);
-            function.Builder = null;
-
-            return function;
+            return null;
         }
 
         /// <summary>
@@ -257,17 +233,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] IMutableModel model,
             [NotNull] string name)
         {
-            var functions = (SortedDictionary<string, DbFunction>)model[RelationalAnnotationNames.DbFunctions];
-            if (functions == null
-                || !functions.TryGetValue(name, out var function))
+            if (model[RelationalAnnotationNames.DbFunctions] is SortedDictionary<string, DbFunction> functions
+                && functions.TryGetValue(name, out var function))
             {
-                return null;
+                functions.Remove(name);
+                function.Builder = null;
             }
 
-            functions.Remove(name);
-            function.Builder = null;
-
-            return function;
+            return null;
         }
 
         /// <summary>
