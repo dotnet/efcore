@@ -91,6 +91,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected virtual ShapedQueryExpression CreateShapedQueryExpression([NotNull] MethodCallExpression methodCallExpression)
         {
+            if (methodCallExpression.Object is UnaryExpression unaryExpression
+                && unaryExpression.NodeType == ExpressionType.Convert
+                && unaryExpression.Type.IsSubclassOf(typeof(DbContext)))
+            {
+                methodCallExpression = Expression.Call(
+                    unaryExpression.Operand,
+                    methodCallExpression.Method,
+                    methodCallExpression.Arguments);
+            }
+
             var sqlFuncExpression = _sqlTranslator.TranslateMethodCall(methodCallExpression) as SqlFunctionExpression;
 
             var elementType = methodCallExpression.Method.ReturnType.GetGenericArguments()[0];
