@@ -24,8 +24,7 @@ namespace Microsoft.Data.Sqlite
     /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/async">Async Limitations</seealso>
     public class SqliteCommand : DbCommand
     {
-        private readonly Lazy<SqliteParameterCollection> _parameters = new Lazy<SqliteParameterCollection>(
-            () => new SqliteParameterCollection());
+        private SqliteParameterCollection _parameters;
 
         private readonly List<sqlite3_stmt> _preparedStatements = new List<sqlite3_stmt>();
         private SqliteConnection _connection;
@@ -165,7 +164,7 @@ namespace Microsoft.Data.Sqlite
         /// <value>The collection of parameters used by the command.</value>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
         public new virtual SqliteParameterCollection Parameters
-            => _parameters.Value;
+            => _parameters ??= new SqliteParameterCollection();
 
         /// <summary>
         ///     Gets the collection of parameters used by the command.
@@ -326,12 +325,7 @@ namespace Microsoft.Data.Sqlite
                 ? PrepareAndEnumerateStatements(timer)
                 : _preparedStatements)
             {
-                var boundParams = 0;
-
-                if (_parameters.IsValueCreated)
-                {
-                    boundParams = _parameters.Value.Bind(stmt);
-                }
+                var boundParams = _parameters?.Bind(stmt) ?? 0;
 
                 var expectedParams = sqlite3_bind_parameter_count(stmt);
                 if (expectedParams != boundParams)
@@ -341,8 +335,8 @@ namespace Microsoft.Data.Sqlite
                     {
                         var name = sqlite3_bind_parameter_name(stmt, i).utf8_to_string();
 
-                        if (_parameters.IsValueCreated
-                            && !_parameters.Value.Cast<SqliteParameter>().Any(p => p.ParameterName == name))
+                        if (_parameters != null
+                            && !_parameters.Cast<SqliteParameter>().Any(p => p.ParameterName == name))
                         {
                             unboundParams.Add(name);
                         }

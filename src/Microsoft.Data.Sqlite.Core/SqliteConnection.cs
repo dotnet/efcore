@@ -27,18 +27,14 @@ namespace Microsoft.Data.Sqlite
 
         private readonly List<WeakReference<SqliteCommand>> _commands = new List<WeakReference<SqliteCommand>>();
 
-        private readonly Dictionary<string, (object state, strdelegate_collation collation)> _collations
-            = new Dictionary<string, (object, strdelegate_collation)>(StringComparer.OrdinalIgnoreCase);
+        private Dictionary<string, (object state, strdelegate_collation collation)> _collations;
 
-        private readonly Dictionary<(string name, int arity), (int flags, object state, delegate_function_scalar func)> _functions
-            = new Dictionary<(string, int), (int, object, delegate_function_scalar)>(FunctionsKeyComparer.Instance);
+        private Dictionary<(string name, int arity), (int flags, object state, delegate_function_scalar func)> _functions;
 
-        private readonly Dictionary<(string name, int arity), (int flags, object state, delegate_function_aggregate_step func_step,
-            delegate_function_aggregate_final func_final)> _aggregates
-            = new Dictionary<(string, int), (int, object, delegate_function_aggregate_step, delegate_function_aggregate_final)>(
-                FunctionsKeyComparer.Instance);
+        private Dictionary<(string name, int arity), (int flags, object state, delegate_function_aggregate_step func_step,
+            delegate_function_aggregate_final func_final)> _aggregates;
 
-        private readonly HashSet<(string file, string proc)> _extensions = new HashSet<(string, string)>();
+        private HashSet<(string file, string proc)> _extensions;
 
         private string _connectionString;
         private ConnectionState _state;
@@ -276,27 +272,37 @@ namespace Microsoft.Data.Sqlite
                     this.ExecuteNonQuery("PRAGMA recursive_triggers = 1;");
                 }
 
-                foreach (var item in _collations)
+                if (_collations != null)
                 {
-                    rc = sqlite3_create_collation(_db, item.Key, item.Value.state, item.Value.collation);
-                    SqliteException.ThrowExceptionForRC(rc, _db);
+                    foreach (var item in _collations)
+                    {
+                        rc = sqlite3_create_collation(_db, item.Key, item.Value.state, item.Value.collation);
+                        SqliteException.ThrowExceptionForRC(rc, _db);
+                    }
                 }
 
-                foreach (var item in _functions)
+                if (_functions != null)
                 {
-                    rc = sqlite3_create_function(_db, item.Key.name, item.Key.arity, item.Value.state, item.Value.func);
-                    SqliteException.ThrowExceptionForRC(rc, _db);
+                    foreach (var item in _functions)
+                    {
+                        rc = sqlite3_create_function(_db, item.Key.name, item.Key.arity, item.Value.state, item.Value.func);
+                        SqliteException.ThrowExceptionForRC(rc, _db);
+                    }
                 }
 
-                foreach (var item in _aggregates)
+                if (_aggregates != null)
                 {
-                    rc = sqlite3_create_function(
-                        _db, item.Key.name, item.Key.arity, item.Value.state, item.Value.func_step, item.Value.func_final);
-                    SqliteException.ThrowExceptionForRC(rc, _db);
+                    foreach (var item in _aggregates)
+                    {
+                        rc = sqlite3_create_function(
+                            _db, item.Key.name, item.Key.arity, item.Value.state, item.Value.func_step, item.Value.func_final);
+                        SqliteException.ThrowExceptionForRC(rc, _db);
+                    }
                 }
 
                 var extensionsEnabledForLoad = false;
-                if (_extensions.Count != 0)
+                if (_extensions != null
+                    && _extensions.Count != 0)
                 {
                     rc = sqlite3_enable_load_extension(_db, 1);
                     SqliteException.ThrowExceptionForRC(rc, _db);
@@ -449,6 +455,7 @@ namespace Microsoft.Data.Sqlite
                 SqliteException.ThrowExceptionForRC(rc, _db);
             }
 
+            _collations ??= new Dictionary<string, (object, strdelegate_collation)>(StringComparer.OrdinalIgnoreCase);
             _collations[name] = (state, collation);
         }
 
@@ -546,6 +553,7 @@ namespace Microsoft.Data.Sqlite
                 }
             }
 
+            _extensions ??= new HashSet<(string, string)>();
             _extensions.Add((file, proc));
         }
 
@@ -677,6 +685,7 @@ namespace Microsoft.Data.Sqlite
                 SqliteException.ThrowExceptionForRC(rc, _db);
             }
 
+            _functions ??= new Dictionary<(string, int), (int, object, delegate_function_scalar)>(FunctionsKeyComparer.Instance);
             _functions[(name, arity)] = (flags, state, func);
         }
 
@@ -771,6 +780,8 @@ namespace Microsoft.Data.Sqlite
                 SqliteException.ThrowExceptionForRC(rc, _db);
             }
 
+            _aggregates ??= new Dictionary<(string, int), (int, object, delegate_function_aggregate_step, delegate_function_aggregate_final)>(
+                FunctionsKeyComparer.Instance);
             _aggregates[(name, arity)] = (flags, state, func_step, func_final);
         }
 

@@ -15,8 +15,8 @@ namespace Microsoft.Data.Sqlite
     internal class SqliteDataRecord : SqliteValueReader, IDisposable
     {
         private readonly SqliteConnection _connection;
-        private readonly byte[][] _blobCache;
-        private readonly int?[] _typeCache;
+        private byte[][] _blobCache;
+        private int?[] _typeCache;
         private bool _stepped;
         private int? _rowidOrdinal;
 
@@ -25,8 +25,6 @@ namespace Microsoft.Data.Sqlite
             Handle = stmt;
             HasRows = hasRows;
             _connection = connection;
-            _blobCache = new byte[FieldCount][];
-            _typeCache = new int?[FieldCount];
         }
 
         public virtual object this[string name]
@@ -146,10 +144,11 @@ namespace Microsoft.Data.Sqlite
             var sqliteType = GetSqliteType(ordinal);
             if (sqliteType == SQLITE_NULL)
             {
-                sqliteType = _typeCache[ordinal] ?? Sqlite3AffinityType(GetDataTypeName(ordinal));
+                sqliteType = _typeCache?[ordinal] ?? Sqlite3AffinityType(GetDataTypeName(ordinal));
             }
             else
             {
+                _typeCache ??= new int?[FieldCount];
                 _typeCache[ordinal] = sqliteType;
             }
 
@@ -317,7 +316,10 @@ namespace Microsoft.Data.Sqlite
             var rc = sqlite3_step(Handle);
             SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
 
-            Array.Clear(_blobCache, 0, _blobCache.Length);
+            if (_blobCache != null)
+            {
+                Array.Clear(_blobCache, 0, _blobCache.Length);
+            }
 
             return rc != SQLITE_DONE;
         }
@@ -334,10 +336,11 @@ namespace Microsoft.Data.Sqlite
                 throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, message: null);
             }
 
-            var blob = _blobCache[ordinal];
+            var blob = _blobCache?[ordinal];
             if (blob == null)
             {
                 blob = GetBlob(ordinal);
+                _blobCache ??= new byte[FieldCount][];
                 _blobCache[ordinal] = blob;
             }
 
