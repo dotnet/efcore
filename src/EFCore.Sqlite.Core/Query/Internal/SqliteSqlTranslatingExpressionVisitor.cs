@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection.Emit;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
@@ -234,7 +235,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
         private static bool AttemptDecimalCompare(SqlBinaryExpression sqlBinary) =>
             GetProviderType(sqlBinary.Left) == typeof(decimal)
-            && GetProviderType(sqlBinary.Right) == typeof(decimal);
+            && GetProviderType(sqlBinary.Right) == typeof(decimal)
+            && new[]
+            {
+                ExpressionType.GreaterThan, ExpressionType.GreaterThanOrEqual, ExpressionType.LessThan, ExpressionType.LessThanOrEqual
+            }.Contains(sqlBinary.OperatorType);
 
         private Expression DoDecimalCompare(SqlExpression visitedExpression, ExpressionType op, SqlExpression left, SqlExpression right)
         {
