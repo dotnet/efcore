@@ -205,10 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Reference(Type type)
-            => Reference(type, useFullName: false);
-
-        private string Reference(Type type, bool useFullName)
+        public virtual string Reference(Type type, bool useFullName = false)
         {
             Check.NotNull(type, nameof(type));
 

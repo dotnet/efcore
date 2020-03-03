@@ -52,12 +52,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="contextType"> The model snapshot's <see cref="DbContext" /> type. </param>
         /// <param name="modelSnapshotName"> The model snapshot's name. </param>
         /// <param name="model"> The model. </param>
+        /// <param name="migrationName"> The name of the migration for which this is a snapshot. </param>
         /// <returns> The model snapshot code. </returns>
         string GenerateSnapshot(
             [NotNull] string modelSnapshotNamespace,
             [NotNull] Type contextType,
             [NotNull] string modelSnapshotName,
-            [NotNull] IModel model);
+            [NotNull] IModel model,
+            [CanBeNull] string migrationName);
 
         /// <summary>
         ///     Gets the file extension code files should use.

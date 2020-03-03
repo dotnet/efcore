@@ -182,8 +182,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .AppendLine("{");
             using (builder.Indent())
             {
+                AppendDbContextAttribute(builder, contextType, migrationName);
                 builder
-                    .Append("[DbContext(typeof(").Append(Code.Reference(contextType)).AppendLine("))]")
                     .Append("[Migration(").Append(Code.Literal(migrationId)).AppendLine(")]")
                     .Append("partial class ").AppendLine(Code.Identifier(migrationName))
                     .AppendLine("{");
@@ -227,12 +227,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="contextType"> The model snapshot's <see cref="DbContext" /> type. </param>
         /// <param name="modelSnapshotName"> The model snapshot's name. </param>
         /// <param name="model"> The model. </param>
+        /// <param name="migrationName"> The name of the migration for which this is a snapshot. </param>
         /// <returns> The model snapshot code. </returns>
         public override string GenerateSnapshot(
             string modelSnapshotNamespace,
             Type contextType,
             string modelSnapshotName,
-            IModel model)
+            IModel model,
+            string migrationName)
         {
             Check.NotEmpty(modelSnapshotNamespace, nameof(modelSnapshotNamespace));
             Check.NotNull(contextType, nameof(contextType));
@@ -267,8 +269,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .AppendLine("{");
             using (builder.Indent())
             {
+                AppendDbContextAttribute(builder, contextType, migrationName);
                 builder
-                    .Append("[DbContext(typeof(").Append(Code.Reference(contextType)).AppendLine("))]")
                     .Append("partial class ").Append(Code.Identifier(modelSnapshotName)).AppendLine(" : ModelSnapshot")
                     .AppendLine("{");
                 using (builder.Indent())
@@ -301,6 +303,30 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             builder.AppendLine("}");
 
             return builder.ToString();
+        }
+
+        private IndentedStringBuilder AppendDbContextAttribute(
+            IndentedStringBuilder builder,
+            Type contextType, string migrationName)
+        {
+            var codeContextType = Code.Reference(contextType, false);
+            var codeMigrationName =
+                migrationName != null ? Code.Identifier(migrationName) : null;
+
+            builder.Append("[DbContext(typeof(");
+
+            if (codeContextType.Equals(codeMigrationName, StringComparison.Ordinal))
+            {
+                builder.Append(Code.Reference(contextType, true));
+            }
+            else
+            {
+                builder.Append(codeContextType);
+            }
+
+            builder.AppendLine("))]");
+
+            return builder;
         }
     }
 }

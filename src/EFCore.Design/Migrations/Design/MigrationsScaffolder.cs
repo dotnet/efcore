@@ -170,7 +170,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 modelSnapshotNamespace,
                 _contextType,
                 modelSnapshotName,
-                Dependencies.Model);
+                Dependencies.Model,
+                migrationName);
 
             return new ScaffoldedMigration(
                 codeGenerator.FileExtension,
@@ -339,7 +340,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     modelSnapshotNamespace,
                     _contextType,
                     modelSnapshotName,
-                    model);
+                    model,
+                    null);
 
                 if (modelSnapshotFile == null)
                 {
