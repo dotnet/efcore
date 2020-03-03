@@ -676,20 +676,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _entityType = entityType;
             }
 
-            protected override Expression VisitConstant(ConstantExpression constantExpression)
+            protected override Expression VisitExtension(Expression extensionExpression)
             {
-                Check.NotNull(constantExpression, nameof(constantExpression));
+                Check.NotNull(extensionExpression, nameof(extensionExpression));
 
-                if (constantExpression.IsEntityQueryable())
-                {
-                    var entityType = ((IEntityQueryable)constantExpression.Value).EntityType;
-                    if (entityType == _entityType)
-                    {
-                        return _navigationExpandingExpressionVisitor.CreateNavigationExpansionExpression(constantExpression, entityType);
-                    }
-                }
-
-                return base.VisitConstant(constantExpression);
+                return extensionExpression is QueryRootExpression queryRootExpression
+                    && queryRootExpression.EntityType == _entityType
+                    ? _navigationExpandingExpressionVisitor.CreateNavigationExpansionExpression(queryRootExpression, _entityType)
+                    : base.VisitExtension(extensionExpression);
             }
         }
     }

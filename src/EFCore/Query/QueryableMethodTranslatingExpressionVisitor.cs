@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -33,22 +34,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected virtual QueryableMethodTranslatingExpressionVisitorDependencies Dependencies { get; }
 
-        protected override Expression VisitConstant(ConstantExpression constantExpression)
+        protected override Expression VisitExtension(Expression extensionExpression)
         {
-            Check.NotNull(constantExpression, nameof(constantExpression));
+            Check.NotNull(extensionExpression, nameof(extensionExpression));
 
-            return constantExpression.IsEntityQueryable()
-                ? CreateShapedQueryExpression(((IEntityQueryable)constantExpression.Value).EntityType)
-                : base.VisitConstant(constantExpression);
-        }
-
-        protected override Expression VisitExtension(Expression expression)
-        {
-            Check.NotNull(expression, nameof(expression));
-
-            return expression is ShapedQueryExpression
-                ? expression
-                : base.VisitExtension(expression);
+            return extensionExpression switch
+            {
+                ShapedQueryExpression _ => extensionExpression,
+                QueryRootExpression queryRootExpression => CreateShapedQueryExpression(queryRootExpression.EntityType),
+                _ => base.VisitExtension(extensionExpression),
+            };
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)

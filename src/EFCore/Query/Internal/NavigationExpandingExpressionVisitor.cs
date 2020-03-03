@@ -104,46 +104,42 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return result;
         }
 
-        protected override Expression VisitConstant(ConstantExpression constantExpression)
-        {
-            Check.NotNull(constantExpression, nameof(constantExpression));
-
-            if (constantExpression.IsEntityQueryable())
-            {
-                var entityType = ((IEntityQueryable)constantExpression.Value).EntityType;
-                var definingQuery = entityType.GetDefiningQuery();
-                NavigationExpansionExpression navigationExpansionExpression;
-                if (definingQuery != null)
-                {
-                    var processedDefiningQueryBody = _parameterExtractingExpressionVisitor.ExtractParameters(definingQuery.Body);
-                    processedDefiningQueryBody = _queryTranslationPreprocessor.NormalizeQueryableMethodCall(processedDefiningQueryBody);
-                    processedDefiningQueryBody =
-                        new SelfReferenceEntityQueryableRewritingExpressionVisitor(this, entityType).Visit(processedDefiningQueryBody);
-
-                    processedDefiningQueryBody = Visit(processedDefiningQueryBody);
-                    processedDefiningQueryBody = _pendingSelectorExpandingExpressionVisitor.Visit(processedDefiningQueryBody);
-                    processedDefiningQueryBody = Reduce(processedDefiningQueryBody);
-                    navigationExpansionExpression = CreateNavigationExpansionExpression(processedDefiningQueryBody, entityType);
-                }
-                else
-                {
-                    navigationExpansionExpression = CreateNavigationExpansionExpression(constantExpression, entityType);
-                }
-
-                return ApplyQueryFilter(navigationExpansionExpression);
-            }
-
-            return base.VisitConstant(constantExpression);
-        }
-
         protected override Expression VisitExtension(Expression extensionExpression)
         {
             Check.NotNull(extensionExpression, nameof(extensionExpression));
 
-            return extensionExpression is NavigationExpansionExpression
-                || extensionExpression is OwnedNavigationReference
-                    ? extensionExpression
-                    : base.VisitExtension(extensionExpression);
+            switch (extensionExpression)
+            {
+                case QueryRootExpression queryRootExpression:
+                    var entityType = queryRootExpression.EntityType;
+                    var definingQuery = entityType.GetDefiningQuery();
+                    NavigationExpansionExpression navigationExpansionExpression;
+                    if (definingQuery != null)
+                    {
+                        var processedDefiningQueryBody = _parameterExtractingExpressionVisitor.ExtractParameters(definingQuery.Body);
+                        processedDefiningQueryBody = _queryTranslationPreprocessor.NormalizeQueryableMethodCall(processedDefiningQueryBody);
+                        processedDefiningQueryBody =
+                            new SelfReferenceEntityQueryableRewritingExpressionVisitor(this, entityType).Visit(processedDefiningQueryBody);
+
+                        processedDefiningQueryBody = Visit(processedDefiningQueryBody);
+                        processedDefiningQueryBody = _pendingSelectorExpandingExpressionVisitor.Visit(processedDefiningQueryBody);
+                        processedDefiningQueryBody = Reduce(processedDefiningQueryBody);
+                        navigationExpansionExpression = CreateNavigationExpansionExpression(processedDefiningQueryBody, entityType);
+                    }
+                    else
+                    {
+                        navigationExpansionExpression = CreateNavigationExpansionExpression(queryRootExpression, entityType);
+                    }
+
+                    return ApplyQueryFilter(navigationExpansionExpression);
+
+                case NavigationExpansionExpression _:
+                case OwnedNavigationReference _:
+                    return extensionExpression;
+
+                default:
+                    return base.VisitExtension(extensionExpression);
+            }
         }
 
         protected override Expression VisitMember(MemberExpression memberExpression)
@@ -525,13 +521,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (method.IsGenericMethod
                 && method.Name == "FromSqlOnQueryable"
                 && methodCallExpression.Arguments.Count == 3
-                && methodCallExpression.Arguments[0] is ConstantExpression constantExpression
+                && methodCallExpression.Arguments[0] is QueryRootExpression queryRootExpression
                 && methodCallExpression.Arguments[1] is ConstantExpression
-                && (methodCallExpression.Arguments[2] is ParameterExpression || methodCallExpression.Arguments[2] is ConstantExpression)
-                && constantExpression.IsEntityQueryable())
+                && (methodCallExpression.Arguments[2] is ParameterExpression || methodCallExpression.Arguments[2] is ConstantExpression))
             {
-                var entityType = ((IEntityQueryable)constantExpression.Value).EntityType;
-                var source = CreateNavigationExpansionExpression(constantExpression, entityType);
+                var entityType = queryRootExpression.EntityType;
+                var source = CreateNavigationExpansionExpression(queryRootExpression, entityType);
                 source.UpdateSource(
                     methodCallExpression.Update(
                         null,
@@ -915,7 +910,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var currentTree = new NavigationTreeNode(outerSource.CurrentTree, innerSource.CurrentTree);
             var pendingSelector = new ReplacingExpressionVisitor(
                 new Expression[] { resultSelector.Parameters[0], resultSelector.Parameters[1] },
-                new[] { outerSource.PendingSelector, innerPendingSelector})
+                new[] { outerSource.PendingSelector, innerPendingSelector })
                 .Visit(resultSelector.Body);
             var parameterName = GetParameterName("ti");
 

@@ -47,8 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (methodCallExpression.Method.IsGenericMethod
                 && methodCallExpression.Method.GetGenericMethodDefinition() is MethodInfo containsMethodInfo
                 && containsMethodInfo.Equals(QueryableMethods.Contains)
-                && !(methodCallExpression.Arguments[0] is ParameterExpression)
-                && (!(methodCallExpression.Arguments[0] is ConstantExpression) || ((ConstantExpression)methodCallExpression.Arguments[0]).IsEntityQueryable())
                 // special case Queryable.Contains(byte_array, byte) - we don't want those to be rewritten
                 && methodCallExpression.Arguments[1].Type != typeof(byte))
             {
