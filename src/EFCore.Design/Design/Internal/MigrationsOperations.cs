@@ -90,6 +90,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var subNamespace = SubnamespaceFromOutputPath(outputDir);
 
             using var context = _contextOperations.CreateContext(contextType);
+            var contextClassName = context.GetType().Name;
+            if (string.Equals(name, contextClassName, StringComparison.Ordinal))
+            {
+                throw new OperationException(
+                    DesignStrings.ConflictingContextAndMigrationName(name));
+            }
+
             var services = _servicesBuilder.Build(context);
             EnsureServices(services);
             EnsureMigrationsAssembly(services);
