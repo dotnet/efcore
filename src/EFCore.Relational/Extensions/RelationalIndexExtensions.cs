@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <param name="value"> The value to set. </param>
         public static void SetFilter([NotNull] this IMutableIndex index, [CanBeNull] string value)
-            => index.SetOrRemoveAnnotation(
+            => index.SetAnnotation(
                 RelationalAnnotationNames.Filter,
                 Check.NullButNotEmpty(value, nameof(value)));
 
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="value"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         public static void SetFilter([NotNull] this IConventionIndex index, [CanBeNull] string value, bool fromDataAnnotation = false)
-            => index.SetOrRemoveAnnotation(
+            => index.SetAnnotation(
                 RelationalAnnotationNames.Filter,
                 Check.NullButNotEmpty(value, nameof(value)),
                 fromDataAnnotation);
