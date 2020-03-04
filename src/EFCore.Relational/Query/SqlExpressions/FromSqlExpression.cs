@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
-    public class FromSqlExpression : TableExpressionBase
+    public sealed class FromSqlExpression : TableExpressionBase
     {
         public FromSqlExpression([NotNull] string sql, [NotNull] Expression arguments, [NotNull] string alias)
             : base(alias)
@@ -20,8 +20,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Arguments = arguments;
         }
 
-        public virtual string Sql { get; }
-        public virtual Expression Arguments { get; }
+        public string Sql { get; }
+        public Expression Arguments { get; }
+        public FromSqlExpression Update([NotNull] Expression arguments)
+        {
+            Check.NotNull(arguments, nameof(arguments));
+
+            return arguments != Arguments
+                ? new FromSqlExpression(Sql, arguments, Alias)
+                : this;
+        }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {

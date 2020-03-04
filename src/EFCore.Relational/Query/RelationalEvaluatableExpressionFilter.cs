@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (expression is MethodCallExpression methodCallExpression
                 && model.FindDbFunction(methodCallExpression.Method) is IDbFunction func)
             {
-                return func?.IsIQueryable ?? true;
+                return func?.IsQueryable ?? true;
             }
 
             return base.IsEvaluatableExpression(expression, model);
@@ -69,6 +69,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public override bool IsQueryableFunction(Expression expression, IModel model) =>
             expression is MethodCallExpression methodCallExpression
-               && model.FindDbFunction(methodCallExpression.Method)?.IsIQueryable == true;
+               && model.FindDbFunction(methodCallExpression.Method)?.IsQueryable == true;
     }
 }
