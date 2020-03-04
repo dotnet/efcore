@@ -28,6 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType
     {
+        private const string DynamicProxyGenAssemblyName = "DynamicProxyGenAssembly2";
+
         private readonly SortedSet<ForeignKey> _foreignKeys
             = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance);
 
@@ -94,6 +96,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new ArgumentException(CoreStrings.InvalidEntityType(clrType));
             }
 
+            if (DynamicProxyGenAssemblyName.Equals(
+                clrType.Assembly.GetName().Name, StringComparison.Ordinal))
+            {
+                throw new ArgumentException(
+                    CoreStrings.AttemptToCreateEntityTypeBasedOnProxyClass(clrType.FullName));
+            }
+
             _properties = new SortedDictionary<string, Property>(new PropertyNameComparer(this));
             Builder = new InternalEntityTypeBuilder(this, model.Builder);
         }
@@ -110,6 +119,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (!clrType.IsValidEntityType())
             {
                 throw new ArgumentException(CoreStrings.InvalidEntityType(clrType));
+            }
+
+            if (DynamicProxyGenAssemblyName.Equals(
+                clrType.Assembly.GetName().Name, StringComparison.Ordinal))
+            {
+                throw new ArgumentException(
+                    CoreStrings.AttemptToCreateEntityTypeBasedOnProxyClass(clrType.FullName));
             }
 
             _properties = new SortedDictionary<string, Property>(new PropertyNameComparer(this));
