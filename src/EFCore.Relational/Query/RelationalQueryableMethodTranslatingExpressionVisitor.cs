@@ -63,21 +63,26 @@ namespace Microsoft.EntityFrameworkCore.Query
             _subquery = true;
         }
 
+        protected override Expression VisitExtension(Expression extensionExpression)
+        {
+            if (extensionExpression is FromSqlQueryRootExpression fromSqlQueryRootExpression)
+            {
+                return CreateShapedQueryExpression(
+                    fromSqlQueryRootExpression.EntityType,
+                    _sqlExpressionFactory.Select(
+                        fromSqlQueryRootExpression.EntityType,
+                        fromSqlQueryRootExpression.Sql,
+                        fromSqlQueryRootExpression.Argument));
+            }
+
+            return base.VisitExtension(extensionExpression);
+        }
+
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
-            if (methodCallExpression.Method.DeclaringType == typeof(RelationalQueryableExtensions)
-                && methodCallExpression.Method.Name == nameof(RelationalQueryableExtensions.FromSqlOnQueryable))
-            {
-                var sql = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
-                var entityType = ((QueryRootExpression)methodCallExpression.Arguments[0]).EntityType;
-
-                return CreateShapedQueryExpression(
-                    entityType, _sqlExpressionFactory.Select(entityType, sql, methodCallExpression.Arguments[2]));
-            }
-
-            var dbFunction = this._model.FindDbFunction(methodCallExpression.Method);
+            var dbFunction = _model.FindDbFunction(methodCallExpression.Method);
             if (dbFunction != null && dbFunction.IsIQueryable)
             {
                 return CreateShapedQueryExpression(methodCallExpression);
@@ -94,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var sqlFuncExpression = _sqlTranslator.TranslateMethodCall(methodCallExpression) as SqlFunctionExpression;
 
             var elementType = methodCallExpression.Method.ReturnType.GetGenericArguments()[0];
-            var entityType =_model.FindEntityType(elementType);
+            var entityType = _model.FindEntityType(elementType);
             var queryExpression = _sqlExpressionFactory.Select(entityType, sqlFuncExpression);
 
             return CreateShapedQueryExpression(entityType, queryExpression);

@@ -250,7 +250,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     throw new InvalidOperationException(CoreStrings.ErrorInvalidQueryable);
                 }
 
-                return queryRootExpression.DetachQueryProvider();
+                // Visit after detaching query provider since custom query roots can have additional components
+                extensionExpression = queryRootExpression.DetachQueryProvider();
             }
 
             return base.VisitExtension(extensionExpression);
@@ -500,7 +501,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (_evaluatable)
                 {
-                    _evaluatableExpressions[expression] = _containsClosure;
+                    // Force parameterization when not in lambda
+                    _evaluatableExpressions[expression] = _containsClosure || !_inLambda;
                 }
 
                 _evaluatable = parentEvaluatable && _evaluatable;
@@ -575,18 +577,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     Visit(methodCallExpression.Arguments[i]);
 
-                    if (_evaluatableExpressions.ContainsKey(methodCallExpression.Arguments[i]))
+                    if (_evaluatableExpressions.ContainsKey(methodCallExpression.Arguments[i])
+                        && (parameterInfos[i].GetCustomAttribute<NotParameterizedAttribute>() != null
+                            || _model.IsIndexerMethod(methodCallExpression.Method)))
                     {
-                        if (parameterInfos[i].GetCustomAttribute<NotParameterizedAttribute>() != null
-                            || _model.IsIndexerMethod(methodCallExpression.Method))
-                        {
-                            _evaluatableExpressions[methodCallExpression.Arguments[i]] = false;
-                        }
-                        else if (!_inLambda)
-                        {
-                            // Force parameterization when not in lambda
-                            _evaluatableExpressions[methodCallExpression.Arguments[i]] = true;
-                        }
+                        _evaluatableExpressions[methodCallExpression.Arguments[i]] = false;
                     }
                 }
 
