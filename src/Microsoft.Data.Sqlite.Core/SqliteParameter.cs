@@ -18,9 +18,11 @@ namespace Microsoft.Data.Sqlite
     /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
     public class SqliteParameter : DbParameter
     {
+        private string _parameterName = string.Empty;
         private object _value;
         private int? _size;
         private SqliteType? _sqliteType;
+        private string _sourceColumn = string.Empty;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="SqliteParameter" /> class.
@@ -122,7 +124,11 @@ namespace Microsoft.Data.Sqlite
         ///     Gets or sets the name of the parameter.
         /// </summary>
         /// <value>The name of the parameter.</value>
-        public override string ParameterName { get; set; } = string.Empty;
+        public override string ParameterName
+        {
+            get => _parameterName;
+            set => _parameterName = value ?? String.Empty;
+        }
 
         /// <summary>
         ///     Gets or sets the maximum size, in bytes, of the parameter.
@@ -154,7 +160,11 @@ namespace Microsoft.Data.Sqlite
         ///     Gets or sets the source column used for loading the value.
         /// </summary>
         /// <value>The source column used for loading the value.</value>
-        public override string SourceColumn { get; set; } = string.Empty;
+        public override string SourceColumn
+        {
+            get => _sourceColumn;
+            set => _sourceColumn = value ?? string.Empty;
+        }
 
         /// <summary>
         ///     Gets or sets a value indicating whether the source column is nullable.

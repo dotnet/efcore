@@ -102,7 +102,7 @@ namespace Microsoft.Data.Sqlite
                 if (value != _commandText)
                 {
                     DisposePreparedStatements();
-                    _commandText = value;
+                    _commandText = value ?? string.Empty;
                 }
             }
         }

@@ -36,7 +36,7 @@ namespace Microsoft.Data.Sqlite
 
         private HashSet<(string file, string proc)> _extensions;
 
-        private string _connectionString;
+        private string _connectionString = string.Empty;
         private ConnectionState _state;
         private sqlite3 _db;
         private bool _extensionsEnabled;
@@ -84,7 +84,7 @@ namespace Microsoft.Data.Sqlite
                     throw new InvalidOperationException(Resources.ConnectionStringRequiresClosedConnection);
                 }
 
-                _connectionString = value;
+                _connectionString = value ?? string.Empty;
                 ConnectionOptions = new SqliteConnectionStringBuilder(value);
             }
         }
@@ -164,7 +164,7 @@ namespace Microsoft.Data.Sqlite
                 return;
             }
 
-            if (ConnectionString == null)
+            if (string.IsNullOrEmpty(ConnectionString))
             {
                 throw new InvalidOperationException(Resources.OpenRequiresSetConnectionString);
             }
