@@ -5,6 +5,8 @@ using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
@@ -40,30 +42,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     && (methodName == nameof(RelationalQueryableExtensions.FromSqlRaw)
                         || methodName == nameof(RelationalQueryableExtensions.FromSqlInterpolated)))
                 {
-                    var newSource = Visit(methodCallExpression.Arguments[0]);
-                    var fromSqlOnQueryableMethod =
-                        RelationalQueryableExtensions.FromSqlOnQueryableMethodInfo.MakeGenericMethod(
-                            newSource.Type.GetGenericArguments()[0]);
+                    var newSource = (QueryRootExpression)Visit(methodCallExpression.Arguments[0]);
+
+                    string sql;
+                    Expression argument;
 
                     if (methodName == nameof(RelationalQueryableExtensions.FromSqlRaw))
                     {
-                        return Expression.Call(
-                            null,
-                            fromSqlOnQueryableMethod,
-                            newSource,
-                            methodCallExpression.Arguments[1],
-                            methodCallExpression.Arguments[2]);
+                        sql = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
+                        argument = methodCallExpression.Arguments[2];
+                    }
+                    else
+                    {
+                        var formattableString = Expression.Lambda<Func<FormattableString>>(
+                           Expression.Convert(methodCallExpression.Arguments[1], typeof(FormattableString))).Compile().Invoke();
+
+                        sql = formattableString.Format;
+                        argument = Expression.Constant(formattableString.GetArguments());
                     }
 
-                    var formattableString = Expression.Lambda<Func<FormattableString>>(
-                        Expression.Convert(methodCallExpression.Arguments[1], typeof(FormattableString))).Compile().Invoke();
-
-                    return Expression.Call(
-                        null,
-                        fromSqlOnQueryableMethod,
-                        newSource,
-                        Expression.Constant(formattableString.Format),
-                        Expression.Constant(formattableString.GetArguments()));
+                    return new FromSqlQueryRootExpression(newSource.EntityType, sql, argument);
                 }
 
                 return base.VisitMethodCall(methodCallExpression);

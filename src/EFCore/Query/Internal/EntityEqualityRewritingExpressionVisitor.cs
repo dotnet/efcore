@@ -348,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             // Methods with a typed first argument (source), and with no lambda arguments or a single lambda
-            // argument that has one parameter are rewritten automatically (e.g. Where(), FromSql(), Average()
+            // argument that has one parameter are rewritten automatically (e.g. Where(), Average()
             var newArguments = new Expression[arguments.Count];
             var lambdaArgs = arguments.Select(a => a.GetLambdaOrNull()).Where(l => l != null).ToArray();
             newSource = Visit(arguments[0]);

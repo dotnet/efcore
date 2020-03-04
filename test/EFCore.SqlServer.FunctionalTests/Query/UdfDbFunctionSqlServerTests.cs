@@ -468,10 +468,11 @@ ORDER BY [t].[ProductId]");
         {
             base.QF_Stand_Alone_Parameter();
 
-            AssertSql(@"@__customerId_0='1'
+            AssertSql(
+                @"@__customerId_1='1'
 
 SELECT [o].[Count], [o].[CustomerId], [o].[Year]
-FROM [dbo].[GetCustomerOrderCountByYear](@__customerId_0) AS [o]
+FROM [dbo].[GetCustomerOrderCountByYear](@__customerId_1) AS [o]
 ORDER BY [o].[Count] DESC");
         }
 
@@ -601,14 +602,14 @@ ORDER BY [c].[Id]");
             base.QF_Select_NonCorrelated_Subquery_In_Anonymous_Parameter();
 
             AssertSql(
-                @"@__amount_0='27' (Nullable = true)
+                @"@__amount_1='27' (Nullable = true)
 
 SELECT [c].[Id], [t0].[ProductId]
 FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT [t].[ProductId]
     FROM [dbo].[GetTopTwoSellingProducts]() AS [t]
-    WHERE [t].[AmountSold] = @__amount_0
+    WHERE [t].[AmountSold] = @__amount_1
 ) AS [t0]
 ORDER BY [c].[Id]");
         }
@@ -637,11 +638,12 @@ ORDER BY [o].[Count] DESC, [o].[Year] DESC");
         {
             base.QF_CrossJoin_Not_Correlated();
 
-            AssertSql(@"@__customerId_0='2'
+            AssertSql(
+                @"@__customerId_1='2'
 
 SELECT [c].[Id], [c].[LastName], [o].[Year], [o].[Count]
 FROM [Customers] AS [c]
-CROSS JOIN [dbo].[GetCustomerOrderCountByYear](@__customerId_0) AS [o]
+CROSS JOIN [dbo].[GetCustomerOrderCountByYear](@__customerId_1) AS [o]
 WHERE [c].[Id] = 2
 ORDER BY [o].[Count]");
         }
@@ -650,13 +652,14 @@ ORDER BY [o].[Count]");
         {
             base.QF_CrossJoin_Parameter();
 
-            AssertSql(@"@__customerId_0='2'
-@__custId_1='2'
+            AssertSql(
+                @"@__customerId_1='2'
+@__custId_2='2'
 
 SELECT [c].[Id], [c].[LastName], [o].[Year], [o].[Count]
 FROM [Customers] AS [c]
-CROSS JOIN [dbo].[GetCustomerOrderCountByYear](@__customerId_0) AS [o]
-WHERE [c].[Id] = @__custId_1
+CROSS JOIN [dbo].[GetCustomerOrderCountByYear](@__customerId_1) AS [o]
+WHERE [c].[Id] = @__custId_2
 ORDER BY [o].[Count]");
         }
 
