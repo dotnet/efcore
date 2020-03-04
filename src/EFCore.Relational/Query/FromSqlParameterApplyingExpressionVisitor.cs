@@ -77,13 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 }
                             }
 
-                            updatedFromSql = new FromSqlExpression(
-                                fromSql.Sql,
-                                Expression.Constant(
-                                    new CompositeRelationalParameter(
-                                        parameterExpression.Name,
-                                        subParameters)),
-                                fromSql.Alias);
+                            updatedFromSql = fromSql.Update(Expression.Constant(new CompositeRelationalParameter(parameterExpression.Name, subParameters)));
 
                             _visitedFromSqlExpressions[fromSql] = updatedFromSql;
                             break;
@@ -115,10 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 }
                             }
 
-                            updatedFromSql = new FromSqlExpression(
-                                fromSql.Sql,
-                                Expression.Constant(constantValues, typeof(object[])),
-                                fromSql.Alias);
+                            updatedFromSql = fromSql.Update(Expression.Constant(constantValues, typeof(object[])));
 
                             _visitedFromSqlExpressions[fromSql] = updatedFromSql;
                             break;

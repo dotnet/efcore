@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             // if there are no whenClauses left (e.g. their tests evaluated to false):
             // - if there is Else block, return it
-            // - if there is no Else block, return null 
+            // - if there is no Else block, return null
             if (whenClauses.Count == 0)
             {
                 return elseResult == null
@@ -447,7 +447,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         protected override Expression VisitQueryableSqlFunctionExpression(QueryableSqlFunctionExpression queryableFunctionExpression)
-            => Check.NotNull(queryableFunctionExpression, nameof(queryableFunctionExpression));
+        {
+            Check.NotNull(queryableFunctionExpression, nameof(queryableFunctionExpression));
+
+            return queryableFunctionExpression.Update(
+                VisitInternal<SqlFunctionExpression>(queryableFunctionExpression.SqlFunctionExpression).ResultExpression);
+        }
 
         protected override Expression VisitRowNumber(RowNumberExpression rowNumberExpression)
         {

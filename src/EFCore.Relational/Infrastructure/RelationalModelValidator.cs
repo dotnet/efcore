@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 }
 
                 if (dbFunction.TypeMapping == null &&
-                    !(dbFunction.IsIQueryable && model.FindEntityType(dbFunction.MethodInfo.ReturnType.GetGenericArguments()[0]) != null))
+                    !(dbFunction.IsQueryable && model.FindEntityType(dbFunction.MethodInfo.ReturnType.GetGenericArguments()[0]) != null))
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.DbFunctionInvalidReturnType(

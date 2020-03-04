@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -10,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     /// <summary>
     ///     Represents a SQL Table Valued Fuction in the sql generation tree.
     /// </summary>
-    public class QueryableSqlFunctionExpression : TableExpressionBase
+    public sealed class QueryableSqlFunctionExpression : TableExpressionBase
     {
         public QueryableSqlFunctionExpression([NotNull] SqlFunctionExpression expression, [CanBeNull] string alias)
             : base(alias)
@@ -20,7 +21,23 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             SqlFunctionExpression = expression;
         }
 
-        public virtual SqlFunctionExpression SqlFunctionExpression { get; }
+        public SqlFunctionExpression SqlFunctionExpression { get; }
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+        {
+            Check.NotNull(visitor, nameof(visitor));
+
+            var sqlFunctionExpression = (SqlFunctionExpression)visitor.Visit(SqlFunctionExpression);
+
+            return Update(sqlFunctionExpression);
+        }
+        public QueryableSqlFunctionExpression Update([NotNull] SqlFunctionExpression sqlFunctionExpression)
+        {
+            Check.NotNull(sqlFunctionExpression, nameof(sqlFunctionExpression));
+
+            return sqlFunctionExpression != SqlFunctionExpression
+                ? new QueryableSqlFunctionExpression(sqlFunctionExpression, Alias)
+                : this;
+        }
 
         public override void Print(ExpressionPrinter expressionPrinter)
         {

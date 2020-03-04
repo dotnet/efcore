@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the value indicating whether this method returns IQueryable
         /// </summary>
-        bool IsIQueryable { get; }
+        bool IsQueryable { get; }
 
         /// <summary>
         ///     Gets the configured store type string
