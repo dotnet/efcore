@@ -138,8 +138,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(ISingletonOptions), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
                 { typeof(IConventionSetPlugin), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
                 { typeof(IResettableService), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
-                { typeof(INavigationExpandingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                
             };
 
         /// <summary>
@@ -264,7 +262,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IQueryCompilationContextFactory, QueryCompilationContextFactory>();
             TryAdd<IQueryTranslationPreprocessorFactory, QueryTranslationPreprocessorFactory>();
             TryAdd<IQueryTranslationPostprocessorFactory, QueryTranslationPostprocessorFactory>();
-            TryAdd<INavigationExpandingExpressionVisitorFactory, NavigationExpandingExpressionVisitorFactory>();
 
             TryAdd(p => p.GetService<IDbContextOptions>()?.FindExtension<CoreOptionsExtension>()?.DbContextLogger ?? new NullDbContextLogger());
 

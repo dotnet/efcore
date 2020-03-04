@@ -49,7 +49,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         public virtual Expression Rewrite([NotNull] Expression expression)
-            => Unwrap(Visit(expression));
+        {
+            var result = Visit(expression);
+            // Work-around for issue#20164
+            return new ReducingExpressionVisitor().Visit(result);
+        }
+
+        private sealed class ReducingExpressionVisitor : ExpressionVisitor
+        {
+            protected override Expression VisitExtension(Expression extensionExpression)
+            {
+                return extensionExpression is EntityReferenceExpression entityReferenceExpression
+                    ? Visit(entityReferenceExpression.Underlying)
+                    : base.VisitExtension(extensionExpression);
+            }
+        }
 
         protected override Expression VisitNew(NewExpression newExpression)
         {
