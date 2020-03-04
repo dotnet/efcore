@@ -20,20 +20,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class QueryTranslationPreprocessorFactory : IQueryTranslationPreprocessorFactory
     {
         private readonly QueryTranslationPreprocessorDependencies _dependencies;
-        private readonly INavigationExpandingExpressionVisitorFactory _navigationExpandingExpressionVisitorFactory;
 
-        public QueryTranslationPreprocessorFactory([NotNull] QueryTranslationPreprocessorDependencies dependencies,
-            [NotNull] INavigationExpandingExpressionVisitorFactory navigationExpandingExpressionVisitorFactory)
+        public QueryTranslationPreprocessorFactory([NotNull] QueryTranslationPreprocessorDependencies dependencies)
         {
             _dependencies = dependencies;
-            _navigationExpandingExpressionVisitorFactory = navigationExpandingExpressionVisitorFactory;
         }
 
         public virtual QueryTranslationPreprocessor Create(QueryCompilationContext queryCompilationContext)
         {
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
-            return new QueryTranslationPreprocessor(_dependencies, queryCompilationContext, _navigationExpandingExpressionVisitorFactory);
+            return new QueryTranslationPreprocessor(_dependencies, queryCompilationContext);
         }
     }
 }

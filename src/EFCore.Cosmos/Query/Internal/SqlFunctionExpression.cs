@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             expressionPrinter.Append(Name);
             expressionPrinter.Append("(");
-            expressionPrinter.VisitList(Arguments);
+            expressionPrinter.VisitCollection(Arguments);
             expressionPrinter.Append(")");
         }
 

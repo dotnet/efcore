@@ -56,8 +56,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         private int? CharacterLimit { get; set; }
         private bool Verbose { get; set; }
 
-        public virtual void VisitList<T>(
-            [NotNull] IReadOnlyList<T> items,
+        public virtual void VisitCollection<T>(
+            [NotNull] IReadOnlyCollection<T> items,
             [CanBeNull] Action<ExpressionPrinter> joinAction = null)
             where T : Expression
         {
@@ -65,14 +65,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             joinAction ??= (p => p.Append(", "));
 
-            for (var i = 0; i < items.Count; i++)
+            var first = true;
+            foreach (var item in items)
             {
-                if (i > 0)
+                if (!first)
                 {
                     joinAction(this);
                 }
+                else
+                {
+                    first = false;
+                }
 
-                Visit(items[i]);
+                Visit(item);
             }
         }
 

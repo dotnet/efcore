@@ -461,20 +461,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 function, type);
 
         /// <summary>
-        ///     Queryable Db Functions used in projections cannot return IQueryable.  IQueryable must be converted to a collection type such as List or Array.
-        /// </summary>
-        public static string DbFunctionCantProjectIQueryable()
-            => GetString("DbFunctionCantProjectIQueryable");
-
-        /// <summary>
-        ///     Return type of a queryable function '{functionName}' which is used in a projected collection must define a primary key.
-        /// </summary>
-        public static string DbFunctionProjectedCollectionMustHavePK([CanBeNull] string functionName)
-            => string.Format(
-                GetString("DbFunctionProjectedCollectionMustHavePK", nameof(functionName)),
-                functionName);
-
-        /// <summary>
         ///     An ambient transaction has been detected. The ambient transaction needs to be completed before beginning a transaction on this connection.
         /// </summary>
         public static string ConflictingAmbientTransaction
@@ -575,7 +561,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string NoTypeMappingFoundForSubquery([CanBeNull] object subquery, [CanBeNull] object type)
             => string.Format(
-                GetString("UnexpectedJoinPredicateShape", nameof(subquery), nameof(type)),
+                GetString("NoTypeMappingFoundForSubquery", nameof(subquery), nameof(type)),
                 subquery, type);
 
         /// <summary>
@@ -587,7 +573,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 param1, param2);
 
         /// <summary>
-        ///     Non-matching or unknown projection mapping type in set operation ({type1} and {type2})
+        ///     Non-matching or unknown projection mapping type in set operation ({type1} and {type2}).
         /// </summary>
         public static string UnknownProjectionMappingType([CanBeNull] object type1, [CanBeNull] object type2)
             => string.Format(

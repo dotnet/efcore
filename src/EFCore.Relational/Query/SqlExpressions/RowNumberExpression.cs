@@ -73,12 +73,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             if (Partitions.Any())
             {
                 expressionPrinter.Append("PARTITION BY ");
-                expressionPrinter.VisitList(Partitions);
+                expressionPrinter.VisitCollection(Partitions);
                 expressionPrinter.Append(" ");
             }
 
             expressionPrinter.Append("ORDER BY ");
-            expressionPrinter.VisitList(Orderings);
+            expressionPrinter.VisitCollection(Orderings);
             expressionPrinter.Append(")");
         }
 
