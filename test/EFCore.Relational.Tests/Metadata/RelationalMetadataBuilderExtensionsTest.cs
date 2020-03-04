@@ -155,6 +155,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Null(indexBuilder.HasName("Splod"));
             Assert.Equal("Splow", indexBuilder.Metadata.GetName());
+
+            Assert.NotNull(indexBuilder.HasName(null, fromDataAnnotation: true));
+            Assert.Equal("IX_Splot_Id", indexBuilder.Metadata.GetName());
+
+            Assert.NotNull(indexBuilder.HasName("Splod"));
+            Assert.Equal("Splod", indexBuilder.Metadata.GetName());
+
+            Assert.NotNull(indexBuilder.HasFilter("Splew"));
+            Assert.Equal("Splew", indexBuilder.Metadata.GetFilter());
+
+            Assert.NotNull(indexBuilder.HasFilter("Splow", fromDataAnnotation: true));
+            Assert.Equal("Splow", indexBuilder.Metadata.GetFilter());
+
+            Assert.Null(indexBuilder.HasFilter("Splod"));
+            Assert.Equal("Splow", indexBuilder.Metadata.GetFilter());
+
+            Assert.NotNull(indexBuilder.HasFilter(null, fromDataAnnotation: true));
+            Assert.Null(indexBuilder.Metadata.GetFilter());
+
+            Assert.Null(indexBuilder.HasFilter("Splod"));
+            Assert.Null(indexBuilder.Metadata.GetFilter());
         }
 
         [ConditionalFact]

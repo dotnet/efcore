@@ -42,17 +42,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
 
-            var property = modelBuilder
+            var index = modelBuilder
                 .Entity<Customer>()
                 .HasIndex(e => e.Id)
                 .HasFilter("[Id] % 2 = 0")
                 .Metadata;
 
-            Assert.Equal("[Id] % 2 = 0", property.GetFilter());
+            Assert.Equal("[Id] % 2 = 0", index.GetFilter());
 
-            property.SetFilter("[Id] % 3 = 0");
+            index.SetFilter("[Id] % 3 = 0");
 
-            Assert.Equal("[Id] % 3 = 0", property.GetFilter());
+            Assert.Equal("[Id] % 3 = 0", index.GetFilter());
         }
 
         [ConditionalFact]
