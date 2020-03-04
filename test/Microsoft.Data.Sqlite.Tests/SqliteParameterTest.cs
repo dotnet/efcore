@@ -33,6 +33,44 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void ParameterName_defaults_to_empty()
+        {
+            var parameter = new SqliteParameter();
+
+            Assert.Empty(parameter.ParameterName);
+        }
+
+        [Fact]
+        public void ParameterName_coalesces_to_empty()
+        {
+            var parameter = new SqliteParameter
+            {
+                ParameterName = null
+            };
+
+            Assert.Empty(parameter.ParameterName);
+        }
+
+        [Fact]
+        public void SourceColumn_defaults_to_empty()
+        {
+            var parameter = new SqliteParameter();
+
+            Assert.Empty(parameter.SourceColumn);
+        }
+
+        [Fact]
+        public void SourceColumn_coalesces_to_empty()
+        {
+            var parameter = new SqliteParameter
+            {
+                SourceColumn = null
+            };
+
+            Assert.Empty(parameter.SourceColumn);
+        }
+
+        [Fact]
         public void DbType_defaults_to_string()
         {
             Assert.Equal(DbType.String, new SqliteParameter().DbType);
