@@ -933,12 +933,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             var (outerIdentifier, outerIdentifierValueComparers) = GetIdentifierAccessor(_identifier.Concat(_childIdentifiers));
             innerSelectExpression.ApplyProjection();
 
-            if (innerSelectExpression._identifier.Count == 0 && innerSelectExpression.Tables.FirstOrDefault(
-                 t => t is QueryableSqlFunctionExpression expression && expression.SqlFunctionExpression.Arguments.Count != 0) is QueryableSqlFunctionExpression queryableFunctionExpression)
-            {
-                throw new InvalidOperationException(RelationalStrings.DbFunctionProjectedCollectionMustHavePK(queryableFunctionExpression.SqlFunctionExpression.Name));
-            }
-
             var (selfIdentifier, selfIdentifierValueComparers) = innerSelectExpression.GetIdentifierAccessor(innerSelectExpression._identifier);
 
             if (collectionIndex == 0)
@@ -1933,7 +1927,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             if (Projection.Any())
             {
-                expressionPrinter.VisitList(Projection);
+                expressionPrinter.VisitCollection(Projection);
             }
             else
             {
@@ -1944,7 +1938,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             {
                 expressionPrinter.AppendLine().Append("FROM ");
 
-                expressionPrinter.VisitList(Tables, p => p.AppendLine());
+                expressionPrinter.VisitCollection(Tables, p => p.AppendLine());
             }
 
             if (Predicate != null)
@@ -1956,7 +1950,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             if (GroupBy.Any())
             {
                 expressionPrinter.AppendLine().Append("GROUP BY ");
-                expressionPrinter.VisitList(GroupBy);
+                expressionPrinter.VisitCollection(GroupBy);
             }
 
             if (Having != null)
@@ -1968,7 +1962,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             if (Orderings.Any())
             {
                 expressionPrinter.AppendLine().Append("ORDER BY ");
-                expressionPrinter.VisitList(Orderings);
+                expressionPrinter.VisitCollection(Orderings);
             }
             else if (Offset != null)
             {

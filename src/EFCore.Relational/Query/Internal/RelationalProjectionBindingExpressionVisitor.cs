@@ -246,11 +246,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return null;
             }
 
-            if (newExpression.Arguments.Any(arg => arg is MethodCallExpression methodCallExp && _model.FindDbFunction(methodCallExp.Method)?.IsIQueryable == true))
-            {
-                throw new InvalidOperationException(RelationalStrings.DbFunctionCantProjectIQueryable());
-            }
-
             var newArguments = new Expression[newExpression.Arguments.Count];
             for (var i = 0; i < newArguments.Length; i++)
             {

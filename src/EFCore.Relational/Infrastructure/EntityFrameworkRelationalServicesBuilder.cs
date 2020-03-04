@@ -169,7 +169,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IQueryTranslationPreprocessorFactory, RelationalQueryTranslationPreprocessorFactory>();
             TryAdd<IRelationalParameterBasedQueryTranslationPostprocessorFactory, RelationalParameterBasedQueryTranslationPostprocessorFactory>();
             TryAdd<IRelationalQueryStringFactory, RelationalQueryStringFactory>();
-            TryAdd<INavigationExpandingExpressionVisitorFactory, RelationalNavigationExpandingExpressionVisitorFactory>();
 
             ServiceCollectionMap.GetInfrastructure()
                 .AddDependencySingleton<RelationalSqlGenerationHelperDependencies>()
