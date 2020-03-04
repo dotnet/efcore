@@ -114,7 +114,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var entityType = queryRootExpression.EntityType;
                     var definingQuery = entityType.GetDefiningQuery();
                     NavigationExpansionExpression navigationExpansionExpression;
-                    if (definingQuery != null)
+                    if (definingQuery != null
+                        // Apply defining query only when it is not custom query root
+                        && queryRootExpression.GetType() == typeof(QueryRootExpression))
                     {
                         var processedDefiningQueryBody = _parameterExtractingExpressionVisitor.ExtractParameters(definingQuery.Body);
                         processedDefiningQueryBody = _queryTranslationPreprocessor.NormalizeQueryableMethodCall(processedDefiningQueryBody);
@@ -516,23 +518,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
 
                 return methodCallExpression.Update(null, new[] { argument });
-            }
-
-            if (method.IsGenericMethod
-                && method.Name == "FromSqlOnQueryable"
-                && methodCallExpression.Arguments.Count == 3
-                && methodCallExpression.Arguments[0] is QueryRootExpression queryRootExpression
-                && methodCallExpression.Arguments[1] is ConstantExpression
-                && (methodCallExpression.Arguments[2] is ParameterExpression || methodCallExpression.Arguments[2] is ConstantExpression))
-            {
-                var entityType = queryRootExpression.EntityType;
-                var source = CreateNavigationExpansionExpression(queryRootExpression, entityType);
-                source.UpdateSource(
-                    methodCallExpression.Update(
-                        null,
-                        new[] { source.Source, methodCallExpression.Arguments[1], methodCallExpression.Arguments[2] }));
-
-                return ApplyQueryFilter(source);
             }
 
             return ProcessUnknownMethod(methodCallExpression);

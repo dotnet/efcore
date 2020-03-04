@@ -54,11 +54,6 @@ namespace Microsoft.EntityFrameworkCore
             throw new NotSupportedException(RelationalStrings.NoDbCommand);
         }
 
-        internal static readonly MethodInfo FromSqlOnQueryableMethodInfo
-            = typeof(RelationalQueryableExtensions)
-                .GetTypeInfo().GetDeclaredMethods(nameof(FromSqlOnQueryable))
-                .Single();
-
         /// <summary>
         ///     <para>
         ///         Creates a LINQ query based on a raw SQL query.
@@ -100,12 +95,10 @@ namespace Microsoft.EntityFrameworkCore
 
             var queryableSource = (IQueryable)source;
             return queryableSource.Provider.CreateQuery<TEntity>(
-                Expression.Call(
-                    null,
-                    FromSqlOnQueryableMethodInfo.MakeGenericMethod(typeof(TEntity)),
-                    queryableSource.Expression,
-                    Expression.Constant(sql),
-                    Expression.Constant(parameters)));
+                GenerateFromSqlQueryRoot(
+                    queryableSource,
+                    sql,
+                    parameters));
         }
 
         /// <summary>
@@ -140,19 +133,24 @@ namespace Microsoft.EntityFrameworkCore
 
             var queryableSource = (IQueryable)source;
             return queryableSource.Provider.CreateQuery<TEntity>(
-                Expression.Call(
-                    null,
-                    FromSqlOnQueryableMethodInfo.MakeGenericMethod(typeof(TEntity)),
-                    queryableSource.Expression,
-                    Expression.Constant(sql.Format),
-                    Expression.Constant(sql.GetArguments())));
+                GenerateFromSqlQueryRoot(
+                    queryableSource,
+                    sql.Format,
+                    sql.GetArguments()));
         }
 
-        internal static IQueryable<TEntity> FromSqlOnQueryable<TEntity>(
-            [NotNull] this IQueryable<TEntity> source,
-            [NotParameterized] string sql,
-            [NotNull] params object[] parameters)
-            where TEntity : class
-            => throw new NotImplementedException();
+        private static FromSqlQueryRootExpression GenerateFromSqlQueryRoot(
+            IQueryable source,
+            string sql,
+            object[] arguments)
+        {
+            var queryRootExpression = (QueryRootExpression)source.Expression;
+
+            return new FromSqlQueryRootExpression(
+                queryRootExpression.QueryProvider,
+                queryRootExpression.EntityType,
+                sql,
+                Expression.Constant(arguments));
+        }
     }
 }
