@@ -1015,8 +1015,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (sqlFunctionExpression.IsNiladic)
             {
-                // TODO: #18555
-                _nullable = true;
+                _nullable = sqlFunctionExpression.IsNullable;
 
                 return sqlFunctionExpression.Update(instance, sqlFunctionExpression.Arguments);
             }
@@ -1027,8 +1026,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (arguments[i], _) = VisitInternal<SqlExpression>(sqlFunctionExpression.Arguments[i]);
             }
 
-            // TODO: #18555
-            _nullable = true;
+            _nullable = sqlFunctionExpression.IsNullable;
 
             return sqlFunctionExpression.Update(instance, arguments);
         }
