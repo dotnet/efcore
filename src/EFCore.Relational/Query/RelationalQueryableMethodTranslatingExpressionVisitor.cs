@@ -65,45 +65,57 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            if (extensionExpression is FromSqlQueryRootExpression fromSqlQueryRootExpression)
+            switch(extensionExpression)
             {
-                return CreateShapedQueryExpression(
-                    fromSqlQueryRootExpression.EntityType,
-                    _sqlExpressionFactory.Select(
+                case FromSqlQueryRootExpression fromSqlQueryRootExpression:
+                    return CreateShapedQueryExpression(
                         fromSqlQueryRootExpression.EntityType,
-                        fromSqlQueryRootExpression.Sql,
-                        fromSqlQueryRootExpression.Argument));
+                        _sqlExpressionFactory.Select(
+                            fromSqlQueryRootExpression.EntityType,
+                            fromSqlQueryRootExpression.Sql,
+                            fromSqlQueryRootExpression.Argument));
+
+                case QueryableFunctionQueryRootExpression queryableFunctionQueryRootExpression:
+                    var function = queryableFunctionQueryRootExpression.Function;
+                    var arguments = new List<SqlExpression>();
+                    foreach (var arg in queryableFunctionQueryRootExpression.Arguments)
+                    {
+                        var sqlArgument = _sqlTranslator.Translate(arg);
+                        if (sqlArgument == null)
+                        {
+                            var methodCall = Expression.Call(
+                                Expression.Constant(null, function.MethodInfo.DeclaringType),
+                                function.MethodInfo,
+                                queryableFunctionQueryRootExpression.Arguments);
+
+                            throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCall.Print()));
+                        }
+
+                        arguments.Add(sqlArgument);
+                    }
+
+                    // Default typeMapping is already applied
+                    var translation = (SqlFunctionExpression)function.Translation?.Invoke(arguments)
+                        ?? _sqlExpressionFactory.Function(
+                            function.Schema,
+                            function.Name,
+                            arguments,
+                            nullable: true,
+                        argumentsPropagateNullability: arguments.Select(a => false).ToList(),
+                        function.MethodInfo.ReturnType);
+
+                    var entityType = queryableFunctionQueryRootExpression.EntityType;
+
+                    var queryExpression = _sqlExpressionFactory.Select(entityType, translation);
+                    return CreateShapedQueryExpression(entityType, queryExpression);
+
+                default:
+                    return base.VisitExtension(extensionExpression);
             }
-
-            return base.VisitExtension(extensionExpression);
-        }
-
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
-        {
-            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
-
-            var dbFunction = _model.FindDbFunction(methodCallExpression.Method);
-            if (dbFunction != null && dbFunction.IsIQueryable)
-            {
-                return CreateShapedQueryExpression(methodCallExpression);
-            }
-
-            return base.VisitMethodCall(methodCallExpression);
         }
 
         protected override QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor()
             => new RelationalQueryableMethodTranslatingExpressionVisitor(this);
-
-        protected virtual ShapedQueryExpression CreateShapedQueryExpression([NotNull] MethodCallExpression methodCallExpression)
-        {
-            var sqlFuncExpression = _sqlTranslator.TranslateMethodCall(methodCallExpression) as SqlFunctionExpression;
-
-            var elementType = methodCallExpression.Method.ReturnType.GetGenericArguments()[0];
-            var entityType = _model.FindEntityType(elementType);
-            var queryExpression = _sqlExpressionFactory.Select(entityType, sqlFuncExpression);
-
-            return CreateShapedQueryExpression(entityType, queryExpression);
-        }
 
         [Obsolete("Use overload which takes IEntityType.")]
         protected override ShapedQueryExpression CreateShapedQueryExpression(Type elementType)

@@ -47,11 +47,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         protected virtual RelationalEvaluatableExpressionFilterDependencies RelationalDependencies { get; }
 
-        /// <summary>	
-        ///     Checks whether the given expression can be evaluated.	
-        /// </summary>	
-        /// <param name="expression"> The expression. </param>	
-        /// <param name="model"> The model. </param>	
+        /// <summary>
+        ///     Checks whether the given expression can be evaluated.
+        /// </summary>
+        /// <param name="expression"> The expression. </param>
+        /// <param name="model"> The model. </param>
         /// <returns> True if the expression can be evaluated; false otherwise. </returns>
         public override bool IsEvaluatableExpression(Expression expression, IModel model)
         {
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return base.IsEvaluatableExpression(expression, model);
         }
 
-        public override bool IsQueryableFunction(Expression expression, IModel model) => 
+        public override bool IsQueryableFunction(Expression expression, IModel model) =>
             expression is MethodCallExpression methodCallExpression
                && model.FindDbFunction(methodCallExpression.Method)?.IsIQueryable == true;
     }

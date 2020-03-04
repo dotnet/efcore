@@ -368,7 +368,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             if (!IsNiladic)
             {
                 expressionPrinter.Append("(");
-                expressionPrinter.VisitList(Arguments);
+                expressionPrinter.VisitCollection(Arguments);
                 expressionPrinter.Append(")");
             }
         }
