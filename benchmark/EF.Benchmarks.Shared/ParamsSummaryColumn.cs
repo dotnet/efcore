@@ -22,7 +22,7 @@ namespace BenchmarkDotNet.Attributes
         public override string ToString() => ColumnName;
         public bool IsNumeric => false;
         public UnitType UnitType => UnitType.Dimensionless;
-        public string GetValue(Summary summary, BenchmarkCase benchmark, ISummaryStyle style) => GetValue(summary, benchmark);
+        public string GetValue(Summary summary, BenchmarkCase benchmark, SummaryStyle style) => GetValue(summary, benchmark);
         public string Legend => "Summary of all parameter values";
     }
 }
