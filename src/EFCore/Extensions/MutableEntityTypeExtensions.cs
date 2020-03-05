@@ -572,6 +572,18 @@ namespace Microsoft.EntityFrameworkCore
                 .SetDiscriminatorProperty(property, ConfigurationSource.Explicit);
 
         /// <summary>
+        ///     Sets the value indicating whether the discriminator mapping is complete.
+        /// </summary>
+        /// <param name="entityType"> The entity type to set the discriminator mapping complete for. </param>
+        /// <param name="complete"> The value indicating whether the discriminator mapping is complete. </param>
+        public static void SetDiscriminatorMappingComplete([NotNull] this IMutableEntityType entityType, bool? complete)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            entityType.GetRootType().SetOrRemoveAnnotation(CoreAnnotationNames.DiscriminatorMappingComplete, complete);
+        }
+
+        /// <summary>
         ///     Sets the discriminator value for this entity type.
         /// </summary>
         /// <param name="entityType"> The entity type to set the discriminator value for. </param>

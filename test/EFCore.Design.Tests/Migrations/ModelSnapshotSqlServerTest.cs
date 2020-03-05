@@ -551,6 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Entity<AnotherDerivedEntity>().HasBaseType<BaseEntity>();
                     builder.Entity<BaseEntity>()
                         .HasDiscriminator(e => e.Discriminator)
+                        .IsComplete()
                         .HasValue(typeof(BaseEntity), typeof(BaseEntity).Name)
                         .HasValue(typeof(DerivedEntity), typeof(DerivedEntity).Name)
                         .HasValue(typeof(AnotherDerivedEntity), typeof(AnotherDerivedEntity).Name);
@@ -573,7 +574,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     b.ToTable(""BaseEntity"");
 
-                    b.HasDiscriminator<string>(""Discriminator"").HasValue(""BaseEntity"");
+                    b.HasDiscriminator<string>(""Discriminator"").IsComplete(true).HasValue(""BaseEntity"");
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AnotherDerivedEntity"", b =>

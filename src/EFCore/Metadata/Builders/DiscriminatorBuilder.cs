@@ -37,6 +37,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         protected virtual InternalEntityTypeBuilder EntityTypeBuilder { get; }
 
         /// <summary>
+        ///     Configures if the discriminator mapping is complete.
+        /// </summary>
+        /// <param name="complete"> The value indicating if this discriminator mapping is complete. </param>
+        /// <returns> The same builder so that multiple calls can be chained. </returns>
+        public virtual DiscriminatorBuilder IsComplete(bool complete = true)
+            => IsComplete(complete, ConfigurationSource.Explicit);
+
+        private DiscriminatorBuilder IsComplete(bool complete, ConfigurationSource configurationSource)
+        {
+            if (configurationSource == ConfigurationSource.Explicit)
+            {
+                EntityTypeBuilder.Metadata.SetDiscriminatorMappingComplete(complete);
+            }
+            else
+            {
+                if (!EntityTypeBuilder.CanSetAnnotation(
+                    CoreAnnotationNames.DiscriminatorMappingComplete, complete, configurationSource))
+                {
+                    return null;
+                }
+
+                EntityTypeBuilder.Metadata.SetDiscriminatorValue(complete, configurationSource == ConfigurationSource.DataAnnotation);
+            }
+
+            return this;
+        }
+
+        /// <summary>
         ///     Configures the default discriminator value to use.
         /// </summary>
         /// <param name="value"> The discriminator value. </param>
@@ -118,6 +146,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             return this;
         }
+
+        /// <inheritdoc />
+        IConventionDiscriminatorBuilder IConventionDiscriminatorBuilder.IsComplete(bool complete, bool fromDataAnnotation)
+            => IsComplete(complete, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        bool IConventionDiscriminatorBuilder.CanSetIsComplete(bool complete, bool fromDataAnnotation)
+            => ((IConventionEntityTypeBuilder)EntityTypeBuilder).CanSetAnnotation(
+                CoreAnnotationNames.DiscriminatorMappingComplete, fromDataAnnotation);
 
         /// <inheritdoc />
         IConventionDiscriminatorBuilder IConventionDiscriminatorBuilder.HasValue(object value, bool fromDataAnnotation)

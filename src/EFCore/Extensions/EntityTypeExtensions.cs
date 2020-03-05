@@ -648,6 +648,20 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Returns the value indicating whether the discriminator mapping is complete for this entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to check whether the discriminator mapping is complete. </param>
+        public static bool GetIsDiscriminatorMappingComplete([NotNull] this IEntityType entityType)
+        {
+            if (entityType.BaseType != null)
+            {
+                return entityType.GetRootType().GetIsDiscriminatorMappingComplete();
+            }
+
+            return (bool?)entityType[CoreAnnotationNames.DiscriminatorMappingComplete] ?? false;
+        }
+
+        /// <summary>
         ///     Returns the discriminator value for this entity type.
         /// </summary>
         /// <param name="entityType"> The entity type to find the discriminator value for. </param>

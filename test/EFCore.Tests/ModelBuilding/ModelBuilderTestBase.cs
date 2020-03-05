@@ -252,6 +252,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         public abstract class TestDiscriminatorBuilder<TDiscriminator>
         {
+            public abstract TestDiscriminatorBuilder<TDiscriminator> IsComplete(bool complete);
+
             public abstract TestDiscriminatorBuilder<TDiscriminator> HasValue(TDiscriminator value);
 
             public abstract TestDiscriminatorBuilder<TDiscriminator> HasValue<TEntity>(TDiscriminator value);

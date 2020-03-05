@@ -848,6 +848,25 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(ValueGenerated.OnAdd, mb.Model.FindEntityType(typeof(Q)).FindProperty(nameof(Q.ID)).ValueGenerated);
             }
 
+            [ConditionalFact]
+            public void Can_get_set_discriminator_mapping_is_complete()
+            {
+                var mb = CreateModelBuilder();
+                var baseTypeBuilder = mb.Entity<PBase>();
+                var derivedTypeBuilder = mb.Entity<Q>();
+
+                Assert.False(baseTypeBuilder.Metadata.GetIsDiscriminatorMappingComplete());
+
+                baseTypeBuilder.HasDiscriminator<string>("Discriminator").IsComplete(true);
+                Assert.True(baseTypeBuilder.Metadata.GetIsDiscriminatorMappingComplete());
+
+                baseTypeBuilder.HasDiscriminator<string>("Discriminator").IsComplete(false);
+                Assert.False(baseTypeBuilder.Metadata.GetIsDiscriminatorMappingComplete());
+
+                derivedTypeBuilder.HasDiscriminator<string>("Discriminator").IsComplete(true);
+                Assert.True(baseTypeBuilder.Metadata.GetIsDiscriminatorMappingComplete());
+            }
+
             protected class L
             {
                 public int Id { get; set; }
