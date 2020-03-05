@@ -552,12 +552,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
-                if (_evaluatableExpressionFilter.IsQueryableFunction(methodCallExpression, _model)
-                        && !_inLambda)
-                {
-                    _evaluatable = false;
-                }
-
                 Visit(methodCallExpression.Object);
                 var parameterInfos = methodCallExpression.Method.GetParameters();
                 for (var i = 0; i < methodCallExpression.Arguments.Count; i++)

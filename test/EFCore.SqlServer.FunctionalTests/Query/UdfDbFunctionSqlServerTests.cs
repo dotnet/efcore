@@ -639,11 +639,9 @@ ORDER BY [o].[Count] DESC, [o].[Year] DESC");
             base.QF_CrossJoin_Not_Correlated();
 
             AssertSql(
-                @"@__customerId_1='2'
-
-SELECT [c].[Id], [c].[LastName], [o].[Year], [o].[Count]
+                @"SELECT [c].[Id], [c].[LastName], [o].[Year], [o].[Count]
 FROM [Customers] AS [c]
-CROSS JOIN [dbo].[GetCustomerOrderCountByYear](@__customerId_1) AS [o]
+CROSS JOIN [dbo].[GetCustomerOrderCountByYear](2) AS [o]
 WHERE [c].[Id] = 2
 ORDER BY [o].[Count]");
         }
@@ -653,13 +651,12 @@ ORDER BY [o].[Count]");
             base.QF_CrossJoin_Parameter();
 
             AssertSql(
-                @"@__customerId_1='2'
-@__custId_2='2'
+                @"@__custId_1='2'
 
 SELECT [c].[Id], [c].[LastName], [o].[Year], [o].[Count]
 FROM [Customers] AS [c]
-CROSS JOIN [dbo].[GetCustomerOrderCountByYear](@__customerId_1) AS [o]
-WHERE [c].[Id] = @__custId_2
+CROSS JOIN [dbo].[GetCustomerOrderCountByYear](@__custId_1) AS [o]
+WHERE [c].[Id] = @__custId_1
 ORDER BY [o].[Count]");
         }
 

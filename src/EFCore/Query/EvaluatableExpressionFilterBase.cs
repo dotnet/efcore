@@ -68,7 +68,5 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return true;
         }
-
-        public virtual bool IsQueryableFunction(Expression expression, IModel model) => false;
     }
 }

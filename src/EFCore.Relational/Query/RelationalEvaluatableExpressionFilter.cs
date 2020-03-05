@@ -59,16 +59,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(model, nameof(model));
 
             if (expression is MethodCallExpression methodCallExpression
-                && model.FindDbFunction(methodCallExpression.Method) is IDbFunction func)
+                && model.FindDbFunction(methodCallExpression.Method) != null)
             {
-                return func?.IsQueryable ?? true;
+                // Never evaluate DbFunction
+                // If it is inside lambda then we will have whole method call
+                // If it is outside of lambda then it will be evaluated for queryable function already.
+                return false;
             }
 
             return base.IsEvaluatableExpression(expression, model);
         }
-
-        public override bool IsQueryableFunction(Expression expression, IModel model) =>
-            expression is MethodCallExpression methodCallExpression
-               && model.FindDbFunction(methodCallExpression.Method)?.IsQueryable == true;
     }
 }
