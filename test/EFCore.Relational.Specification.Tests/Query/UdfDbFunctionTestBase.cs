@@ -1545,7 +1545,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#20184")]
         public virtual void QF_Select_Direct_In_Anonymous()
         {
             using (var context = CreateContext())
@@ -1640,7 +1640,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#20184")]
         public virtual void QF_Select_Correlated_Subquery_In_Anonymous_Nested()
         {
             using (var context = CreateContext())
