@@ -849,6 +849,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private bool AddDiscriminatorCondition(SelectExpression selectExpression, IEntityType entityType)
         {
+            if (entityType.GetIsDiscriminatorMappingComplete()
+                && entityType.GetAllBaseTypesInclusiveAscending()
+                    .All(e => (e == entityType || e.IsAbstract()) && !HasSiblings(e)))
+            {
+                return false;
+            }
+
             SqlExpression predicate;
             var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToList();
             if (concreteEntityTypes.Count == 1)
@@ -876,6 +883,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             selectExpression.ApplyPredicate(predicate);
 
             return true;
+
+            bool HasSiblings(IEntityType entityType)
+            {
+                return entityType.BaseType?.GetDirectlyDerivedTypes().Any(i => i != entityType) == true;
+            }
         }
 
         private void AddOptionalDependentConditions(

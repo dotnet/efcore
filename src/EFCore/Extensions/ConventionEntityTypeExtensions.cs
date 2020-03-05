@@ -670,6 +670,20 @@ namespace Microsoft.EntityFrameworkCore
                 ?.GetConfigurationSource();
 
         /// <summary>
+        ///     Sets the value indicating whether the discriminator mapping is complete.
+        /// </summary>
+        /// <param name="entityType"> The entity type to set the discriminator mapping complete for. </param>
+        /// <param name="complete"> The value indicating whether the discriminator mapping is complete. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void SetDiscriminatorMappingComplete(
+            [NotNull] this IConventionEntityType entityType, bool? complete, bool fromDataAnnotation = false)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            entityType.GetRootType().SetOrRemoveAnnotation(CoreAnnotationNames.DiscriminatorMappingComplete, complete, fromDataAnnotation);
+        }
+
+        /// <summary>
         ///     Sets the discriminator value for this entity type.
         /// </summary>
         /// <param name="entityType"> The entity type to set the discriminator value for. </param>
