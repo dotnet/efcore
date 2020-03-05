@@ -29,7 +29,7 @@
     <SQLitePCLRawBundleESqlcipherPackageVersion>2.0.2</SQLitePCLRawBundleESqlcipherPackageVersion>
     <SQLitePCLRawCorePackageVersion>2.0.2</SQLitePCLRawCorePackageVersion>
     <StyleCopAnalyzersPackageVersion>1.1.118</StyleCopAnalyzersPackageVersion>
-    <BenchmarkDotNetPackageVersion>0.11.3</BenchmarkDotNetPackageVersion>
+    <BenchmarkDotNetPackageVersion>0.12.0</BenchmarkDotNetPackageVersion>
     <MicrosoftDataSqlClientPackageVersion>2.0.0-preview1.20021.1</MicrosoftDataSqlClientPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/extensions">
