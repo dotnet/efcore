@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -81,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => x.EntityType == y.EntityType
                 && x.Table == y.Table
                 && x.IncludesDerivedTypes == y.IncludesDerivedTypes
-                && StructuralComparisons.StructuralEqualityComparer.Equals(x.ColumnMappings, y.ColumnMappings);
+                && x.ColumnMappings.SequenceEqual(y.ColumnMappings);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

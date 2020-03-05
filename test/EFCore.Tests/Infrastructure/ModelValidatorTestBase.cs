@@ -274,7 +274,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Equal(expectedMessage, message);
         }
 
-        protected virtual void Validate(IMutableModel model) => model.FinalizeModel();
+        protected virtual IModel Validate(IMutableModel model) => model.FinalizeModel();
 
         protected DiagnosticsLogger<DbLoggerCategory.Model.Validation> CreateValidationLogger(bool sensitiveDataLoggingEnabled = false)
         {

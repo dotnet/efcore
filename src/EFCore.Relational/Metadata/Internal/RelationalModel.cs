@@ -252,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
 
                     if (columns == null
-                        || StructuralComparisons.StructuralEqualityComparer.Equals(columns, principalColumns))
+                        || columns.SequenceEqual(principalColumns))
                     {
                         continue;
                     }

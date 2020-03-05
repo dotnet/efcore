@@ -176,12 +176,60 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("UnknownOperatorTypeInSqlUnaryExpression");
 
         /// <summary>
-        ///     When generating migrations SQL for {operation}, can't produce unterminated SQL with comments
+        ///     When generating migrations SQL for {operation}, can't produce unterminated SQL with comments.
         /// </summary>
         public static string CannotProduceUnterminatedSQLWithComments([CanBeNull] object operation)
             => string.Format(
                 GetString("CannotProduceUnterminatedSQLWithComments", nameof(operation)),
                 operation);
+
+        /// <summary>
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different identity increment.
+        /// </summary>
+        public static string DuplicateColumnIdentityIncrementMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table)
+            => string.Format(
+                GetString("DuplicateColumnIdentityIncrementMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table)),
+                entityType1, property1, entityType2, property2, columnName, table);
+
+        /// <summary>
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different identity seed.
+        /// </summary>
+        public static string DuplicateColumnIdentitySeedMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table)
+            => string.Format(
+                GetString("DuplicateColumnIdentitySeedMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table)),
+                entityType1, property1, entityType2, property2, columnName, table);
+
+        /// <summary>
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different hi-lo sequences.
+        /// </summary>
+        public static string DuplicateColumnSequenceMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table)
+            => string.Format(
+                GetString("DuplicateColumnSequenceMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table)),
+                entityType1, property1, entityType2, property2, columnName, table);
+
+        /// <summary>
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different clustered configuration.
+        /// </summary>
+        public static string DuplicateIndexClusteredMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName)
+            => string.Format(
+                GetString("DuplicateIndexClusteredMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(indexName)),
+                index1, entityType1, index2, entityType2, table, indexName);
+
+        /// <summary>
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different included properties {includedProperties1} and {includedProperties2}.
+        /// </summary>
+        public static string DuplicateIndexIncludedMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName, [CanBeNull] object includedProperties1, [CanBeNull] object includedProperties2)
+            => string.Format(
+                GetString("DuplicateIndexIncludedMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(indexName), nameof(includedProperties1), nameof(includedProperties2)),
+                index1, entityType1, index2, entityType2, table, indexName, includedProperties1, includedProperties2);
+
+        /// <summary>
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different online configuration.
+        /// </summary>
+        public static string DuplicateIndexOnlineMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName)
+            => string.Format(
+                GetString("DuplicateIndexOnlineMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(indexName)),
+                index1, entityType1, index2, entityType2, table, indexName);
 
         private static string GetString(string name, params string[] formatterNames)
         {

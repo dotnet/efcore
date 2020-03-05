@@ -251,4 +251,22 @@
   <data name="CannotProduceUnterminatedSQLWithComments" xml:space="preserve">
     <value>When generating migrations SQL for {operation}, can't produce unterminated SQL with comments.</value>
   </data>
+  <data name="DuplicateColumnIdentityIncrementMismatch" xml:space="preserve">
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different identity increment.</value>
+  </data>
+  <data name="DuplicateColumnIdentitySeedMismatch" xml:space="preserve">
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different identity seed.</value>
+  </data>
+  <data name="DuplicateColumnSequenceMismatch" xml:space="preserve">
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different hi-lo sequences.</value>
+  </data>
+  <data name="DuplicateIndexClusteredMismatch" xml:space="preserve">
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different clustered configuration.</value>
+  </data>
+  <data name="DuplicateIndexIncludedMismatch" xml:space="preserve">
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different included properties {includedProperties1} and {includedProperties2}.</value>
+  </data>
+  <data name="DuplicateIndexOnlineMismatch" xml:space="preserve">
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different online configuration.</value>
+  </data>
 </root>
