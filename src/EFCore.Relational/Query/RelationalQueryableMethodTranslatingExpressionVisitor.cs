@@ -94,19 +94,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                         arguments.Add(sqlArgument);
                     }
 
-                    // Default typeMapping is already applied
-                    var translation = (SqlFunctionExpression)function.Translation?.Invoke(arguments)
-                        ?? _sqlExpressionFactory.Function(
-                            function.Schema,
-                            function.Name,
-                            arguments,
-                            nullable: true,
-                        argumentsPropagateNullability: arguments.Select(a => false).ToList(),
-                        function.MethodInfo.ReturnType);
-
+                    // TODO: Allow translation to construct the table
                     var entityType = queryableFunctionQueryRootExpression.EntityType;
+                    var alias = (entityType.GetViewOrTableMappings().SingleOrDefault()?.Table.Name
+                        ?? entityType.ShortName()).Substring(0, 1).ToLower();
 
+                    var translation = new QueryableFunctionExpression(function.Schema, function.Name, arguments, alias);
                     var queryExpression = _sqlExpressionFactory.Select(entityType, translation);
+
                     return CreateShapedQueryExpression(entityType, queryExpression);
 
                 default:

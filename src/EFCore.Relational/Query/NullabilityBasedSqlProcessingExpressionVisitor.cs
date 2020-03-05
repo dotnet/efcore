@@ -446,12 +446,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 VisitInternal<SqlExpression>(projectionExpression.Expression).ResultExpression);
         }
 
-        protected override Expression VisitQueryableSqlFunctionExpression(QueryableSqlFunctionExpression queryableFunctionExpression)
+        protected override Expression VisitQueryableFunctionExpression(QueryableFunctionExpression queryableFunctionExpression)
         {
             Check.NotNull(queryableFunctionExpression, nameof(queryableFunctionExpression));
 
-            return queryableFunctionExpression.Update(
-                VisitInternal<SqlFunctionExpression>(queryableFunctionExpression.SqlFunctionExpression).ResultExpression);
+            // See issue#20180
+            return queryableFunctionExpression;
         }
 
         protected override Expression VisitRowNumber(RowNumberExpression rowNumberExpression)

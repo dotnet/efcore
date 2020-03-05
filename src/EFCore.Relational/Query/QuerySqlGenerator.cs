@@ -270,11 +270,25 @@ namespace Microsoft.EntityFrameworkCore.Query
             return sqlFunctionExpression;
         }
 
-        protected override Expression VisitQueryableSqlFunctionExpression(QueryableSqlFunctionExpression queryableFunctionExpression)
+        protected override Expression VisitQueryableFunctionExpression(QueryableFunctionExpression queryableFunctionExpression)
         {
-            Visit(queryableFunctionExpression.SqlFunctionExpression);
+            Check.NotNull(queryableFunctionExpression, nameof(queryableFunctionExpression));
+
+            if (!string.IsNullOrEmpty(queryableFunctionExpression.Schema))
+            {
+                _relationalCommandBuilder
+                    .Append(_sqlGenerationHelper.DelimitIdentifier(queryableFunctionExpression.Schema))
+                    .Append(".");
+            }
 
             _relationalCommandBuilder
+                .Append(_sqlGenerationHelper.DelimitIdentifier(queryableFunctionExpression.Name))
+                .Append("(");
+
+            GenerateList(queryableFunctionExpression.Arguments, e => Visit(e));
+
+            _relationalCommandBuilder
+                .Append(")")
                 .Append(AliasSeparator)
                 .Append(_sqlGenerationHelper.DelimitIdentifier(queryableFunctionExpression.Alias));
 

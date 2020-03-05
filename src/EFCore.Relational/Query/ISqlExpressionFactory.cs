@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         SelectExpression Select([CanBeNull] SqlExpression projection);
         SelectExpression Select([NotNull] IEntityType entityType);
+        SelectExpression Select([NotNull] IEntityType entityType, [NotNull] TableExpressionBase tableExpressionBase);
         SelectExpression Select([NotNull] IEntityType entityType, [NotNull] string sql, [NotNull] Expression sqlArguments);
-        SelectExpression Select([NotNull] IEntityType entityType, [NotNull] SqlFunctionExpression expression);
     }
 }

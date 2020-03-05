@@ -712,23 +712,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual SqlConstantExpression Constant(object value, RelationalTypeMapping typeMapping = null)
             => new SqlConstantExpression(Expression.Constant(value), typeMapping);
 
-        public virtual SelectExpression Select(SqlExpression projection)
-        {
-            var selectExpression = new SelectExpression(
-                alias: null,
-                new List<ProjectionExpression>(),
-                new List<TableExpressionBase>(),
-                new List<SqlExpression>(),
-                new List<OrderingExpression>());
-
-            if (projection != null)
-            {
-                selectExpression.ReplaceProjectionMapping(
-                    new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), projection } });
-            }
-
-            return selectExpression;
-        }
+        public virtual SelectExpression Select(SqlExpression projection) => new SelectExpression(projection);
 
         public virtual SelectExpression Select(IEntityType entityType)
         {
@@ -740,20 +724,26 @@ namespace Microsoft.EntityFrameworkCore.Query
             return selectExpression;
         }
 
-        public virtual SelectExpression Select(IEntityType entityType, string sql, Expression sqlArguments)
+        public virtual SelectExpression Select(IEntityType entityType, TableExpressionBase tableExpressionBase)
         {
             Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(sql, nameof(sql));
+            Check.NotNull(tableExpressionBase, nameof(tableExpressionBase));
 
-            var selectExpression = new SelectExpression(entityType, sql, sqlArguments);
+            var selectExpression = new SelectExpression(entityType, tableExpressionBase);
             AddConditions(selectExpression, entityType);
 
             return selectExpression;
         }
 
-        public virtual SelectExpression Select(IEntityType entityType, SqlFunctionExpression expression)
+        public virtual SelectExpression Select(IEntityType entityType, string sql, Expression sqlArguments)
         {
-            var selectExpression = new SelectExpression(entityType, expression);
+            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(sql, nameof(sql));
+
+            var tableExpression = new FromSqlExpression(sql, sqlArguments,
+                (entityType.GetViewOrTableMappings().SingleOrDefault()?.Table.Name
+                ?? entityType.ShortName()).Substring(0, 1).ToLower());
+            var selectExpression = new SelectExpression(entityType, tableExpression);
             AddConditions(selectExpression, entityType);
 
             return selectExpression;
