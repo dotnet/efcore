@@ -1319,12 +1319,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 firstDependentToPrincipalNavigationSpecification, firstPrincipalToDependentNavigationSpecification, secondDependentToPrincipalNavigationSpecification, secondPrincipalToDependentNavigationSpecification, foreignKeyProperties);
 
         /// <summary>
-        ///     The {methodName} property lambda expression '{includeLambdaExpression}' is invalid. The expression should represent a property access: 't =&gt; t.MyProperty'. To target navigations declared on derived types, specify an explicitly typed lambda parameter of the target type, E.g. '(Derived d) =&gt; d.MyProperty'. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.
+        ///     The expression '{expression}' is invalid inside Include operation. The expression should represent a property access: 't =&gt; t.MyProperty'. To target navigations declared on derived types use cast, e.g. 't =&gt; ((Derived)t).MyProperty' or 'as' operator, e.g. 't =&gt; (t as Derived).MyProperty'. Collection navigation access can be filtered by composing Where, OrderBy(Descending), ThenBy(Descending), Skip or Take operations. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.
         /// </summary>
-        public static string InvalidIncludeLambdaExpression([CanBeNull] object methodName, [CanBeNull] object includeLambdaExpression)
+        public static string InvalidIncludeExpression([CanBeNull] object expression)
             => string.Format(
-                GetString("InvalidIncludeLambdaExpression", nameof(methodName), nameof(includeLambdaExpression)),
-                methodName, includeLambdaExpression);
+                GetString("InvalidIncludeExpression", nameof(expression)),
+                expression);
 
         /// <summary>
         ///     The corresponding CLR type for entity type '{entityType}' is not instantiable and there is no derived entity type in the model that corresponds to a concrete CLR type.
@@ -2421,6 +2421,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string IncludeOnNonEntity
             => GetString("IncludeOnNonEntity");
+
+        /// <summary>
+        ///     Different filters: '{filter1}' and '{filter2}' have been applied on the same included navigation. Only one unique filter per navigation is allowed. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.
+        /// </summary>
+        public static string MultipleFilteredIncludesOnSameNavigation([CanBeNull] object filter1, [CanBeNull] object filter2)
+            => string.Format(
+                GetString("MultipleFilteredIncludesOnSameNavigation", nameof(filter1), nameof(filter2)),
+                filter1, filter2);
 
         /// <summary>
         ///     Unable to convert queryable method to enumerable method.

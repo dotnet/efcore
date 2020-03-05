@@ -181,9 +181,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var innerSource = (NavigationExpansionExpression)_navigationExpandingExpressionVisitor.Visit(innerQueryable);
                 if (entityReference.IncludePaths.ContainsKey(navigation))
                 {
-                    var innerIncludeTreeNode = entityReference.IncludePaths[navigation];
                     var innerEntityReference = (EntityReference)((NavigationTreeExpression)innerSource.PendingSelector).Value;
-                    innerEntityReference.SetIncludePaths(innerIncludeTreeNode);
+                    innerEntityReference.SetIncludePaths(entityReference.IncludePaths[navigation]);
                 }
 
                 var innerSourceSequenceType = innerSource.Type.GetSequenceType();
@@ -530,6 +529,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 : (EntityReference)((NavigationTreeExpression)included).Value;
 
                         included = ExpandIncludesHelper(included, innerEntityReference);
+                    }
+
+                    if (included is MaterializeCollectionNavigationExpression materializeCollectionNavigation)
+                    {
+                        var filterExpression = entityReference.IncludePaths[navigation].FilterExpression;
+                        if (filterExpression != null)
+                        {
+                            var subquery = ReplacingExpressionVisitor.Replace(
+                                filterExpression.Parameters[0],
+                                materializeCollectionNavigation.Subquery,
+                                filterExpression.Body);
+
+                            included = materializeCollectionNavigation.Update(subquery);
+                        }
                     }
 
                     result = new IncludeExpression(result, included, navigation);
