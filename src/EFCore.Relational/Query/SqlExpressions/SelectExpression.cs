@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Tags = tags;
         }
 
-        internal SelectExpression(
+        private SelectExpression(
             string alias,
             List<ProjectionExpression> projections,
             List<TableExpressionBase> tables,
@@ -65,29 +65,21 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             _orderings = orderings;
         }
 
+        internal SelectExpression(SqlExpression projection)
+            :base(null)
+        {
+            if (projection != null)
+            {
+                _projectionMapping[new ProjectionMember()] = projection;
+            }
+        }
+
         internal SelectExpression(IEntityType entityType)
             : this(entityType, new TableExpression(entityType.GetViewOrTableMappings().Single().Table))
         {
         }
 
-        internal SelectExpression(IEntityType entityType, string sql, Expression arguments)
-            : this(
-                entityType, new FromSqlExpression(
-                    sql,
-                    arguments,
-                    (entityType.GetViewOrTableMappings().SingleOrDefault()?.Table.Name
-                        ?? entityType.ShortName()).Substring(0, 1).ToLower()))
-        {
-        }
-
-        internal SelectExpression(IEntityType entityType, SqlFunctionExpression expression)
-            : this(
-                entityType, new QueryableSqlFunctionExpression(expression,
-                    entityType.GetTableName().ToLower().Substring(0, 1)))
-        {
-        }
-
-        private SelectExpression(IEntityType entityType, TableExpressionBase tableExpression)
+        internal SelectExpression(IEntityType entityType, TableExpressionBase tableExpression)
             : base(null)
         {
             _tables.Add(tableExpression);

@@ -75,5 +75,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             return base.VisitSqlFunction(sqlFunctionExpression);
         }
+
+        protected override Expression VisitQueryableFunctionExpression(QueryableFunctionExpression queryableFunctionExpression)
+        {
+            Check.NotNull(queryableFunctionExpression, nameof(queryableFunctionExpression));
+
+            if (string.IsNullOrEmpty(queryableFunctionExpression.Schema))
+            {
+                queryableFunctionExpression = new QueryableFunctionExpression(
+                    schema: "dbo",
+                    queryableFunctionExpression.Name,
+                    queryableFunctionExpression.Arguments,
+                    queryableFunctionExpression.Alias);
+            }
+
+            return base.VisitQueryableFunctionExpression(queryableFunctionExpression);
+        }
     }
 }

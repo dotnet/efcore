@@ -1456,7 +1456,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#20163")]
         public virtual void QF_Stand_Alone_With_Translation()
         {
             using (var context = CreateContext())
