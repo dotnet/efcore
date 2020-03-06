@@ -135,13 +135,34 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                     });
 
                 sqliteConnection.CreateFunction(
+                    name: "ef_add",
+                    (decimal? left, decimal? right) => left + right,
+                    isDeterministic: true);
+
+                sqliteConnection.CreateFunction(
+                    name: "ef_divide",
+                    (decimal? dividend, decimal? divisor) => dividend / divisor,
+                    isDeterministic: true);
+
+                sqliteConnection.CreateFunction(
                     name: "ef_compare",
                     (decimal? left, decimal? right) => left.HasValue && right.HasValue
                         ? decimal.Compare(left.Value, right.Value)
                         : default(int?),
                     isDeterministic: true);
+
+                sqliteConnection.CreateFunction(
+                    name: "ef_multiply",
+                    (decimal? left, decimal? right) => left * right,
+                    isDeterministic: true);
+
+                sqliteConnection.CreateFunction(
+                    name: "ef_negate",
+                    (decimal? m) => -m,
+                    isDeterministic: true);
             }
             else
+
             {
                 _logger.UnexpectedConnectionTypeWarning(connection.GetType());
             }
