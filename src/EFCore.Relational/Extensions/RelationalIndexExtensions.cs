@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
@@ -109,5 +110,14 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The <see cref="ConfigurationSource" /> for the index filter expression. </returns>
         public static ConfigurationSource? GetFilterConfigurationSource([NotNull] this IConventionIndex index)
             => index.FindAnnotation(RelationalAnnotationNames.Filter)?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Gets the table indexes to which the index is mapped.
+        /// </summary>
+        /// <param name="index"> The index. </param>
+        /// <returns> The table indexes to which the index is mapped. </returns>
+        public static IEnumerable<ITableIndex> GetMappedTableIndexes([NotNull] this IIndex index) =>
+            (IEnumerable<ITableIndex>)index[RelationalAnnotationNames.TableIndexMappings]
+                ?? Enumerable.Empty<ITableIndex>();
     }
 }

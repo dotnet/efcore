@@ -2220,7 +2220,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o =>
                 {
                     var key = o.GetEntityTypes().First().GetKeys().Where(k => !k.IsPrimaryKey()).First();
-                    Assert.Equal(2, key.GetAnnotations().Count());
+                    Assert.Equal(3, key.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", key["AnnotationName"]);
                     Assert.Equal("IndexName", key["Relational:Name"]);
                 });
@@ -2396,7 +2396,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o =>
                 {
                     var index = o.GetEntityTypes().First().GetIndexes().First();
-                    Assert.Equal(2, index.GetAnnotations().Count());
+                    Assert.Equal(3, index.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", index["AnnotationName"]);
                     Assert.Equal("IndexName", index["Relational:Name"]);
                 });

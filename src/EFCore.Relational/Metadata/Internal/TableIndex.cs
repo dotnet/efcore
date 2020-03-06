@@ -1,8 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -12,20 +13,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    // Sealed for perf
-    public sealed class ForeignKeyConstraintComparer : IEqualityComparer<IForeignKeyConstraint>, IComparer<IForeignKeyConstraint>
+    public class TableIndex : Annotatable, ITableIndex
     {
-        private ForeignKeyConstraintComparer()
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public TableIndex(
+            [NotNull] string name,
+            [NotNull] Table table,
+            [NotNull] IReadOnlyList<Column> columns,
+            [NotNull] string filter,
+            bool unique)
         {
+            Name = name;
+            Table = table;
+            Columns = columns;
+            Filter = filter;
+            IsUnique = unique;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static readonly ForeignKeyConstraintComparer Instance = new ForeignKeyConstraintComparer();
+        /// <inheritdoc />
+        public virtual string Name { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,29 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public int Compare(IForeignKeyConstraint x, IForeignKeyConstraint y)
-        {
-            var result = StringComparer.Ordinal.Compare(x.Name, y.Name);
-            if (result != 0)
-            {
-                return result;
-            }
-
-            result = ColumnListComparer.Instance.Compare(x.Columns, y.Columns);
-            if (result != 0)
-            {
-                return result;
-            }
-
-            result = ColumnListComparer.Instance.Compare(x.PrincipalColumns, y.PrincipalColumns);
-            if (result != 0)
-            {
-                return result;
-            }
-
-            result = StringComparer.Ordinal.Compare(x.PrincipalTable.Name, y.PrincipalTable.Name);
-            return result != 0 ? result : StringComparer.Ordinal.Compare(x.Table.Name, y.Table.Name);
-        }
+        public virtual SortedSet<IIndex> MappedIndexes { get; } = new SortedSet<IIndex>(IndexComparer.Instance);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -63,8 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public bool Equals(IForeignKeyConstraint x, IForeignKeyConstraint y)
-            => Compare(x, y) == 0;
+        public virtual Table Table { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -72,15 +60,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public int GetHashCode(IForeignKeyConstraint obj)
-        {
-            var hashCode = new HashCode();
-            hashCode.Add(obj.Name);
-            hashCode.Add(obj.Columns, ColumnListComparer.Instance);
-            hashCode.Add(obj.PrincipalColumns, ColumnListComparer.Instance);
-            hashCode.Add(obj.Table.Name);
-            hashCode.Add(obj.PrincipalTable.Name);
-            return hashCode.ToHashCode();
-        }
+        public virtual IReadOnlyList<Column> Columns { get; }
+
+        /// <inheritdoc />
+        public virtual bool IsUnique { get; }
+
+        /// <inheritdoc />
+        public virtual string Filter { get; }
+
+        /// <inheritdoc />
+        ITable ITableIndex.Table => Table;
+
+        /// <inheritdoc />
+        IReadOnlyList<IColumn> ITableIndex.Columns => Columns;
+
+        /// <inheritdoc />
+        IEnumerable<IIndex> ITableIndex.MappedIndexes => MappedIndexes;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
     }
 }

@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 foreach (var table in tables.Values)
                 {
-                    PopulateForeignKeyConstraints(table);
+                    PopulateConstraints(table);
                     PopulateInternalForeignKeys(table);
                 }
 
@@ -162,12 +162,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return model;
         }
 
-        private static void PopulateForeignKeyConstraints(Table table)
+        private static void PopulateConstraints(Table table)
         {
             foreach (var entityTypeMapping in ((ITable)table).EntityTypeMappings)
             {
-                var entityType = entityTypeMapping.EntityType;
-                foreach (IConventionForeignKey foreignKey in entityType.GetForeignKeys())
+                var entityType = (IConventionEntityType)entityTypeMapping.EntityType;
+                foreach (var foreignKey in entityType.GetForeignKeys())
                 {
                     var principalMappings = foreignKey.PrincipalEntityType.GetTableMappings();
                     if (principalMappings == null)
@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                         foreignKeyConstraints.Add(constraint);
 
-                        constraint.ForeignKeyMappings.Add(foreignKey);
+                        constraint.MappedForeignKeys.Add(foreignKey);
                         continue;
                     }
 
@@ -259,7 +259,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     constraint = new ForeignKeyConstraint(
                         name, table, principalTable, columns, principalColumns, ToReferentialAction(foreignKey.DeleteBehavior));
-                    constraint.ForeignKeyMappings.Add(foreignKey);
+                    constraint.MappedForeignKeys.Add(foreignKey);
 
                     if (foreignKeyConstraints == null)
                     {
@@ -270,6 +270,96 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     foreignKeyConstraints.Add(constraint);
 
                     table.ForeignKeyConstraints.Add(name, constraint);
+                }
+
+                foreach (var key in entityType.GetKeys())
+                {
+                    var name = key.GetName();
+                    if (!table.UniqueConstraints.TryGetValue(name, out var constraint))
+                    {
+                        var columns = new Column[key.Properties.Count];
+                        for (var i = 0; i < columns.Length; i++)
+                        {
+                            var property = key.Properties[i];
+                            foreach (var columnMapping in property.GetTableColumnMappings())
+                            {
+                                if (columnMapping.TableMapping.Table == table)
+                                {
+                                    columns[i] = (Column)columnMapping.Column;
+                                    break;
+                                }
+                            }
+
+                            if (columns[i] == null)
+                            {
+                                columns = null;
+                                break;
+                            }
+                        }
+
+                        if (columns == null)
+                        {
+                            continue;
+                        }
+
+                        constraint = new UniqueConstraint(name, table, columns, key.IsPrimaryKey());
+
+                        table.UniqueConstraints.Add(name, constraint);
+                    }
+
+                    if (!(key[RelationalAnnotationNames.UniqueConstraintMappings] is SortedSet<UniqueConstraint> uniqueConstraints))
+                    {
+                        uniqueConstraints = new SortedSet<UniqueConstraint>(UniqueConstraintComparer.Instance);
+                        key.SetOrRemoveAnnotation(RelationalAnnotationNames.UniqueConstraintMappings, uniqueConstraints);
+                    }
+
+                    uniqueConstraints.Add(constraint);
+                    constraint.MappedKeys.Add(key);
+                }
+
+                foreach (var index in entityType.GetIndexes())
+                {
+                    var name = index.GetName();
+                    if (!table.Indexes.TryGetValue(name, out var tableIndex))
+                    {
+                        var columns = new Column[index.Properties.Count];
+                        for (var i = 0; i < columns.Length; i++)
+                        {
+                            var property = index.Properties[i];
+                            foreach (var columnMapping in property.GetTableColumnMappings())
+                            {
+                                if (columnMapping.TableMapping.Table == table)
+                                {
+                                    columns[i] = (Column)columnMapping.Column;
+                                    break;
+                                }
+                            }
+
+                            if (columns[i] == null)
+                            {
+                                columns = null;
+                                break;
+                            }
+                        }
+
+                        if (columns == null)
+                        {
+                            continue;
+                        }
+
+                        tableIndex = new TableIndex(name, table, columns, index.GetFilter(), index.IsUnique);
+
+                        table.Indexes.Add(name, tableIndex);
+                    }
+
+                    if (!(index[RelationalAnnotationNames.TableIndexMappings] is SortedSet<TableIndex> tableIndexes))
+                    {
+                        tableIndexes = new SortedSet<TableIndex>(TableIndexComparer.Instance);
+                        index.SetOrRemoveAnnotation(RelationalAnnotationNames.TableIndexMappings, tableIndexes);
+                    }
+
+                    tableIndexes.Add(tableIndex);
+                    tableIndex.MappedIndexes.Add(index);
                 }
             }
         }

@@ -144,11 +144,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string TableColumnMappings = Prefix + "TableColumnMappings";
 
         /// <summary>
-        ///     The name for column mappings annotations.
-        /// </summary>
-        public const string ForeignKeyMappings = Prefix + "ForeignKeyMappings";
-
-        /// <summary>
         ///     The name for tables annotation.
         /// </summary>
         public const string Views = Prefix + "Views";
@@ -167,5 +162,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The definition of a Queryable Function Result Type.
         /// </summary>
         public const string QueryableFunctionResultType = Prefix + "QueryableFunctionResultType";
+
+        /// <summary>
+        ///     The name for foreign key mappings annotations.
+        /// </summary>
+        public const string ForeignKeyMappings = Prefix + "ForeignKeyMappings";
+
+        /// <summary>
+        ///     The name for table index mappings annotations.
+        /// </summary>
+        public const string TableIndexMappings = Prefix + "TableIndexMappings";
+
+        /// <summary>
+        ///     The name for unique constraint mappings annotations.
+        /// </summary>
+        public const string UniqueConstraintMappings = Prefix + "UniqueConstraintMappings";
     }
 }

@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 IEnumerable<IProperty> actualProperties,
                 PropertyComparer propertyComparer = null)
             {
-                propertyComparer ??= new PropertyComparer();
+                propertyComparer ??= new PropertyComparer(compareAnnotations: false);
                 Assert.Equal(
                     new SortedSet<IProperty>(expectedProperties, propertyComparer),
                     new SortedSet<IProperty>(actualProperties, propertyComparer),
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 IEnumerable<INavigation> actualNavigations,
                 NavigationComparer navigationComparer = null)
             {
-                navigationComparer ??= new NavigationComparer();
+                navigationComparer ??= new NavigationComparer(compareAnnotations: false);
                 Assert.Equal(
                     new SortedSet<INavigation>(expectedNavigations, navigationComparer),
                     new SortedSet<INavigation>(actualNavigations, navigationComparer),
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 IEnumerable<IKey> actualKeys,
                 KeyComparer keyComparer = null)
             {
-                keyComparer ??= new KeyComparer();
+                keyComparer ??= new KeyComparer(compareAnnotations: false);
                 Assert.Equal(
                     new SortedSet<IKey>(expectedKeys, keyComparer),
                     new SortedSet<IKey>(actualKeys, keyComparer),
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 IEnumerable<IForeignKey> actualForeignKeys,
                 ForeignKeyStrictComparer foreignKeyComparer = null)
             {
-                foreignKeyComparer ??= new ForeignKeyStrictComparer();
+                foreignKeyComparer ??= new ForeignKeyStrictComparer(compareAnnotations: false);
                 Assert.Equal(
                     new SortedSet<IForeignKey>(expectedForeignKeys, foreignKeyComparer),
                     new SortedSet<IForeignKey>(actualForeignKeys, foreignKeyComparer),
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 IEnumerable<IIndex> actualIndexes,
                 IndexComparer indexComparer = null)
             {
-                indexComparer ??= new IndexComparer();
+                indexComparer ??= new IndexComparer(compareAnnotations: false);
                 Assert.Equal(
                     new SortedSet<IIndex>(expectedIndexes, indexComparer),
                     new SortedSet<IIndex>(actualIndexes, indexComparer),

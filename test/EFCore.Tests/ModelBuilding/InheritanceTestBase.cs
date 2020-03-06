@@ -648,10 +648,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.False(derivedDependentEntityType.GetDeclaredForeignKeys().Single().IsUnique);
                 Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
 
-                AssertEqual(initialProperties, derivedDependentEntityType.GetProperties(), new PropertyComparer(false));
+                AssertEqual(initialProperties, derivedDependentEntityType.GetProperties());
                 AssertEqual(initialKeys, derivedDependentEntityType.GetKeys());
                 AssertEqual(initialIndexes, derivedDependentEntityType.GetIndexes());
-                AssertEqual(initialForeignKeys, derivedDependentEntityType.GetForeignKeys(), new ForeignKeyStrictComparer(false));
+                AssertEqual(initialForeignKeys, derivedDependentEntityType.GetForeignKeys());
             }
 
             [ConditionalFact]

@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SortedSet<IForeignKey> ForeignKeyMappings { get; } = new SortedSet<IForeignKey>(ForeignKeyComparer.Instance);
+        public virtual SortedSet<IForeignKey> MappedForeignKeys { get; } = new SortedSet<IForeignKey>(ForeignKeyComparer.Instance);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual ReferentialAction OnDeleteAction { get; set; }
 
         /// <inheritdoc />
-        IEnumerable<IForeignKey> IForeignKeyConstraint.MappedForeignKeys => ForeignKeyMappings;
+        IEnumerable<IForeignKey> IForeignKeyConstraint.MappedForeignKeys => MappedForeignKeys;
 
         /// <inheritdoc />
         ITable IForeignKeyConstraint.Table => Table;
