@@ -113,8 +113,17 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 && sqlUnary.OperatorType == ExpressionType.Negate)
             {
                 var operandType = GetProviderType(sqlUnary.Operand);
-                if (operandType == typeof(decimal)
-                    || operandType == typeof(TimeSpan))
+                if (operandType == typeof(decimal))
+                {
+                    return SqlExpressionFactory.Function(
+                        name: "ef_negate",
+                        new[] { sqlUnary.Operand },
+                        nullable: true,
+                        new[] { true },
+                        visitedExpression.Type);
+                }
+
+                if (operandType == typeof(TimeSpan))
                 {
                     return null;
                 }

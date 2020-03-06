@@ -141,6 +141,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                         ? decimal.Compare(left.Value, right.Value)
                         : default(int?),
                     isDeterministic: true);
+
+                sqliteConnection.CreateFunction(
+                    name: "ef_negate",
+                    (decimal? m) => m.HasValue
+                        ? decimal.Negate(m.Value)
+                        : default(decimal?),
+                    isDeterministic: true);
             }
             else
             {
