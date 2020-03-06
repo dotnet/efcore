@@ -73,12 +73,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The name of the collection navigation property on the other end of this relationship.
         ///     If null or not specified, there is no navigation property on the other end of the relationship.
         /// </param>
+        /// <param name="navigationConfiguration">
+        ///     An optional action which further configures the navigation property.
+        /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public new virtual ReferenceCollectionBuilder<TRelatedEntity, TEntity> WithMany([CanBeNull] string navigationName = null)
-            => new ReferenceCollectionBuilder<TRelatedEntity, TEntity>(
+        public new virtual ReferenceCollectionBuilder<TRelatedEntity, TEntity> WithMany(
+            [CanBeNull] string navigationName = null,
+            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+        {
+            var foreignKey = WithManyBuilder(
+                Check.NullButNotEmpty(navigationName, nameof(navigationName))).Metadata;
+            if (navigationConfiguration != null
+                && foreignKey?.PrincipalToDependent != null)
+            {
+                navigationConfiguration(
+                    new NavigationBuilder(foreignKey.PrincipalToDependent));
+            }
+
+            return new ReferenceCollectionBuilder<TRelatedEntity, TEntity>(
                 RelatedEntityType,
                 DeclaringEntityType,
-                WithManyBuilder(Check.NullButNotEmpty(navigationName, nameof(navigationName))).Metadata);
+                foreignKey);
+        }
 
         /// <summary>
         ///     <para>
@@ -95,13 +111,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     relationship (<c>blog => blog.Posts</c>). If no property is specified, the relationship will be
         ///     configured without a navigation property on the other end of the relationship.
         /// </param>
+        /// <param name="navigationConfiguration">
+        ///     An optional action which further configures the navigation property.
+        /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceCollectionBuilder<TRelatedEntity, TEntity> WithMany(
-            [CanBeNull] Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> navigationExpression)
-            => new ReferenceCollectionBuilder<TRelatedEntity, TEntity>(
+            [CanBeNull] Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> navigationExpression,
+            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+        {
+            var navigationMember = navigationExpression?.GetPropertyAccess();
+            var foreignKey = WithManyBuilder(navigationMember).Metadata;
+            if (navigationConfiguration != null
+                && foreignKey?.PrincipalToDependent != null)
+            {
+                navigationConfiguration(
+                    new NavigationBuilder(foreignKey.PrincipalToDependent));
+            }
+
+            return new ReferenceCollectionBuilder<TRelatedEntity, TEntity>(
                 RelatedEntityType,
                 DeclaringEntityType,
-                WithManyBuilder(navigationExpression?.GetPropertyAccess()).Metadata);
+                foreignKey);
+        }
 
         /// <summary>
         ///     <para>
@@ -117,12 +148,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The name of the reference navigation property on the other end of this relationship.
         ///     If null or not specified, there is no navigation property on the other end of the relationship.
         /// </param>
+        /// <param name="navigationConfiguration">
+        ///     An optional action which further configures the navigation property.
+        /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne([CanBeNull] string navigationName = null)
-            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
+        public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne(
+            [CanBeNull] string navigationName = null,
+            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+        {
+            var foreignKey = WithOneBuilder(
+                Check.NullButNotEmpty(navigationName, nameof(navigationName))).Metadata;
+            if (navigationConfiguration != null
+                && foreignKey?.PrincipalToDependent != null)
+            {
+                navigationConfiguration(
+                    new NavigationBuilder(foreignKey.PrincipalToDependent));
+            }
+
+            return new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
                 DeclaringEntityType,
                 RelatedEntityType,
-                WithOneBuilder(Check.NullButNotEmpty(navigationName, nameof(navigationName))).Metadata);
+                foreignKey);
+        }
 
         /// <summary>
         ///     <para>
@@ -139,12 +186,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     relationship (<c>blog => blog.BlogInfo</c>). If no property is specified, the relationship will be
         ///     configured without a navigation property on the other end of the relationship.
         /// </param>
+        /// <param name="navigationConfiguration">
+        ///     An optional action which further configures the navigation property.
+        /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne(
-            [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> navigationExpression)
-            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
+            [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> navigationExpression,
+            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+        {
+            var navigationMember = navigationExpression?.GetPropertyAccess();
+            var foreignKey = WithOneBuilder(navigationMember).Metadata;
+            if (navigationConfiguration != null
+                && foreignKey?.PrincipalToDependent != null)
+            {
+                navigationConfiguration(
+                    new NavigationBuilder(foreignKey.PrincipalToDependent));
+            }
+
+            return new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
                 DeclaringEntityType,
                 RelatedEntityType,
-                WithOneBuilder(navigationExpression?.GetPropertyAccess()).Metadata);
+                foreignKey);
+        }
     }
 }

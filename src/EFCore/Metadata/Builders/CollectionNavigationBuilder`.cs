@@ -4,10 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
@@ -52,12 +50,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The name of the reference navigation property on the other end of this relationship.
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
+        /// <param name="navigationConfiguration">
+        ///     An optional action which further configures the navigation property.
+        /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public new virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne([CanBeNull] string navigationName = null)
-            => new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
+        public new virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(
+            [CanBeNull] string navigationName = null,
+            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+        {
+            var foreignKey = WithOneBuilder(Check.NullButNotEmpty(navigationName, nameof(navigationName))).Metadata;
+
+            if (navigationConfiguration != null
+                && foreignKey?.DependentToPrincipal != null)
+            {
+                navigationConfiguration(
+                    new NavigationBuilder(foreignKey.DependentToPrincipal));
+            }
+
+            return new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
                 DeclaringEntityType,
                 RelatedEntityType,
-                WithOneBuilder(Check.NullButNotEmpty(navigationName, nameof(navigationName))).Metadata);
+                foreignKey);
+        }
 
         /// <summary>
         ///     <para>
@@ -83,21 +97,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
         {
             var navigationMember = navigationExpression?.GetPropertyAccess();
-            if (navigationConfiguration != null && navigationMember != null)
+            var foreignKey = WithOneBuilder(navigationMember).Metadata;
+
+            if (navigationConfiguration != null
+                && foreignKey?.DependentToPrincipal != null)
             {
-                var navigation =
-                    FindOrAddRelatedEntityType(typeof(TRelatedEntity), navigationMember.GetSimpleMemberName())?
-                        .FindNavigation(navigationMember);
-                if (navigation != null)
-                {
-                    navigationConfiguration(new NavigationBuilder(navigation));
-                }
+                navigationConfiguration(
+                    new NavigationBuilder(foreignKey.DependentToPrincipal));
             }
 
             return new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
                 DeclaringEntityType,
                 RelatedEntityType,
-                WithOneBuilder(navigationMember).Metadata);
+                foreignKey);
         }
 
         /// <summary>
@@ -138,18 +150,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                            WithLeftManyNavigation(navigationExpression.GetPropertyAccess()),
                            WithRightManyNavigation(navigationExpression.GetPropertyAccess(), leftName));
         }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [EntityFrameworkInternal]
-        protected virtual EntityType FindOrAddRelatedEntityType([NotNull] Type relatedType, [CanBeNull] string navigationName)
-            => (navigationName == null
-                    ? null
-                    : Builder.ModelBuilder.Metadata.FindEntityType(relatedType, navigationName, Builder.Metadata.PrincipalEntityType))
-                ?? Builder.ModelBuilder.Entity(relatedType, ConfigurationSource.Explicit).Metadata;
     }
 }

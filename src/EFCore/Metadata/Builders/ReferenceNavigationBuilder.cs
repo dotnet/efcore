@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Builder = ((ForeignKey)foreignKey).Builder;
         }
 
-        private InternalRelationshipBuilder Builder { [DebuggerStepThrough] get; }
+        protected virtual InternalRelationshipBuilder Builder { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -128,12 +128,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The name of the collection navigation property on the other end of this relationship.
         ///     If null or not specified, there is no navigation property on the other end of the relationship.
         /// </param>
+        /// <param name="navigationConfiguration">
+        ///     An optional action which further configures the navigation property.
+        /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public virtual ReferenceCollectionBuilder WithMany([CanBeNull] string collection = null)
-            => new ReferenceCollectionBuilder(
+        public virtual ReferenceCollectionBuilder WithMany(
+            [CanBeNull] string collection = null,
+            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+        {
+            var foreignKey = WithManyBuilder(Check.NullButNotEmpty(collection, nameof(collection))).Metadata;
+
+            if (navigationConfiguration != null
+                && foreignKey?.PrincipalToDependent != null)
+            {
+                navigationConfiguration(
+                    new NavigationBuilder(foreignKey.PrincipalToDependent));
+            }
+
+            return new ReferenceCollectionBuilder(
                 RelatedEntityType,
                 DeclaringEntityType,
-                WithManyBuilder(Check.NullButNotEmpty(collection, nameof(collection))).Metadata);
+                foreignKey);
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -201,12 +217,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The name of the reference navigation property on the other end of this relationship.
         ///     If null or not specified, there is no navigation property on the other end of the relationship.
         /// </param>
+        /// <param name="navigationConfiguration">
+        ///     An optional action which further configures the navigation property.
+        /// </param>
+        /// <returns> An object that can be used to configure the relationship. </returns>
         /// <returns> An object to further configure the relationship. </returns>
-        public virtual ReferenceReferenceBuilder WithOne([CanBeNull] string reference = null)
-            => new ReferenceReferenceBuilder(
+        public virtual ReferenceReferenceBuilder WithOne(
+            [CanBeNull] string reference = null,
+            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+        {
+            var foreignKey = WithOneBuilder(
+                Check.NullButNotEmpty(reference, nameof(reference))).Metadata;
+
+            if (navigationConfiguration != null
+                && foreignKey?.PrincipalToDependent != null)
+            {
+                navigationConfiguration(
+                    new NavigationBuilder(foreignKey.PrincipalToDependent));
+            }
+
+            return new ReferenceReferenceBuilder(
                 DeclaringEntityType,
                 RelatedEntityType,
-                WithOneBuilder(Check.NullButNotEmpty(reference, nameof(reference))).Metadata);
+                foreignKey);
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

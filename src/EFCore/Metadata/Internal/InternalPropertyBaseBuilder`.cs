@@ -11,7 +11,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class InternalNavigationBuilder : InternalPropertyBaseBuilder<Navigation>
+    public class InternalPropertyBaseBuilder<TPropertyBase> : InternalModelItemBuilder<TPropertyBase>
+        where TPropertyBase : PropertyBase
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -19,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public InternalNavigationBuilder([NotNull] Navigation metadata, [NotNull] InternalModelBuilder modelBuilder)
+        public InternalPropertyBaseBuilder([NotNull] TPropertyBase metadata, [NotNull] InternalModelBuilder modelBuilder)
             : base(metadata, modelBuilder)
         {
         }
@@ -30,8 +31,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual new InternalNavigationBuilder UsePropertyAccessMode(
+        public virtual InternalPropertyBaseBuilder<TPropertyBase> UsePropertyAccessMode(
             PropertyAccessMode? propertyAccessMode, ConfigurationSource configurationSource)
-            => (InternalNavigationBuilder)base.UsePropertyAccessMode(propertyAccessMode, configurationSource);
+        {
+            if (CanSetPropertyAccessMode(propertyAccessMode, configurationSource))
+            {
+                Metadata.SetPropertyAccessMode(propertyAccessMode, configurationSource);
+
+                return this;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CanSetPropertyAccessMode(
+            PropertyAccessMode? propertyAccessMode, ConfigurationSource? configurationSource)
+            => configurationSource.Overrides(Metadata.GetPropertyAccessModeConfigurationSource())
+                || ((IProperty)Metadata).GetPropertyAccessMode() == propertyAccessMode;
     }
 }

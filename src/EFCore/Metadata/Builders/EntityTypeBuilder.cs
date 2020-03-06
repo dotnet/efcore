@@ -575,23 +575,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     no property is specified, the relationship will be configured without a navigation property on this
         ///     end.
         /// </param>
+        /// <param name="navigationConfiguration">
+        ///     An optional action which further configures the navigation property.
+        /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual ReferenceNavigationBuilder HasOne(
             [NotNull] string relatedTypeName,
-            [CanBeNull] string navigationName)
+            [CanBeNull] string navigationName,
+            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
         {
             Check.NotEmpty(relatedTypeName, nameof(relatedTypeName));
             Check.NullButNotEmpty(navigationName, nameof(navigationName));
 
             var relatedEntityType = FindRelatedEntityType(relatedTypeName, navigationName);
+            var foreignKey = Builder.HasRelationship(
+                    relatedEntityType, navigationName, ConfigurationSource.Explicit,
+                    targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null).Metadata;
+
+            if (navigationConfiguration != null
+                && foreignKey?.DependentToPrincipal != null)
+            {
+                navigationConfiguration(
+                    new NavigationBuilder(foreignKey.DependentToPrincipal));
+            }
 
             return new ReferenceNavigationBuilder(
                 Builder.Metadata,
                 relatedEntityType,
                 navigationName,
-                Builder.HasRelationship(
-                    relatedEntityType, navigationName, ConfigurationSource.Explicit,
-                    targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null).Metadata);
+                foreignKey);
         }
 
         /// <summary>
@@ -618,23 +630,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     no property is specified, the relationship will be configured without a navigation property on this
         ///     end.
         /// </param>
+        /// <param name="navigationConfiguration">
+        ///     An optional action which further configures the navigation property.
+        /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual ReferenceNavigationBuilder HasOne(
             [NotNull] Type relatedType,
-            [CanBeNull] string navigationName = null)
+            [CanBeNull] string navigationName = null,
+            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
         {
             Check.NotNull(relatedType, nameof(relatedType));
             Check.NullButNotEmpty(navigationName, nameof(navigationName));
 
             var relatedEntityType = FindRelatedEntityType(relatedType, navigationName);
+            var foreignKey = Builder.HasRelationship(
+                    relatedEntityType, navigationName, ConfigurationSource.Explicit,
+                    targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null).Metadata;
+
+            if (navigationConfiguration != null
+                && foreignKey?.DependentToPrincipal != null)
+            {
+                navigationConfiguration(
+                    new NavigationBuilder(foreignKey.DependentToPrincipal));
+            }
 
             return new ReferenceNavigationBuilder(
                 Builder.Metadata,
                 relatedEntityType,
                 navigationName,
-                Builder.HasRelationship(
-                    relatedEntityType, navigationName, ConfigurationSource.Explicit,
-                    targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null).Metadata);
+                foreignKey);
         }
 
         /// <summary>
@@ -654,15 +678,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The name of the reference navigation property on this entity type that represents
         ///     the relationship. The navigation must be a CLR property on the entity type.
         /// </param>
+        /// <param name="navigationConfiguration">
+        ///     An optional action which further configures the navigation property.
+        /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual ReferenceNavigationBuilder HasOne(
-            [NotNull] string navigationName)
+            [NotNull] string navigationName,
+            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
         {
             Check.NotEmpty(navigationName, nameof(navigationName));
 
             return Metadata.ClrType == null
-                ? HasOne(navigationName, null) // Path only used by pre 3.0 snapshots
-                : HasOne(Metadata.GetNavigationMemberInfo(navigationName).GetMemberType(), navigationName);
+                ? HasOne(navigationName, null, navigationConfiguration) // Path only used by pre 3.0 snapshots
+                : HasOne(Metadata.GetNavigationMemberInfo(navigationName).GetMemberType(), navigationName, navigationConfiguration);
         }
 
         /// <summary>
@@ -683,15 +711,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     no property is specified, the relationship will be configured without a navigation property on this
         ///     end.
         /// </param>
+        /// <param name="navigationConfiguration">
+        ///     An optional action which further configures the navigation property.
+        /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual CollectionNavigationBuilder HasMany(
             [NotNull] string relatedTypeName,
-            [CanBeNull] string navigationName)
+            [CanBeNull] string navigationName,
+            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
         {
             Check.NotEmpty(relatedTypeName, nameof(relatedTypeName));
             Check.NullButNotEmpty(navigationName, nameof(navigationName));
 
-            return HasMany(navigationName, FindRelatedEntityType(relatedTypeName, navigationName));
+            return HasMany(navigationName,
+                FindRelatedEntityType(relatedTypeName, navigationName),
+                navigationConfiguration);
         }
 
         /// <summary>
@@ -710,15 +744,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The name of the collection navigation property on this entity type that represents the relationship.
         ///     The navigation must be a CLR property on the entity type.
         /// </param>
+        /// <param name="navigationConfiguration">
+        ///     An optional action which further configures the navigation property.
+        /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual CollectionNavigationBuilder HasMany(
-            [NotNull] string navigationName)
+            [NotNull] string navigationName,
+            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
         {
             Check.NotEmpty(navigationName, nameof(navigationName));
 
             if (Metadata.ClrType == null)
             {
-                return HasMany(navigationName, (string)null);
+                return HasMany(navigationName, (string)null, navigationConfiguration);
             }
 
             var memberType = Metadata.GetNavigationMemberInfo(navigationName).GetMemberType();
@@ -734,7 +772,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                         "T"));
             }
 
-            return HasMany(elementType, navigationName);
+            return HasMany(elementType, navigationName, navigationConfiguration);
         }
 
         /// <summary>
@@ -760,18 +798,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     no property is specified, the relationship will be configured without a navigation property on this
         ///     end.
         /// </param>
+        /// <param name="navigationConfiguration">
+        ///     An optional action which further configures the navigation property.
+        /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual CollectionNavigationBuilder HasMany(
             [NotNull] Type relatedType,
-            [CanBeNull] string navigationName = null)
+            [CanBeNull] string navigationName = null,
+            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
         {
             Check.NotNull(relatedType, nameof(relatedType));
-            Check.NullButNotEmpty(navigationName, nameof(navigationName));;
+            Check.NullButNotEmpty(navigationName, nameof(navigationName));
 
-            return HasMany(navigationName, FindRelatedEntityType(relatedType, navigationName));
+            return HasMany(navigationName,
+                FindRelatedEntityType(relatedType, navigationName),
+                navigationConfiguration);
         }
 
-        private CollectionNavigationBuilder HasMany(string navigationName, EntityType relatedEntityType)
+        private CollectionNavigationBuilder HasMany(
+            string navigationName,
+            EntityType relatedEntityType,
+            Action<NavigationBuilder> navigationConfiguration = null)
         {
             var skipNavigation = navigationName != null ? Builder.Metadata.FindSkipNavigation(navigationName) : null;
 
@@ -783,11 +830,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     .IsUnique(false, ConfigurationSource.Explicit);
             }
 
+            var foreignKey = relationship?.Metadata;
+            if (navigationConfiguration != null
+                && foreignKey?.PrincipalToDependent != null)
+            {
+                navigationConfiguration(
+                    new NavigationBuilder(foreignKey.PrincipalToDependent));
+            }
+
             return new CollectionNavigationBuilder(
                 Builder.Metadata,
                 relatedEntityType,
                 new MemberIdentity(navigationName),
-                relationship?.Metadata,
+                foreignKey,
                 skipNavigation);
         }
 
