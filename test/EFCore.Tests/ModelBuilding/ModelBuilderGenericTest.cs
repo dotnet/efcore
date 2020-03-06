@@ -295,6 +295,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             protected virtual TestDiscriminatorBuilder<TDiscriminator> Wrap(DiscriminatorBuilder<TDiscriminator> discriminatorBuilder)
                 => new GenericTestDiscriminatorBuilder<TDiscriminator>(discriminatorBuilder);
 
+            public override TestDiscriminatorBuilder<TDiscriminator> IsComplete(bool complete)
+                => Wrap(DiscriminatorBuilder.IsComplete(complete));
+
             public override TestDiscriminatorBuilder<TDiscriminator> HasValue(TDiscriminator value)
                 => Wrap(DiscriminatorBuilder.HasValue(value));
 

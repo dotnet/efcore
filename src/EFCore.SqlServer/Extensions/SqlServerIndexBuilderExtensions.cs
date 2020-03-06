@@ -173,8 +173,7 @@ namespace Microsoft.EntityFrameworkCore
 
             return (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
                 .Overrides(indexBuilder.Metadata.GetIncludePropertiesConfigurationSource())
-                || StructuralComparisons.StructuralEqualityComparer.Equals(
-                    propertyNames, indexBuilder.Metadata.GetIncludeProperties());
+                || propertyNames.SequenceEqual(indexBuilder.Metadata.GetIncludeProperties());
         }
 
         /// <summary>

@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -14,9 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     // Sealed for perf
-    public sealed class ViewMappingComparer : IEqualityComparer<IViewMapping>, IComparer<IViewMapping>
+    public sealed class TableIndexComparer : IEqualityComparer<ITableIndex>, IComparer<ITableIndex>
     {
-        private ViewMappingComparer()
+        private TableIndexComparer()
         {
         }
 
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static readonly ViewMappingComparer Instance = new ViewMappingComparer();
+        public static readonly TableIndexComparer Instance = new TableIndexComparer();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -34,40 +33,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public int Compare(IViewMapping x, IViewMapping y)
+        public int Compare(ITableIndex x, ITableIndex y)
         {
-            var result = EntityTypePathComparer.Instance.Compare(x.EntityType, y.EntityType);
+            var result = StringComparer.Ordinal.Compare(x.Name, y.Name);
             if (result != 0)
             {
                 return result;
             }
 
-            result = StringComparer.Ordinal.Compare(x.View.Name, y.View.Name);
+            result = ColumnListComparer.Instance.Compare(x.Columns, y.Columns);
             if (result != 0)
             {
                 return result;
             }
 
-            result = StringComparer.Ordinal.Compare(x.View.Schema, y.View.Schema);
-            if (result != 0)
-            {
-                return result;
-            }
-
-            result = x.IncludesDerivedTypes.CompareTo(y.IncludesDerivedTypes);
-            if (result != 0)
-            {
-                return result;
-            }
-
-            result = x.ColumnMappings.Count().CompareTo(y.ColumnMappings.Count());
-            if (result != 0)
-            {
-                return result;
-            }
-
-            return x.ColumnMappings.Zip(y.ColumnMappings, (xc, yc) => ViewColumnMappingComparer.Instance.Compare(xc, yc))
-                .FirstOrDefault(r => r != 0);
+            return result != 0 ? result : StringComparer.Ordinal.Compare(x.Table.Name, y.Table.Name);
         }
 
         /// <summary>
@@ -76,11 +56,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public bool Equals(IViewMapping x, IViewMapping y)
-            => x.EntityType == y.EntityType
-                && x.View == y.View
-                && x.IncludesDerivedTypes == y.IncludesDerivedTypes
-                && x.ColumnMappings.SequenceEqual(y.ColumnMappings);
+        public bool Equals(ITableIndex x, ITableIndex y)
+            => Compare(x, y) == 0;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -88,17 +65,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public int GetHashCode(IViewMapping obj)
+        public int GetHashCode(ITableIndex obj)
         {
             var hashCode = new HashCode();
-            hashCode.Add(obj.EntityType, EntityTypePathComparer.Instance);
-            hashCode.Add(obj.View.Name);
-            hashCode.Add(obj.View.Schema);
-            foreach (var columnMapping in obj.ColumnMappings)
-            {
-                hashCode.Add(columnMapping, ViewColumnMappingComparer.Instance);
-            }
-            hashCode.Add(obj.IncludesDerivedTypes);
+            hashCode.Add(obj.Name);
+            hashCode.Add(obj.Columns, ColumnListComparer.Instance);
+            hashCode.Add(obj.Table.Name);
             return hashCode.ToHashCode();
         }
     }

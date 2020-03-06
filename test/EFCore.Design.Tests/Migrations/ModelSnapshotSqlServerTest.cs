@@ -551,6 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Entity<AnotherDerivedEntity>().HasBaseType<BaseEntity>();
                     builder.Entity<BaseEntity>()
                         .HasDiscriminator(e => e.Discriminator)
+                        .IsComplete()
                         .HasValue(typeof(BaseEntity), typeof(BaseEntity).Name)
                         .HasValue(typeof(DerivedEntity), typeof(DerivedEntity).Name)
                         .HasValue(typeof(AnotherDerivedEntity), typeof(AnotherDerivedEntity).Name);
@@ -573,7 +574,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     b.ToTable(""BaseEntity"");
 
-                    b.HasDiscriminator<string>(""Discriminator"").HasValue(""BaseEntity"");
+                    b.HasDiscriminator<string>(""Discriminator"").IsComplete(true).HasValue(""BaseEntity"");
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AnotherDerivedEntity"", b =>
@@ -2219,7 +2220,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o =>
                 {
                     var key = o.GetEntityTypes().First().GetKeys().Where(k => !k.IsPrimaryKey()).First();
-                    Assert.Equal(2, key.GetAnnotations().Count());
+                    Assert.Equal(3, key.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", key["AnnotationName"]);
                     Assert.Equal("IndexName", key["Relational:Name"]);
                 });
@@ -2395,7 +2396,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o =>
                 {
                     var index = o.GetEntityTypes().First().GetIndexes().First();
-                    Assert.Equal(2, index.GetAnnotations().Count());
+                    Assert.Equal(3, index.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", index["AnnotationName"]);
                     Assert.Equal("IndexName", index["Relational:Name"]);
                 });

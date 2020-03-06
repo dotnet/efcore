@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="foreignKey"> The foreign key. </param>
         /// <returns> The foreign key constraints to which the foreign key is mapped. </returns>
-        public static IEnumerable<IForeignKeyConstraint> GetConstraintMappings([NotNull] this IForeignKey foreignKey) =>
+        public static IEnumerable<IForeignKeyConstraint> GetMappedConstraints([NotNull] this IForeignKey foreignKey) =>
             (IEnumerable<IForeignKeyConstraint>)foreignKey[RelationalAnnotationNames.ForeignKeyMappings]
                 ?? Enumerable.Empty<IForeignKeyConstraint>();
     }

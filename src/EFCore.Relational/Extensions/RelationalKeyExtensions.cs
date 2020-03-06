@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
@@ -88,5 +89,14 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The <see cref="ConfigurationSource" /> for the constraint name. </returns>
         public static ConfigurationSource? GetNameConfigurationSource([NotNull] this IConventionKey key)
             => key.FindAnnotation(RelationalAnnotationNames.Name)?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Gets the unique constraints to which the key is mapped.
+        /// </summary>
+        /// <param name="key"> The key. </param>
+        /// <returns> The unique constraints to which the key is mapped. </returns>
+        public static IEnumerable<IUniqueConstraint> GetMappedConstraints([NotNull] this IKey key) =>
+            (IEnumerable<IUniqueConstraint>)key[RelationalAnnotationNames.UniqueConstraintMappings]
+                ?? Enumerable.Empty<IUniqueConstraint>();
     }
 }

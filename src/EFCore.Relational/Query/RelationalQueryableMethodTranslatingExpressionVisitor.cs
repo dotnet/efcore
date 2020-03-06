@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            switch(extensionExpression)
+            switch (extensionExpression)
             {
                 case FromSqlQueryRootExpression fromSqlQueryRootExpression:
                     return CreateShapedQueryExpression(
@@ -691,37 +691,42 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var derivedType = entityType.GetDerivedTypes().SingleOrDefault(et => et.ClrType == resultType);
                 if (derivedType != null)
                 {
-                    var selectExpression = (SelectExpression)source.QueryExpression;
-                    var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
-                    var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
-                    var entityProjectionExpression = (EntityProjectionExpression)selectExpression.GetMappedProjection(
-                        projectionBindingExpression.ProjectionMember);
-                    var discriminatorColumn = entityProjectionExpression.BindProperty(entityType.GetDiscriminatorProperty());
+                    if (!derivedType.GetIsDiscriminatorMappingComplete()
+                        || !derivedType.GetAllBaseTypesInclusiveAscending()
+                            .All(e => (e == derivedType || e.IsAbstract()) && !HasSiblings(e)))
+                    {
+                        var selectExpression = (SelectExpression)source.QueryExpression;
+                        var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
+                        var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
+                        var entityProjectionExpression = (EntityProjectionExpression)selectExpression.GetMappedProjection(
+                            projectionBindingExpression.ProjectionMember);
+                        var discriminatorColumn = entityProjectionExpression.BindProperty(entityType.GetDiscriminatorProperty());
 
-                    var predicate = concreteEntityTypes.Count == 1
-                        ? _sqlExpressionFactory.Equal(
-                            discriminatorColumn,
-                            _sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
-                        : (SqlExpression)_sqlExpressionFactory.In(
-                            discriminatorColumn,
-                            _sqlExpressionFactory.Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue())),
-                            negated: false);
+                        var predicate = concreteEntityTypes.Count == 1
+                            ? _sqlExpressionFactory.Equal(
+                                discriminatorColumn,
+                                _sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
+                            : (SqlExpression)_sqlExpressionFactory.In(
+                                discriminatorColumn,
+                                _sqlExpressionFactory.Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue())),
+                                negated: false);
 
-                    selectExpression.ApplyPredicate(predicate);
+                        selectExpression.ApplyPredicate(predicate);
 
-                    var projectionMember = projectionBindingExpression.ProjectionMember;
+                        var projectionMember = projectionBindingExpression.ProjectionMember;
 
-                    Check.DebugAssert(
-                        new ProjectionMember().Equals(projectionMember),
-                        "Invalid ProjectionMember when processing OfType");
+                        Check.DebugAssert(
+                            new ProjectionMember().Equals(projectionMember),
+                            "Invalid ProjectionMember when processing OfType");
 
-                    var entityProjection = (EntityProjectionExpression)selectExpression.GetMappedProjection(projectionMember);
+                        var entityProjection = (EntityProjectionExpression)selectExpression.GetMappedProjection(projectionMember);
 
-                    selectExpression.ReplaceProjectionMapping(
-                        new Dictionary<ProjectionMember, Expression>
-                        {
+                        selectExpression.ReplaceProjectionMapping(
+                            new Dictionary<ProjectionMember, Expression>
+                            {
                             { projectionMember, entityProjection.UpdateEntityType(derivedType) }
-                        });
+                            });
+                    }
 
                     return source.UpdateShaperExpression(entityShaperExpression.WithEntityType(derivedType));
                 }
@@ -730,6 +735,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             return null;
+
+            bool HasSiblings(IEntityType entityType)
+            {
+                return entityType.BaseType?.GetDirectlyDerivedTypes().Any(i => i != entityType) == true;
+            }
         }
 
         protected override ShapedQueryExpression TranslateOrderBy(

@@ -35,6 +35,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IEnumerable<IForeignKeyConstraint> ForeignKeyConstraints { get; }
 
         /// <summary>
+        ///     Gets the unique constraints for this table.
+        /// </summary>
+        IEnumerable<IUniqueConstraint> UniqueConstraints { get; }
+
+        /// <summary>
+        ///     Gets the indexes for this table.
+        /// </summary>
+        IEnumerable<ITableIndex> Indexes { get; }
+
+        /// <summary>
         ///     Gets the check constraints for this table.
         /// </summary>
         IEnumerable<ICheckConstraint> CheckConstraints

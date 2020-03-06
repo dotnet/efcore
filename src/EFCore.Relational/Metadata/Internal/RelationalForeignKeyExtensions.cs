@@ -38,10 +38,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             foreignKey.DeclaringEntityType.DisplayName(),
                             duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
-                            Format(foreignKey.DeclaringEntityType),
+                            foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
                             foreignKey.GetConstraintName(),
-                            Format(principalType),
-                            Format(duplicatePrincipalType)));
+                            principalType.GetSchemaQualifiedTableName(),
+                            duplicatePrincipalType.GetSchemaQualifiedTableName()));
                 }
 
                 return false;
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             foreignKey.DeclaringEntityType.DisplayName(),
                             duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
-                            Format(foreignKey.DeclaringEntityType),
+                            foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
                             foreignKey.GetConstraintName(),
                             foreignKey.Properties.FormatColumns(),
                             duplicateForeignKey.Properties.FormatColumns()));
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             foreignKey.DeclaringEntityType.DisplayName(),
                             duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
-                            Format(foreignKey.DeclaringEntityType),
+                            foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
                             foreignKey.GetConstraintName(),
                             foreignKey.PrincipalKey.Properties.FormatColumns(),
                             duplicateForeignKey.PrincipalKey.Properties.FormatColumns()));
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             foreignKey.DeclaringEntityType.DisplayName(),
                             duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
-                            Format(foreignKey.DeclaringEntityType),
+                            foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
                             foreignKey.GetConstraintName()));
                 }
 
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             foreignKey.DeclaringEntityType.DisplayName(),
                             duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
-                            Format(foreignKey.DeclaringEntityType),
+                            foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
                             foreignKey.GetConstraintName(),
                             foreignKey.DeleteBehavior,
                             duplicateForeignKey.DeleteBehavior));
@@ -128,8 +128,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return true;
         }
-
-        private static string Format(IEntityType entityType)
-            => (string.IsNullOrEmpty(entityType.GetSchema()) ? "" : entityType.GetSchema() + ".") + entityType.GetTableName();
     }
 }

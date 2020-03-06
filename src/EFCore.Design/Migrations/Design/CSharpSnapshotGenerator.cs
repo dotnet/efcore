@@ -646,7 +646,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 foreach (var key in keys.Where(
                     key => key != primaryKey
                            && (!key.GetReferencingForeignKeys().Any()
-                               || key.GetAnnotations().Any())))
+                               || key.GetAnnotations().Any(a => a.Name != RelationalAnnotationNames.UniqueConstraintMappings))))
                 {
                     GenerateKey(builderName, key, stringBuilder);
                 }
@@ -679,15 +679,29 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             using (stringBuilder.Indent())
             {
-                var annotations = key.GetAnnotations().ToList();
-
-                GenerateFluentApiForAnnotation(
-                    ref annotations, RelationalAnnotationNames.Name, nameof(RelationalKeyBuilderExtensions.HasName), stringBuilder);
-
-                GenerateAnnotations(annotations, stringBuilder);
+                GenerateKeyAnnotations(key, stringBuilder);
             }
 
             stringBuilder.AppendLine(";");
+        }
+
+        /// <summary>
+        ///     Generates code for the annotations on a key.
+        /// </summary>
+        /// <param name="key"> The key. </param>
+        /// <param name="stringBuilder"> The builder code is added to. </param>
+        protected virtual void GenerateKeyAnnotations([NotNull] IKey key, [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            var annotations = key.GetAnnotations().ToList();
+
+            IgnoreAnnotations(
+                annotations,
+                RelationalAnnotationNames.UniqueConstraintMappings);
+
+            GenerateFluentApiForAnnotation(
+                ref annotations, RelationalAnnotationNames.Name, nameof(RelationalKeyBuilderExtensions.HasName), stringBuilder);
+
+            GenerateAnnotations(annotations, stringBuilder);
         }
 
         /// <summary>
@@ -742,17 +756,32 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append(".IsUnique()");
                 }
 
-                var annotations = index.GetAnnotations().ToList();
-
-                GenerateFluentApiForAnnotation(
-                    ref annotations, RelationalAnnotationNames.Name, nameof(RelationalIndexBuilderExtensions.HasName), stringBuilder);
-                GenerateFluentApiForAnnotation(
-                    ref annotations, RelationalAnnotationNames.Filter, nameof(RelationalIndexBuilderExtensions.HasFilter), stringBuilder);
-
-                GenerateAnnotations(annotations, stringBuilder);
+                GenerateIndexAnnotations(index, stringBuilder);
             }
 
             stringBuilder.AppendLine(";");
+        }
+
+        /// <summary>
+        ///     Generates code for the annotations on an index.
+        /// </summary>
+        /// <param name="index"> The index. </param>
+        /// <param name="stringBuilder"> The builder code is added to. </param>
+        protected virtual void GenerateIndexAnnotations(
+            [NotNull] IIndex index, [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            var annotations = index.GetAnnotations().ToList();
+
+            IgnoreAnnotations(
+                annotations,
+                RelationalAnnotationNames.TableIndexMappings);
+
+            GenerateFluentApiForAnnotation(
+                ref annotations, RelationalAnnotationNames.Name, nameof(RelationalIndexBuilderExtensions.HasName), stringBuilder);
+            GenerateFluentApiForAnnotation(
+                ref annotations, RelationalAnnotationNames.Filter, nameof(RelationalIndexBuilderExtensions.HasFilter), stringBuilder);
+
+            GenerateAnnotations(annotations, stringBuilder);
         }
 
         /// <summary>
@@ -804,9 +833,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
 
             var discriminatorPropertyAnnotation = annotations.FirstOrDefault(a => a.Name == CoreAnnotationNames.DiscriminatorProperty);
+            var discriminatorMappingCompleteAnnotation = annotations.FirstOrDefault(a => a.Name == CoreAnnotationNames.DiscriminatorMappingComplete);
             var discriminatorValueAnnotation = annotations.FirstOrDefault(a => a.Name == CoreAnnotationNames.DiscriminatorValue);
 
-            if ((discriminatorPropertyAnnotation ?? discriminatorValueAnnotation) != null)
+            if ((discriminatorPropertyAnnotation ?? discriminatorMappingCompleteAnnotation ?? discriminatorValueAnnotation) != null)
             {
                 stringBuilder
                     .AppendLine()
@@ -833,6 +863,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append("()");
                 }
 
+                if (discriminatorMappingCompleteAnnotation?.Value != null)
+                {
+                    var value = discriminatorMappingCompleteAnnotation.Value;
+
+                    stringBuilder
+                        .Append(".")
+                        .Append("IsComplete")
+                        .Append("(")
+                        .Append(Code.UnknownLiteral(value))
+                        .Append(")");
+                }
+
                 if (discriminatorValueAnnotation?.Value != null)
                 {
                     var value = discriminatorValueAnnotation.Value;
@@ -857,6 +899,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 stringBuilder.AppendLine(";");
 
                 annotations.Remove(discriminatorPropertyAnnotation);
+                annotations.Remove(discriminatorMappingCompleteAnnotation);
                 annotations.Remove(discriminatorValueAnnotation);
             }
 

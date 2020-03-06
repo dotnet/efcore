@@ -154,8 +154,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("default_datetime_mapping", orderDateMapping.TypeMapping.StoreType);
             Assert.Same(orderMapping, orderDateMapping.TableMapping);
 
+            var orderPk = orderType.GetKeys().Single();
+            var orderPkConstraint = orderPk.GetMappedConstraints().Single();
+
+            Assert.Equal("PK_Order", orderPkConstraint.Name);
+            Assert.Equal(nameof(Order.OrderId), orderPkConstraint.Columns.Single().Name);
+            Assert.Same(ordersTable, orderPkConstraint.Table);
+            Assert.True(orderPkConstraint.IsPrimaryKey);
+            Assert.Contains(orderPk, orderPkConstraint.MappedKeys);
+            Assert.Same(orderPkConstraint, ordersTable.UniqueConstraints.Single());
+
+            var orderIndex = orderType.GetIndexes().Single();
+            var orderTableIndex = orderIndex.GetMappedTableIndexes().Single();
+
+            Assert.Equal("IX_Order_CustomerId", orderTableIndex.Name);
+            Assert.Equal(nameof(Order.CustomerId), orderTableIndex.Columns.Single().Name);
+            Assert.Same(ordersTable, orderTableIndex.Table);
+            Assert.False(orderTableIndex.IsUnique);
+            Assert.Null(orderTableIndex.Filter);
+            Assert.Equal(orderIndex, orderTableIndex.MappedIndexes.Single());
+            Assert.Same(orderTableIndex, ordersTable.Indexes.Single());
+
             var orderFk = orderType.GetForeignKeys().Single();
-            var orderFkConstraint = orderFk.GetConstraintMappings().Single();
+            var orderFkConstraint = orderFk.GetMappedConstraints().Single();
 
             Assert.Equal("FK_Order_Customer_CustomerId", orderFkConstraint.Name);
             Assert.Equal(nameof(Order.CustomerId), orderFkConstraint.Columns.Single().Name);
@@ -170,8 +191,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var orderDetailsType = orderDetailsOwnership.DeclaringEntityType;
             Assert.Same(ordersTable, orderDetailsType.GetTableMappings().Single().Table);
             Assert.Equal(ordersTable.GetReferencingInternalForeignKeys(orderType), ordersTable.GetInternalForeignKeys(orderDetailsType));
-            Assert.Empty(orderDetailsOwnership.GetConstraintMappings());
+            Assert.Empty(orderDetailsOwnership.GetMappedConstraints());
             Assert.Empty(orderDetailsType.GetForeignKeys().Where(fk => fk != orderDetailsOwnership));
+            Assert.Same(orderPkConstraint, orderDetailsType.FindPrimaryKey().GetMappedConstraints().Single());
+            Assert.Contains(orderDetailsType.FindPrimaryKey(), orderPkConstraint.MappedKeys);
 
             var orderDetailsDate = orderDetailsType.FindProperty(nameof(OrderDetails.OrderDate));
             Assert.True(orderDetailsDate.IsColumnNullable());

@@ -19,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore
     public static class RelationalEntityTypeExtensions
     {
         /// <summary>
-        ///     Returns the name of the table to which the entity type is mapped.
+        ///     Returns the name of the table to which the entity type is mapped
+        ///     or <c>null</c> if not mapped to a table.
         /// </summary>
         /// <param name="entityType"> The entity type to get the table name for. </param>
         /// <returns> The name of the table to which the entity type is mapped. </returns>
@@ -162,6 +163,24 @@ namespace Microsoft.EntityFrameworkCore
                 ?.GetConfigurationSource();
 
         /// <summary>
+        ///     Returns the name of the table to which the entity type is mapped prepended by the schema
+        ///     or <c>null</c> if not mapped to a table.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the table name for. </param>
+        /// <returns> The name of the table to which the entity type is mapped prepended by the schema. </returns>
+        public static string GetSchemaQualifiedTableName([NotNull] this IEntityType entityType)
+        {
+            var tableName = entityType.GetTableName();
+            if (tableName == null)
+            {
+                return null;
+            }
+
+            var schema = entityType.GetSchema();
+            return (string.IsNullOrEmpty(schema) ? "" : schema + ".") + tableName;
+        }
+
+        /// <summary>
         ///     Returns the tables to which the entity type is mapped.
         /// </summary>
         /// <param name="entityType"> The entity type to get the table name for. </param>
@@ -190,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore
                 ?? Enumerable.Empty<IViewMapping>();
 
         /// <summary>
-        ///     Returns the name of the view to which the entity type is mapped.
+        ///     Returns the name of the view to which the entity type is mapped or <c>null</c> if not mapped to a view.
         /// </summary>
         /// <param name="entityType"> The entity type to get the view name for. </param>
         /// <returns> The name of the view to which the entity type is mapped. </returns>

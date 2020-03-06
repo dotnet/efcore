@@ -1,12 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -16,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static class ForeignKeyConstraintExtensions
+    public static class TableIndexExtensions
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -25,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static string ToDebugString(
-            [NotNull] this IForeignKeyConstraint foreignKey,
+            [NotNull] this ITableIndex index,
             MetadataDebugStringOptions options,
             [NotNull] string indent = "")
         {
@@ -35,31 +32,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
             if (singleLine)
             {
-                builder.Append("ForeignKey: ");
+                builder.Append("Index: ");
             }
 
             builder
-                .Append(foreignKey.Name)
+                .Append(index.Name)
                 .Append(" ")
-                .Append(foreignKey.Table.Name)
-                .Append(" ")
-                .Append(Column.Format(foreignKey.Columns))
-                .Append(" -> ")
-                .Append(foreignKey.PrincipalTable.Name)
-                .Append(" ")
-                .Append(Column.Format(foreignKey.PrincipalColumns));
+                .Append(Column.Format(index.Columns));
 
-            if (foreignKey.OnDeleteAction != ReferentialAction.NoAction)
+            if (index.IsUnique)
             {
                 builder
-                    .Append(" ")
-                    .Append(foreignKey.OnDeleteAction);
+                    .Append(" Unique");
+            }
+
+            if (!string.IsNullOrWhiteSpace(index.Filter))
+            {
+                builder
+                    .Append(" Filtered");
             }
 
             if (!singleLine &&
                 (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
             {
-                builder.Append(foreignKey.AnnotationsToDebugString(indent + "  "));
+                builder.Append(index.AnnotationsToDebugString(indent + "  "));
             }
 
             return builder.ToString();

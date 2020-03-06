@@ -157,18 +157,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var tables = new Dictionary<string, List<IEntityType>>();
             foreach (var entityType in model.GetEntityTypes())
             {
-                var name = entityType.GetTableName();
+                var name = entityType.GetSchemaQualifiedTableName();
                 if (name == null)
                 {
                     continue;
                 }
 
-                var tableName = Format(entityType.GetSchema(), name);
-
-                if (!tables.TryGetValue(tableName, out var mappedTypes))
+                if (!tables.TryGetValue(name, out var mappedTypes))
                 {
                     mappedTypes = new List<IEntityType>();
-                    tables[tableName] = mappedTypes;
+                    tables[name] = mappedTypes;
                 }
 
                 mappedTypes.Add(entityType);
@@ -190,10 +188,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Validates the compatibility of entity types sharing a given table.
         /// </summary>
         /// <param name="mappedTypes"> The mapped entity types. </param>
-        /// <param name="tableName"> The table name. </param>
+        /// <param name="tableName"> The schema-qualified table name. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSharedTableCompatibility(
-            [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName,
+            [NotNull] IReadOnlyList<IEntityType> mappedTypes,
+            [NotNull] string tableName,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             if (mappedTypes.Count == 1)
@@ -306,18 +305,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private static bool IsIdentifyingPrincipal(IEntityType dependentEntityType, IEntityType principalEntityType)
             => dependentEntityType.FindForeignKeys(dependentEntityType.FindPrimaryKey().Properties)
-                .Any(
-                    fk => fk.PrincipalKey.IsPrimaryKey()
+                .Any(fk => fk.PrincipalKey.IsPrimaryKey()
                         && fk.PrincipalEntityType == principalEntityType);
 
         /// <summary>
         ///     Validates the compatibility of properties sharing columns in a given table.
         /// </summary>
         /// <param name="mappedTypes"> The mapped entity types. </param>
-        /// <param name="tableName"> The table name. </param>
+        /// <param name="tableName"> The schema-qualified table name. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSharedColumnsCompatibility(
-            [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName,
+            [NotNull] IReadOnlyList<IEntityType> mappedTypes,
+            [NotNull] string tableName,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             Dictionary<string, IProperty> storeConcurrencyTokens = null;
@@ -367,99 +366,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         continue;
                     }
 
-                    var currentTypeString = property.GetColumnType()
-                        ?? property.GetRelationalTypeMapping().StoreType;
-                    var previousTypeString = duplicateProperty.GetColumnType()
-                        ?? duplicateProperty.GetRelationalTypeMapping().StoreType;
-                    if (!string.Equals(currentTypeString, previousTypeString, StringComparison.OrdinalIgnoreCase))
-                    {
-                        throw new InvalidOperationException(
-                            RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                                duplicateProperty.DeclaringEntityType.DisplayName(),
-                                duplicateProperty.Name,
-                                property.DeclaringEntityType.DisplayName(),
-                                property.Name,
-                                columnName,
-                                tableName,
-                                previousTypeString,
-                                currentTypeString));
-                    }
-
-                    if (property.IsNullable != duplicateProperty.IsNullable)
-                    {
-                        throw new InvalidOperationException(
-                            RelationalStrings.DuplicateColumnNameNullabilityMismatch(
-                                duplicateProperty.DeclaringEntityType.DisplayName(),
-                                duplicateProperty.Name,
-                                property.DeclaringEntityType.DisplayName(),
-                                property.Name,
-                                columnName,
-                                tableName));
-                    }
-
-                    var currentComputedColumnSql = property.GetComputedColumnSql() ?? "";
-                    var previousComputedColumnSql = duplicateProperty.GetComputedColumnSql() ?? "";
-                    if (!currentComputedColumnSql.Equals(previousComputedColumnSql, StringComparison.OrdinalIgnoreCase))
-                    {
-                        throw new InvalidOperationException(
-                            RelationalStrings.DuplicateColumnNameComputedSqlMismatch(
-                                duplicateProperty.DeclaringEntityType.DisplayName(),
-                                duplicateProperty.Name,
-                                property.DeclaringEntityType.DisplayName(),
-                                property.Name,
-                                columnName,
-                                tableName,
-                                previousComputedColumnSql,
-                                currentComputedColumnSql));
-                    }
-
-                    var currentDefaultValue = property.GetDefaultValue();
-                    var previousDefaultValue = duplicateProperty.GetDefaultValue();
-                    if (!Equals(currentDefaultValue, previousDefaultValue))
-                    {
-                        throw new InvalidOperationException(
-                            RelationalStrings.DuplicateColumnNameDefaultSqlMismatch(
-                                duplicateProperty.DeclaringEntityType.DisplayName(),
-                                duplicateProperty.Name,
-                                property.DeclaringEntityType.DisplayName(),
-                                property.Name,
-                                columnName,
-                                tableName,
-                                previousDefaultValue ?? "NULL",
-                                currentDefaultValue ?? "NULL"));
-                    }
-
-                    var currentDefaultValueSql = property.GetDefaultValueSql() ?? "";
-                    var previousDefaultValueSql = duplicateProperty.GetDefaultValueSql() ?? "";
-                    if (!currentDefaultValueSql.Equals(previousDefaultValueSql, StringComparison.OrdinalIgnoreCase))
-                    {
-                        throw new InvalidOperationException(
-                            RelationalStrings.DuplicateColumnNameDefaultSqlMismatch(
-                                duplicateProperty.DeclaringEntityType.DisplayName(),
-                                duplicateProperty.Name,
-                                property.DeclaringEntityType.DisplayName(),
-                                property.Name,
-                                columnName,
-                                tableName,
-                                previousDefaultValueSql,
-                                currentDefaultValueSql));
-                    }
-
-                    var currentComment = property.GetComment() ?? "";
-                    var previousComment = duplicateProperty.GetComment() ?? "";
-                    if (!currentComment.Equals(previousComment, StringComparison.Ordinal))
-                    {
-                        throw new InvalidOperationException(
-                            RelationalStrings.DuplicateColumnNameCommentMismatch(
-                                duplicateProperty.DeclaringEntityType.DisplayName(),
-                                duplicateProperty.Name,
-                                property.DeclaringEntityType.DisplayName(),
-                                property.Name,
-                                columnName,
-                                tableName,
-                                previousComment,
-                                currentComment));
-                    }
+                    ValidateCompatible(property, duplicateProperty, columnName, tableName);
                 }
 
                 if ((missingConcurrencyTokens?.Count ?? 0) != 0)
@@ -478,13 +385,122 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
+        ///     Validates the compatibility of two properties mapped to the same column.
+        /// </summary>
+        /// <param name="property"> A property. </param>
+        /// <param name="duplicateProperty"> Another property. </param>
+        /// <param name="columnName"> The column name. </param>
+        /// <param name="tableName"> The schema-qualified table name. </param>
+        protected virtual void ValidateCompatible(
+            [NotNull] IProperty property,
+            [NotNull] IProperty duplicateProperty,
+            [NotNull] string columnName,
+            [NotNull] string tableName)
+        {
+            var currentTypeString = property.GetColumnType()
+                ?? property.GetRelationalTypeMapping().StoreType;
+            var previousTypeString = duplicateProperty.GetColumnType()
+                ?? duplicateProperty.GetRelationalTypeMapping().StoreType;
+            if (!string.Equals(currentTypeString, previousTypeString, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameDataTypeMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        tableName,
+                        previousTypeString,
+                        currentTypeString));
+            }
+
+            if (property.IsNullable != duplicateProperty.IsNullable)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameNullabilityMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        tableName));
+            }
+
+            var currentComputedColumnSql = property.GetComputedColumnSql() ?? "";
+            var previousComputedColumnSql = duplicateProperty.GetComputedColumnSql() ?? "";
+            if (!currentComputedColumnSql.Equals(previousComputedColumnSql, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameComputedSqlMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        tableName,
+                        previousComputedColumnSql,
+                        currentComputedColumnSql));
+            }
+
+            var currentDefaultValue = property.GetDefaultValue();
+            var previousDefaultValue = duplicateProperty.GetDefaultValue();
+            if (!Equals(currentDefaultValue, previousDefaultValue))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameDefaultSqlMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        tableName,
+                        previousDefaultValue ?? "NULL",
+                        currentDefaultValue ?? "NULL"));
+            }
+
+            var currentDefaultValueSql = property.GetDefaultValueSql() ?? "";
+            var previousDefaultValueSql = duplicateProperty.GetDefaultValueSql() ?? "";
+            if (!currentDefaultValueSql.Equals(previousDefaultValueSql, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameDefaultSqlMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        tableName,
+                        previousDefaultValueSql,
+                        currentDefaultValueSql));
+            }
+
+            var currentComment = property.GetComment() ?? "";
+            var previousComment = duplicateProperty.GetComment() ?? "";
+            if (!currentComment.Equals(previousComment, StringComparison.Ordinal))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameCommentMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        tableName,
+                        previousComment,
+                        currentComment));
+            }
+        }
+
+        /// <summary>
         ///     Validates the compatibility of foreign keys in a given shared table.
         /// </summary>
         /// <param name="mappedTypes"> The mapped entity types. </param>
-        /// <param name="tableName"> The table name. </param>
+        /// <param name="tableName"> The schema-qualified table name. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSharedForeignKeysCompatibility(
-            [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName,
+            [NotNull] IReadOnlyList<IEntityType> mappedTypes,
+            [NotNull] string tableName,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             var foreignKeyMappings = new Dictionary<string, IForeignKey>();
@@ -498,18 +514,35 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     continue;
                 }
 
-                foreignKey.AreCompatible(duplicateForeignKey, shouldThrow: true);
+                ValidateCompatible(foreignKey, duplicateForeignKey, foreignKeyName, tableName);
             }
+        }
+
+        /// <summary>
+        ///     Validates the compatibility of two foreign keys mapped to the same foreign key constraint.
+        /// </summary>
+        /// <param name="foreignKey"> A foreign key. </param>
+        /// <param name="duplicateForeignKey"> Another foreign key. </param>
+        /// <param name="foreignKeyName"> The foreign key constraint name. </param>
+        /// <param name="tableName"> The schema-qualified table name. </param>
+        protected virtual void ValidateCompatible(
+            [NotNull] IForeignKey foreignKey,
+            [NotNull] IForeignKey duplicateForeignKey,
+            [NotNull] string foreignKeyName,
+            [NotNull] string tableName)
+        {
+            foreignKey.AreCompatible(duplicateForeignKey, shouldThrow: true);
         }
 
         /// <summary>
         ///     Validates the compatibility of indexes in a given shared table.
         /// </summary>
         /// <param name="mappedTypes"> The mapped entity types. </param>
-        /// <param name="tableName"> The table name. </param>
+        /// <param name="tableName"> The schema-qualified table name. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSharedIndexesCompatibility(
-            [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName,
+            [NotNull] IReadOnlyList<IEntityType> mappedTypes,
+            [NotNull] string tableName,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             var indexMappings = new Dictionary<string, IIndex>();
@@ -523,15 +556,29 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     continue;
                 }
 
-                index.AreCompatible(duplicateIndex, shouldThrow: true);
+                ValidateCompatible(index, duplicateIndex, indexName, tableName);
             }
         }
+
+        /// <summary>
+        ///     Validates the compatibility of two indexes mapped to the same table index.
+        /// </summary>
+        /// <param name="index"> An index. </param>
+        /// <param name="duplicateIndex"> Another index. </param>
+        /// <param name="indexName"> The name of the index. </param>
+        /// <param name="tableName"> The schema-qualified table name. </param>
+        protected virtual void ValidateCompatible(
+            [NotNull] IIndex index,
+            [NotNull] IIndex duplicateIndex,
+            [NotNull] string indexName,
+            [NotNull] string tableName)
+            => index.AreCompatible(duplicateIndex, shouldThrow: true);
 
         /// <summary>
         ///     Validates the compatibility of primary and alternate keys in a given shared table.
         /// </summary>
         /// <param name="mappedTypes"> The mapped entity types. </param>
-        /// <param name="tableName"> The table name. </param>
+        /// <param name="tableName"> The schema-qualified table name. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSharedKeysCompatibility(
             [NotNull] IReadOnlyList<IEntityType> mappedTypes,
@@ -550,20 +597,36 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     continue;
                 }
 
-                if (!key.Properties.Select(p => p.GetColumnName())
+                ValidateCompatible(key, duplicateKey, keyName, tableName);
+            }
+        }
+
+        /// <summary>
+        ///     Validates the compatibility of two keys mapped to the same unique constraint.
+        /// </summary>
+        /// <param name="key"> A key. </param>
+        /// <param name="duplicateKey"> Another key. </param>
+        /// <param name="keyName"> The name of the unique constraint. </param>
+        /// <param name="tableName"> The schema-qualified table name. </param>
+        protected virtual void ValidateCompatible(
+            [NotNull] IKey key,
+            [NotNull] IKey duplicateKey,
+            [NotNull] string keyName,
+            [NotNull] string tableName)
+        {
+            if (!key.Properties.Select(p => p.GetColumnName())
                     .SequenceEqual(duplicateKey.Properties.Select(p => p.GetColumnName())))
-                {
-                    throw new InvalidOperationException(
-                        RelationalStrings.DuplicateKeyColumnMismatch(
-                            key.Properties.Format(),
-                            key.DeclaringEntityType.DisplayName(),
-                            duplicateKey.Properties.Format(),
-                            duplicateKey.DeclaringEntityType.DisplayName(),
-                            tableName,
-                            keyName,
-                            key.Properties.FormatColumns(),
-                            duplicateKey.Properties.FormatColumns()));
-                }
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateKeyColumnMismatch(
+                        key.Properties.Format(),
+                        key.DeclaringEntityType.DisplayName(),
+                        duplicateKey.Properties.Format(),
+                        duplicateKey.DeclaringEntityType.DisplayName(),
+                        tableName,
+                        keyName,
+                        key.Properties.FormatColumns(),
+                        duplicateKey.Properties.FormatColumns()));
             }
         }
 
@@ -578,17 +641,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             foreach (var entityType in model.GetEntityTypes())
             {
                 if (entityType.BaseType != null
-                    && entityType[RelationalAnnotationNames.TableName] != null
-                    && ((EntityType)entityType).FindAnnotation(RelationalAnnotationNames.TableName).GetConfigurationSource()
-                    == ConfigurationSource.Explicit)
+                    && ((EntityType)entityType).FindAnnotation(RelationalAnnotationNames.TableName)?.GetConfigurationSource()
+                        == ConfigurationSource.Explicit)
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.DerivedTypeTable(entityType.DisplayName(), entityType.BaseType.DisplayName()));
                 }
             }
         }
-
-        private static string Format(string schema, string name)
-            => (string.IsNullOrEmpty(schema) ? "" : schema + ".") + name;
     }
 }

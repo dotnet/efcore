@@ -31,6 +31,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         private DiscriminatorBuilder Builder { get; }
 
         /// <summary>
+        ///     Configures if the discriminator mapping is complete.
+        /// </summary>
+        /// <param name="complete"> The value indicating if this discriminator mapping is complete. </param>
+        /// <returns> The same builder so that multiple calls can be chained. </returns>
+        public virtual DiscriminatorBuilder<TDiscriminator> IsComplete(bool complete = true)
+        {
+            var builder = Builder.IsComplete(complete);
+            return builder == null ? null : new DiscriminatorBuilder<TDiscriminator>(builder);
+        }
+
+        /// <summary>
         ///     Configures the default discriminator value to use.
         /// </summary>
         /// <param name="value"> The discriminator value. </param>

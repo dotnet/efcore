@@ -9,6 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         protected override string StoreName { get; } = "InheritanceTest";
         protected virtual bool EnableFilters => false;
+        protected virtual bool IsDiscriminatorMappingComplete => false;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
@@ -25,6 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<Tea>();
             modelBuilder.Entity<Lilt>();
             modelBuilder.Entity<Coke>();
+
+            modelBuilder.Entity<Animal>().HasDiscriminator<string>("Discriminator").IsComplete(IsDiscriminatorMappingComplete);
 
             if (EnableFilters)
             {

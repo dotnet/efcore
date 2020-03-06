@@ -44,6 +44,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual SortedDictionary<string, ForeignKeyConstraint> ForeignKeyConstraints { get; }
             = new SortedDictionary<string, ForeignKeyConstraint>();
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual SortedDictionary<string, UniqueConstraint> UniqueConstraints { get; }
+            = new SortedDictionary<string, UniqueConstraint>();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual SortedDictionary<string, TableIndex> Indexes { get; }
+            = new SortedDictionary<string, TableIndex>();
+
         /// <inheritdoc/>
         public virtual bool IsMigratable { get; set; }
 
@@ -97,10 +115,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             get => EntityTypeMappings;
         }
 
+        /// <inheritdoc/>
         IEnumerable<IForeignKeyConstraint> ITable.ForeignKeyConstraints
         {
             [DebuggerStepThrough]
             get => ForeignKeyConstraints.Values;
+        }
+
+        /// <inheritdoc/>
+        IEnumerable<IUniqueConstraint> ITable.UniqueConstraints
+        {
+            [DebuggerStepThrough]
+            get => UniqueConstraints.Values;
+        }
+
+        /// <inheritdoc/>
+        IEnumerable<ITableIndex> ITable.Indexes
+        {
+            [DebuggerStepThrough]
+            get => Indexes.Values;
         }
 
         /// <inheritdoc/>

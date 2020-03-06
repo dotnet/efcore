@@ -471,6 +471,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var explicitName = key.GetName() != key.GetDefaultName();
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.Name);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.UniqueConstraintMappings);
 
             if (key.Properties.Count == 1
                 && annotations.Count == 0)
@@ -577,6 +578,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var lines = new List<string> { $".{nameof(EntityTypeBuilder.HasIndex)}({_code.Lambda(index.Properties)})" };
 
             var annotations = index.GetAnnotations().ToList();
+
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.TableIndexMappings);
 
             if (!string.IsNullOrEmpty((string)index[RelationalAnnotationNames.Name]))
             {

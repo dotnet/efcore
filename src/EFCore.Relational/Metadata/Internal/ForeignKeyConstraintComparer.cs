@@ -35,7 +35,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public int Compare(IForeignKeyConstraint x, IForeignKeyConstraint y)
         {
-            var result = ColumnListComparer.Instance.Compare(x.Columns, y.Columns);
+            var result = StringComparer.Ordinal.Compare(x.Name, y.Name);
+            if (result != 0)
+            {
+                return result;
+            }
+
+            result = ColumnListComparer.Instance.Compare(x.Columns, y.Columns);
             if (result != 0)
             {
                 return result;
@@ -69,6 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public int GetHashCode(IForeignKeyConstraint obj)
         {
             var hashCode = new HashCode();
+            hashCode.Add(obj.Name);
             hashCode.Add(obj.Columns, ColumnListComparer.Instance);
             hashCode.Add(obj.PrincipalColumns, ColumnListComparer.Instance);
             hashCode.Add(obj.Table.Name);
