@@ -589,7 +589,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <para>
         ///         After calling this method, you should chain a call to
         ///         <see
-        ///             cref="CollectionNavigationBuilder{TEntity,TRelatedEntity}.WithOne(Expression{Func{TRelatedEntity,TEntity}})" />
+        ///             cref="CollectionNavigationBuilder{TEntity,TRelatedEntity}.WithOne(Expression{Func{TRelatedEntity,TEntity}}, Action{NavigationBuilder})" />
         ///         to fully configure the relationship. Calling just this method without the chained call will not
         ///         produce a valid relationship.
         ///     </para>
@@ -639,7 +639,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <para>
         ///         After calling this method, you should chain a call to
         ///         <see
-        ///             cref="CollectionNavigationBuilder{TEntity,TRelatedEntity}.WithOne(Expression{Func{TRelatedEntity,TEntity}})" />
+        ///             cref="CollectionNavigationBuilder{TEntity,TRelatedEntity}.WithOne(Expression{Func{TRelatedEntity,TEntity}}, Action{NavigationBuilder})" />
         ///         to fully configure the relationship. Calling just this method without the chained call will not
         ///         produce a valid relationship.
         ///     </para>
@@ -650,9 +650,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     the relationship (<c>blog => blog.Posts</c>). If no property is specified, the relationship will be
         ///     configured without a navigation property on this end.
         /// </param>
+        /// <param name="navigationConfiguration">
+        ///     An optional action which further configures the navigation property.
+        /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual CollectionNavigationBuilder<TEntity, TRelatedEntity> HasMany<TRelatedEntity>(
-            [CanBeNull] Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression = null)
+            [CanBeNull] Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression = null,
+            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
             where TRelatedEntity : class
         {
             var navigationMember = navigationExpression?.GetPropertyAccess();
@@ -665,6 +669,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 relationship = Builder
                     .HasRelationship(relatedEntityType, navigationMember, ConfigurationSource.Explicit, targetIsPrincipal: false)
                     .IsUnique(false, ConfigurationSource.Explicit);
+            }
+
+            if (navigationConfiguration != null && navigationMember != null)
+            {
+                var navigation = Builder.Metadata.FindNavigation(navigationMember);
+                if (navigation != null)
+                {
+                    navigationConfiguration(new NavigationBuilder(navigation));
+                }
             }
 
             return new CollectionNavigationBuilder<TEntity, TRelatedEntity>(

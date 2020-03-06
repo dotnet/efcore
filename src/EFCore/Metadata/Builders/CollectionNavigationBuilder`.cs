@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
@@ -72,13 +74,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     relationship (<c>post => post.Blog</c>). If no property is specified, the relationship will be
         ///     configured without a navigation property on the other end of the relationship.
         /// </param>
+        /// <param name="navigationConfiguration">
+        ///     An optional action which further configures the navigation property.
+        /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(
-            [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> navigationExpression)
-            => new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
+            [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> navigationExpression,
+            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+        {
+            var navigationMember = navigationExpression?.GetPropertyAccess();
+            if (navigationConfiguration != null && navigationMember != null)
+            {
+                var navigation =
+                    FindOrAddRelatedEntityType(typeof(TRelatedEntity), navigationMember.GetSimpleMemberName())?
+                        .FindNavigation(navigationMember);
+                if (navigation != null)
+                {
+                    navigationConfiguration(new NavigationBuilder(navigation));
+                }
+            }
+
+            return new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
                 DeclaringEntityType,
                 RelatedEntityType,
-                WithOneBuilder(navigationExpression?.GetPropertyAccess()).Metadata);
+                WithOneBuilder(navigationMember).Metadata);
+        }
 
         /// <summary>
         ///     Configures this as a many-to-many relationship.
@@ -118,5 +138,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                            WithLeftManyNavigation(navigationExpression.GetPropertyAccess()),
                            WithRightManyNavigation(navigationExpression.GetPropertyAccess(), leftName));
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        protected virtual EntityType FindOrAddRelatedEntityType([NotNull] Type relatedType, [CanBeNull] string navigationName)
+            => (navigationName == null
+                    ? null
+                    : Builder.ModelBuilder.Metadata.FindEntityType(relatedType, navigationName, Builder.Metadata.PrincipalEntityType))
+                ?? Builder.ModelBuilder.Entity(relatedType, ConfigurationSource.Explicit).Metadata;
     }
 }
