@@ -199,8 +199,6 @@ stages:
               - ${{ if eq(variables['System.TeamProject'], 'public') }}:
                 - name: HelixTargetQueues
                   value: Windows.10.Amd64.Open
-                - name: Creator
-                  value: efcore
                 - name: _HelixAccessToken
                   value: '' # Needed for public queues
               - ${{ if ne(variables['System.TeamProject'], 'public') }}:
@@ -240,8 +238,6 @@ stages:
               - ${{ if eq(variables['System.TeamProject'], 'public') }}:
                 - name: HelixTargetQueues
                   value: Ubuntu.1804.Amd64.Open;OSX.1014.Amd64.Open
-                - name: Creator
-                  value: efcore
                 - name: _HelixAccessToken
                   value: '' # Needed for public queues
               - ${{ if ne(variables['System.TeamProject'], 'public') }}:
