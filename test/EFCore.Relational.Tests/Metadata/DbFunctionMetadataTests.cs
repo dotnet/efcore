@@ -196,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public static MethodInfo MethodHmi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodH));
 
         public static MethodInfo MethodJmi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodJ));
-        
+
         public class TestMethods
         {
             public static int Foo => 1;

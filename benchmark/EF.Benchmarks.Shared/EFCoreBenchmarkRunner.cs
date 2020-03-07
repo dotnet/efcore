@@ -39,13 +39,11 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
                     .With(
                         MarkdownExporter.GitHub, new CsvExporter(
                             CsvSeparator.Comma,
-                            new SummaryStyle
-                            {
-                                PrintUnitsInHeader = true,
-                                PrintUnitsInContent = false,
-                                TimeUnit = TimeUnit.Microsecond,
-                                SizeUnit = SizeUnit.KB
-                            }));
+                            new SummaryStyle(
+                                printUnitsInHeader: true,
+                                SizeUnit.KB,
+                                TimeUnit.Microsecond,
+                                printUnitsInContent: false)));
             }
 
             BenchmarkSwitcher.FromAssembly(assembly).Run(args, config);
