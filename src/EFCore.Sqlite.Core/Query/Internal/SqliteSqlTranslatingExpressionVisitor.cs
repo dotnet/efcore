@@ -273,22 +273,24 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         {
             return op switch
             {
-                ExpressionType.Add => ArithmeticExpressionFactoryFunction("ef_add", left, right),
-                ExpressionType.Divide => ArithmeticExpressionFactoryFunction("ef_divide", left, right),
-                ExpressionType.Multiply => ArithmeticExpressionFactoryFunction("ef_multiply", left, right),
-                ExpressionType.Subtract => SubtractExpressionFactoryFunction(left, right),
+                ExpressionType.Add => DecimalArithmeticExpressionFactoryFunction("ef_add", left, right),
+                ExpressionType.Divide => DecimalArithmeticExpressionFactoryFunction("ef_divide", left, right),
+                ExpressionType.Multiply => DecimalArithmeticExpressionFactoryFunction("ef_multiply", left, right),
+                ExpressionType.Subtract => DecimalSubtractExpressionFactoryFunction(left, right),
                 _ => visitedExpression
             };
 
-            Expression ArithmeticExpressionFactoryFunction(string name, SqlExpression left, SqlExpression right) =>
-                SqlExpressionFactory.Function(
+            Expression DecimalArithmeticExpressionFactoryFunction(string name, SqlExpression left, SqlExpression right)
+            {
+                return SqlExpressionFactory.Function(
                     name,
                     new[] { left, right },
                     nullable: true,
                     new[] { true, true },
                     visitedExpression.Type);
+            }
 
-            Expression SubtractExpressionFactoryFunction(SqlExpression left, SqlExpression right)
+            Expression DecimalSubtractExpressionFactoryFunction(SqlExpression left, SqlExpression right)
             {
                 var subtrahend = SqlExpressionFactory.Function(
                     "ef_negate",
@@ -297,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     new[] { true },
                     visitedExpression.Type);
 
-                return ArithmeticExpressionFactoryFunction("ef_add", left, subtrahend);
+                return DecimalArithmeticExpressionFactoryFunction("ef_add", left, subtrahend);
             }
         }
     }
