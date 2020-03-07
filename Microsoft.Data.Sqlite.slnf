@@ -1,0 +1,24 @@
+{
+  "solution": {
+    "path": "All.sln",
+    "projects": [
+      "samples\\Microsoft.Data.Sqlite\\AggregateFunctionSample\\AggregateFunctionSample.csproj",
+      "samples\\Microsoft.Data.Sqlite\\AsyncSample\\AsyncSample.csproj",
+      "samples\\Microsoft.Data.Sqlite\\BatchingSample\\BatchingSample.csproj",
+      "samples\\Microsoft.Data.Sqlite\\BulkInsertSample\\BulkInsertSample.csproj",
+      "samples\\Microsoft.Data.Sqlite\\CollationSample\\CollationSample.csproj",
+      "samples\\Microsoft.Data.Sqlite\\DateAndTimeSample\\DateAndTimeSample.csproj",
+      "samples\\Microsoft.Data.Sqlite\\DirtyReadSample\\DirtyReadSample.csproj",
+      "samples\\Microsoft.Data.Sqlite\\EncryptionSample\\EncryptionSample.csproj",
+      "samples\\Microsoft.Data.Sqlite\\InMemorySample\\InMemorySample.csproj",
+      "samples\\Microsoft.Data.Sqlite\\InteropSample\\InteropSample.csproj",
+      "samples\\Microsoft.Data.Sqlite\\RegularExpressionSample\\RegularExpressionSample.csproj",
+      "samples\\Microsoft.Data.Sqlite\\ResultMetadataSample\\ResultMetadataSample.csproj",
+      "samples\\Microsoft.Data.Sqlite\\ScalarFunctionSample\\ScalarFunctionSample.csproj",
+      "samples\\Microsoft.Data.Sqlite\\StreamingSample\\StreamingSample.csproj",
+      "src\\Microsoft.Data.Sqlite.Core\\Microsoft.Data.Sqlite.Core.csproj",
+      "src\\Microsoft.Data.Sqlite\\Microsoft.Data.Sqlite.csproj",
+      "test\\Microsoft.Data.Sqlite.Tests\\Microsoft.Data.Sqlite.Tests.csproj"
+    ]
+  }
+}

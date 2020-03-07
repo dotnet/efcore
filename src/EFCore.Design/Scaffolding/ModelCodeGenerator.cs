@@ -34,18 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         ///     Generates code for a model.
         /// </summary>
         /// <param name="model"> The model. </param>
-        /// <param name="namespace"> The namespace. </param>
-        /// <param name="contextDir"> The directory of the <see cref="DbContext"/>. </param>
-        /// <param name="contextName"> The name of the <see cref="DbContext"/>. </param>
-        /// <param name="connectionString"> The connection string. </param>
         /// <param name="options"> The options to use during generation. </param>
         /// <returns> The generated model. </returns>
         public abstract ScaffoldedModel GenerateModel(
             IModel model,
-            string @namespace,
-            string contextDir,
-            string contextName,
-            string connectionString,
             ModelCodeGenerationOptions options);
     }
 }

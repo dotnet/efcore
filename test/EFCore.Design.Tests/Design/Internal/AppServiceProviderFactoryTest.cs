@@ -7,11 +7,12 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+#pragma warning disable RCS1102 // Make class static.
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     public class AppServiceProviderFactoryTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Create_works()
         {
             var factory = new TestAppServiceProviderFactory(
@@ -42,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_works_when_no_BuildWebHost()
         {
             var factory = new TestAppServiceProviderFactory(
@@ -58,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_works_when_BuildWebHost_throws()
         {
             var reporter = new TestOperationReporter();
@@ -71,12 +72,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             Assert.NotNull(services);
             Assert.Contains(
-                "warn: " +
-                DesignStrings.InvokeBuildWebHostFailed(nameof(ProgramWithThrowingBuildWebHost), "This is a test."),
+                "warn: " + DesignStrings.InvokeCreateHostBuilderFailed("This is a test."),
                 reporter.Messages);
         }
 
-        private class ProgramWithThrowingBuildWebHost
+        private static class ProgramWithThrowingBuildWebHost
         {
             public static TestWebHost BuildWebHost(string[] args)
                 => throw new Exception("This is a test.");

@@ -8,15 +8,18 @@ using JetBrains.Annotations;
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    // Issue#11266 This type is being used by provider code. Do not break.
     public static class NonCapturingLazyInitializer
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static TValue EnsureInitialized<TParam, TValue>(
             [CanBeNull] ref TValue target,
@@ -24,19 +27,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] Func<TParam, TValue> valueFactory)
             where TValue : class
         {
-            if (Volatile.Read(ref target) != null)
+            var tmp = Volatile.Read(ref target);
+            if (tmp != null)
             {
-                return target;
+                return tmp;
             }
 
             Interlocked.CompareExchange(ref target, valueFactory(param), null);
 
-            return target;
+            return target!;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static TValue EnsureInitialized<TParam1, TParam2, TValue>(
             [CanBeNull] ref TValue target,
@@ -45,38 +51,44 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] Func<TParam1, TParam2, TValue> valueFactory)
             where TValue : class
         {
-            if (Volatile.Read(ref target) != null)
+            var tmp = Volatile.Read(ref target);
+            if (tmp != null)
             {
-                return target;
+                return tmp;
             }
 
             Interlocked.CompareExchange(ref target, valueFactory(param1, param2), null);
 
-            return target;
+            return target!;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static TValue EnsureInitialized<TValue>(
             [CanBeNull] ref TValue target,
             [NotNull] TValue value)
             where TValue : class
         {
-            if (Volatile.Read(ref target) != null)
+            var tmp = Volatile.Read(ref target);
+            if (tmp != null)
             {
-                return target;
+                return tmp;
             }
 
             Interlocked.CompareExchange(ref target, value, null);
 
-            return target;
+            return target!;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static TValue EnsureInitialized<TParam, TValue>(
             [CanBeNull] ref TValue target,
@@ -86,12 +98,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             if (Volatile.Read(ref target) != null)
             {
-                return target;
+                return target!;
             }
 
             valueFactory(param);
 
-            return Volatile.Read(ref target);
+            return Volatile.Read(ref target)!;
         }
     }
 }

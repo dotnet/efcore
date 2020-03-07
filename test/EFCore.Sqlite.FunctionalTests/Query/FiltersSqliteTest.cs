@@ -14,23 +14,19 @@ namespace Microsoft.EntityFrameworkCore.Query
             //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-#if !Test20
         public override void Count_query()
         {
             base.Count_query();
+
             AssertSql(
                 @"@__ef_filter__TenantPrefix_0='B' (Size = 1)
 
 SELECT COUNT(*)
 FROM ""Customers"" AS ""c""
-WHERE (""c"".""CompanyName"" LIKE @__ef_filter__TenantPrefix_0 || '%' AND (substr(""c"".""CompanyName"", 1, length(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0)) OR (@__ef_filter__TenantPrefix_0 = '')");
+WHERE (@__ef_filter__TenantPrefix_0 = '') OR (""c"".""CompanyName"" IS NOT NULL AND (((""c"".""CompanyName"" LIKE ""c"".""CompanyName"" || '%') AND (substr(""c"".""CompanyName"", 1, length(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0)) OR (@__ef_filter__TenantPrefix_0 = '')))");
         }
-#endif
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
-
-        private void AssertContainsSql(params string[] expected)
-            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected, assertOrder: false);
     }
 }

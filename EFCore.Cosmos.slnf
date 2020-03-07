@@ -1,0 +1,19 @@
+{
+  "solution": {
+    "path": "All.sln",
+    "projects": [
+      "src\\EFCore.Abstractions\\EFCore.Abstractions.csproj",
+      "src\\EFCore.Analyzers\\EFCore.Analyzers.csproj",
+      "src\\EFCore.Cosmos\\EFCore.Cosmos.csproj",
+      "src\\EFCore.Proxies\\EFCore.Proxies.csproj",
+      "src\\EFCore\\EFCore.csproj",
+      "test\\EFCore.Analyzers.Tests\\EFCore.Analyzers.Test.csproj",
+      "test\\EFCore.Cosmos.FunctionalTests\\EFCore.Cosmos.FunctionalTests.csproj",
+      "test\\EFCore.Cosmos.Tests\\EFCore.Cosmos.Tests.csproj",
+      "test\\EFCore.InMemory.FunctionalTests\\EFCore.InMemory.FunctionalTests.csproj",
+      "test\\EFCore.InMemory.Tests\\EFCore.InMemory.Tests.csproj",
+      "test\\EFCore.Specification.Tests\\EFCore.Specification.Tests.csproj",
+      "test\\EFCore.Tests\\EFCore.Tests.csproj"
+    ]
+  }
+}

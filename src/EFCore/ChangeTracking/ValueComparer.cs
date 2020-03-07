@@ -3,12 +3,12 @@
 
 using System;
 using System.Collections;
-using System.Linq;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Remotion.Linq.Parsing.ExpressionVisitors;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     <para>
     ///         Specifies custom value snapshotting and comparison for
     ///         CLR types that cannot be compared with <see cref="object.Equals(object, object)" />
-    ///         and/or need a deep copy when taking a snapshot. For example, arrays of primitive types
+    ///         and/or need a deep/structural copy when taking a snapshot. For example, arrays of primitive types
     ///         will require both if mutation is to be detected.
     ///     </para>
     ///     <para>
@@ -29,27 +29,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     public abstract class ValueComparer : IEqualityComparer
     {
         internal static readonly MethodInfo EqualityComparerHashCodeMethod
-            = typeof(IEqualityComparer).GetTypeInfo()
-                .GetDeclaredMethod(nameof(IEqualityComparer.GetHashCode));
+            = typeof(IEqualityComparer).GetRuntimeMethod(nameof(IEqualityComparer.GetHashCode), new[] { typeof(object) });
 
         internal static readonly MethodInfo EqualityComparerEqualsMethod
-            = typeof(IEqualityComparer).GetTypeInfo()
-                .GetDeclaredMethod(nameof(IEqualityComparer.Equals));
+            = typeof(IEqualityComparer).GetRuntimeMethod(nameof(IEqualityComparer.Equals), new[] { typeof(object), typeof(object) });
 
-        internal static readonly MethodInfo ObjectEqualsMethod = typeof(object).GetTypeInfo().DeclaredMethods.Single(
-            m => m.IsStatic
-                 && m.ReturnType == typeof(bool)
-                 && nameof(object.Equals).Equals(m.Name, StringComparison.Ordinal)
-                 && m.IsPublic
-                 && m.GetParameters().Length == 2
-                 && m.GetParameters()[0].ParameterType == typeof(object)
-                 && m.GetParameters()[1].ParameterType == typeof(object));
+        internal static readonly MethodInfo ObjectEqualsMethod
+            = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) });
 
-        internal static readonly MethodInfo ObjectGetHashCodeMethod = typeof(object).GetTypeInfo().DeclaredMethods.Single(
-            m => m.ReturnType == typeof(int)
-                 && nameof(GetHashCode).Equals(m.Name, StringComparison.Ordinal)
-                 && m.IsPublic
-                 && m.GetParameters().Length == 0);
+        internal static readonly MethodInfo ObjectGetHashCodeMethod
+            = typeof(object).GetRuntimeMethod(nameof(object.GetHashCode), Type.EmptyTypes);
 
         /// <summary>
         ///     Creates a new <see cref="ValueComparer" /> with the given comparison and
@@ -144,17 +133,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Check.NotNull(leftExpression, nameof(leftExpression));
             Check.NotNull(rightExpression, nameof(rightExpression));
 
-            return ReplacingExpressionVisitor.Replace(
-                EqualsExpression.Parameters[1],
-                rightExpression,
-                ReplacingExpressionVisitor.Replace(
-                    EqualsExpression.Parameters[0],
-                    leftExpression,
-                    EqualsExpression.Body));
+            var original1 = EqualsExpression.Parameters[0];
+            var original2 = EqualsExpression.Parameters[1];
+
+            return new ReplacingExpressionVisitor(
+                    new Expression[] { original1, original2 }, new[] { leftExpression, rightExpression })
+                .Visit(EqualsExpression.Body);
         }
 
         /// <summary>
-        ///     Takes the <see cref="HashCodeExpression"/> and replaces the parameter with the given expression,
+        ///     Takes the <see cref="HashCodeExpression" /> and replaces the parameter with the given expression,
         ///     returning the transformed body.
         /// </summary>
         /// <param name="expression"> The new expression. </param>
@@ -171,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     Takes the <see cref="SnapshotExpression"/> and replaces the parameter with the given expression,
+        ///     Takes the <see cref="SnapshotExpression" /> and replaces the parameter with the given expression,
         ///     returning the transformed body.
         /// </summary>
         /// <param name="expression"> The new expression. </param>

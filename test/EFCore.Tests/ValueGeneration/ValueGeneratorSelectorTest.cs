@@ -3,7 +3,7 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
@@ -14,13 +14,14 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
     public class ValueGeneratorSelectorTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Returns_built_in_generators_for_types_setup_for_value_generation()
         {
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(AnEntity));
 
-            var selector = new ValueGeneratorSelector(new ValueGeneratorSelectorDependencies(new ValueGeneratorCache(new ValueGeneratorCacheDependencies())));
+            var selector = new ValueGeneratorSelector(
+                new ValueGeneratorSelectorDependencies(new ValueGeneratorCache(new ValueGeneratorCacheDependencies())));
 
             Assert.IsType<CustomValueGenerator>(selector.Select(entityType.FindProperty("Custom"), entityType));
 
@@ -67,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             Assert.IsType<BinaryValueGenerator>(selector.Select(entityType.FindProperty("Binary"), entityType));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_for_unsupported_combinations()
         {
             var model = BuildModel();
@@ -78,25 +79,22 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             var selector = contextServices.GetRequiredService<IValueGeneratorSelector>();
 
             Assert.Equal(
-                CoreStrings.NoValueGenerator("Random", "AnEntity", typeof(Random).Name),
+                CoreStrings.NoValueGenerator("Random", "AnEntity", "char"),
                 Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("Random"), entityType)).Message);
         }
 
-        private static IMutableModel BuildModel(bool generateValues = true)
+        private static IModel BuildModel(bool generateValues = true)
         {
             var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
-            builder.Ignore<Random>();
             builder.Entity<AnEntity>().Property(e => e.Custom).HasValueGenerator<CustomValueGenerator>();
-            var model = builder.Model;
-            var entityType = model.FindEntityType(typeof(AnEntity));
-            entityType.AddProperty("Random", typeof(Random));
+            var entityType = builder.Model.FindEntityType(typeof(AnEntity));
 
             foreach (var property in entityType.GetProperties())
             {
                 property.ValueGenerated = generateValues ? ValueGenerated.OnAdd : ValueGenerated.Never;
             }
 
-            return model;
+            return builder.FinalizeModel();
         }
 
         private class AnEntity
@@ -132,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             public DateTime? NullableDateTime { get; set; }
             public DateTimeOffset DateTimeOffset { get; set; }
             public DateTimeOffset? NullableDateTimeOffset { get; set; }
-            public Random Random { get; set; }
+            public char Random { get; set; }
         }
 
         private class CustomValueGenerator : ValueGenerator<int>

@@ -6,7 +6,6 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -43,6 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var builder = testStore.AddProviderOptions(new DbContextOptionsBuilder())
                 .EnableSensitiveDataLogging()
+                .EnableServiceProviderCaching(false)
                 .ConfigureWarnings(
                     b => b.Default(WarningBehavior.Throw)
                         .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
@@ -50,7 +50,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (rowNumberPaging)
             {
+#pragma warning disable 618
                 new SqlServerDbContextOptionsBuilder(builder).UseRowNumberForPaging();
+#pragma warning restore 618
             }
 
             return builder.Options;

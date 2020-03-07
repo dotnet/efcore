@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class InMemoryDatabaseFacadeTest
     {
-        [Fact]
+        [ConditionalFact]
         public void IsInMemory_when_using_in_memory()
         {
             using (var context = new ProviderContext())
@@ -19,7 +19,9 @@ namespace Microsoft.EntityFrameworkCore
         private class ProviderContext : DbContext
         {
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase("Maltesers");
+                => optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("Maltesers");
         }
     }
 }

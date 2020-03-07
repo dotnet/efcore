@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <AssemblyName>Microsoft.Data.Sqlite</AssemblyName>
@@ -43,6 +43,10 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
   </ItemGroup>
 
   <ItemGroup>
+    <AdditionalFiles Include="..\stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -55,11 +59,13 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>SqliteConnection.CreateAggregate.tt</DependentUpon>
+      <SubType>Component</SubType>
     </Compile>
     <Compile Update="SqliteConnection.CreateFunction.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>SqliteConnection.CreateFunction.tt</DependentUpon>
+      <SubType>Component</SubType>
     </Compile>
     <Compile Update="SqliteConnection.cs">
       <SubType>Component</SubType>

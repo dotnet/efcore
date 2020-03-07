@@ -18,20 +18,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     public interface IAnnotatable
     {
         /// <summary>
-        ///     Gets the value annotation with the given name, returning null if it does not exist.
+        ///     Gets the value annotation with the given name, returning <c>null</c> if it does not exist.
         /// </summary>
-        /// <param name="name"> The key of the annotation to find. </param>
+        /// <param name="name"> The name of the annotation to find. </param>
         /// <returns>
-        ///     The value of the existing annotation if an annotation with the specified name already exists. Otherwise, null.
+        ///     The value of the existing annotation if an annotation with the specified name already exists. Otherwise, <c>null</c>.
         /// </returns>
         object this[[NotNull] string name] { get; }
 
         /// <summary>
-        ///     Gets the annotation with the given name, returning null if it does not exist.
+        ///     Gets the annotation with the given name, returning <c>null</c> if it does not exist.
         /// </summary>
-        /// <param name="name"> The key of the annotation to find. </param>
+        /// <param name="name"> The name of the annotation to find. </param>
         /// <returns>
-        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, null.
+        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, <c>null</c>.
         /// </returns>
         IAnnotation FindAnnotation([NotNull] string name);
 

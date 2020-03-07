@@ -7,25 +7,25 @@ namespace Microsoft.EntityFrameworkCore.Design
 {
     public class OperationResultHandlerTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Version_is_zero()
         {
             Assert.Equal(0, new OperationResultHandler().Version);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void HasResult_defaults_to_false()
         {
             Assert.False(new OperationResultHandler().HasResult);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ErrorType_defaults_to_null()
         {
             Assert.Null(new OperationResultHandler().ErrorType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void OnResult_works()
         {
             var handler = new OperationResultHandler();
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             Assert.Equal(result, handler.Result);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void OnError_works()
         {
             var handler = new OperationResultHandler();

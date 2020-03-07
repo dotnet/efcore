@@ -25,16 +25,16 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
 
         public override string SourceColumn
         {
-            get { throw new NotImplementedException(); }
+            get => throw new NotImplementedException();
 
-            set { throw new NotImplementedException(); }
+            set => throw new NotImplementedException();
         }
 
         public override bool SourceColumnNullMapping
         {
-            get { throw new NotImplementedException(); }
+            get => throw new NotImplementedException();
 
-            set { throw new NotImplementedException(); }
+            set => throw new NotImplementedException();
         }
 
         public override void ResetDbType()

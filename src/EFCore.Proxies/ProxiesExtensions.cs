@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
 
             var extension = optionsBuilder.Options.FindExtension<ProxiesOptionsExtension>()
-                            ?? new ProxiesOptionsExtension();
+                ?? new ProxiesOptionsExtension();
 
             extension = extension.WithLazyLoading(useLazyLoadingProxies);
 

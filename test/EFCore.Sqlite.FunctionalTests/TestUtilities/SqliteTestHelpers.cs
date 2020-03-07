@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
@@ -19,5 +21,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlite(new SqliteConnection("Data Source=:memory:"));
+
+        public override LoggingDefinitions LoggingDefinitions { get; } = new SqliteLoggingDefinitions();
     }
 }

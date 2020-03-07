@@ -1,22 +1,25 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Diagnostics;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [DebuggerDisplay("{Metadata,nq}")]
-    public class InternalServicePropertyBuilder : InternalMetadataItemBuilder<ServiceProperty>
+    public class InternalServicePropertyBuilder : InternalModelItemBuilder<ServiceProperty>, IConventionServicePropertyBuilder
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InternalServicePropertyBuilder([NotNull] ServiceProperty property, [NotNull] InternalModelBuilder modelBuilder)
             : base(property, modelBuilder)
@@ -24,77 +27,181 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool HasField([CanBeNull] string fieldName, ConfigurationSource configurationSource)
+        public virtual InternalServicePropertyBuilder HasField([CanBeNull] string fieldName, ConfigurationSource configurationSource)
         {
-            if (Metadata.FieldInfo?.Name == fieldName)
+            if (Metadata.FieldInfo?.GetSimpleMemberName() == fieldName
+                || configurationSource.Overrides(Metadata.GetFieldInfoConfigurationSource()))
             {
                 Metadata.SetField(fieldName, configurationSource);
-                return true;
+
+                return this;
             }
 
-            if (!configurationSource.Overrides(Metadata.GetFieldInfoConfigurationSource()))
-            {
-                return false;
-            }
+            return null;
+        }
 
-            if (fieldName != null)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CanSetField([CanBeNull] string fieldName, ConfigurationSource? configurationSource)
+        {
+            if (fieldName != null
+                && configurationSource.Overrides(Metadata.GetFieldInfoConfigurationSource()))
             {
                 var fieldInfo = PropertyBase.GetFieldInfo(
                     fieldName, Metadata.DeclaringType, Metadata.Name,
-                    shouldThrow: configurationSource == ConfigurationSource.Explicit);
-                Metadata.SetFieldInfo(fieldInfo, configurationSource);
-                return true;
+                    shouldThrow: false);
+                return fieldInfo != null
+                    && PropertyBase.IsCompatible(
+                        fieldInfo, Metadata.ClrType, Metadata.DeclaringType.ClrType, Metadata.Name,
+                        shouldThrow: false);
             }
 
-            Metadata.SetField(fieldName, configurationSource);
-            return true;
+            return Metadata.FieldInfo?.GetSimpleMemberName() == fieldName;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool HasFieldInfo([CanBeNull] FieldInfo fieldInfo, ConfigurationSource configurationSource)
+        public virtual InternalServicePropertyBuilder HasField([CanBeNull] FieldInfo fieldInfo, ConfigurationSource configurationSource)
         {
-            if ((configurationSource.Overrides(Metadata.GetFieldInfoConfigurationSource())
-                 && (fieldInfo == null
-                     || PropertyBase.IsCompatible(
-                         fieldInfo, Metadata.ClrType, Metadata.DeclaringType.ClrType, Metadata.Name,
-                         shouldThrow: configurationSource == ConfigurationSource.Explicit)))
+            if (configurationSource.Overrides(Metadata.GetFieldInfoConfigurationSource())
                 || Equals(Metadata.FieldInfo, fieldInfo))
             {
-                Metadata.SetFieldInfo(fieldInfo, configurationSource);
-                return true;
+                Metadata.SetField(fieldInfo, configurationSource);
+                return this;
             }
 
-            return false;
+            return null;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool UsePropertyAccessMode(PropertyAccessMode propertyAccessMode, ConfigurationSource configurationSource)
-            => HasAnnotation(CoreAnnotationNames.PropertyAccessModeAnnotation, propertyAccessMode, configurationSource);
+        public virtual bool CanSetField([CanBeNull] FieldInfo fieldInfo, ConfigurationSource? configurationSource)
+            => (configurationSource.Overrides(Metadata.GetFieldInfoConfigurationSource())
+                    && (fieldInfo == null
+                        || PropertyBase.IsCompatible(
+                            fieldInfo, Metadata.ClrType, Metadata.DeclaringType.ClrType, Metadata.Name,
+                            shouldThrow: false)))
+                || Equals(Metadata.FieldInfo, fieldInfo);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool SetParameterBinding(
-            [NotNull] ServiceParameterBinding parameterBinding, ConfigurationSource configurationSource)
+        public virtual InternalServicePropertyBuilder UsePropertyAccessMode(
+            PropertyAccessMode propertyAccessMode, ConfigurationSource configurationSource)
+            => (InternalServicePropertyBuilder)HasAnnotation(
+                CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, configurationSource);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InternalServicePropertyBuilder HasParameterBinding(
+            ServiceParameterBinding parameterBinding, ConfigurationSource configurationSource)
         {
-            if (configurationSource.Overrides(Metadata.GetParameterBindingConfigurationSource())
-                || (Metadata.ParameterBinding == parameterBinding))
+            if (CanSetParameterBinding(parameterBinding, configurationSource))
             {
                 Metadata.SetParameterBinding(parameterBinding, configurationSource);
-                return true;
+                return this;
             }
 
-            return false;
+            return null;
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CanSetParameterBinding(ServiceParameterBinding parameterBinding, ConfigurationSource configurationSource)
+            => configurationSource.Overrides(Metadata.GetParameterBindingConfigurationSource())
+                || (Metadata.ParameterBinding == parameterBinding);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IConventionServiceProperty IConventionServicePropertyBuilder.Metadata => Metadata;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IConventionServicePropertyBuilder IConventionServicePropertyBuilder.HasField(string fieldName, bool fromDataAnnotation)
+            => HasField(fieldName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IConventionServicePropertyBuilder IConventionServicePropertyBuilder.HasField(FieldInfo fieldInfo, bool fromDataAnnotation)
+            => HasField(fieldInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        bool IConventionServicePropertyBuilder.CanSetField(string fieldName, bool fromDataAnnotation)
+            => CanSetField(fieldName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        bool IConventionServicePropertyBuilder.CanSetField(FieldInfo fieldInfo, bool fromDataAnnotation)
+            => CanSetField(fieldInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IConventionServicePropertyBuilder IConventionServicePropertyBuilder.HasParameterBinding(
+            ServiceParameterBinding parameterBinding, bool fromDataAnnotation)
+            => HasParameterBinding(
+                parameterBinding, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        bool IConventionServicePropertyBuilder.CanSetParameterBinding(ServiceParameterBinding parameterBinding, bool fromDataAnnotation)
+            => CanSetParameterBinding(
+                parameterBinding, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

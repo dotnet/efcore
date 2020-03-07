@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Data.Common;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit.Abstractions;
 
@@ -137,11 +137,7 @@ SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @
         }
 
         protected override DbParameter CreateDbParameter(string name, object value)
-            => new SqlParameter
-            {
-                ParameterName = name,
-                Value = value
-            };
+            => new SqlParameter { ParameterName = name, Value = value };
 
         protected override string TenMostExpensiveProductsSproc => "[dbo].[Ten Most Expensive Products]";
         protected override string CustomerOrderHistorySproc => "[dbo].[CustOrderHist] @CustomerID";

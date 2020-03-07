@@ -4,13 +4,8 @@
 using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
-#if Test20
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-#else
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
-#endif
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -19,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SqliteMigrationSqlGeneratorTest : MigrationSqlGeneratorTestBase
     {
-        [Fact]
+        [ConditionalFact]
         public virtual void It_lifts_foreign_key_additions()
         {
             Generate(
@@ -35,7 +30,8 @@ namespace Microsoft.EntityFrameworkCore
                             ColumnType = "INT"
                         }
                     }
-                }, new AddForeignKeyOperation
+                },
+                new AddForeignKeyOperation
                 {
                     Table = "Pie",
                     PrincipalTable = "Flavor",
@@ -43,17 +39,15 @@ namespace Microsoft.EntityFrameworkCore
                     PrincipalColumns = new[] { "Id" }
                 });
 
-            Assert.Equal(
+            AssertSql(
                 @"CREATE TABLE ""Pie"" (
     ""FlavorId"" INT NOT NULL,
     FOREIGN KEY (""FlavorId"") REFERENCES ""Flavor"" (""Id"")
 );
-",
-                Sql,
-                ignoreLineEndingDifferences: true);
+");
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DefaultValue_formats_literal_correctly()
         {
             Generate(
@@ -72,16 +66,14 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 });
 
-            Assert.Equal(
+            AssertSql(
                 @"CREATE TABLE ""History"" (
     ""Event"" TEXT NOT NULL DEFAULT '2015-04-12 17:05:00'
 );
-",
-                Sql,
-                ignoreLineEndingDifferences: true);
+");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true, null)]
         [InlineData(false, "PK_Id")]
         public void CreateTableOperation_with_annotations(bool autoincrement, string pkName)
@@ -120,18 +112,8 @@ namespace Microsoft.EntityFrameworkCore
                             IsNullable = true
                         }
                     },
-                    PrimaryKey = new AddPrimaryKeyOperation
-                    {
-                        Name = pkName,
-                        Columns = new[] { "Id" }
-                    },
-                    UniqueConstraints =
-                    {
-                        new AddUniqueConstraintOperation
-                        {
-                            Columns = new[] { "SSN" }
-                        }
-                    },
+                    PrimaryKey = new AddPrimaryKeyOperation { Name = pkName, Columns = new[] { "Id" } },
+                    UniqueConstraints = { new AddUniqueConstraintOperation { Columns = new[] { "SSN" } } },
                     ForeignKeys =
                     {
                         new AddForeignKeyOperation
@@ -143,21 +125,18 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 });
 
-            Assert.Equal(
-                "CREATE TABLE \"People\" (" + EOL +
-                "    \"Id\" INTEGER NOT NULL" +
-                (pkName != null ? $" CONSTRAINT \"{pkName}\"" : "")
-                + " PRIMARY KEY" +
-                (autoincrement ? " AUTOINCREMENT," : ",") + EOL +
-                "    \"EmployerId\" int NULL," + EOL +
-                "    \"SSN\" char(11) NULL," + EOL +
-                "    UNIQUE (\"SSN\")," + EOL +
-                "    FOREIGN KEY (\"EmployerId\") REFERENCES \"Companies\" (\"Id\")" + EOL +
-                ");" + EOL,
-                Sql);
+            AssertSql(
+                $@"CREATE TABLE ""People"" (
+    ""Id"" INTEGER NOT NULL{(pkName != null ? $@" CONSTRAINT ""{pkName}""" : "")} PRIMARY KEY{(autoincrement ? " AUTOINCREMENT," : ",")}
+    ""EmployerId"" int NULL,
+    ""SSN"" char(11) NULL,
+    UNIQUE (""SSN""),
+    FOREIGN KEY (""EmployerId"") REFERENCES ""Companies"" (""Id"")
+);
+");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void CreateSchemaOperation_is_ignored()
         {
             Generate(new EnsureSchemaOperation());
@@ -169,18 +148,18 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.AddColumnOperation_with_defaultValue();
 
-            Assert.Equal(
-                @"ALTER TABLE ""People"" ADD ""Name"" varchar(30) NOT NULL DEFAULT 'John Doe';" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE ""People"" ADD ""Name"" varchar(30) NOT NULL DEFAULT 'John Doe';
+");
         }
 
         public override void AddColumnOperation_without_column_type()
         {
             base.AddColumnOperation_without_column_type();
 
-            Assert.Equal(
-                "ALTER TABLE \"People\" ADD \"Alias\" TEXT NOT NULL;" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE ""People"" ADD ""Alias"" TEXT NOT NULL;
+");
         }
 
         public override void AddColumnOperation_with_defaultValueSql()
@@ -197,9 +176,9 @@ namespace Microsoft.EntityFrameworkCore
                     DefaultValueSql = "10"
                 });
 
-            Assert.Equal(
-                @"ALTER TABLE ""People"" ADD ""Age"" int NULL DEFAULT (10);" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE ""People"" ADD ""Age"" int NULL DEFAULT (10);
+");
         }
 
         public override void AddColumnOperation_with_maxLength()
@@ -207,9 +186,9 @@ namespace Microsoft.EntityFrameworkCore
             base.AddColumnOperation_with_maxLength();
 
             // See issue #3698
-            Assert.Equal(
-                "ALTER TABLE \"Person\" ADD \"Name\" TEXT NULL;" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE ""Person"" ADD ""Name"" TEXT NULL;
+");
         }
 
         public override void AddColumnOperation_with_maxLength_overridden()
@@ -217,9 +196,9 @@ namespace Microsoft.EntityFrameworkCore
             base.AddColumnOperation_with_maxLength_overridden();
 
             // See issue #3698
-            Assert.Equal(
-                "ALTER TABLE \"Person\" ADD \"Name\" TEXT NULL;" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE ""Person"" ADD ""Name"" TEXT NULL;
+");
         }
 
         public override void AddColumnOperation_with_maxLength_on_derived()
@@ -227,30 +206,38 @@ namespace Microsoft.EntityFrameworkCore
             base.AddColumnOperation_with_maxLength_on_derived();
 
             // See issue #3698
-            Assert.Equal(
-                "ALTER TABLE \"Person\" ADD \"Name\" TEXT NULL;" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE ""Person"" ADD ""Name"" TEXT NULL;
+");
         }
 
         public override void AddColumnOperation_with_shared_column()
         {
             base.AddColumnOperation_with_shared_column();
 
-            Assert.Equal(
-                "ALTER TABLE \"Base\" ADD \"Foo\" TEXT NULL;" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE ""Base"" ADD ""Foo"" TEXT NULL;
+");
         }
 
-        public override void AddColumnOperation_with_computed_column_SQL()
+        [ConditionalFact]
+        public void AddColumnOperation_with_computed_column_SQL()
         {
-            base.AddColumnOperation_with_computed_column_SQL();
-
-            Assert.Equal(
-                "ALTER TABLE \"People\" ADD \"Birthday\" date NULL;" + EOL,
-                Sql);
+            var ex = Assert.Throws<NotSupportedException>(
+                () => Generate(
+                    new AddColumnOperation
+                    {
+                        Table = "People",
+                        Name = "Birthday",
+                        ClrType = typeof(DateTime),
+                        ColumnType = "TEXT",
+                        IsNullable = true,
+                        ComputedColumnSql = "CURRENT_TIMESTAMP"
+                    }));
+            Assert.Equal(SqliteStrings.ComputedColumnsNotSupported, ex.Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void DropSchemaOperation_is_ignored()
         {
             Generate(new DropSchemaOperation());
@@ -258,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Empty(Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void RestartSequenceOperation_not_supported()
         {
             var ex = Assert.Throws<NotSupportedException>(() => Generate(new RestartSequenceOperation()));
@@ -307,6 +294,12 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(AddUniqueConstraintOperation)), ex.Message);
         }
 
+        public override void CreateCheckConstraintOperation_with_name()
+        {
+            var ex = Assert.Throws<NotSupportedException>(() => base.CreateCheckConstraintOperation_with_name());
+            Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(CreateCheckConstraintOperation)), ex.Message);
+        }
+
         public override void AlterColumnOperation()
         {
             var ex = Assert.Throws<NotSupportedException>(() => base.AlterColumnOperation());
@@ -316,6 +309,21 @@ namespace Microsoft.EntityFrameworkCore
         public override void AlterColumnOperation_without_column_type()
         {
             var ex = Assert.Throws<NotSupportedException>(() => base.AlterColumnOperation_without_column_type());
+            Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(AlterColumnOperation)), ex.Message);
+        }
+
+        [ConditionalFact]
+        public void AlterColumnOperation_computed()
+        {
+            var ex = Assert.Throws<NotSupportedException>(
+                () => Generate(
+                    new AlterColumnOperation
+                    {
+                        Table = "People",
+                        Name = "FullName",
+                        ClrType = typeof(string),
+                        ComputedColumnSql = "FirstName || ' ' || LastName"
+                    }));
             Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(AlterColumnOperation)), ex.Message);
         }
 
@@ -331,8 +339,23 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(SqliteStrings.SequencesNotSupported, ex.Message);
         }
 
-#if !Test20
-        [Fact]
+        [ConditionalFact]
+        public virtual void RenameColumnOperation()
+        {
+            Generate(
+                new RenameColumnOperation
+                {
+                    Table = "People",
+                    Name = "Name",
+                    NewName = "FullName"
+                });
+
+            AssertSql(
+                @"ALTER TABLE ""People"" RENAME COLUMN ""Name"" TO ""FullName"";
+");
+        }
+
+        [ConditionalFact]
         public virtual void RenameIndexOperation()
         {
             Generate(
@@ -341,6 +364,7 @@ namespace Microsoft.EntityFrameworkCore
                     x =>
                     {
                         x.Property<string>("FullName");
+                        x.HasKey("FullName");
                         x.HasIndex("FullName").IsUnique().HasFilter(@"""Id"" > 2");
                     }),
                 new RenameIndexOperation
@@ -350,14 +374,13 @@ namespace Microsoft.EntityFrameworkCore
                     NewName = "IX_Person_FullName"
                 });
 
-            Assert.Equal(
-                @"DROP INDEX ""IX_Person_Name"";" + EOL +
-                @"CREATE UNIQUE INDEX ""IX_Person_FullName"" ON ""Person"" (""FullName"") WHERE ""Id"" > 2;" + EOL,
-                Sql);
+            AssertSql(
+                @"DROP INDEX ""IX_Person_Name"";
+CREATE UNIQUE INDEX ""IX_Person_FullName"" ON ""Person"" (""FullName"") WHERE ""Id"" > 2;
+");
         }
-#endif
 
-        [Fact]
+        [ConditionalFact]
         public virtual void RenameIndexOperations_throws_when_no_model()
         {
             var migrationBuilder = new MigrationBuilder("Sqlite");
@@ -377,21 +400,19 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.RenameTableOperation_legacy();
 
-            Assert.Equal(
-                "ALTER TABLE \"People\" RENAME TO \"Person\";" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE ""People"" RENAME TO ""Person"";
+");
         }
 
-#if !Test20
         public override void RenameTableOperation()
         {
             base.RenameTableOperation();
 
-            Assert.Equal(
-                "ALTER TABLE \"People\" RENAME TO \"Person\";" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE ""People"" RENAME TO ""Person"";
+");
         }
-#endif
 
         public override void CreateSequenceOperation_with_minValue_and_maxValue()
         {
@@ -427,9 +448,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.DropIndexOperation();
 
-            Assert.Equal(
-                "DROP INDEX \"IX_People_Name\";" + EOL,
-                Sql);
+            AssertSql(
+                @"DROP INDEX ""IX_People_Name"";
+");
         }
 
         public override void DropPrimaryKeyOperation()
@@ -450,7 +471,13 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(DropUniqueConstraintOperation)), ex.Message);
         }
 
-        [Fact]
+        public override void DropCheckConstraintOperation()
+        {
+            var ex = Assert.Throws<NotSupportedException>(() => base.DropCheckConstraintOperation());
+            Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(DropCheckConstraintOperation)), ex.Message);
+        }
+
+        [ConditionalFact]
         public virtual void CreateTableOperation_old_autoincrement_annotation()
         {
             Generate(
@@ -468,17 +495,138 @@ namespace Microsoft.EntityFrameworkCore
                             ["Autoincrement"] = true
                         }
                     },
-                    PrimaryKey = new AddPrimaryKeyOperation
+                    PrimaryKey = new AddPrimaryKeyOperation { Columns = new[] { "Id" } }
+                });
+
+            AssertSql(
+                @"CREATE TABLE ""People"" (
+    ""Id"" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT
+);
+");
+        }
+
+        [ConditionalFact]
+        public virtual void CreateTableOperation_has_comment()
+        {
+            Generate(
+                new CreateTableOperation
+                {
+                    Name = "People",
+                    Columns =
                     {
-                        Columns = new[] { "Id" }
+                        new AddColumnOperation
+                        {
+                            Name = "Id",
+                            Table = "People",
+                            ClrType = typeof(int),
+                            IsNullable = false,
+                            Comment = "The ID"
+                        },
+                        new AddColumnOperation
+                        {
+                            Name = "UncommentedColumn1",
+                            Table = "People",
+                            ClrType = typeof(string),
+                            IsNullable = false
+                        },
+                        new AddColumnOperation
+                        {
+                            Name = "UncommentedColumn2",
+                            Table = "People",
+                            ClrType = typeof(string),
+                            IsNullable = false
+                        },
+                        new AddColumnOperation
+                        {
+                            Name = "Name",
+                            Table = "People",
+                            ClrType = typeof(string),
+                            IsNullable = false,
+                            Comment = "The Name"
+                        }
                     }
                 });
 
-            Assert.Equal(
-                "CREATE TABLE \"People\" (" + EOL +
-                "    \"Id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT" + EOL +
-                ");" + EOL,
-                Sql);
+            AssertSql(
+                @"CREATE TABLE ""People"" (
+    -- The ID
+    ""Id"" INTEGER NOT NULL,
+
+    ""UncommentedColumn1"" TEXT NOT NULL,
+
+    ""UncommentedColumn2"" TEXT NOT NULL,
+
+    -- The Name
+    ""Name"" TEXT NOT NULL
+);
+");
+        }
+
+        [ConditionalFact]
+        public virtual void CreateTableOperation_has_multi_line_comment()
+        {
+            Generate(
+                new CreateTableOperation
+                {
+                    Name = "People",
+                    Columns =
+                    {
+                        new AddColumnOperation
+                        {
+                            Name = "Id",
+                            Table = "People",
+                            ClrType = typeof(int),
+                            IsNullable = false,
+                            Comment = @"This is a multi-line
+comment.
+More information can
+be found in the docs."
+                        }
+                    }
+                });
+
+            AssertSql(
+                @"CREATE TABLE ""People"" (
+    -- This is a multi-line
+    -- comment.
+    -- More information can
+    -- be found in the docs.
+    ""Id"" INTEGER NOT NULL
+);
+");
+        }
+
+        [ConditionalFact]
+        public virtual void CreateTableOperation_has_multi_line_table_comment()
+        {
+            Generate(
+                new CreateTableOperation
+                {
+                    Name = "People",
+                    Comment = @"Table level comment
+that continues onto another line",
+                    Columns =
+                    {
+                        new AddColumnOperation
+                        {
+                            Name = "Id",
+                            Table = "People",
+                            ClrType = typeof(int),
+                            IsNullable = false,
+                            Comment = "My Comment"
+                        }
+                    }
+                });
+
+            AssertSql(
+                @"CREATE TABLE ""People"" (
+    -- Table level comment
+    -- that continues onto another line
+
+    -- My Comment
+    ""Id"" INTEGER NOT NULL
+);
+");
         }
 
         public SqliteMigrationSqlGeneratorTest()

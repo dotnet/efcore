@@ -2,9 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,17 +13,17 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerOptionsExtensionTest
     {
-        [Fact]
+        [ConditionalFact]
         public void ApplyServices_adds_SQL_server_services()
         {
             var services = new ServiceCollection();
 
             new SqlServerOptionsExtension().ApplyServices(services);
 
-            Assert.True(services.Any(sd => sd.ServiceType == typeof(ISqlServerConnection)));
+            Assert.Contains(services, sd => sd.ServiceType == typeof(ISqlServerConnection));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Changing_RowNumberPagingEnabled_causes_new_service_provider_to_be_built()
         {
             ISqlServerOptions singletonOptions;
@@ -45,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Changing_RowNumberPagingEnabled_when_UseInternalServiceProvider_throws()
         {
             using (var context = new ChangedRowNumberContext(rowNumberPagingEnabled: false, setInternalServiceProvider: true))
@@ -57,7 +56,9 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Equal(
                     CoreStrings.SingletonOptionChanged(
+#pragma warning disable 618
                         nameof(SqlServerDbContextOptionsBuilder.UseRowNumberForPaging),
+#pragma warning restore 618
                         nameof(DbContextOptionsBuilder.UseInternalServiceProvider)),
                     Assert.Throws<InvalidOperationException>(() => context.Model).Message);
             }
@@ -90,12 +91,14 @@ namespace Microsoft.EntityFrameworkCore
                     .UseSqlServer(
                         "Database=Maltesers",
                         b =>
+                        {
+                            if (_rowNumberPagingEnabled)
                             {
-                                if (_rowNumberPagingEnabled)
-                                {
-                                    b.UseRowNumberForPaging();
-                                }
-                            });
+#pragma warning disable 618
+                                b.UseRowNumberForPaging();
+#pragma warning restore 618
+                            }
+                        });
             }
         }
     }

@@ -6,12 +6,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
@@ -21,43 +21,71 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         protected void Execute(
             Action<ModelBuilder> buildSourceAction,
             Action<ModelBuilder> buildTargetAction,
-            Action<IReadOnlyList<MigrationOperation>> assertAction)
-            => Execute(m => { }, buildSourceAction, buildTargetAction, assertAction, null);
+            Action<IReadOnlyList<MigrationOperation>> assertAction,
+            bool skipSourceConventions = false)
+            => Execute(m => { }, buildSourceAction, buildTargetAction, assertAction, null, skipSourceConventions);
 
         protected void Execute(
             Action<ModelBuilder> buildCommonAction,
             Action<ModelBuilder> buildSourceAction,
             Action<ModelBuilder> buildTargetAction,
-            Action<IReadOnlyList<MigrationOperation>> assertAction)
-            => Execute(buildCommonAction, buildSourceAction, buildTargetAction, assertAction, null);
+            Action<IReadOnlyList<MigrationOperation>> assertAction,
+            bool skipSourceConventions = false)
+            => Execute(buildCommonAction, buildSourceAction, buildTargetAction, assertAction, null, skipSourceConventions);
 
         protected void Execute(
             Action<ModelBuilder> buildCommonAction,
             Action<ModelBuilder> buildSourceAction,
             Action<ModelBuilder> buildTargetAction,
             Action<IReadOnlyList<MigrationOperation>> assertActionUp,
-            Action<IReadOnlyList<MigrationOperation>> assertActionDown)
+            Action<IReadOnlyList<MigrationOperation>> assertActionDown,
+            bool skipSourceConventions = false)
+            => Execute(
+                buildCommonAction, buildSourceAction, buildTargetAction, assertActionUp, assertActionDown, null, skipSourceConventions);
+
+        protected void Execute(
+            Action<ModelBuilder> buildCommonAction,
+            Action<ModelBuilder> buildSourceAction,
+            Action<ModelBuilder> buildTargetAction,
+            Action<IReadOnlyList<MigrationOperation>> assertActionUp,
+            Action<IReadOnlyList<MigrationOperation>> assertActionDown,
+            Action<DbContextOptionsBuilder> builderOptionsAction,
+            bool skipSourceConventions = false)
         {
-            var sourceModelBuilder = CreateModelBuilder();
+            var sourceModelBuilder = CreateModelBuilder(skipSourceConventions);
             buildCommonAction(sourceModelBuilder);
             buildSourceAction(sourceModelBuilder);
-            sourceModelBuilder.GetInfrastructure().Metadata.Validate();
+            var sourceModel = sourceModelBuilder.FinalizeModel();
+            var sourceOptionsBuilder = TestHelpers
+                .AddProviderOptions(new DbContextOptionsBuilder())
+                .UseModel(sourceModel)
+                .EnableSensitiveDataLogging();
 
-            var targetModelBuilder = CreateModelBuilder();
+            var targetModelBuilder = CreateModelBuilder(skipConventions: false);
             buildCommonAction(targetModelBuilder);
             buildTargetAction(targetModelBuilder);
-            targetModelBuilder.GetInfrastructure().Metadata.Validate();
+            var targetModel = targetModelBuilder.FinalizeModel();
+            var targetOptionsBuilder = TestHelpers
+                .AddProviderOptions(new DbContextOptionsBuilder())
+                .UseModel(targetModel)
+                .EnableSensitiveDataLogging();
 
-            var modelDiffer = CreateModelDiffer(targetModelBuilder.Model);
+            if (builderOptionsAction != null)
+            {
+                builderOptionsAction(sourceOptionsBuilder);
+                builderOptionsAction(targetOptionsBuilder);
+            }
 
-            var operationsUp = modelDiffer.GetDifferences(sourceModelBuilder.Model, targetModelBuilder.Model);
+            var modelDiffer = CreateModelDiffer(targetOptionsBuilder.Options);
+
+            var operationsUp = modelDiffer.GetDifferences(sourceModel, targetModel);
             assertActionUp(operationsUp);
 
             if (assertActionDown != null)
             {
-                modelDiffer = CreateModelDiffer(sourceModelBuilder.Model);
+                modelDiffer = CreateModelDiffer(sourceOptionsBuilder.Options);
 
-                var operationsDown = modelDiffer.GetDifferences(targetModelBuilder.Model, sourceModelBuilder.Model);
+                var operationsDown = modelDiffer.GetDifferences(targetModel, sourceModel);
                 assertActionDown(operationsDown);
             }
         }
@@ -102,17 +130,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     jaggedArray[i][j] = twoDimensionalArray[i + rowsFirstIndex, j + columnsFirstIndex];
                 }
             }
+
             return jaggedArray;
         }
 
         protected abstract TestHelpers TestHelpers { get; }
-        protected virtual ModelBuilder CreateModelBuilder() => TestHelpers.CreateConventionBuilder();
-        protected virtual IModelValidator CreateModelValidator() => TestHelpers.CreateContextServices().GetRequiredService<IModelValidator>();
 
-        protected virtual MigrationsModelDiffer CreateModelDiffer(IModel model)
+        protected virtual ModelBuilder CreateModelBuilder(bool skipConventions)
+            => skipConventions
+                ? new ModelBuilder(new ConventionSet())
+                : TestHelpers.CreateConventionBuilder(skipValidation: true);
+
+        protected virtual MigrationsModelDiffer CreateModelDiffer(DbContextOptions options)
         {
-            var ctx = TestHelpers.CreateContext(TestHelpers.AddProviderOptions(new DbContextOptionsBuilder())
-                .UseModel(model).EnableSensitiveDataLogging().Options);
+            var ctx = TestHelpers.CreateContext(options);
             return new MigrationsModelDiffer(
                 new TestRelationalTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
@@ -120,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 new MigrationsAnnotationProvider(
                     new MigrationsAnnotationProviderDependencies()),
                 ctx.GetService<IChangeDetector>(),
-                ctx.GetService<StateManagerDependencies>(),
+                ctx.GetService<IUpdateAdapterFactory>(),
                 ctx.GetService<CommandBatchPreparerDependencies>());
         }
     }

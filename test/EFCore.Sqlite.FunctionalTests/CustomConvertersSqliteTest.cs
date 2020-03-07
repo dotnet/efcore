@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -19,6 +19,24 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+        [ConditionalFact(Skip = "Issue#18147")]
+        public override void Value_conversion_is_appropriately_used_for_join_condition()
+        {
+            base.Value_conversion_is_appropriately_used_for_join_condition();
+        }
+
+        [ConditionalFact(Skip = "Issue#18147")]
+        public override void Value_conversion_is_appropriately_used_for_left_join_condition()
+        {
+            base.Value_conversion_is_appropriately_used_for_left_join_condition();
+        }
+
+        [ConditionalFact(Skip = "Issue#18147")]
+        public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used()
+        {
+            base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used();
+        }
+
         public class CustomConvertersSqliteFixture : CustomConvertersFixtureBase
         {
             public override bool StrictEquality => false;
@@ -29,18 +47,14 @@ namespace Microsoft.EntityFrameworkCore
 
             public override bool SupportsLargeStringComparisons => true;
 
+            public override bool SupportsDecimalComparisons => false;
+
             protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
 
             public override bool SupportsBinaryKeys => true;
 
             public override DateTime DefaultDateTime => new DateTime();
-
-            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-                => base
-                    .AddOptions(builder)
-                    .ConfigureWarnings(
-                        c => c.Log(RelationalEventId.QueryClientEvaluationWarning)
-                              .Log(RelationalEventId.ValueConversionSqlLiteralWarning));
         }
     }
 }

@@ -2,8 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -22,6 +24,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         dependency injection container. To create an instance with some dependent services replaced,
     ///         first resolve the object from the dependency injection container, then replace selected
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />.
+    ///         This means a single instance of each service is used by many <see cref="DbContext" /> instances.
+    ///         The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public sealed class ModelValidatorDependencies
@@ -42,44 +50,49 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         injection container, then replace selected services using the 'With...' methods. Do not call
         ///         the constructor at any point in this process.
         ///     </para>
+        ///     <para>
+        ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///         any release. You should only use it directly in your code with extreme caution and knowing that
+        ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     </para>
         /// </summary>
-        /// <param name="logger"> The validation logger. </param>
-        /// <param name="modelLogger"> The model logger. </param>
+        [EntityFrameworkInternal]
         public ModelValidatorDependencies(
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> modelLogger)
+            [NotNull] ITypeMappingSource typeMappingSource,
+            [NotNull] IMemberClassifier memberClassifier)
         {
-            Check.NotNull(logger, nameof(logger));
-            Check.NotNull(modelLogger, nameof(modelLogger));
+            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
+            Check.NotNull(memberClassifier, nameof(memberClassifier));
 
-            Logger = logger;
-            ModelLogger = modelLogger;
+            TypeMappingSource = typeMappingSource;
+            MemberClassifier = memberClassifier;
         }
 
         /// <summary>
-        ///     The validation logger.
+        ///     The type mapper.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Model.Validation> Logger { get; }
+        public ITypeMappingSource TypeMappingSource { get; }
 
         /// <summary>
-        ///     The model logger.
+        ///     The member classifier.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Model> ModelLogger { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="logger"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModelValidatorDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
-            => new ModelValidatorDependencies(logger, ModelLogger);
+        public IMemberClassifier MemberClassifier { get; }
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
-        /// <param name="modelLogger"> A replacement for the current dependency of this type. </param>
+        /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModelValidatorDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> modelLogger)
-            => new ModelValidatorDependencies(Logger, modelLogger);
+        public ModelValidatorDependencies With([NotNull] ITypeMappingSource typeMappingSource)
+            => new ModelValidatorDependencies(typeMappingSource, MemberClassifier);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="memberClassifier"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public ModelValidatorDependencies With([NotNull] IMemberClassifier memberClassifier)
+            => new ModelValidatorDependencies(TypeMappingSource, memberClassifier);
     }
 }

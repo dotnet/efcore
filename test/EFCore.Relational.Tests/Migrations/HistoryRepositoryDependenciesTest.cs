@@ -9,11 +9,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class HistoryRepositoryDependenciesTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_use_With_methods_to_clone_and_replace_service()
         {
-            RelationalTestHelpers.Instance.TestDependenciesClone<HistoryRepositoryDependencies>(
-                nameof(HistoryRepositoryDependencies.ConventionSetBuilder), "conventionSetBuilders");
+            RelationalTestHelpers.Instance.TestDependenciesClone<HistoryRepositoryDependencies>();
         }
     }
 }

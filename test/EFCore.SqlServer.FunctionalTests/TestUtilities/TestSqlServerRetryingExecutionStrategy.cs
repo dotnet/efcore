@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
@@ -15,13 +15,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             -1, // Physical connection is not usable
             -2, // Timeout
+            1807, // Could not obtain exclusive lock on database 'model'
             42008, // Mirroring (Only when a database is deleted and another one is created in fast succession)
             42019 // CREATE DATABASE operation failed
         };
 
         public TestSqlServerRetryingExecutionStrategy()
             : base(
-                new DbContext(new DbContextOptionsBuilder().UseSqlServer(TestEnvironment.DefaultConnection).Options),
+                new DbContext(
+                    new DbContextOptionsBuilder()
+                        .EnableServiceProviderCaching(false)
+                        .UseSqlServer(TestEnvironment.DefaultConnection).Options),
                 DefaultMaxRetryCount, DefaultMaxDelay, _additionalErrorNumbers)
         {
         }
@@ -56,29 +60,19 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 {
                     message += " " + err.Number;
                 }
+
                 message += Environment.NewLine;
                 throw new InvalidOperationException(message + exception, exception);
             }
 
-            if (exception is InvalidOperationException invalidOperationException
-                && invalidOperationException.Message == "Internal .Net Framework Data Provider error 6.")
-            {
-                return true;
-            }
-
-            return false;
+            return exception is InvalidOperationException invalidOperationException
+                && invalidOperationException.Message == "Internal .Net Framework Data Provider error 6.";
         }
 
         public new virtual TimeSpan? GetNextDelay(Exception lastException)
         {
             ExceptionsEncountered.Add(lastException);
             return base.GetNextDelay(lastException);
-        }
-
-        public new static bool Suspended
-        {
-            get => ExecutionStrategy.Suspended;
-            set => ExecutionStrategy.Suspended = value;
         }
     }
 }

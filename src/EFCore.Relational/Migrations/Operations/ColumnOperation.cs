@@ -67,5 +67,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         ///     is not computed.
         /// </summary>
         public virtual string ComputedColumnSql { get; [param: CanBeNull] set; }
+
+        /// <summary>
+        ///     Comment for this column
+        /// </summary>
+        public virtual string Comment { get; [param: CanBeNull] set; }
     }
 }

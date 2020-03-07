@@ -3,10 +3,12 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -26,6 +28,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     ///         first resolve the object from the dependency injection container, then replace selected
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
+    ///     </para>
     /// </summary>
     public sealed class StateManagerDependencies
     {
@@ -34,8 +42,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///         Creates the service dependencies parameter object for a <see cref="StateManager" />.
         ///     </para>
         ///     <para>
-        ///         This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///         directly from your code. This API may change or be removed in future releases.
+        ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///         any release. You should only use it directly in your code with extreme caution and knowing that
+        ///         doing so can result in application failures when updating to a new Entity Framework Core release.
         ///     </para>
         ///     <para>
         ///         Do not call this constructor directly from either provider or application code as it may change
@@ -45,7 +55,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///         injection container, then replace selected services using the 'With...' methods. Do not call
         ///         the constructor at any point in this process.
         ///     </para>
+        ///     <para>
+        ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///         any release. You should only use it directly in your code with extreme caution and knowing that
+        ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     </para>
         /// </summary>
+        [EntityFrameworkInternal]
         public StateManagerDependencies(
             [NotNull] IInternalEntityEntryFactory internalEntityEntryFactory,
             [NotNull] IInternalEntityEntrySubscriber internalEntityEntrySubscriber,
@@ -58,6 +75,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [NotNull] IEntityFinderSource entityFinderSource,
             [NotNull] IDbSetSource setSource,
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
+            [NotNull] IExecutionStrategyFactory executionStrategyFactory,
             [NotNull] ILoggingOptions loggingOptions,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> changeTrackingLogger)
@@ -73,92 +91,129 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             EntityFinderSource = entityFinderSource;
             SetSource = setSource;
             EntityMaterializerSource = entityMaterializerSource;
+            ExecutionStrategyFactory = executionStrategyFactory;
             LoggingOptions = loggingOptions;
             UpdateLogger = updateLogger;
             ChangeTrackingLogger = changeTrackingLogger;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public IInternalEntityEntryFactory InternalEntityEntryFactory { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public IInternalEntityEntrySubscriber InternalEntityEntrySubscriber { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public IInternalEntityEntryNotifier InternalEntityEntryNotifier { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public IValueGenerationManager ValueGenerationManager { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public IModel Model { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public IDatabase Database { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public IConcurrencyDetector ConcurrencyDetector { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ICurrentDbContext CurrentContext { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public IDbSetSource SetSource { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public IEntityFinderSource EntityFinderSource { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public IEntityMaterializerSource EntityMaterializerSource { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public IExecutionStrategyFactory ExecutionStrategyFactory { get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ILoggingOptions LoggingOptions { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public IDiagnosticsLogger<DbLoggerCategory.Update> UpdateLogger { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> ChangeTrackingLogger { get; }
 
@@ -180,6 +235,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 EntityFinderSource,
                 SetSource,
                 EntityMaterializerSource,
+                ExecutionStrategyFactory,
                 LoggingOptions,
                 UpdateLogger,
                 ChangeTrackingLogger);
@@ -202,6 +258,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 EntityFinderSource,
                 SetSource,
                 EntityMaterializerSource,
+                ExecutionStrategyFactory,
                 LoggingOptions,
                 UpdateLogger,
                 ChangeTrackingLogger);
@@ -224,6 +281,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 EntityFinderSource,
                 SetSource,
                 EntityMaterializerSource,
+                ExecutionStrategyFactory,
                 LoggingOptions,
                 UpdateLogger,
                 ChangeTrackingLogger);
@@ -246,6 +304,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 EntityFinderSource,
                 SetSource,
                 EntityMaterializerSource,
+                ExecutionStrategyFactory,
                 LoggingOptions,
                 UpdateLogger,
                 ChangeTrackingLogger);
@@ -268,6 +327,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 EntityFinderSource,
                 SetSource,
                 EntityMaterializerSource,
+                ExecutionStrategyFactory,
                 LoggingOptions,
                 UpdateLogger,
                 ChangeTrackingLogger);
@@ -290,6 +350,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 EntityFinderSource,
                 SetSource,
                 EntityMaterializerSource,
+                ExecutionStrategyFactory,
                 LoggingOptions,
                 UpdateLogger,
                 ChangeTrackingLogger);
@@ -312,6 +373,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 EntityFinderSource,
                 SetSource,
                 EntityMaterializerSource,
+                ExecutionStrategyFactory,
                 LoggingOptions,
                 UpdateLogger,
                 ChangeTrackingLogger);
@@ -334,6 +396,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 EntityFinderSource,
                 SetSource,
                 EntityMaterializerSource,
+                ExecutionStrategyFactory,
                 LoggingOptions,
                 UpdateLogger,
                 ChangeTrackingLogger);
@@ -356,6 +419,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityFinderSource,
                 SetSource,
                 EntityMaterializerSource,
+                ExecutionStrategyFactory,
                 LoggingOptions,
                 UpdateLogger,
                 ChangeTrackingLogger);
@@ -378,6 +442,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 EntityFinderSource,
                 setSource,
                 EntityMaterializerSource,
+                ExecutionStrategyFactory,
                 LoggingOptions,
                 UpdateLogger,
                 ChangeTrackingLogger);
@@ -400,6 +465,31 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 EntityFinderSource,
                 SetSource,
                 entityMaterializerSource,
+                ExecutionStrategyFactory,
+                LoggingOptions,
+                UpdateLogger,
+                ChangeTrackingLogger);
+
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="executionStrategyFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public StateManagerDependencies With([NotNull] IExecutionStrategyFactory executionStrategyFactory)
+            => new StateManagerDependencies(
+                InternalEntityEntryFactory,
+                InternalEntityEntrySubscriber,
+                InternalEntityEntryNotifier,
+                ValueGenerationManager,
+                Model,
+                Database,
+                ConcurrencyDetector,
+                CurrentContext,
+                EntityFinderSource,
+                SetSource,
+                EntityMaterializerSource,
+                executionStrategyFactory,
                 LoggingOptions,
                 UpdateLogger,
                 ChangeTrackingLogger);
@@ -422,6 +512,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 EntityFinderSource,
                 SetSource,
                 EntityMaterializerSource,
+                ExecutionStrategyFactory,
                 loggingOptions,
                 UpdateLogger,
                 ChangeTrackingLogger);
@@ -444,6 +535,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 EntityFinderSource,
                 SetSource,
                 EntityMaterializerSource,
+                ExecutionStrategyFactory,
                 LoggingOptions,
                 updateLogger,
                 ChangeTrackingLogger);
@@ -466,6 +558,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 EntityFinderSource,
                 SetSource,
                 EntityMaterializerSource,
+                ExecutionStrategyFactory,
                 LoggingOptions,
                 UpdateLogger,
                 changeTrackingLogger);

@@ -3,9 +3,9 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -25,10 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [CanBeNull] this IRelationalTypeMappingSource typeMappingSource,
             [CanBeNull] object value)
             => value == null
-               || value == DBNull.Value
-               || typeMappingSource == null
-                ? RelationalTypeMapping.NullMapping
-                : typeMappingSource.GetMapping(value.GetType());
+                || value == DBNull.Value
+                || typeMappingSource == null
+                    ? RelationalTypeMapping.NullMapping
+                    : typeMappingSource.GetMapping(value.GetType());
 
         /// <summary>
         ///     Gets the relational database type for a given property, throwing if no mapping is found.
@@ -95,6 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] string typeName)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
+            // Note: Empty string is allowed for store type name because SQLite
             Check.NotNull(typeName, nameof(typeName));
 
             var mapping = typeMappingSource.FindMapping(typeName);

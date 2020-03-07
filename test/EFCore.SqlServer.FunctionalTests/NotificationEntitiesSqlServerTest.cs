@@ -5,7 +5,8 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class NotificationEntitiesSqlServerTest : NotificationEntitiesTestBase<NotificationEntitiesSqlServerTest.NotificationEntitiesSqlServerFixture>
+    public class NotificationEntitiesSqlServerTest
+        : NotificationEntitiesTestBase<NotificationEntitiesSqlServerTest.NotificationEntitiesSqlServerFixture>
     {
         public NotificationEntitiesSqlServerTest(NotificationEntitiesSqlServerFixture fixture)
             : base(fixture)

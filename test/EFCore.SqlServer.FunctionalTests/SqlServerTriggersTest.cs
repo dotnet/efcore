@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private SqlServerTriggersFixture Fixture { get; }
 
-        [Fact]
+        [ConditionalFact]
         public void Triggers_run_on_insert_update_and_delete()
         {
             using (var context = CreateContext())
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Triggers_work_with_batch_operations()
         {
             using (var context = CreateContext())
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TriggersContext CreateContext() => (TriggersContext)Fixture.CreateContext();
 
-        protected class TriggersContext : DbContext
+        protected class TriggersContext : PoolableDbContext
         {
             public TriggersContext(DbContextOptions options)
                 : base(options)
@@ -111,12 +111,12 @@ namespace Microsoft.EntityFrameworkCore
             {
                 modelBuilder.Entity<Product>(
                     eb =>
-                        {
-                            eb.Property(e => e.Version)
-                                .ValueGeneratedOnAddOrUpdate()
-                                .IsConcurrencyToken();
-                            eb.Ignore(e => e.StoreUpdated);
-                        });
+                    {
+                        eb.Property(e => e.Version)
+                            .ValueGeneratedOnAddOrUpdate()
+                            .IsConcurrencyToken();
+                        eb.Ignore(e => e.StoreUpdated);
+                    });
 
                 modelBuilder.Entity<ProductBackup>()
                     .Property(e => e.Id).ValueGeneratedNever();
@@ -138,17 +138,17 @@ namespace Microsoft.EntityFrameworkCore
             public virtual string Name { get; set; }
         }
 
-        public class SqlServerTriggersFixture : SharedStoreFixtureBase<DbContext>
+        public class SqlServerTriggersFixture : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "SqlServerTriggers";
             protected override Type ContextType { get; } = typeof(TriggersContext);
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
 
-            protected override void Seed(DbContext context)
+            protected override void Seed(PoolableDbContext context)
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
 
-                context.Database.ExecuteSqlCommand(
+                context.Database.ExecuteSqlRaw(
                     @"
 CREATE TRIGGER TRG_InsertProduct
 ON Products
@@ -162,7 +162,7 @@ BEGIN
     SELECT * FROM INSERTED;
 END");
 
-                context.Database.ExecuteSqlCommand(
+                context.Database.ExecuteSqlRaw(
                     @"
 CREATE TRIGGER TRG_UpdateProduct
 ON Products
@@ -180,7 +180,7 @@ BEGIN
     WHERE p.Id IN(SELECT INSERTED.Id FROM INSERTED);
 END");
 
-                context.Database.ExecuteSqlCommand(
+                context.Database.ExecuteSqlRaw(
                     @"
 CREATE TRIGGER TRG_DeleteProduct
 ON Products

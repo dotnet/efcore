@@ -3,11 +3,20 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
-    ///     A cache key generator for the compiled query cache.
+    ///     <para>
+    ///         A cache key generator for the compiled query cache.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
+    ///     </para>
     /// </summary>
     public interface ICompiledQueryCacheKeyGenerator
     {

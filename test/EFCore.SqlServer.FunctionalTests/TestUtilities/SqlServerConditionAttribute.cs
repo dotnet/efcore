@@ -2,16 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Data.SqlClient;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
-    [TraitDiscoverer("Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities.SqlServerConditionTraitDiscoverer", "Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests")]
-    public sealed class SqlServerConditionAttribute : Attribute, ITestCondition, ITraitAttribute
+    public sealed class SqlServerConditionAttribute : Attribute, ITestCondition
     {
         public SqlServerCondition Conditions { get; set; }
 
@@ -20,51 +19,57 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Conditions = conditions;
         }
 
-        public bool IsMet
+        public ValueTask<bool> IsMetAsync()
         {
-            get
+            var isMet = true;
+            if (Conditions.HasFlag(SqlServerCondition.SupportsSequences))
             {
-                var isMet = true;
-                if (Conditions.HasFlag(SqlServerCondition.SupportsSequences))
-                {
-                    isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsSequences)) ?? true;
-                }
-                if (Conditions.HasFlag(SqlServerCondition.SupportsOffset))
-                {
-                    isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true;
-                }
-                if (Conditions.HasFlag(SqlServerCondition.SupportsHiddenColumns))
-                {
-                    isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsHiddenColumns)) ?? false;
-                }
-                if (Conditions.HasFlag(SqlServerCondition.SupportsMemoryOptimized))
-                {
-                    isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsMemoryOptimized)) ?? false;
-                }
-                if (Conditions.HasFlag(SqlServerCondition.IsSqlAzure))
-                {
-                    isMet &= TestEnvironment.IsSqlAzure;
-                }
-                if (Conditions.HasFlag(SqlServerCondition.IsNotSqlAzure))
-                {
-                    isMet &= !TestEnvironment.IsSqlAzure;
-                }
-                if (Conditions.HasFlag(SqlServerCondition.SupportsAttach))
-                {
-                    var defaultConnection = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection);
-                    isMet &= defaultConnection.DataSource.Contains("(localdb)")
-                             || defaultConnection.UserInstance;
-                }
-                if (Conditions.HasFlag(SqlServerCondition.IsNotTeamCity))
-                {
-                    isMet &= !TestEnvironment.IsTeamCity;
-                }
-                if(Conditions.HasFlag(SqlServerCondition.SupportsFullTextSearch))
-                {
-                    isMet &= TestEnvironment.IsFullTestSearchSupported;
-                }
-                return isMet;
+                isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsSequences)) ?? true;
             }
+
+            if (Conditions.HasFlag(SqlServerCondition.SupportsOffset))
+            {
+                isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true;
+            }
+
+            if (Conditions.HasFlag(SqlServerCondition.SupportsHiddenColumns))
+            {
+                isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsHiddenColumns)) ?? false;
+            }
+
+            if (Conditions.HasFlag(SqlServerCondition.SupportsMemoryOptimized))
+            {
+                isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsMemoryOptimized)) ?? false;
+            }
+
+            if (Conditions.HasFlag(SqlServerCondition.IsSqlAzure))
+            {
+                isMet &= TestEnvironment.IsSqlAzure;
+            }
+
+            if (Conditions.HasFlag(SqlServerCondition.IsNotSqlAzure))
+            {
+                isMet &= !TestEnvironment.IsSqlAzure;
+            }
+
+            if (Conditions.HasFlag(SqlServerCondition.SupportsAttach))
+            {
+                var defaultConnection = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection);
+                isMet &= defaultConnection.DataSource.Contains("(localdb)")
+                    || defaultConnection.UserInstance;
+            }
+
+            if (Conditions.HasFlag(SqlServerCondition.IsNotCI))
+            {
+                isMet &= !TestEnvironment.IsCI;
+            }
+
+            if (Conditions.HasFlag(SqlServerCondition.SupportsFullTextSearch))
+            {
+                isMet &= TestEnvironment.IsFullTestSearchSupported;
+            }
+
+            return new ValueTask<bool>(isMet);
         }
 
         public string SkipReason =>
@@ -76,19 +81,5 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                         .Cast<Enum>()
                         .Where(f => Conditions.HasFlag(f))
                         .Select(f => Enum.GetName(typeof(SqlServerCondition), f))));
-    }
-
-    [Flags]
-    public enum SqlServerCondition
-    {
-        SupportsSequences = 1 << 0,
-        SupportsOffset = 1 << 1,
-        IsSqlAzure = 1 << 2,
-        IsNotSqlAzure = 1 << 3,
-        SupportsMemoryOptimized = 1 << 4,
-        SupportsAttach = 1 << 5,
-        SupportsHiddenColumns = 1 << 6,
-        IsNotTeamCity = 1 << 7,
-        SupportsFullTextSearch = 1 << 8
     }
 }

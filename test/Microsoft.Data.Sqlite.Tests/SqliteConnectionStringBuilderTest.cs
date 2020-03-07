@@ -87,15 +87,24 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void Password_defaults_to_empty()
+        {
+            Assert.Empty(new SqliteConnectionStringBuilder().Password);
+        }
+
+        [Fact]
         public void Keys_works()
         {
             var keys = (ICollection<string>)new SqliteConnectionStringBuilder().Keys;
 
             Assert.True(keys.IsReadOnly);
-            Assert.Equal(3, keys.Count);
+            Assert.Equal(6, keys.Count);
             Assert.Contains("Data Source", keys);
             Assert.Contains("Mode", keys);
             Assert.Contains("Cache", keys);
+            Assert.Contains("Password", keys);
+            Assert.Contains("Foreign Keys", keys);
+            Assert.Contains("Recursive Triggers", keys);
         }
 
         [Fact]
@@ -104,7 +113,7 @@ namespace Microsoft.Data.Sqlite
             var values = (ICollection<object>)new SqliteConnectionStringBuilder().Values;
 
             Assert.True(values.IsReadOnly);
-            Assert.Equal(3, values.Count);
+            Assert.Equal(6, values.Count);
         }
 
         [Fact]
@@ -173,16 +182,50 @@ namespace Microsoft.Data.Sqlite
             Assert.ThrowsAny<ArgumentException>(() => builder["Cache"] = value);
         }
 
+        [Theory]
+        [InlineData(1, true)]
+        [InlineData("True", true)]
+        [InlineData(0, false)]
+        [InlineData("False", false)]
+        [InlineData(null, null)]
+        [InlineData("", null)]
+        public void Item_converts_to_bool_on_set(object value, bool? expected)
+        {
+            var builder = new SqliteConnectionStringBuilder();
+
+            builder["Foreign Keys"] = value;
+
+            Assert.Equal(expected, builder["Foreign Keys"]);
+        }
+
+        [Theory]
+        [InlineData("1")]
+        [InlineData("Yes")]
+        [InlineData("On")]
+        [InlineData("0")]
+        [InlineData("No")]
+        [InlineData("Off")]
+        public void Item_throws_when_cannot_convert_to_bool_on_set(object value)
+        {
+            var builder = new SqliteConnectionStringBuilder();
+
+            Assert.ThrowsAny<FormatException>(() => builder["Foreign Keys"] = value);
+        }
+
         [Fact]
         public void Clear_resets_everything()
         {
-            var builder = new SqliteConnectionStringBuilder("Data Source=test.db;Mode=Memory;Cache=Shared");
+            var builder = new SqliteConnectionStringBuilder(
+                "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True");
 
             builder.Clear();
 
             Assert.Empty(builder.DataSource);
             Assert.Equal(SqliteOpenMode.ReadWriteCreate, builder.Mode);
             Assert.Equal(SqliteCacheMode.Default, builder.Cache);
+            Assert.Empty(builder.Password);
+            Assert.Null(builder.ForeignKeys);
+            Assert.False(builder.RecursiveTriggers);
         }
 
         [Fact]
@@ -261,19 +304,21 @@ namespace Microsoft.Data.Sqlite
             {
                 DataSource = "test.db",
                 Cache = SqliteCacheMode.Shared,
-                Mode = SqliteOpenMode.Memory
+                Mode = SqliteOpenMode.Memory,
+                Password = "test",
+                ForeignKeys = true,
+                RecursiveTriggers = true
             };
 
-            Assert.Equal("Data Source=test.db;Mode=Memory;Cache=Shared", builder.ToString());
+            Assert.Equal(
+                "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True",
+                builder.ToString());
         }
 
         [Fact]
         public void ToString_builds_minimal_string()
         {
-            var builder = new SqliteConnectionStringBuilder
-            {
-                DataSource = "test.db"
-            };
+            var builder = new SqliteConnectionStringBuilder { DataSource = "test.db" };
 
             Assert.Equal("Data Source=test.db", builder.ToString());
         }

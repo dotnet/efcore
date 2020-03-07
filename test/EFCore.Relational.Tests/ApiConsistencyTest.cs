@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,15 +16,17 @@ namespace Microsoft.EntityFrameworkCore
     {
         private static readonly Type[] _fluentApiTypes =
         {
-            typeof(RelationalQueryTypeBuilderExtensions),
-            typeof(RelationalReferenceReferenceBuilderExtensions),
-            typeof(RelationalReferenceOwnershipBuilderExtensions),
-            typeof(RelationalReferenceCollectionBuilderExtensions),
+            typeof(RelationalForeignKeyBuilderExtensions),
             typeof(RelationalPropertyBuilderExtensions),
             typeof(RelationalModelBuilderExtensions),
             typeof(RelationalIndexBuilderExtensions),
             typeof(RelationalKeyBuilderExtensions),
-            typeof(RelationalEntityTypeBuilderExtensions)
+            typeof(RelationalEntityTypeBuilderExtensions),
+            typeof(MigrationBuilder),
+            typeof(AlterOperationBuilder<>),
+            typeof(ColumnsBuilder),
+            typeof(CreateTableBuilder<>),
+            typeof(OperationBuilder<>)
         };
 
         protected override IEnumerable<Type> FluentApiTypes => _fluentApiTypes;

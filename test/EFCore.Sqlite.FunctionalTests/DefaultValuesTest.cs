@@ -11,13 +11,15 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class DefaultValuesTest : SharedStoreFixtureBase<DbContext>
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_use_SQLite_default_values()
         {
             using (var context = CreateChipsContext())
             {
-                var honeyDijon = context.Add(new KettleChips { Name = "Honey Dijon" }).Entity;
-                var buffaloBleu = context.Add(new KettleChips { Name = "Buffalo Bleu", BestBuyDate = new DateTime(2111, 1, 11) }).Entity;
+                var honeyDijon = context.Add(
+                    new KettleChips { Name = "Honey Dijon" }).Entity;
+                var buffaloBleu = context.Add(
+                    new KettleChips { Name = "Buffalo Bleu", BestBuyDate = new DateTime(2111, 1, 11) }).Entity;
 
                 context.SaveChanges();
 
@@ -38,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private ChipsContext CreateChipsContext() => (ChipsContext)CreateContext();
 
-        private class ChipsContext : DbContext
+        private class ChipsContext : PoolableDbContext
         {
             public ChipsContext(DbContextOptions options)
                 : base(options)

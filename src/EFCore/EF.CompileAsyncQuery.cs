@@ -2,12 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TResult">The query result type.</typeparam>
         /// <param name="queryExpression">The LINQ query expression.</param>
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
-        public static Func<TContext, AsyncEnumerable<TResult>> CompileAsyncQuery<TContext, TResult>(
+        public static Func<TContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TContext, TResult>(
             [NotNull] Expression<Func<TContext, DbSet<TResult>>> queryExpression)
             where TContext : DbContext
             where TResult : class
@@ -35,7 +35,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TResult">The query result type.</typeparam>
         /// <param name="queryExpression">The LINQ query expression.</param>
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
-        public static Func<TContext, AsyncEnumerable<TResult>> CompileAsyncQuery<TContext, TResult>(
+        [Obsolete("Use DbSet instead")]
+        public static Func<TContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TContext, TResult>(
             [NotNull] Expression<Func<TContext, DbQuery<TResult>>> queryExpression)
             where TContext : DbContext
             where TResult : class
@@ -48,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TResult">The query result type.</typeparam>
         /// <param name="queryExpression">The LINQ query expression.</param>
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
-        public static Func<TContext, AsyncEnumerable<TResult>> CompileAsyncQuery<TContext, TResult>(
+        public static Func<TContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TContext, TResult>(
             [NotNull] Expression<Func<TContext, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
             => new CompiledAsyncEnumerableQuery<TContext, TResult>(queryExpression).Execute;
@@ -61,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TResult">The query result type.</typeparam>
         /// <param name="queryExpression">The LINQ query expression.</param>
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
-        public static Func<TContext, TParam1, AsyncEnumerable<TResult>> CompileAsyncQuery<TContext, TParam1, TResult>(
+        public static Func<TContext, TParam1, IAsyncEnumerable<TResult>> CompileAsyncQuery<TContext, TParam1, TResult>(
             [NotNull] Expression<Func<TContext, TParam1, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
             => new CompiledAsyncEnumerableQuery<TContext, TResult>(queryExpression).Execute;
@@ -75,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TResult">The query result type.</typeparam>
         /// <param name="queryExpression">The LINQ query expression.</param>
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
-        public static Func<TContext, TParam1, TParam2, AsyncEnumerable<TResult>> CompileAsyncQuery<
+        public static Func<TContext, TParam1, TParam2, IAsyncEnumerable<TResult>> CompileAsyncQuery<
             TContext, TParam1, TParam2, TResult>(
             [NotNull] Expression<Func<TContext, TParam1, TParam2, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
@@ -91,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TResult">The query result type.</typeparam>
         /// <param name="queryExpression">The LINQ query expression.</param>
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
-        public static Func<TContext, TParam1, TParam2, TParam3, AsyncEnumerable<TResult>> CompileAsyncQuery<
+        public static Func<TContext, TParam1, TParam2, TParam3, IAsyncEnumerable<TResult>> CompileAsyncQuery<
             TContext, TParam1, TParam2, TParam3, TResult>(
             [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
@@ -108,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TResult">The query result type.</typeparam>
         /// <param name="queryExpression">The LINQ query expression.</param>
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
-        public static Func<TContext, TParam1, TParam2, TParam3, TParam4, AsyncEnumerable<TResult>> CompileAsyncQuery<
+        public static Func<TContext, TParam1, TParam2, TParam3, TParam4, IAsyncEnumerable<TResult>> CompileAsyncQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TResult>(
             [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
@@ -126,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TResult">The query result type.</typeparam>
         /// <param name="queryExpression">The LINQ query expression.</param>
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
-        public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, AsyncEnumerable<TResult>> CompileAsyncQuery<
+        public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, IAsyncEnumerable<TResult>> CompileAsyncQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TResult>(
             [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext

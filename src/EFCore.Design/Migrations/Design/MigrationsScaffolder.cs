@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
-            _contextType = dependencies.CurrentDbContext.Context.GetType();
+            _contextType = dependencies.CurrentContext.Context.GetType();
             _activeProvider = dependencies.DatabaseProvider.Name;
             Dependencies = dependencies;
         }
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                     if (sanitizedContextName.EndsWith("Context", StringComparison.Ordinal))
                     {
-                        builder.Append(sanitizedContextName.Substring(0, sanitizedContextName.Length - 7));
+                        builder.Append(sanitizedContextName, 0, sanitizedContextName.Length - 7);
                     }
                     else
                     {
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var modelSnapshot = Dependencies.MigrationsAssembly.ModelSnapshot;
             var lastModel = Dependencies.SnapshotModelProcessor.Process(modelSnapshot?.Model);
             var upOperations = Dependencies.MigrationsModelDiffer.GetDifferences(lastModel, Dependencies.Model);
-            var downOperations = upOperations.Any()
+            var downOperations = upOperations.Count > 0
                 ? Dependencies.MigrationsModelDiffer.GetDifferences(Dependencies.Model, lastModel)
                 : new List<MigrationOperation>();
             var migrationId = Dependencies.MigrationsIdGenerator.GenerateId(migrationName);
@@ -245,7 +245,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 var migration = migrations[migrations.Count - 1];
                 model = migration.TargetModel;
 
-                if (!Dependencies.MigrationsModelDiffer.HasDifferences(model, Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model)))
+                if (!Dependencies.MigrationsModelDiffer.HasDifferences(
+                    model, Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model)))
                 {
                     var applied = false;
                     try
@@ -259,6 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         Dependencies.OperationReporter.WriteWarning(
                             DesignStrings.ForceRemoveMigration(migration.GetId(), ex.Message));
                     }
+
                     if (applied)
                     {
                         if (force)
@@ -385,9 +387,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             return new MigrationFiles
             {
-                MigrationFile = migrationFile,
-                MetadataFile = migrationMetadataFile,
-                SnapshotFile = modelSnapshotFile
+                MigrationFile = migrationFile, MetadataFile = migrationMetadataFile, SnapshotFile = modelSnapshotFile
             };
         }
 

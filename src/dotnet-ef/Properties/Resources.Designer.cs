@@ -8,8 +8,10 @@ using JetBrains.Annotations;
 namespace Microsoft.EntityFrameworkCore.Tools.Properties
 {
     /// <summary>
-    ///		This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     internal static class Resources
     {
@@ -243,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 startupProject, targetFrameworkVersion);
 
         /// <summary>
-        ///     Startup project '{startupProject}' targets framework '.NETStandard'. There is no runtime associated with this framework, and projects targeting it cannot be executed directly. To use the Entity Framework Core .NET Command-line Tools with this project, add an executable project targeting .NET Core or .NET Framework that references this project, and set it as the startup project using --startup-project; or, update this project to cross-target .NET Core or .NET Framework.
+        ///     Startup project '{startupProject}' targets framework '.NETStandard'. There is no runtime associated with this framework, and projects targeting it cannot be executed directly. To use the Entity Framework Core .NET Command-line Tools with this project, add an executable project targeting .NET Core or .NET Framework that references this project, and set it as the startup project using --startup-project; or, update this project to cross-target .NET Core or .NET Framework. For more information on using the EF Core Tools with .NET Standard projects, see https://go.microsoft.com/fwlink/?linkid=2034781
         /// </summary>
         public static string NETStandardStartupProject([CanBeNull] object startupProject)
             => string.Format(
@@ -398,6 +400,18 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         public static string WorkingDirDescription
             => GetString("WorkingDirDescription");
 
+        /// <summary>
+        ///     Build started...
+        /// </summary>
+        public static string BuildStarted
+            => GetString("BuildStarted");
+
+        /// <summary>
+        ///     Build succeeded.
+        /// </summary>
+        public static string BuildSucceeded
+            => GetString("BuildSucceeded");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
@@ -410,3 +424,4 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         }
     }
 }
+

@@ -13,8 +13,5 @@ namespace Microsoft.EntityFrameworkCore.Query
             Fixture.TestSqlLoggerFactory.Clear();
             //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
         }
-
-        private void AssertSql(params string[] expected)
-            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
 }

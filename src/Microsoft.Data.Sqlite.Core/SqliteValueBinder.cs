@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -73,7 +73,7 @@ namespace Microsoft.Data.Sqlite
             else if (type == typeof(char))
             {
                 var chr = (char)_value;
-                if (_sqliteType == SqliteType.Text)
+                if (_sqliteType != SqliteType.Integer)
                 {
                     var value = new string(chr, 1);
                     BindText(value);
@@ -134,7 +134,7 @@ namespace Microsoft.Data.Sqlite
             else if (type == typeof(Guid))
             {
                 var guid = (Guid)_value;
-                if (_sqliteType == SqliteType.Text)
+                if (_sqliteType != SqliteType.Blob)
                 {
                     var value = guid.ToString().ToUpper();
                     BindText(value);
@@ -206,28 +206,28 @@ namespace Microsoft.Data.Sqlite
         }
 
         private static readonly Dictionary<Type, SqliteType> _sqliteTypeMapping =
-            new Dictionary<Type, SqliteType>()
+            new Dictionary<Type, SqliteType>
             {
-                {typeof(bool), SqliteType.Integer},
-                {typeof(byte),SqliteType.Integer},
-                {typeof(byte[]), SqliteType.Blob},
-                {typeof(char),SqliteType.Integer},
-                {typeof(DateTime), SqliteType.Text},
-                {typeof(DateTimeOffset), SqliteType.Text},
-                {typeof(DBNull), SqliteType.Text},
-                {typeof(decimal),SqliteType.Text},
-                {typeof(double), SqliteType.Real},
-                {typeof(float), SqliteType.Real},
-                {typeof(Guid), SqliteType.Blob},
-                {typeof(int), SqliteType.Integer},
-                {typeof(long), SqliteType.Integer},
-                {typeof(sbyte),SqliteType.Integer},
-                {typeof(short), SqliteType.Integer},
-                {typeof(string), SqliteType.Integer},
-                {typeof(TimeSpan), SqliteType.Text},
-                {typeof(uint), SqliteType.Integer},
-                {typeof(ulong), SqliteType.Integer},
-                {typeof(ushort), SqliteType.Integer},
+                { typeof(bool), SqliteType.Integer },
+                { typeof(byte), SqliteType.Integer },
+                { typeof(byte[]), SqliteType.Blob },
+                { typeof(char), SqliteType.Text },
+                { typeof(DateTime), SqliteType.Text },
+                { typeof(DateTimeOffset), SqliteType.Text },
+                { typeof(DBNull), SqliteType.Text },
+                { typeof(decimal), SqliteType.Text },
+                { typeof(double), SqliteType.Real },
+                { typeof(float), SqliteType.Real },
+                { typeof(Guid), SqliteType.Text },
+                { typeof(int), SqliteType.Integer },
+                { typeof(long), SqliteType.Integer },
+                { typeof(sbyte), SqliteType.Integer },
+                { typeof(short), SqliteType.Integer },
+                { typeof(string), SqliteType.Integer },
+                { typeof(TimeSpan), SqliteType.Text },
+                { typeof(uint), SqliteType.Integer },
+                { typeof(ulong), SqliteType.Integer },
+                { typeof(ushort), SqliteType.Integer }
             };
 
         internal static SqliteType GetSqliteType(object value)
@@ -242,10 +242,8 @@ namespace Microsoft.Data.Sqlite
             {
                 return sqliteType;
             }
-            else
-            {
-                throw new InvalidOperationException(Resources.UnknownDataType(type));
-            }
+
+            throw new InvalidOperationException(Resources.UnknownDataType(type));
         }
 
         private static double ToJulianDate(DateTime dateTime)

@@ -7,16 +7,17 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public class DbSetFinderTest
     {
-        [Fact]
+        [ConditionalFact]
         public void All_non_static_DbSet_properties_are_discovered()
         {
             using (var context = new The())
             {
-                var sets = new DbSetFinder().FindSets(context);
+                var sets = new DbSetFinder().FindSets(context.GetType());
 
                 Assert.Equal(
                     new[] { "Betters", "Brandies", "Drinkings", "Stops", "Yous" },

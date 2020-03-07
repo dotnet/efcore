@@ -62,6 +62,27 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 TransactionManager._currentTransaction = null;
             }
+
+            public Task CommitAsync(CancellationToken cancellationToken = default)
+            {
+                TransactionManager._currentTransaction = null;
+
+                return Task.CompletedTask;
+            }
+
+            public Task RollbackAsync(CancellationToken cancellationToken = default)
+            {
+                TransactionManager._currentTransaction = null;
+
+                return Task.CompletedTask;
+            }
+
+            public ValueTask DisposeAsync()
+            {
+                Dispose();
+
+                return default;
+            }
         }
     }
 }

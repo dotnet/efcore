@@ -4,8 +4,8 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -25,6 +25,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         first resolve the object from the dependency injection container, then replace selected
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
+    ///     </para>
     /// </summary>
     public sealed class ExecutionStrategyDependencies
     {
@@ -40,19 +46,23 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         injection container, then replace selected services using the 'With...' methods. Do not call
         ///         the constructor at any point in this process.
         ///     </para>
+        ///     <para>
+        ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///         any release. You should only use it directly in your code with extreme caution and knowing that
+        ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     </para>
         /// </summary>
-        /// <param name="currentDbContext"> Indirection to the current <see cref="DbContext" /> instance. </param>
-        /// <param name="options"> The options for the current <see cref="DbContext" /> instance. </param>
-        /// <param name="logger"> A logger.</param>
+        [EntityFrameworkInternal]
         public ExecutionStrategyDependencies(
-            [NotNull] ICurrentDbContext currentDbContext,
+            [NotNull] ICurrentDbContext currentContext,
             [CanBeNull] IDbContextOptions options,
             [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
         {
-            Check.NotNull(currentDbContext, nameof(currentDbContext));
+            Check.NotNull(currentContext, nameof(currentContext));
 
             Options = options;
-            CurrentDbContext = currentDbContext;
+            CurrentContext = currentContext;
             Logger = logger;
         }
 
@@ -64,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Indirection to the current <see cref="DbContext" /> instance.
         /// </summary>
-        public ICurrentDbContext CurrentDbContext { get; }
+        public ICurrentDbContext CurrentContext { get; }
 
         /// <summary>
         ///     The logger.
@@ -74,10 +84,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
-        /// <param name="currentDbContext"> A replacement for the current dependency of this type. </param>
+        /// <param name="currentContext"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public ExecutionStrategyDependencies With([NotNull] ICurrentDbContext currentDbContext)
-            => new ExecutionStrategyDependencies(currentDbContext, Options, Logger);
+        public ExecutionStrategyDependencies With([NotNull] ICurrentDbContext currentContext)
+            => new ExecutionStrategyDependencies(currentContext, Options, Logger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -85,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="options"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public ExecutionStrategyDependencies With([NotNull] IDbContextOptions options)
-            => new ExecutionStrategyDependencies(CurrentDbContext, options, Logger);
+            => new ExecutionStrategyDependencies(CurrentContext, options, Logger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -93,6 +103,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="logger"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public ExecutionStrategyDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
-            => new ExecutionStrategyDependencies(CurrentDbContext, Options, logger);
+            => new ExecutionStrategyDependencies(CurrentContext, Options, logger);
     }
 }

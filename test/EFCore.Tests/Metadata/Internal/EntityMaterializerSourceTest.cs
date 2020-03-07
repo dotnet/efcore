@@ -6,7 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
@@ -22,22 +23,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     {
         private readonly DbContext _fakeContext = new DbContext(new DbContextOptions<DbContext>());
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_materializer_for_entity_with_constructor_properties()
         {
             var entityType = CreateEntityType();
 
             entityType[CoreAnnotationNames.ConstructorBinding]
-                = new DirectConstructorBinding(
+                = new ConstructorBinding(
                     typeof(SomeEntity).GetTypeInfo().DeclaredConstructors.Single(c => c.GetParameters().Length == 2),
                     new List<ParameterBinding>
                     {
                         new PropertyParameterBinding(entityType.FindProperty(nameof(SomeEntity.Id))),
-                        new PropertyParameterBinding(entityType.FindProperty(nameof(SomeEntity.Goo))),
+                        new PropertyParameterBinding(entityType.FindProperty(nameof(SomeEntity.Goo)))
                     }
                 );
+            ((Model)entityType.Model).FinalizeModel();
 
-            var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
+            var factory = GetMaterializer(new EntityMaterializerSource(new EntityMaterializerSourceDependencies()), entityType);
 
             var gu = Guid.NewGuid();
             var entity = (SomeEntity)factory(
@@ -57,13 +59,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(entity.GooSetterCalled);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_materializer_for_entity_with_factory_method()
         {
             var entityType = CreateEntityType();
 
             entityType[CoreAnnotationNames.ConstructorBinding]
-                = new FactoryMethodConstructorBinding(
+                = new FactoryMethodBinding(
                     typeof(SomeEntity).GetTypeInfo().GetDeclaredMethod(nameof(SomeEntity.Factory)),
                     new List<ParameterBinding>
                     {
@@ -71,8 +73,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         new PropertyParameterBinding(entityType.FindProperty(nameof(SomeEntity.Goo)))
                     },
                     entityType.ClrType);
+            ((Model)entityType.Model).FinalizeModel();
 
-            var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
+            var factory = GetMaterializer(new EntityMaterializerSource(new EntityMaterializerSourceDependencies()), entityType);
 
             var gu = Guid.NewGuid();
             var entity = (SomeEntity)factory(
@@ -92,13 +95,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(entity.GooSetterCalled);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_materializer_for_entity_with_factory_method_with_object_array()
         {
             var entityType = CreateEntityType();
 
             entityType[CoreAnnotationNames.ConstructorBinding]
-                = new FactoryMethodConstructorBinding(
+                = new FactoryMethodBinding(
                     typeof(SomeEntity).GetTypeInfo().GetDeclaredMethod(nameof(SomeEntity.GeneralFactory)),
                     new List<ParameterBinding>
                     {
@@ -110,8 +113,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             })
                     },
                     entityType.ClrType);
+            ((Model)entityType.Model).FinalizeModel();
 
-            var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
+            var factory = GetMaterializer(new EntityMaterializerSource(new EntityMaterializerSourceDependencies()), entityType);
 
             var gu = Guid.NewGuid();
             var entity = (SomeEntity)factory(
@@ -131,22 +135,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(entity.GooSetterCalled);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_materializer_for_entity_with_instance_factory_method()
         {
             var entityType = CreateEntityType();
 
             entityType[CoreAnnotationNames.ConstructorBinding]
-                = new FactoryMethodConstructorBinding(
+                = new FactoryMethodBinding(
                     TestProxyFactory.Instance,
                     typeof(TestProxyFactory).GetTypeInfo().GetDeclaredMethod(nameof(TestProxyFactory.Create)),
-                    new List<ParameterBinding>
-                    {
-                        new EntityTypeParameterBinding()
-                    },
+                    new List<ParameterBinding> { new EntityTypeParameterBinding() },
                     entityType.ClrType);
+            ((Model)entityType.Model).FinalizeModel();
 
-            var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
+            var factory = GetMaterializer(new EntityMaterializerSource(new EntityMaterializerSourceDependencies()), entityType);
 
             var gu = Guid.NewGuid();
             var entity = (SomeEntity)factory(
@@ -174,9 +176,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 => Activator.CreateInstance(entityType.ClrType);
         }
 
-        private static EntityType CreateEntityType()
+        private static IMutableEntityType CreateEntityType()
         {
-            var entityType = new Model().AddEntityType(typeof(SomeEntity));
+            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(SomeEntity));
             entityType.AddProperty(SomeEntity.EnumProperty);
             entityType.AddProperty(SomeEntity.FooProperty);
             entityType.AddProperty(SomeEntity.GooProperty);
@@ -185,12 +187,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return entityType;
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_materializer_for_entity_with_auto_properties()
         {
             var entityType = CreateEntityType();
+            ((Model)entityType.Model).FinalizeModel();
 
-            var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
+            var factory = GetMaterializer(new EntityMaterializerSource(new EntityMaterializerSourceDependencies()), entityType);
 
             var gu = Guid.NewGuid();
             var entity = (SomeEntity)factory(
@@ -205,17 +208,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(SomeEnum.EnumValue, entity.MaybeEnum);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_materializer_for_entity_with_fields()
         {
-            var entityType = new Model().AddEntityType(typeof(SomeEntityWithFields));
+            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(SomeEntityWithFields));
             entityType.AddProperty(SomeEntityWithFields.EnumProperty).SetField("_enum");
             entityType.AddProperty(SomeEntityWithFields.FooProperty).SetField("_foo");
             entityType.AddProperty(SomeEntityWithFields.GooProperty).SetField("_goo");
             entityType.AddProperty(SomeEntityWithFields.IdProperty).SetField("_id");
             entityType.AddProperty(SomeEntityWithFields.MaybeEnumProperty).SetField("_maybeEnum");
+            ((Model)entityType.Model).FinalizeModel();
 
-            var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
+            var factory = GetMaterializer(new EntityMaterializerSource(new EntityMaterializerSourceDependencies()), entityType);
 
             var gu = Guid.NewGuid();
             var entity = (SomeEntityWithFields)factory(
@@ -230,15 +234,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(entity.MaybeEnum);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_read_nulls()
         {
-            var entityType = new Model().AddEntityType(typeof(SomeEntity));
+            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(SomeEntity));
             entityType.AddProperty(SomeEntity.FooProperty);
             entityType.AddProperty(SomeEntity.GooProperty);
             entityType.AddProperty(SomeEntity.IdProperty);
+            ((Model)entityType.Model).FinalizeModel();
 
-            var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
+            var factory = GetMaterializer(new EntityMaterializerSource(new EntityMaterializerSourceDependencies()), entityType);
 
             var entity = (SomeEntity)factory(
                 new MaterializationContext(
@@ -250,18 +255,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(entity.Goo);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_materializer_for_entity_ignoring_shadow_fields()
         {
-            var entityType = new Model().AddEntityType(typeof(SomeEntity));
+            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(SomeEntity));
             entityType.AddProperty(SomeEntity.IdProperty);
             entityType.AddProperty("IdShadow", typeof(int));
             entityType.AddProperty(SomeEntity.FooProperty);
             entityType.AddProperty("FooShadow", typeof(string));
             entityType.AddProperty(SomeEntity.GooProperty);
             entityType.AddProperty("GooShadow", typeof(Guid));
+            ((Model)entityType.Model).FinalizeModel();
 
-            var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
+            var factory = GetMaterializer(new EntityMaterializerSource(new EntityMaterializerSourceDependencies()), entityType);
 
             var gu = Guid.NewGuid();
             var entity = (SomeEntity)factory(
@@ -274,15 +280,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(gu, entity.Goo);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_parameterless_constructor_is_not_defined_on_entity_type()
         {
-            var entityType = new Model().AddEntityType(typeof(EntityWithoutParameterlessConstructor));
+            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(EntityWithoutParameterlessConstructor));
             entityType.AddProperty(EntityWithoutParameterlessConstructor.IdProperty);
 
             Assert.Equal(
                 CoreStrings.NoParameterlessConstructor(typeof(EntityWithoutParameterlessConstructor).Name),
-                Assert.Throws<InvalidOperationException>(() => GetMaterializer(new EntityMaterializerSource(), entityType)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () => GetMaterializer(new EntityMaterializerSource(new EntityMaterializerSourceDependencies()), entityType)).Message);
         }
 
         private static readonly ParameterExpression _contextParameter
@@ -290,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         public virtual Func<MaterializationContext, object> GetMaterializer(IEntityMaterializerSource source, IEntityType entityType)
             => Expression.Lambda<Func<MaterializationContext, object>>(
-                    source.CreateMaterializeExpression(entityType, _contextParameter),
+                    source.CreateMaterializeExpression(entityType, "instance", _contextParameter),
                     _contextParameter)
                 .Compile();
 
@@ -323,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             public bool FactoryUsed { get; set; }
-            public bool ParameterizedConstructorUsed { get; set; }
+            public bool ParameterizedConstructorUsed { get; }
             public bool IdSetterCalled { get; set; }
             public bool GooSetterCalled { get; set; }
 
@@ -370,13 +377,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public static readonly PropertyInfo EnumProperty = typeof(SomeEntityWithFields).GetProperty("Enum");
             public static readonly PropertyInfo MaybeEnumProperty = typeof(SomeEntityWithFields).GetProperty("MaybeEnum");
 
-#pragma warning disable 649
+#pragma warning disable 649, IDE0044 // Add readonly modifier
             private int _id;
             private string _foo;
             private Guid? _goo;
             private SomeEnum _enum;
             private SomeEnum? _maybeEnum;
-#pragma warning restore 649
+#pragma warning restore 649, IDE0044 // Add readonly modifier
 
             public int Id => _id;
             public string Foo => _foo;

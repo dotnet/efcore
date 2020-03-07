@@ -3,8 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -14,17 +14,17 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class NavigationTest : IClassFixture<NavigationTestFixture>
     {
-        [Fact]
+        [ConditionalFact]
         public void Duplicate_entries_are_not_created_for_navigations_to_principal()
         {
             using (var context = _fixture.CreateContext())
             {
                 context.ConfigAction = modelBuilder =>
-                    {
-                        modelBuilder.Entity<GoTPerson>().HasMany(p => p.Siblings).WithOne(p => p.SiblingReverse).IsRequired(false);
-                        modelBuilder.Entity<GoTPerson>().HasOne(p => p.Lover).WithOne(p => p.LoverReverse).IsRequired(false);
-                        return 0;
-                    };
+                {
+                    modelBuilder.Entity<GoTPerson>().HasMany(p => p.Siblings).WithOne(p => p.SiblingReverse).IsRequired(false);
+                    modelBuilder.Entity<GoTPerson>().HasOne(p => p.Lover).WithOne(p => p.LoverReverse).IsRequired(false);
+                    return 0;
+                };
 
                 var model = context.Model;
                 var entityType = model.GetEntityTypes().First();
@@ -39,17 +39,17 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Duplicate_entries_are_not_created_for_navigations_to_dependent()
         {
             using (var context = _fixture.CreateContext())
             {
                 context.ConfigAction = modelBuilder =>
-                    {
-                        modelBuilder.Entity<GoTPerson>().HasOne(p => p.SiblingReverse).WithMany(p => p.Siblings).IsRequired(false);
-                        modelBuilder.Entity<GoTPerson>().HasOne(p => p.Lover).WithOne(p => p.LoverReverse).IsRequired(false);
-                        return 0;
-                    };
+                {
+                    modelBuilder.Entity<GoTPerson>().HasOne(p => p.SiblingReverse).WithMany(p => p.Siblings).IsRequired(false);
+                    modelBuilder.Entity<GoTPerson>().HasOne(p => p.Lover).WithOne(p => p.LoverReverse).IsRequired(false);
+                    return 0;
+                };
 
                 var model = context.Model;
                 var entityType = model.GetEntityTypes().First();

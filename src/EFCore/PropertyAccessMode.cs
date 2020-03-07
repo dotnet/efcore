@@ -13,13 +13,8 @@ namespace Microsoft.EntityFrameworkCore
     ///         or backing field will be used when reading and writing to a property or field.
     ///     </para>
     ///     <para>
-    ///         If no access mode is set, then the backing field for a property will be used if possible
-    ///         when constructing new instances of the entity. The property getter or setter will be used,
-    ///         if possible, for all other accesses of the property. Note that when it is not possible
-    ///         to use the field because it could not be found by convention and was not specified using
-    ///         <see cref="PropertyBuilder.HasField" />, then the property will be used instead. Likewise,
-    ///         when it is not possible to use the property getter or setter, for example when the
-    ///         property is read-only, then the field will be used instead.
+    ///         The default behavior is <see cref="PreferField" />. Prior to EF Core 3.0,
+    ///         the default behavior was <see cref="PreferFieldDuringConstruction" />.
     ///     </para>
     /// </summary>
     public enum PropertyAccessMode
@@ -48,12 +43,6 @@ namespace Microsoft.EntityFrameworkCore
         ///         unless this is not possible because, for example, the property is read-only, in which
         ///         case these accesses will also use the field.
         ///     </para>
-        ///     <para>
-        ///         This access mode is similar to the default mode used if none has been set except
-        ///         that it will throw an exception if it is not possible to write to the field for
-        ///         entity construction. The default access mode will fall back to using the property
-        ///         instead.
-        ///     </para>
         /// </summary>
         FieldDuringConstruction,
 
@@ -67,6 +56,33 @@ namespace Microsoft.EntityFrameworkCore
         ///         from or write to the property, for example because it is read-only.
         ///     </para>
         /// </summary>
-        Property
+        Property,
+
+        /// <summary>
+        ///     <para>
+        ///         All accesses to the property goes directly to the field, unless the field is
+        ///         not known, in which as access goes through the property.
+        ///     </para>
+        /// </summary>
+        PreferField,
+
+        /// <summary>
+        ///     <para>
+        ///         All accesses to the property when constructing new entity instances goes directly
+        ///         to the field, unless the field is not known, in which as access goes through the property.
+        ///         All other uses of the property will go through the property getters and setters,
+        ///         unless this is not possible because, for example, the property is read-only, in which
+        ///         case these accesses will also use the field.
+        ///     </para>
+        /// </summary>
+        PreferFieldDuringConstruction,
+
+        /// <summary>
+        ///     <para>
+        ///         All accesses to the property go through the property, unless there is no property or
+        ///         it is missing a setter/getter, in which as access goes directly to the field.
+        ///     </para>
+        /// </summary>
+        PreferProperty
     }
 }

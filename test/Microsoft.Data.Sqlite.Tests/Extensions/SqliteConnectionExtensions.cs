@@ -5,10 +5,14 @@ namespace Microsoft.Data.Sqlite
 {
     internal static class SqliteConnectionExtensions
     {
-        public static SqliteDataReader ExecuteReader(this SqliteConnection connection, string commandText)
+        public static SqliteDataReader ExecuteReader(
+            this SqliteConnection connection,
+            string commandText,
+            params SqliteParameter[] parameters)
         {
             var command = connection.CreateCommand();
             command.CommandText = commandText;
+            command.Parameters.AddRange(parameters);
 
             return command.ExecuteReader();
         }

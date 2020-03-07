@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -10,10 +10,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
@@ -33,15 +33,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private static readonly int _maxEntityState = Enum.GetValues(typeof(EntityState)).Cast<int>().Max();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected virtual InternalEntityEntry InternalEntry { [DebuggerStepThrough] get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         public EntityEntry([NotNull] InternalEntityEntry internalEntry)
         {
             Check.NotNull(internalEntry, nameof(internalEntry));
@@ -85,9 +91,26 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Scans this entity instance to detect any changes made to the instance data. <see cref="DetectChanges()" />
+        ///     is usually called automatically by the context to get up-to-date information on an individual entity before
+        ///     returning change tracking information. You typically only need to call this method if you have
+        ///     disabled <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
         /// </summary>
+        public virtual void DetectChanges()
+        {
+            if ((string)Context.Model[ChangeDetector.SkipDetectChangesAnnotation] != "true")
+            {
+                Context.GetDependencies().ChangeDetector.DetectChanges(InternalEntry);
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
         InternalEntityEntry IInfrastructure<InternalEntityEntry>.Instance => InternalEntry;
 
         /// <summary>
@@ -257,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         true since any value is considered a valid key value.
         ///     </para>
         /// </summary>
-        public virtual bool IsKeySet => InternalEntry.IsKeySet;
+        public virtual bool IsKeySet => InternalEntry.IsKeySet.IsSet;
 
         /// <summary>
         ///     Gets the current property values for this entity.
@@ -365,6 +388,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 if (State != EntityState.Added)
                 {
+                    State = EntityState.Deleted;
                     State = EntityState.Detached;
                 }
             }

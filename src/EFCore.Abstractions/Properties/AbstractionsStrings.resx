@@ -119,10 +119,8 @@
   </resheader>
   <data name="ArgumentIsEmpty" xml:space="preserve">
     <value>The string argument '{argumentName}' cannot be empty.</value>
-    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="CollectionArgumentIsEmpty" xml:space="preserve">
     <value>The collection argument '{argumentName}' must contain at least one element.</value>
-    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
 </root>

@@ -2,11 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -22,21 +21,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         where TRelatedEntity : class
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         public ReferenceReferenceBuilder(
-            [NotNull] EntityType declaringEntityType,
-            [NotNull] EntityType relatedEntityType,
-            [NotNull] InternalRelationshipBuilder builder)
-            : base(declaringEntityType, relatedEntityType, builder)
+            [NotNull] IMutableEntityType declaringEntityType,
+            [NotNull] IMutableEntityType relatedEntityType,
+            [NotNull] IMutableForeignKey foreignKey)
+            : base(declaringEntityType, relatedEntityType, foreignKey)
         {
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected ReferenceReferenceBuilder(
             InternalRelationshipBuilder builder,
             ReferenceReferenceBuilder oldBuilder,
@@ -55,123 +60,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasAnnotation([NotNull] string annotation, [NotNull] object value)
+        public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasAnnotation(
+            [NotNull] string annotation, [NotNull] object value)
             => (ReferenceReferenceBuilder<TEntity, TRelatedEntity>)base.HasAnnotation(annotation, value);
-
-        /// <summary>
-        ///     <para>
-        ///         Configures the property(s) to use as the foreign key for this relationship.
-        ///     </para>
-        ///     <para>
-        ///         If the specified property name(s) do not exist on the entity type then a new shadow state
-        ///         property(s) will be added to serve as the foreign key. A shadow state property is one
-        ///         that does not have a corresponding property in the entity class. The current value for the
-        ///         property is stored in the <see cref="ChangeTracker" /> rather than being stored in instances
-        ///         of the entity class.
-        ///     </para>
-        ///     <para>
-        ///         If <see cref="HasPrincipalKey(Type,string[])" /> is not specified, then an attempt will be made to
-        ///         match the data type and order of foreign key properties against the primary key of the principal
-        ///         entity type. If they do not match, new shadow state properties that form a unique index will be
-        ///         added to the principal entity type to serve as the reference key.
-        ///     </para>
-        /// </summary>
-        /// <param name="dependentEntityType">
-        ///     The entity type that is the dependent in this relationship (the type that has the foreign key
-        ///     properties).
-        /// </param>
-        /// <param name="foreignKeyPropertyNames">
-        ///     The name(s) of the foreign key property(s).
-        /// </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey(
-            [NotNull] Type dependentEntityType,
-            [NotNull] params string[] foreignKeyPropertyNames)
-            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
-                HasForeignKeyBuilder(
-                    ResolveEntityType(Check.NotNull(dependentEntityType, nameof(dependentEntityType))),
-                    dependentEntityType.ShortDisplayName(),
-                    Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
-                this,
-                inverted: Builder.Metadata.DeclaringEntityType.ClrType != dependentEntityType,
-                foreignKeySet: foreignKeyPropertyNames.Any());
-
-        /// <summary>
-        ///     <para>
-        ///         Configures the property(s) to use as the foreign key for this relationship.
-        ///     </para>
-        ///     <para>
-        ///         If the specified property name(s) do not exist on the entity type then a new shadow state
-        ///         property(s) will be added to serve as the foreign key. A shadow state property is one
-        ///         that does not have a corresponding property in the entity class. The current value for the
-        ///         property is stored in the <see cref="ChangeTracker" /> rather than being stored in instances
-        ///         of the entity class.
-        ///     </para>
-        ///     <para>
-        ///         If <see cref="HasPrincipalKey(Type, string[])" /> is not specified, then an attempt will be made to
-        ///         match the data type and order of foreign key properties against the primary key of the principal
-        ///         entity type. If they do not match, new shadow state properties that form a unique index will be
-        ///         added to the principal entity type to serve as the reference key.
-        ///     </para>
-        /// </summary>
-        /// <typeparam name="TDependentEntity">
-        ///     The entity type that is the dependent in this relationship (the type that has the foreign key
-        ///     properties).
-        /// </typeparam>
-        /// <param name="foreignKeyPropertyNames">
-        ///     The name(s) of the foreign key property(s).
-        /// </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
-            [NotNull] params string[] foreignKeyPropertyNames)
-            where TDependentEntity : class
-            => HasForeignKey(typeof(TDependentEntity), foreignKeyPropertyNames);
-
-        /// <summary>
-        ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
-        ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
-        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
-        ///     constraint will be introduced.
-        /// </summary>
-        /// <remarks>
-        ///     If multiple principal key properties are specified, the order of principal key properties should
-        ///     match the order that the primary key or unique constraint properties were configured on the principal
-        ///     entity type.
-        /// </remarks>
-        /// <param name="principalEntityType">
-        ///     The entity type that is the principal in this relationship (the type
-        ///     that has the reference key properties).
-        /// </param>
-        /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey(
-            [NotNull] Type principalEntityType,
-            [NotNull] params string[] keyPropertyNames)
-            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
-                HasPrincipalKeyBuilder(
-                    ResolveEntityType(Check.NotNull(principalEntityType, nameof(principalEntityType))),
-                    principalEntityType.ShortDisplayName(),
-                    Check.NotNull(keyPropertyNames, nameof(keyPropertyNames))),
-                this,
-                inverted: Builder.Metadata.PrincipalEntityType.ClrType != principalEntityType,
-                principalKeySet: keyPropertyNames.Any());
-
-        /// <summary>
-        ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
-        ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
-        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
-        ///     constraint will be introduced.
-        /// </summary>
-        /// <typeparam name="TPrincipalEntity">
-        ///     The entity type that is the principal in this relationship (the type
-        ///     that has the reference key properties).
-        /// </typeparam>
-        /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(
-            [NotNull] params string[] keyPropertyNames)
-            where TPrincipalEntity : class
-            => HasPrincipalKey(typeof(TPrincipalEntity), keyPropertyNames);
 
         /// <summary>
         ///     <para>
@@ -209,37 +100,45 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
                 inverted: Builder.Metadata.DeclaringEntityType.Name != ResolveEntityType(dependentEntityTypeName).Name,
-                foreignKeySet: foreignKeyPropertyNames.Any());
+                foreignKeySet: foreignKeyPropertyNames.Length > 0);
 
         /// <summary>
-        ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
-        ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
-        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
-        ///     constraint
-        ///     will be introduced.
+        ///     <para>
+        ///         Configures the property(s) to use as the foreign key for this relationship.
+        ///     </para>
+        ///     <para>
+        ///         If the specified property name(s) do not exist on the entity type then a new shadow state
+        ///         property(s) will be added to serve as the foreign key. A shadow state property is one
+        ///         that does not have a corresponding property in the entity class. The current value for the
+        ///         property is stored in the <see cref="ChangeTracker" /> rather than being stored in instances
+        ///         of the entity class.
+        ///     </para>
+        ///     <para>
+        ///         If <see cref="HasPrincipalKey(Type,string[])" /> is not specified, then an attempt will be made to
+        ///         match the data type and order of foreign key properties against the primary key of the principal
+        ///         entity type. If they do not match, new shadow state properties that form a unique index will be
+        ///         added to the principal entity type to serve as the reference key.
+        ///     </para>
         /// </summary>
-        /// <remarks>
-        ///     If multiple principal key properties are specified, the order of principal key properties should
-        ///     match the order that the primary key or unique constraint properties were configured on the principal
-        ///     entity type.
-        /// </remarks>
-        /// <param name="principalEntityTypeName">
-        ///     The name of entity type that is the principal in this relationship (the type
-        ///     that has the reference key properties).
+        /// <param name="dependentEntityType">
+        ///     The entity type that is the dependent in this relationship (the type that has the foreign key
+        ///     properties).
         /// </param>
-        /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
+        /// <param name="foreignKeyPropertyNames">
+        ///     The name(s) of the foreign key property(s).
+        /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey(
-            [NotNull] string principalEntityTypeName,
-            [NotNull] params string[] keyPropertyNames)
+        public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey(
+            [NotNull] Type dependentEntityType,
+            [NotNull] params string[] foreignKeyPropertyNames)
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
-                HasPrincipalKeyBuilder(
-                    ResolveEntityType(Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName))),
-                    principalEntityTypeName,
-                    Check.NotNull(keyPropertyNames, nameof(keyPropertyNames))),
+                HasForeignKeyBuilder(
+                    ResolveEntityType(Check.NotNull(dependentEntityType, nameof(dependentEntityType))),
+                    dependentEntityType.ShortDisplayName(),
+                    Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
-                inverted: Builder.Metadata.PrincipalEntityType.Name != principalEntityTypeName,
-                principalKeySet: keyPropertyNames.Any());
+                inverted: Builder.Metadata.DeclaringEntityType.ClrType != dependentEntityType,
+                foreignKeySet: foreignKeyPropertyNames.Length > 0);
 
         /// <summary>
         ///     <para>
@@ -256,7 +155,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         If <see cref="HasPrincipalKey{T}(string[])" /> is not specified, then an attempt will be made to
         ///         match the data type and order of foreign key properties against the primary key of the principal
         ///         entity type. If they do not match, new shadow state properties that form a unique index will be
-        ///         added to the principal entity type to serve as the reference key.
+        ///         added to the principal entity type to serve as the referenced key.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TDependentEntity">
+        ///     The entity type that is the dependent in this relationship (the type that has the foreign key
+        ///     properties).
+        /// </typeparam>
+        /// <param name="foreignKeyPropertyNames">
+        ///     The name(s) of the foreign key property(s).
+        /// </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
+            [NotNull] params string[] foreignKeyPropertyNames)
+            where TDependentEntity : class
+            => HasForeignKey(typeof(TDependentEntity), foreignKeyPropertyNames);
+
+        /// <summary>
+        ///     <para>
+        ///         Configures the property(s) to use as the foreign key for this relationship.
+        ///     </para>
+        ///     <para>
+        ///         If the specified property name(s) do not exist on the entity type then a new shadow state
+        ///         property(s) will be added to serve as the foreign key. A shadow state property is one
+        ///         that does not have a corresponding property in the entity class. The current value for the
+        ///         property is stored in the <see cref="ChangeTracker" /> rather than being stored in instances
+        ///         of the entity class.
+        ///     </para>
+        ///     <para>
+        ///         If <see cref="HasPrincipalKey{T}(Expression{Func{T, object}})" /> is not specified, then an attempt
+        ///         will be made to match the data type and order of foreign key properties against the primary key of
+        ///         the principal entity type. If they do not match, new shadow state properties that form a unique
+        ///         index will be added to the principal entity type to serve as the reference key.
         ///     </para>
         /// </summary>
         /// <typeparam name="TDependentEntity">
@@ -270,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <para>
         ///         If the foreign key is made up of multiple properties then specify an anonymous type including the
         ///         properties (<c>t => new { t.Id1, t.Id2 }</c>). The order specified should match the order of
-        ///         corresponding keys in <see cref="HasPrincipalKey(Type,string[])" />.
+        ///         corresponding keys in <see cref="HasPrincipalKey{TPrincipalEntity}(Expression{Func{TPrincipalEntity, object}})" />.
         ///     </para>
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
@@ -292,6 +222,71 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
         ///     constraint will be introduced.
         /// </summary>
+        /// <param name="principalEntityTypeName">
+        ///     The name of entity type that is the principal in this relationship (the type
+        ///     that has the reference key properties).
+        /// </param>
+        /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey(
+            [NotNull] string principalEntityTypeName,
+            [NotNull] params string[] keyPropertyNames)
+            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
+                HasPrincipalKeyBuilder(
+                    ResolveEntityType(Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName))),
+                    principalEntityTypeName,
+                    Check.NotNull(keyPropertyNames, nameof(keyPropertyNames))),
+                this,
+                inverted: Builder.Metadata.PrincipalEntityType.Name != principalEntityTypeName,
+                principalKeySet: keyPropertyNames.Length > 0);
+
+        /// <summary>
+        ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
+        ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
+        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
+        ///     constraint will be introduced.
+        /// </summary>
+        /// <param name="principalEntityType">
+        ///     The entity type that is the principal in this relationship (the type
+        ///     that has the reference key properties).
+        /// </param>
+        /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey(
+            [NotNull] Type principalEntityType,
+            [NotNull] params string[] keyPropertyNames)
+            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
+                HasPrincipalKeyBuilder(
+                    ResolveEntityType(Check.NotNull(principalEntityType, nameof(principalEntityType))),
+                    principalEntityType.ShortDisplayName(),
+                    Check.NotNull(keyPropertyNames, nameof(keyPropertyNames))),
+                this,
+                inverted: Builder.Metadata.PrincipalEntityType.ClrType != principalEntityType,
+                principalKeySet: keyPropertyNames.Length > 0);
+
+        /// <summary>
+        ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
+        ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
+        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
+        ///     constraint will be introduced.
+        /// </summary>
+        /// <typeparam name="TPrincipalEntity">
+        ///     The entity type that is the principal in this relationship (the type
+        ///     that has the reference key properties).
+        /// </typeparam>
+        /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(
+            [NotNull] params string[] keyPropertyNames)
+            where TPrincipalEntity : class
+            => HasPrincipalKey(typeof(TPrincipalEntity), keyPropertyNames);
+
+        /// <summary>
+        ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
+        ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
+        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
+        ///     constraint will be introduced.
+        /// </summary>
         /// <remarks>
         ///     If multiple principal key properties are specified, the order of principal key properties should
         ///     match the order that the primary key or unique constraint properties were configured on the principal
@@ -306,8 +301,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         A lambda expression representing the reference key property(s) (<c>t => t.Id</c>).
         ///     </para>
         ///     <para>
-        ///         If the principal key is made up of multiple properties then specify an anonymous type including
-        ///         the properties (<c>t => new { t.Id1, t.Id2 }</c>).
+        ///         If the principal key is made up of multiple properties then specify an anonymous type including the
+        ///         properties (<c>t => new { t.Id1, t.Id2 }</c>). The order specified should match the order of
+        ///         corresponding properties in <see cref="HasForeignKey{TDependentEntity}(Expression{Func{TDependentEntity, object}})" />.
         ///     </para>
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
@@ -325,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <summary>
         ///     Configures whether this is a required relationship (i.e. whether the foreign key property(s) can
-        ///     be assigned null).
+        ///     be assigned <c>null</c>).
         /// </summary>
         /// <param name="required"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
@@ -336,13 +332,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 requiredSet: true);
 
         /// <summary>
-        ///     Configures how a delete operation is applied to dependent entities in the relationship when the
+        ///     Configures the operation applied to dependent entities in the relationship when the
         ///     principal is deleted or the relationship is severed.
         /// </summary>
         /// <param name="deleteBehavior"> The action to perform. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> OnDelete(DeleteBehavior deleteBehavior)
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
-                Builder.DeleteBehavior(deleteBehavior, ConfigurationSource.Explicit), this);
+                Builder.OnDelete(deleteBehavior, ConfigurationSource.Explicit), this);
     }
 }

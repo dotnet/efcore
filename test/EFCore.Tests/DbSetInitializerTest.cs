@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class DbSetInitializerTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Initializes_all_entity_set_properties_with_setters()
         {
             var setFinder = new FakeSetFinder();
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var customServices = new ServiceCollection()
                 .AddSingleton<IDbSetInitializer>(
-                new DbSetInitializer(setFinder, setSource, setSource));
+                    new DbSetInitializer(setFinder, setSource));
 
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider(customServices);
 
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private class FakeSetFinder : IDbSetFinder
         {
-            public IReadOnlyList<DbSetProperty> FindSets(DbContext context)
+            public IReadOnlyList<DbSetProperty> FindSets(Type contextType)
             {
                 var setterFactory = new ClrPropertySetterFactory();
 

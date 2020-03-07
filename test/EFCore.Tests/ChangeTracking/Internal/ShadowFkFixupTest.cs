@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class ShadowFkFixupTest
     {
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -35,17 +35,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -63,17 +63,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -92,17 +92,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -122,17 +122,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -151,17 +151,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -179,17 +179,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -206,17 +206,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -236,17 +236,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -264,17 +264,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -293,17 +293,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -323,17 +323,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -352,17 +352,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -380,17 +380,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -407,17 +407,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -436,16 +436,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -464,16 +464,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -493,16 +493,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -520,16 +520,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -549,16 +549,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -576,16 +576,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -604,16 +604,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -632,16 +632,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -658,16 +658,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -686,16 +686,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -714,16 +714,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -740,16 +740,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -768,15 +768,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -795,15 +795,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("CategoryId").CurrentValue);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -823,18 +823,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(principal, dependent.Parent);
+                        Assert.Same(dependent, principal.Child);
+                        Assert.Same(dependent, principal.Child);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -852,17 +852,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(principal, dependent.Parent);
+                        Assert.Same(dependent, principal.Child);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -881,17 +881,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(principal, dependent.Parent);
+                        Assert.Same(dependent, principal.Child);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -911,17 +911,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(principal, dependent.Parent);
+                        Assert.Same(dependent, principal.Child);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -940,17 +940,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(principal, dependent.Parent);
+                        Assert.Same(dependent, principal.Child);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -968,17 +968,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(principal, dependent.Parent);
+                        Assert.Same(dependent, principal.Child);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -995,17 +995,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(principal, dependent.Parent);
+                        Assert.Same(dependent, principal.Child);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1025,17 +1025,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(principal, dependent.Parent);
+                        Assert.Same(dependent, principal.Child);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1053,17 +1053,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(principal, dependent.Parent);
+                        Assert.Same(dependent, principal.Child);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1082,17 +1082,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(principal, dependent.Parent);
+                        Assert.Same(dependent, principal.Child);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1112,17 +1112,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(principal, dependent.Parent);
+                        Assert.Same(dependent, principal.Child);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1141,17 +1141,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(principal, dependent.Parent);
+                        Assert.Same(dependent, principal.Child);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1169,17 +1169,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(principal, dependent.Parent);
+                        Assert.Same(dependent, principal.Child);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1196,17 +1196,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(principal, dependent.Parent);
+                        Assert.Same(dependent, principal.Child);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1225,16 +1225,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(dependent, principal.Child);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1253,16 +1253,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(dependent, principal.Child);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1282,16 +1282,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(dependent, principal.Child);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1309,16 +1309,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(dependent, principal.Child);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1338,16 +1338,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(dependent, principal.Child);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1365,16 +1365,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(dependent, principal.Child);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(dependent, principal.Child);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1393,16 +1393,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(principal, dependent.Parent);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1421,16 +1421,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(principal, dependent.Parent);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1447,16 +1447,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(principal, dependent.Parent);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1474,16 +1474,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(principal, dependent.Parent);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1501,16 +1501,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(principal, dependent.Parent);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1527,16 +1527,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Same(principal, dependent.Parent);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1555,15 +1555,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1582,11 +1582,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, context.Entry(dependent).Property("ParentId").CurrentValue);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -1699,6 +1699,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public int Id { get; set; }
 
             public Category Category { get; set; }
+
             // ReSharper disable once CollectionNeverUpdated.Local
             public ICollection<SpecialOffer> SpecialOffers { get; }
         }
@@ -1767,7 +1768,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(nameof(FixupContext));
+                => optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase(nameof(FixupContext));
         }
 
         private void AssertFixup(DbContext context, Action asserts)

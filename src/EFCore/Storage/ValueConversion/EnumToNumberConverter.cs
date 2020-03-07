@@ -4,7 +4,8 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
@@ -12,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     ///     Converts enum values to and from their underlying numeric representation.
     /// </summary>
     public class EnumToNumberConverter<TEnum, TNumber> : ValueConverter<TEnum, TNumber>
-        where TEnum : struct 
+        where TEnum : struct
         where TNumber : struct
     {
         // ReSharper disable once StaticMemberInGenericType
@@ -23,25 +24,23 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             var underlyingModelType = typeof(TEnum).UnwrapEnumType();
 
             return (underlyingModelType == typeof(long) || underlyingModelType == typeof(ulong))
-                   && typeof(TNumber) == typeof(decimal)
-                ? new ConverterMappingHints(precision: 20, scale: 0)
-                : default;
+                && typeof(TNumber) == typeof(decimal)
+                    ? new ConverterMappingHints(precision: 20, scale: 0)
+                    : default;
         }
 
         /// <summary>
         ///     Creates a new instance of this converter. This converter preserves order.
         /// </summary>
         /// <param name="mappingHints">
-        ///     Hints that can be used by the <see cref="ITypeMappingSource"/> to create data types with appropriate
+        ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
         public EnumToNumberConverter([CanBeNull] ConverterMappingHints mappingHints = null)
             : base(
                 ToNumber(),
                 ToEnum(),
-                _defaultHints == null
-                    ? mappingHints
-                    : _defaultHints.With(mappingHints))
+                _defaultHints?.With(mappingHints) ?? mappingHints)
         {
         }
 
@@ -49,7 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(typeof(TEnum), typeof(TNumber), i => new EnumToNumberConverter<TEnum, TNumber>(i.MappingHints), _defaultHints);
+            = new ValueConverterInfo(
+                typeof(TEnum), typeof(TNumber), i => new EnumToNumberConverter<TEnum, TNumber>(i.MappingHints), _defaultHints);
 
         private static Expression<Func<TEnum, TNumber>> ToNumber()
         {
@@ -68,7 +68,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                 typeof(int), typeof(long), typeof(short), typeof(byte),
                 typeof(uint), typeof(ulong), typeof(ushort), typeof(sbyte),
                 typeof(double), typeof(float), typeof(decimal));
-
 
             var param = Expression.Parameter(typeof(TEnum), "value");
 

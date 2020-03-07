@@ -18,10 +18,8 @@ namespace Microsoft.EntityFrameworkCore
             typeof(SqlServerDbContextOptionsExtensions),
             typeof(SqlServerIndexBuilderExtensions),
             typeof(SqlServerKeyBuilderExtensions),
-            typeof(SqlServerMetadataExtensions),
             typeof(SqlServerModelBuilderExtensions),
             typeof(SqlServerPropertyBuilderExtensions),
-            typeof(SqlServerReferenceOwnershipBuilderExtensions),
             typeof(SqlServerServiceCollectionExtensions),
             typeof(SqlServerEntityTypeBuilderExtensions)
         };

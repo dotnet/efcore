@@ -1,16 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>$(StandardTestTfms)</TargetFrameworks>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
-    <!-- Put this project into its own test group to avoid running parallel with other test projects. SqlServer is not able to finalize properly for next test run. -->
-    <TestGroupName>SqlServer.FunctionalTests</TestGroupName>
+    <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
+    <SkipTests Condition="'$(OS)' != 'Windows_NT' AND '$(Test__SqlServer__DefaultConnection)' == ''">True</SkipTests>
   </PropertyGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
 
   <ItemGroup>
     <None Update="Northwind.sql">
@@ -26,25 +22,11 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  
-  <PropertyGroup Condition="'$(FunctionalTests_PackageVersion)' == '2.0.0'">
-   <DefineConstants>$(DefineConstants);Test20</DefineConstants>
-  </PropertyGroup>
 
-  <ItemGroup Condition="'$(FunctionalTests_PackageVersion)' == '0.0.0'">
-    <ProjectReference Include="..\..\src\EFCore.SqlServer\EFCore.SqlServer.csproj" />
-  </ItemGroup>
-  
-  <ItemGroup Condition="'$(FunctionalTests_PackageVersion)' != '0.0.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(FunctionalTests_PackageVersion)" />
-  </ItemGroup>
-  
   <ItemGroup>
-    <ProjectReference Include="..\..\src\EFCore.Relational.Specification.Tests\EFCore.Relational.Specification.Tests.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
-    <Reference Include="System.Transactions" />
+    <ProjectReference Include="..\..\src\EFCore.Design\EFCore.Design.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.SqlServer.NTS\EFCore.SqlServer.NTS.csproj" />
+    <ProjectReference Include="..\EFCore.Relational.Specification.Tests\EFCore.Relational.Specification.Tests.csproj" />
   </ItemGroup>
 
   <ItemGroup>

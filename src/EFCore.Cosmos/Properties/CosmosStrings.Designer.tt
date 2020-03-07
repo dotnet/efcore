@@ -1,0 +1,5 @@
+﻿<#
+    Session["ResourceFile"] = "CosmosStrings.resx";
+    Session["NoDiagnostics"] = true;
+#>
+<#@ include file="..\..\..\tools\Resources.tt" #>

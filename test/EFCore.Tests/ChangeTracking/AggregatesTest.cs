@@ -9,8 +9,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     public class AggregatesTest
     {
-        [Fact]
-        public void Can_add_aggreate()
+        [ConditionalFact]
+        public void Can_add_aggregate()
         {
             using (var context = new AggregateContext())
             {
@@ -31,8 +31,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
-        public void Can_add_one_to_one_aggreate()
+        [ConditionalFact]
+        public void Can_add_one_to_one_aggregate()
         {
             using (var context = new AggregateContext())
             {
@@ -46,8 +46,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
-        public void Can_attach_aggreate()
+        [ConditionalFact]
+        public void Can_attach_aggregate()
         {
             using (var context = new AggregateContext())
             {
@@ -55,8 +55,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 var comments1 = new[] { new Comment { Id = 44, PostId = 56 }, new Comment { Id = 45, PostId = 56 } };
                 var posts = new[]
                 {
-                    new Post { Id = 55, BlogId = 66, Comments = comments0.ToList() },
-                    new Post { Id = 56, BlogId = 66, Comments = comments1.ToList() }
+                    new Post
+                    {
+                        Id = 55,
+                        BlogId = 66,
+                        Comments = comments0.ToList()
+                    },
+                    new Post
+                    {
+                        Id = 56,
+                        BlogId = 66,
+                        Comments = comments1.ToList()
+                    }
                 };
                 var blog = new Blog { Id = 66, Posts = posts.ToList() };
 
@@ -72,8 +82,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
-        public void Can_attach_one_to_one_aggreate()
+        [ConditionalFact]
+        public void Can_attach_one_to_one_aggregate()
         {
             using (var context = new AggregateContext())
             {
@@ -87,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Attaching_aggregate_with_no_key_set_adds_it_instead()
         {
             using (var context = new AggregateContext())
@@ -109,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Attaching_one_to_one_aggregate_with_no_key_set_adds_it_instead()
         {
             using (var context = new AggregateContext())
@@ -124,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Dependents_with_no_key_set_are_added()
         {
             using (var context = new AggregateContext())
@@ -133,7 +143,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 var comments1 = new[] { new Comment { PostId = 56 }, new Comment { PostId = 56 } };
                 var posts = new[]
                 {
-                    new Post { Id = 55, BlogId = 66, Comments = comments0.ToList() },
+                    new Post
+                    {
+                        Id = 55,
+                        BlogId = 66,
+                        Comments = comments0.ToList()
+                    },
                     new Post { BlogId = 66, Comments = comments1.ToList() }
                 };
                 var blog = new Blog { Id = 66, Posts = posts.ToList() };
@@ -150,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void One_to_one_dependents_with_no_key_set_are_added()
         {
             using (var context = new AggregateContext())
@@ -165,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_aggregate_with_linked_aggregate_also_added()
         {
             using (var context = new AggregateContext())
@@ -177,10 +192,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 var comments1 = new[] { new Comment { Id = 44, Author = author }, new Comment { Id = 45, Author = author } };
                 var posts = new[]
                 {
-                    new Post { Id = 55, Author = author, Comments = comments0.ToList() },
-                    new Post { Id = 56, Author = author, Comments = comments1.ToList() }
+                    new Post
+                    {
+                        Id = 55,
+                        Author = author,
+                        Comments = comments0.ToList()
+                    },
+                    new Post
+                    {
+                        Id = 56,
+                        Author = author,
+                        Comments = comments1.ToList()
+                    }
                 };
-                var blog = new Blog { Id = 66, Author = author, Posts = posts.ToList() };
+                var blog = new Blog
+                {
+                    Id = 66,
+                    Author = author,
+                    Posts = posts.ToList()
+                };
 
                 context.Add(blog);
 
@@ -197,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_aggregate_with_other_linked_aggregate_also_attached()
         {
             using (var context = new AggregateContext())
@@ -209,10 +239,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 var comments1 = new[] { new Comment { Id = 44, Author = author }, new Comment { Id = 45, Author = author } };
                 var posts = new[]
                 {
-                    new Post { Id = 55, Author = author, Comments = comments0.ToList() },
-                    new Post { Id = 56, Author = author, Comments = comments1.ToList() }
+                    new Post
+                    {
+                        Id = 55,
+                        Author = author,
+                        Comments = comments0.ToList()
+                    },
+                    new Post
+                    {
+                        Id = 56,
+                        Author = author,
+                        Comments = comments1.ToList()
+                    }
                 };
-                var blog = new Blog { Id = 66, Author = author, Posts = posts.ToList() };
+                var blog = new Blog
+                {
+                    Id = 66,
+                    Author = author,
+                    Posts = posts.ToList()
+                };
 
                 author.Comments = comments0.Concat(comments1).ToList();
                 comments0[0].Post = posts[0];
@@ -233,7 +278,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_attach_aggregate_with_linked_aggregate_also_attached()
         {
             using (var context = new AggregateContext())
@@ -243,23 +288,67 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 var comments0 = new[]
                 {
-                    new Comment { Id = 33, AuthorId = 22, PostId = 55, Author = author },
-                    new Comment { Id = 34, AuthorId = 22, PostId = 55, Author = author }
+                    new Comment
+                    {
+                        Id = 33,
+                        AuthorId = 22,
+                        PostId = 55,
+                        Author = author
+                    },
+                    new Comment
+                    {
+                        Id = 34,
+                        AuthorId = 22,
+                        PostId = 55,
+                        Author = author
+                    }
                 };
 
                 var comments1 = new[]
                 {
-                    new Comment { Id = 44, AuthorId = 22, PostId = 56, Author = author },
-                    new Comment { Id = 45, AuthorId = 22, PostId = 56, Author = author }
+                    new Comment
+                    {
+                        Id = 44,
+                        AuthorId = 22,
+                        PostId = 56,
+                        Author = author
+                    },
+                    new Comment
+                    {
+                        Id = 45,
+                        AuthorId = 22,
+                        PostId = 56,
+                        Author = author
+                    }
                 };
 
                 var posts = new[]
                 {
-                    new Post { Id = 55, AuthorId = 22, BlogId = 66, Author = author, Comments = comments0.ToList() },
-                    new Post { Id = 56, AuthorId = 22, BlogId = 66, Author = author, Comments = comments1.ToList() }
+                    new Post
+                    {
+                        Id = 55,
+                        AuthorId = 22,
+                        BlogId = 66,
+                        Author = author,
+                        Comments = comments0.ToList()
+                    },
+                    new Post
+                    {
+                        Id = 56,
+                        AuthorId = 22,
+                        BlogId = 66,
+                        Author = author,
+                        Comments = comments1.ToList()
+                    }
                 };
 
-                var blog = new Blog { Id = 66, AuthorId = 22, Author = author, Posts = posts.ToList() };
+                var blog = new Blog
+                {
+                    Id = 66,
+                    AuthorId = 22,
+                    Author = author,
+                    Posts = posts.ToList()
+                };
 
                 context.Attach(blog);
 
@@ -276,7 +365,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_two_aggregates_linked_down_the_tree()
         {
             using (var context = new AggregateContext())
@@ -288,10 +377,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 var comments1 = new[] { new Comment { Id = 44, Author = author }, new Comment { Id = 45, Author = author } };
                 var posts = new[]
                 {
-                    new Post { Id = 55, Author = author, Comments = comments0.ToList() },
-                    new Post { Id = 56, Author = author, Comments = comments1.ToList() }
+                    new Post
+                    {
+                        Id = 55,
+                        Author = author,
+                        Comments = comments0.ToList()
+                    },
+                    new Post
+                    {
+                        Id = 56,
+                        Author = author,
+                        Comments = comments1.ToList()
+                    }
                 };
-                var blog = new Blog { Id = 66, Author = author, Posts = posts.ToList() };
+                var blog = new Blog
+                {
+                    Id = 66,
+                    Author = author,
+                    Posts = posts.ToList()
+                };
 
                 context.AddRange(blog, author);
 
@@ -311,7 +415,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private class AggregateContext : DbContext
         {
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(nameof(AggregateContext));
+                => optionsBuilder
+                    .UseInMemoryDatabase(nameof(AggregateContext))
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider);
 
             public DbSet<Blog> Blogs { get; set; }
             public DbSet<Post> Posts { get; set; }

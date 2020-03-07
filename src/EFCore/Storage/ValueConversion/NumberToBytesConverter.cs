@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     </para>
         /// </summary>
         /// <param name="mappingHints">
-        ///     Hints that can be used by the <see cref="ITypeMappingSource"/> to create data types with appropriate
+        ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
         public NumberToBytesConverter([CanBeNull] ConverterMappingHints mappingHints = null)
@@ -41,7 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(typeof(TNumber), typeof(byte[]), i => new NumberToBytesConverter<TNumber>(i.MappingHints), _defaultHints);
+            = new ValueConverterInfo(
+                typeof(TNumber), typeof(byte[]), i => new NumberToBytesConverter<TNumber>(i.MappingHints), _defaultHints);
 
         private static Expression<Func<TNumber, byte[]>> ToBytes()
         {
@@ -145,7 +146,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                 default:
                     return expression;
             }
-
         }
 
         private static readonly MethodInfo _reverseLongMethod
@@ -164,22 +164,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                 BindingFlags.Static | BindingFlags.NonPublic);
 
         private static byte[] ReverseLong(byte[] bytes)
-            => new[]
-            {
-                bytes[7], bytes[6], bytes[5], bytes[4], bytes[3], bytes[2], bytes[1], bytes[0]
-            };
+            => new[] { bytes[7], bytes[6], bytes[5], bytes[4], bytes[3], bytes[2], bytes[1], bytes[0] };
 
         private static byte[] ReverseInt(byte[] bytes)
-            => new[]
-            {
-                bytes[3], bytes[2], bytes[1], bytes[0]
-            };
+            => new[] { bytes[3], bytes[2], bytes[1], bytes[0] };
 
         private static byte[] ReverseShort(byte[] bytes)
-            => new[]
-            {
-                bytes[1], bytes[0]
-            };
+            => new[] { bytes[1], bytes[0] };
 
         private static int GetByteCount()
         {
@@ -188,18 +179,18 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             return type == typeof(decimal)
                 ? 16
                 : (type == typeof(long)
-                   || type == typeof(ulong)
-                   || type == typeof(double)
-                    ? 8
-                    : (type == typeof(int)
-                       || type == typeof(uint)
-                       || type == typeof(float)
-                        ? 4
-                        : (type == typeof(short)
-                           || type == typeof(ushort)
-                           || type == typeof(char)
-                            ? 2
-                            : 1)));
+                    || type == typeof(ulong)
+                    || type == typeof(double)
+                        ? 8
+                        : (type == typeof(int)
+                            || type == typeof(uint)
+                            || type == typeof(float)
+                                ? 4
+                                : (type == typeof(short)
+                                    || type == typeof(ushort)
+                                    || type == typeof(char)
+                                        ? 2
+                                        : 1)));
         }
 
         private static byte[] EnsureEndianInt(byte[] bytes)

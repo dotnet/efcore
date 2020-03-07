@@ -5,6 +5,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -13,6 +14,11 @@ namespace Microsoft.EntityFrameworkCore
     {
         protected UpdatesInMemoryTestBase(TFixture fixture)
             : base(fixture)
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #14042")]
+        public override void Mutation_of_tracked_values_does_not_mutate_values_in_store()
         {
         }
 

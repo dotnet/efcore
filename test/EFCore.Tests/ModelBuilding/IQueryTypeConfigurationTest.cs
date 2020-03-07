@@ -9,9 +9,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public abstract partial class ModelBuilderTest
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         public class IQueryTypeConfigurationTest
         {
-            [Fact]
+            [ConditionalFact]
             public void Configure_query_not_already_in_model()
             {
                 var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -22,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.NotNull(entityType);
             }
 
-            [Fact]
+            [ConditionalFact]
             public void Configure_query_already_in_model()
             {
                 var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -34,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(200, entityType.FindProperty(nameof(Customer.Name)).GetMaxLength());
             }
 
-            [Fact]
+            [ConditionalFact]
             public void Override_config_in_query_type_configuration()
             {
                 var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -46,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(200, entityType.FindProperty(nameof(Customer.Name)).GetMaxLength());
             }
 
-            [Fact]
+            [ConditionalFact]
             public void Override_config_after_query_type_configuration()
             {
                 var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -58,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(500, entityType.FindProperty(nameof(Customer.Name)).GetMaxLength());
             }
 
-            [Fact]
+            [ConditionalFact]
             public void Apply_multiple_query_type_configurations()
             {
                 var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -70,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(1000, entityType.FindProperty(nameof(Customer.Name)).GetMaxLength());
             }
 
-            [Fact]
+            [ConditionalFact]
             public void Can_use_shadow_property_for_fk_on_queryType()
             {
                 var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -82,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("DataValueId", fk.Properties[0].Name);
             }
 
-            [Fact]
+            [ConditionalFact]
             public void Can_use_clr_property_for_fk_on_queryType()
             {
                 var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -94,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("ValueFk", fk.Properties[0].Name);
             }
 
-            [Fact]
+            [ConditionalFact]
             public void Can_use_different_clr_property_for_fk_on_queryType()
             {
                 var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -106,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("ValueFk", fk.Properties[0].Name);
             }
 
-            [Fact]
+            [ConditionalFact]
             public void Can_use_alternate_key()
             {
                 var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -134,5 +135,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 }
             }
         }
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

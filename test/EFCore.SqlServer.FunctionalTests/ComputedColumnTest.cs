@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class ComputedColumnTest : IDisposable
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_use_computed_columns()
         {
             var serviceProvider = new ServiceCollection()
@@ -19,9 +19,15 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new Context(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
 
-                var entity = context.Add(new Entity { P1 = 20, P2 = 30, P3 = 80 }).Entity;
+                var entity = context.Add(
+                    new Entity
+                    {
+                        P1 = 20,
+                        P2 = 30,
+                        P3 = 80
+                    }).Entity;
 
                 context.SaveChanges();
 
@@ -30,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_use_computed_columns_with_null_values()
         {
             var serviceProvider = new ServiceCollection()
@@ -39,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new Context(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
 
                 var entity = context.Add(new Entity { P1 = 20, P2 = 30 }).Entity;
 
@@ -130,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore
                     .HasComputedColumnSql("FlagEnum | OptionalFlagEnum");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_use_computed_columns_with_nullable_enum()
         {
             var serviceProvider = new ServiceCollection()
@@ -139,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new NullableContext(serviceProvider, TestStore.Name))
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
 
                 var entity = context.EnumItems.Add(new EnumItem { FlagEnum = FlagEnum.AValue, OptionalFlagEnum = FlagEnum.BValue }).Entity;
                 context.SaveChanges();

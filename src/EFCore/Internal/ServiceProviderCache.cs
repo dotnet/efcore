@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,100 +15,159 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class ServiceProviderCache
     {
-        private readonly ConcurrentDictionary<long, IServiceProvider> _configurations
-            = new ConcurrentDictionary<long, IServiceProvider>();
+        private readonly ConcurrentDictionary<long, (IServiceProvider ServiceProvider, IDictionary<string, string> DebugInfo)>
+            _configurations
+                = new ConcurrentDictionary<long, (IServiceProvider, IDictionary<string, string>)>();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static ServiceProviderCache Instance { get; } = new ServiceProviderCache();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IServiceProvider GetOrAdd([NotNull] IDbContextOptions options, bool providerRequired)
         {
-            foreach (var extension in options.Extensions)
-            {
-                extension.Validate(options);
-            }
-
-            var key = options.Extensions
-                .OrderBy(e => e.GetType().Name)
-                .Aggregate(0L, (t, e) => (t * 397) ^ ((long)e.GetType().GetHashCode() * 397) ^ e.GetServiceProviderHashCode());
-
-            var internalServiceProvider = options.FindExtension<CoreOptionsExtension>()?.InternalServiceProvider;
+            var coreOptionsExtension = options.FindExtension<CoreOptionsExtension>();
+            var internalServiceProvider = coreOptionsExtension?.InternalServiceProvider;
             if (internalServiceProvider != null)
             {
-                var optionsInitialzer = internalServiceProvider.GetService<ISingletonOptionsInitializer>();
-                if (optionsInitialzer == null)
+                ValidateOptions(options);
+
+                var optionsInitializer = internalServiceProvider.GetService<ISingletonOptionsInitializer>();
+                if (optionsInitializer == null)
                 {
                     throw new InvalidOperationException(CoreStrings.NoEfServices);
                 }
 
                 if (providerRequired)
                 {
-                    optionsInitialzer.EnsureInitialized(internalServiceProvider, options);
+                    optionsInitializer.EnsureInitialized(internalServiceProvider, options);
                 }
 
                 return internalServiceProvider;
             }
 
-            return _configurations.GetOrAdd(
-                key,
-                k =>
+            if (coreOptionsExtension?.ServiceProviderCachingEnabled == false)
+            {
+                return BuildServiceProvider().ServiceProvider;
+            }
+
+            var key = options.Extensions
+                .OrderBy(e => e.GetType().Name)
+                .Aggregate(0L, (t, e) => (t * 397) ^ ((long)e.GetType().GetHashCode() * 397) ^ e.Info.GetServiceProviderHashCode());
+
+            return _configurations.GetOrAdd(key, k => BuildServiceProvider()).ServiceProvider;
+
+            (IServiceProvider ServiceProvider, IDictionary<string, string> DebugInfo) BuildServiceProvider()
+            {
+                ValidateOptions(options);
+
+                var debugInfo = new Dictionary<string, string>();
+                foreach (var optionsExtension in options.Extensions)
+                {
+                    optionsExtension.Info.PopulateDebugInfo(debugInfo);
+                }
+
+                debugInfo = debugInfo.OrderBy(v => debugInfo.Keys).ToDictionary(d => d.Key, v => v.Value);
+
+                var services = new ServiceCollection();
+                var hasProvider = ApplyServices(options, services);
+
+                var replacedServices = coreOptionsExtension?.ReplacedServices;
+                if (replacedServices != null)
+                {
+                    // For replaced services we use the service collection to obtain the lifetime of
+                    // the service to replace. The replaced services are added to a new collection, after
+                    // which provider and core services are applied. This ensures that any patching happens
+                    // to the replaced service.
+                    var updatedServices = new ServiceCollection();
+                    foreach (var descriptor in services)
                     {
-                        var services = new ServiceCollection();
-                        var hasProvider = ApplyServices(options, services);
-
-                        var replacedServices = options.FindExtension<CoreOptionsExtension>()?.ReplacedServices;
-                        if (replacedServices != null)
+                        if (replacedServices.TryGetValue(descriptor.ServiceType, out var replacementType))
                         {
-                            // For replaced services we use the service collection to obtain the lifetime of
-                            // the service to replace. The replaced services are added to a new collection, after
-                            // which provider and core services are applied. This ensures that any patching happens
-                            // to the replaced service.
-                            var updatedServices = new ServiceCollection();
-                            foreach (var descriptor in services)
+                            ((IList<ServiceDescriptor>)updatedServices).Add(
+                                new ServiceDescriptor(descriptor.ServiceType, replacementType, descriptor.Lifetime));
+                        }
+                    }
+
+                    ApplyServices(options, updatedServices);
+                    services = updatedServices;
+                }
+
+                var serviceProvider = services.BuildServiceProvider();
+
+                if (hasProvider)
+                {
+                    serviceProvider
+                        .GetRequiredService<ISingletonOptionsInitializer>()
+                        .EnsureInitialized(serviceProvider, options);
+                }
+
+                using (var scope = serviceProvider.CreateScope())
+                {
+                    var scopedProvider = scope.ServiceProvider;
+
+                    // If loggingDefinitions is null, then there is no provider yet
+                    var loggingDefinitions = scopedProvider.GetService<LoggingDefinitions>();
+                    if (loggingDefinitions != null)
+                    {
+                        // Because IDbContextOptions cannot yet be resolved from the internal provider
+                        var logger = new DiagnosticsLogger<DbLoggerCategory.Infrastructure>(
+                            ScopedLoggerFactory.Create(scopedProvider, options),
+                            scopedProvider.GetService<ILoggingOptions>(),
+                            scopedProvider.GetService<DiagnosticSource>(),
+                            loggingDefinitions);
+
+                        if (_configurations.Count == 0)
+                        {
+                            logger.ServiceProviderCreated(serviceProvider);
+                        }
+                        else
+                        {
+                            logger.ServiceProviderDebugInfo(
+                                debugInfo,
+                                _configurations.Values.Select(v => v.DebugInfo).ToList());
+
+                            if (_configurations.Count >= 20)
                             {
-                                if (replacedServices.TryGetValue(descriptor.ServiceType, out var replacementType))
-                                {
-                                    ((IList<ServiceDescriptor>)updatedServices).Add(
-                                        new ServiceDescriptor(descriptor.ServiceType, replacementType, descriptor.Lifetime));
-                                }
+                                logger.ManyServiceProvidersCreatedWarning(
+                                    _configurations.Values.Select(e => e.ServiceProvider).ToList());
                             }
-
-                            ApplyServices(options, updatedServices);
-                            services = updatedServices;
                         }
 
-                        var serviceProvider = services.BuildServiceProvider();
-
-                        if (hasProvider)
+                        var applicationServiceProvider = options.FindExtension<CoreOptionsExtension>()?.ApplicationServiceProvider;
+                        if (applicationServiceProvider?.GetService<IRegisteredServices>() != null)
                         {
-                            serviceProvider
-                                .GetRequiredService<ISingletonOptionsInitializer>()
-                                .EnsureInitialized(serviceProvider, options);
+                            logger.RedundantAddServicesCallWarning(serviceProvider);
                         }
+                    }
+                }
 
-                        var logger = serviceProvider.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Infrastructure>>();
+                return (serviceProvider, debugInfo);
+            }
+        }
 
-                        logger.ServiceProviderCreated(serviceProvider);
-
-                        if (_configurations.Count >= 20)
-                        {
-                            logger.ManyServiceProvidersCreatedWarning(_configurations.Values);
-                        }
-
-                        return serviceProvider;
-                    });
+        private static void ValidateOptions(IDbContextOptions options)
+        {
+            foreach (var extension in options.Extensions)
+            {
+                extension.Validate(options);
+            }
         }
 
         private static bool ApplyServices(IDbContextOptions options, ServiceCollection services)
@@ -115,7 +176,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             foreach (var extension in options.Extensions)
             {
-                if (extension.ApplyServices(services))
+                extension.ApplyServices(services);
+
+                if (extension.Info.IsDatabaseProvider)
                 {
                     coreServicesAdded = true;
                 }

@@ -4,17 +4,18 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable CollectionNeverUpdated.Local
+// ReSharper disable ClassNeverInstantiated.Local
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class KeyPropagatorTest
     {
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(false, true)]
         [InlineData(true, false)]
@@ -37,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.False(dependentEntry.HasTemporaryValue(property));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(false, true)]
         [InlineData(true, false)]
@@ -63,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.False(dependentEntry.HasTemporaryValue(property));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(false, true)]
         [InlineData(true, false)]
@@ -86,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.False(dependentEntry.HasTemporaryValue(property));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(false, true)]
         [InlineData(true, false)]
@@ -109,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.False(dependentEntry.HasTemporaryValue(property));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(false, true)]
         [InlineData(true, false)]
@@ -134,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.False(dependentEntry.HasTemporaryValue(property));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(false, true)]
         [InlineData(true, false)]
@@ -157,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(generateTemporary, dependentEntry.HasTemporaryValue(property));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(false, true)]
         [InlineData(true, false)]
@@ -181,13 +182,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             PropagateValue(keyPropagator, dependentEntry, dependentProperty, async);
 
             Assert.NotEqual(0, principalEntry[principalProperty]);
-            Assert.Equal(generateTemporary, principalEntry.HasTemporaryValue(dependentProperty));
+            Assert.Equal(generateTemporary, principalEntry.HasTemporaryValue(principalProperty));
             Assert.NotEqual(0, dependentEntry[dependentProperty]);
             Assert.Equal(generateTemporary, dependentEntry.HasTemporaryValue(dependentProperty));
             Assert.Equal(principalEntry[principalProperty], dependentEntry[dependentProperty]);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(false, true)]
         [InlineData(true, false)]
@@ -214,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.False(dependentEntry.HasTemporaryValue(property1));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(false, true)]
         [InlineData(true, false)]
@@ -226,7 +227,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var manager = contextServices.GetRequiredService<IStateManager>();
 
             var dependent = new OrderLineDetail();
-            var principal = new OrderLine { OrderId = 11, ProductId = 21, Detail = dependent };
+            var principal = new OrderLine
+            {
+                OrderId = 11,
+                ProductId = 21,
+                Detail = dependent
+            };
 
             manager.GetOrCreateEntry(principal).SetEntityState(EntityState.Unchanged);
             var dependentEntry = manager.GetOrCreateEntry(dependent);
@@ -317,10 +323,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             builder.Entity<Product>(
                 b =>
-                    {
-                        b.HasMany(e => e.OrderLines).WithOne(e => e.Product);
-                        b.HasOne(e => e.Detail).WithOne(e => e.Product).HasForeignKey<ProductDetail>(e => e.Id);
-                    });
+                {
+                    b.HasMany(e => e.OrderLines).WithOne(e => e.Product);
+                    b.HasOne(e => e.Detail).WithOne(e => e.Product).HasForeignKey<ProductDetail>(e => e.Id);
+                });
 
             builder.Entity<Category>().HasMany(e => e.Products).WithOne(e => e.Category);
 
@@ -328,14 +334,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             builder.Entity<Order>().HasMany(e => e.OrderLines).WithOne(e => e.Order);
 
-            builder.Entity<OrderLineDetail>().HasKey(e => new { e.OrderId, e.ProductId });
+            builder.Entity<OrderLineDetail>().HasKey(
+                e => new { e.OrderId, e.ProductId });
 
             builder.Entity<OrderLine>(
                 b =>
-                    {
-                        b.HasKey(e => new { e.OrderId, e.ProductId });
-                        b.HasOne(e => e.Detail).WithOne(e => e.OrderLine).HasForeignKey<OrderLineDetail>(e => new { e.OrderId, e.ProductId });
-                    });
+                {
+                    b.HasKey(
+                        e => new { e.OrderId, e.ProductId });
+                    b.HasOne(e => e.Detail).WithOne(e => e.OrderLine).HasForeignKey<OrderLineDetail>(
+                        e => new { e.OrderId, e.ProductId });
+                });
 
             if (generateTemporary)
             {
@@ -351,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
             }
 
-            return builder.Model;
+            return builder.Model.FinalizeModel();
         }
     }
 }

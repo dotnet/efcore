@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -25,7 +26,8 @@ namespace System.Transactions
         public static void EnlistTransaction([NotNull] this DatabaseFacade databaseFacade, [CanBeNull] Transaction transaction)
         {
             Check.NotNull(databaseFacade, nameof(databaseFacade));
-            if (databaseFacade.GetService<IDbContextTransactionManager>() is ITransactionEnlistmentManager transactionManager)
+            if (((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.TransactionManager is ITransactionEnlistmentManager
+                transactionManager)
             {
                 transactionManager.EnlistTransaction(transaction);
             }
@@ -43,14 +45,13 @@ namespace System.Transactions
         public static Transaction GetEnlistedTransaction([NotNull] this DatabaseFacade databaseFacade)
         {
             Check.NotNull(databaseFacade, nameof(databaseFacade));
-            if (databaseFacade.GetService<IDbContextTransactionManager>() is ITransactionEnlistmentManager transactionManager)
+            if (((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.TransactionManager is ITransactionEnlistmentManager
+                transactionManager)
             {
                 return transactionManager.EnlistedTransaction;
             }
-            else
-            {
-                throw new NotSupportedException(CoreStrings.TransactionsNotSupported);
-            }
+
+            throw new NotSupportedException(CoreStrings.TransactionsNotSupported);
         }
     }
 }

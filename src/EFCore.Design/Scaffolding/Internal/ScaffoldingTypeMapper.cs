@@ -9,16 +9,20 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class ScaffoldingTypeMapper : IScaffoldingTypeMapper
     {
         private readonly IRelationalTypeMappingSource _typeMappingSource;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ScaffoldingTypeMapper([NotNull] IRelationalTypeMappingSource typeMappingSource)
         {
@@ -28,8 +32,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual TypeScaffoldingInfo FindMapping(
             string storeType,
@@ -72,9 +78,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         keyOrIndex,
                         rowVersion: rowVersion,
                         size: mapping.Size,
-                        fixedLength: true);
+                        fixedLength: false);
 
-                    scaffoldFixedLength = fixedLengthMapping.IsFixedLength != byteArrayMapping.IsFixedLength ? (bool?)byteArrayMapping.IsFixedLength : null;
+                    scaffoldFixedLength = fixedLengthMapping.IsFixedLength != byteArrayMapping.IsFixedLength
+                        ? (bool?)byteArrayMapping.IsFixedLength
+                        : null;
 
                     // Check for size
                     var sizedMapping = _typeMappingSource.FindMapping(
@@ -120,9 +128,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         keyOrIndex,
                         unicode: mapping.IsUnicode,
                         size: mapping.Size,
-                        fixedLength: true);
+                        fixedLength: false);
 
-                    scaffoldFixedLength = fixedLengthMapping.IsFixedLength != stringMapping.IsFixedLength ? (bool?)stringMapping.IsFixedLength : null;
+                    scaffoldFixedLength = fixedLengthMapping.IsFixedLength != stringMapping.IsFixedLength
+                        ? (bool?)stringMapping.IsFixedLength
+                        : null;
 
                     // Check for size
                     var sizedMapping = _typeMappingSource.FindMapping(
@@ -139,7 +149,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 var defaultMapping = _typeMappingSource.FindMapping(mapping.ClrType);
 
-                if (string.Equals(defaultMapping?.StoreType, storeType, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(defaultMapping?.StoreType, storeType, StringComparison.OrdinalIgnoreCase)
+                    && mapping.ClrType.UnwrapNullableType() != typeof(decimal))
                 {
                     canInfer = true;
                 }

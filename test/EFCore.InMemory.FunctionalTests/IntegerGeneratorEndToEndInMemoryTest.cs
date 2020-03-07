@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class IntegerGeneratorEndToEndInMemoryTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_use_sequence_end_to_end()
         {
             var serviceProvider = new ServiceCollection()
@@ -40,15 +40,17 @@ namespace Microsoft.EntityFrameworkCore
             {
                 for (var i = 0; i < 50; i++)
                 {
-                    context.Add(new Pegasus { Name = "Rainbow Dash " + i });
-                    context.Add(new Pegasus { Name = "Fluttershy " + i });
+                    context.Add(
+                        new Pegasus { Name = "Rainbow Dash " + i });
+                    context.Add(
+                        new Pegasus { Name = "Fluttershy " + i });
                 }
 
                 context.SaveChanges();
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Can_use_sequence_end_to_end_async()
         {
             var serviceProvider = new ServiceCollection()
@@ -77,15 +79,17 @@ namespace Microsoft.EntityFrameworkCore
             {
                 for (var i = 0; i < 50; i++)
                 {
-                    context.Add(new Pegasus { Name = "Rainbow Dash " + i });
-                    context.Add(new Pegasus { Name = "Fluttershy " + i });
+                    context.Add(
+                        new Pegasus { Name = "Rainbow Dash " + i });
+                    context.Add(
+                        new Pegasus { Name = "Fluttershy " + i });
                 }
 
                 await context.SaveChangesAsync();
             }
         }
 
-        [Fact]
+        [ConditionalFact(Skip = "Issue #17672")]
         public async Task Can_use_sequence_end_to_end_from_multiple_contexts_concurrently_async()
         {
             var serviceProvider = new ServiceCollection()

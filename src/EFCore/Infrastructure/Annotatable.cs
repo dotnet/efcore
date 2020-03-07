@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -22,16 +22,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public class Annotatable : IMutableAnnotatable
     {
-        private readonly LazyRef<SortedDictionary<string, Annotation>> _annotations =
-            new LazyRef<SortedDictionary<string, Annotation>>(() => new SortedDictionary<string, Annotation>());
+        private SortedDictionary<string, Annotation> _annotations;
 
         /// <summary>
         ///     Gets all annotations on the current object.
         /// </summary>
         public virtual IEnumerable<Annotation> GetAnnotations() =>
-            _annotations.HasValue
-                ? _annotations.Value.Values.Where(a => a.Value != null)
-                : Enumerable.Empty<Annotation>();
+            _annotations?.Values ?? Enumerable.Empty<Annotation>();
 
         /// <summary>
         ///     Adds an annotation to this object. Throws if an annotation with the specified name already exists.
@@ -39,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="name"> The key of the annotation to be added. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The newly added annotation. </returns>
-        public virtual Annotation AddAnnotation(string name, object value)
+        public virtual Annotation AddAnnotation([NotNull] string name, [CanBeNull] object value)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -61,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 throw new InvalidOperationException(CoreStrings.DuplicateAnnotation(name));
             }
 
-            SetAnnotation(name, annotation);
+            SetAnnotation(name, annotation, oldAnnotation: null);
 
             return annotation;
         }
@@ -70,10 +67,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Sets the annotation stored under the given key. Overwrites the existing annotation if an
         ///     annotation with the specified name already exists.
         /// </summary>
-        /// <param name="name"> The ket of the annotation to be added. </param>
+        /// <param name="name"> The key of the annotation to be added. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         public virtual void SetAnnotation(string name, object value)
-            => SetAnnotation(name, CreateAnnotation(name, value));
+        {
+            var oldAnnotation = FindAnnotation(name);
+            if (oldAnnotation != null
+                && Equals(oldAnnotation.Value, value))
+            {
+                return;
+            }
+
+            SetAnnotation(name, CreateAnnotation(name, value), oldAnnotation);
+        }
 
         /// <summary>
         ///     Sets the annotation stored under the given key. Overwrites the existing annotation if an
@@ -81,62 +87,52 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="name"> The key of the annotation to be added. </param>
         /// <param name="annotation"> The annotation to be set. </param>
+        /// <param name="oldAnnotation"> The annotation being replaced. </param>
         /// <returns> The annotation that was set. </returns>
-        protected virtual Annotation SetAnnotation([NotNull] string name, [NotNull] Annotation annotation)
+        protected virtual Annotation SetAnnotation(
+            [NotNull] string name,
+            [NotNull] Annotation annotation,
+            [CanBeNull] Annotation oldAnnotation)
         {
-            var oldAnnotation = FindAnnotation(name);
+            if (_annotations == null)
+            {
+                _annotations = new SortedDictionary<string, Annotation>();
+            }
 
-            _annotations.Value[name] = annotation;
+            _annotations[name] = annotation;
 
-            return oldAnnotation != null
-                   && Equals(oldAnnotation.Value, annotation.Value)
-                ? annotation
-                : OnAnnotationSet(name, annotation, oldAnnotation);
+            return OnAnnotationSet(name, annotation, oldAnnotation);
         }
 
         /// <summary>
-        ///     Runs the corresponding conventions when an annotation was set or removed.
+        ///     Called when an annotation was set or removed.
         /// </summary>
         /// <param name="name"> The key of the set annotation. </param>
         /// <param name="annotation"> The annotation set. </param>
         /// <param name="oldAnnotation"> The old annotation. </param>
         /// <returns> The annotation that was set. </returns>
         protected virtual Annotation OnAnnotationSet(
-            [NotNull] string name, [CanBeNull] Annotation annotation, [CanBeNull] Annotation oldAnnotation)
+            [NotNull] string name,
+            [CanBeNull] Annotation annotation,
+            [CanBeNull] Annotation oldAnnotation)
             => annotation;
 
         /// <summary>
-        ///     Adds an annotation to this object or returns the existing annotation if one with the specified name
-        ///     already exists.
-        /// </summary>
-        /// <param name="name"> The key of the annotation to be added. </param>
-        /// <param name="value"> The value to be stored in the annotation. </param>
-        /// <returns>
-        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, the newly
-        ///     added annotation.
-        /// </returns>
-        public virtual Annotation GetOrAddAnnotation([NotNull] string name, [CanBeNull] object value)
-            => FindAnnotation(name) ?? AddAnnotation(name, value);
-
-        /// <summary>
-        ///     Gets the annotation with the given name, returning null if it does not exist.
+        ///     Gets the annotation with the given name, returning <c>null</c> if it does not exist.
         /// </summary>
         /// <param name="name"> The key of the annotation to find. </param>
         /// <returns>
-        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, null.
+        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, <c>null</c>.
         /// </returns>
-        public virtual Annotation FindAnnotation(string name)
+        public virtual Annotation FindAnnotation([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
 
-            if (!_annotations.HasValue)
-            {
-                return null;
-            }
-
-            return _annotations.Value.TryGetValue(name, out var annotation)
-                ? annotation
-                : null;
+            return _annotations == null
+                ? null
+                : _annotations.TryGetValue(name, out var annotation)
+                    ? annotation
+                    : null;
         }
 
         /// <summary>
@@ -144,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="name"> The annotation to remove. </param>
         /// <returns> The annotation that was removed. </returns>
-        public virtual Annotation RemoveAnnotation(string name)
+        public virtual Annotation RemoveAnnotation([NotNull] string name)
         {
             Check.NotNull(name, nameof(name));
 
@@ -154,7 +150,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 return null;
             }
 
-            _annotations.Value.Remove(name);
+            _annotations.Remove(name);
+
+            if (_annotations.Count == 0)
+            {
+                _annotations = null;
+            }
 
             OnAnnotationSet(name, null, annotation);
 
@@ -162,12 +163,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     Gets the value annotation with the given name, returning null if it does not exist.
+        ///     Gets the value annotation with the given name, returning <c>null</c> if it does not exist.
         /// </summary>
         /// <param name="name"> The key of the annotation to find. </param>
         /// <returns>
         ///     The value of the existing annotation if an annotation with the specified name already exists.
-        ///     Otherwise, null.
+        ///     Otherwise, <c>null</c>.
         /// </returns>
         public virtual object this[string name]
         {
@@ -182,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 }
                 else
                 {
-                    SetAnnotation(name, CreateAnnotation(name, value));
+                    SetAnnotation(name, value);
                 }
             }
         }
@@ -201,13 +202,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         IEnumerable<IAnnotation> IAnnotatable.GetAnnotations() => GetAnnotations();
 
-        /// <summary>
-        ///     Gets the annotation with the given name, returning null if it does not exist.
-        /// </summary>
-        /// <param name="name"> The key of the annotation to find. </param>
-        /// <returns>
-        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, null.
-        /// </returns>
+        /// <inheritdoc />
         IAnnotation IAnnotatable.FindAnnotation(string name) => FindAnnotation(name);
+
+        /// <inheritdoc />
+        IAnnotation IMutableAnnotatable.AddAnnotation(string name, object value) => AddAnnotation(name, value);
+
+        /// <inheritdoc />
+        IAnnotation IMutableAnnotatable.RemoveAnnotation(string name) => RemoveAnnotation(name);
     }
 }

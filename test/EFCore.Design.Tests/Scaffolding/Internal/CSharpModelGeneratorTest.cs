@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class CSharpModelGeneratorTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Language_works()
         {
             var generator = CreateGenerator();
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Assert.Equal("C#", result);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void WriteCode_works()
         {
             var generator = CreateGenerator();
@@ -32,11 +32,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var result = generator.GenerateModel(
                 modelBuilder.Model,
-                "TestNamespace",
-                Path.Combine("..", "TestContextDir" + Path.DirectorySeparatorChar),
-                "TestContext",
-                "Data Source=Test",
-                new ModelCodeGenerationOptions());
+                new ModelCodeGenerationOptions
+                {
+                    ModelNamespace = "TestNamespace",
+                    ContextNamespace = "ContextNameSpace",
+                    ContextDir = Path.Combine("..", "TestContextDir" + Path.DirectorySeparatorChar),
+                    ContextName = "TestContext",
+                    ConnectionString = "Data Source=Test"
+                });
 
             Assert.Equal(Path.Combine("..", "TestContextDir", "TestContext.cs"), result.ContextFile.Path);
             Assert.NotEmpty(result.ContextFile.Code);
@@ -48,10 +51,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private static IModelCodeGenerator CreateGenerator()
             => new ServiceCollection()
-            .AddEntityFrameworkDesignTimeServices()
-            .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
-            .AddSingleton<IProviderConfigurationCodeGenerator, TestProviderCodeGenerator>()
-            .BuildServiceProvider()
-            .GetRequiredService<IModelCodeGenerator>();
+                .AddEntityFrameworkSqlServer()
+                .AddEntityFrameworkDesignTimeServices()
+                .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
+                .AddSingleton<IProviderConfigurationCodeGenerator, TestProviderCodeGenerator>()
+                .BuildServiceProvider()
+                .GetRequiredService<IModelCodeGenerator>();
     }
 }

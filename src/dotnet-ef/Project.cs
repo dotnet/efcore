@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
@@ -78,10 +78,12 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 {
                     propertyArg += ";TargetFramework=" + framework;
                 }
+
                 if (configuration != null)
                 {
                     propertyArg += ";Configuration=" + configuration;
                 }
+
                 if (runtime != null)
                 {
                     propertyArg += ";RuntimeIdentifier=" + runtime;
@@ -138,10 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
         public void Build()
         {
-            var args = new List<string>
-            {
-                "build"
-            };
+            var args = new List<string> { "build" };
 
             if (_file != null)
             {
@@ -169,7 +168,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
             args.Add("/verbosity:quiet");
             args.Add("/nologo");
-
 
             var exitCode = Exe.Run("dotnet", args, interceptOutput: true);
             if (exitCode != 0)

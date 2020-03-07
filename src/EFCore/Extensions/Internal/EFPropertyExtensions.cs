@@ -1,48 +1,100 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Extensions.Internal
+// ReSharper disable once CheckNamespace
+namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
     // ReSharper disable once InconsistentNaming
     public static class EFPropertyExtensions
     {
-        private static readonly string _efTypeName = typeof(EF).FullName;
-
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsEFProperty([NotNull] this MethodCallExpression methodCallExpression)
-            => IsEFPropertyMethod(methodCallExpression.Method);
+        public static bool TryGetEFIndexerArguments(
+            [NotNull] this MethodCallExpression methodCallExpression,
+            out Expression entityExpression,
+            out string propertyName)
+        {
+            if (IsEFIndexer(methodCallExpression)
+                && methodCallExpression.Arguments[0] is ConstantExpression propertyNameExpression)
+            {
+                entityExpression = methodCallExpression.Object;
+                propertyName = (string)propertyNameExpression.Value;
+                return true;
+            }
+
+            (entityExpression, propertyName) = (null, null);
+            return false;
+        }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsEFPropertyMethod([CanBeNull] this MethodInfo methodInfo)
-            => Equals(methodInfo, EF.PropertyMethod)
-               // fallback to string comparison because MethodInfo.Equals is not
-               // always true in .NET Native even if methods are the same
-               || methodInfo != null
-               && methodInfo.IsGenericMethod
-               && methodInfo.Name == nameof(EF.Property)
-               && methodInfo.DeclaringType?.FullName == _efTypeName;
+        public static bool IsEFIndexer([NotNull] this MethodCallExpression methodCallExpression)
+            => IsEFIndexer(methodCallExpression.Method);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static bool IsEFIndexer(this MethodInfo methodInfo)
+            => !methodInfo.IsStatic
+                && "get_Item".Equals(methodInfo.Name, StringComparison.Ordinal)
+                && typeof(object) == methodInfo.ReturnType
+                && methodInfo.GetParameters()?.Count() == 1
+                && typeof(string) == methodInfo.GetParameters().First().ParameterType;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static Expression CreateKeyAccessExpression(
+            [NotNull] this Expression target,
+            [NotNull] IReadOnlyList<IProperty> properties,
+            bool makeNullable = false)
+            => properties.Count == 1
+                ? target.CreateEFPropertyExpression(properties[0], makeNullable)
+                : Expression.New(
+                    AnonymousObject.AnonymousObjectCtor,
+                    Expression.NewArrayInit(
+                        typeof(object),
+                        properties
+                            .Select(p => Expression.Convert(target.CreateEFPropertyExpression(p, makeNullable), typeof(object)))
+                            .Cast<Expression>()
+                            .ToArray()));
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static Expression CreateEFPropertyExpression(
             [NotNull] this Expression target,
@@ -51,13 +103,16 @@ namespace Microsoft.EntityFrameworkCore.Extensions.Internal
             => CreateEFPropertyExpression(target, property.DeclaringType.ClrType, property.ClrType, property.Name, makeNullable);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static Expression CreateEFPropertyExpression(
             [NotNull] this Expression target,
             [NotNull] MemberInfo memberInfo)
-            => CreateEFPropertyExpression(target, memberInfo.DeclaringType, memberInfo.GetMemberType(), memberInfo.Name, makeNullable: false);
+            => CreateEFPropertyExpression(
+                target, memberInfo.DeclaringType, memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), makeNullable: false);
 
         private static Expression CreateEFPropertyExpression(
             Expression target,

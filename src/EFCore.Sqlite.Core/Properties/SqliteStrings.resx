@@ -174,4 +174,10 @@
     <value>Found unique constraint with name: {uniqueConstraintName}, table: {tableName}.</value>
     <comment>Debug SqliteEventId.UniqueConstraintFound string string</comment>
   </data>
+  <data name="ComputedColumnsNotSupported" xml:space="preserve">
+    <value>SQLite doesn't support computed columns. For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.</value>
+  </data>
+  <data name="OrderByNotSupported" xml:space="preserve">
+    <value>SQLite cannot order by expressions of type '{type}'. Convert the values to a supported type or use LINQ to Objects to order the results.</value>
+  </data>
 </root>

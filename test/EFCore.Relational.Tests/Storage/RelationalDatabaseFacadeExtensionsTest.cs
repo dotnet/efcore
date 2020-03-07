@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class RelationalDatabaseFacadeExtensionsTest
     {
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(true, false)]
         [InlineData(true, true)]
@@ -30,16 +29,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     if (cancellation)
                     {
                         var cancellationToken = new CancellationToken();
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>", cancellationToken);
+                        await context.Database.ExecuteSqlRawAsync("<Some query>", cancellationToken);
                     }
                     else
                     {
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>");
+                        await context.Database.ExecuteSqlRawAsync("<Some query>");
                     }
                 }
                 else
                 {
-                    context.Database.ExecuteSqlCommand("<Some query>");
+                    context.Database.ExecuteSqlRaw("<Some query>");
                 }
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
@@ -47,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(true, false)]
         [InlineData(true, true)]
@@ -62,24 +61,25 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     if (cancellation)
                     {
                         var cancellationToken = new CancellationToken();
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>", new object[] { 1, 2 }, cancellationToken);
+                        await context.Database.ExecuteSqlRawAsync("<Some query>", new object[] { 1, 2 }, cancellationToken);
                     }
                     else
                     {
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>", 1, 2);
+                        await context.Database.ExecuteSqlRawAsync("<Some query>", 1, 2);
                     }
                 }
                 else
                 {
-                    context.Database.ExecuteSqlCommand("<Some query>", 1, 2);
+                    context.Database.ExecuteSqlRaw("<Some query>", 1, 2);
                 }
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
-                Assert.Equal(new List<object> { 1, 2 }, commandBuilder.Parameters);
+                Assert.Equal(
+                    new List<object> { 1, 2 }, commandBuilder.Parameters);
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public async Task Can_pass_ints_as_params(bool async)
@@ -90,19 +90,20 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 if (async)
                 {
-                    await context.Database.ExecuteSqlCommandAsync("<Some query>", 1, 2);
+                    await context.Database.ExecuteSqlRawAsync("<Some query>", 1, 2);
                 }
                 else
                 {
-                    context.Database.ExecuteSqlCommand("<Some query>", 1, 2);
+                    context.Database.ExecuteSqlRaw("<Some query>", 1, 2);
                 }
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
-                Assert.Equal(new List<object> { 1, 2 }, commandBuilder.Parameters);
+                Assert.Equal(
+                    new List<object> { 1, 2 }, commandBuilder.Parameters);
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(true, false)]
         [InlineData(true, true)]
@@ -117,24 +118,25 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     if (cancellation)
                     {
                         var cancellationToken = new CancellationToken();
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>", new object[] { 1, "Cheese" }, cancellationToken);
+                        await context.Database.ExecuteSqlRawAsync("<Some query>", new object[] { 1, "Cheese" }, cancellationToken);
                     }
                     else
                     {
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>", 1, "Cheese");
+                        await context.Database.ExecuteSqlRawAsync("<Some query>", 1, "Cheese");
                     }
                 }
                 else
                 {
-                    context.Database.ExecuteSqlCommand("<Some query>", 1, "Cheese");
+                    context.Database.ExecuteSqlRaw("<Some query>", 1, "Cheese");
                 }
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
-                Assert.Equal(new List<object> { 1, "Cheese" }, commandBuilder.Parameters);
+                Assert.Equal(
+                    new List<object> { 1, "Cheese" }, commandBuilder.Parameters);
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(true, false)]
         [InlineData(true, true)]
@@ -149,24 +151,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     if (cancellation)
                     {
                         var cancellationToken = new CancellationToken();
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>", new List<object> { 1, 2 }, cancellationToken);
+                        await context.Database.ExecuteSqlRawAsync(
+                            "<Some query>", new List<object> { 1, 2 }, cancellationToken);
                     }
                     else
                     {
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>", new List<object> { 1, 2 });
+                        await context.Database.ExecuteSqlRawAsync(
+                            "<Some query>", new List<object> { 1, 2 });
                     }
                 }
                 else
                 {
-                    context.Database.ExecuteSqlCommand("<Some query>", new List<object> { 1, 2 });
+                    context.Database.ExecuteSqlRaw(
+                        "<Some query>", new List<object> { 1, 2 });
                 }
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
-                Assert.Equal(new List<object> { 1, 2 }, commandBuilder.Parameters);
+                Assert.Equal(
+                    new List<object> { 1, 2 }, commandBuilder.Parameters);
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(true, false)]
         [InlineData(true, true)]
@@ -181,24 +187,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     if (cancellation)
                     {
                         var cancellationToken = new CancellationToken();
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>", new List<object> { 1, "Pickle" }, cancellationToken);
+                        await context.Database.ExecuteSqlRawAsync(
+                            "<Some query>", new List<object> { 1, "Pickle" }, cancellationToken);
                     }
                     else
                     {
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>", new List<object> { 1, "Pickle" });
+                        await context.Database.ExecuteSqlRawAsync(
+                            "<Some query>", new List<object> { 1, "Pickle" });
                     }
                 }
                 else
                 {
-                    context.Database.ExecuteSqlCommand("<Some query>", new List<object> { 1, "Pickle" });
+                    context.Database.ExecuteSqlRaw(
+                        "<Some query>", new List<object> { 1, "Pickle" });
                 }
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
-                Assert.Equal(new List<object> { 1, "Pickle" }, commandBuilder.Parameters);
+                Assert.Equal(
+                    new List<object> { 1, "Pickle" }, commandBuilder.Parameters);
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(true, false)]
         [InlineData(true, true)]
@@ -213,24 +223,25 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     if (cancellation)
                     {
                         var cancellationToken = new CancellationToken();
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>", new object[] { 1 }, cancellationToken);
+                        await context.Database.ExecuteSqlRawAsync("<Some query>", new object[] { 1 }, cancellationToken);
                     }
                     else
                     {
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>", 1);
+                        await context.Database.ExecuteSqlRawAsync("<Some query>", 1);
                     }
                 }
                 else
                 {
-                    context.Database.ExecuteSqlCommand("<Some query>", 1);
+                    context.Database.ExecuteSqlRaw("<Some query>", 1);
                 }
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
-                Assert.Equal(new List<object> { 1 }, commandBuilder.Parameters);
+                Assert.Equal(
+                    new List<object> { 1 }, commandBuilder.Parameters);
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(true, false)]
         [InlineData(true, true)]
@@ -245,20 +256,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     if (cancellation)
                     {
                         var cancellationToken = new CancellationToken();
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>", new[] { "Branston" }, cancellationToken);
+                        await context.Database.ExecuteSqlRawAsync("<Some query>", new[] { "Branston" }, cancellationToken);
                     }
                     else
                     {
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>", "Branston");
+                        await context.Database.ExecuteSqlRawAsync("<Some query>", "Branston");
                     }
                 }
                 else
                 {
-                    context.Database.ExecuteSqlCommand("<Some query>", "Branston");
+                    context.Database.ExecuteSqlRaw("<Some query>", "Branston");
                 }
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
-                Assert.Equal(new List<object> { "Branston" }, commandBuilder.Parameters);
+                Assert.Equal(
+                    new List<object> { "Branston" }, commandBuilder.Parameters);
             }
         }
 
@@ -274,12 +286,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [UsedImplicitly]
         private class TestRawSqlCommandBuilder : IRawSqlCommandBuilder
         {
             private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
 
-            public TestRawSqlCommandBuilder(IRelationalCommandBuilderFactory relationalCommandBuilderFactory)
+            public TestRawSqlCommandBuilder(
+                IRelationalCommandBuilderFactory relationalCommandBuilderFactory)
             {
                 _commandBuilderFactory = relationalCommandBuilderFactory;
             }

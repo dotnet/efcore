@@ -42,7 +42,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Debug.Assert(!IsEmpty);
                 Debug.Assert(!(propertyBase is INavigation) || !((INavigation)propertyBase).IsCollection());
 
-                _values[propertyBase.GetRelationshipIndex()] = value;
+                _values[propertyBase.GetRelationshipIndex()] = SnapshotValue(propertyBase, value);
+            }
+
+            private static object SnapshotValue(IPropertyBase propertyBase, object value)
+            {
+                if (propertyBase is IProperty property)
+                {
+                    var comparer = property.GetKeyValueComparer() ?? property.GetTypeMapping().KeyComparer;
+
+                    if (comparer != null)
+                    {
+                        return comparer.Snapshot(value);
+                    }
+                }
+
+                return value;
             }
 
             public void RemoveFromCollection(IPropertyBase propertyBase, object removedEntity)
@@ -57,7 +72,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public void AddToCollection(IPropertyBase propertyBase, object addedEntity)
             {
                 var index = propertyBase.GetRelationshipIndex();
-
                 if (index != -1)
                 {
                     var snapshot = GetOrCreateCollection(index);
@@ -69,7 +83,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public void AddRangeToCollection(IPropertyBase propertyBase, IEnumerable<object> addedEntities)
             {
                 var index = propertyBase.GetRelationshipIndex();
-
                 if (index != -1)
                 {
                     var snapshot = GetOrCreateCollection(index);

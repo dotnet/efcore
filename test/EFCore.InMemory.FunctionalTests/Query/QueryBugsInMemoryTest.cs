@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         #region Bug9849
 
-        [Fact]
+        [ConditionalFact]
         public void Include_throw_when_empty_9849()
         {
             using (CreateScratch<DatabaseContext>(_ => { }, "9849"))
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Include_throw_when_empty_9849_2()
         {
             using (CreateScratch<DatabaseContext>(_ => { }, "9849"))
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Include_throw_when_empty_9849_3()
         {
             using (CreateScratch<DatabaseContext>(_ => { }, "9849"))
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Include_throw_when_empty_9849_4()
         {
             using (CreateScratch<DatabaseContext>(_ => { }, "9849"))
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Include_throw_when_empty_9849_5()
         {
             using (CreateScratch<DatabaseContext>(_ => { }, "9849"))
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Include_throw_when_empty_9849_6()
         {
             using (CreateScratch<DatabaseContext>(_ => { }, "9849"))
@@ -117,7 +117,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseInMemoryDatabase("9849");
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("9849");
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -148,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Bug3595
 
-        [Fact]
+        [ConditionalFact]
         public void GroupBy_with_uninitialized_datetime_projection_3595()
         {
             using (CreateScratch<Context3595>(Seed3595, "3595"))
@@ -161,11 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                              where instance.Id != 3
                              group question by question.QuestionId
                              into gQuestions
-                             select new
-                             {
-                                 gQuestions.Key,
-                                 MaxDate = gQuestions.Max(q => q.Modified)
-                             };
+                             select new { gQuestions.Key, MaxDate = gQuestions.Max(q => q.Modified) };
 
                     var result = q0.ToList();
 
@@ -178,11 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var question = new Question3595();
             var examInstance = new Exam3595();
-            var examInstanceQuestion = new ExamQuestion3595
-            {
-                Question = question,
-                Exam = examInstance
-            };
+            var examInstanceQuestion = new ExamQuestion3595 { Question = question, Exam = examInstance };
 
             context.Add(question);
             context.Add(examInstance);
@@ -224,7 +218,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseInMemoryDatabase("3595");
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("3595");
             }
         }
 
@@ -232,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Bug3101
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro3101_simple_coalesce1()
         {
             using (CreateScratch<MyContext3101>(Seed3101, "3101"))
@@ -251,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro3101_simple_coalesce2()
         {
             using (CreateScratch<MyContext3101>(Seed3101, "3101"))
@@ -271,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro3101_simple_coalesce3()
         {
             using (CreateScratch<MyContext3101>(Seed3101, "3101"))
@@ -292,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro3101_complex_coalesce1()
         {
             using (CreateScratch<MyContext3101>(Seed3101, "3101"))
@@ -312,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro3101_complex_coalesce2()
         {
             using (CreateScratch<MyContext3101>(Seed3101, "3101"))
@@ -332,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro3101_nested_coalesce1()
         {
             using (CreateScratch<MyContext3101>(Seed3101, "3101"))
@@ -352,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro3101_nested_coalesce2()
         {
             using (CreateScratch<MyContext3101>(Seed3101, "3101"))
@@ -364,7 +360,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     on eVersion.RootEntityId equals (int?)eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                select new { One = eRootJoined, Two = 2, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
+                                select new
+                                {
+                                    One = eRootJoined,
+                                    Two = 2,
+                                    Coalesce = eRootJoined ?? (eVersion ?? eRootJoined)
+                                };
 
                     var result = query.ToList();
                     Assert.True(result.All(e => e.Coalesce.Children.Count > 0));
@@ -372,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro3101_conditional()
         {
             using (CreateScratch<MyContext3101>(Seed3101, "3101"))
@@ -394,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro3101_coalesce_tracking()
         {
             using (CreateScratch<MyContext3101>(Seed3101, "3101"))
@@ -406,7 +407,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     on eVersion.RootEntityId equals (int?)eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                select new { eRootJoined, eVersion, foo = eRootJoined ?? eVersion };
+                                select new
+                                {
+                                    eRootJoined,
+                                    eVersion,
+                                    foo = eRootJoined ?? eVersion
+                                };
 
                     Assert.Equal(3, query.ToList().Count);
 
@@ -445,7 +451,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseInMemoryDatabase("3101");
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("3101");
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -480,111 +488,113 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Bug5456
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro5456_include_group_join_is_per_query_context()
         {
             using (CreateScratch<MyContext5456>(Seed5456, "5456"))
             {
                 Parallel.For(
                     0, 10, i =>
+                    {
+                        using (var ctx = new MyContext5456())
                         {
-                            using (var ctx = new MyContext5456())
-                            {
-                                var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToList();
+                            var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToList();
 
-                                Assert.Equal(198, result.Count);
-                            }
-                        });
+                            Assert.Equal(198, result.Count);
+                        }
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro5456_include_group_join_is_per_query_context_async()
         {
             using (CreateScratch<MyContext5456>(Seed5456, "5456"))
             {
                 Parallel.For(
                     0, 10, async i =>
+                    {
+                        using (var ctx = new MyContext5456())
                         {
-                            using (var ctx = new MyContext5456())
-                            {
-                                var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToListAsync();
+                            var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToListAsync();
 
-                                Assert.Equal(198, result.Count);
-                            }
-                        });
+                            Assert.Equal(198, result.Count);
+                        }
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro5456_multiple_include_group_join_is_per_query_context()
         {
             using (CreateScratch<MyContext5456>(Seed5456, "5456"))
             {
                 Parallel.For(
                     0, 10, i =>
+                    {
+                        using (var ctx = new MyContext5456())
                         {
-                            using (var ctx = new MyContext5456())
-                            {
-                                var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments).ToList();
+                            var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments).ToList();
 
-                                Assert.Equal(198, result.Count);
-                            }
-                        });
+                            Assert.Equal(198, result.Count);
+                        }
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro5456_multiple_include_group_join_is_per_query_context_async()
         {
             using (CreateScratch<MyContext5456>(Seed5456, "5456"))
             {
                 Parallel.For(
                     0, 10, async i =>
+                    {
+                        using (var ctx = new MyContext5456())
                         {
-                            using (var ctx = new MyContext5456())
-                            {
-                                var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments).ToListAsync();
+                            var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments)
+                                .ToListAsync();
 
-                                Assert.Equal(198, result.Count);
-                            }
-                        });
+                            Assert.Equal(198, result.Count);
+                        }
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro5456_multi_level_include_group_join_is_per_query_context()
         {
             using (CreateScratch<MyContext5456>(Seed5456, "5456"))
             {
                 Parallel.For(
                     0, 10, i =>
+                    {
+                        using (var ctx = new MyContext5456())
                         {
-                            using (var ctx = new MyContext5456())
-                            {
-                                var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author).ToList();
+                            var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author).ToList();
 
-                                Assert.Equal(198, result.Count);
-                            }
-                        });
+                            Assert.Equal(198, result.Count);
+                        }
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro5456_multi_level_include_group_join_is_per_query_context_async()
         {
             using (CreateScratch<MyContext5456>(Seed5456, "5456"))
             {
                 Parallel.For(
                     0, 10, async i =>
+                    {
+                        using (var ctx = new MyContext5456())
                         {
-                            using (var ctx = new MyContext5456())
-                            {
-                                var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author).ToListAsync();
+                            var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author)
+                                .ToListAsync();
 
-                                Assert.Equal(198, result.Count);
-                            }
-                        });
+                            Assert.Equal(198, result.Count);
+                        }
+                    });
             }
         }
 
@@ -598,19 +608,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Id = i + 1,
                         Posts = new List<Post5456>
                         {
-                            new Post5456
-                            {
-                                Comments = new List<Comment5456>
-                                {
-                                    new Comment5456(),
-                                    new Comment5456()
-                                }
-                            },
+                            new Post5456 { Comments = new List<Comment5456> { new Comment5456(), new Comment5456() } },
                             new Post5456()
                         },
                         Author = new Author5456()
                     });
             }
+
             context.SaveChanges();
         }
 
@@ -623,7 +627,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseInMemoryDatabase("5456");
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("5456");
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -662,7 +668,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Bug8282
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Entity_passed_to_DTO_constructor_works()
         {
             using (CreateScratch<MyContext8282>(e => { }, "8282"))
@@ -671,7 +677,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     var query = context.Entity.Select(e => new EntityDto8282(e)).ToList();
 
-                    Assert.Equal(0, query.Count);
+                    Assert.Empty(query);
                 }
             }
         }
@@ -683,7 +689,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseInMemoryDatabase("8282");
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("8282");
             }
         }
 

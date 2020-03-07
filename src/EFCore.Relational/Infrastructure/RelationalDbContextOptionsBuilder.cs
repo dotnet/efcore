@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         particular relational database provider.
     ///     </para>
     /// </summary>
-    public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension>
+    public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension> : IRelationalDbContextOptionsBuilderInfrastructure
         where TBuilder : RelationalDbContextOptionsBuilder<TBuilder, TExtension>
         where TExtension : RelationalOptionsExtension, new()
     {
@@ -37,6 +37,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Gets the core options builder.
         /// </summary>
         protected virtual DbContextOptionsBuilder OptionsBuilder { get; }
+
+        /// <inheritdoc />
+        DbContextOptionsBuilder IRelationalDbContextOptionsBuilderInfrastructure.OptionsBuilder => OptionsBuilder;
 
         /// <summary>
         ///     Configures the maximum number of statements that will be included in commands sent to the database
@@ -101,7 +104,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="getExecutionStrategy"> A function that returns a new instance of an execution strategy. </param>
         public virtual TBuilder ExecutionStrategy(
             [NotNull] Func<ExecutionStrategyDependencies, IExecutionStrategy> getExecutionStrategy)
-            => WithOption(e => (TExtension)e.WithExecutionStrategyFactory(Check.NotNull(getExecutionStrategy, nameof(getExecutionStrategy))));
+            => WithOption(
+                e => (TExtension)e.WithExecutionStrategyFactory(Check.NotNull(getExecutionStrategy, nameof(getExecutionStrategy))));
 
         /// <summary>
         ///     Sets an option by cloning the extension used to store the settings. This ensures the builder

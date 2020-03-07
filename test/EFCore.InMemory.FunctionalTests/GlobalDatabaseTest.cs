@@ -3,19 +3,21 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
+// ReSharper disable UnusedMember.Local
+
 namespace Microsoft.EntityFrameworkCore
 {
-#if !Test20
     public class GlobalDatabaseTest
     {
         private static readonly InMemoryDatabaseRoot _databaseRoot = new InMemoryDatabaseRoot();
 
-        [Fact]
+        [ConditionalFact]
         public void Different_stores_are_used_when_options_force_different_internal_service_provider()
         {
             using (var context = new BooFooContext(
@@ -37,8 +39,8 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
-        public void Different_stores_are_used_when_AddDbContext_force_different_internal_service_provider()
+        [ConditionalFact]
+        public void AddDbContext_does_not_force_different_internal_service_provider()
         {
             using (var context = new BooFooContext(
                 new DbContextOptionsBuilder()
@@ -57,15 +59,16 @@ namespace Microsoft.EntityFrameworkCore
             using (var scope = serviceProvider.CreateScope())
             {
                 var context = scope.ServiceProvider.GetService<BooFooContext>();
-                Assert.Empty(context.Foos.ToList());
+                Assert.NotEmpty(context.Foos.ToList());
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Global_store_can_be_used_when_options_force_different_internal_service_provider()
         {
             using (var context = new BooFooContext(
                 new DbContextOptionsBuilder()
+                    .EnableServiceProviderCaching(false)
                     .UseInMemoryDatabase(nameof(BooFooContext), _databaseRoot)
                     .Options))
             {
@@ -75,6 +78,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new BooFooContext(
                 new DbContextOptionsBuilder()
+                    .EnableServiceProviderCaching(false)
                     .UseInMemoryDatabase(nameof(BooFooContext), _databaseRoot)
                     .EnableSensitiveDataLogging()
                     .Options))
@@ -83,11 +87,12 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Global_store_can_be_used_when_AddDbContext_force_different_internal_service_provider()
         {
             using (var context = new BooFooContext(
                 new DbContextOptionsBuilder()
+                    .EnableServiceProviderCaching(false)
                     .UseInMemoryDatabase(nameof(BooFooContext), _databaseRoot)
                     .Options))
             {
@@ -97,7 +102,9 @@ namespace Microsoft.EntityFrameworkCore
 
             var serviceProvider = new ServiceCollection()
                 .AddDbContext<BooFooContext>(
-                    b => b.UseInMemoryDatabase(nameof(BooFooContext), _databaseRoot))
+                    b =>
+                        b.UseInMemoryDatabase(nameof(BooFooContext), _databaseRoot)
+                            .EnableServiceProviderCaching(false))
                 .BuildServiceProvider();
 
             using (var scope = serviceProvider.CreateScope())
@@ -107,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_changing_global_store_in_OnConfiguring_when_UseInternalServiceProvider()
         {
             using (var context = new ChangeSdlCacheContext(false))
@@ -166,5 +173,4 @@ namespace Microsoft.EntityFrameworkCore
             public int Id { get; set; }
         }
     }
-#endif
 }

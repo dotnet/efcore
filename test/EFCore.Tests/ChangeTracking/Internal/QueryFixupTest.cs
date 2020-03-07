@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
 // ReSharper disable AccessToDisposedClosure
@@ -13,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class QueryFixupTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Query_dependent_include_principal()
         {
             Seed();
@@ -26,15 +25,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.CategoryId);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.CategoryId);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Query_principal_include_dependent()
         {
             Seed();
@@ -47,15 +46,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.CategoryId);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.CategoryId);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Query_dependent_include_principal_unidirectional()
         {
             Seed();
@@ -68,14 +67,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.CategoryId);
-                            Assert.Same(principal, dependent.Category);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.CategoryId);
+                        Assert.Same(principal, dependent.Category);
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Query_principal_include_dependent_unidirectional()
         {
             Seed();
@@ -88,14 +87,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.CategoryId);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.CategoryId);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Query_dependent_include_principal_one_to_one()
         {
             Seed();
@@ -108,15 +107,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentId);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentId);
+                        Assert.Same(principal, dependent.Parent);
+                        Assert.Same(dependent, principal.Child);
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Query_principal_include_dependent_one_to_one()
         {
             Seed();
@@ -129,15 +128,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentId);
-                            Assert.Same(principal, dependent.Parent);
-                            Assert.Same(dependent, principal.Child);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentId);
+                        Assert.Same(principal, dependent.Parent);
+                        Assert.Same(dependent, principal.Child);
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Query_dependent_include_principal_unidirectional_one_to_one()
         {
             Seed();
@@ -150,14 +149,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentId);
-                            Assert.Same(principal, dependent.Parent);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentId);
+                        Assert.Same(principal, dependent.Parent);
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Query_principal_include_dependent_unidirectional_one_to_one()
         {
             Seed();
@@ -170,14 +169,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentId);
-                            Assert.Same(dependent, principal.Child);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentId);
+                        Assert.Same(dependent, principal.Child);
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Query_self_ref()
         {
             Seed();
@@ -191,15 +190,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                            Assert.Same(principal, dependent.ParentWidget);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.ChildWidgets);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                        Assert.Same(principal, dependent.ParentWidget);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.ChildWidgets);
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Query_dependent_include_principal_self_ref()
         {
             Seed();
@@ -213,15 +212,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                            Assert.Same(principal, dependent.ParentWidget);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.ChildWidgets);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                        Assert.Same(principal, dependent.ParentWidget);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.ChildWidgets);
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Query_principal_include_dependent_self_ref()
         {
             Seed();
@@ -235,15 +234,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                            Assert.Same(principal, dependent.ParentWidget);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.ChildWidgets);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                        Assert.Same(principal, dependent.ParentWidget);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.ChildWidgets);
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Query_self_ref_prinipal_nav_only()
         {
             Seed();
@@ -257,14 +256,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.ChildWidgets);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.ChildWidgets);
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Query_self_ref_dependent_nav_only()
         {
             Seed();
@@ -278,14 +277,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                            Assert.Same(principal, dependent.ParentWidget);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                        Assert.Same(principal, dependent.ParentWidget);
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Query_dependent_include_principal_self_ref_unidirectional()
         {
             Seed();
@@ -299,14 +298,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                            Assert.Same(principal, dependent.ParentWidget);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                        Assert.Same(principal, dependent.ParentWidget);
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Query_principal_include_dependent_self_ref_unidirectional()
         {
             Seed();
@@ -320,14 +319,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.ChildWidgets);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.ChildWidgets);
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Query_self_ref_one_to_one()
         {
             Seed();
@@ -341,15 +340,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentSmidgetId);
-                            Assert.Same(principal, dependent.ParentSmidget);
-                            Assert.Same(dependent, principal.ChildSmidget);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentSmidgetId);
+                        Assert.Same(principal, dependent.ParentSmidget);
+                        Assert.Same(dependent, principal.ChildSmidget);
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Query_dependent_include_principal_self_ref_one_to_one()
         {
             Seed();
@@ -363,15 +362,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentSmidgetId);
-                            Assert.Same(principal, dependent.ParentSmidget);
-                            Assert.Same(dependent, principal.ChildSmidget);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentSmidgetId);
+                        Assert.Same(principal, dependent.ParentSmidget);
+                        Assert.Same(dependent, principal.ChildSmidget);
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Query_principal_include_dependent_self_ref_one_to_one()
         {
             Seed();
@@ -385,15 +384,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentSmidgetId);
-                            Assert.Same(principal, dependent.ParentSmidget);
-                            Assert.Same(dependent, principal.ChildSmidget);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentSmidgetId);
+                        Assert.Same(principal, dependent.ParentSmidget);
+                        Assert.Same(dependent, principal.ChildSmidget);
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Query_self_ref_one_to_one_principal_nav_only()
         {
             Seed();
@@ -407,14 +406,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentSmidgetId);
-                            Assert.Same(dependent, principal.ChildSmidget);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentSmidgetId);
+                        Assert.Same(dependent, principal.ChildSmidget);
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Query_self_ref_one_to_one_dependent_nav_only()
         {
             Seed();
@@ -428,14 +427,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentSmidgetId);
-                            Assert.Same(principal, dependent.ParentSmidget);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentSmidgetId);
+                        Assert.Same(principal, dependent.ParentSmidget);
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Query_dependent_include_principal_self_ref_one_to_one_unidirectional()
         {
             Seed();
@@ -449,14 +448,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentSmidgetId);
-                            Assert.Same(principal, dependent.ParentSmidget);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentSmidgetId);
+                        Assert.Same(principal, dependent.ParentSmidget);
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Query_principal_include_dependent_self_ref_one_to_one_unidirectional()
         {
             Seed();
@@ -470,14 +469,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentSmidgetId);
-                            Assert.Same(dependent, principal.ChildSmidget);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentSmidgetId);
+                        Assert.Same(dependent, principal.ChildSmidget);
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Query_dependent_include_principal_multiple_relationships()
         {
             Seed();
@@ -490,18 +489,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.BlogId);
-                            Assert.Same(principal, dependent.Blog);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Posts);
+                    {
+                        Assert.Equal(principal.Id, dependent.BlogId);
+                        Assert.Same(principal, dependent.Blog);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.Posts);
 
-                            Assert.Equal(dependent.Id, principal.TopPostId);
-                            Assert.Same(dependent, principal.TopPost);
-                        });
+                        Assert.Equal(dependent.Id, principal.TopPostId);
+                        Assert.Same(dependent, principal.TopPost);
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Query_principal_include_dependent_multiple_relationships()
         {
             Seed();
@@ -514,18 +513,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.BlogId);
-                            Assert.Same(principal, dependent.Blog);
-                            Assert.Equal(new[] { dependent }.ToList(), principal.Posts);
+                    {
+                        Assert.Equal(principal.Id, dependent.BlogId);
+                        Assert.Same(principal, dependent.Blog);
+                        Assert.Equal(new[] { dependent }.ToList(), principal.Posts);
 
-                            Assert.Equal(dependent.Id, principal.TopPostId);
-                            Assert.Same(dependent, principal.TopPost);
-                        });
+                        Assert.Equal(dependent.Id, principal.TopPostId);
+                        Assert.Same(dependent, principal.TopPost);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -544,19 +543,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.CategoryId);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Contains(dependent, principal.Products);
+                    {
+                        Assert.Equal(principal.Id, dependent.CategoryId);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Contains(dependent, principal.Products);
 
-                            Assert.Equal(principal.Id, newDependent.CategoryId);
-                            Assert.Same(principal, newDependent.Category);
-                            Assert.Contains(newDependent, principal.Products);
-                        });
+                        Assert.Equal(principal.Id, newDependent.CategoryId);
+                        Assert.Same(principal, newDependent.Category);
+                        Assert.Contains(newDependent, principal.Products);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -575,19 +574,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.CategoryId);
-                            Assert.Same(principal, dependent.Category);
-                            Assert.Contains(dependent, principal.Products);
+                    {
+                        Assert.Equal(principal.Id, dependent.CategoryId);
+                        Assert.Same(principal, dependent.Category);
+                        Assert.Contains(dependent, principal.Products);
 
-                            Assert.Equal(principal.Id, newDependent.CategoryId);
-                            Assert.Same(principal, newDependent.Category);
-                            Assert.Contains(newDependent, principal.Products);
-                        });
+                        Assert.Equal(principal.Id, newDependent.CategoryId);
+                        Assert.Same(principal, newDependent.Category);
+                        Assert.Contains(newDependent, principal.Products);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -606,17 +605,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.CategoryId);
-                            Assert.Same(principal, dependent.Category);
+                    {
+                        Assert.Equal(principal.Id, dependent.CategoryId);
+                        Assert.Same(principal, dependent.Category);
 
-                            Assert.Equal(principal.Id, newDependent.CategoryId);
-                            Assert.Same(principal, newDependent.Category);
-                        });
+                        Assert.Equal(principal.Id, newDependent.CategoryId);
+                        Assert.Same(principal, newDependent.Category);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -635,17 +634,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.CategoryId);
-                            Assert.Contains(dependent, principal.Products);
+                    {
+                        Assert.Equal(principal.Id, dependent.CategoryId);
+                        Assert.Contains(dependent, principal.Products);
 
-                            Assert.Equal(principal.Id, newDependent.CategoryId);
-                            Assert.Contains(newDependent, principal.Products);
-                        });
+                        Assert.Equal(principal.Id, newDependent.CategoryId);
+                        Assert.Contains(newDependent, principal.Products);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -665,19 +664,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                            Assert.Same(principal, dependent.ParentWidget);
-                            Assert.Contains(dependent, principal.ChildWidgets);
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                        Assert.Same(principal, dependent.ParentWidget);
+                        Assert.Contains(dependent, principal.ChildWidgets);
 
-                            Assert.Equal(principal.Id, newDependent.ParentWidgetId);
-                            Assert.Same(principal, newDependent.ParentWidget);
-                            Assert.Contains(newDependent, principal.ChildWidgets);
-                        });
+                        Assert.Equal(principal.Id, newDependent.ParentWidgetId);
+                        Assert.Same(principal, newDependent.ParentWidget);
+                        Assert.Contains(newDependent, principal.ChildWidgets);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -697,19 +696,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                            Assert.Same(principal, dependent.ParentWidget);
-                            Assert.Contains(dependent, principal.ChildWidgets);
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                        Assert.Same(principal, dependent.ParentWidget);
+                        Assert.Contains(dependent, principal.ChildWidgets);
 
-                            Assert.Equal(principal.Id, newDependent.ParentWidgetId);
-                            Assert.Same(principal, newDependent.ParentWidget);
-                            Assert.Contains(newDependent, principal.ChildWidgets);
-                        });
+                        Assert.Equal(principal.Id, newDependent.ParentWidgetId);
+                        Assert.Same(principal, newDependent.ParentWidget);
+                        Assert.Contains(newDependent, principal.ChildWidgets);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -729,19 +728,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                            Assert.Same(principal, dependent.ParentWidget);
-                            Assert.Contains(dependent, principal.ChildWidgets);
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                        Assert.Same(principal, dependent.ParentWidget);
+                        Assert.Contains(dependent, principal.ChildWidgets);
 
-                            Assert.Equal(principal.Id, newDependent.ParentWidgetId);
-                            Assert.Same(principal, newDependent.ParentWidget);
-                            Assert.Contains(newDependent, principal.ChildWidgets);
-                        });
+                        Assert.Equal(principal.Id, newDependent.ParentWidgetId);
+                        Assert.Same(principal, newDependent.ParentWidget);
+                        Assert.Contains(newDependent, principal.ChildWidgets);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -761,17 +760,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                            Assert.Contains(dependent, principal.ChildWidgets);
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                        Assert.Contains(dependent, principal.ChildWidgets);
 
-                            Assert.Equal(principal.Id, newDependent.ParentWidgetId);
-                            Assert.Contains(newDependent, principal.ChildWidgets);
-                        });
+                        Assert.Equal(principal.Id, newDependent.ParentWidgetId);
+                        Assert.Contains(newDependent, principal.ChildWidgets);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -791,17 +790,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                            Assert.Same(principal, dependent.ParentWidget);
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                        Assert.Same(principal, dependent.ParentWidget);
 
-                            Assert.Equal(principal.Id, newDependent.ParentWidgetId);
-                            Assert.Same(principal, newDependent.ParentWidget);
-                        });
+                        Assert.Equal(principal.Id, newDependent.ParentWidgetId);
+                        Assert.Same(principal, newDependent.ParentWidget);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -821,17 +820,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                            Assert.Same(principal, dependent.ParentWidget);
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                        Assert.Same(principal, dependent.ParentWidget);
 
-                            Assert.Equal(principal.Id, newDependent.ParentWidgetId);
-                            Assert.Same(principal, newDependent.ParentWidget);
-                        });
+                        Assert.Equal(principal.Id, newDependent.ParentWidgetId);
+                        Assert.Same(principal, newDependent.ParentWidget);
+                    });
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -851,17 +850,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                            Assert.Contains(dependent, principal.ChildWidgets);
+                    {
+                        Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                        Assert.Contains(dependent, principal.ChildWidgets);
 
-                            Assert.Equal(principal.Id, newDependent.ParentWidgetId);
-                            Assert.Contains(newDependent, principal.ChildWidgets);
-                        });
+                        Assert.Equal(principal.Id, newDependent.ParentWidgetId);
+                        Assert.Contains(newDependent, principal.ChildWidgets);
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Query_ownership_navigations()
         {
             Seed();
@@ -878,41 +877,41 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            var dependent = principal.OrderDetails;
-                            Assert.Same(principal, dependent.Order);
+                    {
+                        var dependent = principal.OrderDetails;
+                        Assert.Same(principal, dependent.Order);
 
-                            var subDependent1 = dependent.BillingAddress;
-                            var subDependent2 = dependent.ShippingAddress;
-                            Assert.Same(dependent, subDependent1.OrderDetails);
-                            Assert.Same(dependent, subDependent2.OrderDetails);
-                            Assert.Equal("BillMe", subDependent1.Street);
-                            Assert.Equal("ShipMe", subDependent2.Street);
+                        var subDependent1 = dependent.BillingAddress;
+                        var subDependent2 = dependent.ShippingAddress;
+                        Assert.Same(dependent, subDependent1.OrderDetails);
+                        Assert.Same(dependent, subDependent2.OrderDetails);
+                        Assert.Equal("BillMe", subDependent1.Street);
+                        Assert.Equal("ShipMe", subDependent2.Street);
 
-                            Assert.Equal(4, context.ChangeTracker.Entries().Count());
+                        Assert.Equal(4, context.ChangeTracker.Entries().Count());
 
-                            var principalEntry = context.Entry(principal);
-                            Assert.Equal(EntityState.Unchanged, principalEntry.State);
+                        var principalEntry = context.Entry(principal);
+                        Assert.Equal(EntityState.Unchanged, principalEntry.State);
 
-                            var dependentEntry = principalEntry.Reference(p => p.OrderDetails).TargetEntry;
-                            Assert.Equal(principal.Id, dependentEntry.Property("OrderId").CurrentValue);
-                            Assert.Equal(EntityState.Unchanged, dependentEntry.State);
-                            Assert.Equal(nameof(OrderDetails), dependentEntry.Metadata.FindOwnership().PrincipalToDependent.Name);
+                        var dependentEntry = principalEntry.Reference(p => p.OrderDetails).TargetEntry;
+                        Assert.Equal(principal.Id, dependentEntry.Property("OrderId").CurrentValue);
+                        Assert.Equal(EntityState.Unchanged, dependentEntry.State);
+                        Assert.Equal(nameof(OrderDetails), dependentEntry.Metadata.FindOwnership().PrincipalToDependent.Name);
 
-                            var subDependent1Entry = dependentEntry.Reference(p => p.BillingAddress).TargetEntry;
-                            Assert.Equal(principal.Id, subDependent1Entry.Property("OrderDetailsId").CurrentValue);
-                            Assert.Equal(EntityState.Unchanged, subDependent1Entry.State);
-                            Assert.Equal(nameof(OrderDetails.BillingAddress), subDependent1Entry.Metadata.DefiningNavigationName);
+                        var subDependent1Entry = dependentEntry.Reference(p => p.BillingAddress).TargetEntry;
+                        Assert.Equal(principal.Id, subDependent1Entry.Property("OrderDetailsId").CurrentValue);
+                        Assert.Equal(EntityState.Unchanged, subDependent1Entry.State);
+                        Assert.Equal(nameof(OrderDetails.BillingAddress), subDependent1Entry.Metadata.DefiningNavigationName);
 
-                            var subDependent2Entry = dependentEntry.Reference(p => p.ShippingAddress).TargetEntry;
-                            Assert.Equal(principal.Id, subDependent2Entry.Property("OrderDetailsId").CurrentValue);
-                            Assert.Equal(EntityState.Unchanged, subDependent2Entry.State);
-                            Assert.Equal(nameof(OrderDetails.ShippingAddress), subDependent2Entry.Metadata.DefiningNavigationName);
-                        });
+                        var subDependent2Entry = dependentEntry.Reference(p => p.ShippingAddress).TargetEntry;
+                        Assert.Equal(principal.Id, subDependent2Entry.Property("OrderDetailsId").CurrentValue);
+                        Assert.Equal(EntityState.Unchanged, subDependent2Entry.State);
+                        Assert.Equal(nameof(OrderDetails.ShippingAddress), subDependent2Entry.Metadata.DefiningNavigationName);
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Query_owned_foreign_key()
         {
             Seed();
@@ -925,11 +924,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 AssertFixup(
                     context,
-                    () => { Assert.Equal(principal.Id, foreignKeyValue); });
+                    () => Assert.Equal(principal.Id, foreignKeyValue));
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Query_subowned_foreign_key()
         {
             Seed();
@@ -942,32 +941,32 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 AssertFixup(
                     context,
-                    () => { Assert.Equal(principal.Id, foreignKeyValue); });
+                    () => Assert.Equal(principal.Id, foreignKeyValue));
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Query_owned()
         {
             Seed();
 
             using (var context = new QueryFixupContext())
             {
-                var owned = context.Set<Order>().Select(o => o.OrderDetails).Single();
+                var owned = context.Set<Order>().Single().OrderDetails;
                 var principal = context.Set<Order>().AsNoTracking().Single();
 
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            var dependentEntry = context.Entry(owned);
-                            Assert.Equal(principal.Id, dependentEntry.Property("OrderId").CurrentValue);
-                            Assert.Equal(nameof(Order.OrderDetails), dependentEntry.Metadata.FindOwnership().PrincipalToDependent.Name);
-                        });
+                    {
+                        var dependentEntry = context.Entry(owned);
+                        Assert.Equal(principal.Id, dependentEntry.Property("OrderId").CurrentValue);
+                        Assert.Equal(nameof(Order.OrderDetails), dependentEntry.Metadata.FindOwnership().PrincipalToDependent.Name);
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact(Skip = "Issue #16752")]
         public void Query_subowned()
         {
             Seed();
@@ -984,23 +983,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal("BillMe", subDependent1.Street);
-                            Assert.Equal("ShipMe", subDependent2.Street);
+                    {
+                        Assert.Equal("BillMe", subDependent1.Street);
+                        Assert.Equal("ShipMe", subDependent2.Street);
 
-                            var dependent = subDependent1.OrderDetails;
-                            Assert.Same(dependent, subDependent2.OrderDetails);
-                            Assert.NotNull(dependent.Order);
-                            var principal = dependent.Order;
+                        var dependent = subDependent1.OrderDetails;
+                        Assert.Same(dependent, subDependent2.OrderDetails);
+                        Assert.NotNull(dependent.Order);
+                        var principal = dependent.Order;
 
-                            var subDependent1Entry = context.Entry(subDependent1);
-                            Assert.Equal(principal.Id, subDependent1Entry.Property("OrderDetailsId").CurrentValue);
-                            Assert.Equal(nameof(OrderDetails.BillingAddress), subDependent1Entry.Metadata.DefiningNavigationName);
+                        var subDependent1Entry = context.Entry(subDependent1);
+                        Assert.Equal(principal.Id, subDependent1Entry.Property("OrderDetailsId").CurrentValue);
+                        Assert.Equal(nameof(OrderDetails.BillingAddress), subDependent1Entry.Metadata.DefiningNavigationName);
 
-                            var subDependent2Entry = context.Entry(subDependent2);
-                            Assert.Equal(principal.Id, subDependent2Entry.Property("OrderDetailsId").CurrentValue);
-                            Assert.Equal(nameof(OrderDetails.ShippingAddress), subDependent2Entry.Metadata.DefiningNavigationName);
-                        });
+                        var subDependent2Entry = context.Entry(subDependent2);
+                        Assert.Equal(principal.Id, subDependent2Entry.Property("OrderDetailsId").CurrentValue);
+                        Assert.Equal(nameof(OrderDetails.ShippingAddress), subDependent2Entry.Metadata.DefiningNavigationName);
+                    });
             }
         }
 
@@ -1043,8 +1042,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         Id = 77,
                         OrderDetails = new OrderDetails
                         {
-                            BillingAddress = new Address { Street = "BillMe" },
-                            ShippingAddress = new Address { Street = "ShipMe" }
+                            BillingAddress = new Address { Street = "BillMe" }, ShippingAddress = new Address { Street = "ShipMe" }
                         }
                     });
 
@@ -1305,35 +1303,30 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 modelBuilder.Entity<Order>(
                     pb =>
-                        {
-                            pb.Property(p => p.Id).ValueGeneratedNever();
-                            pb.OwnsOne(
-                                p => p.OrderDetails, cb =>
-                                    {
-                                        cb.Property<int?>("OrderId");
-                                        cb.HasForeignKey("OrderId");
-                                        cb.HasOne(c => c.Order)
-                                            .WithOne(p => p.OrderDetails);
-                                        cb.OwnsOne(
-                                            c => c.BillingAddress, scb =>
-                                                {
-                                                    scb.HasForeignKey("OrderDetailsId");
-                                                    scb.HasOne(sc => sc.OrderDetails)
-                                                        .WithOne(c => c.BillingAddress);
-                                                });
-                                        cb.OwnsOne(
-                                            c => c.ShippingAddress, scb =>
-                                                {
-                                                    scb.HasForeignKey("OrderDetailsId");
-                                                    scb.HasOne(sc => sc.OrderDetails)
-                                                        .WithOne(c => c.ShippingAddress);
-                                                });
-                                    });
-                        });
+                    {
+                        pb.Property(p => p.Id).ValueGeneratedNever();
+                        pb.OwnsOne(
+                            p => p.OrderDetails, cb =>
+                            {
+                                cb.Property<int?>("OrderId");
+                                cb.WithOwner(c => c.Order)
+                                    .HasForeignKey("OrderId");
+
+                                cb.OwnsOne(c => c.BillingAddress)
+                                    .WithOwner(c => c.OrderDetails)
+                                    .HasForeignKey("OrderDetailsId");
+
+                                cb.OwnsOne(c => c.ShippingAddress)
+                                    .WithOwner(c => c.OrderDetails)
+                                    .HasForeignKey("OrderDetailsId");
+                            });
+                    });
             }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(nameof(QueryFixupContext));
+                => optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase(nameof(QueryFixupContext));
         }
 
         private void AssertFixup(DbContext context, Action asserts)

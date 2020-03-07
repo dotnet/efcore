@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly BoolToStringConverter _boolToTrueFalse
             = new BoolToStringConverter("False", "True");
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_bools_to_true_false_strings()
         {
             var converter = _boolToTrueFalse.ConvertToProviderExpression.Compile();
@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("False", converter(false));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_true_false_strings_to_bool()
         {
             var converter = _boolToTrueFalse.ConvertFromProviderExpression.Compile();
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly BoolToStringConverter _boolToYn
             = new BoolToStringConverter("N", "Y");
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_bools_to_Y_N_strings()
         {
             var converter = _boolToYn.ConvertToProviderExpression.Compile();
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("N", converter(false));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_Y_N_strings_to_bool()
         {
             var converter = _boolToYn.ConvertFromProviderExpression.Compile();
@@ -59,6 +59,26 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.True(converter("yes"));
             Assert.False(converter("True"));
             Assert.False(converter(""));
+            Assert.False(converter(null));
+        }
+
+        [ConditionalFact]
+        public void Can_convert_bools_to_empty_strings_or_whitespace()
+        {
+            var converter = new BoolToStringConverter("", " ").ConvertToProviderExpression.Compile();
+
+            Assert.Equal(" ", converter(true));
+            Assert.Equal("", converter(false));
+        }
+
+        [ConditionalFact]
+        public void Can_convert_empty_strings_or_whitespace_to_bool()
+        {
+            var converter = new BoolToStringConverter("", " ").ConvertFromProviderExpression.Compile();
+
+            Assert.False(converter(""));
+            Assert.True(converter(" "));
+            Assert.False(converter("\t"));
             Assert.False(converter(null));
         }
     }

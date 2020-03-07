@@ -3,8 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class NamedConnectionStringResolverTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_no_app_service_provider()
         {
             var resolver = new NamedConnectionStringResolver(new FakeOptions(null, false));
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     () => resolver.ResolveConnectionString("name=foo")).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_no_IConfiguration()
         {
             var resolver = new NamedConnectionStringResolver(new FakeOptions(null));
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     () => resolver.ResolveConnectionString("name=foo")).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_IConfiguration_does_not_contain_key()
         {
             var resolver = new NamedConnectionStringResolver(new FakeOptions(new ConfigurationBuilder().Build()));
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     () => resolver.ResolveConnectionString("name=foo")).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Returns_resolved_string_if_IConfiguration_contains_key()
         {
             var resolver = new NamedConnectionStringResolver(
@@ -56,31 +56,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         .AddInMemoryCollection(
                             new Dictionary<string, string>
                             {
-                                { "MyConnectuonString", "Conn1" },
+                                { "MyConnectionString", "Conn1" },
                                 { "ConnectionStrings:DefaultConnection", "Conn2" },
-                                { "ConnectionStrings:MyConnectuonString", "Conn3" }
+                                { "ConnectionStrings:MyConnectionString", "Conn3" }
                             })
                         .Build()));
 
-            Assert.Equal("Conn1", resolver.ResolveConnectionString("name=MyConnectuonString"));
+            Assert.Equal("Conn1", resolver.ResolveConnectionString("name=MyConnectionString"));
             Assert.Equal("Conn2", resolver.ResolveConnectionString("name=ConnectionStrings:DefaultConnection"));
             Assert.Equal("Conn2", resolver.ResolveConnectionString("name=DefaultConnection"));
-            Assert.Equal("Conn3", resolver.ResolveConnectionString("name=ConnectionStrings:MyConnectuonString"));
+            Assert.Equal("Conn3", resolver.ResolveConnectionString("name=ConnectionStrings:MyConnectionString"));
 
-            Assert.Equal("Conn1", resolver.ResolveConnectionString("  NamE = MyConnectuonString   "));
+            Assert.Equal("Conn1", resolver.ResolveConnectionString("  NamE = MyConnectionString   "));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Returns_given_string_named_connection_string_doesnt_match_pattern()
         {
             var resolver = new NamedConnectionStringResolver(
                 new FakeOptions(
                     new ConfigurationBuilder()
                         .AddInMemoryCollection(
-                            new Dictionary<string, string>
-                            {
-                                { "Nope", "NoThanks" }
-                            })
+                            new Dictionary<string, string> { { "Nope", "NoThanks" } })
                         .Build()));
 
             Assert.Equal("name=Fox;DataSource=Jimony", resolver.ResolveConnectionString("name=Fox;DataSource=Jimony"));
