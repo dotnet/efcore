@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             var foreignKey = WithManyBuilder(Check.NullButNotEmpty(collection, nameof(collection))).Metadata;
 
             if (navigationConfiguration != null
-                && foreignKey?.PrincipalToDependent != null)
+                && foreignKey.PrincipalToDependent != null)
             {
                 navigationConfiguration(
                     new NavigationBuilder(foreignKey.PrincipalToDependent));
@@ -225,22 +225,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual ReferenceReferenceBuilder WithOne(
             [CanBeNull] string reference = null,
             [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
-        {
-            var foreignKey = WithOneBuilder(
-                Check.NullButNotEmpty(reference, nameof(reference))).Metadata;
-
-            if (navigationConfiguration != null
-                && foreignKey?.PrincipalToDependent != null)
-            {
-                navigationConfiguration(
-                    new NavigationBuilder(foreignKey.PrincipalToDependent));
-            }
-
-            return new ReferenceReferenceBuilder(
+            => new ReferenceReferenceBuilder(
                 DeclaringEntityType,
                 RelatedEntityType,
-                foreignKey);
-        }
+                WithOneBuilder(
+                    Check.NullButNotEmpty(reference, nameof(reference)),
+                    navigationConfiguration).Metadata);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -249,8 +239,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] string navigationName)
-            => WithOneBuilder(MemberIdentity.Create(navigationName));
+        protected virtual InternalRelationshipBuilder WithOneBuilder(
+            [CanBeNull] string navigationName,
+            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+            => WithOneBuilder(MemberIdentity.Create(navigationName), navigationConfiguration);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -259,10 +251,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] MemberInfo navigationMemberInfo)
-            => WithOneBuilder(MemberIdentity.Create(navigationMemberInfo));
+        protected virtual InternalRelationshipBuilder WithOneBuilder(
+            [CanBeNull] MemberInfo navigationMemberInfo,
+            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+            => WithOneBuilder(MemberIdentity.Create(navigationMemberInfo), navigationConfiguration);
 
-        private InternalRelationshipBuilder WithOneBuilder(MemberIdentity reference)
+        private InternalRelationshipBuilder WithOneBuilder(
+            MemberIdentity reference,
+            Action<NavigationBuilder> navigationConfiguration = null)
         {
             var referenceName = reference.Name;
             if (!Builder.Metadata.IsUnique
@@ -328,7 +324,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                         (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit);
             }
 
-            return batch.Run(builder);
+            var withOneBuilder = batch.Run(builder);
+
+            if (navigationConfiguration != null
+                && withOneBuilder.Metadata.PrincipalToDependent != null)
+            {
+                navigationConfiguration(
+                    new NavigationBuilder(withOneBuilder.Metadata.PrincipalToDependent));
+            }
+
+            return withOneBuilder;
         }
 
         #region Hidden System.Object members

@@ -4359,6 +4359,52 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(PropertyAccessMode.Field, principal.FindNavigation("Dependent").GetPropertyAccessMode());
                 Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToOnePrincipal").GetPropertyAccessMode());
             }
+
+            [ConditionalFact]
+            public virtual void Navigation_properties_can_override_access_mode_on_principal_using_WithOne_then_HasOne()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<NavDependent>()
+                    .HasOne<OneToOneNavPrincipal>()
+                    .WithOne(
+                        e => e.Dependent,
+                        nb => nb.UsePropertyAccessMode(PropertyAccessMode.Property));
+
+                modelBuilder.Entity<OneToOneNavPrincipal>()
+                    .HasOne(
+                        e => e.Dependent,
+                        nb => nb.UsePropertyAccessMode(PropertyAccessMode.Field))
+                    .WithOne();
+
+                var principal = (IEntityType)model.FindEntityType(typeof(OneToOneNavPrincipal));
+
+                Assert.Equal(PropertyAccessMode.Field, principal.FindNavigation("Dependent").GetPropertyAccessMode());
+            }
+
+            [ConditionalFact]
+            public virtual void Navigation_properties_can_override_access_mode_on_dependent_using_WithOne_then_HasOne()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<OneToOneNavPrincipal>()
+                    .HasOne<NavDependent>()
+                    .WithOne(
+                        e => e.OneToOnePrincipal,
+                        nb => nb.UsePropertyAccessMode(PropertyAccessMode.Field));
+
+                modelBuilder.Entity<NavDependent>()
+                    .HasOne(
+                        e => e.OneToOnePrincipal,
+                        nb => nb.UsePropertyAccessMode(PropertyAccessMode.Property))
+                    .WithOne();
+
+                var dependent = (IEntityType)model.FindEntityType(typeof(NavDependent));
+
+                Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToOnePrincipal").GetPropertyAccessMode());
+            }
         }
     }
 }

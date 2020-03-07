@@ -593,10 +593,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null).Metadata;
 
             if (navigationConfiguration != null
-                && foreignKey?.DependentToPrincipal != null)
+                && navigationName != null)
             {
+                var navigation =
+                    Builder.Metadata == relatedEntityType
+                    || foreignKey.PrincipalEntityType == relatedEntityType
+                    ? foreignKey.DependentToPrincipal
+                    : foreignKey.PrincipalToDependent;
+
                 navigationConfiguration(
-                    new NavigationBuilder(foreignKey.DependentToPrincipal));
+                    new NavigationBuilder(navigation));
             }
 
             return new ReferenceNavigationBuilder(
@@ -648,10 +654,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null).Metadata;
 
             if (navigationConfiguration != null
-                && foreignKey?.DependentToPrincipal != null)
+                && navigationName != null)
             {
+                var navigation =
+                    Builder.Metadata == relatedEntityType
+                    || foreignKey.PrincipalEntityType == relatedEntityType
+                    ? foreignKey.DependentToPrincipal
+                    : foreignKey.PrincipalToDependent;
+
                 navigationConfiguration(
-                    new NavigationBuilder(foreignKey.DependentToPrincipal));
+                    new NavigationBuilder(navigation));
             }
 
             return new ReferenceNavigationBuilder(
@@ -832,7 +844,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             var foreignKey = relationship?.Metadata;
             if (navigationConfiguration != null
-                && foreignKey?.PrincipalToDependent != null)
+                && foreignKey.PrincipalToDependent != null)
             {
                 navigationConfiguration(
                     new NavigationBuilder(foreignKey.PrincipalToDependent));

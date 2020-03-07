@@ -58,19 +58,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [CanBeNull] string navigationName = null,
             [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
         {
-            var foreignKey = WithOneBuilder(Check.NullButNotEmpty(navigationName, nameof(navigationName))).Metadata;
-
-            if (navigationConfiguration != null
-                && foreignKey?.DependentToPrincipal != null)
-            {
-                navigationConfiguration(
-                    new NavigationBuilder(foreignKey.DependentToPrincipal));
-            }
-
             return new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
                 DeclaringEntityType,
                 RelatedEntityType,
-                foreignKey);
+                WithOneBuilder(
+                    Check.NullButNotEmpty(navigationName, nameof(navigationName)),
+                    navigationConfiguration).Metadata);
         }
 
         /// <summary>
@@ -95,22 +88,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(
             [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> navigationExpression,
             [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
-        {
-            var navigationMember = navigationExpression?.GetPropertyAccess();
-            var foreignKey = WithOneBuilder(navigationMember).Metadata;
-
-            if (navigationConfiguration != null
-                && foreignKey?.DependentToPrincipal != null)
-            {
-                navigationConfiguration(
-                    new NavigationBuilder(foreignKey.DependentToPrincipal));
-            }
-
-            return new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
+            => new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
                 DeclaringEntityType,
                 RelatedEntityType,
-                foreignKey);
-        }
+                WithOneBuilder(
+                    navigationExpression?.GetPropertyAccess(),
+                    navigationConfiguration).Metadata);
 
         /// <summary>
         ///     Configures this as a many-to-many relationship.

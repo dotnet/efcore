@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             var foreignKey = WithManyBuilder(
                 Check.NullButNotEmpty(navigationName, nameof(navigationName))).Metadata;
             if (navigationConfiguration != null
-                && foreignKey?.PrincipalToDependent != null)
+                && foreignKey.PrincipalToDependent != null)
             {
                 navigationConfiguration(
                     new NavigationBuilder(foreignKey.PrincipalToDependent));
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             var navigationMember = navigationExpression?.GetPropertyAccess();
             var foreignKey = WithManyBuilder(navigationMember).Metadata;
             if (navigationConfiguration != null
-                && foreignKey?.PrincipalToDependent != null)
+                && foreignKey.PrincipalToDependent != null)
             {
                 navigationConfiguration(
                     new NavigationBuilder(foreignKey.PrincipalToDependent));
@@ -155,21 +155,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne(
             [CanBeNull] string navigationName = null,
             [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
-        {
-            var foreignKey = WithOneBuilder(
-                Check.NullButNotEmpty(navigationName, nameof(navigationName))).Metadata;
-            if (navigationConfiguration != null
-                && foreignKey?.PrincipalToDependent != null)
-            {
-                navigationConfiguration(
-                    new NavigationBuilder(foreignKey.PrincipalToDependent));
-            }
-
-            return new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
+            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
                 DeclaringEntityType,
                 RelatedEntityType,
-                foreignKey);
-        }
+                WithOneBuilder(
+                    Check.NullButNotEmpty(navigationName, nameof(navigationName)),
+                    navigationConfiguration).Metadata);
 
         /// <summary>
         ///     <para>
@@ -193,20 +184,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne(
             [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> navigationExpression,
             [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
-        {
-            var navigationMember = navigationExpression?.GetPropertyAccess();
-            var foreignKey = WithOneBuilder(navigationMember).Metadata;
-            if (navigationConfiguration != null
-                && foreignKey?.PrincipalToDependent != null)
-            {
-                navigationConfiguration(
-                    new NavigationBuilder(foreignKey.PrincipalToDependent));
-            }
-
-            return new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
+            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
                 DeclaringEntityType,
                 RelatedEntityType,
-                foreignKey);
-        }
+                WithOneBuilder(navigationExpression?.GetPropertyAccess(),
+                    navigationConfiguration).Metadata);
     }
 }

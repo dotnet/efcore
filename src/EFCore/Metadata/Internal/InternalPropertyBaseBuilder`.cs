@@ -53,6 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool CanSetPropertyAccessMode(
             PropertyAccessMode? propertyAccessMode, ConfigurationSource? configurationSource)
             => configurationSource.Overrides(Metadata.GetPropertyAccessModeConfigurationSource())
-                || ((IProperty)Metadata).GetPropertyAccessMode() == propertyAccessMode;
+                || ((IPropertyBase)Metadata).GetPropertyAccessMode() == propertyAccessMode;
     }
 }
