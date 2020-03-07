@@ -273,10 +273,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         {
             return op switch
             {
-                ExpressionType.Add => DecimalArithmeticExpressionFactoryFunction(ResolveFunctionNameFromExpressionType(op), left, right),
-                ExpressionType.Divide => DecimalArithmeticExpressionFactoryFunction(ResolveFunctionNameFromExpressionType(op), left, right),
-                ExpressionType.Multiply => DecimalArithmeticExpressionFactoryFunction(ResolveFunctionNameFromExpressionType(op), left, right),
-                ExpressionType.Subtract => DecimalSubtractExpressionFactoryFunction(left, right),
+                ExpressionType.Add => DecimalArithmeticExpressionFactoryMethod(ResolveFunctionNameFromExpressionType(op), left, right),
+                ExpressionType.Divide => DecimalArithmeticExpressionFactoryMethod(ResolveFunctionNameFromExpressionType(op), left, right),
+                ExpressionType.Multiply => DecimalArithmeticExpressionFactoryMethod(ResolveFunctionNameFromExpressionType(op), left, right),
+                ExpressionType.Subtract => DecimalSubtractExpressionFactoryMethod(left, right),
                 _ => visitedExpression
             };
 
@@ -292,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 };
             }
 
-            Expression DecimalArithmeticExpressionFactoryFunction(string name, SqlExpression left, SqlExpression right)
+            Expression DecimalArithmeticExpressionFactoryMethod(string name, SqlExpression left, SqlExpression right)
             {
                 return SqlExpressionFactory.Function(
                     name,
@@ -302,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     visitedExpression.Type);
             }
 
-            Expression DecimalSubtractExpressionFactoryFunction(SqlExpression left, SqlExpression right)
+            Expression DecimalSubtractExpressionFactoryMethod(SqlExpression left, SqlExpression right)
             {
                 var subtrahend = SqlExpressionFactory.Function(
                     "ef_negate",
@@ -311,7 +311,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     new[] { true },
                     visitedExpression.Type);
 
-                return DecimalArithmeticExpressionFactoryFunction(ResolveFunctionNameFromExpressionType(op), left, subtrahend);
+                return DecimalArithmeticExpressionFactoryMethod(ResolveFunctionNameFromExpressionType(op), left, subtrahend);
             }
         }
     }
