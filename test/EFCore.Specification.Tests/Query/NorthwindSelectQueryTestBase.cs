@@ -1717,5 +1717,25 @@ namespace Microsoft.EntityFrameworkCore.Query
             public T Id { get; set; }
             public string Name { get; set; }
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_multiple_collection_with_same_constant_works(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
+                    .Select(c => new
+                    {
+                        O1 = c.Orders.Select(e => new { Value = 1 }),
+                        O2 = c.Orders.Select(e => new { AnotherValue = 1 })
+                    }),
+                assertOrder: true, //single element
+                elementAsserter: (e, a) =>
+                {
+                    AssertCollection(e.O1, a.O1, ordered: true);
+                    AssertCollection(e.O2, a.O2, ordered: true);
+                });
+        }
     }
 }

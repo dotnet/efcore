@@ -1391,6 +1391,19 @@ FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]");
         }
 
+        public override async Task Projecting_multiple_collection_with_same_constant_works(bool async)
+        {
+            await base.Projecting_multiple_collection_with_same_constant_works(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], 1, [o].[OrderID], [o0].[OrderID]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
+WHERE [c].[CustomerID] = N'ALFKI'
+ORDER BY [c].[CustomerID], [o].[OrderID], [o0].[OrderID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
