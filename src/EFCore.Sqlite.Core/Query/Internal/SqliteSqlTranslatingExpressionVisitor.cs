@@ -53,10 +53,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     typeof(TimeSpan),
                     typeof(ulong)
                 },
-                [ExpressionType.Modulo] = new HashSet<Type> { typeof(ulong) },
+                [ExpressionType.Modulo] = new HashSet<Type>
+                {
+                    typeof(ulong)
+                },
                 [ExpressionType.Multiply] = new HashSet<Type>
                 {
-                    typeof(decimal),
                     typeof(TimeSpan),
                     typeof(ulong)
                 },
@@ -183,6 +185,18 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 if (AttemptDecimalCompare(sqlBinary))
                 {
                     return DoDecimalCompare(visitedExpression, sqlBinary.OperatorType, sqlBinary.Left, sqlBinary.Right);
+                }
+
+                if (sqlBinary.OperatorType == ExpressionType.Multiply
+                    && GetProviderType(sqlBinary.Left) == typeof(decimal)
+                    && (GetProviderType(sqlBinary.Right) == typeof(decimal)))
+                {
+                    return SqlExpressionFactory.Function(
+                        "ef_multiply",
+                        new[] { sqlBinary.Left, sqlBinary.Right },
+                        nullable: true,
+                        new[] { true, true },
+                        visitedExpression.Type);
                 }
 
                 if (_restrictedBinaryExpressions.TryGetValue(sqlBinary.OperatorType, out var restrictedTypes)

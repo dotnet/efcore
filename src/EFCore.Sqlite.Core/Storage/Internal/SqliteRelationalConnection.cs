@@ -168,6 +168,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                     isDeterministic: true);
 
                 sqliteConnection.CreateFunction(
+                    name: "ef_multiply",
+                    (decimal? left, decimal? right) => left.HasValue && right.HasValue
+                        ? decimal.Multiply(left.Value, right.Value)
+                        : default(decimal?),
+                    isDeterministic: true);
+
+                sqliteConnection.CreateFunction(
                     name: "ef_negate",
                     (decimal? m) => m.HasValue
                         ? decimal.Negate(m.Value)
