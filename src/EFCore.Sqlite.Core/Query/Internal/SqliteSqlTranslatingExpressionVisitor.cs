@@ -26,7 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 },
                 [ExpressionType.Divide] = new HashSet<Type>
                 {
-                    typeof(decimal),
                     typeof(TimeSpan),
                     typeof(ulong)
                 },
@@ -163,6 +162,18 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 {
                     return SqlExpressionFactory.Function(
                         "ef_add",
+                        new[] { sqlBinary.Left, sqlBinary.Right },
+                        nullable: true,
+                        new[] { true, true },
+                        visitedExpression.Type);
+                }
+
+                if (sqlBinary.OperatorType == ExpressionType.Divide
+                    && GetProviderType(sqlBinary.Left) == typeof(decimal)
+                    && (GetProviderType(sqlBinary.Right) == typeof(decimal)))
+                {
+                    return SqlExpressionFactory.Function(
+                        "ef_divide",
                         new[] { sqlBinary.Left, sqlBinary.Right },
                         nullable: true,
                         new[] { true, true },

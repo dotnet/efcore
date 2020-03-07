@@ -142,6 +142,25 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                     isDeterministic: true);
 
                 sqliteConnection.CreateFunction(
+                    name: "ef_divide",
+                    (decimal? dividend, decimal? divisor) =>
+                    {
+                        if (dividend == null
+                            || divisor == null)
+                        {
+                            return new decimal(null);
+                        }
+
+                        if (divisor.Value != 0)
+                        {
+                            return decimal.Divide(dividend.Value, divisor.Value);
+                        }
+
+                        throw new DivideByZeroException();
+                    },
+                    isDeterministic: true);
+
+                sqliteConnection.CreateFunction(
                     name: "ef_compare",
                     (decimal? left, decimal? right) => left.HasValue && right.HasValue
                         ? decimal.Compare(left.Value, right.Value)
@@ -156,6 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                     isDeterministic: true);
             }
             else
+
             {
                 _logger.UnexpectedConnectionTypeWarning(connection.GetType());
             }
