@@ -273,12 +273,24 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         {
             return op switch
             {
-                ExpressionType.Add => DecimalArithmeticExpressionFactoryFunction("ef_add", left, right),
-                ExpressionType.Divide => DecimalArithmeticExpressionFactoryFunction("ef_divide", left, right),
-                ExpressionType.Multiply => DecimalArithmeticExpressionFactoryFunction("ef_multiply", left, right),
+                ExpressionType.Add => DecimalArithmeticExpressionFactoryFunction(ResolveFunctionNameFromExpressionType(op), left, right),
+                ExpressionType.Divide => DecimalArithmeticExpressionFactoryFunction(ResolveFunctionNameFromExpressionType(op), left, right),
+                ExpressionType.Multiply => DecimalArithmeticExpressionFactoryFunction(ResolveFunctionNameFromExpressionType(op), left, right),
                 ExpressionType.Subtract => DecimalSubtractExpressionFactoryFunction(left, right),
                 _ => visitedExpression
             };
+
+            string ResolveFunctionNameFromExpressionType(ExpressionType expressionType)
+            {
+                return expressionType switch
+                {
+                    ExpressionType.Add => "ef_add",
+                    ExpressionType.Divide => "ef_divide",
+                    ExpressionType.Multiply => "ef_multiply",
+                    ExpressionType.Subtract => "ef_add",
+                    _ => throw new InvalidOperationException()
+                };
+            }
 
             Expression DecimalArithmeticExpressionFactoryFunction(string name, SqlExpression left, SqlExpression right)
             {
@@ -299,7 +311,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     new[] { true },
                     visitedExpression.Type);
 
-                return DecimalArithmeticExpressionFactoryFunction("ef_add", left, subtrahend);
+                return DecimalArithmeticExpressionFactoryFunction(ResolveFunctionNameFromExpressionType(op), left, subtrahend);
             }
         }
     }
