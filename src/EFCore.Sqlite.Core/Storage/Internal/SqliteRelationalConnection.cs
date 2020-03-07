@@ -9,7 +9,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -134,6 +133,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                         return Convert.ToDouble(dividend, CultureInfo.InvariantCulture)
                             % Convert.ToDouble(divisor, CultureInfo.InvariantCulture);
                     });
+
+                sqliteConnection.CreateFunction(
+                    name: "ef_add",
+                    (decimal? left, decimal? right) => left.HasValue && right.HasValue
+                        ? decimal.Add(left.Value, right.Value)
+                        : default(decimal?),
+                    isDeterministic: true);
 
                 sqliteConnection.CreateFunction(
                     name: "ef_compare",

@@ -22,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 {
                     typeof(DateTime),
                     typeof(DateTimeOffset),
-                    typeof(decimal),
                     typeof(TimeSpan)
                 },
                 [ExpressionType.Divide] = new HashSet<Type>
@@ -156,6 +155,18 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                         argumentsPropagateNullability: new[] { true, true },
                         visitedExpression.Type,
                         visitedExpression.TypeMapping);
+                }
+
+                if (sqlBinary.OperatorType == ExpressionType.Add
+                    && GetProviderType(sqlBinary.Left) == typeof(decimal)
+                    && (GetProviderType(sqlBinary.Right) == typeof(decimal)))
+                {
+                    return SqlExpressionFactory.Function(
+                        "ef_add",
+                        new[] { sqlBinary.Left, sqlBinary.Right },
+                        nullable: true,
+                        new[] { true, true },
+                        visitedExpression.Type);
                 }
 
                 if (AttemptDecimalCompare(sqlBinary))
