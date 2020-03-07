@@ -24,11 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     typeof(DateTimeOffset),
                     typeof(TimeSpan)
                 },
-                [ExpressionType.Divide] = new HashSet<Type>
-                {
-                    typeof(TimeSpan),
-                    typeof(ulong)
-                },
+                [ExpressionType.Divide] = new HashSet<Type> { typeof(TimeSpan), typeof(ulong) },
                 [ExpressionType.GreaterThan] = new HashSet<Type>
                 {
                     typeof(DateTimeOffset),
@@ -53,20 +49,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     typeof(TimeSpan),
                     typeof(ulong)
                 },
-                [ExpressionType.Modulo] = new HashSet<Type>
-                {
-                    typeof(ulong)
-                },
-                [ExpressionType.Multiply] = new HashSet<Type>
-                {
-                    typeof(TimeSpan),
-                    typeof(ulong)
-                },
+                [ExpressionType.Modulo] = new HashSet<Type> { typeof(ulong) },
+                [ExpressionType.Multiply] = new HashSet<Type> { typeof(TimeSpan), typeof(ulong) },
                 [ExpressionType.Subtract] = new HashSet<Type>
                 {
                     typeof(DateTime),
                     typeof(DateTimeOffset),
-                    typeof(decimal),
                     typeof(TimeSpan)
                 }
             };
@@ -194,6 +182,24 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     return SqlExpressionFactory.Function(
                         "ef_multiply",
                         new[] { sqlBinary.Left, sqlBinary.Right },
+                        nullable: true,
+                        new[] { true, true },
+                        visitedExpression.Type);
+                }
+
+                if (sqlBinary.OperatorType == ExpressionType.Subtract
+                    && GetProviderType(sqlBinary.Left) == typeof(decimal)
+                    && (GetProviderType(sqlBinary.Right) == typeof(decimal)))
+                {
+                    var subtrahend = SqlExpressionFactory.Function(
+                        "ef_negate",
+                        new[] { sqlBinary.Right },
+                        nullable: true,
+                        new[] { true },
+                        visitedExpression.Type);
+                    return SqlExpressionFactory.Function(
+                        "ef_add",
+                        new[] { sqlBinary.Left, subtrahend },
                         nullable: true,
                         new[] { true, true },
                         visitedExpression.Type);
