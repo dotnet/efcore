@@ -146,63 +146,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                         visitedExpression.TypeMapping);
                 }
 
-                if (sqlBinary.OperatorType == ExpressionType.Add
-                    && GetProviderType(sqlBinary.Left) == typeof(decimal)
-                    && (GetProviderType(sqlBinary.Right) == typeof(decimal)))
-                {
-                    return SqlExpressionFactory.Function(
-                        "ef_add",
-                        new[] { sqlBinary.Left, sqlBinary.Right },
-                        nullable: true,
-                        new[] { true, true },
-                        visitedExpression.Type);
-                }
-
-                if (sqlBinary.OperatorType == ExpressionType.Divide
-                    && GetProviderType(sqlBinary.Left) == typeof(decimal)
-                    && (GetProviderType(sqlBinary.Right) == typeof(decimal)))
-                {
-                    return SqlExpressionFactory.Function(
-                        "ef_divide",
-                        new[] { sqlBinary.Left, sqlBinary.Right },
-                        nullable: true,
-                        new[] { true, true },
-                        visitedExpression.Type);
-                }
-
                 if (AttemptDecimalCompare(sqlBinary))
                 {
                     return DoDecimalCompare(visitedExpression, sqlBinary.OperatorType, sqlBinary.Left, sqlBinary.Right);
                 }
 
-                if (sqlBinary.OperatorType == ExpressionType.Multiply
-                    && GetProviderType(sqlBinary.Left) == typeof(decimal)
-                    && (GetProviderType(sqlBinary.Right) == typeof(decimal)))
+                if (AttemptDecimalArithmetic(sqlBinary))
                 {
-                    return SqlExpressionFactory.Function(
-                        "ef_multiply",
-                        new[] { sqlBinary.Left, sqlBinary.Right },
-                        nullable: true,
-                        new[] { true, true },
-                        visitedExpression.Type);
-                }
-
-                if (sqlBinary.OperatorType == ExpressionType.Subtract
-                    && GetProviderType(sqlBinary.Left) == typeof(decimal)
-                    && (GetProviderType(sqlBinary.Right) == typeof(decimal)))
-                {
-                    var subtrahend = SqlExpressionFactory.Function(
-                        "ef_negate",
-                        new[] { sqlBinary.Right },
-                        nullable: true,
-                        new[] { true },
-                        visitedExpression.Type);
-                    return SqlExpressionFactory.Function(
-                        "ef_add",
-                        new[] { sqlBinary.Left, subtrahend },
-                        nullable: true,
-                        new[] { true, true },
-                        visitedExpression.Type);
+                    return DoDecimalArithmetics(visitedExpression, sqlBinary.OperatorType, sqlBinary.Left, sqlBinary.Right);
                 }
 
                 if (_restrictedBinaryExpressions.TryGetValue(sqlBinary.OperatorType, out var restrictedTypes)
@@ -283,9 +234,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     ?? expression.TypeMapping?.ClrType
                     ?? expression.Type).UnwrapNullableType();
 
+        private static bool AreOperandsDecimals(SqlBinaryExpression sqlExpression) => GetProviderType(sqlExpression.Left) == typeof(decimal)
+            && GetProviderType(sqlExpression.Right) == typeof(decimal);
+
         private static bool AttemptDecimalCompare(SqlBinaryExpression sqlBinary) =>
-            GetProviderType(sqlBinary.Left) == typeof(decimal)
-            && GetProviderType(sqlBinary.Right) == typeof(decimal)
+            AreOperandsDecimals(sqlBinary)
             && new[]
             {
                 ExpressionType.GreaterThan, ExpressionType.GreaterThanOrEqual, ExpressionType.LessThan, ExpressionType.LessThanOrEqual
@@ -309,6 +262,43 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 ExpressionType.LessThanOrEqual => SqlExpressionFactory.LessThanOrEqual(left: actual, right: oracle),
                 _ => visitedExpression
             };
+        }
+
+        private static bool AttemptDecimalArithmetic(SqlBinaryExpression sqlBinary) =>
+            AreOperandsDecimals(sqlBinary)
+            && new[] { ExpressionType.Add, ExpressionType.Subtract, ExpressionType.Multiply, ExpressionType.Divide }.Contains(
+                sqlBinary.OperatorType);
+
+        private Expression DoDecimalArithmetics(SqlExpression visitedExpression, ExpressionType op, SqlExpression left, SqlExpression right)
+        {
+            return op switch
+            {
+                ExpressionType.Add => ArithmeticExpressionFactoryFunction("ef_add", left, right),
+                ExpressionType.Divide => ArithmeticExpressionFactoryFunction("ef_divide", left, right),
+                ExpressionType.Multiply => ArithmeticExpressionFactoryFunction("ef_multiply", left, right),
+                ExpressionType.Subtract => SubtractExpressionFactoryFunction(left, right),
+                _ => visitedExpression
+            };
+
+            Expression ArithmeticExpressionFactoryFunction(string name, SqlExpression left, SqlExpression right) =>
+                SqlExpressionFactory.Function(
+                    name,
+                    new[] { left, right },
+                    nullable: true,
+                    new[] { true, true },
+                    visitedExpression.Type);
+
+            Expression SubtractExpressionFactoryFunction(SqlExpression left, SqlExpression right)
+            {
+                var subtrahend = SqlExpressionFactory.Function(
+                    "ef_negate",
+                    new[] { right },
+                    nullable: true,
+                    new[] { true },
+                    visitedExpression.Type);
+
+                return ArithmeticExpressionFactoryFunction("ef_add", left, subtrahend);
+            }
         }
     }
 }
