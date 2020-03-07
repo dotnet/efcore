@@ -914,9 +914,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             var indexOffset = _projection.Count;
-            foreach (var projection in innerSelectExpression.Projection)
+            var innerProjectionCount = innerSelectExpression.Projection.Count;
+            var indexMap = new int[innerProjectionCount];
+            for (var i = 0; i < innerProjectionCount; i++)
             {
-                AddToProjection(MakeNullable(projection.Expression));
+                indexMap[i] = AddToProjection(MakeNullable(innerSelectExpression.Projection[i].Expression));
             }
 
             foreach (var identifier in innerSelectExpression._identifier.Concat(innerSelectExpression._childIdentifiers))
@@ -926,7 +928,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 AppendOrdering(new OrderingExpression(updatedColumn, ascending: true));
             }
 
-            var shaperRemapper = new ShaperRemappingExpressionVisitor(this, innerSelectExpression, indexOffset);
+            var shaperRemapper = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue19616", out var isEnabled)
+                && isEnabled
+                ? new ShaperRemappingExpressionVisitor(this, innerSelectExpression, indexOffset)
+                : new ShaperRemappingExpressionVisitor(this, innerSelectExpression, indexMap);
             innerShaper = shaperRemapper.Visit(innerShaper);
             selfIdentifier = shaperRemapper.Visit(selfIdentifier);
 
@@ -961,12 +966,22 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             private readonly SelectExpression _queryExpression;
             private readonly SelectExpression _innerSelectExpression;
             private readonly int _offset;
+            private readonly int[] _indexMap;
 
-            public ShaperRemappingExpressionVisitor(SelectExpression queryExpression, SelectExpression innerSelectExpression, int offset)
+            public ShaperRemappingExpressionVisitor(
+                SelectExpression queryExpression, SelectExpression innerSelectExpression, int offset)
             {
                 _queryExpression = queryExpression;
                 _innerSelectExpression = innerSelectExpression;
                 _offset = offset;
+            }
+
+            public ShaperRemappingExpressionVisitor(
+                SelectExpression queryExpression, SelectExpression innerSelectExpression, int[] indexMap)
+            {
+                _queryExpression = queryExpression;
+                _innerSelectExpression = innerSelectExpression;
+                _indexMap = indexMap;
             }
 
             protected override Expression VisitExtension(Expression extensionExpression)
@@ -974,8 +989,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 if (extensionExpression is ProjectionBindingExpression projectionBindingExpression)
                 {
                     var oldIndex = (int)GetProjectionIndex(projectionBindingExpression);
+                    var newIndex = _indexMap?[oldIndex] ?? oldIndex + _offset;
 
-                    return new ProjectionBindingExpression(_queryExpression, oldIndex + _offset, projectionBindingExpression.Type);
+                    return new ProjectionBindingExpression(_queryExpression, newIndex, projectionBindingExpression.Type);
                 }
 
                 if (extensionExpression is EntityShaperExpression entityShaper)
@@ -985,7 +1001,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     var indexMap = new Dictionary<IProperty, int>();
                     foreach (var keyValuePair in oldIndexMap)
                     {
-                        indexMap[keyValuePair.Key] = keyValuePair.Value + _offset;
+                        var oldIndex = keyValuePair.Value;
+                        indexMap[keyValuePair.Key] = _indexMap?[oldIndex] ?? oldIndex + _offset;
                     }
 
                     return new EntityShaperExpression(
