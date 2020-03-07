@@ -6,40 +6,41 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class ClrPropertyGetterFactory : ClrAccessorFactory<IClrPropertyGetter>
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override IClrPropertyGetter Create(IPropertyBase property)
+            => property as IClrPropertyGetter ?? Create(property.GetMemberInfo(forMaterialization: false, forSet: false), property);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override IClrPropertyGetter CreateGeneric<TEntity, TValue, TNonNullableEnumValue>(
-            PropertyInfo propertyInfo, IPropertyBase propertyBase)
+            MemberInfo memberInfo, IPropertyBase propertyBase)
         {
-            var memberInfo = propertyBase?.GetMemberInfo(forConstruction: false, forSet: false)
-                             ?? propertyInfo.FindGetterProperty();
-
-            if (memberInfo == null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.NoGetter(propertyInfo.Name, propertyInfo.DeclaringType.ShortDisplayName(), nameof(PropertyAccessMode)));
-            }
-
             var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
-            var memberType = memberInfo.GetMemberType();
-            var defaultExpression = Expression.Default(memberType);
 
             Expression readExpression;
-            if (memberInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity).GetTypeInfo()))
+            if (memberInfo.DeclaringType.IsAssignableFrom(typeof(TEntity)))
             {
-                readExpression = Expression.MakeMemberAccess(entityParameter, memberInfo);
+                readExpression = CreateMemberAccess(entityParameter);
             }
             else
             {
@@ -55,32 +56,58 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             Expression.TypeAs(entityParameter, memberInfo.DeclaringType)),
                         Expression.Condition(
                             Expression.ReferenceEqual(converted, Expression.Constant(null)),
-                            defaultExpression,
-                            Expression.MakeMemberAccess(converted, memberInfo))
+                            Expression.Default(memberInfo.GetMemberType()),
+                            CreateMemberAccess(converted))
                     });
             }
 
-            var useRtmBehaviour = AppContext.TryGetSwitch(
-                                      "Microsoft.EntityFrameworkCore.Issue12290",
-                                      out var isEnabled)
-                                  && isEnabled;
+            if (readExpression.Type != typeof(TValue))
+            {
+                readExpression = Expression.Convert(readExpression, typeof(TValue));
+            }
 
-            var property = propertyBase as IProperty;
-            var comparer = memberType.IsNullableType() || useRtmBehaviour
-                ? null
-                : property?.GetValueComparer()
-                  ?? property?.FindMapping()?.Comparer
-                  ?? (ValueComparer)Activator.CreateInstance(
-                      typeof(ValueComparer<>).MakeGenericType(memberType),
-                      new object[] { false });
+            Expression hasDefaultValueExpression;
 
-            var hasDefaultValueExpression = comparer == null
-                ? Expression.Equal(readExpression, defaultExpression)
-                : comparer.ExtractEqualsBody(readExpression, defaultExpression);
+            if (!readExpression.Type.IsValueType)
+            {
+                hasDefaultValueExpression
+                    = Expression.ReferenceEqual(
+                        readExpression,
+                        Expression.Constant(null, readExpression.Type));
+            }
+            else if (readExpression.Type.IsGenericType
+                && readExpression.Type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                hasDefaultValueExpression
+                    = Expression.Not(
+                        Expression.Call(
+                            readExpression,
+                            readExpression.Type.GetMethod("get_HasValue")));
+            }
+            else
+            {
+                var property = propertyBase as IProperty;
+                var comparer = property?.GetValueComparer()
+                    ?? ValueComparer.CreateDefault(typeof(TValue), favorStructuralComparisons: false);
+
+                hasDefaultValueExpression = comparer.ExtractEqualsBody(
+                    comparer.Type != typeof(TValue)
+                        ? Expression.Convert(readExpression, comparer.Type)
+                        : readExpression,
+                    Expression.Default(comparer.Type));
+            }
 
             return new ClrPropertyGetter<TEntity, TValue>(
                 Expression.Lambda<Func<TEntity, TValue>>(readExpression, entityParameter).Compile(),
                 Expression.Lambda<Func<TEntity, bool>>(hasDefaultValueExpression, entityParameter).Compile());
+
+            Expression CreateMemberAccess(Expression parameter)
+            {
+                return propertyBase?.IsIndexerProperty() == true
+                    ? Expression.MakeIndex(
+                        parameter, (PropertyInfo)memberInfo, new List<Expression>() { Expression.Constant(propertyBase.Name) })
+                    : (Expression)Expression.MakeMemberAccess(parameter, memberInfo);
+            }
         }
     }
 }

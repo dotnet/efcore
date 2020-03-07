@@ -4,10 +4,11 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -18,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     {
-        [Theory]
+        [ConditionalTheory]
         [InlineData(nameof(ChangeTracker.DetectChanges), false)]
         [InlineData(nameof(PropertyEntry.CurrentValue), false)]
         [InlineData(nameof(PropertyEntry.OriginalValue), false)]
@@ -27,44 +28,38 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData(nameof(PropertyEntry.OriginalValue), true)]
         public void Row_version_is_marked_as_modified_only_if_it_really_changed(string mode, bool changeValue)
         {
-            using (var context = new OptimisticContext())
+            using var context = new OptimisticContext();
+            var token = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
+            var newToken = changeValue ? new byte[] { 1, 2, 3, 4, 0, 6, 7, 8 } : token;
+
+            var entity = context.Attach(
+                new WithRowVersion { Id = 789, Version = token.ToArray() }).Entity;
+
+            var propertyEntry = context.Entry(entity).Property(e => e.Version);
+
+            Assert.Equal(token, propertyEntry.CurrentValue);
+            Assert.Equal(token, propertyEntry.OriginalValue);
+            Assert.False(propertyEntry.IsModified);
+            Assert.Equal(EntityState.Unchanged, context.Entry(entity).State);
+
+            switch (mode)
             {
-                var token = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
-                var newToken = changeValue ? new byte[] { 1, 2, 3, 4, 0, 6, 7, 8 } : token;
-
-                var entity = context.Attach(
-                    new WithRowVersion
-                    {
-                        Id = 789,
-                        Version = token.ToArray()
-                    }).Entity;
-
-                var propertyEntry = context.Entry(entity).Property(e => e.Version);
-
-                Assert.Equal(token, propertyEntry.CurrentValue);
-                Assert.Equal(token, propertyEntry.OriginalValue);
-                Assert.False(propertyEntry.IsModified);
-                Assert.Equal(EntityState.Unchanged, context.Entry(entity).State);
-
-                switch (mode)
-                {
-                    case nameof(ChangeTracker.DetectChanges):
-                        entity.Version = newToken.ToArray();
-                        context.ChangeTracker.DetectChanges();
-                        break;
-                    case nameof(PropertyEntry.CurrentValue):
-                        propertyEntry.CurrentValue = newToken.ToArray();
-                        break;
-                    case nameof(PropertyEntry.OriginalValue):
-                        propertyEntry.OriginalValue = newToken.ToArray();
-                        break;
-                    default:
-                        throw new NotImplementedException("Unexpected test mode.");
-                }
-
-                Assert.Equal(changeValue, propertyEntry.IsModified);
-                Assert.Equal(changeValue ? EntityState.Modified : EntityState.Unchanged, context.Entry(entity).State);
+                case nameof(ChangeTracker.DetectChanges):
+                    entity.Version = newToken.ToArray();
+                    context.ChangeTracker.DetectChanges();
+                    break;
+                case nameof(PropertyEntry.CurrentValue):
+                    propertyEntry.CurrentValue = newToken.ToArray();
+                    break;
+                case nameof(PropertyEntry.OriginalValue):
+                    propertyEntry.OriginalValue = newToken.ToArray();
+                    break;
+                default:
+                    throw new NotImplementedException("Unexpected test mode.");
             }
+
+            Assert.Equal(changeValue, propertyEntry.IsModified);
+            Assert.Equal(changeValue ? EntityState.Modified : EntityState.Unchanged, context.Entry(entity).State);
         }
 
         private class WithRowVersion
@@ -78,7 +73,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             public DbSet<WithRowVersion> _ { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer("Data Source=Branston");
+                => optionsBuilder
+                    .UseInternalServiceProvider(SqlServerFixture.DefaultServiceProvider)
+                    .UseSqlServer("Data Source=Branston");
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -92,6 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected override DbType DefaultParameterType
             => DbType.Int32;
 
+        [ConditionalTheory]
         [InlineData(typeof(SqlServerDateTimeOffsetTypeMapping), typeof(DateTimeOffset))]
         [InlineData(typeof(SqlServerDateTimeTypeMapping), typeof(DateTime))]
         [InlineData(typeof(SqlServerDoubleTypeMapping), typeof(double))]
@@ -102,24 +100,33 @@ namespace Microsoft.EntityFrameworkCore.Storage
             base.Create_and_clone_with_converter(mappingType, clrType);
         }
 
-        [InlineData(typeof(SqlServerByteArrayTypeMapping), typeof(byte[]))]
-        public override void Create_and_clone_sized_mappings_with_converter(Type mappingType, Type clrType)
+        [ConditionalFact]
+        public virtual void Create_and_clone_SQL_Server_sized_mappings_with_converter()
         {
-            base.Create_and_clone_sized_mappings_with_converter(mappingType, clrType);
+            ConversionCloneTest(
+                typeof(SqlServerByteArrayTypeMapping),
+                typeof(byte[]),
+                SqlDbType.Image);
         }
 
-        [InlineData(typeof(SqlServerStringTypeMapping), typeof(string))]
-        public override void Create_and_clone_unicode_sized_mappings_with_converter(Type mappingType, Type clrType)
+        [ConditionalFact]
+        public virtual void Create_and_clone_SQL_Server_unicode_sized_mappings_with_converter()
         {
-            base.Create_and_clone_unicode_sized_mappings_with_converter(mappingType, clrType);
+            UnicodeConversionCloneTest(
+                typeof(SqlServerStringTypeMapping),
+                typeof(string),
+                SqlDbType.Text);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Create_and_clone_UDT_mapping_with_converter()
         {
+            Func<object, Expression> literalGenerator = Expression.Constant;
+
             var mapping = new SqlServerUdtTypeMapping(
                 typeof(object),
                 "storeType",
+                literalGenerator,
                 StoreTypePostfix.None,
                 "udtType",
                 new FakeValueConverter(),
@@ -150,6 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Same(typeof(object), clone.ClrType);
             Assert.True(mapping.IsFixedLength);
             Assert.True(clone.IsFixedLength);
+            Assert.Same(literalGenerator, clone.LiteralGenerator);
 
             var newConverter = new FakeValueConverter();
             clone = (SqlServerUdtTypeMapping)mapping.Clone(newConverter);
@@ -171,6 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Same(typeof(object), clone.ClrType);
             Assert.True(mapping.IsFixedLength);
             Assert.True(clone.IsFixedLength);
+            Assert.Same(literalGenerator, clone.LiteralGenerator);
         }
 
         public static RelationalTypeMapping GetMapping(Type type)
@@ -179,55 +188,103 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
                 .FindMapping(type);
 
-        public override void GenerateSqlLiteral_returns_ByteArray_literal()
+        public override void ByteArray_literal_generated_correctly()
         {
-            var value = new byte[] { 0xDA, 0x7A };
-            var literal = GetMapping(typeof(byte[])).GenerateSqlLiteral(value);
-            Assert.Equal("0xDA7A", literal);
+            Test_GenerateSqlLiteral_helper(GetMapping(typeof(byte[])), new byte[] { 0xDA, 0x7A }, "0xDA7A");
         }
 
-        public override void GenerateSqlLiteral_returns_DateTime_literal()
+        public override void Byte_literal_generated_correctly()
         {
-            var value = new DateTime(2015, 3, 12, 13, 36, 37, 371);
-            var literal = GetMapping(typeof(DateTime)).GenerateSqlLiteral(value);
+            var typeMapping = GetMapping(typeof(byte));
 
-            Assert.Equal("'2015-03-12T13:36:37.3710000'", literal);
+            Test_GenerateSqlLiteral_helper(typeMapping, byte.MinValue, "CAST(0 AS tinyint)");
+            Test_GenerateSqlLiteral_helper(typeMapping, byte.MaxValue, "CAST(255 AS tinyint)");
         }
 
-        public override void GenerateSqlLiteral_returns_DateTimeOffset_literal()
+        public override void DateTimeOffset_literal_generated_correctly()
         {
-            var value = new DateTimeOffset(2015, 3, 12, 13, 36, 37, 371, new TimeSpan(-7, 0, 0));
-            var literal = GetMapping(typeof(DateTimeOffset)).GenerateSqlLiteral(value);
+            Test_GenerateSqlLiteral_helper(
+                GetMapping(typeof(DateTimeOffset)),
+                new DateTimeOffset(2015, 3, 12, 13, 36, 37, 371, new TimeSpan(-7, 0, 0)),
+                "'2015-03-12T13:36:37.3710000-07:00'");
+        }
 
-            Assert.Equal("'2015-03-12T13:36:37.371-07:00'", literal);
+        public override void DateTime_literal_generated_correctly()
+        {
+            Test_GenerateSqlLiteral_helper(
+                GetMapping(typeof(DateTime)),
+                new DateTime(2015, 3, 12, 13, 36, 37, 371, DateTimeKind.Utc),
+                "'2015-03-12T13:36:37.3710000Z'");
+
+            Test_GenerateSqlLiteral_helper(
+                GetMapping("date"),
+                new DateTime(2015, 3, 12, 13, 36, 37, 371, DateTimeKind.Utc),
+                "'2015-03-12'");
+
+            Test_GenerateSqlLiteral_helper(
+                GetMapping("datetime"),
+                new DateTime(2015, 3, 12, 13, 36, 37, 371, DateTimeKind.Utc),
+                "'2015-03-12T13:36:37.371'");
+
+            Test_GenerateSqlLiteral_helper(
+                GetMapping("smalldatetime"),
+                new DateTime(2015, 3, 12, 13, 36, 37, 371, DateTimeKind.Utc),
+                "'2015-03-12T13:36:37'");
+
+            Test_GenerateSqlLiteral_helper(
+                GetMapping("datetime2"),
+                new DateTime(2015, 3, 12, 13, 36, 37, 371, DateTimeKind.Utc),
+                "'2015-03-12T13:36:37.3710000Z'");
+        }
+
+        public override void Float_literal_generated_correctly()
+        {
+            var typeMapping = GetMapping(typeof(float));
+
+            Test_GenerateSqlLiteral_helper(typeMapping, float.NaN, "CAST(NaN AS real)");
+            Test_GenerateSqlLiteral_helper(typeMapping, float.PositiveInfinity, "CAST(Infinity AS real)");
+            Test_GenerateSqlLiteral_helper(typeMapping, float.NegativeInfinity, "CAST(-Infinity AS real)");
+            Test_GenerateSqlLiteral_helper(typeMapping, float.MinValue, "CAST(-3.4028235E+38 AS real)");
+            Test_GenerateSqlLiteral_helper(typeMapping, float.MaxValue, "CAST(3.4028235E+38 AS real)");
+        }
+
+        public override void Long_literal_generated_correctly()
+        {
+            var typeMapping = GetMapping(typeof(long));
+
+            Test_GenerateSqlLiteral_helper(typeMapping, long.MinValue, "CAST(-9223372036854775808 AS bigint)");
+            Test_GenerateSqlLiteral_helper(typeMapping, long.MaxValue, "CAST(9223372036854775807 AS bigint)");
+        }
+
+        public override void Short_literal_generated_correctly()
+        {
+            var typeMapping = GetMapping(typeof(short));
+
+            Test_GenerateSqlLiteral_helper(typeMapping, short.MinValue, "CAST(-32768 AS smallint)");
+            Test_GenerateSqlLiteral_helper(typeMapping, short.MaxValue, "CAST(32767 AS smallint)");
+        }
+
+        [ConditionalFact]
+        public virtual void SqlVariant_literal_generated_correctly()
+        {
+            var typeMapping = GetMapping("sql_variant");
+
+            Test_GenerateSqlLiteral_helper(typeMapping, 1, "1");
+        }
+
+        public override void String_literal_generated_correctly()
+        {
+            Test_GenerateSqlLiteral_helper(GetMapping("nvarchar(max)"), "Text", "N'Text'");
+            Test_GenerateSqlLiteral_helper(GetMapping("varchar(max)"), "Text", "'Text'");
         }
 
         public static RelationalTypeMapping GetMapping(string type)
             => new SqlServerTypeMappingSource(
-                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
+                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
                 .FindMapping(type);
 
-        [Fact]
-        public virtual void GenerateSqlLiteralValue_returns_Unicode_String_literal()
-        {
-            var mapping = GetMapping("nvarchar(max)");
-
-            var literal = mapping.GenerateSqlLiteral("A Unicode String");
-
-            Assert.Equal("N'A Unicode String'", literal);
-        }
-
-        [Fact]
-        public virtual void GenerateSqlLiteralValue_returns_NonUnicode_String_literal()
-        {
-            var mapping = GetMapping("varchar(max)");
-
-            var literal = mapping.GenerateSqlLiteral("A Non-Unicode String");
-            Assert.Equal("'A Non-Unicode String'", literal);
-        }
-
-        [Theory]
+        [ConditionalTheory]
         [InlineData("Microsoft.SqlServer.Types.SqlHierarchyId", "hierarchyid")]
         [InlineData("Microsoft.SqlServer.Types.SqlGeography", "geography")]
         [InlineData("Microsoft.SqlServer.Types.SqlGeometry", "geometry")]
@@ -260,9 +317,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
             public override Type GetNestedType(string name, BindingFlags bindingAttr) => throw new NotImplementedException();
             public override Type GetElementType() => throw new NotImplementedException();
             protected override bool HasElementTypeImpl() => throw new NotImplementedException();
-            protected override PropertyInfo GetPropertyImpl(string name, BindingFlags bindingAttr, Binder binder, Type returnType, Type[] types, ParameterModifier[] modifiers) => throw new NotImplementedException();
+
+            protected override PropertyInfo GetPropertyImpl(
+                string name, BindingFlags bindingAttr, Binder binder, Type returnType, Type[] types, ParameterModifier[] modifiers) =>
+                throw new NotImplementedException();
+
             public override PropertyInfo[] GetProperties(BindingFlags bindingAttr) => throw new NotImplementedException();
-            protected override MethodInfo GetMethodImpl(string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers) => throw new NotImplementedException();
+
+            protected override MethodInfo GetMethodImpl(
+                string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types,
+                ParameterModifier[] modifiers) => throw new NotImplementedException();
+
             public override MethodInfo[] GetMethods(BindingFlags bindingAttr) => throw new NotImplementedException();
             public override FieldInfo GetField(string name, BindingFlags bindingAttr) => throw new NotImplementedException();
             public override FieldInfo[] GetFields(BindingFlags bindingAttr) => throw new NotImplementedException();
@@ -273,9 +338,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
             protected override bool IsPointerImpl() => throw new NotImplementedException();
             protected override bool IsPrimitiveImpl() => throw new NotImplementedException();
             protected override bool IsCOMObjectImpl() => throw new NotImplementedException();
-            public override object InvokeMember(string name, BindingFlags invokeAttr, Binder binder, object target, object[] args, ParameterModifier[] modifiers, CultureInfo culture, string[] namedParameters) => throw new NotImplementedException();
+
+            public override object InvokeMember(
+                string name, BindingFlags invokeAttr, Binder binder, object target, object[] args, ParameterModifier[] modifiers,
+                CultureInfo culture, string[] namedParameters) => throw new NotImplementedException();
+
             public override Type UnderlyingSystemType { get; }
-            protected override ConstructorInfo GetConstructorImpl(BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers) => throw new NotImplementedException();
+
+            protected override ConstructorInfo GetConstructorImpl(
+                BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers) =>
+                throw new NotImplementedException();
+
             public override string Name => throw new NotImplementedException();
             public override Guid GUID => throw new NotImplementedException();
             public override Module Module => throw new NotImplementedException();
@@ -293,6 +366,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         protected override DbContextOptions ContextOptions { get; }
-            = new DbContextOptionsBuilder().UseSqlServer("Server=Dummy").Options;
+            = new DbContextOptionsBuilder()
+                .UseInternalServiceProvider(SqlServerFixture.DefaultServiceProvider)
+                .UseSqlServer("Server=Dummy").Options;
     }
 }

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -27,17 +27,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => new TestExecutionStrategy(
                 Context,
                 shouldRetryOn: e =>
-                    {
-                        Assert.True(false);
-                        return false;
-                    },
+                {
+                    Assert.True(false);
+                    return false;
+                },
                 getNextDelay: e =>
-                    {
-                        Assert.True(false);
-                        return null;
-                    });
+                {
+                    Assert.True(false);
+                    return null;
+                });
 
-        [Fact]
+        [ConditionalFact]
         public void GetNextDelay_returns_the_expected_default_sequence()
         {
             var strategy = new TestExecutionStrategy(Context);
@@ -63,13 +63,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             for (var i = 0; i < expectedDelays.Count; i++)
             {
                 Assert.True(
-                    Math.Abs((delays[i] - expectedDelays[i]).TotalMilliseconds) <=
-                    expectedDelays[i].TotalMilliseconds * 0.1 + 1,
-                    string.Format("Expected: {0}; Actual: {1}", expectedDelays[i], delays[i]));
+                    Math.Abs((delays[i] - expectedDelays[i]).TotalMilliseconds)
+                    <= expectedDelays[i].TotalMilliseconds * 0.1 + 1,
+                    $"Expected: {expectedDelays[i]}; Actual: {delays[i]}");
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void RetriesOnFailure_returns_true()
         {
             var mockExecutionStrategy = new TestExecutionStrategy(Context);
@@ -77,13 +77,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.True(mockExecutionStrategy.RetriesOnFailure);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Action_throws_for_an_existing_transaction()
         {
             Execute_throws_for_an_existing_transaction(e => e.Execute(() => { }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Func_throws_for_an_existing_transaction()
         {
             Execute_throws_for_an_existing_transaction(e => e.Execute(() => 1));
@@ -95,20 +95,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
             using (Context.Database.BeginTransaction())
             {
                 Assert.Equal(
-                    CoreStrings.ExecutionStrategyExistingTransaction(mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
+                    CoreStrings.ExecutionStrategyExistingTransaction(
+                        mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
                     Assert.Throws<InvalidOperationException>(
-                        () => execute(mockExecutionStrategy))
+                            () => execute(mockExecutionStrategy))
                         .Message);
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Action_throws_for_an_ambient_transaction()
         {
             Execute_throws_for_an_ambient_transaction(e => e.Execute(() => { }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Func_throws_for_an_ambient_transaction()
         {
             Execute_throws_for_an_ambient_transaction(e => e.Execute(() => 1));
@@ -117,23 +118,24 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private void Execute_throws_for_an_ambient_transaction(Action<ExecutionStrategy> execute)
         {
             var mockExecutionStrategy = new TestExecutionStrategy(Context);
-            using (new TransactionScope())
+            using (TestStore.CreateTransactionScope())
             {
                 Assert.Equal(
-                    CoreStrings.ExecutionStrategyExistingTransaction(mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
+                    CoreStrings.ExecutionStrategyExistingTransaction(
+                        mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
                     Assert.Throws<InvalidOperationException>(
-                        () => execute(mockExecutionStrategy))
+                            () => execute(mockExecutionStrategy))
                         .Message);
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Action_throws_for_an_enlisted_transaction()
         {
             Execute_throws_for_an_enlisted_transaction(e => e.Execute(() => { }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Func_throws_for_an_enlisted_transaction()
         {
             Execute_throws_for_an_enlisted_transaction(e => e.Execute(() => 1));
@@ -142,25 +144,24 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private void Execute_throws_for_an_enlisted_transaction(Action<ExecutionStrategy> execute)
         {
             var mockExecutionStrategy = new TestExecutionStrategy(Context);
-            using (var t = new CommittableTransaction())
-            {
-                Context.Database.EnlistTransaction(t);
+            using var t = new CommittableTransaction();
+            Context.Database.EnlistTransaction(t);
 
-                Assert.Equal(
-                    CoreStrings.ExecutionStrategyExistingTransaction(mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
-                    Assert.Throws<InvalidOperationException>(
+            Assert.Equal(
+                CoreStrings.ExecutionStrategyExistingTransaction(
+                    mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
+                Assert.Throws<InvalidOperationException>(
                         () => execute(mockExecutionStrategy))
-                        .Message);
-            }
+                    .Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Action_does_not_throw_when_invoked_twice()
         {
-            Execute_does_not_throw_when_invoked_twice((e, f) => e.Execute(() => { f(); }));
+            Execute_does_not_throw_when_invoked_twice((e, f) => e.Execute(() => f()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Func_does_not_throw_when_invoked_twice()
         {
             Execute_does_not_throw_when_invoked_twice((e, f) => e.Execute(f));
@@ -178,33 +179,34 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 execute(
                     executionStrategyMock, () =>
+                    {
+                        if (!executed)
                         {
-                            if (!executed)
-                            {
-                                executed = true;
-                                throw new ArgumentOutOfRangeException();
-                            }
-                            return 0;
-                        });
+                            executed = true;
+                            throw new ArgumentOutOfRangeException();
+                        }
+
+                        return 0;
+                    });
 
                 Assert.True(executed);
                 executed = false;
             }
         }
 
-        [Fact]
-        public void Execute_Action_doesnt_retry_if_succesful()
+        [ConditionalFact]
+        public void Execute_Action_doesnt_retry_if_successful()
         {
-            Execute_doesnt_retry_if_succesful((e, f) => e.Execute(() => { f(); }));
+            Execute_doesnt_retry_if_successful((e, f) => e.Execute(() => f()));
         }
 
-        [Fact]
-        public void Execute_Func_doesnt_retry_if_succesful()
+        [ConditionalFact]
+        public void Execute_Func_doesnt_retry_if_successful()
         {
-            Execute_doesnt_retry_if_succesful((e, f) => e.Execute(f));
+            Execute_doesnt_retry_if_successful((e, f) => e.Execute(f));
         }
 
-        private void Execute_doesnt_retry_if_succesful(Action<ExecutionStrategy, Func<int>> execute)
+        private void Execute_doesnt_retry_if_successful(Action<ExecutionStrategy, Func<int>> execute)
         {
             var executionCount = 0;
             execute(CreateFailOnRetryStrategy(), () => executionCount++);
@@ -212,13 +214,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(1, executionCount);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Action_doesnt_retry_if_suspended()
         {
-            Execute_doesnt_retry_if_suspended((e, f) => e.Execute(() => { f(); }));
+            Execute_doesnt_retry_if_suspended((e, f) => e.Execute(() => f()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Func_doesnt_retry_if_suspended()
         {
             Execute_doesnt_retry_if_suspended((e, f) => e.Execute(f));
@@ -232,28 +234,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 () =>
                     execute(
                         CreateFailOnRetryStrategy(), () =>
-                            {
-                                executionCount++;
-                                throw new DbUpdateException("", new ArgumentOutOfRangeException());
-                            }));
+                        {
+                            executionCount++;
+                            throw new DbUpdateException("", new ArgumentOutOfRangeException());
+                        }));
             TestExecutionStrategy.Suspended = false;
 
             Assert.Equal(1, executionCount);
         }
 
-        [Fact]
-        public void Execute_Action_retries_until_succesful()
+        [ConditionalFact]
+        public void Execute_Action_retries_until_successful()
         {
-            Execute_retries_until_succesful((e, f) => e.Execute(() => { f(); }));
+            Execute_retries_until_successful((e, f) => e.Execute(() => f()));
         }
 
-        [Fact]
-        public void Execute_Func_retries_until_succesful()
+        [ConditionalFact]
+        public void Execute_Func_retries_until_successful()
         {
-            Execute_retries_until_succesful((e, f) => e.Execute(f));
+            Execute_retries_until_successful((e, f) => e.Execute(f));
         }
 
-        private void Execute_retries_until_succesful(Action<ExecutionStrategy, Func<int>> execute)
+        private void Execute_retries_until_successful(Action<ExecutionStrategy, Func<int>> execute)
         {
             var executionStrategyMock = new TestExecutionStrategy(
                 Context,
@@ -264,31 +266,31 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             execute(
                 executionStrategyMock, () =>
+                {
+                    if (executionCount++ < 3)
                     {
-                        if (executionCount++ < 3)
-                        {
-                            throw new DbUpdateException("", new ArgumentOutOfRangeException());
-                        }
+                        throw new DbUpdateException("", new ArgumentOutOfRangeException());
+                    }
 
-                        return executionCount;
-                    });
+                    return executionCount;
+                });
 
             Assert.Equal(4, executionCount);
         }
 
-        [Fact]
-        public void Execute_Action_retries_until_not_retrieable_exception_is_thrown()
+        [ConditionalFact]
+        public void Execute_Action_retries_until_not_retriable_exception_is_thrown()
         {
-            Execute_retries_until_not_retrieable_exception_is_thrown((e, f) => e.Execute(() => { f(); }));
+            Execute_retries_until_not_retriable_exception_is_thrown((e, f) => e.Execute(() => f()));
         }
 
-        [Fact]
-        public void Execute_Func_retries_until_not_retrieable_exception_is_thrown()
+        [ConditionalFact]
+        public void Execute_Func_retries_until_not_retriable_exception_is_thrown()
         {
-            Execute_retries_until_not_retrieable_exception_is_thrown((e, f) => e.Execute(f));
+            Execute_retries_until_not_retriable_exception_is_thrown((e, f) => e.Execute(f));
         }
 
-        private void Execute_retries_until_not_retrieable_exception_is_thrown(Action<ExecutionStrategy, Func<int>> execute)
+        private void Execute_retries_until_not_retriable_exception_is_thrown(Action<ExecutionStrategy, Func<int>> execute)
         {
             var executionStrategyMock = new TestExecutionStrategy(
                 Context,
@@ -301,24 +303,25 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 () =>
                     execute(
                         executionStrategyMock, () =>
+                        {
+                            if (executionCount++ < 3)
                             {
-                                if (executionCount++ < 3)
-                                {
-                                    throw new ArgumentOutOfRangeException();
-                                }
-                                throw new ArgumentNullException();
-                            }));
+                                throw new ArgumentOutOfRangeException();
+                            }
+
+                            throw new ArgumentNullException();
+                        }));
 
             Assert.Equal(4, executionCount);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Action_retries_until_limit_is_reached()
         {
-            Execute_retries_until_limit_is_reached((e, f) => e.Execute(() => { f(); }));
+            Execute_retries_until_limit_is_reached((e, f) => e.Execute(() => f()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Func_retries_until_limit_is_reached()
         {
             Execute_retries_until_limit_is_reached((e, f) => e.Execute(f));
@@ -336,14 +339,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.IsType<ArgumentOutOfRangeException>(
                 Assert.Throws<RetryLimitExceededException>(
-                    () =>
-                        execute(
-                            executionStrategyMock, () =>
+                        () =>
+                            execute(
+                                executionStrategyMock, () =>
                                 {
                                     if (executionCount++ < 3)
                                     {
                                         throw new ArgumentOutOfRangeException();
                                     }
+
                                     Assert.True(false);
                                     return 0;
                                 }))
@@ -352,13 +356,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(3, executionCount);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task ExecuteAsync_Action_throws_for_an_existing_transaction()
         {
             return ExecuteAsync_throws_for_an_existing_transaction(e => e.ExecuteAsync(() => (Task)Task.FromResult(1)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task ExecuteAsync_Func_throws_for_an_existing_transaction()
         {
             return ExecuteAsync_throws_for_an_existing_transaction(e => e.ExecuteAsync(ct => Task.FromResult(1), CancellationToken.None));
@@ -370,77 +374,79 @@ namespace Microsoft.EntityFrameworkCore.Storage
             using (Context.Database.BeginTransaction())
             {
                 Assert.Equal(
-                    CoreStrings.ExecutionStrategyExistingTransaction(mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
+                    CoreStrings.ExecutionStrategyExistingTransaction(
+                        mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => executeAsync(mockExecutionStrategy))).Message);
             }
         }
 
-        [Fact]
-        public void ExecuteAsync_Action_throws_for_an_ambient_transaction()
+        [ConditionalFact]
+        public async Task ExecuteAsync_Action_throws_for_an_ambient_transaction()
         {
-            ExecuteAsync_throws_for_an_ambient_transaction(e => e.ExecuteAsync(() => (Task)Task.FromResult(1)));
+            await ExecuteAsync_throws_for_an_ambient_transaction(e => e.ExecuteAsync(() => (Task)Task.FromResult(1)));
         }
 
-        [Fact]
-        public void ExecuteAsync_Func_throws_for_an_ambient_transaction()
+        [ConditionalFact]
+        public async Task ExecuteAsync_Func_throws_for_an_ambient_transaction()
         {
-            ExecuteAsync_throws_for_an_ambient_transaction(e => e.ExecuteAsync(ct => Task.FromResult(1), CancellationToken.None));
+            await ExecuteAsync_throws_for_an_ambient_transaction(e => e.ExecuteAsync(ct => Task.FromResult(1), CancellationToken.None));
         }
 
-        private async void ExecuteAsync_throws_for_an_ambient_transaction(Func<ExecutionStrategy, Task> executeAsync)
+        private async Task ExecuteAsync_throws_for_an_ambient_transaction(Func<ExecutionStrategy, Task> executeAsync)
         {
             var mockExecutionStrategy = new TestExecutionStrategy(Context);
-            using (new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            using (TestStore.CreateTransactionScope())
             {
                 Assert.Equal(
-                    CoreStrings.ExecutionStrategyExistingTransaction(mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
+                    CoreStrings.ExecutionStrategyExistingTransaction(
+                        mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => executeAsync(mockExecutionStrategy)))
-                        .Message);
+                    .Message);
             }
         }
 
-        [Fact]
-        public void ExecuteAsync_Action_throws_for_an_enlisted_transaction()
+        [ConditionalFact]
+        public async Task ExecuteAsync_Action_throws_for_an_enlisted_transaction()
         {
-            ExecuteAsync_throws_for_an_enlisted_transaction(e => e.ExecuteAsync(() => (Task)Task.FromResult(1)));
+            await ExecuteAsync_throws_for_an_enlisted_transaction(e => e.ExecuteAsync(() => (Task)Task.FromResult(1)));
         }
 
-        [Fact]
-        public void ExecuteAsync_Func_throws_for_an_enlisted_transaction()
+        [ConditionalFact]
+        public async Task ExecuteAsync_Func_throws_for_an_enlisted_transaction()
         {
-            ExecuteAsync_throws_for_an_enlisted_transaction(e => e.ExecuteAsync(ct => Task.FromResult(1), CancellationToken.None));
+            await ExecuteAsync_throws_for_an_enlisted_transaction(e => e.ExecuteAsync(ct => Task.FromResult(1), CancellationToken.None));
         }
 
-        private async void ExecuteAsync_throws_for_an_enlisted_transaction(Func<ExecutionStrategy, Task> executeAsync)
+        private async Task ExecuteAsync_throws_for_an_enlisted_transaction(Func<ExecutionStrategy, Task> executeAsync)
         {
             var mockExecutionStrategy = new TestExecutionStrategy(Context);
-            using (var t = new CommittableTransaction())
-            {
-                Context.Database.EnlistTransaction(t);
+            using var t = new CommittableTransaction();
+            Context.Database.EnlistTransaction(t);
 
-                Assert.Equal(
-                    CoreStrings.ExecutionStrategyExistingTransaction(mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => executeAsync(mockExecutionStrategy)))
-                        .Message);
-            }
+            Assert.Equal(
+                CoreStrings.ExecutionStrategyExistingTransaction(
+                    mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => executeAsync(mockExecutionStrategy)))
+                .Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task ExecuteAsync_Action_does_not_throw_when_invoked_twice()
         {
             return ExecuteAsync_does_not_throw_when_invoked_twice((e, f) => e.ExecuteAsync(() => (Task)f(CancellationToken.None)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task ExecuteAsync_Func_does_not_throw_when_invoked_twice()
         {
             return ExecuteAsync_does_not_throw_when_invoked_twice((e, f) => e.ExecuteAsync(f, CancellationToken.None));
         }
 
-        private async Task ExecuteAsync_does_not_throw_when_invoked_twice(Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
+        private async Task ExecuteAsync_does_not_throw_when_invoked_twice(
+            Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
         {
             var executed = false;
 
@@ -452,33 +458,35 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 await executeAsync(
                     executionStrategyMock, ct =>
+                    {
+                        if (!executed)
                         {
-                            if (!executed)
-                            {
-                                executed = true;
-                                throw new ArgumentOutOfRangeException();
-                            }
-                            return Task.FromResult(0);
-                        });
+                            executed = true;
+                            throw new ArgumentOutOfRangeException();
+                        }
+
+                        return Task.FromResult(0);
+                    });
 
                 Assert.True(executed);
                 executed = false;
             }
         }
 
-        [Fact]
-        public Task ExecuteAsync_Action_doesnt_retry_if_succesful()
+        [ConditionalFact]
+        public Task ExecuteAsync_Action_doesnt_retry_if_successful()
         {
-            return ExecuteAsync_doesnt_retry_if_succesful((e, f) => e.ExecuteAsync(ct => (Task)f(ct), CancellationToken.None));
+            return ExecuteAsync_doesnt_retry_if_successful((e, f) => e.ExecuteAsync(ct => (Task)f(ct), CancellationToken.None));
         }
 
-        [Fact]
-        public Task ExecuteAsync_Func_doesnt_retry_if_succesful()
+        [ConditionalFact]
+        public Task ExecuteAsync_Func_doesnt_retry_if_successful()
         {
-            return ExecuteAsync_doesnt_retry_if_succesful((e, f) => e.ExecuteAsync(f, CancellationToken.None));
+            return ExecuteAsync_doesnt_retry_if_successful((e, f) => e.ExecuteAsync(f, CancellationToken.None));
         }
 
-        private async Task ExecuteAsync_doesnt_retry_if_succesful(Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
+        private async Task ExecuteAsync_doesnt_retry_if_successful(
+            Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
         {
             var executionCount = 0;
             await executeAsync(CreateFailOnRetryStrategy(), ct => Task.FromResult(executionCount++));
@@ -486,19 +494,20 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(1, executionCount);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task ExecuteAsync_Action_doesnt_retry_if_suspended()
         {
             return ExecuteAsync_doesnt_retry_if_suspended((e, f) => e.ExecuteAsync(() => (Task)f(CancellationToken.None)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task ExecuteAsync_Func_doesnt_retry_if_suspended()
         {
             return ExecuteAsync_doesnt_retry_if_suspended((e, f) => e.ExecuteAsync(f, CancellationToken.None));
         }
 
-        private async Task ExecuteAsync_doesnt_retry_if_suspended(Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
+        private async Task ExecuteAsync_doesnt_retry_if_suspended(
+            Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
         {
             TestExecutionStrategy.Suspended = true;
             var executionCount = 0;
@@ -506,28 +515,29 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 () =>
                     executeAsync(
                         CreateFailOnRetryStrategy(), ct =>
-                            {
-                                executionCount++;
-                                throw new DbUpdateException("", new ArgumentOutOfRangeException());
-                            }));
+                        {
+                            executionCount++;
+                            throw new DbUpdateException("", new ArgumentOutOfRangeException());
+                        }));
             TestExecutionStrategy.Suspended = false;
 
             Assert.Equal(1, executionCount);
         }
 
-        [Fact]
-        public Task ExecuteAsync_Action_retries_until_succesful()
+        [ConditionalFact]
+        public Task ExecuteAsync_Action_retries_until_successful()
         {
-            return ExecuteAsync_retries_until_succesful((e, f) => e.ExecuteAsync(ct => (Task)f(ct), CancellationToken.None));
+            return ExecuteAsync_retries_until_successful((e, f) => e.ExecuteAsync(ct => (Task)f(ct), CancellationToken.None));
         }
 
-        [Fact]
-        public Task ExecuteAsync_Func_retries_until_succesful()
+        [ConditionalFact]
+        public Task ExecuteAsync_Func_retries_until_successful()
         {
-            return ExecuteAsync_retries_until_succesful((e, f) => e.ExecuteAsync(f, CancellationToken.None));
+            return ExecuteAsync_retries_until_successful((e, f) => e.ExecuteAsync(f, CancellationToken.None));
         }
 
-        private async Task ExecuteAsync_retries_until_succesful(Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
+        private async Task ExecuteAsync_retries_until_successful(
+            Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
         {
             var executionStrategyMock = new TestExecutionStrategy(
                 Context,
@@ -538,26 +548,26 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             await executeAsync(
                 executionStrategyMock, ct =>
+                {
+                    if (executionCount++ < 3)
                     {
-                        if (executionCount++ < 3)
-                        {
-                            throw new DbUpdateException("", new ArgumentOutOfRangeException());
-                        }
+                        throw new DbUpdateException("", new ArgumentOutOfRangeException());
+                    }
 
-                        return Task.FromResult(executionCount);
-                    });
+                    return Task.FromResult(executionCount);
+                });
 
             Assert.Equal(4, executionCount);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task ExecuteAsync_Action_retries_until_not_retrieable_exception_is_thrown()
         {
             return ExecuteAsync_retries_until_not_retrieable_exception_is_thrown(
                 (e, f) => e.ExecuteAsync(ct => (Task)f(ct), CancellationToken.None));
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task ExecuteAsync_Func_retries_until_not_retrieable_exception_is_thrown()
         {
             return ExecuteAsync_retries_until_not_retrieable_exception_is_thrown((e, f) => e.ExecuteAsync(f, CancellationToken.None));
@@ -576,30 +586,32 @@ namespace Microsoft.EntityFrameworkCore.Storage
             await Assert.ThrowsAsync<ArgumentNullException>(
                 () => executeAsync(
                     executionStrategyMock, ct =>
+                    {
+                        if (executionCount++ < 3)
                         {
-                            if (executionCount++ < 3)
-                            {
-                                throw new ArgumentOutOfRangeException();
-                            }
-                            throw new ArgumentNullException();
-                        }));
+                            throw new ArgumentOutOfRangeException();
+                        }
+
+                        throw new ArgumentNullException();
+                    }));
 
             Assert.Equal(4, executionCount);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task ExecuteAsync_Action_retries_until_limit_is_reached()
         {
             return ExecuteAsync_retries_until_limit_is_reached((e, f) => e.ExecuteAsync(ct => (Task)f(ct), CancellationToken.None));
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task ExecuteAsync_Func_retries_until_limit_is_reached()
         {
             return ExecuteAsync_retries_until_limit_is_reached((e, f) => e.ExecuteAsync(f, CancellationToken.None));
         }
 
-        private async Task ExecuteAsync_retries_until_limit_is_reached(Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
+        private async Task ExecuteAsync_retries_until_limit_is_reached(
+            Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
         {
             var executionCount = 0;
 
@@ -615,14 +627,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     () =>
                         executeAsync(
                             executionStrategyMock, ct =>
+                            {
+                                if (executionCount++ < 3)
                                 {
-                                    if (executionCount++ < 3)
-                                    {
-                                        throw new DbUpdateException("", new ArgumentOutOfRangeException());
-                                    }
-                                    Assert.True(false);
-                                    return Task.FromResult(0);
-                                }))).InnerException.InnerException);
+                                    throw new DbUpdateException("", new ArgumentOutOfRangeException());
+                                }
+
+                                Assert.True(false);
+                                return Task.FromResult(0);
+                            }))).InnerException.InnerException);
 
             Assert.Equal(3, executionCount);
         }
@@ -668,7 +681,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 return base.GetNextDelay(lastException);
             }
 
-            public new static bool Suspended
+            public static new bool Suspended
             {
                 set => ExecutionStrategy.Suspended = value;
             }

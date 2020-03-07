@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -23,63 +23,64 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerDatabaseCreatorTest
     {
-        [Fact]
-        public async Task Create_checks_for_existence_and_retries_if_no_proccess_until_it_passes()
+        [ConditionalFact]
+        public Task Create_checks_for_existence_and_retries_if_no_proccess_until_it_passes()
         {
-            await Create_checks_for_existence_and_retries_until_it_passes(233, async: false);
+            return Create_checks_for_existence_and_retries_until_it_passes(233, async: false);
         }
 
-        [Fact]
-        public async Task Create_checks_for_existence_and_retries_if_timeout_until_it_passes()
+        [ConditionalFact]
+        public Task Create_checks_for_existence_and_retries_if_timeout_until_it_passes()
         {
-            await Create_checks_for_existence_and_retries_until_it_passes(-2, async: false);
+            return Create_checks_for_existence_and_retries_until_it_passes(-2, async: false);
         }
 
-        [Fact]
-        public async Task Create_checks_for_existence_and_retries_if_cannot_open_until_it_passes()
+        [ConditionalFact]
+        public Task Create_checks_for_existence_and_retries_if_cannot_open_until_it_passes()
         {
-            await Create_checks_for_existence_and_retries_until_it_passes(4060, async: false);
+            return Create_checks_for_existence_and_retries_until_it_passes(4060, async: false);
         }
 
-        [Fact]
-        public async Task Create_checks_for_existence_and_retries_if_cannot_attach_file_until_it_passes()
+        [ConditionalFact]
+        public Task Create_checks_for_existence_and_retries_if_cannot_attach_file_until_it_passes()
         {
-            await Create_checks_for_existence_and_retries_until_it_passes(1832, async: false);
-        }
-        [Fact]
-        public async Task Create_checks_for_existence_and_retries_if_cannot_open_file_until_it_passes()
-        {
-            await Create_checks_for_existence_and_retries_until_it_passes(5120, async: false);
+            return Create_checks_for_existence_and_retries_until_it_passes(1832, async: false);
         }
 
-        [Fact]
-        public async Task CreateAsync_checks_for_existence_and_retries_if_no_proccess_until_it_passes()
+        [ConditionalFact]
+        public Task Create_checks_for_existence_and_retries_if_cannot_open_file_until_it_passes()
         {
-            await Create_checks_for_existence_and_retries_until_it_passes(233, async: true);
+            return Create_checks_for_existence_and_retries_until_it_passes(5120, async: false);
         }
 
-        [Fact]
-        public async Task CreateAsync_checks_for_existence_and_retries_if_timeout_until_it_passes()
+        [ConditionalFact]
+        public Task CreateAsync_checks_for_existence_and_retries_if_no_proccess_until_it_passes()
         {
-            await Create_checks_for_existence_and_retries_until_it_passes(-2, async: true);
+            return Create_checks_for_existence_and_retries_until_it_passes(233, async: true);
         }
 
-        [Fact]
-        public async Task CreateAsync_checks_for_existence_and_retries_if_cannot_open_until_it_passes()
+        [ConditionalFact]
+        public Task CreateAsync_checks_for_existence_and_retries_if_timeout_until_it_passes()
         {
-            await Create_checks_for_existence_and_retries_until_it_passes(4060, async: true);
+            return Create_checks_for_existence_and_retries_until_it_passes(-2, async: true);
         }
 
-        [Fact]
-        public async Task CreateAsync_checks_for_existence_and_retries_if_cannot_attach_file_until_it_passes()
+        [ConditionalFact]
+        public Task CreateAsync_checks_for_existence_and_retries_if_cannot_open_until_it_passes()
         {
-            await Create_checks_for_existence_and_retries_until_it_passes(1832, async: true);
+            return Create_checks_for_existence_and_retries_until_it_passes(4060, async: true);
         }
 
-        [Fact]
-        public async Task CreateAsync_checks_for_existence_and_retries_if_cannot_open_file_until_it_passes()
+        [ConditionalFact]
+        public Task CreateAsync_checks_for_existence_and_retries_if_cannot_attach_file_until_it_passes()
         {
-            await Create_checks_for_existence_and_retries_until_it_passes(5120, async: true);
+            return Create_checks_for_existence_and_retries_until_it_passes(1832, async: true);
+        }
+
+        [ConditionalFact]
+        public Task CreateAsync_checks_for_existence_and_retries_if_cannot_open_file_until_it_passes()
+        {
+            return Create_checks_for_existence_and_retries_until_it_passes(5120, async: true);
         }
 
         private async Task Create_checks_for_existence_and_retries_until_it_passes(int errorNumber, bool async)
@@ -113,16 +114,16 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(2, connection.OpenCount);
         }
 
-        [Fact]
-        public async Task Create_checks_for_existence_and_ultimately_gives_up_waiting()
+        [ConditionalFact]
+        public Task Create_checks_for_existence_and_ultimately_gives_up_waiting()
         {
-            await Create_checks_for_existence_and_ultimately_gives_up_waiting_test(async: false);
+            return Create_checks_for_existence_and_ultimately_gives_up_waiting_test(async: false);
         }
 
-        [Fact]
-        public async Task CreateAsync_checks_for_existence_and_ultimately_gives_up_waiting()
+        [ConditionalFact]
+        public Task CreateAsync_checks_for_existence_and_ultimately_gives_up_waiting()
         {
-            await Create_checks_for_existence_and_ultimately_gives_up_waiting_test(async: true);
+            return Create_checks_for_existence_and_ultimately_gives_up_waiting_test(async: true);
         }
 
         private async Task Create_checks_for_existence_and_ultimately_gives_up_waiting_test(bool async)
@@ -198,16 +199,57 @@ namespace Microsoft.EntityFrameworkCore
 
         private class FakeRelationalCommandBuilderFactory : IRelationalCommandBuilderFactory
         {
-            public IRelationalCommandBuilder Create() => new FakeRelationalCommandBuilder();
+            public IRelationalCommandBuilder Create()
+                => new FakeRelationalCommandBuilder();
         }
 
         private class FakeRelationalCommandBuilder : IRelationalCommandBuilder
         {
+            private readonly List<IRelationalParameter> _parameters = new List<IRelationalParameter>();
             public IndentedStringBuilder Instance { get; } = new IndentedStringBuilder();
 
-            public IRelationalParameterBuilder ParameterBuilder => throw new NotImplementedException();
+            public IReadOnlyList<IRelationalParameter> Parameters => _parameters;
+
+            public IRelationalCommandBuilder AddParameter(IRelationalParameter parameter)
+            {
+                _parameters.Add(parameter);
+
+                return this;
+            }
+
+            public IRelationalTypeMappingSource TypeMappingSource => null;
 
             public IRelationalCommand Build() => new FakeRelationalCommand();
+
+            public IRelationalCommandBuilder Append(object value)
+            {
+                Instance.Append(value);
+
+                return this;
+            }
+
+            public IRelationalCommandBuilder AppendLine()
+            {
+                Instance.AppendLine();
+
+                return this;
+            }
+
+            public IRelationalCommandBuilder IncrementIndent()
+            {
+                Instance.IncrementIndent();
+
+                return this;
+            }
+
+            public IRelationalCommandBuilder DecrementIndent()
+            {
+                Instance.DecrementIndent();
+
+                return this;
+            }
+
+            public int CommandTextLength => Instance.Length;
         }
 
         private class FakeRelationalCommand : IRelationalCommand
@@ -218,30 +260,36 @@ namespace Microsoft.EntityFrameworkCore
 
             public IReadOnlyDictionary<string, object> ParameterValues => throw new NotImplementedException();
 
-            public int ExecuteNonQuery(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
+            public int ExecuteNonQuery(RelationalCommandParameterObject parameterObject)
             {
                 return 0;
             }
 
-            public Task<int> ExecuteNonQueryAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, CancellationToken cancellationToken = default)
+            public Task<int> ExecuteNonQueryAsync(
+                RelationalCommandParameterObject parameterObject,
+                CancellationToken cancellationToken = default)
                 => Task.FromResult(0);
 
-            public RelationalDataReader ExecuteReader(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
+            public RelationalDataReader ExecuteReader(RelationalCommandParameterObject parameterObject)
             {
                 throw new NotImplementedException();
             }
 
-            public Task<RelationalDataReader> ExecuteReaderAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, CancellationToken cancellationToken = default)
+            public Task<RelationalDataReader> ExecuteReaderAsync(
+                RelationalCommandParameterObject parameterObject,
+                CancellationToken cancellationToken = default)
             {
                 throw new NotImplementedException();
             }
 
-            public object ExecuteScalar(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
+            public object ExecuteScalar(RelationalCommandParameterObject parameterObject)
             {
                 throw new NotImplementedException();
             }
 
-            public Task<object> ExecuteScalarAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, CancellationToken cancellationToken = default)
+            public Task<object> ExecuteScalarAsync(
+                RelationalCommandParameterObject parameterObject,
+                CancellationToken cancellationToken = default)
             {
                 throw new NotImplementedException();
             }

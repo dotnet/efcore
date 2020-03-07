@@ -15,25 +15,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     /// </summary>
     public class MigrationCommandListBuilder
     {
-        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
         private readonly List<MigrationCommand> _commands = new List<MigrationCommand>();
+        private readonly MigrationsSqlGeneratorDependencies _dependencies;
 
         private IRelationalCommandBuilder _commandBuilder;
 
         /// <summary>
         ///     Creates a new instance of the builder.
         /// </summary>
-        /// <param name="commandBuilderFactory">
-        ///     A factory used to create the underlying <see cref="IRelationalCommandBuilder" /> which
-        ///     is used to build commands.
-        /// </param>
-        /// s.
-        public MigrationCommandListBuilder([NotNull] IRelationalCommandBuilderFactory commandBuilderFactory)
+        /// <param name="dependencies"> Dependencies needed for SQL generations. </param>
+        public MigrationCommandListBuilder(
+            [NotNull] MigrationsSqlGeneratorDependencies dependencies)
         {
-            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            _commandBuilderFactory = commandBuilderFactory;
-            _commandBuilder = commandBuilderFactory.Create();
+            _dependencies = dependencies;
+            _commandBuilder = dependencies.CommandBuilderFactory.Create();
         }
 
         /// <summary>
@@ -52,10 +49,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns> This builder so that additional calls can be chained. </returns>
         public virtual MigrationCommandListBuilder EndCommand(bool suppressTransaction = false)
         {
-            if (_commandBuilder.GetLength() != 0)
+            if (_commandBuilder.CommandTextLength != 0)
             {
-                _commands.Add(new MigrationCommand(_commandBuilder.Build(), suppressTransaction));
-                _commandBuilder = _commandBuilderFactory.Create();
+                _commands.Add(
+                    new MigrationCommand(
+                        _commandBuilder.Build(),
+                        _dependencies.CurrentContext.Context,
+                        _dependencies.Logger,
+                        suppressTransaction));
+
+                _commandBuilder = _dependencies.CommandBuilderFactory.Create();
             }
 
             return this;

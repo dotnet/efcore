@@ -7,7 +7,6 @@ using System.Data;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
@@ -19,14 +18,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private static readonly RelationalTypeMapping _binary
             = new ByteArrayTypeMapping("just_binary(max)", dbType: DbType.Binary);
 
-        private static readonly RelationalTypeMapping _binaryKey
-            = new ByteArrayTypeMapping("just_binary(900)", dbType: DbType.Binary, size: 900);
-
         private static readonly RelationalTypeMapping _rowversion
             = new ByteArrayTypeMapping("rowversion", dbType: DbType.Binary, size: 8);
 
         private static readonly RelationalTypeMapping _defaultIntMapping
             = new IntTypeMapping("default_int_mapping", dbType: DbType.Int32);
+
+        private static readonly RelationalTypeMapping _defaultCharMapping
+            = new CharTypeMapping("default_char_mapping", dbType: DbType.Int32);
 
         private static readonly RelationalTypeMapping _defaultLongMapping
             = new LongTypeMapping("default_long_mapping", dbType: DbType.Int64);
@@ -64,11 +63,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
             }
 
-            public override RelationalTypeMapping Clone(string storeType, int? size)
-                => new IntArrayTypeMapping(Parameters.WithStoreTypeAndSize(storeType, size));
-
-            public override CoreTypeMapping Clone(ValueConverter converter)
-                => new IntArrayTypeMapping(Parameters.WithComposedConverter(converter));
+            protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
+                => new IntArrayTypeMapping(parameters);
         }
 
         private static readonly RelationalTypeMapping _intArray
@@ -106,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 { typeof(byte), _defaultByteMapping },
                 { typeof(double), _defaultDoubleMapping },
                 { typeof(DateTimeOffset), _defaultDateTimeOffsetMapping },
-                { typeof(char), _defaultIntMapping },
+                { typeof(char), _defaultCharMapping },
                 { typeof(short), _defaultShortMapping },
                 { typeof(float), _defaultFloatMapping },
                 { typeof(decimal), _defaultDecimalMapping },
@@ -152,6 +148,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
             }
 
+            protected override string ProcessStoreType(
+                RelationalTypeMappingParameters parameters,
+                string storeType,
+                string storeTypeNameBase)
+                => storeTypeNameBase == "some_string"
+                    && parameters.Size != null
+                        ? $"({parameters.Size})some_string"
+                        : storeType;
         }
 
         protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
@@ -184,9 +188,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     }
 
                     var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)900 : null);
+                    var isFixedLength = mappingInfo.IsFixedLength == true;
 
                     return new ByteArrayTypeMapping(
-                        storeTypeName ?? "just_binary(" + (size == null ? "max" : size.ToString()) + ")",
+                        storeTypeName ?? (isFixedLength ? "just_binary_fixed(" : "just_binary(") + (size == null ? "max" : size.ToString()) + ")",
                         DbType.Binary,
                         size);
                 }
@@ -194,20 +199,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 if (_simpleMappings.TryGetValue(clrType, out var mapping))
                 {
                     return storeTypeName != null
-                           && !mapping.StoreType.Equals(storeTypeName, StringComparison.Ordinal)
-                        ? mapping.Clone(storeTypeName, mapping.Size)
-                        : mapping;
+                        && !mapping.StoreType.Equals(storeTypeName, StringComparison.Ordinal)
+                            ? mapping.Clone(storeTypeName, mapping.Size)
+                            : mapping;
                 }
             }
 
-            if (storeTypeName != null
+            return storeTypeName != null
                 && _simpleNameMappings.TryGetValue(storeTypeName, out var mappingFromName)
-                && (clrType == null || mappingFromName.ClrType == clrType))
-            {
-                return mappingFromName;
-            }
-
-            return null;
+                && (clrType == null || mappingFromName.ClrType == clrType)
+                    ? mappingFromName
+                    : null;
         }
     }
 }

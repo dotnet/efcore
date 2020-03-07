@@ -3,96 +3,110 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class SqlServerSequenceValueGeneratorFactory : ISqlServerSequenceValueGeneratorFactory
     {
-        private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
         private readonly ISqlServerUpdateSqlGenerator _sqlGenerator;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerSequenceValueGeneratorFactory(
-            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
             [NotNull] ISqlServerUpdateSqlGenerator sqlGenerator)
         {
-            Check.NotNull(rawSqlCommandBuilder, nameof(rawSqlCommandBuilder));
-            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
-
-            _rawSqlCommandBuilder = rawSqlCommandBuilder;
             _sqlGenerator = sqlGenerator;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ValueGenerator Create(IProperty property, SqlServerSequenceValueGeneratorState generatorState, ISqlServerConnection connection)
+        public virtual ValueGenerator Create(
+            IProperty property,
+            SqlServerSequenceValueGeneratorState generatorState,
+            ISqlServerConnection connection,
+            IRawSqlCommandBuilder rawSqlCommandBuilder,
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
         {
-            Check.NotNull(property, nameof(property));
-            Check.NotNull(generatorState, nameof(generatorState));
-            Check.NotNull(connection, nameof(connection));
-
             var type = property.ClrType.UnwrapNullableType().UnwrapEnumType();
 
             if (type == typeof(long))
             {
-                return new SqlServerSequenceHiLoValueGenerator<long>(_rawSqlCommandBuilder, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceHiLoValueGenerator<long>(
+                    rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
             }
 
             if (type == typeof(int))
             {
-                return new SqlServerSequenceHiLoValueGenerator<int>(_rawSqlCommandBuilder, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceHiLoValueGenerator<int>(
+                    rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
+            }
+
+            if (type == typeof(decimal))
+            {
+                return new SqlServerSequenceHiLoValueGenerator<decimal>(
+                    rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
             }
 
             if (type == typeof(short))
             {
-                return new SqlServerSequenceHiLoValueGenerator<short>(_rawSqlCommandBuilder, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceHiLoValueGenerator<short>(
+                    rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
             }
 
             if (type == typeof(byte))
             {
-                return new SqlServerSequenceHiLoValueGenerator<byte>(_rawSqlCommandBuilder, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceHiLoValueGenerator<byte>(
+                    rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
             }
 
             if (type == typeof(char))
             {
-                return new SqlServerSequenceHiLoValueGenerator<char>(_rawSqlCommandBuilder, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceHiLoValueGenerator<char>(
+                    rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
             }
 
             if (type == typeof(ulong))
             {
-                return new SqlServerSequenceHiLoValueGenerator<ulong>(_rawSqlCommandBuilder, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceHiLoValueGenerator<ulong>(
+                    rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
             }
 
             if (type == typeof(uint))
             {
-                return new SqlServerSequenceHiLoValueGenerator<uint>(_rawSqlCommandBuilder, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceHiLoValueGenerator<uint>(
+                    rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
             }
 
             if (type == typeof(ushort))
             {
-                return new SqlServerSequenceHiLoValueGenerator<ushort>(_rawSqlCommandBuilder, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceHiLoValueGenerator<ushort>(
+                    rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
             }
 
             if (type == typeof(sbyte))
             {
-                return new SqlServerSequenceHiLoValueGenerator<sbyte>(_rawSqlCommandBuilder, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceHiLoValueGenerator<sbyte>(
+                    rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
             }
 
             throw new ArgumentException(

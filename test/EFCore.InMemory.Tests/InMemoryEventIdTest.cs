@@ -5,7 +5,8 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 using Xunit;
 
@@ -14,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class InMemoryEventIdTest : EventIdTestBase
     {
-        [Fact]
+        [ConditionalFact]
         public void Every_eventId_has_a_logger_method_and_logs_when_level_enabled()
         {
             var fakeFactories = new Dictionary<Type, Func<object>>
@@ -25,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore
             TestEventLogging(
                 typeof(InMemoryEventId),
                 typeof(InMemoryLoggerExtensions),
+                typeof(InMemoryLoggingDefinitions),
                 fakeFactories);
         }
     }

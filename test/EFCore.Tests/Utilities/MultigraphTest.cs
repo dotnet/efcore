@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -71,9 +72,9 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             public int P2 { get; set; }
         }
 
-        private class EntityTypeGraph : Multigraph<EntityType, IForeignKey>
+        private class EntityTypeGraph : Multigraph<IEntityType, IForeignKey>
         {
-            public void Populate(params EntityType[] entityTypes)
+            public void Populate(params IEntityType[] entityTypes)
             {
                 AddVertices(entityTypes);
 
@@ -86,12 +87,12 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 }
             }
 
-            protected override string ToString(EntityType vertex) => vertex.DisplayName();
+            protected override string ToString(IEntityType vertex) => vertex.DisplayName();
         }
 
         #endregion
 
-        [Fact]
+        [ConditionalFact]
         public void AddVertex_adds_a_vertex()
         {
             var vertexOne = new Vertex { Id = 1 };
@@ -106,8 +107,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal(2, graph.Vertices.Intersect(new[] { vertexOne, vertexTwo }).Count());
         }
 
-        [Fact]
-        public void AddVertices_add_verticies()
+        [ConditionalFact]
+        public void AddVertices_add_vertices()
         {
             var vertexOne = new Vertex { Id = 1 };
             var vertexTwo = new Vertex { Id = 2 };
@@ -122,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal(3, graph.Vertices.Intersect(new[] { vertexOne, vertexTwo, vertexThree }).Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AddEdge_adds_an_edge()
         {
             var vertexOne = new Vertex { Id = 1 };
@@ -139,13 +140,13 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal(2, graph.Edges.Count());
             Assert.Equal(2, graph.Edges.Intersect(new[] { edgeOne, edgeTwo }).Count());
 
-            Assert.Equal(0, graph.GetEdges(vertexTwo, vertexOne).Count());
+            Assert.Empty(graph.GetEdges(vertexTwo, vertexOne));
             Assert.Equal(2, graph.GetEdges(vertexOne, vertexTwo).Count());
             Assert.Equal(2, graph.GetEdges(vertexOne, vertexTwo).Intersect(new[] { edgeOne, edgeTwo }).Count());
         }
 
-        [Fact]
-        public void AddEdge_throws_on_verticies_not_in_the_graph()
+        [ConditionalFact]
+        public void AddEdge_throws_on_vertices_not_in_the_graph()
         {
             var vertexOne = new Vertex { Id = 1 };
             var vertexTwo = new Vertex { Id = 2 };
@@ -164,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 Assert.Throws<InvalidOperationException>(() => graph.AddEdge(vertexTwo, vertexOne, edgeOne)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AddEdges_adds_multiple_edges()
         {
             var vertexOne = new Vertex { Id = 1 };
@@ -179,13 +180,13 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             graph.AddEdges(vertexOne, vertexTwo, new[] { edgeOne });
             graph.AddEdges(vertexOne, vertexTwo, new[] { edgeTwo, edgeThree });
 
-            Assert.Equal(0, graph.GetEdges(vertexTwo, vertexOne).Count());
+            Assert.Empty(graph.GetEdges(vertexTwo, vertexOne));
             Assert.Equal(3, graph.GetEdges(vertexOne, vertexTwo).Count());
             Assert.Equal(3, graph.GetEdges(vertexOne, vertexTwo).Intersect(new[] { edgeOne, edgeTwo, edgeThree }).Count());
         }
 
-        [Fact]
-        public void AddEdges_throws_on_verticies_not_in_the_graph()
+        [ConditionalFact]
+        public void AddEdges_throws_on_vertices_not_in_the_graph()
         {
             var vertexOne = new Vertex { Id = 1 };
             var vertexTwo = new Vertex { Id = 2 };
@@ -204,8 +205,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 Assert.Throws<InvalidOperationException>(() => graph.AddEdges(vertexTwo, vertexOne, new[] { edgeOne })).Message);
         }
 
-        [Fact]
-        public void AddEdge_updates_incomming_and_outgoing_neighbours()
+        [ConditionalFact]
+        public void AddEdge_updates_incoming_and_outgoing_neighbors()
         {
             var vertexOne = new Vertex { Id = 1 };
             var vertexTwo = new Vertex { Id = 2 };
@@ -221,15 +222,15 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             graph.AddEdge(vertexOne, vertexThree, edgeTwo);
             graph.AddEdge(vertexTwo, vertexThree, edgeThree);
 
-            Assert.Equal(2, graph.GetOutgoingNeighbours(vertexOne).Count());
-            Assert.Equal(2, graph.GetOutgoingNeighbours(vertexOne).Intersect(new[] { vertexTwo, vertexThree }).Count());
+            Assert.Equal(2, graph.GetOutgoingNeighbors(vertexOne).Count());
+            Assert.Equal(2, graph.GetOutgoingNeighbors(vertexOne).Intersect(new[] { vertexTwo, vertexThree }).Count());
 
-            Assert.Equal(2, graph.GetIncomingNeighbours(vertexThree).Count());
-            Assert.Equal(2, graph.GetIncomingNeighbours(vertexThree).Intersect(new[] { vertexOne, vertexTwo }).Count());
+            Assert.Equal(2, graph.GetIncomingNeighbors(vertexThree).Count());
+            Assert.Equal(2, graph.GetIncomingNeighbors(vertexThree).Intersect(new[] { vertexOne, vertexTwo }).Count());
         }
 
-        [Fact]
-        public void TopologicalSort_on_graph_with_no_edges_returns_all_verticies()
+        [ConditionalFact]
+        public void TopologicalSort_on_graph_with_no_edges_returns_all_vertices()
         {
             var vertexOne = new Vertex { Id = 1 };
             var vertexTwo = new Vertex { Id = 2 };
@@ -243,8 +244,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal(3, result.Intersect(new[] { vertexOne, vertexTwo, vertexThree }).Count());
         }
 
-        [Fact]
-        public void TopologicalSort_on_simple_graph_returns_all_verticies_in_order()
+        [ConditionalFact]
+        public void TopologicalSort_on_simple_graph_returns_all_vertices_in_order()
         {
             var vertexOne = new Vertex { Id = 1 };
             var vertexTwo = new Vertex { Id = 2 };
@@ -266,8 +267,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 graph.TopologicalSort().ToArray());
         }
 
-        [Fact]
-        public void TopologicalSort_on_tree_graph_returns_all_verticies_in_order()
+        [ConditionalFact]
+        public void TopologicalSort_on_tree_graph_returns_all_vertices_in_order()
         {
             var vertexOne = new Vertex { Id = 1 };
             var vertexTwo = new Vertex { Id = 2 };
@@ -291,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 graph.TopologicalSort().ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TopologicalSort_on_self_ref_can_break_cycle()
         {
             var vertexOne = new Vertex { Id = 1 };
@@ -308,12 +309,12 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 new[] { vertexOne },
                 graph.TopologicalSort(
                     (from, to, edges) =>
-                        (from == vertexOne) &&
-                        (to == vertexOne) &&
-                        (edges.Intersect(new[] { edgeOne }).Count() == 1)).ToArray());
+                        (from == vertexOne)
+                        && (to == vertexOne)
+                        && (edges.Intersect(new[] { edgeOne }).Count() == 1)).ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TopologicalSort_can_break_simple_cycle()
         {
             var vertexOne = new Vertex { Id = 1 };
@@ -338,12 +339,12 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 new[] { vertexOne, vertexTwo, vertexThree },
                 graph.TopologicalSort(
                     (from, to, edges) =>
-                        (from == vertexThree) &&
-                        (to == vertexOne) &&
-                        (edges.Single() == edgeThree)).ToArray());
+                        (from == vertexThree)
+                        && (to == vertexOne)
+                        && (edges.Single() == edgeThree)).ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TopologicalSort_can_break_two_cycles()
         {
             var vertexOne = new Vertex { Id = 1 };
@@ -378,13 +379,13 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 new[] { vertexTwo, vertexThree, vertexOne, vertexFour, vertexFive },
                 graph.TopologicalSort(
                     (from, to, edges) =>
-                        {
-                            var edge = edges.Single();
-                            return (edge == edgeOne) || (edge == edgeSix);
-                        }).ToArray());
+                    {
+                        var edge = edges.Single();
+                        return (edge == edgeOne) || (edge == edgeSix);
+                    }).ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TopologicalSort_throws_with_default_message_when_cycle_cannot_be_broken()
         {
             var vertexOne = new Vertex { Id = 1 };
@@ -406,11 +407,12 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             graph.AddEdge(vertexThree, vertexOne, edgeThree);
 
             Assert.Equal(
-                CoreStrings.CircularDependency(string.Join(" -> ", new[] { vertexOne, vertexTwo, vertexThree, vertexOne }.Select(v => v.ToString()))),
+                CoreStrings.CircularDependency(
+                    string.Join(" -> ", new[] { vertexOne, vertexTwo, vertexThree, vertexOne }.Select(v => v.ToString()))),
                 Assert.Throws<InvalidOperationException>(() => graph.TopologicalSort()).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TopologicalSort_throws_with_formatted_message_when_cycle_cannot_be_broken()
         {
             const string message = "Formatted cycle";
@@ -457,7 +459,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal(new[] { edgeThree }, cycleData[vertexThree].Item3);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchingTopologicalSort_throws_with_formatted_message_when_cycle_cannot_be_broken()
         {
             const string message = "Formatted cycle";
@@ -504,7 +506,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal(new[] { edgeThree }, cycleData[vertexThree].Item3);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchingTopologicalSort_throws_with_formatted_message_with_no_tail_when_cycle_cannot_be_broken()
         {
             const string message = "Formatted cycle";
@@ -552,23 +554,23 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal(new[] { edgeThree }, cycleData[vertexFour].Item3);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchingTopologicalSort_sorts_simple()
         {
-            var model = new Model();
+            var model = CreateModel();
 
             var entityTypeA = model.AddEntityType(typeof(A));
-            entityTypeA.GetOrSetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
+            entityTypeA.SetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
 
             var entityTypeB = model.AddEntityType(typeof(B));
-            entityTypeB.GetOrSetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
+            entityTypeB.SetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
 
             var entityTypeC = model.AddEntityType(typeof(C));
-            entityTypeC.GetOrSetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
+            entityTypeC.SetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
             // B -> A -> C
-            entityTypeC.GetOrAddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
-            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
+            entityTypeC.AddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
+            entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
 
             var graph = new EntityTypeGraph();
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -578,23 +580,23 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchingTopologicalSort_sorts_reverse()
         {
-            var model = new Model();
+            var model = CreateModel();
 
             var entityTypeA = model.AddEntityType(typeof(A));
-            entityTypeA.GetOrSetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
+            entityTypeA.SetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
 
             var entityTypeB = model.AddEntityType(typeof(B));
-            entityTypeB.GetOrSetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
+            entityTypeB.SetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
 
             var entityTypeC = model.AddEntityType(typeof(C));
-            entityTypeC.GetOrSetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
+            entityTypeC.SetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
             // C -> B -> A
-            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
-            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
+            entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
+            entityTypeB.AddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
 
             var graph = new EntityTypeGraph();
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -604,23 +606,23 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchingTopologicalSort_sorts_preserves_graph()
         {
-            var model = new Model();
+            var model = CreateModel();
 
             var entityTypeA = model.AddEntityType(typeof(A));
-            entityTypeA.GetOrSetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
+            entityTypeA.SetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
 
             var entityTypeB = model.AddEntityType(typeof(B));
-            entityTypeB.GetOrSetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
+            entityTypeB.SetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
 
             var entityTypeC = model.AddEntityType(typeof(C));
-            entityTypeC.GetOrSetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
+            entityTypeC.SetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
             // B -> A -> C
-            entityTypeC.GetOrAddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
-            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
+            entityTypeC.AddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
+            entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
 
             var graph = new EntityTypeGraph();
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -635,35 +637,35 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
             Assert.Equal(
                 new[] { entityTypeC },
-                graph.GetOutgoingNeighbours(entityTypeA));
+                graph.GetOutgoingNeighbors(entityTypeA));
 
             Assert.Equal(
                 new[] { entityTypeA },
-                graph.GetOutgoingNeighbours(entityTypeB));
+                graph.GetOutgoingNeighbors(entityTypeB));
 
             Assert.Equal(
                 new[] { entityTypeB.Name, entityTypeA.Name, entityTypeC.Name },
                 graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchingTopologicalSort_sorts_tree()
         {
-            var model = new Model();
+            var model = CreateModel();
 
             var entityTypeA = model.AddEntityType(typeof(A));
-            entityTypeA.GetOrSetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
+            entityTypeA.SetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
 
             var entityTypeB = model.AddEntityType(typeof(B));
-            entityTypeB.GetOrSetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
+            entityTypeB.SetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
 
             var entityTypeC = model.AddEntityType(typeof(C));
-            entityTypeC.GetOrSetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
+            entityTypeC.SetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
             // A -> B, A -> C, C -> B
-            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
-            entityTypeC.GetOrAddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
-            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty("P2", typeof(int)), entityTypeC.FindPrimaryKey(), entityTypeC);
+            entityTypeB.AddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
+            entityTypeC.AddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
+            entityTypeB.AddForeignKey(entityTypeB.AddProperty("P2", typeof(int)), entityTypeC.FindPrimaryKey(), entityTypeC);
 
             var graph = new EntityTypeGraph();
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -673,19 +675,19 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchingTopologicalSort_sorts_no_edges()
         {
-            var model = new Model();
+            var model = CreateModel();
 
             var entityTypeA = model.AddEntityType(typeof(A));
-            entityTypeA.GetOrSetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
+            entityTypeA.SetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
 
             var entityTypeB = model.AddEntityType(typeof(B));
-            entityTypeB.GetOrSetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
+            entityTypeB.SetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
 
             var entityTypeC = model.AddEntityType(typeof(C));
-            entityTypeC.GetOrSetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
+            entityTypeC.SetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
             // A B C
             var graph = new EntityTypeGraph();
@@ -696,17 +698,17 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchingTopologicalSort_sorts_self_ref()
         {
-            var model = new Model();
+            var model = CreateModel();
 
             var entityTypeA = model.AddEntityType(typeof(A));
             var property = entityTypeA.AddProperty("Id", typeof(int));
-            entityTypeA.GetOrSetPrimaryKey(property);
+            entityTypeA.SetPrimaryKey(property);
 
             // A -> A
-            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
+            entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
 
             var graph = new EntityTypeGraph();
             graph.Populate(entityTypeA);
@@ -716,23 +718,23 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchingTopologicalSort_sorts_circular_direct()
         {
-            var model = new Model();
+            var model = CreateModel();
 
             var entityTypeA = model.AddEntityType(typeof(A));
-            entityTypeA.GetOrSetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
+            entityTypeA.SetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
 
             var entityTypeB = model.AddEntityType(typeof(B));
-            entityTypeB.GetOrSetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
+            entityTypeB.SetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
 
             var entityTypeC = model.AddEntityType(typeof(C));
-            entityTypeC.GetOrSetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
+            entityTypeC.SetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
             // C, A -> B -> A
-            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
-            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
+            entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
+            entityTypeB.AddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
 
             var graph = new EntityTypeGraph();
             graph.Populate(entityTypeC, entityTypeA, entityTypeB);
@@ -742,24 +744,24 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchingTopologicalSort_sorts_circular_transitive()
         {
-            var model = new Model();
+            var model = CreateModel();
 
             var entityTypeA = model.AddEntityType(typeof(A));
-            entityTypeA.GetOrSetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
+            entityTypeA.SetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
 
             var entityTypeB = model.AddEntityType(typeof(B));
-            entityTypeB.GetOrSetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
+            entityTypeB.SetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
 
             var entityTypeC = model.AddEntityType(typeof(C));
-            entityTypeC.GetOrSetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
+            entityTypeC.SetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
             // A -> C -> B -> A
-            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
-            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
-            entityTypeC.GetOrAddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
+            entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
+            entityTypeB.AddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
+            entityTypeC.AddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
 
             var graph = new EntityTypeGraph();
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -769,35 +771,35 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchingTopologicalSort_sorts_two_cycles()
         {
-            var model = new Model();
+            var model = CreateModel();
 
             var entityTypeA = model.AddEntityType(typeof(A));
-            entityTypeA.GetOrSetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
+            entityTypeA.SetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
 
             var entityTypeB = model.AddEntityType(typeof(B));
-            entityTypeB.GetOrSetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
+            entityTypeB.SetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
 
             var entityTypeC = model.AddEntityType(typeof(C));
-            entityTypeC.GetOrSetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
+            entityTypeC.SetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
             var entityTypeD = model.AddEntityType(typeof(D));
-            entityTypeD.GetOrSetPrimaryKey(entityTypeD.AddProperty("Id", typeof(int)));
+            entityTypeD.SetPrimaryKey(entityTypeD.AddProperty("Id", typeof(int)));
 
             var entityTypeE = model.AddEntityType(typeof(E));
-            entityTypeE.GetOrSetPrimaryKey(entityTypeE.AddProperty("Id", typeof(int)));
+            entityTypeE.SetPrimaryKey(entityTypeE.AddProperty("Id", typeof(int)));
 
             // A -> C -> B -> A
-            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
-            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
-            entityTypeC.GetOrAddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
+            entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
+            entityTypeB.AddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
+            entityTypeC.AddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
 
             // A -> E -> D -> A
-            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty("P2", typeof(int)), entityTypeD.FindPrimaryKey(), entityTypeD);
-            entityTypeD.GetOrAddForeignKey(entityTypeD.AddProperty("P2", typeof(int)), entityTypeE.FindPrimaryKey(), entityTypeE);
-            entityTypeE.GetOrAddForeignKey(entityTypeE.AddProperty("P2", typeof(int)), entityTypeA.FindPrimaryKey(), entityTypeA);
+            entityTypeA.AddForeignKey(entityTypeA.AddProperty("P2", typeof(int)), entityTypeD.FindPrimaryKey(), entityTypeD);
+            entityTypeD.AddForeignKey(entityTypeD.AddProperty("P2", typeof(int)), entityTypeE.FindPrimaryKey(), entityTypeE);
+            entityTypeE.AddForeignKey(entityTypeE.AddProperty("P2", typeof(int)), entityTypeA.FindPrimaryKey(), entityTypeA);
 
             var graph = new EntityTypeGraph();
             graph.Populate(entityTypeA, entityTypeB, entityTypeC, entityTypeD, entityTypeE);
@@ -807,24 +809,24 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchingTopologicalSort_sorts_leafy_cycle()
         {
-            var model = new Model();
+            var model = CreateModel();
 
             var entityTypeA = model.AddEntityType(typeof(A));
-            entityTypeA.GetOrSetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
+            entityTypeA.SetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
 
             var entityTypeB = model.AddEntityType(typeof(B));
-            entityTypeB.GetOrSetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
+            entityTypeB.SetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
 
             var entityTypeC = model.AddEntityType(typeof(C));
-            entityTypeC.GetOrSetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
+            entityTypeC.SetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
             // C -> B -> C -> A
-            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
-            entityTypeC.GetOrAddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
-            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
+            entityTypeB.AddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
+            entityTypeC.AddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
+            entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
 
             var graph = new EntityTypeGraph();
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -833,5 +835,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 CoreStrings.CircularDependency(nameof(C) + " -> " + nameof(B) + " -> " + nameof(C)),
                 Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
         }
+
+        private static IMutableModel CreateModel() => new Model();
     }
 }

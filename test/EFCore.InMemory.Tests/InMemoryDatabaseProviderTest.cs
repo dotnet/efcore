@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Reflection;
 using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -12,29 +11,31 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class InMemoryDatabaseProviderTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Returns_appropriate_name()
         {
             Assert.Equal(
-                typeof(InMemoryDatabase).GetTypeInfo().Assembly.GetName().Name,
+                typeof(InMemoryDatabase).Assembly.GetName().Name,
                 new DatabaseProvider<InMemoryOptionsExtension>(new DatabaseProviderDependencies()).Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Is_configured_when_configuration_contains_associated_extension()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
 
-            Assert.True(new DatabaseProvider<InMemoryOptionsExtension>(new DatabaseProviderDependencies()).IsConfigured(optionsBuilder.Options));
+            Assert.True(
+                new DatabaseProvider<InMemoryOptionsExtension>(new DatabaseProviderDependencies()).IsConfigured(optionsBuilder.Options));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Is_not_configured_when_configuration_does_not_contain_associated_extension()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
 
-            Assert.False(new DatabaseProvider<InMemoryOptionsExtension>(new DatabaseProviderDependencies()).IsConfigured(optionsBuilder.Options));
+            Assert.False(
+                new DatabaseProvider<InMemoryOptionsExtension>(new DatabaseProviderDependencies()).IsConfigured(optionsBuilder.Options));
         }
     }
 }

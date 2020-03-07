@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NullSemanticsQuerySqliteFixture : NullSemanticsQueryRelationalFixture
+    public class NullSemanticsQuerySqliteFixture : NullSemanticsQueryFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
     }

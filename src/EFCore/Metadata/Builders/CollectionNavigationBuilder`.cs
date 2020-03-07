@@ -2,11 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
@@ -28,34 +27,39 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         where TRelatedEntity : class
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         public CollectionNavigationBuilder(
-            [NotNull] EntityType declaringEntityType,
-            [NotNull] EntityType relatedEntityType,
-            [CanBeNull] string navigationName,
-            [NotNull] InternalRelationshipBuilder builder)
-            : base(declaringEntityType, relatedEntityType, navigationName, builder)
+            [NotNull] IMutableEntityType declaringEntityType,
+            [NotNull] IMutableEntityType relatedEntityType,
+            MemberIdentity navigation,
+            [CanBeNull] IMutableForeignKey foreignKey,
+            [CanBeNull] IMutableSkipNavigation skipNavigation)
+            : base(declaringEntityType, relatedEntityType, navigation, foreignKey, skipNavigation)
         {
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Configures this as a one-to-many relationship.
         /// </summary>
-        public CollectionNavigationBuilder(
-            [NotNull] EntityType declaringEntityType,
-            [NotNull] EntityType relatedEntityType,
-            [CanBeNull] PropertyInfo navigationProperty,
-            [NotNull] InternalRelationshipBuilder builder)
-            : base(declaringEntityType, relatedEntityType, navigationProperty, builder)
-        {
-        }
+        /// <param name="navigationName">
+        ///     The name of the reference navigation property on the other end of this relationship.
+        ///     If null, there is no navigation property on the other end of the relationship.
+        /// </param>
+        /// <returns> An object to further configure the relationship. </returns>
+        public new virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne([CanBeNull] string navigationName = null)
+            => new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
+                DeclaringEntityType,
+                RelatedEntityType,
+                WithOneBuilder(Check.NullButNotEmpty(navigationName, nameof(navigationName))).Metadata);
 
         /// <summary>
         ///     <para>
-        ///          Configures this as a one-to-many relationship.
+        ///         Configures this as a one-to-many relationship.
         ///     </para>
         ///     <para>
         ///         Note that calling this method with no parameters will explicitly configure this side
@@ -74,20 +78,45 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
                 DeclaringEntityType,
                 RelatedEntityType,
-                WithOneBuilder(navigationExpression?.GetPropertyAccess()));
+                WithOneBuilder(navigationExpression?.GetPropertyAccess()).Metadata);
 
         /// <summary>
-        ///     Configures this as a one-to-many relationship.
+        ///     Configures this as a many-to-many relationship.
         /// </summary>
         /// <param name="navigationName">
-        ///     The name of the reference navigation property on the other end of this relationship.
-        ///     If null, there is no navigation property on the other end of the relationship.
+        ///     The name of the collection navigation property on the other end of this relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public new virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne([CanBeNull] string navigationName = null)
-            => new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
-                DeclaringEntityType,
-                RelatedEntityType,
-                WithOneBuilder(Check.NullButNotEmpty(navigationName, nameof(navigationName))));
+        public new virtual CollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany([NotNull] string navigationName)
+        {
+            var leftName = Builder?.Metadata.PrincipalToDependent.Name;
+            return new CollectionCollectionBuilder<TRelatedEntity, TEntity>(
+                           RelatedEntityType,
+                           DeclaringEntityType,
+                           WithLeftManyNavigation(navigationName),
+                           WithRightManyNavigation(navigationName, leftName));
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Configures this as a many-to-many relationship.
+        ///     </para>
+        /// </summary>
+        /// <param name="navigationExpression">
+        ///     A lambda expression representing the reference navigation property on the other end of this
+        ///     relationship (<c>post => post.Blog</c>). If no property is specified, the relationship will be
+        ///     configured without a navigation property on the other end of the relationship.
+        /// </param>
+        /// <returns> An object to further configure the relationship. </returns>
+        public virtual CollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany(
+            [NotNull] Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> navigationExpression)
+        {
+            var leftName = Builder?.Metadata.PrincipalToDependent.Name;
+            return new CollectionCollectionBuilder<TRelatedEntity, TEntity>(
+                           RelatedEntityType,
+                           DeclaringEntityType,
+                           WithLeftManyNavigation(navigationExpression.GetPropertyAccess()),
+                           WithRightManyNavigation(navigationExpression.GetPropertyAccess(), leftName));
+        }
     }
 }

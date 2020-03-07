@@ -28,6 +28,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public override bool SupportsBinaryKeys => false;
 
+            public override bool SupportsDecimalComparisons => true;
+
             public override DateTime DefaultDateTime => new DateTime();
         }
     }

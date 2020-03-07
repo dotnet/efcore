@@ -8,53 +8,53 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class InternalMetadataBuilderTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_only_override_lower_source_annotation()
         {
             var builder = CreateInternalMetadataBuilder();
             var metadata = builder.Metadata;
 
-            Assert.True(builder.HasAnnotation("Foo", "1", ConfigurationSource.Convention));
-            Assert.True(builder.HasAnnotation("Foo", "2", ConfigurationSource.DataAnnotation));
+            Assert.NotNull(builder.HasAnnotation("Foo", "1", ConfigurationSource.Convention));
+            Assert.NotNull(builder.HasAnnotation("Foo", "2", ConfigurationSource.DataAnnotation));
 
             Assert.Equal("2", metadata.GetAnnotations().Single().Value);
 
-            Assert.False(builder.HasAnnotation("Foo", "1", ConfigurationSource.Convention));
+            Assert.Null(builder.HasAnnotation("Foo", "1", ConfigurationSource.Convention));
             Assert.Equal("2", metadata.GetAnnotations().Single().Value);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_override_existing_annotation_explicitly()
         {
             var builder = CreateInternalMetadataBuilder();
             var metadata = builder.Metadata;
             metadata["Foo"] = "1";
 
-            Assert.True(builder.HasAnnotation("Foo", "1", ConfigurationSource.DataAnnotation));
-            Assert.False(builder.HasAnnotation("Foo", "2", ConfigurationSource.DataAnnotation));
+            Assert.NotNull(builder.HasAnnotation("Foo", "1", ConfigurationSource.DataAnnotation));
+            Assert.Null(builder.HasAnnotation("Foo", "2", ConfigurationSource.DataAnnotation));
 
             Assert.Equal("1", metadata.GetAnnotations().Single().Value);
 
-            Assert.True(builder.HasAnnotation("Foo", "2", ConfigurationSource.Explicit));
+            Assert.NotNull(builder.HasAnnotation("Foo", "2", ConfigurationSource.Explicit));
             Assert.Equal("2", metadata.GetAnnotations().Single().Value);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Annotation_set_explicitly_can_not_be_removed_by_convention()
         {
             var builder = CreateInternalMetadataBuilder();
             var metadata = builder.Metadata;
             metadata["Foo"] = "1";
 
-            Assert.False(builder.HasAnnotation("Foo", null, ConfigurationSource.Convention));
+            Assert.Null(builder.HasAnnotation("Foo", null, ConfigurationSource.Convention));
 
             Assert.Equal("1", metadata.GetAnnotations().Single().Value);
 
-            Assert.True(builder.HasAnnotation("Foo", null, ConfigurationSource.Explicit));
-            Assert.Equal(0, metadata.GetAnnotations().Count());
+            Assert.NotNull(builder.HasAnnotation("Foo", null, ConfigurationSource.Explicit));
+            Assert.Null(metadata.GetAnnotations().Single().Value);
         }
 
-        private InternalMetadataBuilder<Model> CreateInternalMetadataBuilder()
+        private InternalAnnotatableBuilder<Model> CreateInternalMetadataBuilder()
             => new InternalModelBuilder(new Model());
     }
 }

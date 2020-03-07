@@ -5,12 +5,14 @@ using System;
 using System.Data;
 using System.Data.Common;
 using Microsoft.Data.Sqlite.Properties;
+using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite
 {
     /// <summary>
     ///     Represents a transaction made against a SQLite database.
     /// </summary>
+    /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/transactions">Transactions</seealso>
     public class SqliteTransaction : DbTransaction
     {
         private SqliteConnection _connection;
@@ -20,7 +22,7 @@ namespace Microsoft.Data.Sqlite
         internal SqliteTransaction(SqliteConnection connection, IsolationLevel isolationLevel)
         {
             if ((isolationLevel == IsolationLevel.ReadUncommitted
-                 && connection.ConnectionStringBuilder.Cache != SqliteCacheMode.Shared)
+                    && connection.ConnectionOptions.Cache != SqliteCacheMode.Shared)
                 || isolationLevel == IsolationLevel.ReadCommitted
                 || isolationLevel == IsolationLevel.RepeatableRead)
             {
@@ -47,6 +49,7 @@ namespace Microsoft.Data.Sqlite
                 IsolationLevel == IsolationLevel.Serializable
                     ? "BEGIN IMMEDIATE;"
                     : "BEGIN;");
+            sqlite3_rollback_hook(connection.Handle, RollbackExternal, null);
         }
 
         /// <summary>
@@ -63,6 +66,8 @@ namespace Microsoft.Data.Sqlite
         protected override DbConnection DbConnection
             => Connection;
 
+        internal bool ExternalRollback { get; private set; }
+
         /// <summary>
         ///     Gets the isolation level for the transaction. This cannot be changed if the transaction is completed or
         ///     closed.
@@ -73,8 +78,8 @@ namespace Microsoft.Data.Sqlite
                 ? throw new InvalidOperationException(Resources.TransactionCompleted)
                 : _isolationLevel != IsolationLevel.Unspecified
                     ? _isolationLevel
-                    : (_connection.ConnectionStringBuilder.Cache == SqliteCacheMode.Shared
-                       && _connection.ExecuteScalar<long>("PRAGMA read_uncommitted;") != 0)
+                    : (_connection.ConnectionOptions.Cache == SqliteCacheMode.Shared
+                        && _connection.ExecuteScalar<long>("PRAGMA read_uncommitted;") != 0)
                         ? IsolationLevel.ReadUncommitted
                         : IsolationLevel.Serializable;
 
@@ -83,11 +88,14 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         public override void Commit()
         {
-            if (_completed || _connection.State != ConnectionState.Open)
+            if (ExternalRollback
+                || _completed
+                || _connection.State != ConnectionState.Open)
             {
                 throw new InvalidOperationException(Resources.TransactionCompleted);
             }
 
+            sqlite3_rollback_hook(_connection.Handle, null, null);
             _connection.ExecuteNonQuery("COMMIT;");
             Complete();
         }
@@ -130,8 +138,19 @@ namespace Microsoft.Data.Sqlite
 
         private void RollbackInternal()
         {
-            _connection.ExecuteNonQuery("ROLLBACK;");
+            if (!ExternalRollback)
+            {
+                sqlite3_rollback_hook(_connection.Handle, null, null);
+                _connection.ExecuteNonQuery("ROLLBACK;");
+            }
+
             Complete();
+        }
+
+        private void RollbackExternal(object userData)
+        {
+            sqlite3_rollback_hook(_connection.Handle, null, null);
+            ExternalRollback = true;
         }
     }
 }

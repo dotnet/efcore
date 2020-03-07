@@ -174,8 +174,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </returns>
         public virtual HashSet<T>.Enumerator GetEnumerator() => _set.GetEnumerator();
 
+        /// <inheritdoc />
         IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
 
+        /// <inheritdoc />
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         /// <summary>
@@ -460,7 +462,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             => CollectionChanged?.Invoke(this, e);
     }
 
-    internal class ObservableHashSetSingletons
+    internal static class ObservableHashSetSingletons
     {
         public static readonly PropertyChangedEventArgs _countPropertyChanged
             = new PropertyChangedEventArgs("Count");

@@ -1,9 +1,10 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.TestModels.FunkyDataModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -16,9 +17,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public class FunkyDataQuerySqliteFixture : FunkyDataQueryFixtureBase
         {
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
 
             protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+
+            protected override QueryAsserter<FunkyDataContext> CreateQueryAsserter(
+                Dictionary<Type, object> entitySorters,
+                Dictionary<Type, object> entityAsserters)
+                => new RelationalQueryAsserter<FunkyDataContext>(
+                    CreateContext,
+                    new FunkyDataData(),
+                    entitySorters,
+                    entityAsserters,
+                    CanExecuteQueryString);
         }
     }
 }

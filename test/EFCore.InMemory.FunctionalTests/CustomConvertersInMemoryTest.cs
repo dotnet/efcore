@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -18,6 +19,29 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+        [ConditionalFact(Skip = "Issue#17050")]
+        public override void Value_conversion_with_property_named_value()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue#17050")]
+        public override void Collection_property_as_scalar_Any()
+        {
+            base.Collection_property_as_scalar_Any();
+        }
+
+        [ConditionalFact(Skip = "Issue#17050")]
+        public override void Collection_property_as_scalar_Count_member()
+        {
+            base.Collection_property_as_scalar_Count_member();
+        }
+
+        [ConditionalFact(Skip = "Issue#17050")]
+        public override void Collection_enum_as_string_Contains()
+        {
+            base.Collection_enum_as_string_Contains();
+        }
+
         public class CustomConvertersInMemoryFixture : CustomConvertersFixtureBase
         {
             public override bool StrictEquality => true;
@@ -31,6 +55,8 @@ namespace Microsoft.EntityFrameworkCore
             protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
 
             public override bool SupportsBinaryKeys => false;
+
+            public override bool SupportsDecimalComparisons => true;
 
             public override DateTime DefaultDateTime => new DateTime();
         }

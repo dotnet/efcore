@@ -129,12 +129,6 @@
   <data name="DataReaderClosed" xml:space="preserve">
     <value>Invalid attempt to call {operation} when reader is closed.</value>
   </data>
-  <data name="InvalidCacheMode" xml:space="preserve">
-    <value>The cache mode '{mode}' is invalid.</value>
-  </data>
-  <data name="InvalidCommandBehavior" xml:space="preserve">
-    <value>The CommandBehavior '{behavior}' is invalid.</value>
-  </data>
   <data name="InvalidCommandType" xml:space="preserve">
     <value>The CommandType '{commandType}' is invalid.</value>
   </data>
@@ -181,13 +175,10 @@
     <value>SQLite Error {errorCode}: '{message}'.</value>
   </data>
   <data name="DefaultNativeError" xml:space="preserve">
-    <value>For more information on this error code see http://sqlite.org/rescode.html</value>
+    <value>For more information on this error code see https://www.sqlite.org/rescode.html</value>
   </data>
   <data name="AmbiguousParameterName" xml:space="preserve">
     <value>Cannot bind the value for parameter '{parameterName}' because multiple matching parameters were found in the command text. Specify the parameter name with the symbol prefix, e.g. '@{parameterName}'.</value>
-  </data>
-  <data name="AlreadyLoaded" xml:space="preserve">
-    <value>The SQLite library is already loaded. UseWinSqlite3 must be called before using SQLite.</value>
   </data>
   <data name="InvalidEnumValue" xml:space="preserve">
     <value>The {enumType} enumeration value, {value}, is invalid.</value>
@@ -209,5 +200,23 @@
   </data>
   <data name="UDFCalledWithNull" xml:space="preserve">
     <value>The SQL function '{function}' was called with a NULL argument at ordinal {ordinal}. Create the function using a Nullable parameter or rewrite your query to avoid passing NULL.</value>
+  </data>
+  <data name="SqlBlobRequiresOpenConnection" xml:space="preserve">
+    <value>SqliteBlob can only be used when the connection is open.</value>
+  </data>
+  <data name="InvalidOffsetAndCount" xml:space="preserve">
+    <value>Offset and count were out of bounds for the buffer.</value>
+  </data>
+  <data name="ResizeNotSupported" xml:space="preserve">
+    <value>The size of a blob may not be changed by the SqliteBlob API. Use an UPDATE command instead.</value>
+  </data>
+  <data name="SeekBeforeBegin" xml:space="preserve">
+    <value>An attempt was made to move the position before the beginning of the stream.</value>
+  </data>
+  <data name="WriteNotSupported" xml:space="preserve">
+    <value>Stream does not support writing.</value>
+  </data>
+  <data name="EncryptionNotSupported" xml:space="preserve">
+    <value>You specified a password in the connection string, but the native SQLite library you're using doesn't support encryption.</value>
   </data>
 </root>

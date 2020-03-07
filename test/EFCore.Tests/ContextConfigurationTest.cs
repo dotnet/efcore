@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class ContextConfigurationTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Requesting_a_singleton_always_returns_same_instance()
         {
             var provider = InMemoryTestHelpers.Instance.CreateServiceProvider();
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(contextServices1.GetRequiredService<IDbSetSource>(), contextServices2.GetRequiredService<IDbSetSource>());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Requesting_a_scoped_service_always_returns_same_instance_in_scope()
         {
             var provider = InMemoryTestHelpers.Instance.CreateServiceProvider();
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(contextServices.GetRequiredService<IStateManager>(), contextServices.GetRequiredService<IStateManager>());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Requesting_a_scoped_service_always_returns_a_different_instance_in_a_different_scope()
         {
             var provider = InMemoryTestHelpers.Instance.CreateServiceProvider();
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.NotSame(contextServices1.GetRequiredService<IStateManager>(), contextServices2.GetRequiredService<IStateManager>());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Scoped_provider_services_can_be_obtained_from_configuration()
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Scoped_provider_services_can_be_obtained_from_configuration_with_implicit_service_provider()
         {
             IDatabase database;
@@ -106,6 +106,7 @@ namespace Microsoft.EntityFrameworkCore
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
                     .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                    .EnableServiceProviderCaching(false)
                     .UseInternalServiceProvider(_serviceProvider);
         }
     }

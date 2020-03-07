@@ -15,76 +15,72 @@ namespace Microsoft.EntityFrameworkCore
 
         private SqlServerTriggersFixture Fixture { get; }
 
-        [Fact]
+        [ConditionalFact]
         public void Triggers_with_subqueries_run_on_insert_update_and_delete()
         {
-            using (var context = CreateContext())
-            {
-                var product = new Product { Name = "blah" };
-                context.Products.Add(product);
-                context.SaveChanges();
+            using var context = CreateContext();
+            var product = new Product { Name = "blah" };
+            context.Products.Add(product);
+            context.SaveChanges();
 
-                Assert.Equal(1, product.StoreUpdated);
+            Assert.Equal(1, product.StoreUpdated);
 
-                product.Name = "fooh";
-                context.SaveChanges();
+            product.Name = "fooh";
+            context.SaveChanges();
 
-                Assert.Equal(2, product.StoreUpdated);
+            Assert.Equal(2, product.StoreUpdated);
 
-                context.Products.Remove(product);
-                context.SaveChanges();
+            context.Products.Remove(product);
+            context.SaveChanges();
 
-                Assert.Empty(context.Products);
-            }
+            Assert.Empty(context.Products);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Triggers_with_subqueries_work_with_batch_operations()
         {
-            using (var context = CreateContext())
-            {
-                var productToBeUpdated1 = new Product { Name = "u1" };
-                var productToBeUpdated2 = new Product { Name = "u2" };
-                context.Products.Add(productToBeUpdated1);
-                context.Products.Add(productToBeUpdated2);
+            using var context = CreateContext();
+            var productToBeUpdated1 = new Product { Name = "u1" };
+            var productToBeUpdated2 = new Product { Name = "u2" };
+            context.Products.Add(productToBeUpdated1);
+            context.Products.Add(productToBeUpdated2);
 
-                var productToBeDeleted1 = new Product { Name = "d1" };
-                var productToBeDeleted2 = new Product { Name = "d2" };
-                context.Products.Add(productToBeDeleted1);
-                context.Products.Add(productToBeDeleted2);
+            var productToBeDeleted1 = new Product { Name = "d1" };
+            var productToBeDeleted2 = new Product { Name = "d2" };
+            context.Products.Add(productToBeDeleted1);
+            context.Products.Add(productToBeDeleted2);
 
-                context.SaveChanges();
+            context.SaveChanges();
 
-                var productToBeAdded1 = new Product { Name = "a1" };
-                var productToBeAdded2 = new Product { Name = "a2" };
-                context.Products.Add(productToBeAdded1);
-                context.Products.Add(productToBeAdded2);
+            var productToBeAdded1 = new Product { Name = "a1" };
+            var productToBeAdded2 = new Product { Name = "a2" };
+            context.Products.Add(productToBeAdded1);
+            context.Products.Add(productToBeAdded2);
 
-                productToBeUpdated1.Name = "n1";
-                productToBeUpdated2.Name = "n2";
+            productToBeUpdated1.Name = "n1";
+            productToBeUpdated2.Name = "n2";
 
-                context.Products.Remove(productToBeDeleted1);
-                context.Products.Remove(productToBeDeleted2);
+            context.Products.Remove(productToBeDeleted1);
+            context.Products.Remove(productToBeDeleted2);
 
-                context.SaveChanges();
+            context.SaveChanges();
 
-                Assert.Equal(1, productToBeAdded1.StoreUpdated);
-                Assert.Equal(1, productToBeAdded2.StoreUpdated);
-                Assert.Equal(2, productToBeUpdated1.StoreUpdated);
-                Assert.Equal(2, productToBeUpdated2.StoreUpdated);
+            Assert.Equal(1, productToBeAdded1.StoreUpdated);
+            Assert.Equal(1, productToBeAdded2.StoreUpdated);
+            Assert.Equal(2, productToBeUpdated1.StoreUpdated);
+            Assert.Equal(2, productToBeUpdated2.StoreUpdated);
 
-                var products = context.Products.ToList();
-                Assert.Equal(4, products.Count);
+            var products = context.Products.ToList();
+            Assert.Equal(4, products.Count);
 
-                context.Products.RemoveRange(products);
+            context.Products.RemoveRange(products);
 
-                context.SaveChanges();
-            }
+            context.SaveChanges();
         }
 
         protected QueryTriggersContext CreateContext() => (QueryTriggersContext)Fixture.CreateContext();
 
-        protected class QueryTriggersContext : DbContext
+        protected class QueryTriggersContext : PoolableDbContext
         {
             public QueryTriggersContext(DbContextOptions options)
                 : base(options)
@@ -97,12 +93,12 @@ namespace Microsoft.EntityFrameworkCore
             {
                 modelBuilder.Entity<Product>(
                     eb =>
-                        {
-                            eb.Property(e => e.StoreUpdated)
-                                .HasDefaultValue(0)
-                                .ValueGeneratedOnAddOrUpdate();
-                            eb.ToTable("UpdatedProducts");
-                        });
+                    {
+                        eb.Property(e => e.StoreUpdated)
+                            .HasDefaultValue(0)
+                            .ValueGeneratedOnAddOrUpdate();
+                        eb.ToTable("UpdatedProducts");
+                    });
             }
         }
 
@@ -122,9 +118,9 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void Seed(DbContext context)
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
 
-                context.Database.ExecuteSqlCommand(
+                context.Database.ExecuteSqlRaw(
                     @"
 CREATE TRIGGER TRG_InsertUpdateProduct
 ON UpdatedProducts

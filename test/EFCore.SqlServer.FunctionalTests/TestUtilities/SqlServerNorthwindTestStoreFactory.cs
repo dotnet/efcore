@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     {
         public const string Name = "Northwind";
         public static readonly string NorthwindConnectionString = SqlServerTestStore.CreateConnectionString(Name);
-        public new static SqlServerNorthwindTestStoreFactory Instance { get; } = new SqlServerNorthwindTestStoreFactory();
+        public static new SqlServerNorthwindTestStoreFactory Instance { get; } = new SqlServerNorthwindTestStoreFactory();
 
         protected SqlServerNorthwindTestStoreFactory()
         {

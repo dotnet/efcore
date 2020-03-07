@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore
     public class DbSetAsTableNameSqlServerTest : DbSetAsTableNameTest
     {
         protected override string GetTableName<TEntity>(DbContext context)
-            => context.Model.FindEntityType(typeof(TEntity)).SqlServer().TableName;
+            => context.Model.FindEntityType(typeof(TEntity)).GetTableName();
 
         protected override SetsContext CreateContext() => new SqlServerSetsContext();
 
@@ -15,13 +15,17 @@ namespace Microsoft.EntityFrameworkCore
         protected class SqlServerSetsContext : SetsContext
         {
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer("Database = Dummy");
+                => optionsBuilder
+                    .UseInternalServiceProvider(SqlServerFixture.DefaultServiceProvider)
+                    .UseSqlServer("Database = Dummy");
         }
 
         protected class SqlServerNamedTablesContextContext : NamedTablesContext
         {
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer("Database = Dummy");
+                => optionsBuilder
+                    .UseInternalServiceProvider(SqlServerFixture.DefaultServiceProvider)
+                    .UseSqlServer("Database = Dummy");
         }
     }
 }

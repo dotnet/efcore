@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> True if SQL Server is being used; false otherwise. </returns>
         public static bool IsSqlServer([NotNull] this DatabaseFacade database)
             => database.ProviderName.Equals(
-                typeof(SqlServerOptionsExtension).GetTypeInfo().Assembly.GetName().Name,
+                typeof(SqlServerOptionsExtension).Assembly.GetName().Name,
                 StringComparison.Ordinal);
     }
 }

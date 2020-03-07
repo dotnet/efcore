@@ -30,6 +30,8 @@ LONG DESCRIPTION
 
         Scaffold-DbContext          Scaffolds a DbContext and entity types for a database.
 
+        Script-DbContext            Generates a SQL script from the current DbContext. 
+
         Script-Migration            Generates a SQL script from migrations.
 
         Update-Database             Updates the database to a specified migration.
@@ -40,5 +42,6 @@ SEE ALSO
     Get-DbContext
     Remove-Migration
     Scaffold-DbContext
+    Script-DbContext
     Script-Migration
     Update-Database

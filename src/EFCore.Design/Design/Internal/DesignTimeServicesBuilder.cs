@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -15,20 +14,26 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class DesignTimeServicesBuilder
     {
+        private readonly Assembly _assembly;
         private readonly Assembly _startupAssembly;
         private readonly IOperationReporter _reporter;
         private readonly string[] _args;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public DesignTimeServicesBuilder(
+            [NotNull] Assembly assembly,
             [NotNull] Assembly startupAssembly,
             [NotNull] IOperationReporter reporter,
             [NotNull] string[] args)
@@ -36,11 +41,14 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _startupAssembly = startupAssembly;
             _reporter = reporter;
             _args = args;
+            _assembly = assembly;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IServiceProvider Build([NotNull] DbContext context)
         {
@@ -49,16 +57,19 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var services = new ServiceCollection()
                 .AddEntityFrameworkDesignTimeServices(_reporter)
                 .AddDbContextDesignTimeServices(context);
-            ConfigureProviderServices(context.GetService<IDatabaseProvider>().Name, services);
-            ConfigureReferencedServices(services);
+            var provider = context.GetService<IDatabaseProvider>().Name;
+            ConfigureProviderServices(provider, services);
+            ConfigureReferencedServices(services, provider);
             ConfigureUserServices(services);
 
             return services.BuildServiceProvider();
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IServiceProvider Build([NotNull] string provider)
         {
@@ -67,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var services = new ServiceCollection()
                 .AddEntityFrameworkDesignTimeServices(_reporter, GetApplicationServices);
             ConfigureProviderServices(provider, services, throwOnError: true);
-            ConfigureReferencedServices(services);
+            ConfigureReferencedServices(services, provider);
             ConfigureUserServices(services);
 
             return services.BuildServiceProvider();
@@ -81,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _reporter.WriteVerbose(DesignStrings.FindingDesignTimeServices(_startupAssembly.GetName().Name));
 
             var designTimeServicesType = _startupAssembly.GetLoadableDefinedTypes()
-                .Where(t => typeof(IDesignTimeServices).GetTypeInfo().IsAssignableFrom(t)).Select(t => t.AsType())
+                .Where(t => typeof(IDesignTimeServices).IsAssignableFrom(t)).Select(t => t.AsType())
                 .FirstOrDefault();
             if (designTimeServicesType == null)
             {
@@ -95,11 +106,15 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             ConfigureDesignTimeServices(designTimeServicesType, services);
         }
 
-        private void ConfigureReferencedServices(IServiceCollection services)
+        private void ConfigureReferencedServices(IServiceCollection services, string provider)
         {
             _reporter.WriteVerbose(DesignStrings.FindingReferencedServices(_startupAssembly.GetName().Name));
 
-            var references = _startupAssembly.GetCustomAttributes<DesignTimeServicesReferenceAttribute>().ToList();
+            var references = _startupAssembly.GetCustomAttributes<DesignTimeServicesReferenceAttribute>()
+                .Concat(_assembly.GetCustomAttributes<DesignTimeServicesReferenceAttribute>())
+                .Distinct()
+                .ToList();
+
             if (references.Count == 0)
             {
                 _reporter.WriteVerbose(DesignStrings.NoReferencedServices);
@@ -109,6 +124,12 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             foreach (var reference in references)
             {
+                if (reference.ForProvider != null
+                    && !string.Equals(reference.ForProvider, provider, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
                 var designTimeServicesType = Type.GetType(reference.TypeName, throwOnError: true);
 
                 _reporter.WriteVerbose(
@@ -172,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Type designTimeServicesType,
             IServiceCollection services)
         {
-            Debug.Assert(designTimeServicesType != null, "designTimeServicesType is null.");
+            Check.DebugAssert(designTimeServicesType != null, "designTimeServicesType is null.");
 
             var designTimeServices = (IDesignTimeServices)Activator.CreateInstance(designTimeServicesType);
             designTimeServices.ConfigureDesignTimeServices(services);

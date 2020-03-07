@@ -4,19 +4,19 @@ using System;
 using System.Reflection;
 using System.Resources;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
-    ///		This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static class DesignStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.DesignStrings", typeof(DesignStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.DesignStrings", typeof(DesignStrings).Assembly);
 
         /// <summary>
         ///     The name '{migrationName}' is used by an existing migration.
@@ -169,6 +169,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 literalType);
 
         /// <summary>
+        ///     The literal expression '{expression}' for '{type}' cannot be parsed. Only simple constructor calls and factory methods are supported.
+        /// </summary>
+        public static string LiteralExpressionNotSupported([CanBeNull] object expression, [CanBeNull] object type)
+            => string.Format(
+                GetString("LiteralExpressionNotSupported", nameof(expression), nameof(type)),
+                expression, type);
+
+        /// <summary>
         ///     Unable to find provider assembly with name {assemblyName}. Ensure the specified name is correct and is referenced by the project.
         /// </summary>
         public static string CannotFindRuntimeProviderAssembly([CanBeNull] object assemblyName)
@@ -251,6 +259,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("FindingContexts");
 
         /// <summary>
+        ///     Failed creating connection: {exceptionMessage}
+        /// </summary>
+        public static string BadConnection([CanBeNull] object exceptionMessage)
+            => string.Format(
+                GetString("BadConnection", nameof(exceptionMessage)),
+                exceptionMessage);
+
+        /// <summary>
+        ///     Connection information is only available for relational database providers.
+        /// </summary>
+        public static string NoRelationalConnection
+            => GetString("NoRelationalConnection");
+
+        /// <summary>
         ///     The namespace '{migrationsNamespace}' contains migrations for a different DbContext. This can result in conflicting migration names. It's recommend to put migrations for different DbContext classes into different namespaces.
         /// </summary>
         public static string ForeignMigrations([CanBeNull] object migrationsNamespace)
@@ -291,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 name, error);
 
         /// <summary>
-        ///     Unable to create an object of type '{contextType}'. Add an implementation of 'IDesignTimeDbContextFactory&lt;{contextType}&gt;' to the project, or see https://go.microsoft.com/fwlink/?linkid=851728 for additional patterns supported at design time.
+        ///     Unable to create an object of type '{contextType}'. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728
         /// </summary>
         public static string NoParameterlessConstructor([CanBeNull] object contextType)
             => string.Format(
@@ -315,46 +337,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 environment);
 
         /// <summary>
-        ///     Finding IWebHost accessor...
-        /// </summary>
-        public static string FindingBuildWebHost
-            => GetString("FindingBuildWebHost");
-
-        /// <summary>
         ///     Finding application service provider...
         /// </summary>
         public static string FindingServiceProvider
             => GetString("FindingServiceProvider");
 
         /// <summary>
-        ///     No CreateWebHostBuilder(string[]) method was found on type '{programClass}'.
-        /// </summary>
-        public static string NoBuildWebHost([CanBeNull] object programClass)
-            => string.Format(
-                GetString("NoBuildWebHost", nameof(programClass)),
-                programClass);
-
-        /// <summary>
-        ///     No entry point was found for assembly '{startupAssembly}'.
-        /// </summary>
-        public static string NoEntryPoint([CanBeNull] object startupAssembly)
-            => string.Format(
-                GetString("NoEntryPoint", nameof(startupAssembly)),
-                startupAssembly);
-
-        /// <summary>
         ///     No application service provider was found.
         /// </summary>
         public static string NoServiceProvider
             => GetString("NoServiceProvider");
-
-        /// <summary>
-        ///     Using application service provider from IWebHost accessor on '{programClass}'.
-        /// </summary>
-        public static string UsingBuildWebHost([CanBeNull] object programClass)
-            => string.Format(
-                GetString("UsingBuildWebHost", nameof(programClass)),
-                programClass);
 
         /// <summary>
         ///     Found DbContext '{contextType}'.
@@ -487,14 +479,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 tableName, columnNames);
 
         /// <summary>
-        ///     Unable to identify the primary key for table '{tableName}'.
-        /// </summary>
-        public static string MissingPrimaryKey([CanBeNull] object tableName)
-            => string.Format(
-                GetString("MissingPrimaryKey", nameof(tableName)),
-                tableName);
-
-        /// <summary>
         ///     Unable to generate entity type for table '{tableName}'.
         /// </summary>
         public static string UnableToGenerateEntityType([CanBeNull] object tableName)
@@ -565,28 +549,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("SequencesRequireName");
 
         /// <summary>
-        ///     An error occurred while accessing the IWebHost on class '{startupClass}'. Continuing without the application service provider. Error: {error}
-        /// </summary>
-        public static string InvokeBuildWebHostFailed([CanBeNull] object startupClass, [CanBeNull] object error)
-            => string.Format(
-                GetString("InvokeBuildWebHostFailed", nameof(startupClass), nameof(error)),
-                startupClass, error);
-
-        /// <summary>
         ///     The project language '{language}' isn't supported by the built-in {service} service. You can try looking for an additional NuGet package which supports this language; moving your DbContext type to a C# class library referenced by this project; or manually implementing and registering the design-time service for programming language.
         /// </summary>
         public static string NoLanguageService([CanBeNull] object language, [CanBeNull] object service)
             => string.Format(
                 GetString("NoLanguageService", nameof(language), nameof(service)),
                 language, service);
-
-        /// <summary>
-        ///     Reverting migration '{name}'.
-        /// </summary>
-        public static string RevertingMigration([CanBeNull] object name)
-            => string.Format(
-                GetString("RevertingMigration", nameof(name)),
-                name);
 
         /// <summary>
         ///     Finding design-time services referenced by assembly '{startupAssembly}'.
@@ -618,6 +586,54 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("VersionMismatch", nameof(toolsVersion), nameof(runtimeVersion)),
                 toolsVersion, runtimeVersion);
 
+        /// <summary>
+        ///     Finding Microsoft.Extensions.Hosting service provider...
+        /// </summary>
+        public static string FindingHostingServices
+            => GetString("FindingHostingServices");
+
+        /// <summary>
+        ///     An error occurred while accessing the Microsoft.Extensions.Hosting services. Continuing without the application service provider. Error: {error}
+        /// </summary>
+        public static string InvokeCreateHostBuilderFailed([CanBeNull] object error)
+            => string.Format(
+                GetString("InvokeCreateHostBuilderFailed", nameof(error)),
+                error);
+
+        /// <summary>
+        ///     An unexpected return type was encountered while accessing the Microsoft.Extensions.Hosting services. Method 'CreateHostBuilder(string[])' should return an object of type 'IHostBuilder'. Continuing without the application service provider.
+        /// </summary>
+        public static string MalformedCreateHostBuilder
+            => GetString("MalformedCreateHostBuilder");
+
+        /// <summary>
+        ///     No static method 'CreateHostBuilder(string[])' was found on class 'Program'.
+        /// </summary>
+        public static string NoCreateHostBuilder
+            => GetString("NoCreateHostBuilder");
+
+        /// <summary>
+        ///     Using application service provider from Microsoft.Extensions.Hosting.
+        /// </summary>
+        public static string UsingHostingServices
+            => GetString("UsingHostingServices");
+
+        /// <summary>
+        ///     Unhandled enum value '{enumValue}'.
+        /// </summary>
+        public static string UnhandledEnumValue([CanBeNull] object enumValue)
+            => string.Format(
+                GetString("UnhandledEnumValue", nameof(enumValue)),
+                enumValue);
+
+        /// <summary>
+        ///     The name you have chosen for the migration, '{name}', is the same as the context class name. Please choose a different name for your migration. Might we suggest 'InitialCreate' for your first migration?
+        /// </summary>
+        public static string ConflictingContextAndMigrationName([CanBeNull] object name)
+            => string.Format(
+                GetString("ConflictingContextAndMigrationName", nameof(name)),
+                name);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
@@ -630,3 +646,4 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
     }
 }
+

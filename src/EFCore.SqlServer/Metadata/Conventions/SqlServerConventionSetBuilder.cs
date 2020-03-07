@@ -1,68 +1,76 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     <para>
+    ///         A builder for building conventions for SQL Server.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" /> and multiple registrations
+    ///         are allowed. This means that each <see cref="DbContext" /> instance will use its own
+    ///         set of instances of this service.
+    ///         The implementations may depend on other services registered with any lifetime.
+    ///         The implementations do not need to be thread-safe.
+    ///     </para>
     /// </summary>
     public class SqlServerConventionSetBuilder : RelationalConventionSetBuilder
     {
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Creates a new <see cref="SqlServerConventionSetBuilder" /> instance.
         /// </summary>
+        /// <param name="dependencies"> The core dependencies for this service. </param>
+        /// <param name="relationalDependencies"> The relational dependencies for this service. </param>
+        /// <param name="sqlGenerationHelper"> The SQL generation helper to use. </param>
         public SqlServerConventionSetBuilder(
-            [NotNull] RelationalConventionSetBuilderDependencies dependencies,
+            [NotNull] ProviderConventionSetBuilderDependencies dependencies,
+            [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper)
-            : base(dependencies)
+            : base(dependencies, relationalDependencies)
         {
             _sqlGenerationHelper = sqlGenerationHelper;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Builds and returns the convention set for the current database provider.
         /// </summary>
-        public override ConventionSet AddConventions(ConventionSet conventionSet)
+        /// <returns> The convention set for the current database provider. </returns>
+        public override ConventionSet CreateConventionSet()
         {
-            Check.NotNull(conventionSet, nameof(conventionSet));
+            var conventionSet = base.CreateConventionSet();
 
-            base.AddConventions(conventionSet);
-
-            var valueGenerationStrategyConvention = new SqlServerValueGenerationStrategyConvention();
+            var valueGenerationStrategyConvention = new SqlServerValueGenerationStrategyConvention(Dependencies, RelationalDependencies);
             conventionSet.ModelInitializedConventions.Add(valueGenerationStrategyConvention);
-            conventionSet.ModelInitializedConventions.Add(new RelationalMaxIdentifierLengthConvention(128));
+            conventionSet.ModelInitializedConventions.Add(
+                new RelationalMaxIdentifierLengthConvention(128, Dependencies, RelationalDependencies));
 
-            ValueGeneratorConvention valueGeneratorConvention = new SqlServerValueGeneratorConvention();
-            ReplaceConvention(conventionSet.BaseEntityTypeChangedConventions, valueGeneratorConvention);
+            ValueGenerationConvention valueGenerationConvention =
+                new SqlServerValueGenerationConvention(Dependencies, RelationalDependencies);
+            var sqlServerIndexConvention = new SqlServerIndexConvention(Dependencies, RelationalDependencies, _sqlGenerationHelper);
+            ReplaceConvention(conventionSet.EntityTypeBaseTypeChangedConventions, valueGenerationConvention);
+            conventionSet.EntityTypeBaseTypeChangedConventions.Add(sqlServerIndexConvention);
 
-            var sqlServerInMemoryTablesConvention = new SqlServerMemoryOptimizedTablesConvention();
+            var sqlServerInMemoryTablesConvention = new SqlServerMemoryOptimizedTablesConvention(Dependencies, RelationalDependencies);
             conventionSet.EntityTypeAnnotationChangedConventions.Add(sqlServerInMemoryTablesConvention);
+            ReplaceConvention(
+                conventionSet.EntityTypeAnnotationChangedConventions, (RelationalValueGenerationConvention)valueGenerationConvention);
 
-            ReplaceConvention(conventionSet.PrimaryKeyChangedConventions, valueGeneratorConvention);
+            ReplaceConvention(conventionSet.EntityTypePrimaryKeyChangedConventions, valueGenerationConvention);
 
             conventionSet.KeyAddedConventions.Add(sqlServerInMemoryTablesConvention);
 
-            ReplaceConvention(conventionSet.ForeignKeyAddedConventions, valueGeneratorConvention);
+            ReplaceConvention(conventionSet.ForeignKeyAddedConventions, valueGenerationConvention);
 
-            ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGeneratorConvention);
-
-            var sqlServerIndexConvention = new SqlServerIndexConvention(_sqlGenerationHelper);
-
-            conventionSet.BaseEntityTypeChangedConventions.Add(sqlServerIndexConvention);
-
-            conventionSet.ModelBuiltConventions.Add(valueGenerationStrategyConvention);
+            ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGenerationConvention);
 
             conventionSet.IndexAddedConventions.Add(sqlServerInMemoryTablesConvention);
             conventionSet.IndexAddedConventions.Add(sqlServerIndexConvention);
@@ -73,32 +81,44 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             conventionSet.PropertyNullabilityChangedConventions.Add(sqlServerIndexConvention);
 
+            StoreGenerationConvention storeGenerationConvention =
+                new SqlServerStoreGenerationConvention(Dependencies, RelationalDependencies);
             conventionSet.PropertyAnnotationChangedConventions.Add(sqlServerIndexConvention);
-            conventionSet.PropertyAnnotationChangedConventions.Add((SqlServerValueGeneratorConvention)valueGeneratorConvention);
+            ReplaceConvention(conventionSet.PropertyAnnotationChangedConventions, storeGenerationConvention);
+            ReplaceConvention(
+                conventionSet.PropertyAnnotationChangedConventions, (RelationalValueGenerationConvention)valueGenerationConvention);
 
-            ReplaceConvention(conventionSet.ModelAnnotationChangedConventions, (RelationalDbFunctionConvention)new SqlServerDbFunctionConvention());
+            conventionSet.ModelFinalizingConventions.Add(valueGenerationStrategyConvention);
+            conventionSet.ModelFinalizingConventions.Add(new SqlServerEnumConvention(Dependencies));
+            ReplaceConvention(conventionSet.ModelFinalizingConventions, storeGenerationConvention);
 
             return conventionSet;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     <para>
+        ///         Call this method to build a <see cref="ConventionSet" /> for SQL Server when using
+        ///         the <see cref="ModelBuilder" /> outside of <see cref="DbContext.OnModelCreating" />.
+        ///     </para>
+        ///     <para>
+        ///         Note that it is unusual to use this method.
+        ///         Consider using <see cref="DbContext" /> in the normal way instead.
+        ///     </para>
         /// </summary>
+        /// <returns> The convention set. </returns>
         public static ConventionSet Build()
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
-                .AddDbContext<DbContext>(o => o.UseSqlServer("Server=."))
+                .AddDbContext<DbContext>(
+                    (p, o) =>
+                        o.UseSqlServer("Server=.")
+                            .UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            {
-                using (var context = serviceScope.ServiceProvider.GetService<DbContext>())
-                {
-                    return ConventionSet.CreateConventionSet(context);
-                }
-            }
+            using var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
+            using var context = serviceScope.ServiceProvider.GetService<DbContext>();
+            return ConventionSet.CreateConventionSet(context);
         }
     }
 }

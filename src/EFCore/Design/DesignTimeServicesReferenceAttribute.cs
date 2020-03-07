@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Design
     ///         This attribute is typically used by design-time extensions. It is generally not used in application code.
     ///     </para>
     /// </summary>
-    [AttributeUsage(AttributeTargets.Assembly)]
+    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
     public sealed class DesignTimeServicesReferenceAttribute : Attribute
     {
         /// <summary>
@@ -27,16 +27,40 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     This type should implement <see cref="IDesignTimeServices" />.
         /// </param>
         public DesignTimeServicesReferenceAttribute([NotNull] string typeName)
+            : this(typeName, forProvider: null)
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="DesignTimeServicesReferenceAttribute" /> class.
+        /// </summary>
+        /// <param name="typeName">
+        ///     The assembly-qualified name of the type that can be used to add additional design time services to a <see cref="ServiceCollection" />.
+        ///     This type should implement <see cref="IDesignTimeServices" />.
+        /// </param>
+        /// <param name="forProvider">
+        ///     The name of the provider for which these services should be added. If null, the services will be added
+        ///     for all providers.
+        /// </param>
+        public DesignTimeServicesReferenceAttribute([NotNull] string typeName, [CanBeNull] string forProvider)
         {
             Check.NotEmpty(typeName, nameof(typeName));
 
             TypeName = typeName;
+            ForProvider = forProvider;
         }
 
         /// <summary>
-        ///     Gets the assembly-qualified name of the type that can be used to add additional design time services to a <see cref="ServiceCollection" />.
+        ///     Gets the assembly-qualified name of the type that can be used to add additional design time services to a
+        ///     <see cref="ServiceCollection" />.
         ///     This type should implement <see cref="IDesignTimeServices" />.
         /// </summary>
         public string TypeName { get; }
+
+        /// <summary>
+        ///     Gets the name of the provider for which these services should be added. If null, the services will be
+        ///     added for all providers.
+        /// </summary>
+        public string ForProvider { get; }
     }
 }

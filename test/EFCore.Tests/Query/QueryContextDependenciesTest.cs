@@ -8,11 +8,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class QueryContextDependenciesTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_use_With_methods_to_clone_and_replace_service()
         {
             InMemoryTestHelpers.Instance.TestDependenciesClone<QueryContextDependencies>(
-                nameof(QueryContextDependencies.ChangeDetector),
                 nameof(QueryContextDependencies.StateManager),
                 nameof(QueryContextDependencies.QueryProvider));
         }

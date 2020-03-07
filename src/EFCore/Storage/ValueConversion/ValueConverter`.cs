@@ -32,8 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             [CanBeNull] ConverterMappingHints mappingHints = null)
             : base(convertToProviderExpression, convertFromProviderExpression, mappingHints)
         {
-            _convertToProvider = SanitizeConverter(convertToProviderExpression);
-            _convertFromProvider = SanitizeConverter(convertFromProviderExpression);
         }
 
         private static Func<object, object> SanitizeConverter<TIn, TOut>(Expression<Func<TIn, TOut>> convertExpression)
@@ -50,8 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             var unwrappedType = typeof(T).UnwrapNullableType();
 
             return (T)(!unwrappedType.IsInstanceOfType(value)
-                    ? Convert.ChangeType(value, unwrappedType)
-                    : value);
+                ? Convert.ChangeType(value, unwrappedType)
+                : value);
         }
 
         /// <summary>

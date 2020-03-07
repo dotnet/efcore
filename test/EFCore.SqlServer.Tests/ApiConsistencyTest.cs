@@ -18,10 +18,8 @@ namespace Microsoft.EntityFrameworkCore
             typeof(SqlServerDbContextOptionsExtensions),
             typeof(SqlServerIndexBuilderExtensions),
             typeof(SqlServerKeyBuilderExtensions),
-            typeof(SqlServerMetadataExtensions),
             typeof(SqlServerModelBuilderExtensions),
             typeof(SqlServerPropertyBuilderExtensions),
-            typeof(SqlServerReferenceOwnershipBuilderExtensions),
             typeof(SqlServerServiceCollectionExtensions),
             typeof(SqlServerEntityTypeBuilderExtensions)
         };
@@ -33,6 +31,6 @@ namespace Microsoft.EntityFrameworkCore
             serviceCollection.AddEntityFrameworkSqlServer();
         }
 
-        protected override Assembly TargetAssembly => typeof(SqlServerConnection).GetTypeInfo().Assembly;
+        protected override Assembly TargetAssembly => typeof(SqlServerConnection).Assembly;
     }
 }

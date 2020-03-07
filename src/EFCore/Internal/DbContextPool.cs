@@ -1,23 +1,27 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class DbContextPool<TContext> : IDbContextPool, IDisposable
+    public class DbContextPool<TContext> : IDbContextPool, IDisposable, IAsyncDisposable
         where TContext : DbContext
     {
         private const int DefaultPoolSize = 32;
@@ -32,16 +36,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private DbContextPoolConfigurationSnapshot _configurationSnapshot;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public sealed class Lease : IDisposable
+        public sealed class Lease : IDisposable, IAsyncDisposable
         {
             private DbContextPool<TContext> _contextPool;
 
             /// <summary>
-            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
+            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+            ///     any release. You should only use it directly in your code with extreme caution and knowing that
+            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
             public Lease([NotNull] DbContextPool<TContext> contextPool)
             {
@@ -51,8 +59,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
 
             /// <summary>
-            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
+            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+            ///     any release. You should only use it directly in your code with extreme caution and knowing that
+            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
             public TContext Context { get; private set; }
 
@@ -70,11 +80,28 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     Context = null;
                 }
             }
+
+            async ValueTask IAsyncDisposable.DisposeAsync()
+            {
+                if (_contextPool != null)
+                {
+                    if (!_contextPool.Return(Context))
+                    {
+                        ((IDbContextPoolable)Context).SetPool(null);
+                        await Context.DisposeAsync();
+                    }
+
+                    _contextPool = null;
+                    Context = null;
+                }
+            }
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public DbContextPool([NotNull] DbContextOptions options)
         {
@@ -93,14 +120,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         private static Func<TContext> CreateActivator(DbContextOptions options)
         {
-            var ctors
+            var constructors
                 = typeof(TContext).GetTypeInfo().DeclaredConstructors
                     .Where(c => !c.IsStatic && c.IsPublic)
                     .ToArray();
 
-            if (ctors.Length == 1)
+            if (constructors.Length == 1)
             {
-                var parameters = ctors[0].GetParameters();
+                var parameters = constructors[0].GetParameters();
 
                 if (parameters.Length == 1
                     && (parameters[0].ParameterType == typeof(DbContextOptions)
@@ -108,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 {
                     return
                         Expression.Lambda<Func<TContext>>(
-                                Expression.New(ctors[0], Expression.Constant(options)))
+                                Expression.New(constructors[0], Expression.Constant(options)))
                             .Compile();
                 }
             }
@@ -117,8 +144,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual TContext Rent()
         {
@@ -126,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 Interlocked.Decrement(ref _count);
 
-                Debug.Assert(_count >= 0);
+                Check.DebugAssert(_count >= 0, $"_count is {_count}");
 
                 ((IDbContextPoolable)context).Resurrect(_configurationSnapshot);
 
@@ -147,8 +176,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool Return([NotNull] TContext context)
         {
@@ -163,18 +194,32 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             Interlocked.Decrement(ref _count);
 
-            Debug.Assert(_maxSize == 0 || _pool.Count <= _maxSize);
+            Check.DebugAssert(_maxSize == 0 || _pool.Count <= _maxSize, $"_maxSize is {_maxSize}");
 
             return false;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         DbContext IDbContextPool.Rent() => Rent();
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         bool IDbContextPool.Return(DbContext context) => Return((TContext)context);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void Dispose()
         {
@@ -184,6 +229,23 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 ((IDbContextPoolable)context).SetPool(null);
                 context.Dispose();
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual async ValueTask DisposeAsync()
+        {
+            _maxSize = 0;
+
+            while (_pool.TryDequeue(out var context))
+            {
+                ((IDbContextPoolable)context).SetPool(null);
+                await context.DisposeAsync();
             }
         }
     }

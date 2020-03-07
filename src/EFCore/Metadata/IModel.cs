@@ -4,13 +4,23 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Metadata about the shape of entities, the relationships between them, and how they map to the database. A model is typically
-    ///     created by overriding the <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> method on a derived context, or
-    ///     using <see cref="ModelBuilder" />.
+    ///     <para>
+    ///         Metadata about the shape of entities, the relationships between them, and how they map to
+    ///         the database. A model is typically created by overriding the
+    ///         see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> method on a derived
+    ///         <see cref="DbContext" />.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
+    ///     </para>
     /// </summary>
     public interface IModel : IAnnotatable
     {

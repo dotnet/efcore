@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <param name="falseValue"> The string to use for <c>false</c>. </param>
         /// <param name="trueValue"> The string to use for <c>true</c>. </param>
         /// <param name="mappingHints">
-        ///     Hints that can be used by the <see cref="ITypeMappingSource"/> to create data types with appropriate
+        ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
         public BoolToStringConverter(
@@ -28,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             [NotNull] string trueValue,
             [CanBeNull] ConverterMappingHints mappingHints = null)
             : base(
-                Check.NotEmpty(falseValue, nameof(falseValue)),
-                Check.NotEmpty(trueValue, nameof(trueValue)),
+                Check.NotNull(falseValue, nameof(falseValue)),
+                Check.NotNull(trueValue, nameof(trueValue)),
                 FromProvider(trueValue),
                 new ConverterMappingHints(size: Math.Max(falseValue.Length, trueValue.Length)).With(mappingHints))
         {
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             var testChar = trueValue.ToUpperInvariant()[0];
 
             return v => !string.IsNullOrEmpty(v)
-                        && v.ToUpperInvariant()[0] == testChar;
+                && v.ToUpperInvariant()[0] == testChar;
         }
     }
 }

@@ -1,4 +1,0 @@
-<#
-    Session["ResourceFile"] = "OracleStrings.resx";
-#>
-<#@ include file="..\..\..\..\..\tools\Resources.tt" #>

@@ -15,26 +15,26 @@ namespace Microsoft.EntityFrameworkCore
 
         protected AutoincrementFixture Fixture { get; }
 
-        [Fact]
+        [ConditionalFact]
         public void Autoincrement_prevents_reusing_rowid()
         {
-            using (var context = CreateContext())
-            {
-                context.People.Add(new PersonA { Name = "Bruce" });
-                context.SaveChanges();
+            using var context = CreateContext();
+            context.People.Add(
+                new PersonA { Name = "Bruce" });
+            context.SaveChanges();
 
-                var hero = context.People.First(p => p.Id == 1);
+            var hero = context.People.First(p => p.Id == 1);
 
-                context.People.Remove(hero);
-                context.SaveChanges();
-                context.People.Add(new PersonA { Name = "Batman" });
-                context.SaveChanges();
-                var gone = context.People.FirstOrDefault(p => p.Id == 1);
-                var begins = context.People.FirstOrDefault(p => p.Id == 2);
+            context.People.Remove(hero);
+            context.SaveChanges();
+            context.People.Add(
+                new PersonA { Name = "Batman" });
+            context.SaveChanges();
+            var gone = context.People.FirstOrDefault(p => p.Id == 1);
+            var begins = context.People.FirstOrDefault(p => p.Id == 2);
 
-                Assert.Null(gone);
-                Assert.NotNull(begins);
-            }
+            Assert.Null(gone);
+            Assert.NotNull(begins);
         }
 
         private BatContext CreateContext() => (BatContext)Fixture.CreateContext();
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore
             protected override Type ContextType => typeof(BatContext);
         }
 
-        protected class BatContext : DbContext
+        protected class BatContext : PoolableDbContext
         {
             public BatContext(DbContextOptions options)
                 : base(options)

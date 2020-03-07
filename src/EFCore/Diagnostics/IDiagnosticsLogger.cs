@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
@@ -13,27 +14,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///         for ASP.NET and <see cref="DiagnosticSource" /> for everything else.
     ///     </para>
     ///     <para>
-    ///         Also intercepts messages such that warnings
-    ///         can be either logged or thrown, and such that a decision as to whether to log
-    ///         sensitive data or not can be made.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public interface IDiagnosticsLogger<TLoggerCategory>
-        where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
+    public interface IDiagnosticsLogger
     {
-        /// <summary>
-        ///     Checks if the given <paramref name="logLevel" /> is enabled or the given event, and,
-        ///     if so, whether the event should be logged or thrown.
-        /// </summary>
-        /// <param name="eventId"> The event ID that will be logged, if enabled. </param>
-        /// <param name="logLevel"> The logging level to which the event will be logged.</param>
-        /// <returns> One of Log, Throw, or Ignore. </returns>
-        WarningBehavior GetLogBehavior(EventId eventId, LogLevel logLevel);
-
         /// <summary>
         ///     Entity Framework logging options.
         /// </summary>
         ILoggingOptions Options { get; }
+
+        /// <summary>
+        ///     Caching for logging definitions.
+        /// </summary>
+        LoggingDefinitions Definitions { get; }
 
         /// <summary>
         ///     Gets a value indicating whether sensitive information should be written
@@ -51,5 +47,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     The <see cref="DiagnosticSource" />.
         /// </summary>
         DiagnosticSource DiagnosticSource { get; }
+
+        /// <summary>
+        ///     The <see cref="IDbContextLogger" />.
+        /// </summary>
+        IDbContextLogger DbContextLogger { get; }
+
+        /// <summary>
+        ///     Holds registered interceptors, if any.
+        /// </summary>
+        IInterceptors Interceptors { get; }
     }
 }

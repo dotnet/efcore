@@ -2,83 +2,75 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
 using System.Threading;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     <para>
+    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///         any release. You should only use it directly in your code with extreme caution and knowing that
+    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
+    ///     </para>
     /// </summary>
-    public class ConcurrencyDetector : IConcurrencyDetector, IDisposable
+    public class ConcurrencyDetector : IConcurrencyDetector
     {
         private readonly IDisposable _disposer;
-
-        private SemaphoreSlim _semaphore = new SemaphoreSlim(1);
-
         private int _inCriticalSection;
+        private static readonly AsyncLocal<bool> _threadHasLock = new AsyncLocal<bool>();
+        private int _refCount;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ConcurrencyDetector() => _disposer = new Disposer(this);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IDisposable EnterCriticalSection()
         {
             if (Interlocked.CompareExchange(ref _inCriticalSection, 1, 0) == 1)
             {
-                throw new InvalidOperationException(CoreStrings.ConcurrentMethodInvocation);
+                if (!_threadHasLock.Value)
+                {
+                    throw new InvalidOperationException(CoreStrings.ConcurrentMethodInvocation);
+                }
+            }
+            else
+            {
+                _threadHasLock.Value = true;
             }
 
+            _refCount++;
             return _disposer;
         }
 
         private void ExitCriticalSection()
         {
-            Debug.Assert(_inCriticalSection == 1, "Expected to be in a critical section");
+            Check.DebugAssert(_inCriticalSection == 1, "Expected to be in a critical section");
 
-            _inCriticalSection = 0;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual async Task<IDisposable> EnterCriticalSectionAsync(CancellationToken cancellationToken)
-        {
-            await _semaphore.WaitAsync(cancellationToken);
-
-            return new AsyncDisposer(EnterCriticalSection(), this);
-        }
-
-        private readonly struct AsyncDisposer : IDisposable
-        {
-            private readonly IDisposable _disposable;
-            private readonly ConcurrencyDetector _concurrencyDetector;
-
-            public AsyncDisposer(IDisposable disposable, ConcurrencyDetector concurrencyDetector)
+            if (--_refCount == 0)
             {
-                _disposable = disposable;
-                _concurrencyDetector = concurrencyDetector;
-            }
-
-            public void Dispose()
-            {
-                _disposable.Dispose();
-
-                if (_concurrencyDetector._semaphore == null)
-                {
-                    throw new ObjectDisposedException(GetType().ShortDisplayName(), CoreStrings.ContextDisposed);
-                }
-
-                _concurrencyDetector._semaphore.Release();
+                _threadHasLock.Value = false;
+                _inCriticalSection = 0;
             }
         }
 
@@ -90,16 +82,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 => _concurrencyDetector = concurrencyDetector;
 
             public void Dispose() => _concurrencyDetector.ExitCriticalSection();
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual void Dispose()
-        {
-            _semaphore?.Dispose();
-            _semaphore = null;
         }
     }
 }

@@ -17,7 +17,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     <para>
         ///         Gets the <see cref="PropertyAccessMode" /> being used for properties and navigations of this type.
-        ///         Null indicates that the default property access mode is being used.
         ///     </para>
         ///     <para>
         ///         Note that individual properties and navigations can override this access mode. The value returned here will
@@ -26,15 +25,14 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="typeBase"> The type for which to get the access mode. </param>
         /// <returns> The access mode being used, or null if the default access mode is being used. </returns>
-        public static PropertyAccessMode? GetPropertyAccessMode(
+        public static PropertyAccessMode GetPropertyAccessMode(
             [NotNull] this ITypeBase typeBase)
-            => (PropertyAccessMode?)Check.NotNull(typeBase, nameof(typeBase))[CoreAnnotationNames.PropertyAccessModeAnnotation]
-               ?? typeBase.Model.GetPropertyAccessMode();
+            => (PropertyAccessMode?)Check.NotNull(typeBase, nameof(typeBase))[CoreAnnotationNames.PropertyAccessMode]
+                ?? typeBase.Model.GetPropertyAccessMode();
 
         /// <summary>
         ///     <para>
         ///         Gets the <see cref="PropertyAccessMode" /> being used for navigations of this type.
-        ///         Null indicates that the default property access mode is being used.
         ///     </para>
         ///     <para>
         ///         Note that individual navigations can override this access mode. The value returned here will
@@ -43,10 +41,9 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="typeBase"> The type for which to get the access mode. </param>
         /// <returns> The access mode being used, or null if the default access mode is being used. </returns>
-        public static PropertyAccessMode? GetNavigationAccessMode(
+        public static PropertyAccessMode GetNavigationAccessMode(
             [NotNull] this ITypeBase typeBase)
-            => (PropertyAccessMode?)Check.NotNull(typeBase, nameof(typeBase))[CoreAnnotationNames.NavigationAccessModeAnnotation]
-               ?? typeBase.GetPropertyAccessMode()
-               ?? typeBase.Model.GetPropertyAccessMode();
+            => (PropertyAccessMode?)Check.NotNull(typeBase, nameof(typeBase))[CoreAnnotationNames.NavigationAccessMode]
+                ?? typeBase.GetPropertyAccessMode();
     }
 }

@@ -1,8 +1,10 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
@@ -39,16 +41,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         ///         the constructor at any point in this process.
         ///     </para>
         ///     <para>
-        ///         This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///         directly from your code. This API may change or be removed in future releases.
+        ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///         any release. You should only use it directly in your code with extreme caution and knowing that
+        ///         doing so can result in application failures when updating to a new Entity Framework Core release.
         ///     </para>
         /// </summary>
-        /// <param name="csharpHelper"> The C# helper. </param>
-        public CSharpSnapshotGeneratorDependencies([NotNull] ICSharpHelper csharpHelper)
+        [EntityFrameworkInternal]
+        public CSharpSnapshotGeneratorDependencies(
+            [NotNull] ICSharpHelper csharpHelper,
+            [NotNull] IRelationalTypeMappingSource relationalTypeMappingSource)
         {
             Check.NotNull(csharpHelper, nameof(csharpHelper));
 
             CSharpHelper = csharpHelper;
+            RelationalTypeMappingSource = relationalTypeMappingSource;
         }
 
         /// <summary>
@@ -57,11 +64,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public ICSharpHelper CSharpHelper { get; }
 
         /// <summary>
+        ///     The type mapper.
+        /// </summary>
+        public IRelationalTypeMappingSource RelationalTypeMappingSource { get; }
+
+        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="csharpHelper"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public CSharpSnapshotGeneratorDependencies With([NotNull] ICSharpHelper csharpHelper)
-            => new CSharpSnapshotGeneratorDependencies(csharpHelper);
+            => new CSharpSnapshotGeneratorDependencies(csharpHelper, RelationalTypeMappingSource);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="relationalTypeMappingSource"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public CSharpSnapshotGeneratorDependencies With([NotNull] IRelationalTypeMappingSource relationalTypeMappingSource)
+            => new CSharpSnapshotGeneratorDependencies(CSharpHelper, relationalTypeMappingSource);
     }
 }

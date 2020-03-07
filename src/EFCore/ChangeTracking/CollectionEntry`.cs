@@ -21,24 +21,30 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     </para>
     /// </summary>
     /// <typeparam name="TEntity"> The type of the entity the property belongs to. </typeparam>
-    /// <typeparam name="TProperty"> The type of the property. </typeparam>
-    public class CollectionEntry<TEntity, TProperty> : CollectionEntry
+    /// <typeparam name="TRelatedEntity"> The type of the property. </typeparam>
+    public class CollectionEntry<TEntity, TRelatedEntity> : CollectionEntry
         where TEntity : class
-        where TProperty : class
+        where TRelatedEntity : class
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         public CollectionEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] string name)
             : base(internalEntry, name)
         {
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         public CollectionEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] INavigation navigation)
             : base(internalEntry, navigation)
         {
@@ -55,10 +61,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     the change tracker is aware of the change and <see cref="ChangeTracker.DetectChanges" /> is not required
         ///     for the context to detect the change.
         /// </summary>
-        public new virtual IEnumerable<TProperty> CurrentValue
+        public new virtual IEnumerable<TRelatedEntity> CurrentValue
         {
-            get { return this.GetInfrastructure().GetCurrentValue<IEnumerable<TProperty>>(Metadata); }
-            [param: CanBeNull] set { base.CurrentValue = value; }
+            get => this.GetInfrastructure().GetCurrentValue<IEnumerable<TRelatedEntity>>(Metadata);
+            [param: CanBeNull] set => base.CurrentValue = value;
         }
 
         /// <summary>
@@ -71,11 +77,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         actually loading all entities from the database.
         ///     </para>
         /// </summary>
-        public new virtual IQueryable<TProperty> Query()
+        public new virtual IQueryable<TRelatedEntity> Query()
         {
-            EnsureInitialized();
+            InternalEntry.GetOrCreateCollection(Metadata, forMaterialization: true);
 
-            return (IQueryable<TProperty>)base.Query();
+            return (IQueryable<TRelatedEntity>)base.Query();
+        }
+
+        /// <summary>
+        ///     The <see cref="EntityEntry{T}" /> of an entity this navigation targets.
+        /// </summary>
+        /// <param name="entity"> The entity to get the entry for. </param>
+        /// <value> An entry for an entity that this navigation targets. </value>
+        public new virtual EntityEntry<TRelatedEntity> FindEntry([NotNull] object entity)
+        {
+            var entry = GetInternalTargetEntry(entity);
+            return entry == null
+                ? null
+                : new EntityEntry<TRelatedEntity>(entry);
         }
     }
 }

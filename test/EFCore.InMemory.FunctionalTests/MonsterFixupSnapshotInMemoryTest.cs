@@ -5,7 +5,8 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class MonsterFixupSnapshotInMemoryTest : MonsterFixupTestBase<MonsterFixupSnapshotInMemoryTest.MonsterFixupSnapshotInMemoryFixture>
+    public class MonsterFixupSnapshotInMemoryTest : MonsterFixupTestBase<
+        MonsterFixupSnapshotInMemoryTest.MonsterFixupSnapshotInMemoryFixture>
     {
         public MonsterFixupSnapshotInMemoryTest(MonsterFixupSnapshotInMemoryFixture fixture)
             : base(fixture)

@@ -8,21 +8,25 @@ using JetBrains.Annotations;
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static class DbSetFinderExtensions
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IDictionary<Type, DbSetProperty> CreateClrTypeDbSetMapping(
-            [NotNull] this IDbSetFinder setFinder, [NotNull] DbContext context)
+            [NotNull] this IDbSetFinder setFinder, [NotNull] Type contextType)
         {
             var sets = new Dictionary<Type, DbSetProperty>();
             var alreadySeen = new HashSet<Type>();
-            foreach (var set in setFinder.FindSets(context))
+            foreach (var set in setFinder.FindSets(contextType))
             {
                 if (!alreadySeen.Contains(set.ClrType))
                 {

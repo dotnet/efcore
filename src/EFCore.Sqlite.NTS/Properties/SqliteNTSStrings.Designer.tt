@@ -1,0 +1,6 @@
+<#
+    Session["ResourceFile"] = "SqliteNTSStrings.resx";
+    Session["LoggingDefinitionsClass"] = "SqliteNtsLoggingDefinitions";
+    Session["NoDiagnostics"] = true;
+#>
+<#@ include file="..\..\..\tools\Resources.tt" #>

@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -54,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
             // If the chosen value is outside of the current block then we need a new block.
             // It is possible that other threads will use all of the new block before this thread
-            // gets a chance to use the new new value, so use a while here to do it all again.
+            // gets a chance to use the new value, so use a while here to do it all again.
             while (newValue.Low >= newValue.High)
             {
                 using (_asyncLock.Lock())
@@ -86,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> The value to be assigned to a property. </returns>
-        public virtual async Task<TValue> NextAsync<TValue>(
+        public virtual async ValueTask<TValue> NextAsync<TValue>(
             [NotNull] Func<CancellationToken, Task<long>> getNewLowValue,
             CancellationToken cancellationToken = default)
         {
@@ -96,10 +97,10 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
             // If the chosen value is outside of the current block then we need a new block.
             // It is possible that other threads will use all of the new block before this thread
-            // gets a chance to use the new new value, so use a while here to do it all again.
+            // gets a chance to use the new value, so use a while here to do it all again.
             while (newValue.Low >= newValue.High)
             {
-                using (await _asyncLock.LockAsync())
+                using (await _asyncLock.LockAsync(cancellationToken))
                 {
                     // Once inside the lock check to see if another thread already got a new block, in which
                     // case just get a value out of the new block instead of requesting one.
@@ -136,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             return newValue;
         }
 
-        private class HiLoValue
+        private sealed class HiLoValue
         {
             public HiLoValue(long low, long high)
             {

@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Data.Common;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit.Abstractions;
 
@@ -114,6 +114,17 @@ SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" =
 SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
         }
 
+        public override void Query_with_DbParameters_interpolated()
+        {
+            base.Query_with_DbParameters_interpolated();
+
+            AssertSql(
+                @"city='London' (Nullable = false) (Size = 6)
+contactTitle='Sales Representative' (Nullable = false) (Size = 20)
+
+SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = @contactTitle");
+        }
+
         public override async Task Query_with_parameters_async()
         {
             await base.Query_with_parameters_async();
@@ -137,11 +148,7 @@ SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @
         }
 
         protected override DbParameter CreateDbParameter(string name, object value)
-            => new SqlParameter
-            {
-                ParameterName = name,
-                Value = value
-            };
+            => new SqlParameter { ParameterName = name, Value = value };
 
         protected override string TenMostExpensiveProductsSproc => "[dbo].[Ten Most Expensive Products]";
         protected override string CustomerOrderHistorySproc => "[dbo].[CustOrderHist] @CustomerID";
