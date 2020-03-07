@@ -5,219 +5,190 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class SharedTableEntryMap<TValue>
     {
-        private readonly IStateManager _stateManager;
-        private readonly IReadOnlyDictionary<IEntityType, IReadOnlyList<IEntityType>> _principals;
-        private readonly IReadOnlyDictionary<IEntityType, IReadOnlyList<IEntityType>> _dependents;
-        private readonly string _name;
-        private readonly string _schema;
+        private readonly ITable _table;
+        private readonly IUpdateAdapter _updateAdapter;
         private readonly SharedTableEntryValueFactory<TValue> _createElement;
         private readonly IComparer<IUpdateEntry> _comparer;
 
-        private readonly Dictionary<InternalEntityEntry, TValue> _entryValueMap
-            = new Dictionary<InternalEntityEntry, TValue>();
+        private readonly Dictionary<IUpdateEntry, TValue> _entryValueMap
+            = new Dictionary<IUpdateEntry, TValue>();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SharedTableEntryMap(
-            [NotNull] IStateManager stateManager,
-            [NotNull] IReadOnlyDictionary<IEntityType, IReadOnlyList<IEntityType>> principals,
-            [NotNull] IReadOnlyDictionary<IEntityType, IReadOnlyList<IEntityType>> dependents,
-            [NotNull] string name,
-            [CanBeNull] string schema,
+            [NotNull] ITable table,
+            [NotNull] IUpdateAdapter updateAdapter,
             [NotNull] SharedTableEntryValueFactory<TValue> createElement)
         {
-            _stateManager = stateManager;
-            _principals = principals;
-            _dependents = dependents;
-            _name = name;
-            _schema = schema;
+            _table = table;
+            _updateAdapter = updateAdapter;
             _createElement = createElement;
-            _comparer = new EntryComparer(principals);
+            _comparer = new EntryComparer(table);
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static Dictionary<(string Schema, string Name), SharedTableEntryMapFactory<TValue>>
-            CreateSharedTableEntryMapFactories([NotNull] IModel model, [NotNull] IStateManager stateManager)
+        public static Dictionary<(string Name, string Schema), SharedTableEntryMapFactory<TValue>>
+            CreateSharedTableEntryMapFactories(
+                [NotNull] IModel model,
+                [NotNull] IUpdateAdapter updateAdapter)
         {
-            var tables = new Dictionary<(string Schema, string TableName), List<IEntityType>>();
-            foreach (var entityType in model.GetEntityTypes().Where(et => !et.IsQueryType))
+            var sharedTablesMap = new Dictionary<(string, string), SharedTableEntryMapFactory<TValue>>();
+            foreach (var table in model.GetTables())
             {
-                var fullName = (entityType.Relational().Schema, entityType.Relational().TableName);
-                if (!tables.TryGetValue(fullName, out var mappedEntityTypes))
-                {
-                    mappedEntityTypes = new List<IEntityType>();
-                    tables.Add(fullName, mappedEntityTypes);
-                }
-
-                mappedEntityTypes.Add(entityType);
-            }
-
-            var sharedTablesMap = new Dictionary<(string Schema, string Name), SharedTableEntryMapFactory<TValue>>();
-            foreach (var tableMapping in tables)
-            {
-                if (tableMapping.Value.Count <= 1)
+                if (!table.IsSplit)
                 {
                     continue;
                 }
 
-                var factory = CreateSharedTableEntryMapFactory(tableMapping.Value, stateManager, tableMapping.Key.TableName, tableMapping.Key.Schema);
+                var factory = CreateSharedTableEntryMapFactory(table, updateAdapter);
 
-                sharedTablesMap.Add(tableMapping.Key, factory);
+                sharedTablesMap.Add((table.Name, table.Schema), factory);
             }
 
             return sharedTablesMap;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static SharedTableEntryMapFactory<TValue> CreateSharedTableEntryMapFactory(
-            [NotNull] IReadOnlyList<IEntityType> entityTypes,
-            [NotNull] IStateManager stateManager,
-            [NotNull] string tableName,
-            [NotNull] string schema)
-        {
-            var principals = new Dictionary<IEntityType, IReadOnlyList<IEntityType>>(entityTypes.Count);
-            var dependents = new Dictionary<IEntityType, IReadOnlyList<IEntityType>>(entityTypes.Count);
-            foreach (var entityType in entityTypes)
-            {
-                var principalList = new List<IEntityType>();
-                foreach (var foreignKey in entityType.FindForeignKeys(entityType.FindPrimaryKey().Properties))
-                {
-                    if (foreignKey.PrincipalKey.IsPrimaryKey()
-                        && entityTypes.Contains(foreignKey.PrincipalEntityType)
-                        && !foreignKey.IsIntraHierarchical())
-                    {
-                        principalList.Add(foreignKey.PrincipalEntityType);
-                    }
-                }
-                principals[entityType] = principalList;
-
-                var dependentList = new List<IEntityType>();
-                foreach (var referencingForeignKey in entityType.FindPrimaryKey().GetReferencingForeignKeys())
-                {
-                    if (referencingForeignKey.PrincipalEntityType.IsAssignableFrom(entityType)
-                        && entityTypes.Contains(referencingForeignKey.DeclaringEntityType)
-                        && !referencingForeignKey.IsIntraHierarchical()
-                        && PropertyListComparer.Instance.Compare(
-                            referencingForeignKey.DeclaringEntityType.FindPrimaryKey().Properties, referencingForeignKey.Properties) == 0)
-                    {
-                        dependentList.Add(referencingForeignKey.DeclaringEntityType);
-                    }
-                }
-                dependents[entityType] = dependentList;
-            }
-
-            return createElement => new SharedTableEntryMap<TValue>(
-                stateManager,
-                principals,
-                dependents,
-                tableName,
-                schema,
-                createElement);
-        }
+            [NotNull] ITable table,
+            [NotNull] IUpdateAdapter updateAdapter)
+            => createElement
+                => new SharedTableEntryMap<TValue>(
+                    table,
+                    updateAdapter,
+                    createElement);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<TValue> Values => _entryValueMap.Values;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual TValue GetOrAddValue([NotNull] IUpdateEntry entry)
         {
-            var mainEntry = GetMainEntry((InternalEntityEntry)entry);
+            var mainEntry = GetMainEntry(entry);
             if (_entryValueMap.TryGetValue(mainEntry, out var sharedCommand))
             {
                 return sharedCommand;
             }
 
-            sharedCommand = _createElement(_name, _schema, _comparer);
+            sharedCommand = _createElement(_table.Name, _table.Schema, _comparer);
             _entryValueMap.Add(mainEntry, sharedCommand);
 
             return sharedCommand;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IReadOnlyList<IEntityType> GetPrincipals([NotNull] IEntityType entityType) => _principals[entityType];
+        public virtual bool IsMainEntityType([NotNull] IEntityType entityType) => _table.GetInternalForeignKeys(entityType) == null;
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual IReadOnlyList<IEntityType> GetDependents([NotNull] IEntityType entityType) => _dependents[entityType];
-
-        private InternalEntityEntry GetMainEntry(InternalEntityEntry entry)
+        private IUpdateEntry GetMainEntry(IUpdateEntry entry)
         {
-            var entityType = entry.EntityType.RootType();
-            if (_principals[entityType].Count == 0)
+            var entityType = entry.EntityType.GetRootType();
+            var foreignKeys = _table.GetInternalForeignKeys(entityType);
+            if (foreignKeys == null)
             {
                 return entry;
             }
 
-            foreach (var foreignKey in entityType.FindForeignKeys(entityType.FindPrimaryKey().Properties))
+            foreach (var foreignKey in foreignKeys)
             {
-                if (foreignKey.PrincipalKey.IsPrimaryKey()
-                    && _principals.ContainsKey(foreignKey.PrincipalEntityType))
+                var principalEntry = _updateAdapter.FindPrincipal(entry, foreignKey);
+                if (principalEntry != null)
                 {
-                    var principal = _stateManager.GetPrincipal(entry, foreignKey);
-                    if (principal != null)
-                    {
-                        return GetMainEntry(principal);
-                    }
+                    return GetMainEntry(principalEntry);
                 }
             }
 
             return entry;
         }
 
-        private class EntryComparer : IComparer<IUpdateEntry>
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IReadOnlyList<IUpdateEntry> GetAllEntries([NotNull] IUpdateEntry entry)
         {
-            private readonly IReadOnlyDictionary<IEntityType, IReadOnlyList<IEntityType>> _principals;
+            var entries = new List<IUpdateEntry>();
+            AddAllDependentsInclusive(GetMainEntry(entry), entries);
 
-            public EntryComparer(IReadOnlyDictionary<IEntityType, IReadOnlyList<IEntityType>> principals)
+            return entries;
+        }
+
+        private void AddAllDependentsInclusive(IUpdateEntry entry, List<IUpdateEntry> entries)
+        {
+            entries.Add(entry);
+            var foreignKeys = _table.GetReferencingInternalForeignKeys(entry.EntityType);
+            if (foreignKeys == null)
             {
-                _principals = principals;
+                return;
+            }
+
+            foreach (var foreignKey in foreignKeys)
+            {
+                var dependentEntry = _updateAdapter.GetDependents(entry, foreignKey).SingleOrDefault();
+                if (dependentEntry != null)
+                {
+                    AddAllDependentsInclusive(dependentEntry, entries);
+                }
+            }
+        }
+
+        private sealed class EntryComparer : IComparer<IUpdateEntry>
+        {
+            private readonly ITable _table;
+
+            public EntryComparer(ITable table)
+            {
+                _table = table;
             }
 
             public int Compare(IUpdateEntry x, IUpdateEntry y)
-            {
-                if (_principals[x.EntityType].Count == 0)
-                {
-                    return -1;
-                }
-
-                if (_principals[y.EntityType].Count == 0)
-                {
-                    return 1;
-                }
-
-                return StringComparer.Ordinal.Compare(x.EntityType.Name, y.EntityType.Name);
-            }
+                => _table.GetInternalForeignKeys(x.EntityType) == null
+                    ? -1
+                    : _table.GetInternalForeignKeys(y.EntityType) == null
+                        ? 1
+                        : StringComparer.Ordinal.Compare(x.EntityType.Name, y.EntityType.Name);
         }
     }
 }

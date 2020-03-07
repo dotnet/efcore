@@ -1,7 +1,8 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
@@ -26,6 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             // Model validation events
             SchemaConfiguredWarning = CoreEventId.ProviderBaseId,
             SequenceConfiguredWarning,
+
+            // Infrastructure events
+            UnexpectedConnectionTypeWarning = CoreEventId.ProviderBaseId + 100,
 
             // Scaffolding events
             ColumnFound = CoreEventId.ProviderDesignBaseId,
@@ -69,6 +73,23 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static readonly EventId SequenceConfiguredWarning = MakeValidationId(Id.SequenceConfiguredWarning);
 
+        private static readonly string _infraPrefix = DbLoggerCategory.Infrastructure.Name + ".";
+        private static EventId MakeInfraId(Id id) => new EventId((int)id, _infraPrefix + id);
+
+        /// <summary>
+        ///     <para>
+        ///         A connection of an unexpected type is being used.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Infrastructure" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="UnexpectedConnectionTypeEventData" />
+        ///         payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId UnexpectedConnectionTypeWarning = MakeInfraId(Id.UnexpectedConnectionTypeWarning);
+
         private static readonly string _scaffoldingPrefix = DbLoggerCategory.Scaffolding.Name + ".";
         private static EventId MakeScaffoldingId(Id id) => new EventId((int)id, _scaffoldingPrefix + id);
 
@@ -88,7 +109,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A foreign key references a missing table.
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
-        public static readonly EventId ForeignKeyReferencesMissingTableWarning = MakeScaffoldingId(Id.ForeignKeyReferencesMissingTableWarning);
+        public static readonly EventId ForeignKeyReferencesMissingTableWarning =
+            MakeScaffoldingId(Id.ForeignKeyReferencesMissingTableWarning);
 
         /// <summary>
         ///     A table was found.
@@ -106,7 +128,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A column referenced by a foreign key constraint was not found.
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
-        public static readonly EventId ForeignKeyPrincipalColumnMissingWarning = MakeScaffoldingId(Id.ForeignKeyPrincipalColumnMissingWarning);
+        public static readonly EventId ForeignKeyPrincipalColumnMissingWarning =
+            MakeScaffoldingId(Id.ForeignKeyPrincipalColumnMissingWarning);
 
         /// <summary>
         ///     An index was found.

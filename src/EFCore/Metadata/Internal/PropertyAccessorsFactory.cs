@@ -2,29 +2,35 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class PropertyAccessorsFactory
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual PropertyAccessors Create([NotNull] IPropertyBase propertyBase)
             => (PropertyAccessors)_genericCreate
                 .MakeGenericMethod(propertyBase.ClrType)
-                .Invoke(null, new object[] { propertyBase });
+                .Invoke(
+                    null, new object[] { propertyBase });
 
         private static readonly MethodInfo _genericCreate
             = typeof(PropertyAccessorsFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateGeneric));
@@ -62,26 +68,55 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     Expression.Property(entryParameter, "Entity"),
                     entityClrType);
 
-                currentValueExpression = Expression.MakeMemberAccess(
+                currentValueExpression = CreateMemberAccess(
                     convertedExpression,
-                    propertyBase.GetMemberInfo(forConstruction: false, forSet: false));
+                    propertyBase.GetMemberInfo(forMaterialization: false, forSet: false));
+
+                if (currentValueExpression.Type != typeof(TProperty))
+                {
+                    currentValueExpression = Expression.Convert(currentValueExpression, typeof(TProperty));
+                }
             }
 
             var storeGeneratedIndex = propertyBase.GetStoreGeneratedIndex();
-            if (useStoreGeneratedValues
-                && storeGeneratedIndex >= 0)
+            if (storeGeneratedIndex >= 0)
             {
-                currentValueExpression = Expression.Call(
-                    entryParameter,
-                    InternalEntityEntry.ReadStoreGeneratedValueMethod.MakeGenericMethod(typeof(TProperty)),
-                    currentValueExpression,
-                    Expression.Constant(storeGeneratedIndex));
+                if (useStoreGeneratedValues)
+                {
+                    currentValueExpression = Expression.Condition(
+                        Expression.Equal(
+                            currentValueExpression,
+                            Expression.Constant(default(TProperty), typeof(TProperty))),
+                        Expression.Call(
+                            entryParameter,
+                            InternalEntityEntry.ReadStoreGeneratedValueMethod.MakeGenericMethod(typeof(TProperty)),
+                            Expression.Constant(storeGeneratedIndex)),
+                        currentValueExpression);
+                }
+
+                currentValueExpression = Expression.Condition(
+                    Expression.Equal(
+                        currentValueExpression,
+                        Expression.Constant(default(TProperty), typeof(TProperty))),
+                    Expression.Call(
+                        entryParameter,
+                        InternalEntityEntry.ReadTemporaryValueMethod.MakeGenericMethod(typeof(TProperty)),
+                        Expression.Constant(storeGeneratedIndex)),
+                    currentValueExpression);
             }
 
             return Expression.Lambda<Func<InternalEntityEntry, TProperty>>(
                     currentValueExpression,
                     entryParameter)
                 .Compile();
+
+            Expression CreateMemberAccess(Expression parameter, MemberInfo memberInfo)
+            {
+                return propertyBase?.IsIndexerProperty() == true
+                    ? Expression.MakeIndex(
+                        parameter, (PropertyInfo)memberInfo, new List<Expression>() { Expression.Constant(propertyBase.Name) })
+                    : (Expression)Expression.MakeMemberAccess(parameter, memberInfo);
+            }
         }
 
         private static Func<InternalEntityEntry, TProperty> CreateOriginalValueGetter<TProperty>(IProperty property)

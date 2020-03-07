@@ -8,5 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class ComplexNavigationsQuerySqlServerFixture : ComplexNavigationsQueryRelationalFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+
+        protected override bool CanExecuteQueryString => true;
     }
 }

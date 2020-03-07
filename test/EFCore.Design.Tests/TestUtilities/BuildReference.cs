@@ -3,17 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.CodeAnalysis;
-#if NETCOREAPP2_0 || NETCOREAPP2_1
-using Microsoft.Extensions.DependencyModel;
 using System.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.Extensions.DependencyModel;
 using IOPath = System.IO.Path;
-#elif NET461
-using System.Reflection;
 
-#else
-#error target frameworks need to be updated.
-#endif
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class BuildReference
@@ -32,18 +26,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public static BuildReference ByName(string name, bool copyLocal = false)
         {
-#if NET461
-            var assembly = Assembly.Load(name);
-            return new BuildReference(
-                new[] { MetadataReference.CreateFromFile(assembly.Location) },
-                copyLocal,
-                new Uri(assembly.CodeBase).LocalPath);
-#elif NETCOREAPP2_0 || NETCOREAPP2_1
-            var references = Enumerable.ToList(
-                from l in DependencyContext.Default.CompileLibraries
-                from r in l.ResolveReferencePaths()
-                where IOPath.GetFileNameWithoutExtension(r) == name
-                select MetadataReference.CreateFromFile(r));
+            var references = (from l in DependencyContext.Default.CompileLibraries
+                              from r in l.ResolveReferencePaths()
+                              where IOPath.GetFileNameWithoutExtension(r) == name
+                              select MetadataReference.CreateFromFile(r)).ToList();
             if (references.Count == 0)
             {
                 throw new InvalidOperationException(
@@ -53,9 +39,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return new BuildReference(
                 references,
                 copyLocal);
-#else
-#error target frameworks need to be updated.
-#endif
         }
 
         public static BuildReference ByPath(string path)

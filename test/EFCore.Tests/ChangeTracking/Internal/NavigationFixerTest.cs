@@ -10,26 +10,30 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable UnusedMember.Local
+// ReSharper disable InconsistentNaming
+// ReSharper disable CollectionNeverUpdated.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Local
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class NavigationFixerTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Does_not_throw_if_Add_during_fixup()
         {
-            using (var context = new FixupContext())
-            {
-                var blog1 = new Blog { Id = 1 };
-                var blog2 = new Blog { Id = 2 };
+            using var context = new FixupContext();
+            var blog1 = new Blog { Id = 1 };
+            var blog2 = new Blog { Id = 2 };
 
-                var post1 = context.Add(new Post { BlogId = 2 }).Entity;
+            var post1 = context.Add(
+                new Post { BlogId = 2 }).Entity;
 
-                blog1.Posts.Add(post1);
-                blog1.Posts.Add(new Post { BlogId = 2 });
+            blog1.Posts.Add(post1);
+            blog1.Posts.Add(
+                new Post { BlogId = 2 });
 
-                context.Add(blog2);
-                context.Add(blog1);
-            }
+            context.Add(blog2);
+            context.Add(blog1);
         }
 
         private class FixupContext : DbContext
@@ -38,7 +42,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public DbSet<Post> Posts { get; set; }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(typeof(FixupContext).FullName);
+                => optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase(typeof(FixupContext).FullName);
         }
 
         private class Blog
@@ -64,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_related_principals()
         {
             var contextServices = CreateContextServices();
@@ -86,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.DoesNotContain(dependent, principal1.Products);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_related_dependents()
         {
             var contextServices = CreateContextServices();
@@ -116,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Contains(dependent3, principal.Products);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_one_to_one_relationship()
         {
             var contextServices = CreateContextServices();
@@ -164,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(dependent4.Product);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_one_to_one_self_referencing_relationship()
         {
             var contextServices = CreateContextServices();
@@ -210,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(entity2, entity3.OriginalProduct);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_FKs_and_related_principals_using_dependent_navigations()
         {
             var contextServices = CreateContextServices();
@@ -233,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.DoesNotContain(dependent, principal1.Products);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_FKs_and_related_principals_using_principal_navigations()
         {
             var contextServices = CreateContextServices();
@@ -258,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.DoesNotContain(dependent, principal1.Products);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_FKs_and_related_dependents_using_dependent_navigations()
         {
             var contextServices = CreateContextServices();
@@ -291,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Contains(dependent3, principal.Products);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_FKs_and_related_dependents_using_principal_navigations()
         {
             var contextServices = CreateContextServices();
@@ -327,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Contains(dependent3, principal.Products);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_one_to_one_self_referencing_relationship_using_dependent_navigations()
         {
             var contextServices = CreateContextServices();
@@ -388,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(entity3.OriginalProduct);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_one_to_one_self_referencing_relationship_using_principal_navigations()
         {
             var contextServices = CreateContextServices();
@@ -464,7 +470,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(entity2, entity3.OriginalProduct);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_related_principals_when_FK_is_set()
         {
             var model = BuildModel();
@@ -505,7 +511,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.DoesNotContain(dependent, principal2.Products);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_related_principals_when_FK_is_cleared()
         {
             var model = BuildModel();
@@ -546,7 +552,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.DoesNotContain(dependent, principal1.Products);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_related_principals_when_FK_is_changed()
         {
             var model = BuildModel();
@@ -587,7 +593,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.DoesNotContain(dependent, principal2.Products);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_one_to_one_relationship_when_FK_changes()
         {
             var model = BuildModel();
@@ -630,7 +636,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(principal1.Detail);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_one_to_one_relationship_when_FK_cleared()
         {
             var model = BuildModel();
@@ -668,7 +674,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(principal.Detail);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_one_to_one_relationship_when_FK_set()
         {
             var model = BuildModel();
@@ -706,7 +712,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(dependent, principal.Detail);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_one_to_one_self_referencing_relationship_when_FK_changes()
         {
             var model = BuildModel();
@@ -759,7 +765,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(entity1, entity3.OriginalProduct);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_steal_reference_of_one_to_one_self_referencing_relationship_when_FK_changes()
         {
             var model = BuildModel();
@@ -814,7 +820,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(entity2.AlternateProductId);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_all_related_principals_when_part_of_overlapping_composite_FK_is_changed()
         {
             var model = BuildModel();
@@ -833,14 +839,62 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var review3 = new ProductReview { ProductId = 2, ReviewId = reviewId1 };
             var review4 = new ProductReview { ProductId = 2, ReviewId = reviewId2 };
 
-            var tag1 = new ProductTag { Id = 1, ProductId = 1, PhotoId = "Photo1", ReviewId = reviewId1 };
-            var tag2 = new ProductTag { Id = 2, ProductId = 1, PhotoId = "Photo1", ReviewId = reviewId2 };
-            var tag3 = new ProductTag { Id = 3, ProductId = 1, PhotoId = "Photo2", ReviewId = reviewId1 };
-            var tag4 = new ProductTag { Id = 4, ProductId = 1, PhotoId = "Photo2", ReviewId = reviewId2 };
-            var tag5 = new ProductTag { Id = 5, ProductId = 2, PhotoId = "Photo1", ReviewId = reviewId1 };
-            var tag6 = new ProductTag { Id = 6, ProductId = 2, PhotoId = "Photo1", ReviewId = reviewId2 };
-            var tag7 = new ProductTag { Id = 7, ProductId = 2, PhotoId = "Photo2", ReviewId = reviewId1 };
-            var tag8 = new ProductTag { Id = 8, ProductId = 2, PhotoId = "Photo2", ReviewId = reviewId2 };
+            var tag1 = new ProductTag
+            {
+                Id = 1,
+                ProductId = 1,
+                PhotoId = "Photo1",
+                ReviewId = reviewId1
+            };
+            var tag2 = new ProductTag
+            {
+                Id = 2,
+                ProductId = 1,
+                PhotoId = "Photo1",
+                ReviewId = reviewId2
+            };
+            var tag3 = new ProductTag
+            {
+                Id = 3,
+                ProductId = 1,
+                PhotoId = "Photo2",
+                ReviewId = reviewId1
+            };
+            var tag4 = new ProductTag
+            {
+                Id = 4,
+                ProductId = 1,
+                PhotoId = "Photo2",
+                ReviewId = reviewId2
+            };
+            var tag5 = new ProductTag
+            {
+                Id = 5,
+                ProductId = 2,
+                PhotoId = "Photo1",
+                ReviewId = reviewId1
+            };
+            var tag6 = new ProductTag
+            {
+                Id = 6,
+                ProductId = 2,
+                PhotoId = "Photo1",
+                ReviewId = reviewId2
+            };
+            var tag7 = new ProductTag
+            {
+                Id = 7,
+                ProductId = 2,
+                PhotoId = "Photo2",
+                ReviewId = reviewId1
+            };
+            var tag8 = new ProductTag
+            {
+                Id = 8,
+                ProductId = 2,
+                PhotoId = "Photo2",
+                ReviewId = reviewId2
+            };
 
             var photoEntry1 = manager.StartTracking(manager.GetOrCreateEntry(photo1));
             var photoEntry2 = manager.StartTracking(manager.GetOrCreateEntry(photo2));
@@ -949,7 +1003,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(review4, tag8.Review);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Removes_dependent_from_collection_after_deletion()
         {
             var contextServices = CreateContextServices();
@@ -1021,7 +1075,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(dependent3.CategoryId, principal1.Id);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Nulls_navigation_to_principal_after_after_deletion()
         {
             var contextServices = CreateContextServices();
@@ -1081,7 +1135,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(dependent3.CategoryId, principal1.Id);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Nulls_one_to_one_navigation_to_principal_after_deletion()
         {
             var model = BuildModel();
@@ -1112,11 +1166,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             principalEntry1.SetEntityState(EntityState.Deleted);
 
-            Assert.Same(principal1, dependent1.AlternateProduct);
+            Assert.Null(dependent1.AlternateProduct);
             Assert.Same(dependent1, principal1.OriginalProduct);
             Assert.Same(principal2, dependent2.AlternateProduct);
             Assert.Same(dependent2, principal2.OriginalProduct);
-            Assert.Equal(dependent1.AlternateProductId, principal1.Id);
+            Assert.Null(dependent1.AlternateProductId);
             Assert.Equal(dependent2.AlternateProductId, principal2.Id);
 
             principalEntry1.SetEntityState(EntityState.Detached);
@@ -1125,11 +1179,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(dependent1, principal1.OriginalProduct);
             Assert.Same(principal2, dependent2.AlternateProduct);
             Assert.Same(dependent2, principal2.OriginalProduct);
-            Assert.Equal(dependent1.AlternateProductId, principal1.Id);
+            Assert.Null(dependent1.AlternateProductId);
             Assert.Equal(dependent2.AlternateProductId, principal2.Id);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Nulls_one_to_one_navigation_to_dependent_after_after_deletion()
         {
             var model = BuildModel();
@@ -1249,13 +1303,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             builder.Entity<Product>(
                 b =>
-                    {
-                        b.HasOne(e => e.AlternateProduct).WithOne(e => e.OriginalProduct)
-                            .HasForeignKey<Product>(e => e.AlternateProductId);
+                {
+                    b.HasOne(e => e.AlternateProduct).WithOne(e => e.OriginalProduct)
+                        .HasForeignKey<Product>(e => e.AlternateProductId);
 
-                        b.HasOne(e => e.Detail).WithOne(e => e.Product)
-                            .HasForeignKey<ProductDetail>(e => e.Id);
-                    });
+                    b.HasOne(e => e.Detail).WithOne(e => e.Product)
+                        .HasForeignKey<ProductDetail>(e => e.Id);
+                });
 
             builder.Entity<Category>().HasMany(e => e.Products).WithOne(e => e.Category);
 
@@ -1263,23 +1317,27 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             builder.Entity<ProductPhoto>(
                 b =>
-                    {
-                        b.HasKey(e => new { e.ProductId, e.PhotoId });
-                        b.HasMany(e => e.ProductTags).WithOne(e => e.Photo)
-                            .HasForeignKey(e => new { e.ProductId, e.PhotoId });
-                    });
+                {
+                    b.HasKey(
+                        e => new { e.ProductId, e.PhotoId });
+                    b.HasMany(e => e.ProductTags).WithOne(e => e.Photo)
+                        .HasForeignKey(
+                            e => new { e.ProductId, e.PhotoId });
+                });
 
             builder.Entity<ProductReview>(
                 b =>
-                    {
-                        b.HasKey(e => new { e.ProductId, e.ReviewId });
-                        b.HasMany(e => e.ProductTags).WithOne(e => e.Review)
-                            .HasForeignKey(e => new { e.ProductId, e.ReviewId });
-                    });
+                {
+                    b.HasKey(
+                        e => new { e.ProductId, e.ReviewId });
+                    b.HasMany(e => e.ProductTags).WithOne(e => e.Review)
+                        .HasForeignKey(
+                            e => new { e.ProductId, e.ReviewId });
+                });
 
             builder.Entity<ProductTag>();
 
-            return builder.Model;
+            return builder.Model.FinalizeModel();
         }
 
         private static INavigationFixer CreateNavigationFixer(IServiceProvider contextServices)

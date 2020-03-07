@@ -1,15 +1,15 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Globalization;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
     ///     Converts a <see cref="char" /> to and from a single-character <see cref="string" />.
     /// </summary>
-    public class CharToStringConverter : ValueConverter<char, string>
+    public class CharToStringConverter : StringCharConverter<char, string>
     {
         private static readonly ConverterMappingHints _defaultHints
             = new ConverterMappingHints(size: 1);
@@ -18,13 +18,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Creates a new instance of this converter. This converter preserves order.
         /// </summary>
         /// <param name="mappingHints">
-        ///     Hints that can be used by the <see cref="ITypeMappingSource"/> to create data types with appropriate
+        ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
         public CharToStringConverter([CanBeNull] ConverterMappingHints mappingHints = null)
             : base(
-                v => string.Format(CultureInfo.InvariantCulture, "{0}", v),
-                v => v != null && v.Length >= 1 ? v[0] : (char)0,
+                ToString(),
+                ToChar(),
                 _defaultHints.With(mappingHints))
         {
         }

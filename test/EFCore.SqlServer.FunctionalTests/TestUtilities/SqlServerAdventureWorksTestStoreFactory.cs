@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class SqlServerAdventureWorksTestStoreFactory : SqlServerTestStoreFactory
     {
-        public new static SqlServerAdventureWorksTestStoreFactory Instance { get; } = new SqlServerAdventureWorksTestStoreFactory();
+        public static new SqlServerAdventureWorksTestStoreFactory Instance { get; } = new SqlServerAdventureWorksTestStoreFactory();
 
         protected SqlServerAdventureWorksTestStoreFactory()
         {

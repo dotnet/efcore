@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -117,18 +117,29 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ArgumentIsEmpty" xml:space="preserve">
-    <value>The string argument '{argumentName}' cannot be empty.</value>
-  </data>
   <data name="CircularDependency" xml:space="preserve">
     <value>Unable to save changes because a circular dependency was detected in the data to be saved: '{cycle}'.</value>
   </data>
+  <data name="TranslationFailed" xml:space="preserve">
+    <value>The LINQ expression '{expression}' could not be translated. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.</value>
+  </data>
+  <data name="QueryFailed" xml:space="preserve">
+    <value>Processing of the LINQ expression '{expression}' by '{visitor}' failed. This may indicate either a bug or a limitation in EF Core. See https://go.microsoft.com/fwlink/?linkid=2101433 for more detailed information.</value>
+  </data>
+  <data name="ModelNotFinalized" xml:space="preserve">
+    <value>The model must be finalized before '{method}' can be used. Ensure that either 'OnModelCreating' has completed or, if using a stand-alone 'ModelBuilder', that 'FinalizeModel' has been called.</value>
+  </data>
+  <data name="NoElements" xml:space="preserve">
+    <value>Sequence contains no elements.</value>
+  </data>
+  <data name="NotQueryingEnumerable" xml:space="preserve">
+    <value>The given 'IQueryable' does not support generation of query strings.</value>
+  </data>
   <data name="InvalidEnumValue" xml:space="preserve">
     <value>The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.</value>
-    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
-  <data name="StillUsingTypeMapper" xml:space="preserve">
-    <value>The application or database provider is using an Obsolete TypeMapper API even after the provider has implemented a TypeMappingSource. The code must be updated to use the non-obsolete replacement APIs, as indicated by the Obsolete compiler warnings.</value>
+  <data name="LiteralGenerationNotSupported" xml:space="preserve">
+    <value>The type mapping for '{type}' has not implemented code literal generation.</value>
   </data>
   <data name="InvalidPropertiesExpression" xml:space="preserve">
     <value>The properties expression '{expression}' is not valid. The expression should represent a simple property access: 't =&gt; t.MyProperty'. When specifying multiple properties use an anonymous type: 't =&gt; new {{ t.MyProperty1, t.MyProperty2 }}'.</value>
@@ -169,11 +180,8 @@
   <data name="CannotLoadDetached" xml:space="preserve">
     <value>Navigation property '{navigation}' on entity of type '{entityType}' cannot be loaded because the entity is not being tracked. Navigation properties can only be loaded for tracked entities.</value>
   </data>
-  <data name="CollectionArgumentIsEmpty" xml:space="preserve">
-    <value>The collection argument '{argumentName}' must contain at least one element.</value>
-  </data>
   <data name="EntityRequiresKey" xml:space="preserve">
-    <value>The entity type '{entityType}' requires a primary key to be defined.</value>
+    <value>The entity type '{entityType}' requires a primary key to be defined. If you intended to use a keyless entity type call 'HasNoKey()'.</value>
   </data>
   <data name="KeyPropertiesWrongEntity" xml:space="preserve">
     <value>The specified key properties {key} are not declared on the entity type '{entityType}'. Ensure key properties are declared on the target entity type.</value>
@@ -188,7 +196,7 @@
     <value>The source IQueryable doesn't implement IAsyncEnumerable&lt;{genericParameter}&gt;. Only sources that implement IAsyncEnumerable can be used for Entity Framework asynchronous operations.</value>
   </data>
   <data name="IQueryableProviderNotAsync" xml:space="preserve">
-    <value>The provider for the source IQueryable doesn't implement IAsyncQueryProvider. Only providers that implement IEntityQueryProvider can be used for Entity Framework asynchronous operations.</value>
+    <value>The provider for the source IQueryable doesn't implement IAsyncQueryProvider. Only providers that implement IAsyncQueryProvider can be used for Entity Framework asynchronous operations.</value>
   </data>
   <data name="ChangeTrackingInterfaceMissing" xml:space="preserve">
     <value>The entity type '{entityType}' is configured to use the '{changeTrackingStrategy}' change tracking strategy but does not implement the required '{notificationInterface}' interface.</value>
@@ -229,9 +237,6 @@
   <data name="NoFieldOrGetter" xml:space="preserve">
     <value>No backing field could be found for property '{property}' of entity type '{entity}' and the property does not have a getter.</value>
   </data>
-  <data name="ReadonlyField" xml:space="preserve">
-    <value>Field '{field}' of entity type '{entity}' is readonly and so cannot be set.</value>
-  </data>
   <data name="NoProperty" xml:space="preserve">
     <value>No property was associated with field '{field}' of entity type '{entity}'. Either configure a property or use a different '{pam}'.</value>
   </data>
@@ -264,7 +269,6 @@
   </data>
   <data name="SingletonOptionChanged" xml:space="preserve">
     <value>A call was made to '{optionCall}' that changed an option that must be constant within a service provider, but Entity Framework is not building its own internal service provider. Either allow EF to build the service provider by removing the call to '{useInternalServiceProvider}', or ensure that the configuration for '{optionCall}' does not change for all uses of a given service provider passed to '{useInternalServiceProvider}'.</value>
-    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="LogServiceProviderCreated" xml:space="preserve">
     <value>An 'IServiceProvider' was created for internal use by Entity Framework.</value>
@@ -274,12 +278,28 @@
     <value>More than twenty 'IServiceProvider' instances have been created for internal use by Entity Framework. This is commonly caused by injection of a new singleton service instance into every DbContext instance. For example, calling UseLoggerFactory passing in a new instance each time--see https://go.microsoft.com/fwlink/?linkid=869049 for more details. Consider reviewing calls on 'DbContextOptionsBuilder' that may require new service providers to be built.</value>
     <comment>Warning CoreEventId.ManyServiceProvidersCreatedWarning</comment>
   </data>
+  <data name="LogServiceProviderDebugInfo" xml:space="preserve">
+    <value>An additional 'IServiceProvider' was created for internal use by Entity Framework. An existing service provider was not used due to the following configuration changes: {debugInfo}.</value>
+    <comment>Debug CoreEventId.ServiceProviderDebugInfo string</comment>
+  </data>
   <data name="LogContextInitialized" xml:space="preserve">
     <value>Entity Framework Core {version} initialized '{contextType}' using provider '{provider}' with options: {options}</value>
     <comment>Information CoreEventId.ContextInitialized string string string string</comment>
   </data>
+  <data name="ServiceProviderConfigChanged" xml:space="preserve">
+    <value>configuration changed for '{key}'</value>
+  </data>
+  <data name="ServiceProviderConfigAdded" xml:space="preserve">
+    <value>configuration added for '{key}'</value>
+  </data>
+  <data name="ServiceProviderConfigRemoved" xml:space="preserve">
+    <value>configuration removed for '{key}'</value>
+  </data>
   <data name="NotAnEFService" xml:space="preserve">
     <value>The database provider attempted to register an implementation of the '{service}' service. This is not a service defined by EF and as such must be registered as a provider-specific service using the 'TryAddProviderSpecificServices' method.</value>
+  </data>
+  <data name="CanConnectNotImplemented" xml:space="preserve">
+    <value>The current database provider has not implemented the 'CanConnect' method.</value>
   </data>
   <data name="ImplementationTypeRequired" xml:space="preserve">
     <value>The implementation type for the registration of the '{service}' service could not be determined. Specific implementation types must be used for services that expect multiple registrations so as to avoid duplicates.</value>
@@ -294,7 +314,7 @@
     <value>The service dependencies type '{dependenciesType}' has been registered inappropriately in the service collection. Service dependencies types must only be registered by Entity Framework, or in rare cases by database providers and then only to change the service lifetime.</value>
   </data>
   <data name="BadValueGeneratorType" xml:space="preserve">
-    <value>The type '{givenType}' cannot be used a a value generator because it does not inherit from '{expectedType}'.</value>
+    <value>The type '{givenType}' cannot be used as a value generator because it does not inherit from '{expectedType}'.</value>
   </data>
   <data name="CannotCreateValueGenerator" xml:space="preserve">
     <value>Cannot create instance of value generator type '{generatorType}'. Ensure that the type is instantiable and has a parameterless constructor, or use the overload of HasValueGenerator that accepts a delegate.</value>
@@ -302,8 +322,11 @@
   <data name="TempValuePersists" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' has a temporary value while attempting to change the entity's state to '{state}'. Either set a permanent value explicitly or ensure that the database is configured to generate values for this property.</value>
   </data>
+  <data name="UnknownKeyValue" xml:space="preserve">
+    <value>The value of '{entityType}.{property}' is unknown when attempting to save changes. This is because the property is also part of a foreign key for which the principal entity in the relationship is not known.</value>
+  </data>
   <data name="LogExceptionDuringQueryIteration" xml:space="preserve">
-    <value>An exception occurred in the database while iterating the results of a query for context type '{contextType}'.{newline}{error}</value>
+    <value>An exception occurred while iterating over the results of a query for context type '{contextType}'.{newline}{error}</value>
     <comment>Error CoreEventId.QueryIterationFailed Type string Exception</comment>
   </data>
   <data name="LogExceptionDuringSaveChanges" xml:space="preserve">
@@ -423,7 +446,7 @@
     <value>The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the key {key}. All containing keys must be removed or redefined before the property can be removed.</value>
   </data>
   <data name="KeyInUse" xml:space="preserve">
-    <value>Cannot remove key {key} from entity type '{entityType}' because it is referenced by a foreign key in entity type '{dependentType}'. All foreign keys must be removed or redefined before the referenced key can be removed.</value>
+    <value>Cannot remove key {key} from entity type '{entityType}' because it is referenced by a foreign key {foreignKey} in entity type '{dependentType}'. All foreign keys must be removed or redefined before the referenced key can be removed.</value>
   </data>
   <data name="DuplicateServicePropertyType" xml:space="preserve">
     <value>The service property '{property}' of type '{serviceType}' cannot be added to the entity type '{entityType}' because service property '{duplicateName}' of the same type already exists on entity type '{duplicateEntityType}'.</value>
@@ -447,7 +470,7 @@
     <value>The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' which does not implement ICollection&lt;{targetType}&gt;. Collection navigation properties must implement ICollection&lt;&gt; of the target type.</value>
   </data>
   <data name="NavigationArray" xml:space="preserve">
-    <value>The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' which is an array type.. Collection navigation properties cannot be arrays.</value>
+    <value>The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' which is an array type. Collection navigation properties cannot be arrays.</value>
   </data>
   <data name="NavigationNoSetter" xml:space="preserve">
     <value>The navigation property '{navigation}' on the entity type '{entityType}' does not have a setter and no writable backing field was found or specified. Read-only collection navigation properties must be initialized before use.</value>
@@ -500,18 +523,6 @@
   <data name="IncludeBadNavigation" xml:space="preserve">
     <value>The property '{property}' is not a navigation property of entity type '{entityType}'. The 'Include(string)' method can only be used with a '.' separated list of navigation property names.</value>
   </data>
-  <data name="LogCompilingQueryModel" xml:space="preserve">
-    <value>Compiling query model: {newline}'{queryModel}'</value>
-    <comment>Debug CoreEventId.QueryModelCompiling string string</comment>
-  </data>
-  <data name="LogOptimizedQueryModel" xml:space="preserve">
-    <value>Optimized query model: {newline}'{queryModel}'</value>
-    <comment>Debug CoreEventId.QueryModelOptimized string string</comment>
-  </data>
-  <data name="LogIncludingNavigation" xml:space="preserve">
-    <value>Including navigation: '{navigation}'</value>
-    <comment>Debug CoreEventId.NavigationIncluded string</comment>
-  </data>
   <data name="LogQueryExecutionPlanned" xml:space="preserve">
     <value>{plan}</value>
     <comment>Debug CoreEventId.QueryExecutionPlanned string</comment>
@@ -533,14 +544,12 @@
   </data>
   <data name="ArgumentPropertyNull" xml:space="preserve">
     <value>The property '{property}' of the argument '{argument}' cannot be null.</value>
-    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="RelationshipCannotBeInverted" xml:space="preserve">
     <value>The principal and dependent ends of the relationship cannot be flipped once foreign key or principal key properties have been specified.</value>
   </data>
   <data name="InvalidEntityType" xml:space="preserve">
-    <value>The entity type '{type}' provided for the argument '{argumentName}' must be a reference type.</value>
-    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
+    <value>The specified type '{type}'must be a non-interface reference type to be used as an entity type .</value>
   </data>
   <data name="ReferencedShadowKey" xml:space="preserve">
     <value>The relationship from '{referencingEntityTypeOrNavigation}' to '{referencedEntityTypeOrNavigation}' with foreign key properties {foreignKeyPropertiesWithTypes} cannot target the primary key {primaryKeyPropertiesWithTypes} because it is not compatible. Configure a principal key or a set of compatible foreign key properties for this relationship.</value>
@@ -553,7 +562,6 @@
   </data>
   <data name="InvalidValueGeneratorFactoryProperty" xml:space="preserve">
     <value>The '{factory}' cannot create a value generator for property '{property}' on entity type '{entityType}'. Only integer properties are supported.</value>
-    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="DerivedEntityTypeKey" xml:space="preserve">
     <value>A key cannot be configured on '{derivedType}' because it is a derived type. The key must be configured on the root type '{rootType}'. If you did not intend for '{rootType}' to be included in the model, ensure that it is not included in a DbSet property on your context, referenced in a configuration call to ModelBuilder, or referenced from a navigation property on a type that is included in the model.</value>
@@ -597,17 +605,11 @@
   <data name="CannotBeNullablePK" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' cannot be marked as nullable/optional because the property is a part of a key. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of a key can be marked as nullable/optional.</value>
   </data>
-  <data name="ForeignKeyCannotBeOptional" xml:space="preserve">
-    <value>The foreign key {foreignKey} on entity type '{entityType}' cannot be marked as optional because it does not contain any property of a nullable type. Any foreign key can be marked as required, but only foreign keys with at least one property of a nullable type and which is not part of primary key can be marked as optional.</value>
-  </data>
   <data name="ShadowEntity" xml:space="preserve">
     <value>Entity type '{entityType}' is in shadow-state. A valid model requires all entity types to have corresponding CLR type.</value>
   </data>
   <data name="CompositePKWithDataAnnotation" xml:space="preserve">
     <value>Entity type '{entityType}' has composite primary key defined with data annotations. To set composite primary key, use fluent API.</value>
-  </data>
-  <data name="DuplicateNavigationsOnBase" xml:space="preserve">
-    <value>The type '{entityType}' cannot have base type '{baseType}' because both types include the navigations: {navigations}.</value>
   </data>
   <data name="EntityTypeModelMismatch" xml:space="preserve">
     <value>The entity types '{firstEntityType}' and '{secondEntityType}' do not belong to the same model.</value>
@@ -616,7 +618,7 @@
     <value>The block size used for Hi-Lo value generation must be positive. When the Hi-Lo generator is backed by a SQL sequence this means that the sequence increment must be positive.</value>
   </data>
   <data name="ValueGenWithConversion" xml:space="preserve">
-    <value>Value generation is not supported for property '{entityType}.{property}' because it has a '{converter}' converter configured. Configure the property to not use value generation using 'ValueGenerated.Never' or 'DatabaseGeneratedOption.None' and specify explict values instead.</value>
+    <value>Value generation is not supported for property '{entityType}.{property}' because it has a '{converter}' converter configured. Configure the property to not use value generation using 'ValueGenerated.Never' or 'DatabaseGeneratedOption.None' and specify explicit values instead.</value>
   </data>
   <data name="IntraHierarchicalAmbiguousTargetEntityType" xml:space="preserve">
     <value>The entity type related to '{entityType}' cannot be determined because the specified foreign key {foreignKey} references entity type '{principalEntityType}' that it is in the same hierarchy as the entity type that it is declared on '{dependentEntityType}'.</value>
@@ -641,6 +643,9 @@
   </data>
   <data name="DataBindingWithIListSource" xml:space="preserve">
     <value>Data binding directly to a store query is not supported. Instead populate a DbSet with data, for example by calling Load on the DbSet, and then bind to local data to avoid sending a query to the database each time the databound control iterates the data. For WPF bind to 'DbSet.Local.ToObservableCollection()'. For WinForms bind to 'DbSet.Local.ToBindingList()'. For ASP.NET WebForms bind to 'DbSet.ToList()' or use Model Binding.</value>
+  </data>
+  <data name="DataBindingToLocalWithIListSource" xml:space="preserve">
+    <value>Data binding directly to 'DbSet.Local' is not supported since it does not provide a stable ordering. For WPF bind to 'DbSet.Local.ToObservableCollection()'. For WinForms bind to 'DbSet.Local.ToBindingList()'. For ASP.NET WebForms bind to 'DbSet.ToList()' or use Model Binding.</value>
   </data>
   <data name="KeyAttributeOnDerivedEntity" xml:space="preserve">
     <value>The derived type '{derivedType}' cannot have KeyAttribute on property '{property}' since primary key can only be declared on the root type.</value>
@@ -728,7 +733,7 @@
     <value>A key on entity type '{entityType}' cannot contain the property '{property}' because it is nullable/optional. All properties on which a key is declared must be marked as non-nullable/required.</value>
   </data>
   <data name="ConcurrentMethodInvocation" xml:space="preserve">
-    <value>A second operation started on this context before a previous operation completed. Any instance members are not guaranteed to be thread safe.</value>
+    <value>A second operation started on this context before a previous operation completed. This is usually caused by different threads using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.</value>
   </data>
   <data name="EntityTypesNotInRelationship" xml:space="preserve">
     <value>The specified entity types '{invalidDependentType}' and '{invalidPrincipalType}' are invalid. They should be '{dependentType}' and '{principalType}' or entity types in the same hierarchy.</value>
@@ -752,23 +757,19 @@
     <value>The property '{property}' cannot be added to the type '{entityType}' because there was no property type specified and there is no corresponding CLR property or field. To add a shadow state property the property type must be specified.</value>
   </data>
   <data name="TempValue" xml:space="preserve">
-    <value>The property '{property}' on entity type '{entityType}' has a temporary value. Either set a permanent value explicitly or ensure that the database is configured to generate values for this property.</value>
+    <value>The property '{property}' on entity type '{entityType}' cannot be assigned a temporary value. Temporary values can only be assigned to properties configured to use store-generated values.</value>
   </data>
-  <data name="DatabaseGeneratedNull" xml:space="preserve">
-    <value>The database generated a null value for non-nullable property '{property}' of entity type '{entityType}'. Ensure value generation configuration in the database matches the configuration in the model.</value>
+  <data name="StoreGenValue" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' cannot be assigned a value generated by the database. Store-generated values can only be assigned to properties configured to use store-generated values.</value>
   </data>
   <data name="NoParameterlessConstructor" xml:space="preserve">
     <value>A parameterless constructor was not found on entity type '{entityType}'. In order to create an instance of '{entityType}' EF requires that a parameterless constructor be declared.</value>
   </data>
-  <data name="LogIgnoredInclude" xml:space="preserve">
-    <value>The Include operation for navigation '{include}' is unnecessary and was ignored because the navigation is not reachable in the final query results. See https://go.microsoft.com/fwlink/?linkid=850303 for more information.</value>
-    <comment>Warning CoreEventId.IncludeIgnoredWarning string</comment>
-  </data>
   <data name="ConflictingRelationshipNavigation" xml:space="preserve">
-    <value>Cannot create a relationship between '{newPrincipalEntityType}.{newPrincipalNavigation}' and '{newDependentEntityType}.{newDependentNavigation}', because there already is a relationship between '{existingPrincipalEntityType}.{existingPrincipalNavigation}' and '{existingDependentEntityType}.{existingDependentNavigation}'. Navigation properties can only participate in a single relationship.</value>
+    <value>Cannot create a relationship between '{newPrincipalNavigationSpecification}' and '{newDependentNavigationSpecification}', because there already is a relationship between '{existingPrincipalNavigationSpecification}' and '{existingDependentNavigationSpecification}'. Navigation properties can only participate in a single relationship. If you want to override an existing relationship call Ignore on the navigation first.</value>
   </data>
   <data name="WarningAsErrorTemplate" xml:space="preserve">
-    <value>Error generated for warning '{eventName}: {message}'. This exception can be suppressed or logged by passing event ID '{eventId}' to the 'ConfigureWarnings' method in 'DbContext.OnConfiguring' or 'AddDbContext'.</value>
+    <value>Error generated for warning '{eventName}': {message} This exception can be suppressed or logged by passing event ID '{eventId}' to the 'ConfigureWarnings' method in 'DbContext.OnConfiguring' or 'AddDbContext'.</value>
   </data>
   <data name="ContextDisposed" xml:space="preserve">
     <value>Cannot access a disposed object. A common cause of this error is disposing a context that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur if you are calling Dispose() on the context, or wrapping the context in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.</value>
@@ -806,19 +807,11 @@
   <data name="PropertyCalledOnNavigation" xml:space="preserve">
     <value>'{property}' cannot be used as a property on entity type '{entityType}' because it is configured as a navigation.</value>
   </data>
-  <data name="LogRowLimitingOperationWithoutOrderBy" xml:space="preserve">
-    <value>Query: '{queryModel}' uses a row limiting operation (Skip/Take) without OrderBy which may lead to unpredictable results.</value>
-    <comment>Warning CoreEventId.RowLimitingOperationWithoutOrderByWarning string</comment>
-  </data>
   <data name="PropertyInUseForeignKey" xml:space="preserve">
     <value>The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the foreign key {foreignKey} on '{foreignKeyType}'. All containing foreign keys must be removed or redefined before the property can be removed.</value>
   </data>
   <data name="PropertyInUseIndex" xml:space="preserve">
     <value>The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the index {index} on '{indexType}'. All containing indexes must be removed or redefined before the property can be removed.</value>
-  </data>
-  <data name="LogFirstWithoutOrderByAndFilter" xml:space="preserve">
-    <value>Query: '{queryModel}' uses First/FirstOrDefault/Last/LastOrDefault operation without OrderBy and filter which may lead to unpredictable results.</value>
-    <comment>Warning CoreEventId.FirstWithoutOrderByAndFilterWarning string</comment>
   </data>
   <data name="InvalidPoolSize" xml:space="preserve">
     <value>The specified poolSize must be greater than 0.</value>
@@ -832,8 +825,8 @@
   <data name="ForeignKeySelfReferencingDependentEntityType" xml:space="preserve">
     <value>The foreign keys on entity type '{dependentType}' cannot target the same entity type because it is a weak entity type.</value>
   </data>
-  <data name="EntityTypeInUseByForeignKey" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot be removed because it is referencing '{referencedEntityType}' by foreign key {foreignKey}. All foreign keys must be removed before the entity type can be removed.</value>
+  <data name="EntityTypeInUseByReferencingSkipNavigation" xml:space="preserve">
+    <value>The entity type '{entityType}' cannot be removed because it is being referenced by the skip navigation '{skipNavigation}' on '{referencingEntityType}'. All referencing skip navigations must be removed before the entity type can be removed.</value>
   </data>
   <data name="ClashingWeakEntityType" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be added to the model because a weak entity type with the same name already exists.</value>
@@ -875,7 +868,7 @@
     <value>The entity type '{entityType}' has a defining navigation and the supplied entity is currently referenced from several owner entities. To access the entry for a particular reference call '{targetEntryCall}' on the owner entry.</value>
   </data>
   <data name="UntrackedDependentEntity" xml:space="preserve">
-    <value>The entity type '{entityType}' has a defining navigation and the supplied entity is currently not being tracked. To start tracking this entity call '{targetEntryCall}' on the owner entry.</value>
+    <value>The entity type '{entityType}' has a defining navigation and the supplied entity is currently not being tracked. To start tracking this entity call '{referenceCall}' or '{collectionCall}' on the owner entry.</value>
   </data>
   <data name="BadFilterExpression" xml:space="preserve">
     <value>The filter expression '{filter}' specified for entity type '{entityType}' is invalid. The expression must accept a single parameter of type '{clrType}', return bool, and may not contain references to navigation properties.</value>
@@ -883,11 +876,20 @@
   <data name="BadFilterDerivedType" xml:space="preserve">
     <value>The filter expression '{filter}' cannot be specified for entity type '{entityType}'. A filter may only be applied to the root entity type in a hierarchy.</value>
   </data>
+  <data name="DefiningQueryWithKey" xml:space="preserve">
+    <value>The entity type '{entityType}' cannot use 'ToQuery' to create a defining query because it also defines a primary key. Defining queries can only be used to back entity types without keys.</value>
+  </data>
   <data name="ConverterPropertyMismatch" xml:space="preserve">
     <value>Converter for model type '{converterType}' cannot be used for '{entityType}.{propertyName}' because its type is '{propertyType}'.</value>
   </data>
   <data name="ComparerPropertyMismatch" xml:space="preserve">
     <value>Comparer for type '{type}' cannot be used for '{entityType}.{propertyName}' because its type is '{propertyType}'.</value>
+  </data>
+  <data name="NonComparableKeyType" xml:space="preserve">
+    <value>Property '{entityType}.{property}' cannot be used as a key because it has type '{providerType}' which does not implement 'IComparable&lt;T&gt;', 'IComparable' or 'IStructuralComparable'. Use 'HasConversion()' in 'OnModelCreating()' to wrap '{providerType}' with a type that can be compared.</value>
+  </data>
+  <data name="NonComparableKeyTypes" xml:space="preserve">
+    <value>Property '{entityType}.{property}' cannot be used as a key because it has type '{modelType}' and provider type '{providerType}' neither of which implement 'IComparable&lt;T&gt;', 'IComparable' or 'IStructuralComparable'. Make '{modelType}' implement one of these interfaces to use it as a key.</value>
   </data>
   <data name="IncludeNotSpecifiedDirectlyOnEntityType" xml:space="preserve">
     <value>The Include operation '{include}' is not supported. '{invalidNavigation}' must be a navigation property defined on an entity type.</value>
@@ -913,9 +915,6 @@
   <data name="ConvertersCannotBeComposed" xml:space="preserve">
     <value>Cannot compose converter from '{typeOneIn}' to '{typeOneOut}' with converter from '{typeTwoIn}' to '{typeTwoOut}' because the output type of the first converter is different from the input type of the second converter.</value>
   </data>
-  <data name="ConverterCloneNotImplemented" xml:space="preserve">
-    <value>The '{mapping}' does not support value conversions. Support for value conversions typically requires changes in the database provider.</value>
-  </data>
   <data name="ConverterBadType" xml:space="preserve">
     <value>The value converter '{converter}' cannot be used with type '{type}'. This converter can only be used with {allowed}.</value>
   </data>
@@ -934,6 +933,12 @@
   <data name="SeedDatumMissingValue" xml:space="preserve">
     <value>The seed entity for entity type '{entityType}' cannot be added because there was no value provided for the required property '{property}'.</value>
   </data>
+  <data name="SeedDatumDefaultValue" xml:space="preserve">
+    <value>The seed entity for entity type '{entityType}' cannot be added because a default value was provided for the required property '{property}'. Please provide a value different from '{defaultValue}'.</value>
+  </data>
+  <data name="SeedDatumSignedNumericValue" xml:space="preserve">
+    <value>The seed entity for entity type '{entityType}' cannot be added because a non-zero value is required for property '{property}'. Consider providing a negative value to avoid collisions with non-seed data.</value>
+  </data>
   <data name="SeedDatumNavigation" xml:space="preserve">
     <value>The seed entity for entity type '{entityType}' cannot be added because it has the navigation '{navigation}' set. To seed relationships you need to add the related entity seed to '{relatedEntityType}' and specify the foreign key values {foreignKeyProperties}. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the involved property values.</value>
   </data>
@@ -944,7 +949,7 @@
     <value>The seed entity for entity type '{entityType}' cannot be added because the value provided is of a derived type '{derivedType}'. Add the derived seed entities to the corresponding entity type.</value>
   </data>
   <data name="ConstructorNotFound" xml:space="preserve">
-    <value>No suitable constructor found for entity type '{entityType}'. The following parameters could not be bound to properties of the entity: '{parameters}'.</value>
+    <value>No suitable constructor found for entity type '{entityType}'. The following constructors had parameters that could not be bound to properties of the entity type: {constructors}.</value>
   </data>
   <data name="ConstructorConflict" xml:space="preserve">
     <value>Two constructors were found with the same number of parameters that could both be used by Entity Framework. The constructor to use must be configured explicitly. The two constructors are '{firstConstructor}' and '{secondConstructor}'.</value>
@@ -958,6 +963,10 @@
   <data name="LogShadowPropertyCreated" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' was created in shadow state because there are no eligible CLR members with a matching name.</value>
     <comment>Debug CoreEventId.ShadowPropertyCreated string string</comment>
+  </data>
+  <data name="LogCollectionWithoutComparer" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.</value>
+    <comment>Warning CoreEventId.CollectionWithoutComparer string string</comment>
   </data>
   <data name="LogExecutionStrategyRetrying" xml:space="preserve">
     <value>A transient exception has been encountered during execution and the operation will be retried after {delay}ms.{newline}{error}</value>
@@ -975,45 +984,32 @@
     <value>An attempt was made to lazy-load navigation property '{navigation}' on detached entity of type '{entityType}'. Lazy-loading is not supported for detached entities or entities that are loaded with 'AsNoTracking()'.</value>
     <comment>Warning CoreEventId.DetachedLazyLoadingWarning string string</comment>
   </data>
-  <data name="InvalidSetTypeQuery" xml:space="preserve">
-    <value>Cannot create a DbSet for '{typeName}' because it is a query type. Use the DbContext.Query method to create a DbQuery instead.</value>
-  </data>
-  <data name="InvalidSetTypeEntity" xml:space="preserve">
-    <value>Cannot create a DbQuery for '{typeName}' because it is not a query type. Use the DbContext.Set method to create a DbSet instead.</value>
-  </data>
-  <data name="QueryTypeCannotBePrincipal" xml:space="preserve">
-    <value>Unable to create a foreign key with the query type '{queryType}' as the principal type. Only entity types are allowed as foreign key principal types.</value>
-  </data>
-  <data name="QueryTypeNotValid" xml:space="preserve">
-    <value>Unable to track an instance of type '{type}' because it is a query type. Only entity types may be tracked.</value>
-  </data>
-  <data name="ErrorMixedQueryEntityTypeInheritance" xml:space="preserve">
-    <value>Cannot set '{baseType}' as the base type of '{derivedType}'. Inheritance hierarchies cannot contain a mix of entity types and query types.</value>
-  </data>
-  <data name="CannotAccessEntityAsQuery" xml:space="preserve">
-    <value>The query type '{queryType}' cannot be added to the model because an entity type with the same name already exists.</value>
-  </data>
-  <data name="CannotAccessQueryAsEntity" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot be added to the model because a query type with the same name already exists.</value>
-  </data>
-  <data name="ErrorNavCannotTargetQueryType" xml:space="preserve">
-    <value>Cannot create a navigation targeting type '{type}' because it is a query type. Only entity types can be used as navigation target types.</value>
+  <data name="KeylessTypeTracked" xml:space="preserve">
+    <value>Unable to track an instance of type '{type}' because it does not have a primary key. Only entity types with primary keys may be tracked.</value>
   </data>
   <data name="LogRedundantIndexRemoved" xml:space="preserve">
-    <value>The index {redundantIndex} was not created as the properties are already covered by the index {otherIndex}.</value>
-    <comment>Debug CoreEventId.RedundantIndexRemoved string string</comment>
+    <value>The index {redundantIndex} was not created on entity type '{firstEntityType}' as the properties are already covered by the index {otherIndex}.</value>
+    <comment>Debug CoreEventId.RedundantIndexRemoved string string string</comment>
   </data>
   <data name="LogIncompatibleMatchingForeignKeyProperties" xml:space="preserve">
     <value>The foreign key properties haven't been configured by convention because the best match {foreignKey} are incompatible with the current principal key {principalKey}. This message can be disregarded if explicit configuration has been specified.</value>
     <comment>Debug CoreEventId.IncompatibleMatchingForeignKeyProperties string string</comment>
   </data>
-  <data name="LogRequiredAttributeOnDependent" xml:space="preserve">
+  <data name="LogRequiredAttributeInverted" xml:space="preserve">
     <value>The navigation property '{navigation}' has a RequiredAttribute causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.</value>
-    <comment>Debug CoreEventId.RequiredAttributeOnDependent string string</comment>
+    <comment>Debug CoreEventId.RequiredAttributeInverted string string</comment>
+  </data>
+  <data name="LogNonNullableInverted" xml:space="preserve">
+    <value>The navigation property '{navigation}' is non-nullable, causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.</value>
+    <comment>Debug CoreEventId.NonNullableInverted string string</comment>
   </data>
   <data name="LogRequiredAttributeOnBothNavigations" xml:space="preserve">
     <value>The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored because there is also a RequiredAttribute on '{dependentEntityType}.{dependentNavigation}'. RequiredAttribute should only be specified on the dependent side of the relationship.</value>
     <comment>Debug CoreEventId.RequiredAttributeOnBothNavigations string string string string</comment>
+  </data>
+  <data name="LogNonNullableReferenceOnBothNavigations" xml:space="preserve">
+    <value>'{principalEntityType}.{principalNavigation}' may still be null at runtime despite being declared as non-nullable since only the navigation to principal '{dependentEntityType}.{dependentNavigation}' can be configured as required.</value>
+    <comment>Debug CoreEventId.NonNullableReferenceOnBothNavigations string string string string</comment>
   </data>
   <data name="LogForeignKeyAttributesOnBothNavigations" xml:space="preserve">
     <value>Navigations '{dependentEntityType}.{dependentNavigation}' and '{principalEntityType}.{principalNavigation}' were separated into two relationships as ForeignKeyAttribute was specified on navigations on both sides.</value>
@@ -1063,12 +1059,6 @@
   <data name="RelationshipConceptualNullSensitive" xml:space="preserve">
     <value>The association between entities '{firstType}' and '{secondType}' with the key value '{secondKeyValue}' has been severed but the relationship is either marked as 'Required' or is implicitly required because the foreign key is not nullable. If the dependent/child entity should be deleted when a required relationship is severed, then setup the relationship to use cascade deletes.</value>
   </data>
-  <data name="IncompatiblePrincipalEntry" xml:space="preserve">
-    <value>The foreign key {foreignKey} set on '{dependentEntityType}' matches an entity of type '{foundPrincipalEntityType}', however the principal entity type should be assignable to '{principalEntityType}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
-  </data>
-  <data name="IncompatiblePrincipalEntrySensitive" xml:space="preserve">
-    <value>The foreign key '{foreignKeyValues}' set on '{dependentEntityType}' with the key value '{keyValue}' matches an entity of type '{foundPrincipalEntityType}', however the principal entity type should be assignable to '{principalEntityType}'.</value>
-  </data>
   <data name="IdentifyingRelationshipCycle" xml:space="preserve">
     <value>The entity type '{entityType}' is part of a relationship cycle involving its primary key.</value>
   </data>
@@ -1078,13 +1068,293 @@
   <data name="ErrorInvalidQueryable" xml:space="preserve">
     <value>Cannot use multiple DbContext instances within a single query execution. Ensure the query uses a single context instance.</value>
   </data>
-  <data name="DerivedQueryTypeDefiningQuery" xml:space="preserve">
-    <value>The query type '{queryType}' cannot have a defining query bacause it is derived from '{baseType}'. Only base query types can have a defining query.</value>
+  <data name="DerivedTypeDefiningQuery" xml:space="preserve">
+    <value>The entity type '{entityType}' cannot have a defining query because it is derived from '{baseType}'. Only base keyless entity types can have a defining query.</value>
   </data>
   <data name="OwnerlessOwnedType" xml:space="preserve">
     <value>The owned entity type '{ownedType}' requires to be referenced from another entity type via a navigation. Add a navigation to an entity type that points at '{ownedType}'.</value>
   </data>
-  <data name="DuplicateQueryType" xml:space="preserve">
-    <value>The query type '{queryType}' cannot be added to the model because a query type with the same name already exists.</value>
+  <data name="LogOptimisticConcurrencyException" xml:space="preserve">
+    <value>{error}</value>
+    <comment>Debug CoreEventId.OptimisticConcurrencyException Exception</comment>
+  </data>
+  <data name="AmbiguousOwnedNavigation" xml:space="preserve">
+    <value>Unable to determine the owner for the relationship between '{entityTypeNavigationSpecification}' and '{otherEntityType}' as both types have been marked as owned. Either manually configure the ownership, or ignore the corresponding navigations using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
+  </data>
+  <data name="FkAttributeOnNonUniquePrincipal" xml:space="preserve">
+    <value>The ForeignKeyAttribute for the navigation '{navigation}' cannot be specified on the entity type '{principalType}' since it represents a one-to-many relationship. Move the ForeignKeyAttribute to a property on '{dependentType}'.</value>
+  </data>
+  <data name="ConstructorBindingFailed" xml:space="preserve">
+    <value>cannot bind '{failedBinds}' in '{parameters}'</value>
+  </data>
+  <data name="NavigationToKeylessType" xml:space="preserve">
+    <value>The navigation '{navigation}' cannot be added because it targets the keyless entity type '{entityType}'. Navigations can only target entity types with keys.</value>
+  </data>
+  <data name="ConflictingBackingFields" xml:space="preserve">
+    <value>Property '{property}' on entity type '{entityType}' matches both '{field1}' and '{field2}' by convention. Explicitly specify the backing field to use with '.HasField()' in 'OnModelCreating()'.</value>
+  </data>
+  <data name="KeylessTypeExistingKey" xml:space="preserve">
+    <value>The entity type '{entityType}' cannot be marked as keyless because it contains a key.</value>
+  </data>
+  <data name="KeylessTypeWithKey" xml:space="preserve">
+    <value>The key {key} cannot be added to keyless type '{entityType}'.</value>
+  </data>
+  <data name="LogRedundantForeignKey" xml:space="preserve">
+    <value>The foreign key {redundantForeignKey} on entity type '{entityType} targets itself, it should be removed since it serves no purpose.</value>
+    <comment>Warning CoreEventId.RedundantForeignKeyWarning string string</comment>
+  </data>
+  <data name="ConflictingForeignKeyAttributes" xml:space="preserve">
+    <value>There are multiple ForeignKeyAttributes which are pointing to same set of properties - '{propertyList}' on entity type '{entityType}'.</value>
+  </data>
+  <data name="ClashingOwnedEntityType" xml:space="preserve">
+    <value>The type '{entityType}' cannot be configured as non-owned because an owned entity type with the same name already exists.</value>
+  </data>
+  <data name="InvalidSetTypeOwned" xml:space="preserve">
+    <value>Cannot create a DbSet for '{typeName}' because it is configured as an owned entity type and should be accessed through the defining entities.</value>
+  </data>
+  <data name="InvalidSetKeylessOperation" xml:space="preserve">
+    <value>The invoked method cannot be used for the entity type '{entityType}' because it does not have a primary key.</value>
+  </data>
+  <data name="DerivedEntityTypeHasNoKey" xml:space="preserve">
+    <value>A '{derivedType}' cannot be configured as keyless because it is a derived type. The root type '{rootType}' must be configured as keyless. If you did not intend for '{rootType}' to be included in the model, ensure that it is not included in a DbSet property on your context, referenced in a configuration call to ModelBuilder, or referenced from a navigation property on a type that is included in the model.</value>
+  </data>
+  <data name="DerivedEntityCannotBeKeyless" xml:space="preserve">
+    <value>Unable to set a base type for entity type '{entityType}' because it has been configured as having no keys.</value>
+  </data>
+  <data name="TrackingTypeMismatch" xml:space="preserve">
+    <value>The instance of entity type '{runtimeEntityType}' cannot be tracked as the entity type '{entityType}' because they are not in the same hierarchy.</value>
+  </data>
+  <data name="FieldNameMismatch" xml:space="preserve">
+    <value>The specified field '{field}' cannot be used for the property '{entityType}.{property}' because it does not match the property name.</value>
+  </data>
+  <data name="DiscriminatorEntityTypeNotDerived" xml:space="preserve">
+    <value>Cannot configure the discriminator value for entity type '{entityType}' because it doesn't derive from '{rootEntityType}'.</value>
+  </data>
+  <data name="DiscriminatorPropertyMustBeOnRoot" xml:space="preserve">
+    <value>A discriminator property cannot be set for the entity type '{entityType}' because it is not the root of an inheritance hierarchy.</value>
+  </data>
+  <data name="DiscriminatorPropertyNotFound" xml:space="preserve">
+    <value>Unable to set property '{property}' as a discriminator for entity type '{entityType}' because it is not a property of '{entityType}'.</value>
+  </data>
+  <data name="DiscriminatorValueIncompatible" xml:space="preserve">
+    <value>Cannot set discriminator value '{value}' for discriminator property '{discriminator}' because it is not assignable to property of type '{discriminatorType}'.</value>
+  </data>
+  <data name="DuplicateDiscriminatorValue" xml:space="preserve">
+    <value>The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy needs to have a unique discriminator value.</value>
+  </data>
+  <data name="NoDiscriminatorForValue" xml:space="preserve">
+    <value>Cannot set discriminator value for entity type '{entityType}' because the root entity type '{rootEntityType}' doesn't have a discriminator property set.</value>
+  </data>
+  <data name="NoDiscriminatorProperty" xml:space="preserve">
+    <value>The entity type '{entityType}' is part of a hierarchy, but does not have a discriminator property configured.</value>
+  </data>
+  <data name="NoDiscriminatorValue" xml:space="preserve">
+    <value>The entity type '{entityType}' is part of a hierarchy, but does not have a discriminator value configured.</value>
+  </data>
+  <data name="ForeignKeyWrongType" xml:space="preserve">
+    <value>The foreign key {foreignKey} targeting the key {key} on '{principalType}' cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.</value>
+  </data>
+  <data name="IndexWrongType" xml:space="preserve">
+    <value>The index {index} cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.</value>
+  </data>
+  <data name="KeyWrongType" xml:space="preserve">
+    <value>The key {key} cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.</value>
+  </data>
+  <data name="PropertyWrongType" xml:space="preserve">
+    <value>The property '{property}' cannot be removed from the entity type '{entityType}' because it is declared on the entity type '{otherEntityType}'.</value>
+  </data>
+  <data name="NoNavigation" xml:space="preserve">
+    <value>There is no navigation on entity type '{entityType}' associated with the foreign key {foreignKey}.</value>
+  </data>
+  <data name="PropertyWrongName" xml:space="preserve">
+    <value>The property '{property}' cannot be added to type '{entityType}' because the name of the given CLR property or field '{clrName}' is different.</value>
+  </data>
+  <data name="PropertyClashingNonIndexer" xml:space="preserve">
+    <value>The indexed property '{property}' cannot be added to type '{entityType}' because the CLR class contains a member with the same name.</value>
+  </data>
+  <data name="EntityEqualitySubqueryWithCompositeKeyNotSupported" xml:space="preserve">
+    <value>This query would cause multiple evaluation of a subquery because entity '{entityType}' has a composite key. Rewrite your query avoiding the subquery.</value>
+  </data>
+  <data name="EntityEqualityContainsWithCompositeKeyNotSupported" xml:space="preserve">
+    <value>Cannot translate a Contains() operator on entity '{entityType}' because it has a composite key.</value>
+  </data>
+  <data name="EntityEqualityOnKeylessEntityNotSupported" xml:space="preserve">
+    <value>Comparison on entity type '{entityType}' is not supported because it is a keyless entity.</value>
+  </data>
+  <data name="UnableToDiscriminate" xml:space="preserve">
+    <value>Unable to materialize entity of type '{entityType}'. No discriminators matched '{discriminator}'.</value>
+  </data>
+  <data name="NoInterceptionResult" xml:space="preserve">
+    <value>'InterceptionResult.Result' was called when 'InterceptionResult.HasResult' is false.</value>
+  </data>
+  <data name="SetOperationWithDifferentIncludesInOperands" xml:space="preserve">
+    <value>When performing a set operation, both operands must have the same Include operations.</value>
+  </data>
+  <data name="IncludeOnEntityWithDefiningQueryNotSupported" xml:space="preserve">
+    <value>Include is not supported for entities with defining query. Entity type: '{entityType}'</value>
+  </data>
+  <data name="LogRequiredAttributeOnCollection" xml:space="preserve">
+    <value>The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored because it is a collection. RequiredAttribute should only be specified on reference navigations pointing to the principal side of the relationship.</value>
+    <comment>Debug CoreEventId.RequiredAttributeOnCollection string string</comment>
+  </data>
+  <data name="LogRequiredAttributeOnDependent" xml:space="preserve">
+    <value>The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored because it is pointing to the dependent entity. RequiredAttribute should only be specified on the navigation pointing to the principal side of the relationship. To change the dependent side configure the foreign key properties.</value>
+    <comment>Debug CoreEventId.RequiredAttributeOnDependent string string</comment>
+  </data>
+  <data name="LogNonNullableReferenceOnDependent" xml:space="preserve">
+    <value>'{principalEntityType}.{principalNavigation}' may still be null at runtime despite being declared as non-nullable since only the navigation to principal can be configured as required.</value>
+    <comment>Debug CoreEventId.NonNullableReferenceOnDependent string string</comment>
+  </data>
+  <data name="LogRedundantAddServicesCall" xml:space="preserve">
+    <value>'AddEntityFramework*' was called on the service provider, but 'UseInternalServiceProvider' wasn't called in the DbContext options configuration. Remove the 'AddEntityFramework*' call as in most cases it's not needed and might cause conflicts with other products and services registered in the same service provider.</value>
+    <comment>Warning CoreEventId.RedundantAddServicesCallWarning</comment>
+  </data>
+  <data name="ClashingNonOwnedDerivedEntityType" xml:space="preserve">
+    <value>The type '{entityType}' cannot be marked as owned because the derived entity type - '{derivedType}' has been configured as non-owned.</value>
+  </data>
+  <data name="ClientProjectionCapturingConstantInMethodArgument" xml:space="preserve">
+    <value>Client projection contains reference to constant expression of '{constantType}' which is being passed as argument to method '{methodName}'. This could potentially cause memory leak. Consider assigning this constant to local variable and using the variable in the query instead. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information.</value>
+  </data>
+  <data name="ClientProjectionCapturingConstantInMethodInstance" xml:space="preserve">
+    <value>Client projection contains reference to constant expression of '{constantType}' through instance method '{methodName}'. This could potentially cause memory leak. Consider making the method static so that it does not capture constant in the instance. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information.</value>
+  </data>
+  <data name="ClientProjectionCapturingConstantInTree" xml:space="preserve">
+    <value>Client projection contains reference to constant expression of '{constantType}'. This could potentially cause memory leak. Consider assigning this constant to local variable and using the variable in the query instead. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information.</value>
+  </data>
+  <data name="ForeignKeyInUseSkipNavigation" xml:space="preserve">
+    <value>Cannot remove foreign key {foreigKey} from entity type '{entityType}' because it is referenced by a skip navigation '{navigation}' on entity type '{navigationEntityType}'. All referencing skip navigation must be removed before the referenced foreign key can be removed.</value>
+  </data>
+  <data name="SkipNavigationWrongInverse" xml:space="preserve">
+    <value>The skip navigation '{inverse}' declared on the entity type '{inverseEntityType}' cannot be set as the inverse of '{navigation}' that targets '{targetEntityType}'. The inverse should be declared on the target entity type.</value>
+  </data>
+  <data name="SkipNavigationWrongType" xml:space="preserve">
+    <value>The skip navigation property '{navigation}' cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.</value>
+  </data>
+  <data name="SkipInverseMismatchedAssociationType" xml:space="preserve">
+    <value>The skip navigation '{inverse}' using the association entity type '{inverseAssociationType}' cannot be set as the inverse of '{navigation}' that uses the association entity type '{associationType}'. The inverse should use the same association entity type.</value>
+  </data>
+  <data name="SkipNavigationNoInverse" xml:space="preserve">
+    <value>The skip navigation '{navigation}' on entity type '{entityType}' doesn't have an inverse configured. Every skip navigation should have an inverse skip navigation.</value>
+  </data>
+  <data name="SkipNavigationNonCollection" xml:space="preserve">
+    <value>The skip navigation '{navigation}' on entity type '{entityType}' is not a collection. Only collection skip navigation properties are currently supported.</value>
+  </data>
+  <data name="SkipInverseMismatchedForeignKey" xml:space="preserve">
+    <value>The foreign key '{foreignKey}' cannot be set for the skip navigation '{navigation}' as it uses the association entity type '{associationType}' while the inverse skip navigation '{inverse}' is using the association entity type '{inverseAssociationType}'. The inverse should use the same association entity type.</value>
+  </data>
+  <data name="SkipNavigationNoForeignKey" xml:space="preserve">
+    <value>The skip navigation '{navigation}' on entity type '{entityType}' doesn't have a foreign key associated with it. Every skip navigation should have a configured foreign key.</value>
+  </data>
+  <data name="SkipNavigationForeignKeyWrongDependentType" xml:space="preserve">
+    <value>The foreign key {foreignKey} cannot be used for the skip navigation property '{navigation}' on the entity type '{entityType}' because it is expected to be on the dependent entity type '{dependentEntityType}'.</value>
+  </data>
+  <data name="SkipNavigationForeignKeyWrongPrincipalType" xml:space="preserve">
+    <value>The foreign key {foreignKey} cannot be used for the skip navigation property '{navigation}' on the entity type '{entityType}' because it is expected to be on the principal entity type '{principalEntityType}'.</value>
+  </data>
+  <data name="NonIndexerEntityType" xml:space="preserve">
+    <value>Cannot add property '{property}' on entity type '{entity}' since there is no indexer on '{entity}' taking a single argument of type '{type}'.</value>
+  </data>
+  <data name="BackingFieldOnIndexer" xml:space="preserve">
+    <value>Cannot set backing field '{field}' for the indexer property '{entityType}.{property}'. Indexer properties are not allowed to use a backing field.</value>
+  </data>
+  <data name="ClashingSharedType" xml:space="preserve">
+    <value>The entity type '{entityType}' cannot be added to the model because a shared entity type with the same clr type already exists.</value>
+  </data>
+  <data name="CannotFindEntityWithClrTypeWhenShared" xml:space="preserve">
+    <value>Cannot find entity type with type '{clrType}' since model contains shared entity type(s) with same type.</value>
+  </data>
+  <data name="SkipNavigationInUseBySkipNavigation" xml:space="preserve">
+    <value>The skip navigation '{skipNavigation}' cannot be removed because it is set as the inverse of the skip navigation '{inverseSkipNavigation}' on '{referencingEntityType}'. All referencing skip navigations must be removed before this skip navigation can be removed.</value>
+  </data>
+  <data name="LastUsedWithoutOrderBy" xml:space="preserve">
+    <value>Queries performing '{method}' operation must have a deterministic sort order. Rewrite the query to apply an OrderBy clause on the sequence before calling '{method}'.</value>
+  </data>
+  <data name="ImmediateConventionScopeCannotBeRunAgain" xml:space="preserve">
+    <value>Immediate convention scope cannot be run again.</value>
+  </data>
+  <data name="UnknownEntity" xml:space="preserve">
+    <value>Unknown {entity}.</value>
+  </data>
+  <data name="UnhandledExpressionNode" xml:space="preserve">
+    <value>Unhandled expression node type '{nodeType}'.</value>
+  </data>
+  <data name="UnhandledMemberBinding" xml:space="preserve">
+    <value>Unhandled member binding type '{bindingType}'.</value>
+  </data>
+  <data name="InvalidIncludePath" xml:space="preserve">
+    <value>Invalid include path '{navigationChain}', couldn't find navigation for '{navigationName}'.</value>
+  </data>
+  <data name="InvalidLambdaExpressionInsideInclude" xml:space="preserve">
+    <value>Lambda expression used inside Include is not valid.</value>
+  </data>
+  <data name="IncludeOnNonEntity" xml:space="preserve">
+    <value>Include has been used on non entity queryable.</value>
+  </data>
+  <data name="CannotConvertQueryableToEnumerableMethod" xml:space="preserve">
+    <value>Unable to convert queryable method to enumerable method.</value>
+  </data>
+  <data name="InvalidTypeConversationWithInclude" xml:space="preserve">
+    <value>Invalid type conversion when specifying include.</value>
+  </data>
+  <data name="InvalidExpressionTypeStoredInNavigationMap" xml:space="preserve">
+    <value>Invalid expression type stored in NavigationMap.</value>
+  </data>
+  <data name="IncludeWithCycle" xml:space="preserve">
+    <value>The Include path '{navigationName}->{inverseNavigationName}' results in a cycle. Cycles are not allowed in no-tracking queries. Either use a tracking query or remove the cycle.</value>
+  </data>
+  <data name="UnhandledMethod" xml:space="preserve">
+    <value>Unhandled method '{methodName}'.</value>
+  </data>
+  <data name="RuntimeParameterMissingParameter" xml:space="preserve">
+    <value>Runtime parameter extraction lambda must have one QueryContext parameter.</value>
+  </data>
+  <data name="SequenceContainsNoElements" xml:space="preserve">
+    <value>Sequence contains no elements.</value>
+  </data>
+  <data name="SequenceContainsMoreThanOneElement" xml:space="preserve">
+    <value>Sequence contains more than one element.</value>
+  </data>
+  <data name="OwnedEntitiesCannotBeTrackedWithoutTheirOwner" xml:space="preserve">
+    <value>A tracking query projects owned entity without corresponding owner in result. Owned entities cannot be tracked without their owner. Either include the owner entity in the result or make query non-tracking using AsNoTracking().</value>
+  </data>
+  <data name="VisitIsNotAllowed" xml:space="preserve">
+    <value>Calling {visitMethodName} is not allowed. Visit expression manually for relevant part.</value>
+  </data>
+  <data name="EntityProjectionExpressionCalledWithIncorrectInterface" xml:space="preserve">
+    <value>Called EntityProjectionExpression.{methodName}() with incorrect {interfaceType}. EntityType:{entityType}, {entityValue}</value>
+  </data>
+  <data name="UnsupportedUnary" xml:space="preserve">
+    <value>Unsupported Unary operator type specified.</value>
+  </data>
+  <data name="IncorrectOperatorType" xml:space="preserve">
+    <value>Incorrect operatorType for SqlBinaryExpression.</value>
+  </data>
+  <data name="NullTypeMappingInSqlTree" xml:space="preserve">
+    <value>Null TypeMapping in Sql Tree.</value>
+  </data>
+  <data name="VisitChildrenMustBeOverridden" xml:space="preserve">
+    <value>VisitChildren must be overridden in class deriving from SqlExpression.</value>
+  </data>
+  <data name="UnsupportedBinaryOperator" xml:space="preserve">
+    <value>Unsupported Binary operator type specified.</value>
+  </data>
+  <data name="EFPropertyCalledWithWrongPropertyName" xml:space="preserve">
+    <value>EF.Property called with wrong property name.</value>
+  </data>
+  <data name="InvalidStateEncountered" xml:space="preserve">
+    <value>Invalid {state} encountered.</value>
+  </data>
+  <data name="DefaultIfEmptyAppliedAfterProjection" xml:space="preserve">
+    <value>Cannot apply DefaultIfEmpty after a client-evaluated projection.</value>
+  </data>  
+  <data name="LogConflictingKeylessAndKeyAttributes" xml:space="preserve">
+    <value>Conflicting attributes have been applied: the 'Key' attribute on property '{property}' and the 'Keyless' attribute on its entity '{entity}'. Note that the entity will have no key unless you use fluent API to override this.</value>
+    <comment>Warning CoreEventId.ConflictingKeylessAndKeyAttributesWarning string string</comment>
+  </data>
+  <data name="InvalidSwitch" xml:space="preserve">
+    <value>Invalid {name}: {value}</value>
+  </data>
+  <data name="AttemptToCreateEntityTypeBasedOnProxyClass" xml:space="preserve">
+    <value>Cannot add an entity type with type '{typeName}'. That type is a dynamically-generated proxy type.</value>
   </data>
 </root>

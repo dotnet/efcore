@@ -14,16 +14,16 @@ namespace Microsoft.EntityFrameworkCore
 
         protected CommandConfigurationTestFixture Fixture { get; }
 
-        [Fact]
+        [ConditionalFact]
         public void Constructed_select_query_CommandBuilder_throws_when_negative_CommandTimeout_is_used()
         {
-            using (var context = Fixture.CreateContext())
-            {
-                Assert.Throws<ArgumentException>(() => context.Database.SetCommandTimeout(-5));
-            }
+            using var context = CreateContext();
+            Assert.Throws<ArgumentException>(() => context.Database.SetCommandTimeout(-5));
         }
 
-        public class CommandConfigurationTestFixture : SharedStoreFixtureBase<DbContext>
+        protected DbContext CreateContext() => Fixture.CreateContext();
+
+        public class CommandConfigurationTestFixture : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "Empty";
             protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;

@@ -3,17 +3,23 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
     ///     <para>
-    ///         Builds the model for a given context. This default implementation builds the model by calling
-    ///         <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> on the context.
+    ///         Builds the model for a given context. This implementation builds the model by calling
+    ///         <see cref="DbContext.OnModelCreating(ModelBuilder)" /> on the context.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
     ///         not used in application code.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public class ModelCustomizer : IModelCustomizer
@@ -36,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     Performs additional configuration of the model in addition to what is discovered by convention. This default implementation
-        ///     builds the model for a given context by calling <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" />
+        ///     builds the model for a given context by calling <see cref="DbContext.OnModelCreating(ModelBuilder)" />
         ///     on the context.
         /// </summary>
         /// <param name="modelBuilder">
@@ -47,29 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </param>
         public virtual void Customize(ModelBuilder modelBuilder, DbContext context)
         {
-            FindSets(modelBuilder, context);
-
             context.OnModelCreating(modelBuilder);
-        }
-
-        /// <summary>
-        ///     Adds the entity types found in <see cref="DbSet{TEntity}" /> properties on the context to the model.
-        /// </summary>
-        /// <param name="modelBuilder"> The <see cref="ModelBuilder" /> being used to build the model. </param>
-        /// <param name="context"> The context to find <see cref="DbSet{TEntity}" /> properties on. </param>
-        protected virtual void FindSets([NotNull] ModelBuilder modelBuilder, [NotNull] DbContext context)
-        {
-            foreach (var setInfo in Dependencies.SetFinder.FindSets(context))
-            {
-                if (setInfo.IsQueryType)
-                {
-                    modelBuilder.Query(setInfo.ClrType);
-                }
-                else
-                {
-                    modelBuilder.Entity(setInfo.ClrType);
-                }
-            }
         }
     }
 }

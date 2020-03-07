@@ -2,30 +2,27 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Globalization;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
     ///     Converts <see cref="DateTime" /> to and from strings.
     /// </summary>
-    public class DateTimeToStringConverter : ValueConverter<DateTime, string>
+    public class DateTimeToStringConverter : StringDateTimeConverter<DateTime, string>
     {
-        private static readonly ConverterMappingHints _defaultHints
-            = new ConverterMappingHints(size: 48);
-
         /// <summary>
         ///     Creates a new instance of this converter.
         /// </summary>
         /// <param name="mappingHints">
-        ///     Hints that can be used by the <see cref="ITypeMappingSource"/> to create data types with appropriate
+        ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
         public DateTimeToStringConverter([CanBeNull] ConverterMappingHints mappingHints = null)
             : base(
-                v => v.ToString(@"yyyy\-MM\-dd HH\:mm\:ss.FFFFFFF"),
-                v => v == null ? default : DateTime.Parse(v, CultureInfo.InvariantCulture),
+                ToString(),
+                ToDateTime(),
                 _defaultHints.With(mappingHints))
         {
         }

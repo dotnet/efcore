@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Design
 {
     public class DbContextActivatorTest
     {
-        [Fact]
+        [ConditionalFact]
         public void CreateInstance_works()
         {
             var result = DbContextActivator.CreateInstance(typeof(TestContext));
@@ -18,7 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         private class TestContext : DbContext
         {
             protected override void OnConfiguring(DbContextOptionsBuilder options)
-                => options.UseInMemoryDatabase(nameof(DbContextActivatorTest));
+                => options
+                    .EnableServiceProviderCaching(false)
+                    .UseInMemoryDatabase(nameof(DbContextActivatorTest));
         }
     }
 }

@@ -8,13 +8,15 @@ using JetBrains.Annotations;
 namespace Microsoft.EntityFrameworkCore.Tools.Properties
 {
     /// <summary>
-    ///		This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     internal static class Resources
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Tools.Properties.Resources", typeof(Resources).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Tools.Properties.Resources", typeof(Resources).Assembly);
 
         /// <summary>
         ///     The assembly to use.
@@ -448,6 +450,46 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         public static string WorkingDirDescription
             => GetString("WorkingDirDescription");
 
+        /// <summary>
+        ///     The last argument '{argumentName}' accepts multiple values. No more argument can be added.
+        /// </summary>
+        public static string LastArgumentHasMultipleValues([CanBeNull] object argumentName)
+            => string.Format(
+                GetString("LastArgumentHasMultipleValues", nameof(argumentName)),
+                argumentName);
+
+        /// <summary>
+        ///     Unexpected value '{optionValue}' for option '{optionName}'.
+        /// </summary>
+        public static string UnexpectedOptionValue([CanBeNull] object optionValue, [CanBeNull] object optionName)
+            => string.Format(
+                GetString("UnexpectedOptionValue", nameof(optionValue), nameof(optionName)),
+                optionValue, optionName);
+
+        /// <summary>
+        ///     Unrecognized {argumentName} '{argumentValue}'.
+        /// </summary>
+        public static string UnexpectedArgument([CanBeNull] object argumentName, [CanBeNull] object argumentValue)
+            => string.Format(
+                GetString("UnexpectedArgument", nameof(argumentName), nameof(argumentValue)),
+                argumentName, argumentValue);
+
+        /// <summary>
+        ///     Response file '{fileName}' doesn't exist.
+        /// </summary>
+        public static string ResponseFileMissing([CanBeNull] object fileName)
+            => string.Format(
+                GetString("ResponseFileMissing", nameof(fileName)),
+                fileName);
+
+        /// <summary>
+        ///     Invalid template pattern '{template}'.
+        /// </summary>
+        public static string InvalidTemplatePattern([CanBeNull] object template)
+            => string.Format(
+                GetString("InvalidTemplatePattern", nameof(template)),
+                template);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
@@ -460,3 +502,4 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         }
     }
 }
+

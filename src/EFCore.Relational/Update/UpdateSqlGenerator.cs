@@ -8,16 +8,22 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Update
 {
     /// <summary>
     ///     <para>
-    ///         A a base class for the <see cref="IUpdateSqlGenerator" /> service that is typically inherited from
+    ///         A base class for the <see cref="IUpdateSqlGenerator" /> service that is typically inherited from
     ///         by database providers.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers; it is generally not used in application code.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
@@ -82,7 +88,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="command"> The command that represents the delete operation. </param>
         /// <param name="commandPosition"> The ordinal of this command in the batch. </param>
         /// <returns> The <see cref="ResultSetMapping" /> for the command. </returns>
-        public virtual ResultSetMapping AppendUpdateOperation(StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
+        public virtual ResultSetMapping AppendUpdateOperation(
+            StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotNull(command, nameof(command));
@@ -114,7 +121,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="command"> The command that represents the delete operation. </param>
         /// <param name="commandPosition"> The ordinal of this command in the batch. </param>
         /// <returns> The <see cref="ResultSetMapping" /> for the command. </returns>
-        public virtual ResultSetMapping AppendDeleteOperation(StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
+        public virtual ResultSetMapping AppendDeleteOperation(
+            StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotNull(command, nameof(command));
@@ -148,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             AppendInsertCommandHeader(commandStringBuilder, name, schema, writeOperations);
             AppendValuesHeader(commandStringBuilder, writeOperations);
             AppendValues(commandStringBuilder, writeOperations);
-            commandStringBuilder.Append(SqlGenerationHelper.StatementTerminator).AppendLine();
+            commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
         }
 
         /// <summary>
@@ -173,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             AppendUpdateCommandHeader(commandStringBuilder, name, schema, writeOperations);
             AppendWhereClause(commandStringBuilder, conditionOperations);
-            commandStringBuilder.Append(SqlGenerationHelper.StatementTerminator).AppendLine();
+            commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
         }
 
         /// <summary>
@@ -195,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             AppendDeleteCommandHeader(commandStringBuilder, name, schema);
             AppendWhereClause(commandStringBuilder, conditionOperations);
-            commandStringBuilder.Append(SqlGenerationHelper.StatementTerminator).AppendLine();
+            commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
         }
 
         /// <summary>
@@ -240,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             AppendFromClause(commandStringBuilder, name, schema);
             // TODO: there is no notion of operator - currently all the where conditions check equality
             AppendWhereAffectedClause(commandStringBuilder, conditionOperations);
-            commandStringBuilder.Append(SqlGenerationHelper.StatementTerminator).AppendLine()
+            commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator)
                 .AppendLine();
 
             return ResultSetMapping.LastInResultSet;
@@ -320,18 +328,18 @@ namespace Microsoft.EntityFrameworkCore.Update
                     operations,
                     SqlGenerationHelper,
                     (sb, o, helper) =>
+                    {
+                        helper.DelimitIdentifier(sb, o.ColumnName);
+                        sb.Append(" = ");
+                        if (!o.UseCurrentValueParameter)
                         {
-                            helper.DelimitIdentifier(sb, o.ColumnName);
-                            sb.Append(" = ");
-                            if (!o.UseCurrentValueParameter)
-                            {
-                                AppendSqlLiteral(sb, o.Value, o.Property);
-                            }
-                            else
-                            {
-                                helper.GenerateParameterName(sb, o.ParameterName);
-                            }
-                        });
+                            AppendSqlLiteral(sb, o.Value, o.Property);
+                        }
+                        else
+                        {
+                            helper.GenerateParameterNamePlaceholder(sb, o.ParameterName);
+                        }
+                    });
         }
 
         /// <summary>
@@ -410,23 +418,23 @@ namespace Microsoft.EntityFrameworkCore.Update
                         operations,
                         SqlGenerationHelper,
                         (sb, o, helper) =>
+                        {
+                            if (o.IsWrite)
                             {
-                                if (o.IsWrite)
+                                if (!o.UseCurrentValueParameter)
                                 {
-                                    if (!o.UseCurrentValueParameter)
-                                    {
-                                        AppendSqlLiteral(sb, o.Value, o.Property);
-                                    }
-                                    else
-                                    {
-                                        helper.GenerateParameterName(sb, o.ParameterName);
-                                    }
+                                    AppendSqlLiteral(sb, o.Value, o.Property);
                                 }
                                 else
                                 {
-                                    sb.Append("DEFAULT");
+                                    helper.GenerateParameterNamePlaceholder(sb, o.ParameterName);
                                 }
-                            })
+                            }
+                            else
+                            {
+                                sb.Append("DEFAULT");
+                            }
+                        })
                     .Append(")");
             }
         }
@@ -476,19 +484,19 @@ namespace Microsoft.EntityFrameworkCore.Update
                     .Append(" AND ")
                     .AppendJoin(
                         operations, (sb, v) =>
+                        {
+                            if (v.IsKey)
                             {
-                                if (v.IsKey)
+                                if (v.IsRead)
                                 {
-                                    if (v.IsRead)
-                                    {
-                                        AppendIdentityWhereCondition(sb, v);
-                                    }
-                                    else
-                                    {
-                                        AppendWhereCondition(sb, v, v.UseOriginalValueParameter);
-                                    }
+                                    AppendIdentityWhereCondition(sb, v);
                                 }
-                            }, " AND ");
+                                else
+                                {
+                                    AppendWhereCondition(sb, v, v.UseOriginalValueParameter);
+                                }
+                            }
+                        }, " AND ");
             }
         }
 
@@ -537,9 +545,10 @@ namespace Microsoft.EntityFrameworkCore.Update
                 }
                 else
                 {
-                    SqlGenerationHelper.GenerateParameterName(commandStringBuilder, useOriginalValue
-                        ? columnModification.OriginalParameterName
-                        : columnModification.ParameterName);
+                    SqlGenerationHelper.GenerateParameterNamePlaceholder(
+                        commandStringBuilder, useOriginalValue
+                            ? columnModification.OriginalParameterName
+                            : columnModification.ParameterName);
                 }
             }
         }
@@ -592,7 +601,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var mapping = property != null
                 ? Dependencies.TypeMappingSource.FindMapping(property)
                 : null;
-            mapping = mapping ?? Dependencies.TypeMappingSource.GetMappingForValue(value);
+            mapping ??= Dependencies.TypeMappingSource.GetMappingForValue(value);
             commandStringBuilder.Append(mapping.GenerateProviderValueSqlLiteral(value));
         }
     }

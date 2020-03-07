@@ -7,104 +7,84 @@ namespace Microsoft.EntityFrameworkCore
 {
     public abstract class DbSetAsTableNameTest
     {
-        [Fact]
+        [ConditionalFact]
         public virtual void DbSet_names_are_used_as_table_names()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Cheeses", GetTableName<Cheese>(context));
-            }
+            using var context = CreateContext();
+            Assert.Equal("Cheeses", GetTableName<Cheese>(context));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DbSet_name_of_base_type_is_used_as_table_name_for_TPH()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Chocolates", GetTableName<Chocolate>(context));
-                Assert.Equal("Chocolates", GetTableName<Galaxy>(context));
-                Assert.Equal("Chocolates", GetTableName<DairyMilk>(context));
-            }
+            using var context = CreateContext();
+            Assert.Equal("Chocolates", GetTableName<Chocolate>(context));
+            Assert.Equal("Chocolates", GetTableName<Galaxy>(context));
+            Assert.Equal("Chocolates", GetTableName<DairyMilk>(context));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Type_name_of_base_type_is_used_as_table_name_for_TPH_if_not_added_as_set()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Fruit", GetTableName<Fruit>(context));
-                Assert.Equal("Fruit", GetTableName<Apple>(context));
-                Assert.Equal("Fruit", GetTableName<Banana>(context));
-            }
+            using var context = CreateContext();
+            Assert.Equal("Fruit", GetTableName<Fruit>(context));
+            Assert.Equal("Fruit", GetTableName<Apple>(context));
+            Assert.Equal("Fruit", GetTableName<Banana>(context));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DbSet_names_of_derived_types_are_used_as_table_names_when_base_type_not_mapped()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Triskets", GetTableName<Trisket>(context));
-                Assert.Equal("WheatThins", GetTableName<WheatThin>(context));
-            }
+            using var context = CreateContext();
+            Assert.Equal("Triskets", GetTableName<Trisket>(context));
+            Assert.Equal("WheatThins", GetTableName<WheatThin>(context));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Name_of_duplicate_DbSet_is_not_used_as_table_name()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Marmite", GetTableName<Marmite>(context));
-            }
+            using var context = CreateContext();
+            Assert.Equal("Marmite", GetTableName<Marmite>(context));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Explicit_names_can_be_used_as_table_names()
         {
-            using (var context = CreateNamedTablesContext())
-            {
-                Assert.Equal("YummyCheese", GetTableName<Cheese>(context));
-            }
+            using var context = CreateNamedTablesContext();
+            Assert.Equal("YummyCheese", GetTableName<Cheese>(context));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Explicit_name_of_base_type_can_be_used_as_table_name_for_TPH()
         {
-            using (var context = CreateNamedTablesContext())
-            {
-                Assert.Equal("YummyChocolate", GetTableName<Chocolate>(context));
-                Assert.Equal("YummyChocolate", GetTableName<Galaxy>(context));
-                Assert.Equal("YummyChocolate", GetTableName<DairyMilk>(context));
-            }
+            using var context = CreateNamedTablesContext();
+            Assert.Equal("YummyChocolate", GetTableName<Chocolate>(context));
+            Assert.Equal("YummyChocolate", GetTableName<Galaxy>(context));
+            Assert.Equal("YummyChocolate", GetTableName<DairyMilk>(context));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Explicit_name_of_base_type_can_be_used_as_table_name_for_TPH_if_not_added_as_set()
         {
-            using (var context = CreateNamedTablesContext())
-            {
-                Assert.Equal("YummyFruit", GetTableName<Fruit>(context));
-                Assert.Equal("YummyFruit", GetTableName<Apple>(context));
-                Assert.Equal("YummyFruit", GetTableName<Banana>(context));
-            }
+            using var context = CreateNamedTablesContext();
+            Assert.Equal("YummyFruit", GetTableName<Fruit>(context));
+            Assert.Equal("YummyFruit", GetTableName<Apple>(context));
+            Assert.Equal("YummyFruit", GetTableName<Banana>(context));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Explicit_names_of_derived_types_can_be_used_as_table_names_when_base_type_not_mapped()
         {
-            using (var context = CreateNamedTablesContext())
-            {
-                Assert.Equal("YummyTriskets", GetTableName<Trisket>(context));
-                Assert.Equal("YummyWheatThins", GetTableName<WheatThin>(context));
-            }
+            using var context = CreateNamedTablesContext();
+            Assert.Equal("YummyTriskets", GetTableName<Trisket>(context));
+            Assert.Equal("YummyWheatThins", GetTableName<WheatThin>(context));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Explicit_name_can_be_used_for_type_with_duplicated_sets()
         {
-            using (var context = CreateNamedTablesContext())
-            {
-                Assert.Equal("YummyMarmite", GetTableName<Marmite>(context));
-            }
+            using var context = CreateNamedTablesContext();
+            Assert.Equal("YummyMarmite", GetTableName<Marmite>(context));
         }
 
         protected abstract string GetTableName<TEntity>(DbContext context);

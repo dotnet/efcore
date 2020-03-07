@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
     public class ValueGeneratorSelectorDependenciesTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_use_With_methods_to_clone_and_replace_service()
         {
             InMemoryTestHelpers.Instance.TestDependenciesClone<ValueGeneratorSelectorDependencies>();

@@ -18,8 +18,8 @@ namespace Microsoft.EntityFrameworkCore
         protected override DbContext CreateContextWithConnectionString()
         {
             var options = Fixture.AddOptions(
-                    new DbContextOptionsBuilder()
-                        .UseSqlite(TestStore.ConnectionString))
+                    new DbContextOptionsBuilder().UseSqlite(TestStore.ConnectionString)
+                        .ConfigureWarnings(w => w.Log(RelationalEventId.AmbientTransactionWarning)))
                 .UseInternalServiceProvider(Fixture.ServiceProvider);
 
             return new DbContext(options.Options);
@@ -31,22 +31,17 @@ namespace Microsoft.EntityFrameworkCore
 
             public override void Reseed()
             {
-                using (var context = CreateContext())
-                {
-                    context.Set<TransactionCustomer>().RemoveRange(context.Set<TransactionCustomer>());
-                    context.SaveChanges();
+                using var context = CreateContext();
+                context.Set<TransactionCustomer>().RemoveRange(context.Set<TransactionCustomer>());
+                context.Set<TransactionOrder>().RemoveRange(context.Set<TransactionOrder>());
+                context.SaveChanges();
 
-                    Seed(context);
-                }
+                Seed(context);
             }
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            {
-                return base.AddOptions(builder)
-                    .ConfigureWarnings(w
-                        => w.Log(RelationalEventId.QueryClientEvaluationWarning)
-                            .Log(CoreEventId.FirstWithoutOrderByAndFilterWarning));
-            }
+                => base.AddOptions(builder)
+                    .ConfigureWarnings(w => w.Log(RelationalEventId.AmbientTransactionWarning));
         }
     }
 }

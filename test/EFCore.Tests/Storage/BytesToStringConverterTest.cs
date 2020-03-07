@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly BytesToStringConverter _bytesToStringConverter
             = new BytesToStringConverter();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_strings_to_bytes()
         {
             var converter = _bytesToStringConverter.ConvertToProviderExpression.Compile();
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_bytes_to_strings()
         {
             var converter = _bytesToStringConverter.ConvertFromProviderExpression.Compile();
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_strings_to_long_non_char_bytes()
         {
             var converter = _bytesToStringConverter.ConvertToProviderExpression.Compile();
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(CreateLongBytesString(), converter(CreateLongBytes()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_long_non_char_bytes_to_strings()
         {
             var converter = _bytesToStringConverter.ConvertFromProviderExpression.Compile();

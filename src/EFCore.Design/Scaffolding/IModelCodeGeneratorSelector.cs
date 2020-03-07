@@ -1,7 +1,9 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
@@ -15,6 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// </summary>
         /// <param name="language"> The programming language. </param>
         /// <returns> The <see cref="IModelCodeGenerator" />. </returns>
-        IModelCodeGenerator Select([CanBeNull] string language);
+        IModelCodeGenerator Select([CanBeNull] string? language);
     }
 }

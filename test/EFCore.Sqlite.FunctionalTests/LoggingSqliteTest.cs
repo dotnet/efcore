@@ -3,29 +3,20 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-#if Test20
-using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
-#else
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
-#endif
-using Xunit;
+using Microsoft.Extensions.DependencyInjection;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public class LoggingSqliteTest : LoggingRelationalTestBase<SqliteDbContextOptionsBuilder, SqliteOptionsExtension>
     {
-        [Fact]
-        public void Logs_context_initialization_no_FKs()
-        {
-            Assert.Equal(
-                ExpectedMessage("SuppressForeignKeyEnforcement " + DefaultOptions),
-                ActualMessage(CreateOptionsBuilder(b => ((SqliteDbContextOptionsBuilder)b).SuppressForeignKeyEnforcement())));
-        }
-
         protected override DbContextOptionsBuilder CreateOptionsBuilder(
+            IServiceCollection services,
             Action<RelationalDbContextOptionsBuilder<SqliteDbContextOptionsBuilder, SqliteOptionsExtension>> relationalAction)
-            => new DbContextOptionsBuilder().UseSqlite("Data Source=LoggingSqliteTest.db", relationalAction);
+            => new DbContextOptionsBuilder()
+                .UseInternalServiceProvider(services.AddEntityFrameworkSqlite().BuildServiceProvider())
+                .UseSqlite("Data Source=LoggingSqliteTest.db", relationalAction);
 
         protected override string ProviderName => "Microsoft.EntityFrameworkCore.Sqlite";
     }

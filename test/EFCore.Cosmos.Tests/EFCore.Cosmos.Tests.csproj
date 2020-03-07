@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
+    <AssemblyName>Microsoft.EntityFrameworkCore.Cosmos.Tests</AssemblyName>
+    <RootNamespace>Microsoft.EntityFrameworkCore.Cosmos</RootNamespace>
+    <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\xunit.runner.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EFCore.Cosmos.FunctionalTests\EFCore.Cosmos.FunctionalTests.csproj" />
+    <ProjectReference Include="..\EFCore.Tests\EFCore.Tests.csproj" />
+  </ItemGroup>
+
+</Project>

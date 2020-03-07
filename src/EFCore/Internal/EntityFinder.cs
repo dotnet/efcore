@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -10,15 +10,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         where TEntity : class
@@ -30,8 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private readonly IQueryable<TEntity> _queryRoot;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public EntityFinder(
             [NotNull] IStateManager stateManager,
@@ -47,68 +52,76 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual TEntity Find(object[] keyValues)
         {
-            if (keyValues == null
-                || keyValues.Any(v => v == null))
-            {
-                return null;
-            }
-
-            return FindTracked(keyValues, out var keyProperties)
-                   ?? _queryRoot.FirstOrDefault(BuildLambda(keyProperties, new ValueBuffer(keyValues)));
+            return keyValues == null || keyValues.Any(v => v == null)
+                ? null
+                : (FindTracked(keyValues, out var keyProperties)
+                    ?? _queryRoot.FirstOrDefault(BuildLambda(keyProperties, new ValueBuffer(keyValues))));
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         object IEntityFinder.Find(object[] keyValues)
             => Find(keyValues);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Task<TEntity> FindAsync(object[] keyValues, CancellationToken cancellationToken = default)
+        public virtual ValueTask<TEntity> FindAsync(object[] keyValues, CancellationToken cancellationToken = default)
         {
             if (keyValues == null
                 || keyValues.Any(v => v == null))
             {
-                return Task.FromResult<TEntity>(null);
+                return new ValueTask<TEntity>((TEntity)null);
             }
 
             var tracked = FindTracked(keyValues, out var keyProperties);
             return tracked != null
-                ? Task.FromResult(tracked)
-                : _queryRoot.FirstOrDefaultAsync(BuildLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken);
+                ? new ValueTask<TEntity>(tracked)
+                : new ValueTask<TEntity>(
+                    _queryRoot.FirstOrDefaultAsync(BuildLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken));
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        Task<object> IEntityFinder.FindAsync(object[] keyValues, CancellationToken cancellationToken)
+        ValueTask<object> IEntityFinder.FindAsync(object[] keyValues, CancellationToken cancellationToken)
         {
             if (keyValues == null
                 || keyValues.Any(v => v == null))
             {
-                return Task.FromResult<object>(null);
+                return new ValueTask<object>((object)null);
             }
 
             var tracked = FindTracked(keyValues, out var keyProperties);
             return tracked != null
-                ? Task.FromResult((object)tracked)
-                : _queryRoot.FirstOrDefaultAsync(
-                    BuildObjectLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken);
+                ? new ValueTask<object>(tracked)
+                : new ValueTask<object>(
+                    _queryRoot.FirstOrDefaultAsync(
+                        BuildObjectLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken));
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void Load(INavigation navigation, InternalEntityEntry entry)
         {
@@ -128,8 +141,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual async Task LoadAsync(
             INavigation navigation,
@@ -152,8 +167,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IQueryable<TEntity> Query(INavigation navigation, InternalEntityEntry entry)
         {
@@ -175,15 +192,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual object[] GetDatabaseValues(InternalEntityEntry entry)
             => GetDatabaseValuesQuery(entry)?.FirstOrDefault();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Task<object[]> GetDatabaseValuesAsync(
             InternalEntityEntry entry, CancellationToken cancellationToken = default)
@@ -197,11 +218,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var keyValues = new object[properties.Count];
             for (var i = 0; i < keyValues.Length; i++)
             {
-                keyValues[i] = entry[properties[i]];
-                if (keyValues[i] == null)
+                var keyValue = entry[properties[i]];
+                if (keyValue == null)
                 {
                     return null;
                 }
+
+                keyValues[i] = keyValue;
             }
 
             return _queryRoot.AsNoTracking().IgnoreQueryFilters()
@@ -210,18 +233,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         private IQueryable<TEntity> Query(INavigation navigation, object[] keyValues)
-            => _queryRoot.Where(BuildLambda(GetLoadProperties(navigation), new ValueBuffer(keyValues)));
+            => _queryRoot.Where(BuildLambda(GetLoadProperties(navigation), new ValueBuffer(keyValues))).AsTracking();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         IQueryable IEntityFinder.Query(INavigation navigation, InternalEntityEntry entry)
             => Query(navigation, entry);
 
         private static object[] GetLoadValues(INavigation navigation, InternalEntityEntry entry)
         {
-            var properties = navigation.IsDependentToPrincipal()
+            var properties = navigation.IsOnDependent
                 ? navigation.ForeignKey.Properties
                 : navigation.ForeignKey.PrincipalKey.Properties;
 
@@ -229,18 +254,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             for (var i = 0; i < values.Length; i++)
             {
-                values[i] = entry[properties[i]];
-                if (values[i] == null)
+                var value = entry[properties[i]];
+                if (value == null)
                 {
                     return null;
                 }
+
+                values[i] = value;
             }
 
             return values;
         }
 
         private static IReadOnlyList<IProperty> GetLoadProperties(INavigation navigation)
-            => navigation.IsDependentToPrincipal()
+            => navigation.IsOnDependent
                 ? navigation.ForeignKey.PrincipalKey.Properties
                 : navigation.ForeignKey.Properties;
 
@@ -256,6 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     throw new ArgumentException(
                         CoreStrings.FindNotCompositeKey(typeof(TEntity).ShortDisplayName(), keyValues.Length));
                 }
+
                 throw new ArgumentException(
                     CoreStrings.FindValueCountMismatch(typeof(TEntity).ShortDisplayName(), keyProperties.Count, keyValues.Length));
             }
@@ -293,21 +321,21 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         private IQueryable BuildQueryRoot(IEntityType entityType)
         {
-            var definingEntityType = entityType.DefiningEntityType;
-            if (definingEntityType == null)
-            {
-                return (IQueryable)_setCache.GetOrAddSet(_setSource, entityType.ClrType);
-            }
-
-            return BuildQueryRoot(definingEntityType, entityType);
+            return entityType.DefiningEntityType is IEntityType definingEntityType
+                ? BuildQueryRoot(definingEntityType, entityType, entityType.DefiningNavigationName)
+                : entityType.FindOwnership() is IForeignKey ownership
+                    ? BuildQueryRoot(ownership.PrincipalEntityType, entityType, ownership.PrincipalToDependent.Name)
+                    : entityType.IsSharedType
+                        ? (IQueryable)_setCache.GetOrAddSet(_setSource, entityType.Name, entityType.ClrType)
+                        : (IQueryable)_setCache.GetOrAddSet(_setSource, entityType.ClrType);
         }
 
-        private IQueryable BuildQueryRoot(IEntityType definingEntityType, IEntityType entityType)
+        private IQueryable BuildQueryRoot(IEntityType ownerOrDefiningEntityType, IEntityType entityType, string navigationName)
         {
-            var queryRoot = BuildQueryRoot(definingEntityType);
+            var queryRoot = BuildQueryRoot(ownerOrDefiningEntityType);
 
-            return (IQueryable)_selectMethod.MakeGenericMethod(definingEntityType.ClrType, entityType.ClrType)
-                .Invoke(null, new object[] { queryRoot, entityType.DefiningNavigationName });
+            return (IQueryable)_selectMethod.MakeGenericMethod(ownerOrDefiningEntityType.ClrType, entityType.ClrType)
+                .Invoke(null, new object[] { queryRoot, navigationName });
         }
 
         private static readonly MethodInfo _selectMethod
@@ -332,26 +360,27 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var keyValuesConstant = Expression.Constant(keyValues);
 
-            BinaryExpression predicate = null;
-            for (var i = 0; i < keyProperties.Count; i++)
-            {
-                var property = keyProperties[i];
-                var equalsExpression =
-                    Expression.Equal(
-                        Expression.Call(
-                            EF.PropertyMethod.MakeGenericMethod(property.ClrType),
-                            entityParameter,
-                            Expression.Constant(property.Name, typeof(string))),
-                        Expression.Convert(
-                            Expression.Call(
-                                keyValuesConstant,
-                                ValueBuffer.GetValueMethod,
-                                Expression.Constant(i)),
-                            property.ClrType));
+            var predicate = GenerateEqualExpression(keyProperties[0], 0);
 
-                predicate = predicate == null ? equalsExpression : Expression.AndAlso(predicate, equalsExpression);
+            for (var i = 1; i < keyProperties.Count; i++)
+            {
+                predicate = Expression.AndAlso(predicate, GenerateEqualExpression(keyProperties[i], i));
             }
+
             return predicate;
+
+            BinaryExpression GenerateEqualExpression(IProperty property, int i) =>
+                Expression.Equal(
+                    Expression.Call(
+                        EF.PropertyMethod.MakeGenericMethod(property.ClrType),
+                        entityParameter,
+                        Expression.Constant(property.Name, typeof(string))),
+                    Expression.Convert(
+                        Expression.Call(
+                            keyValuesConstant,
+                            ValueBuffer.GetValueMethod,
+                            Expression.Constant(i)),
+                        property.ClrType));
         }
 
         private static Expression<Func<object, object[]>> BuildProjection(IEntityType entityType)

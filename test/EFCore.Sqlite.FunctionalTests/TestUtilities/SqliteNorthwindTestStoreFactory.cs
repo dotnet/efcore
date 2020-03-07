@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class SqliteNorthwindTestStoreFactory : SqliteTestStoreFactory
     {
-        public new static SqliteNorthwindTestStoreFactory Instance { get; } = new SqliteNorthwindTestStoreFactory();
+        public static new SqliteNorthwindTestStoreFactory Instance { get; } = new SqliteNorthwindTestStoreFactory();
 
         protected SqliteNorthwindTestStoreFactory()
         {

@@ -26,6 +26,6 @@ namespace Microsoft.EntityFrameworkCore
             serviceCollection.AddEntityFrameworkInMemoryDatabase();
         }
 
-        protected override Assembly TargetAssembly => typeof(InMemoryDatabase).GetTypeInfo().Assembly;
+        protected override Assembly TargetAssembly => typeof(InMemoryDatabase).Assembly;
     }
 }

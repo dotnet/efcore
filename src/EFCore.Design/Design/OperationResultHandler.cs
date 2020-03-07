@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -51,12 +51,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <value> The stack trace. </value>
         /// <remarks>
-        ///     When an <see cref="OperationException" /> is recieved, the stack trace should not be shown by default.
+        ///     When an <see cref="OperationException" /> is received, the stack trace should not be shown by default.
         /// </remarks>
         public virtual string ErrorStackTrace => _errorStackTrace;
 
         /// <summary>
-        ///     Invoked when a result is availalbe.
+        ///     Invoked when a result is available.
         /// </summary>
         /// <param name="value"> The result. </param>
         public virtual void OnResult(object value)

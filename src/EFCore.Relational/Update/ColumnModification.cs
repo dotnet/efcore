@@ -2,7 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -25,38 +29,41 @@ namespace Microsoft.EntityFrameworkCore.Update
         private readonly object _originalValue;
         private object _value;
         private readonly bool _useParameters;
+        private readonly bool _sensitiveLoggingEnabled;
+        private List<ColumnModification> _sharedColumnModifications;
 
         /// <summary>
         ///     Creates a new <see cref="ColumnModification" /> instance.
         /// </summary>
         /// <param name="entry"> The <see cref="IUpdateEntry" /> that represents the entity that is being modified. </param>
         /// <param name="property"> The property that maps to the column. </param>
-        /// <param name="propertyAnnotations"> Provides access to relational-specific annotations for the column. </param>
         /// <param name="generateParameterName"> A delegate for generating parameter names for the update SQL. </param>
         /// <param name="isRead"> Indicates whether or not a value must be read from the database for the column. </param>
         /// <param name="isWrite"> Indicates whether or not a value must be written to the database for the column. </param>
         /// <param name="isKey"> Indicates whether or not the column part of a primary or alternate key.</param>
         /// <param name="isCondition"> Indicates whether or not the column is used in the <c>WHERE</c> clause when updating. </param>
         /// <param name="isConcurrencyToken"> Indicates whether or not the column is acting as an optimistic concurrency token. </param>
+        /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
         public ColumnModification(
             [NotNull] IUpdateEntry entry,
             [NotNull] IProperty property,
-            [NotNull] IRelationalPropertyAnnotations propertyAnnotations,
             [NotNull] Func<string> generateParameterName,
             bool isRead,
             bool isWrite,
             bool isKey,
             bool isCondition,
-            bool isConcurrencyToken)
+            bool isConcurrencyToken,
+            bool sensitiveLoggingEnabled)
             : this(
-                Check.NotNull(propertyAnnotations, nameof(propertyAnnotations)).ColumnName,
+                Check.NotNull(property, nameof(property)).GetColumnName(),
                 originalValue: null,
                 value: null,
                 property: property,
                 isRead: isRead,
                 isWrite: isWrite,
                 isKey: isKey,
-                isCondition: isCondition)
+                isCondition: isCondition,
+                sensitiveLoggingEnabled: sensitiveLoggingEnabled)
         {
             Check.NotNull(entry, nameof(entry));
             Check.NotNull(property, nameof(property));
@@ -79,6 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="isWrite"> Indicates whether or not a value must be written to the database for the column. </param>
         /// <param name="isKey"> Indicates whether or not the column part of a primary or alternate key.</param>
         /// <param name="isCondition"> Indicates whether or not the column is used in the <c>WHERE</c> clause when updating. </param>
+        /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
         public ColumnModification(
             [NotNull] string columnName,
             [CanBeNull] object originalValue,
@@ -87,7 +95,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             bool isRead,
             bool isWrite,
             bool isKey,
-            bool isCondition)
+            bool isCondition,
+            bool sensitiveLoggingEnabled)
         {
             Check.NotNull(columnName, nameof(columnName));
 
@@ -99,6 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             IsWrite = isWrite;
             IsKey = isKey;
             IsCondition = isCondition;
+            _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
         }
 
         /// <summary>
@@ -139,24 +149,24 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Indicates whether the original value of the property must be passed as a parameter to the SQL
         /// </summary>
-        public virtual bool UseOriginalValueParameter => _useParameters && IsCondition && IsConcurrencyToken;
+        public virtual bool UseOriginalValueParameter => _useParameters && IsCondition;
 
         /// <summary>
         ///     Indicates whether the current value of the property must be passed as a parameter to the SQL
         /// </summary>
-        public virtual bool UseCurrentValueParameter => _useParameters && (IsWrite || IsCondition && !IsConcurrencyToken);
+        public virtual bool UseCurrentValueParameter => _useParameters && IsWrite;
 
         /// <summary>
         ///     The parameter name to use for the current value parameter (<see cref="UseCurrentValueParameter" />), if needed.
         /// </summary>
         public virtual string ParameterName
-            => _parameterName ?? (_parameterName = _generateParameterName());
+            => _parameterName ?? (_parameterName = UseCurrentValueParameter ? _generateParameterName() : null);
 
         /// <summary>
         ///     The parameter name to use for the original value parameter (<see cref="UseOriginalValueParameter" />), if needed.
         /// </summary>
         public virtual string OriginalParameterName
-            => _originalParameterName ?? (_originalParameterName = _generateParameterName());
+            => _originalParameterName ?? (_originalParameterName = UseOriginalValueParameter ? _generateParameterName() : null);
 
         /// <summary>
         ///     The name of the column.
@@ -166,14 +176,22 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     The original value of the property mapped to this column.
         /// </summary>
-        public virtual object OriginalValue => Entry == null ? _originalValue : Entry.GetOriginalValue(Property);
+        public virtual object OriginalValue => Entry == null
+            ? _originalValue
+            : Entry.SharedIdentityEntry == null
+                ? Entry.GetOriginalValue(Property)
+                : Entry.SharedIdentityEntry.GetOriginalValue(Property);
 
         /// <summary>
         ///     Gets or sets the current value of the property mapped to this column.
         /// </summary>
         public virtual object Value
         {
-            get => Entry == null ? _value : Entry.GetCurrentValue(Property);
+            get => Entry == null
+                ? _value
+                : Entry.EntityState == EntityState.Deleted
+                    ? null
+                    : Entry.GetCurrentValue(Property);
             [param: CanBeNull]
             set
             {
@@ -183,9 +201,78 @@ namespace Microsoft.EntityFrameworkCore.Update
                 }
                 else
                 {
-                    Entry.SetCurrentValue(Property, value);
+                    Entry.SetStoreGeneratedValue(Property, value);
+                    if (_sharedColumnModifications != null)
+                    {
+                        foreach (var sharedModification in _sharedColumnModifications)
+                        {
+                            sharedModification.Value = value;
+                        }
+                    }
                 }
             }
+        }
+
+        /// <summary>
+        ///     Adds a modification affecting the same database value.
+        /// </summary>
+        /// <param name="modification"> The modification for the shared column. </param>
+        public virtual void AddSharedColumnModification([NotNull] ColumnModification modification)
+        {
+            if (_sharedColumnModifications == null)
+            {
+                _sharedColumnModifications = new List<ColumnModification>();
+            }
+
+            if (UseCurrentValueParameter
+                && !StructuralComparisons.StructuralEqualityComparer.Equals(Value, modification.Value))
+            {
+                if (_sensitiveLoggingEnabled)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.ConflictingRowValuesSensitive(
+                            Entry.EntityType.DisplayName(),
+                            modification.Entry.EntityType.DisplayName(),
+                            Entry.BuildCurrentValuesString(Entry.EntityType.FindPrimaryKey().Properties),
+                            Entry.BuildCurrentValuesString(new[] { Property }),
+                            modification.Entry.BuildCurrentValuesString(new[] { modification.Property }),
+                            new[] { Property }.FormatColumns()));
+                }
+
+                throw new InvalidOperationException(
+                    RelationalStrings.ConflictingRowValues(
+                        Entry.EntityType.DisplayName(),
+                        modification.Entry.EntityType.DisplayName(),
+                        new[] { Property }.Format(),
+                        new[] { modification.Property }.Format(),
+                        new[] { Property }.FormatColumns()));
+            }
+
+            if (UseOriginalValueParameter
+                && !StructuralComparisons.StructuralEqualityComparer.Equals(OriginalValue, modification.OriginalValue))
+            {
+                if (_sensitiveLoggingEnabled)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.ConflictingOriginalRowValuesSensitive(
+                            Entry.EntityType.DisplayName(),
+                            modification.Entry.EntityType.DisplayName(),
+                            Entry.BuildCurrentValuesString(Entry.EntityType.FindPrimaryKey().Properties),
+                            Entry.BuildOriginalValuesString(new[] { Property }),
+                            modification.Entry.BuildOriginalValuesString(new[] { modification.Property }),
+                            new[] { Property }.FormatColumns()));
+                }
+
+                throw new InvalidOperationException(
+                    RelationalStrings.ConflictingOriginalRowValues(
+                        Entry.EntityType.DisplayName(),
+                        modification.Entry.EntityType.DisplayName(),
+                        new[] { Property }.Format(),
+                        new[] { modification.Property }.Format(),
+                        new[] { Property }.FormatColumns()));
+            }
+
+            _sharedColumnModifications.Add(modification);
         }
     }
 }

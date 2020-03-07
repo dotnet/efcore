@@ -3,32 +3,53 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class EntityTypePathComparer : IComparer<IEntityType>
+    // Sealed for perf
+    public sealed class EntityTypePathComparer : IComparer<IEntityType>, IEqualityComparer<IEntityType>
     {
         private EntityTypePathComparer()
         {
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static readonly EntityTypePathComparer Instance = new EntityTypePathComparer();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int Compare(IEntityType x, IEntityType y)
+        public int Compare(IEntityType x, IEntityType y)
         {
+            if (ReferenceEquals(x, y))
+            {
+                return 0;
+            }
+
+            if (x == null)
+            {
+                return -1;
+            }
+
+            if (y == null)
+            {
+                return 1;
+            }
+
             var result = StringComparer.Ordinal.Compare(x.Name, y.Name);
             if (result != 0)
             {
@@ -45,10 +66,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     return StringComparer.Ordinal.Compare(x.Name, y.Name);
                 }
+
                 if (xDefiningNavigationName == null)
                 {
                     return -1;
                 }
+
                 if (yDefiningNavigationName == null)
                 {
                     return 1;
@@ -65,25 +88,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
+        /// <summary>Determines whether the specified objects are equal.</summary>
+        /// <param name="x">The first object of type T to compare.</param>
+        /// <param name="y">The second object of type T to compare.</param>
+        /// <returns>true if the specified objects are equal; otherwise, false.</returns>
+        public bool Equals(IEntityType x, IEntityType y) => Compare(x, y) == 0;
+
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int GetHashCode([NotNull] IEntityType entityType)
+        public int GetHashCode(IEntityType entityType)
         {
-            var result = 0;
+            var hash = new HashCode();
             while (true)
             {
-                result = (result * 397)
-                         ^ StringComparer.Ordinal.GetHashCode(entityType.Name);
+                hash.Add(entityType.Name, StringComparer.Ordinal);
                 var definingNavigationName = entityType.DefiningNavigationName;
                 if (definingNavigationName == null)
                 {
-                    return result;
+                    return hash.ToHashCode();
                 }
 
-                result = (result * 397)
-                         ^ StringComparer.Ordinal.GetHashCode(definingNavigationName);
+                hash.Add(definingNavigationName, StringComparer.Ordinal);
                 entityType = entityType.DefiningEntityType;
             }
         }

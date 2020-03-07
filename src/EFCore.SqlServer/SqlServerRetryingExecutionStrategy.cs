@@ -3,11 +3,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using JetBrains.Annotations;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
@@ -108,16 +109,14 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         protected override bool ShouldRetryOn(Exception exception)
         {
-            if (_additionalErrorNumbers != null)
+            if (_additionalErrorNumbers != null
+                && exception is SqlException sqlException)
             {
-                if (exception is SqlException sqlException)
+                foreach (SqlError err in sqlException.Errors)
                 {
-                    foreach (SqlError err in sqlException.Errors)
+                    if (_additionalErrorNumbers.Contains(err.Number))
                     {
-                        if (_additionalErrorNumbers.Contains(err.Number))
-                        {
-                            return true;
-                        }
+                        return true;
                     }
                 }
             }
@@ -141,12 +140,9 @@ namespace Microsoft.EntityFrameworkCore
                 return null;
             }
 
-            if (CallOnWrappedException(lastException, IsMemoryOptimizedError))
-            {
-                return TimeSpan.FromMilliseconds(baseDelay.Value.TotalSeconds);
-            }
-
-            return baseDelay;
+            return CallOnWrappedException(lastException, IsMemoryOptimizedError)
+                ? TimeSpan.FromMilliseconds(baseDelay.Value.TotalSeconds)
+                : baseDelay;
         }
 
         private static bool IsMemoryOptimizedError(Exception exception)

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.DotNet.Cli.CommandLine;
@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             command.Command("info", new DbContextInfoCommand().Configure);
             command.Command("list", new DbContextListCommand().Configure);
             command.Command("scaffold", new DbContextScaffoldCommand().Configure);
+            command.Command("script", new DbContextScriptCommand().Configure);
 
             base.Configure(command);
         }

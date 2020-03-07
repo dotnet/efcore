@@ -1,10 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using System.Data.Common;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
@@ -19,19 +20,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         ///     for the database.
         /// </summary>
         /// <param name="connectionString"> The connection string for the database to reverse engineer. </param>
-        /// <param name="tables"> The tables to include in the model, or an empty enumerable to include all. </param>
-        /// <param name="schemas"> The schema to include in the model, or an empty enumerable to include all. </param>
+        /// <param name="options"> The options specifying which metadata to read. </param>
         /// <returns> The database model. </returns>
-        DatabaseModel Create([NotNull] string connectionString, [NotNull] IEnumerable<string> tables, [NotNull] IEnumerable<string> schemas);
+        DatabaseModel Create([NotNull] string connectionString, [NotNull] DatabaseModelFactoryOptions options);
 
         /// <summary>
         ///     Connects to the database using the given connection and creates a <see cref="DatabaseModel" />
         ///     for the database.
         /// </summary>
         /// <param name="connection"> The connection to the database to reverse engineer. </param>
-        /// <param name="tables"> The tables to include in the model, or an empty enumerable to include all. </param>
-        /// <param name="schemas"> The schema to include in the model, or an empty enumerable to include all. </param>
+        /// <param name="options"> The options specifying which metadata to read. </param>
         /// <returns> The database model. </returns>
-        DatabaseModel Create([NotNull] DbConnection connection, [NotNull] IEnumerable<string> tables, [NotNull] IEnumerable<string> schemas);
+        DatabaseModel Create([NotNull] DbConnection connection, [NotNull] DatabaseModelFactoryOptions options);
     }
 }

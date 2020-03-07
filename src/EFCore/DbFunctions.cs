@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.ComponentModel;
@@ -9,7 +9,8 @@ namespace Microsoft.EntityFrameworkCore
     ///     Provides CLR methods that get translated to database functions when used in LINQ to Entities queries.
     ///     The methods on this class are accessed via <see cref="EF.Functions" />.
     /// </summary>
-    public class DbFunctions
+    // Class is sealed because there are no public/protected constructors. Can be unsealed if this is changed.
+    public sealed class DbFunctions
     {
         internal DbFunctions()
         {

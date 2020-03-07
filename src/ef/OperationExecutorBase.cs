@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections;
@@ -26,7 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
             string assembly,
             string startupAssembly,
             string projectDir,
-            string dataDirectory,
             string rootNamespace,
             string language)
         {
@@ -86,54 +85,32 @@ namespace Microsoft.EntityFrameworkCore.Tools
         public IDictionary AddMigration(string name, string outputDir, string contextType)
             => InvokeOperation<IDictionary>(
                 "AddMigration",
-                new Dictionary<string, string>
-                {
-                    ["name"] = name,
-                    ["outputDir"] = outputDir,
-                    ["contextType"] = contextType
-                });
+                new Dictionary<string, string> { ["name"] = name, ["outputDir"] = outputDir, ["contextType"] = contextType });
 
         public IDictionary RemoveMigration(string contextType, bool force)
             => InvokeOperation<IDictionary>(
                 "RemoveMigration",
-                new Dictionary<string, object>
-                {
-                    ["contextType"] = contextType,
-                    ["force"] = force
-                });
+                new Dictionary<string, object> { ["contextType"] = contextType, ["force"] = force });
 
         public IEnumerable<IDictionary> GetMigrations(string contextType)
             => InvokeOperation<IEnumerable<IDictionary>>(
                 "GetMigrations",
-                new Dictionary<string, object>
-                {
-                    ["contextType"] = contextType
-                });
+                new Dictionary<string, object> { ["contextType"] = contextType });
 
         public void DropDatabase(string contextType)
             => InvokeOperation(
                 "DropDatabase",
-                new Dictionary<string, object>
-                {
-                    ["contextType"] = contextType
-                });
+                new Dictionary<string, object> { ["contextType"] = contextType });
 
         public IDictionary GetContextInfo(string name)
             => InvokeOperation<IDictionary>(
                 "GetContextInfo",
-                new Dictionary<string, object>
-                {
-                    ["contextType"] = name
-                });
+                new Dictionary<string, object> { ["contextType"] = name });
 
         public void UpdateDatabase(string migration, string contextType)
             => InvokeOperation(
                 "UpdateDatabase",
-                new Dictionary<string, string>
-                {
-                    ["targetMigration"] = migration,
-                    ["contextType"] = contextType
-                });
+                new Dictionary<string, string> { ["targetMigration"] = migration, ["contextType"] = contextType });
 
         public IEnumerable<IDictionary> GetContextTypes()
             => InvokeOperation<IEnumerable<IDictionary>>("GetContextTypes");
@@ -179,5 +156,10 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     ["idempotent"] = idempotent,
                     ["contextType"] = contextType
                 });
+
+        public string ScriptDbContext(string contextType)
+            => InvokeOperation<string>(
+                "ScriptDbContext",
+                new Dictionary<string, object> { ["contextType"] = contextType });
     }
 }

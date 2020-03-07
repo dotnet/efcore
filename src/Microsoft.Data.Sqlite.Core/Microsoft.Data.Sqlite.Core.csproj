@@ -1,10 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <AssemblyName>Microsoft.Data.Sqlite</AssemblyName>
     <RootNamespace>$(AssemblyName)</RootNamespace>
     <PackageId>Microsoft.Data.Sqlite.Core</PackageId>
-    <Description>SQLite implementation of the System.Data.Common provider model.
+    <Description>Microsoft.Data.Sqlite is a lightweight ADO.NET provider for SQLite. This package does not include a copy of the native SQLite library.
 
 Commonly Used Types:
 Microsoft.Data.Sqlite.SqliteCommand
@@ -20,6 +20,7 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <CodeAnalysisRuleSet>Microsoft.Data.Sqlite.Core.ruleset</CodeAnalysisRuleSet>
     <PackageTags>SQLite;Data;ADO.NET</PackageTags>
+    <PackageProjectUrl>https://docs.microsoft.com/dotnet/standard/data/sqlite/</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
@@ -43,6 +44,10 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
   </ItemGroup>
 
   <ItemGroup>
+    <AdditionalFiles Include="..\stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -55,11 +60,13 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>SqliteConnection.CreateAggregate.tt</DependentUpon>
+      <SubType>Component</SubType>
     </Compile>
     <Compile Update="SqliteConnection.CreateFunction.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>SqliteConnection.CreateFunction.tt</DependentUpon>
+      <SubType>Component</SubType>
     </Compile>
     <Compile Update="SqliteConnection.cs">
       <SubType>Component</SubType>

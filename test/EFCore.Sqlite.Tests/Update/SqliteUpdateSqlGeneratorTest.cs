@@ -23,8 +23,10 @@ namespace Microsoft.EntityFrameworkCore.Update
         protected override TestHelpers TestHelpers => SqliteTestHelpers.Instance;
 
         protected override string RowsAffected => "changes()";
-        protected override string Identity => "last_insert_rowid()";
         protected override string Schema => null;
+
+        protected override string GetIdentityWhereCondition(string columnName)
+            => OpenDelimiter + "rowid" + CloseDelimiter + " = last_insert_rowid()";
 
         public override void GenerateNextSequenceValueOperation_correctly_handles_schemas()
         {
@@ -32,9 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.Equal(SqliteStrings.SequencesNotSupported, ex.Message);
         }
 
-        public override void GenerateNextSequenceValueOperation_returns_statement_with_sanatized_sequence()
+        public override void GenerateNextSequenceValueOperation_returns_statement_with_sanitized_sequence()
         {
-            var ex = Assert.Throws<NotSupportedException>(() => base.GenerateNextSequenceValueOperation_returns_statement_with_sanatized_sequence());
+            var ex = Assert.Throws<NotSupportedException>(
+                () => base.GenerateNextSequenceValueOperation_returns_statement_with_sanitized_sequence());
             Assert.Equal(SqliteStrings.SequencesNotSupported, ex.Message);
         }
     }

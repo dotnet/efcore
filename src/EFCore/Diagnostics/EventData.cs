@@ -40,6 +40,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public virtual LogLevel LogLevel => _eventDefinition.Level;
 
         /// <summary>
+        ///     A string representing the code where this event is defined.
+        /// </summary>
+        public virtual string EventIdCode => _eventDefinition.EventIdCode;
+
+        /// <summary>
         ///     A logger message describing this event.
         /// </summary>
         /// <returns> A logger message describing this event. </returns>

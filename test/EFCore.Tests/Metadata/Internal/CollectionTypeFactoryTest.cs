@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class CollectionTypeFactoryTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Returns_given_type_if_public_parameterless_constructor_available()
         {
             var factory = new CollectionTypeFactory();
@@ -21,17 +21,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(typeof(CustomList), factory.TryFindTypeToInstantiate(typeof(object), typeof(CustomList)));
             Assert.Same(typeof(HashSet<Random>), factory.TryFindTypeToInstantiate(typeof(object), typeof(HashSet<Random>)));
             Assert.Same(typeof(List<Random>), factory.TryFindTypeToInstantiate(typeof(object), typeof(List<Random>)));
-            Assert.Same(typeof(ObservableCollection<Random>), factory.TryFindTypeToInstantiate(typeof(object), typeof(ObservableCollection<Random>)));
-            Assert.Same(typeof(ObservableHashSet<Random>), factory.TryFindTypeToInstantiate(typeof(object), typeof(ObservableHashSet<Random>)));
+            Assert.Same(
+                typeof(ObservableCollection<Random>),
+                factory.TryFindTypeToInstantiate(typeof(object), typeof(ObservableCollection<Random>)));
+            Assert.Same(
+                typeof(ObservableHashSet<Random>), factory.TryFindTypeToInstantiate(typeof(object), typeof(ObservableHashSet<Random>)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Returns_ObservableHashSet_if_notifying_and_assignable()
         {
-            Assert.Same(typeof(ObservableHashSet<Random>), new CollectionTypeFactory().TryFindTypeToInstantiate(typeof(DummyNotifying), typeof(ICollection<Random>)));
+            Assert.Same(
+                typeof(ObservableHashSet<Random>),
+                new CollectionTypeFactory().TryFindTypeToInstantiate(typeof(DummyNotifying), typeof(ICollection<Random>)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Returns_HashSet_if_assignable()
         {
             var factory = new CollectionTypeFactory();
@@ -41,13 +46,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(typeof(HashSet<Random>), factory.TryFindTypeToInstantiate(typeof(object), typeof(IEnumerable<Random>)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Returns_List_if_assignable()
         {
             Assert.Same(typeof(List<Random>), new CollectionTypeFactory().TryFindTypeToInstantiate(typeof(object), typeof(IList<Random>)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Returns_null_when_no_usable_concrete_type_found()
         {
             var factory = new CollectionTypeFactory();

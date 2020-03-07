@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -6,11 +6,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Dynamic;
 using System.Reflection;
-using Newtonsoft.Json.Linq;
+using System.Runtime.CompilerServices;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
-
 namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public abstract partial class ModelBuilderTest
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public ToastedBun ToastedBun { get; set; }
 
-            public Moostard Moostard { get; set; }
+            public Mustard Mustard { get; set; }
         }
 
         private class Tomato
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public Whoopper Whoopper { get; set; }
         }
 
-        private class Moostard
+        private class Mustard
         {
             public int Id1 { get; set; }
             public int Id2 { get; set; }
@@ -94,6 +94,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public IEnumerable<Order> Orders { get; set; }
 
+            [NotMapped]
+            public ICollection<SpecialOrder> SomeOrders { get; set; }
+
             public CustomerDetails Details { get; set; }
         }
 
@@ -112,14 +115,24 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int Id { get; set; }
         }
 
-        protected class CustomerDetails : DetailsBase
+        protected class CustomerDetails : DetailsBase, INotifyPropertyChanged
         {
             public int CustomerId { get; set; }
 
             public Customer Customer { get; set; }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+            {
+                if (PropertyChanged == null)
+                {
+                    throw new NotImplementedException();
+                }
+            }
         }
 
-        protected class Order
+        protected class Order : INotifyPropertyChanged
         {
             public static readonly PropertyInfo DetailsProperty = typeof(Order).GetProperty(nameof(Details));
 
@@ -128,10 +141,59 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int? CustomerId { get; set; }
             public Guid AnotherCustomerId { get; set; }
             public Customer Customer { get; set; }
-
             public OrderCombination OrderCombination { get; set; }
-
             public OrderDetails Details { get; set; }
+            public ICollection<Product> Products { get; set; }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+            protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+            {
+                if (PropertyChanged == null)
+                {
+                    throw new NotImplementedException();
+                }
+            }
+        }
+
+        private class OrderProduct
+        {
+            public static readonly PropertyInfo OrderIdProperty = typeof(OrderProduct).GetProperty(nameof(OrderId));
+            public static readonly PropertyInfo ProductIdProperty = typeof(OrderProduct).GetProperty(nameof(ProductId));
+
+            public int OrderId { get; set; }
+            public int ProductId { get; set; }
+            public virtual Order Order { get; set; }
+            public virtual Product Product { get; set; }
+        }
+
+        [NotMapped]
+        protected class Product
+        {
+            public int Id { get; set; }
+
+            [NotMapped]
+            public Order Order { get; set; }
+
+            [NotMapped]
+            public virtual ICollection<Order> Orders { get; set; }
+
+            public virtual ICollection<Category> Categories { get; set; }
+        }
+
+        protected class ProductCategory
+        {
+            public int ProductId { get; set; }
+            public int CategoryId { get; set; }
+            public virtual Product Product { get; set; }
+            public virtual Category Category { get; set; }
+        }
+
+        protected class Category
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public virtual ICollection<ProductCategory> ProductCategories { get; set; }
+            public virtual ICollection<Product> Products { get; set; }
         }
 
         [Owned]
@@ -144,6 +206,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         [NotMapped]
         protected class SpecialOrder : Order
         {
+            public int SpecialOrderId { get; set; }
             public int? SpecialCustomerId { get; set; }
             public SpecialCustomer SpecialCustomer { get; set; }
             public BackOrder BackOrder { get; set; }
@@ -181,6 +244,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
             private int _forUp;
             private string _forDown;
+#pragma warning disable IDE0044 // Add readonly modifier
+#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable CS0169 // Remove unused private fields
+            private int? _forWierd;
+#pragma warning restore CS0169 // Remove unused private fields
+#pragma warning restore IDE0051 // Remove unused private members
+#pragma warning restore IDE0044 // Add readonly modifier
 
             public int Id { get; set; }
 
@@ -242,6 +312,26 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public SelfRefManyToOne SelfRef1 { get; set; }
             public ICollection<SelfRefManyToOne> SelfRef2 { get; set; }
             public int SelfRefId { get; set; }
+        }
+
+        protected class User
+        {
+            [Required]
+            public Guid Id { get; set; }
+
+            [Required]
+            [MaxLength(150)]
+            public string Name { get; set; }
+
+            [Required]
+            public User CreatedBy { get; set; }
+
+            public User UpdatedBy { get; set; }
+
+            [Required]
+            public Guid CreatedById { get; set; }
+
+            public Guid? UpdatedById { get; set; }
         }
 
         protected class SelfRefManyToOneDerived : SelfRefManyToOne
@@ -350,6 +440,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class Gamma
         {
             public int Id { get; set; }
+            private int PrivateProperty { get; set; }
 
             public List<Alpha> Alphas { get; set; }
         }
@@ -428,11 +519,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public Kappa Kappa { get; set; }
         }
 
-        protected class JsonProperty
+        protected class DynamicProperty
         {
             public int Id { get; set; }
 
-            public JObject JObject { get; set; }
+            public ExpandoObject ExpandoObject { get; set; }
         }
 
         protected interface IEntityBase
@@ -447,9 +538,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         protected class OneToOnePrincipalEntity
         {
-            public static readonly PropertyInfo NavigationProperty = typeof(OneToOnePrincipalEntity).GetProperty("NavOneToOneDependentEntity");
-            public static readonly PropertyInfo EntityMatchingProperty = typeof(OneToOnePrincipalEntity).GetProperty("OneToOneDependentEntityId");
-            public static readonly PropertyInfo NavigationMatchingProperty = typeof(OneToOnePrincipalEntity).GetProperty("NavOneToOneDependentEntityId");
+            public static readonly PropertyInfo NavigationProperty =
+                typeof(OneToOnePrincipalEntity).GetProperty("NavOneToOneDependentEntity");
+
+            public static readonly PropertyInfo EntityMatchingProperty =
+                typeof(OneToOnePrincipalEntity).GetProperty("OneToOneDependentEntityId");
+
+            public static readonly PropertyInfo NavigationMatchingProperty =
+                typeof(OneToOnePrincipalEntity).GetProperty("NavOneToOneDependentEntityId");
 
             public int Id { get; set; }
 
@@ -462,9 +558,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         protected class OneToOneDependentEntity
         {
-            public static readonly PropertyInfo NavigationProperty = typeof(OneToOneDependentEntity).GetProperty("NavOneToOnePrincipalEntity");
-            public static readonly PropertyInfo EntityMatchingProperty = typeof(OneToOneDependentEntity).GetProperty("OneToOnePrincipalEntityId");
-            public static readonly PropertyInfo NavigationMatchingProperty = typeof(OneToOneDependentEntity).GetProperty("NavOneToOnePrincipalEntityId");
+            public static readonly PropertyInfo NavigationProperty =
+                typeof(OneToOneDependentEntity).GetProperty("NavOneToOnePrincipalEntity");
+
+            public static readonly PropertyInfo EntityMatchingProperty =
+                typeof(OneToOneDependentEntity).GetProperty("OneToOnePrincipalEntityId");
+
+            public static readonly PropertyInfo NavigationMatchingProperty =
+                typeof(OneToOneDependentEntity).GetProperty("NavOneToOnePrincipalEntityId");
 
             public int Id { get; set; }
 
@@ -519,6 +620,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class PrincipalTypeWithKeyAnnotation
         {
             public int Id { get; set; }
+
+            [NotMapped]
+            public BaseTypeWithKeyAnnotation Navigation { get; set; }
         }
 
         protected class CityViewModel
@@ -600,6 +704,150 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int ValueFk { get; set; }
             public int ValueId { get; set; }
             public Value Value { get; set; }
+        }
+
+        protected class KeylessEntity
+        {
+            public int CustomerId { get; set; }
+            public Customer Customer { get; set; }
+        }
+
+        protected class Parent
+        {
+            public int Id { get; set; }
+            public List<CompositeChild> Children { get; set; }
+        }
+
+        protected class CompositeChild
+        {
+            public int Id { get; set; }
+            public int Value { get; set; }
+            public Parent Parent { get; set; }
+        }
+
+        protected class BillingOwner
+        {
+            public int Id { get; set; }
+            public BillingDetail Bill1 { get; set; }
+            public BillingDetail Bill2 { get; set; }
+        }
+
+        protected class BillingDetail
+        {
+            public string Country { get; set; }
+        }
+
+        protected class Country
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        protected class DependentShadowFk
+        {
+            public Guid DependentShadowFkId { get; set; }
+
+            [ForeignKey("PrincipalShadowFkId")]
+            public PrincipalShadowFk Principal { get; set; }
+        }
+
+        protected class PrincipalShadowFk
+        {
+            public Guid PrincipalShadowFkId { get; set; }
+            public List<DependentShadowFk> Dependents { get; set; }
+        }
+
+        protected class BaseOwner
+        {
+            public int Id { get; set; }
+            public OwnedTypeInheritance1 Owned1 { get; set; }
+            public OwnedTypeInheritance2 Owned2 { get; set; }
+        }
+
+        protected class DerivedOwner : BaseOwner
+        {
+        }
+
+        [Owned]
+        protected class OwnedTypeInheritance1
+        {
+            public string Value { get; set; }
+        }
+
+        [Owned]
+        protected class OwnedTypeInheritance2
+        {
+            public string Value { get; set; }
+        }
+
+        protected interface IReplacable
+        {
+            int Property { get; set; }
+        }
+
+        protected class DoubleProperty : IReplacable
+        {
+            public int Id { get; set; }
+            public int Property { get; set; }
+
+            int IReplacable.Property
+            {
+                get => Property;
+                set => Property = value;
+            }
+        }
+
+        protected class IndexedClass
+        {
+            private int _required;
+            private string _optional;
+
+            public int Id { get; set; }
+            public object this[string name]
+            {
+                get
+                {
+                    if (string.Equals(name, "Required", StringComparison.Ordinal))
+                    {
+                        return _required;
+                    }
+
+                    if (string.Equals(name, "Optional", StringComparison.Ordinal))
+                    {
+                        return _optional;
+                    }
+
+                    throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(IndexedClass)}.");
+                }
+
+                set
+                {
+                    if (string.Equals(name, "Required", StringComparison.Ordinal))
+                    {
+                        _required = (int)value;
+                    }
+                    else if (string.Equals(name, "Optional", StringComparison.Ordinal))
+                    {
+                        _optional = (string)value;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(IndexedClass)}.");
+                    }
+                }
+            }
+        }
+
+        protected class IndexedClassByDictionary
+        {
+            private readonly Dictionary<string, object> _indexerData = new Dictionary<string, object>();
+
+            public int Id { get; set; }
+            public object this[string name]
+            {
+                get => _indexerData[name];
+                set => _indexerData[name] = value;
+            }
         }
     }
 }

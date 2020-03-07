@@ -4,19 +4,24 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.TestModels;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable UnusedMember.Local
-
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     [SqlServerConfiguredCondition]
-    public class ConfigurationPatternsTest
+    public class ConfigurationPatternsTest : IClassFixture<CrossStoreFixture>, IDisposable
     {
+        public ConfigurationPatternsTest(CrossStoreFixture fixture)
+        {
+            Fixture = fixture;
+            ExistingTestStore = Fixture.CreateTestStore(SqlServerTestStoreFactory.Instance, StoreName, Seed);
+        }
+
         [ConditionalFact]
         public void Can_register_multiple_context_types()
         {
@@ -25,38 +30,32 @@ namespace Microsoft.EntityFrameworkCore
                 .AddDbContext<MultipleContext2>()
                 .BuildServiceProvider();
 
-            using (SqlServerTestStore.GetNorthwindStore())
+            using (var context = serviceProvider.GetRequiredService<MultipleContext1>())
             {
-                using (var context = serviceProvider.GetRequiredService<MultipleContext1>())
-                {
-                    Assert.True(context.Customers.Any());
-                }
+                Assert.True(context.SimpleEntities.Any());
+            }
 
-                using (var context = serviceProvider.GetRequiredService<MultipleContext2>())
-                {
-                    Assert.False(context.Customers.Any());
-                }
+            using (var context = serviceProvider.GetRequiredService<MultipleContext2>())
+            {
+                Assert.False(context.SimpleEntities.Any());
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#18682")]
         public void Can_register_multiple_context_types_with_default_service_provider()
         {
-            using (SqlServerTestStore.GetNorthwindStore())
+            using (var context = new MultipleContext1(new DbContextOptions<MultipleContext1>()))
             {
-                using (var context = new MultipleContext1(new DbContextOptions<MultipleContext1>()))
-                {
-                    Assert.True(context.Customers.Any());
-                }
+                Assert.True(context.SimpleEntities.Any());
+            }
 
-                using (var context = new MultipleContext2(new DbContextOptions<MultipleContext2>()))
-                {
-                    Assert.False(context.Customers.Any());
-                }
+            using (var context = new MultipleContext2(new DbContextOptions<MultipleContext2>()))
+            {
+                Assert.False(context.SimpleEntities.Any());
             }
         }
 
-        private class MultipleContext1 : NorthwindContextBase
+        private class MultipleContext1 : CrossStoreContext
         {
             private readonly DbContextOptions<MultipleContext1> _options;
 
@@ -70,13 +69,13 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Same(_options, optionsBuilder.Options);
 
-                optionsBuilder.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
+                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(StoreName), b => b.ApplyConfiguration());
 
                 Assert.NotSame(_options, optionsBuilder.Options);
             }
         }
 
-        private class MultipleContext2 : NorthwindContextBase
+        private class MultipleContext2 : CrossStoreContext
         {
             private readonly DbContextOptions<MultipleContext2> _options;
 
@@ -90,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Same(_options, optionsBuilder.Options);
 
-                optionsBuilder.UseInMemoryDatabase(nameof(NorthwindContextBase));
+                optionsBuilder.UseInMemoryDatabase(StoreName);
 
                 Assert.NotSame(_options, optionsBuilder.Options);
             }
@@ -105,93 +104,63 @@ namespace Microsoft.EntityFrameworkCore
                     .AddDbContext<MultipleProvidersContext>()
                     .BuildServiceProvider();
 
-            using (SqlServerTestStore.GetNorthwindStore())
+            MultipleProvidersContext context1;
+            MultipleProvidersContext context2;
+
+            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
-                MultipleProvidersContext context1;
-                MultipleProvidersContext context2;
-
-                using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+                using (context1 = serviceScope.ServiceProvider.GetRequiredService<MultipleProvidersContext>())
                 {
-                    using (context1 = serviceScope.ServiceProvider.GetRequiredService<MultipleProvidersContext>())
-                    {
-                        context1.UseSqlServer = true;
+                    context1.UseSqlServer = true;
 
-                        Assert.True(context1.Customers.Any());
-                    }
-
-                    using (var context1B = serviceScope.ServiceProvider.GetRequiredService<MultipleProvidersContext>())
-                    {
-                        Assert.Same(context1, context1B);
-                    }
-
-                    var someService = serviceScope.ServiceProvider.GetRequiredService<SomeService>();
-                    Assert.Same(context1, someService.Context);
-                }
-                using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
-                {
-                    using (context2 = serviceScope.ServiceProvider.GetRequiredService<MultipleProvidersContext>())
-                    {
-                        context2.UseSqlServer = false;
-
-                        Assert.False(context2.Customers.Any());
-                    }
-
-                    using (var context2B = serviceScope.ServiceProvider.GetRequiredService<MultipleProvidersContext>())
-                    {
-                        Assert.Same(context2, context2B);
-                    }
-
-                    var someService = serviceScope.ServiceProvider.GetRequiredService<SomeService>();
-                    Assert.Same(context2, someService.Context);
+                    Assert.True(context1.SimpleEntities.Any());
                 }
 
-                Assert.NotSame(context1, context2);
+                using (var context1B = serviceScope.ServiceProvider.GetRequiredService<MultipleProvidersContext>())
+                {
+                    Assert.Same(context1, context1B);
+                }
+
+                var someService = serviceScope.ServiceProvider.GetRequiredService<SomeService>();
+                Assert.Same(context1, someService.Context);
             }
+
+            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                using (context2 = serviceScope.ServiceProvider.GetRequiredService<MultipleProvidersContext>())
+                {
+                    context2.UseSqlServer = false;
+
+                    Assert.False(context2.SimpleEntities.Any());
+                }
+
+                using (var context2B = serviceScope.ServiceProvider.GetRequiredService<MultipleProvidersContext>())
+                {
+                    Assert.Same(context2, context2B);
+                }
+
+                var someService = serviceScope.ServiceProvider.GetRequiredService<SomeService>();
+                Assert.Same(context2, someService.Context);
+            }
+
+            Assert.NotSame(context1, context2);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#18682")]
         public void Can_select_appropriate_provider_when_multiple_registered_with_default_service_provider()
         {
-            using (SqlServerTestStore.GetNorthwindStore())
+            using (var context = new MultipleProvidersContext())
             {
-                using (var context = new MultipleProvidersContext())
-                {
-                    context.UseSqlServer = true;
+                context.UseSqlServer = true;
 
-                    Assert.True(context.Customers.Any());
-                }
-
-                using (var context = new MultipleProvidersContext())
-                {
-                    context.UseSqlServer = false;
-
-                    Assert.False(context.Customers.Any());
-                }
-            }
-        }
-
-        private class NorthwindContextBase : DbContext
-        {
-            protected NorthwindContextBase()
-            {
+                Assert.True(context.SimpleEntities.Any());
             }
 
-            protected NorthwindContextBase(DbContextOptions options)
-                : base(options)
+            using (var context = new MultipleProvidersContext())
             {
-            }
+                context.UseSqlServer = false;
 
-            // ReSharper disable once UnusedAutoPropertyAccessor.Local
-            public DbSet<Customer> Customers { get; set; }
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Customer>(
-                    b =>
-                        {
-                            b.HasKey(c => c.CustomerID);
-                            b.ToTable("Customers");
-                        });
+                Assert.False(context.SimpleEntities.Any());
             }
         }
 
@@ -205,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore
             public string Fax { get; set; }
         }
 
-        private class MultipleProvidersContext : NorthwindContextBase
+        private class MultipleProvidersContext : CrossStoreContext
         {
             // ReSharper disable once MemberCanBePrivate.Local
             public bool UseSqlServer { get; set; }
@@ -214,11 +183,11 @@ namespace Microsoft.EntityFrameworkCore
             {
                 if (UseSqlServer)
                 {
-                    optionsBuilder.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
+                    optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(StoreName), b => b.ApplyConfiguration());
                 }
                 else
                 {
-                    optionsBuilder.UseInMemoryDatabase(nameof(NorthwindContextBase));
+                    optionsBuilder.UseInMemoryDatabase(StoreName);
                 }
             }
         }
@@ -234,67 +203,84 @@ namespace Microsoft.EntityFrameworkCore
             public MultipleProvidersContext Context { get; }
         }
 
-        [SqlServerConfiguredCondition]
-        public class NestedContextDifferentStores
+        private CrossStoreFixture Fixture { get; }
+        private TestStore ExistingTestStore { get; }
+        private static readonly string StoreName = "CrossStoreConfigurationPatternsTest";
+
+        private void Seed(CrossStoreContext context)
         {
+            context.SimpleEntities.Add(new SimpleEntity { StringProperty = "Entity 1" });
+
+            context.SaveChanges();
+        }
+
+#pragma warning disable xUnit1013 // Public method should be marked as test
+        public void Dispose() => ExistingTestStore.Dispose();
+#pragma warning restore xUnit1013 // Public method should be marked as test
+
+        [SqlServerConfiguredCondition]
+        public class NestedContextDifferentStores : IClassFixture<CrossStoreFixture>, IDisposable
+        {
+            public NestedContextDifferentStores(CrossStoreFixture fixture)
+            {
+                Fixture = fixture;
+                ExistingTestStore = Fixture.CreateTestStore(SqlServerTestStoreFactory.Instance, StoreName, Seed);
+            }
+
             [ConditionalFact]
             public async Task Can_use_one_context_nested_inside_another_of_a_different_type()
             {
-                using (SqlServerTestStore.GetNorthwindStore())
-                {
-                    var inMemoryServiceProvider = new ServiceCollection()
-                        .AddEntityFrameworkInMemoryDatabase()
-                        .BuildServiceProvider();
+                var inMemoryServiceProvider = InMemoryFixture.DefaultServiceProvider;
+                var sqlServerServiceProvider = SqlServerFixture.DefaultServiceProvider;
 
-                    var sqlServerServiceProvider = new ServiceCollection()
-                        .AddEntityFrameworkSqlServer()
-                        .BuildServiceProvider();
-
-                    await NestedContextTest(
-                        () => new BlogContext(inMemoryServiceProvider),
-                        () => new NorthwindContext(sqlServerServiceProvider));
-                }
+                await NestedContextTest(
+                    () => new BlogContext(inMemoryServiceProvider),
+                    () => new ExternalProviderContext(sqlServerServiceProvider));
             }
 
-            [ConditionalFact]
-            public async Task Can_use_one_context_nested_inside_another_of_a_different_type_with_implicit_services()
+            [ConditionalFact(Skip = "#18682")]
+            public Task Can_use_one_context_nested_inside_another_of_a_different_type_with_implicit_services()
+                => NestedContextTest(() => new BlogContext(), () => new ExternalProviderContext());
+
+            private async Task NestedContextTest(Func<BlogContext> createBlogContext, Func<CrossStoreContext> createSimpleContext)
             {
-                using (SqlServerTestStore.GetNorthwindStore())
-                {
-                    await NestedContextTest(() => new BlogContext(), () => new NorthwindContext());
-                }
+                using var context0 = createBlogContext();
+                Assert.Empty(context0.ChangeTracker.Entries());
+                var blog0 = context0.Add(new Blog { Id = 1, Name = "Giddyup" }).Entity;
+                Assert.Same(blog0, context0.ChangeTracker.Entries().Select(e => e.Entity).Single());
+                await context0.SaveChangesAsync();
+
+                using var context1 = createSimpleContext();
+                var customers1 = await context1.SimpleEntities.ToListAsync();
+                Assert.Single(customers1);
+                Assert.Single(context1.ChangeTracker.Entries());
+                Assert.Same(blog0, context0.ChangeTracker.Entries().Select(e => e.Entity).Single());
+
+                using var context2 = createBlogContext();
+                Assert.Empty(context2.ChangeTracker.Entries());
+                Assert.Same(blog0, context0.ChangeTracker.Entries().Select(e => e.Entity).Single());
+
+                var blog0Prime = (await context2.Blogs.ToArrayAsync()).Single();
+                Assert.Same(blog0Prime, context2.ChangeTracker.Entries().Select(e => e.Entity).Single());
+
+                Assert.Equal(blog0.Id, blog0Prime.Id);
+                Assert.NotSame(blog0, blog0Prime);
             }
 
-            private async Task NestedContextTest(Func<BlogContext> createBlogContext, Func<NorthwindContext> createNorthwindContext)
+            private CrossStoreFixture Fixture { get; }
+            private TestStore ExistingTestStore { get; }
+            private static readonly string StoreName = "CrossStoreNestedContextTest";
+
+            private void Seed(CrossStoreContext context)
             {
-                using (var context0 = createBlogContext())
-                {
-                    Assert.Equal(0, context0.ChangeTracker.Entries().Count());
-                    var blog0 = context0.Add(new Blog { Id = 1, Name = "Giddyup" }).Entity;
-                    Assert.Same(blog0, context0.ChangeTracker.Entries().Select(e => e.Entity).Single());
-                    await context0.SaveChangesAsync();
+                context.SimpleEntities.Add(new SimpleEntity { StringProperty = "Entity 1" });
 
-                    using (var context1 = createNorthwindContext())
-                    {
-                        var customers1 = await context1.Customers.ToListAsync();
-                        Assert.Equal(91, customers1.Count);
-                        Assert.Equal(91, context1.ChangeTracker.Entries().Count());
-                        Assert.Same(blog0, context0.ChangeTracker.Entries().Select(e => e.Entity).Single());
-
-                        using (var context2 = createBlogContext())
-                        {
-                            Assert.Equal(0, context2.ChangeTracker.Entries().Count());
-                            Assert.Same(blog0, context0.ChangeTracker.Entries().Select(e => e.Entity).Single());
-
-                            var blog0Prime = (await context2.Blogs.ToArrayAsync()).Single();
-                            Assert.Same(blog0Prime, context2.ChangeTracker.Entries().Select(e => e.Entity).Single());
-
-                            Assert.Equal(blog0.Id, blog0Prime.Id);
-                            Assert.NotSame(blog0, blog0Prime);
-                        }
-                    }
-                }
+                context.SaveChanges();
             }
+
+#pragma warning disable xUnit1013 // Public method should be marked as test
+            public void Dispose() => ExistingTestStore.Dispose();
+#pragma warning restore xUnit1013 // Public method should be marked as test
 
             private class BlogContext : DbContext
             {
@@ -323,22 +309,22 @@ namespace Microsoft.EntityFrameworkCore
                 public string Name { get; set; }
             }
 
-            private class NorthwindContext : NorthwindContextBase
+            private class ExternalProviderContext : CrossStoreContext
             {
                 private readonly IServiceProvider _serviceProvider;
 
-                public NorthwindContext()
+                public ExternalProviderContext()
                 {
                 }
 
-                public NorthwindContext(IServiceProvider serviceProvider)
+                public ExternalProviderContext(IServiceProvider serviceProvider)
                 {
                     _serviceProvider = serviceProvider;
                 }
 
                 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                     => optionsBuilder
-                        .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration())
+                        .UseSqlServer(SqlServerTestStore.CreateConnectionString(StoreName), b => b.ApplyConfiguration())
                         .UseInternalServiceProvider(_serviceProvider);
             }
         }

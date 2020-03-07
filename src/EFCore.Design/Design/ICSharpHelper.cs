@@ -1,9 +1,11 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Design
 {
@@ -35,6 +37,14 @@ namespace Microsoft.EntityFrameworkCore.Design
         string Lambda([NotNull] IReadOnlyList<string> properties);
 
         /// <summary>
+        ///     Generates a property accessor lambda.
+        /// </summary>
+        /// <param name="properties"> The properties. </param>
+        /// <returns> The lambda. </returns>
+        string Lambda([NotNull] IEnumerable<IProperty> properties)
+            => Lambda(properties.Select(p => p.Name).ToList());
+
+        /// <summary>
         ///     Generates a multidimensional array literal.
         /// </summary>
         /// <param name="values"> The multidimensional array. </param>
@@ -49,13 +59,6 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <returns> The literal. </returns>
         string Literal<T>(T? value)
             where T : struct;
-
-        /// <summary>
-        ///     Generates a byte array literal.
-        /// </summary>
-        /// <param name="values"> The byte array. </param>
-        /// <returns> The literal. </returns>
-        string Literal([NotNull] byte[] values);
 
         /// <summary>
         ///     Generates a bool literal.
@@ -135,21 +138,6 @@ namespace Microsoft.EntityFrameworkCore.Design
         string Literal(int value);
 
         /// <summary>
-        ///     Generates an array literal.
-        /// </summary>
-        /// <typeparam name="T"> The element type of the array. </typeparam>
-        /// <param name="values"> The array. </param>
-        /// <returns> The literal. </returns>
-        string Literal<T>([NotNull] IReadOnlyList<T> values);
-
-        /// <summary>
-        ///     Generates an object array literal.
-        /// </summary>
-        /// <param name="values"> The object array. </param>
-        /// <returns> The literal. </returns>
-        string Literal([NotNull] IReadOnlyList<object> values);
-
-        /// <summary>
         ///     Generates a long literal.
         /// </summary>
         /// <param name="value"> The value. </param>
@@ -211,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="values"> The object array. </param>
         /// <param name="vertical"> A value indicating whether to layout the literal vertically. </param>
         /// <returns> The literal. </returns>
-        string Literal([NotNull] IReadOnlyList<object> values, bool vertical);
+        string Literal<T>([NotNull] T[] values, bool vertical = false);
 
         /// <summary>
         ///     Generates a valid C# namespace from the specified parts.

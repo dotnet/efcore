@@ -5,12 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
@@ -18,16 +19,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
     /// <summary>
     ///     Used to generate code for migrations.
     /// </summary>
-#pragma warning disable CA1012 // Abstract types should not have constructors
-    // Already shipped
     public abstract class MigrationsCodeGenerator : IMigrationsCodeGenerator
-#pragma warning restore CA1012 // Abstract types should not have constructors
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="MigrationsCodeGenerator" /> class.
         /// </summary>
         /// <param name="dependencies"> The dependencies. </param>
-        public MigrationsCodeGenerator([NotNull] MigrationsCodeGeneratorDependencies dependencies)
+        protected MigrationsCodeGenerator([NotNull] MigrationsCodeGeneratorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -72,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="contextType"> The migration's <see cref="DbContext" /> type. </param>
         /// <param name="migrationName"> The migration's name. </param>
         /// <param name="migrationId"> The migration's ID. </param>
-        /// <param name="targetModel"> The migraiton's target model. </param>
+        /// <param name="targetModel"> The migration's target model. </param>
         /// <returns> The migration metadata code. </returns>
         public abstract string GenerateMetadata(
             string migrationNamespace,
@@ -140,8 +138,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         {
                             yield return ns;
                         }
-
-                        continue;
                     }
                 }
             }
@@ -186,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         protected virtual IEnumerable<string> GetNamespaces([NotNull] IModel model)
             => model.GetEntityTypes().SelectMany(
                     e => e.GetDeclaredProperties()
-                        .SelectMany(p => (p.FindMapping()?.Converter?.ProviderClrType ?? p.ClrType).GetNamespaces()))
+                        .SelectMany(p => (FindValueConverter(p)?.ProviderClrType ?? p.ClrType).GetNamespaces()))
                 .Concat(GetAnnotationNamespaces(GetAnnotatables(model)));
 
         private static IEnumerable<IAnnotatable> GetAnnotatables(IModel model)
@@ -219,36 +215,61 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
         }
 
-        private static IEnumerable<string> GetAnnotationNamespaces(IEnumerable<IAnnotatable> items)
+        private IEnumerable<string> GetAnnotationNamespaces(IEnumerable<IAnnotatable> items)
         {
             var ignoredAnnotations = new List<string>
             {
-                RelationshipDiscoveryConvention.NavigationCandidatesAnnotationName,
-                RelationshipDiscoveryConvention.AmbiguousNavigationsAnnotationName,
-                InversePropertyAttributeConvention.InverseNavigationsAnnotationName,
+                CoreAnnotationNames.NavigationCandidates,
+                CoreAnnotationNames.AmbiguousNavigations,
+                CoreAnnotationNames.InverseNavigations,
+                ChangeDetector.SkipDetectChangesAnnotation,
+                CoreAnnotationNames.OwnedTypes,
+                CoreAnnotationNames.ChangeTrackingStrategy,
+                CoreAnnotationNames.BeforeSaveBehavior,
+                CoreAnnotationNames.AfterSaveBehavior,
                 CoreAnnotationNames.TypeMapping,
                 CoreAnnotationNames.ValueComparer,
                 CoreAnnotationNames.KeyValueComparer,
+#pragma warning disable 618
+                CoreAnnotationNames.StructuralValueComparer,
+#pragma warning restore 618
                 CoreAnnotationNames.ConstructorBinding,
-                CoreAnnotationNames.NavigationAccessModeAnnotation,
-                CoreAnnotationNames.OwnedTypesAnnotation,
-                CoreAnnotationNames.PropertyAccessModeAnnotation,
+                CoreAnnotationNames.NavigationAccessMode,
+                CoreAnnotationNames.PropertyAccessMode,
                 CoreAnnotationNames.ProviderClrType,
                 CoreAnnotationNames.ValueConverter,
-                CoreAnnotationNames.ValueGeneratorFactoryAnnotation
+                CoreAnnotationNames.ValueGeneratorFactory,
+                CoreAnnotationNames.DefiningQuery,
+                CoreAnnotationNames.QueryFilter,
+                RelationalAnnotationNames.CheckConstraints,
+                RelationalAnnotationNames.Sequences,
+                RelationalAnnotationNames.DbFunctions,
+                RelationalAnnotationNames.Tables,
+                RelationalAnnotationNames.TableMappings,
+                RelationalAnnotationNames.TableColumnMappings,
+                RelationalAnnotationNames.Views,
+                RelationalAnnotationNames.ViewMappings,
+                RelationalAnnotationNames.ViewColumnMappings,
+                RelationalAnnotationNames.ForeignKeyMappings
             };
 
-            var ignoredAnnotationTypes = new List<string>
-            {
-                RelationalAnnotationNames.DbFunction,
-                RelationalAnnotationNames.SequencePrefix
-            };
-
-            return items.SelectMany(i => i.GetAnnotations())
-                .Where(a => a.Value != null
-                            && !ignoredAnnotations.Contains(a.Name)
-                            && !ignoredAnnotationTypes.Any(p => a.Name.StartsWith(p, StringComparison.Ordinal)))
-                .SelectMany(a => a.Value.GetType().GetNamespaces());
+            return items.SelectMany(
+                i => i.GetAnnotations().Select(
+                        a => new { Annotatable = i, Annotation = a })
+                    .Where(
+                        a => a.Annotation.Value != null
+                             && !ignoredAnnotations.Contains(a.Annotation.Name))
+                    .SelectMany(a => GetProviderType(a.Annotatable, a.Annotation.Value.GetType()).GetNamespaces()));
         }
+
+        private ValueConverter FindValueConverter(IProperty property)
+            => (property.FindTypeMapping()
+                ?? Dependencies.RelationalTypeMappingSource.FindMapping(property))?.Converter;
+
+        private Type GetProviderType(IAnnotatable annotatable, Type valueType)
+            => annotatable is IProperty property
+               && valueType.UnwrapNullableType() == property.ClrType.UnwrapNullableType()
+                ? FindValueConverter(property)?.ProviderClrType ?? valueType
+                : valueType;
     }
 }

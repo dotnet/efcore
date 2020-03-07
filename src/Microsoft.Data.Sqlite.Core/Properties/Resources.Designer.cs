@@ -8,7 +8,7 @@ namespace Microsoft.Data.Sqlite.Properties
     internal static class Resources
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.Data.Sqlite.Properties.Resources", typeof(Resources).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.Data.Sqlite.Properties.Resources", typeof(Resources).Assembly);
 
         /// <summary>
         /// {methodName} can only be called when the connection is open.
@@ -39,22 +39,6 @@ namespace Microsoft.Data.Sqlite.Properties
             => string.Format(
                 GetString("DataReaderClosed", nameof(operation)),
                 operation);
-
-        /// <summary>
-        /// The cache mode '{mode}' is invalid.
-        /// </summary>
-        public static string InvalidCacheMode(object mode)
-            => string.Format(
-                GetString("InvalidCacheMode", nameof(mode)),
-                mode);
-
-        /// <summary>
-        /// The CommandBehavior '{behavior}' is invalid.
-        /// </summary>
-        public static string InvalidCommandBehavior(object behavior)
-            => string.Format(
-                GetString("InvalidCommandBehavior", nameof(behavior)),
-                behavior);
 
         /// <summary>
         /// The CommandType '{commandType}' is invalid.
@@ -165,7 +149,7 @@ namespace Microsoft.Data.Sqlite.Properties
                 errorCode, message);
 
         /// <summary>
-        /// For more information on this error code see http://sqlite.org/rescode.html
+        /// For more information on this error code see https://www.sqlite.org/rescode.html
         /// </summary>
         public static string DefaultNativeError
             => GetString("DefaultNativeError");
@@ -177,12 +161,6 @@ namespace Microsoft.Data.Sqlite.Properties
             => string.Format(
                 GetString("AmbiguousParameterName", nameof(parameterName)),
                 parameterName);
-
-        /// <summary>
-        /// The SQLite library is already loaded. UseWinSqlite3 must be called before using SQLite.
-        /// </summary>
-        public static string AlreadyLoaded
-            => GetString("AlreadyLoaded");
 
         /// <summary>
         /// The {enumType} enumeration value, {value}, is invalid.
@@ -235,6 +213,42 @@ namespace Microsoft.Data.Sqlite.Properties
             => string.Format(
                 GetString("UDFCalledWithNull", nameof(function), nameof(ordinal)),
                 function, ordinal);
+
+        /// <summary>
+        /// SqliteBlob can only be used when the connection is open.
+        /// </summary>
+        public static string SqlBlobRequiresOpenConnection
+            => GetString("SqlBlobRequiresOpenConnection");
+
+        /// <summary>
+        /// Offset and count were out of bounds for the buffer.
+        /// </summary>
+        public static string InvalidOffsetAndCount
+            => GetString("InvalidOffsetAndCount");
+
+        /// <summary>
+        /// The size of a blob may not be changed by the SqliteBlob API. Use an UPDATE command instead.
+        /// </summary>
+        public static string ResizeNotSupported
+            => GetString("ResizeNotSupported");
+
+        /// <summary>
+        /// An attempt was made to move the position before the beginning of the stream.
+        /// </summary>
+        public static string SeekBeforeBegin
+            => GetString("SeekBeforeBegin");
+
+        /// <summary>
+        /// Stream does not support writing.
+        /// </summary>
+        public static string WriteNotSupported
+            => GetString("WriteNotSupported");
+
+        /// <summary>
+        /// You specified a password in the connection string, but the native SQLite library you're using doesn't support encryption.
+        /// </summary>
+        public static string EncryptionNotSupported
+            => GetString("EncryptionNotSupported");
 
         private static string GetString(string name, params string[] formatterNames)
         {

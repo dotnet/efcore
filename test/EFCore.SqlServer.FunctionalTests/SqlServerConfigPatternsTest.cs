@@ -4,29 +4,28 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedAutoPropertyAccessor.Local
+#pragma warning disable RCS1102 // Make class static.
 namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerConfigPatternsTest
     {
         public class ImplicitServicesAndConfig
         {
-            [Fact]
+            [ConditionalFact]
             public async Task Can_query_with_implicit_services_and_OnConfiguring()
             {
                 using (SqlServerTestStore.GetNorthwindStore())
                 {
-                    using (var context = new NorthwindContext())
-                    {
-                        Assert.Equal(91, await context.Customers.CountAsync());
-                    }
+                    using var context = new NorthwindContext();
+                    Assert.Equal(91, await context.Customers.CountAsync());
                 }
             }
 
@@ -35,7 +34,11 @@ namespace Microsoft.EntityFrameworkCore
                 public DbSet<Customer> Customers { get; set; }
 
                 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                    => optionsBuilder.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
+                    => optionsBuilder
+                        .EnableServiceProviderCaching(false)
+                        .UseSqlServer(
+                            SqlServerNorthwindTestStoreFactory.NorthwindConnectionString,
+                            b => b.ApplyConfiguration());
 
                 protected override void OnModelCreating(ModelBuilder modelBuilder)
                     => ConfigureModel(modelBuilder);
@@ -44,17 +47,17 @@ namespace Microsoft.EntityFrameworkCore
 
         public class ImplicitServicesExplicitConfig
         {
-            [Fact]
+            [ConditionalFact]
             public async Task Can_query_with_implicit_services_and_explicit_config()
             {
                 using (SqlServerTestStore.GetNorthwindStore())
                 {
-                    using (var context = new NorthwindContext(
+                    using var context = new NorthwindContext(
                         new DbContextOptionsBuilder()
-                            .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration()).Options))
-                    {
-                        Assert.Equal(91, await context.Customers.CountAsync());
-                    }
+                            .EnableServiceProviderCaching(false)
+                            .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration())
+                            .Options);
+                    Assert.Equal(91, await context.Customers.CountAsync());
                 }
             }
 
@@ -74,19 +77,17 @@ namespace Microsoft.EntityFrameworkCore
 
         public class ExplicitServicesImplicitConfig
         {
-            [Fact]
+            [ConditionalFact]
             public async Task Can_query_with_explicit_services_and_OnConfiguring()
             {
                 using (SqlServerTestStore.GetNorthwindStore())
                 {
-                    using (var context = new NorthwindContext(
+                    using var context = new NorthwindContext(
                         new DbContextOptionsBuilder().UseInternalServiceProvider(
                             new ServiceCollection()
                                 .AddEntityFrameworkSqlServer()
-                                .BuildServiceProvider()).Options))
-                    {
-                        Assert.Equal(91, await context.Customers.CountAsync());
-                    }
+                                .BuildServiceProvider()).Options);
+                    Assert.Equal(91, await context.Customers.CountAsync());
                 }
             }
 
@@ -100,7 +101,8 @@ namespace Microsoft.EntityFrameworkCore
                 public DbSet<Customer> Customers { get; set; }
 
                 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                    => optionsBuilder.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
+                    => optionsBuilder.UseSqlServer(
+                        SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
 
                 protected override void OnModelCreating(ModelBuilder modelBuilder)
                     => ConfigureModel(modelBuilder);
@@ -109,21 +111,19 @@ namespace Microsoft.EntityFrameworkCore
 
         public class ExplicitServicesAndConfig
         {
-            [Fact]
+            [ConditionalFact]
             public async Task Can_query_with_explicit_services_and_explicit_config()
             {
                 using (SqlServerTestStore.GetNorthwindStore())
                 {
-                    using (var context = new NorthwindContext(
+                    using var context = new NorthwindContext(
                         new DbContextOptionsBuilder()
                             .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration())
                             .UseInternalServiceProvider(
                                 new ServiceCollection()
                                     .AddEntityFrameworkSqlServer()
-                                    .BuildServiceProvider()).Options))
-                    {
-                        Assert.Equal(91, await context.Customers.CountAsync());
-                    }
+                                    .BuildServiceProvider()).Options);
+                    Assert.Equal(91, await context.Customers.CountAsync());
                 }
             }
 
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public class ExplicitServicesAndNoConfig
         {
-            [Fact]
+            [ConditionalFact]
             public void Throws_on_attempt_to_use_SQL_Server_without_providing_connection_string()
             {
                 using (SqlServerTestStore.GetNorthwindStore())
@@ -152,16 +152,14 @@ namespace Microsoft.EntityFrameworkCore
                         CoreStrings.NoProviderConfigured,
                         Assert.Throws<InvalidOperationException>(
                             () =>
-                                {
-                                    using (var context = new NorthwindContext(
-                                        new DbContextOptionsBuilder().UseInternalServiceProvider(
-                                            new ServiceCollection()
-                                                .AddEntityFrameworkSqlServer()
-                                                .BuildServiceProvider()).Options))
-                                    {
-                                        Assert.Equal(91, context.Customers.Count());
-                                    }
-                                }).Message);
+                            {
+                                using var context = new NorthwindContext(
+                                    new DbContextOptionsBuilder().UseInternalServiceProvider(
+                                        new ServiceCollection()
+                                            .AddEntityFrameworkSqlServer()
+                                            .BuildServiceProvider()).Options);
+                                Assert.Equal(91, context.Customers.Count());
+                            }).Message);
                 }
             }
 
@@ -181,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public class NoServicesAndNoConfig
         {
-            [Fact]
+            [ConditionalFact]
             public void Throws_on_attempt_to_use_context_with_no_store()
             {
                 using (SqlServerTestStore.GetNorthwindStore())
@@ -190,12 +188,10 @@ namespace Microsoft.EntityFrameworkCore
                         CoreStrings.NoProviderConfigured,
                         Assert.Throws<InvalidOperationException>(
                             () =>
-                                {
-                                    using (var context = new NorthwindContext())
-                                    {
-                                        Assert.Equal(91, context.Customers.Count());
-                                    }
-                                }).Message);
+                            {
+                                using var context = new NorthwindContext();
+                                Assert.Equal(91, context.Customers.Count());
+                            }).Message);
                 }
             }
 
@@ -205,12 +201,15 @@ namespace Microsoft.EntityFrameworkCore
 
                 protected override void OnModelCreating(ModelBuilder modelBuilder)
                     => ConfigureModel(modelBuilder);
+
+                protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                    => optionsBuilder.EnableServiceProviderCaching(false);
             }
         }
 
         public class ImplicitConfigButNoServices
         {
-            [Fact]
+            [ConditionalFact]
             public void Throws_on_attempt_to_use_store_with_no_store_services()
             {
                 var serviceCollection = new ServiceCollection();
@@ -223,14 +222,12 @@ namespace Microsoft.EntityFrameworkCore
                         CoreStrings.NoProviderConfigured,
                         Assert.Throws<InvalidOperationException>(
                             () =>
-                                {
-                                    using (var context = new NorthwindContext(
-                                        new DbContextOptionsBuilder()
-                                            .UseInternalServiceProvider(serviceProvider).Options))
-                                    {
-                                        Assert.Equal(91, context.Customers.Count());
-                                    }
-                                }).Message);
+                            {
+                                using var context = new NorthwindContext(
+                                    new DbContextOptionsBuilder()
+                                        .UseInternalServiceProvider(serviceProvider).Options);
+                                Assert.Equal(91, context.Customers.Count());
+                            }).Message);
                 }
             }
 
@@ -253,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public class InjectContext
         {
-            [Fact]
+            [ConditionalFact]
             public async Task Can_register_context_with_DI_container_and_have_it_injected()
             {
                 var serviceProvider = new ServiceCollection()
@@ -295,7 +292,8 @@ namespace Microsoft.EntityFrameworkCore
                 public DbSet<Customer> Customers { get; set; }
 
                 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                    => optionsBuilder.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
+                    => optionsBuilder.UseSqlServer(
+                        SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
 
                 protected override void OnModelCreating(ModelBuilder modelBuilder)
                     => ConfigureModel(modelBuilder);
@@ -304,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public class InjectContextAndConfiguration
         {
-            [Fact]
+            [ConditionalFact]
             public async Task Can_register_context_and_configuration_with_DI_container_and_have_both_injected()
             {
                 var serviceProvider = new ServiceCollection()
@@ -312,7 +310,9 @@ namespace Microsoft.EntityFrameworkCore
                     .AddTransient<NorthwindContext>()
                     .AddSingleton(
                         new DbContextOptionsBuilder()
-                            .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration()).Options).BuildServiceProvider();
+                            .EnableServiceProviderCaching(false)
+                            .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration())
+                            .Options).BuildServiceProvider();
 
                 using (SqlServerTestStore.GetNorthwindStore())
                 {
@@ -352,17 +352,17 @@ namespace Microsoft.EntityFrameworkCore
 
         public class ConstructorArgsToBuilder
         {
-            [Fact]
+            [ConditionalFact]
             public async Task Can_pass_context_options_to_constructor_and_use_in_builder()
             {
                 using (SqlServerTestStore.GetNorthwindStore())
                 {
-                    using (var context = new NorthwindContext(
+                    using var context = new NorthwindContext(
                         new DbContextOptionsBuilder()
-                            .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration()).Options))
-                    {
-                        Assert.Equal(91, await context.Customers.CountAsync());
-                    }
+                            .EnableServiceProviderCaching(false)
+                            .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration())
+                            .Options);
+                    Assert.Equal(91, await context.Customers.CountAsync());
                 }
             }
 
@@ -382,15 +382,13 @@ namespace Microsoft.EntityFrameworkCore
 
         public class ConstructorArgsToOnConfiguring
         {
-            [Fact]
+            [ConditionalFact]
             public async Task Can_pass_connection_string_to_constructor_and_use_in_OnConfiguring()
             {
                 using (SqlServerTestStore.GetNorthwindStore())
                 {
-                    using (var context = new NorthwindContext(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString))
-                    {
-                        Assert.Equal(91, await context.Customers.CountAsync());
-                    }
+                    using var context = new NorthwindContext(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
+                    Assert.Equal(91, await context.Customers.CountAsync());
                 }
             }
 
@@ -406,7 +404,9 @@ namespace Microsoft.EntityFrameworkCore
                 public DbSet<Customer> Customers { get; set; }
 
                 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                    => optionsBuilder.UseSqlServer(_connectionString, b => b.ApplyConfiguration());
+                    => optionsBuilder
+                        .EnableServiceProviderCaching(false)
+                        .UseSqlServer(_connectionString, b => b.ApplyConfiguration());
 
                 protected override void OnModelCreating(ModelBuilder modelBuilder)
                     => ConfigureModel(modelBuilder);
@@ -415,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public class NestedContext
         {
-            [Fact]
+            [ConditionalFact]
             public async Task Can_use_one_context_nested_inside_another_of_the_same_type()
             {
                 using (SqlServerTestStore.GetNorthwindStore())
@@ -424,24 +424,20 @@ namespace Microsoft.EntityFrameworkCore
                         .AddEntityFrameworkSqlServer()
                         .BuildServiceProvider();
 
-                    using (var context1 = new NorthwindContext(serviceProvider))
-                    {
-                        var customers1 = await context1.Customers.ToListAsync();
-                        Assert.Equal(91, customers1.Count);
-                        Assert.Equal(91, context1.ChangeTracker.Entries().Count());
+                    using var context1 = new NorthwindContext(serviceProvider);
+                    var customers1 = await context1.Customers.ToListAsync();
+                    Assert.Equal(91, customers1.Count);
+                    Assert.Equal(91, context1.ChangeTracker.Entries().Count());
 
-                        using (var context2 = new NorthwindContext(serviceProvider))
-                        {
-                            Assert.Equal(0, context2.ChangeTracker.Entries().Count());
+                    using var context2 = new NorthwindContext(serviceProvider);
+                    Assert.Empty(context2.ChangeTracker.Entries());
 
-                            var customers2 = await context2.Customers.ToListAsync();
-                            Assert.Equal(91, customers2.Count);
-                            Assert.Equal(91, context2.ChangeTracker.Entries().Count());
+                    var customers2 = await context2.Customers.ToListAsync();
+                    Assert.Equal(91, customers2.Count);
+                    Assert.Equal(91, context2.ChangeTracker.Entries().Count());
 
-                            Assert.Equal(customers1[0].CustomerID, customers2[0].CustomerID);
-                            Assert.NotSame(customers1[0], customers2[0]);
-                        }
-                    }
+                    Assert.Equal(customers1[0].CustomerID, customers2[0].CustomerID);
+                    Assert.NotSame(customers1[0], customers2[0]);
                 }
             }
 
@@ -480,9 +476,9 @@ namespace Microsoft.EntityFrameworkCore
         private static void ConfigureModel(ModelBuilder builder)
             => builder.Entity<Customer>(
                 b =>
-                    {
-                        b.HasKey(c => c.CustomerID);
-                        b.ToTable("Customers");
-                    });
+                {
+                    b.HasKey(c => c.CustomerID);
+                    b.ToTable("Customers");
+                });
     }
 }

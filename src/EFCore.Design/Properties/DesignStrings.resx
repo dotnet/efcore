@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -177,6 +177,9 @@
   <data name="UnknownLiteral" xml:space="preserve">
     <value>The current CSharpHelper cannot scaffold literals of type '{literalType}'. Configure your services to use one that can.</value>
   </data>
+  <data name="LiteralExpressionNotSupported" xml:space="preserve">
+    <value>The literal expression '{expression}' for '{type}' cannot be parsed. Only simple constructor calls and factory methods are supported.</value>
+  </data>
   <data name="CannotFindRuntimeProviderAssembly" xml:space="preserve">
     <value>Unable to find provider assembly with name {assemblyName}. Ensure the specified name is correct and is referenced by the project.</value>
   </data>
@@ -210,6 +213,12 @@
   <data name="FindingContexts" xml:space="preserve">
     <value>Finding DbContext classes...</value>
   </data>
+  <data name="BadConnection" xml:space="preserve">
+    <value>Failed creating connection: {exceptionMessage}</value>
+  </data>
+  <data name="NoRelationalConnection" xml:space="preserve">
+    <value>Connection information is only available for relational database providers.</value>
+  </data>
   <data name="ForeignMigrations" xml:space="preserve">
     <value>The namespace '{migrationsNamespace}' contains migrations for a different DbContext. This can result in conflicting migration names. It's recommend to put migrations for different DbContext classes into different namespaces.</value>
   </data>
@@ -229,7 +238,7 @@ Change your target project to the migrations project by using the Package Manage
     <value>Unable to check if the migration '{name}' has been applied to the database. If it has, you will need to manually reverse the changes it made. Error encountered while checking: {error}</value>
   </data>
   <data name="NoParameterlessConstructor" xml:space="preserve">
-    <value>Unable to create an object of type '{contextType}'. Add an implementation of 'IDesignTimeDbContextFactory&lt;{contextType}&gt;' to the project, or see https://go.microsoft.com/fwlink/?linkid=851728 for additional patterns supported at design time.</value>
+    <value>Unable to create an object of type '{contextType}'. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728</value>
   </data>
   <data name="NotExistDatabase" xml:space="preserve">
     <value>Database '{name}' did not exist, no action was taken.</value>
@@ -237,23 +246,11 @@ Change your target project to the migrations project by using the Package Manage
   <data name="UsingEnvironment" xml:space="preserve">
     <value>Using environment '{environment}'.</value>
   </data>
-  <data name="FindingBuildWebHost" xml:space="preserve">
-    <value>Finding IWebHost accessor...</value>
-  </data>
   <data name="FindingServiceProvider" xml:space="preserve">
     <value>Finding application service provider...</value>
   </data>
-  <data name="NoBuildWebHost" xml:space="preserve">
-    <value>No CreateWebHostBuilder(string[]) method was found on type '{programClass}'.</value>
-  </data>
-  <data name="NoEntryPoint" xml:space="preserve">
-    <value>No entry point was found for assembly '{startupAssembly}'.</value>
-  </data>
   <data name="NoServiceProvider" xml:space="preserve">
     <value>No application service provider was found.</value>
-  </data>
-  <data name="UsingBuildWebHost" xml:space="preserve">
-    <value>Using application service provider from IWebHost accessor on '{programClass}'.</value>
   </data>
   <data name="FoundDbContext" xml:space="preserve">
     <value>Found DbContext '{contextType}'.</value>
@@ -306,9 +303,6 @@ Change your target project to the migrations project by using the Package Manage
   <data name="PrimaryKeyErrorPropertyNotFound" xml:space="preserve">
     <value>Could not scaffold the primary key for '{tableName}'. The following columns in the primary key could not be scaffolded: {columnNames}.</value>
   </data>
-  <data name="MissingPrimaryKey" xml:space="preserve">
-    <value>Unable to identify the primary key for table '{tableName}'.</value>
-  </data>
   <data name="UnableToGenerateEntityType" xml:space="preserve">
     <value>Unable to generate entity type for table '{tableName}'.</value>
   </data>
@@ -336,14 +330,8 @@ Change your target project to the migrations project by using the Package Manage
   <data name="SequencesRequireName" xml:space="preserve">
     <value>Sequence name cannot be null or empty. Entity Framework cannot model a sequence that does not have a name.</value>
   </data>
-  <data name="InvokeBuildWebHostFailed" xml:space="preserve">
-    <value>An error occurred while accessing the IWebHost on class '{startupClass}'. Continuing without the application service provider. Error: {error}</value>
-  </data>
   <data name="NoLanguageService" xml:space="preserve">
     <value>The project language '{language}' isn't supported by the built-in {service} service. You can try looking for an additional NuGet package which supports this language; moving your DbContext type to a C# class library referenced by this project; or manually implementing and registering the design-time service for programming language.</value>
-  </data>
-  <data name="RevertingMigration" xml:space="preserve">
-    <value>Reverting migration '{name}'.</value>
   </data>
   <data name="FindingReferencedServices" xml:space="preserve">
     <value>Finding design-time services referenced by assembly '{startupAssembly}'.</value>
@@ -356,5 +344,26 @@ Change your target project to the migrations project by using the Package Manage
   </data>
   <data name="VersionMismatch" xml:space="preserve">
     <value>The EF Core tools version '{toolsVersion}' is older than that of the runtime '{runtimeVersion}'. Update the tools for the latest features and bug fixes.</value>
+  </data>
+  <data name="FindingHostingServices" xml:space="preserve">
+    <value>Finding Microsoft.Extensions.Hosting service provider...</value>
+  </data>
+  <data name="InvokeCreateHostBuilderFailed" xml:space="preserve">
+    <value>An error occurred while accessing the Microsoft.Extensions.Hosting services. Continuing without the application service provider. Error: {error}</value>
+  </data>
+  <data name="MalformedCreateHostBuilder" xml:space="preserve">
+    <value>An unexpected return type was encountered while accessing the Microsoft.Extensions.Hosting services. Method 'CreateHostBuilder(string[])' should return an object of type 'IHostBuilder'. Continuing without the application service provider.</value>
+  </data>
+  <data name="NoCreateHostBuilder" xml:space="preserve">
+    <value>No static method 'CreateHostBuilder(string[])' was found on class 'Program'.</value>
+  </data>
+  <data name="UsingHostingServices" xml:space="preserve">
+    <value>Using application service provider from Microsoft.Extensions.Hosting.</value>
+  </data>
+  <data name="UnhandledEnumValue" xml:space="preserve">
+    <value>Unhandled enum value '{enumValue}'.</value>
+  </data>
+  <data name="ConflictingContextAndMigrationName" xml:space="preserve">
+    <value>The name you have chosen for the migration, '{name}', is the same as the context class name. Please choose a different name for your migration. Might we suggest 'InitialCreate' for your first migration?</value>
   </data>
 </root>

@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -24,9 +26,17 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         first resolve the object from the dependency injection container, then replace selected
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
+    ///     </para>
     /// </summary>
     public sealed class CompiledQueryCacheKeyGeneratorDependencies
     {
+        private readonly IExecutionStrategyFactory _executionStrategyFactory;
+
         /// <summary>
         ///     <para>
         ///         Creates the service dependencies parameter object for a <see cref="CompiledQueryCacheKeyGenerator" />.
@@ -43,16 +53,27 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///         injection container, then replace selected services using the 'With...' methods. Do not call
         ///         the constructor at any point in this process.
         ///     </para>
+        ///     <para>
+        ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+        ///         <see cref="DbContext" /> instance will use its own instance of this service.
+        ///         The implementation may depend on other services registered with any lifetime.
+        ///         The implementation does not need to be thread-safe.
+        ///     </para>
         /// </summary>
-        /// <param name="model"> The model that queries will be written against. </param>
-        /// <param name="currentContext"> The context that queries will be executed for. </param>
-        public CompiledQueryCacheKeyGeneratorDependencies([NotNull] IModel model, [NotNull] ICurrentDbContext currentContext)
+        [EntityFrameworkInternal]
+        public CompiledQueryCacheKeyGeneratorDependencies(
+            [NotNull] IModel model,
+            [NotNull] ICurrentDbContext currentContext,
+            [NotNull] IExecutionStrategyFactory executionStrategyFactory)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(currentContext, nameof(currentContext));
+            Check.NotNull(executionStrategyFactory, nameof(executionStrategyFactory));
 
             Model = model;
-            Context = currentContext;
+            CurrentContext = currentContext;
+            _executionStrategyFactory = executionStrategyFactory;
+            IsRetryingExecutionStrategy = executionStrategyFactory.Create().RetriesOnFailure;
         }
 
         /// <summary>
@@ -63,7 +84,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The context that queries will be executed for.
         /// </summary>
-        public ICurrentDbContext Context { get; }
+        public ICurrentDbContext CurrentContext { get; }
+
+        /// <summary>
+        ///     Whether the configured execution strategy can retry.
+        /// </summary>
+        public bool IsRetryingExecutionStrategy { get; }
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -71,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="model"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public CompiledQueryCacheKeyGeneratorDependencies With([NotNull] IModel model)
-            => new CompiledQueryCacheKeyGeneratorDependencies(model, Context);
+            => new CompiledQueryCacheKeyGeneratorDependencies(model, CurrentContext, _executionStrategyFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -79,6 +105,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="currentContext"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public CompiledQueryCacheKeyGeneratorDependencies With([NotNull] ICurrentDbContext currentContext)
-            => new CompiledQueryCacheKeyGeneratorDependencies(Model, currentContext);
+            => new CompiledQueryCacheKeyGeneratorDependencies(Model, currentContext, _executionStrategyFactory);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="executionStrategyFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public CompiledQueryCacheKeyGeneratorDependencies With([NotNull] IExecutionStrategyFactory executionStrategyFactory)
+            => new CompiledQueryCacheKeyGeneratorDependencies(Model, CurrentContext, executionStrategyFactory);
     }
 }

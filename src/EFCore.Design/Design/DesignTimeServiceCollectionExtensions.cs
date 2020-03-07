@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -6,6 +6,7 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -15,8 +16,8 @@ using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -54,7 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Design
                 .AddSingleton<MigrationsCodeGeneratorDependencies>()
                 .AddSingleton<ModelCodeGeneratorDependencies>()
                 .AddSingleton<ProviderCodeGeneratorDependencies>()
-                .AddSingleton<RelationalTypeMapperDependencies>()
                 .AddSingleton<TypeMappingSourceDependencies>()
                 .AddSingleton<RelationalTypeMappingSourceDependencies>()
                 .AddSingleton<ValueConverterSelectorDependencies>()
@@ -66,6 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 .AddSingleton<ICSharpSnapshotGenerator, CSharpSnapshotGenerator>()
                 .AddSingleton<ICSharpUtilities, CSharpUtilities>()
                 .AddSingleton(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>))
+                .AddSingleton<IInterceptors, Interceptors>()
                 .AddSingleton<DiagnosticSource>(new DiagnosticListener(DbLoggerCategory.Name))
                 .AddSingleton<ILoggingOptions, LoggingOptions>()
                 .AddSingleton<IMigrationsCodeGenerator, CSharpMigrationsGenerator>()
@@ -76,11 +77,11 @@ namespace Microsoft.EntityFrameworkCore.Design
                     new DesignTimeConnectionStringResolver(applicationServiceProviderAccessor))
                 .AddSingleton(reporter)
                 .AddSingleton<IPluralizer, NullPluralizer>()
-                .AddSingleton<IRelationalTypeMappingSource, FallbackRelationalTypeMappingSource>()
                 .AddSingleton<IReverseEngineerScaffolder, ReverseEngineerScaffolder>()
                 .AddSingleton<IScaffoldingModelFactory, RelationalScaffoldingModelFactory>()
                 .AddSingleton<IScaffoldingTypeMapper, ScaffoldingTypeMapper>()
                 .AddSingleton<IValueConverterSelector, ValueConverterSelector>()
+                .AddSingleton<IDbContextLogger, NullDbContextLogger>()
                 .AddTransient<MigrationsScaffolderDependencies>()
                 .AddTransient<IMigrationsScaffolder, MigrationsScaffolder>()
                 .AddTransient<ISnapshotModelProcessor, SnapshotModelProcessor>()
@@ -105,6 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 .AddTransient(_ => context.GetService<IMigrationsIdGenerator>())
                 .AddTransient(_ => context.GetService<IMigrationsModelDiffer>())
                 .AddTransient(_ => context.GetService<IMigrator>())
+                .AddTransient(_ => context.GetService<IRelationalTypeMappingSource>())
                 .AddTransient(_ => context.GetService<IModel>());
     }
 }

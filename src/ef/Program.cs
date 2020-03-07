@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -17,10 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 Console.OutputEncoding = Encoding.UTF8;
             }
 
-            var app = new CommandLineApplication
-            {
-                Name = "ef"
-            };
+            var app = new CommandLineApplication { Name = "ef" };
 
             new RootCommand().Configure(app);
 
@@ -33,8 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 var wrappedException = ex as WrappedException;
                 if (ex is CommandException
                     || ex is CommandParsingException
-                    || (wrappedException != null
-                        && wrappedException.Type == "Microsoft.EntityFrameworkCore.Design.OperationException"))
+                    || (wrappedException?.Type == "Microsoft.EntityFrameworkCore.Design.OperationException"))
                 {
                     Reporter.WriteVerbose(ex.ToString());
                 }

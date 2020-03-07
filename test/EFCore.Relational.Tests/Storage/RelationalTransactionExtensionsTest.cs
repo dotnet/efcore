@@ -2,13 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -16,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class RelationalTransactionExtensionsTest
     {
-        [Fact]
+        [ConditionalFact]
         public void GetDbTransaction_returns_the_DbTransaction()
         {
             var dbConnection = new FakeDbConnection(ConnectionString);
@@ -25,21 +27,24 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var connection = new FakeRelationalConnection(
                 CreateOptions((FakeRelationalOptionsExtension)new FakeRelationalOptionsExtension().WithConnection(dbConnection)));
 
-            var loggerFactory = new ListLoggerFactory(new List<(LogLevel, EventId, string)>());
+            var loggerFactory = new ListLoggerFactory();
 
             var transaction = new RelationalTransaction(
                 connection,
                 dbTransaction,
+                new Guid(),
                 new DiagnosticsLogger<DbLoggerCategory.Database.Transaction>(
                     loggerFactory,
                     new LoggingOptions(),
-                    new DiagnosticListener("Fake")),
+                    new DiagnosticListener("Fake"),
+                    new TestRelationalLoggingDefinitions(),
+                    new NullDbContextLogger()),
                 false);
 
             Assert.Equal(dbTransaction, transaction.GetDbTransaction());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetDbTransaction_throws_on_non_relational_provider()
         {
             var transaction = new NonRelationalTransaction();
@@ -52,22 +57,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private class NonRelationalTransaction : IDbContextTransaction
         {
-            public virtual Guid TransactionId { get; } = Guid.NewGuid();
+            public Guid TransactionId { get; } = Guid.NewGuid();
 
-            public void Commit()
-            {
-                throw new NotImplementedException();
-            }
-
-            public void Dispose()
-            {
-                throw new NotImplementedException();
-            }
-
-            public void Rollback()
-            {
-                throw new NotImplementedException();
-            }
+            public void Commit() => throw new NotImplementedException();
+            public void Dispose() => throw new NotImplementedException();
+            public void Rollback() => throw new NotImplementedException();
+            public Task CommitAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+            public Task RollbackAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+            public ValueTask DisposeAsync() => throw new NotImplementedException();
         }
 
         private const string ConnectionString = "Fake Connection String";

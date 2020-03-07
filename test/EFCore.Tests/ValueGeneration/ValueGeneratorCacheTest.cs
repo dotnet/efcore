@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
     public class ValueGeneratorCacheTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Uses_single_generator_per_property()
         {
             var model = CreateModel();
@@ -31,13 +31,14 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             Assert.NotSame(generator1, generator2);
         }
 
-        private static Model CreateModel(bool generateValues = true)
+        private static IMutableModel CreateModel(bool generateValues = true)
         {
-            var model = new Model();
+            IMutableModel model = new Model();
 
             var entityType = model.AddEntityType("Led");
             entityType.AddProperty("Zeppelin", typeof(Guid));
-            entityType.AddProperty("Stairway", typeof(Guid)).ValueGenerated = generateValues ? ValueGenerated.OnAdd : ValueGenerated.Never;
+            entityType.AddProperty("Stairway", typeof(Guid))
+                .ValueGenerated = generateValues ? ValueGenerated.OnAdd : ValueGenerated.Never;
 
             return model;
         }

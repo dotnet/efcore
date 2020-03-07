@@ -2,17 +2,17 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class RelationalMetadataExtensionsTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_fixed_length()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -22,36 +22,40 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Property(e => e.Name)
                 .Metadata;
 
-            Assert.False(property.Relational().IsFixedLength);
+            Assert.Null(property.IsFixedLength());
 
-            property.Relational().IsFixedLength = true;
+            property.SetIsFixedLength(true);
 
-            Assert.True(property.Relational().IsFixedLength);
+            Assert.True(property.IsFixedLength());
 
-            property.Relational().IsFixedLength = false;
+            property.SetIsFixedLength(false);
 
-            Assert.False(property.Relational().IsFixedLength);
+            Assert.False(property.IsFixedLength());
+
+            property.SetIsFixedLength(null);
+
+            Assert.Null(property.IsFixedLength());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_index_filter()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
 
-            var property = modelBuilder
+            var index = modelBuilder
                 .Entity<Customer>()
                 .HasIndex(e => e.Id)
                 .HasFilter("[Id] % 2 = 0")
                 .Metadata;
 
-            Assert.Equal("[Id] % 2 = 0", property.Relational().Filter);
+            Assert.Equal("[Id] % 2 = 0", index.GetFilter());
 
-            property.Relational().Filter = "[Id] % 3 = 0";
+            index.SetFilter("[Id] % 3 = 0");
 
-            Assert.Equal("[Id] % 3 = 0", property.Relational().Filter);
+            Assert.Equal("[Id] % 3 = 0", index.GetFilter());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_column_name()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -61,19 +65,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Property(e => e.Name)
                 .Metadata;
 
-            Assert.Equal("Name", property.Relational().ColumnName);
+            Assert.Equal("Name", property.GetColumnName());
 
-            property.Relational().ColumnName = "Eman";
+            property.SetColumnName("Eman");
 
             Assert.Equal("Name", property.Name);
-            Assert.Equal("Eman", property.Relational().ColumnName);
+            Assert.Equal("Eman", property.GetColumnName());
 
-            property.Relational().ColumnName = null;
+            property.SetColumnName(null);
 
-            Assert.Equal("Name", property.Relational().ColumnName);
+            Assert.Equal("Name", property.GetColumnName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_table_name()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -82,19 +86,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Entity<Customer>()
                 .Metadata;
 
-            Assert.Equal("Customer", entityType.Relational().TableName);
+            Assert.Equal("Customer", entityType.GetTableName());
 
-            entityType.Relational().TableName = "Customizer";
+            entityType.SetTableName("Customizer");
 
             Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.Relational().TableName);
+            Assert.Equal("Customizer", entityType.GetTableName());
 
-            entityType.Relational().TableName = null;
+            entityType.SetTableName(null);
 
-            Assert.Equal("Customer", entityType.Relational().TableName);
+            Assert.Null(entityType.GetTableName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_schema_name_on_entity_type()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -103,18 +107,40 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Entity<Customer>()
                 .Metadata;
 
-            Assert.Null(entityType.Relational().Schema);
+            Assert.Null(entityType.GetSchema());
 
-            entityType.Relational().Schema = "db0";
+            entityType.SetSchema("db0");
 
-            Assert.Equal("db0", entityType.Relational().Schema);
+            Assert.Equal("db0", entityType.GetSchema());
 
-            entityType.Relational().Schema = null;
+            entityType.SetSchema(null);
 
-            Assert.Null(entityType.Relational().Schema);
+            Assert.Null(entityType.GetSchema());
         }
 
-        [Fact]
+        [ConditionalFact]
+        public void Can_get_table_and_schema_name_for_non_owned_entity_types_with_defining_navigation()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+
+            var orderType = modelBuilder
+                .Entity<Order>()
+                .Metadata;
+
+            var customerType = modelBuilder.Model.AddEntityType(typeof(Customer), nameof(Order.Customer), orderType);
+
+            Assert.Equal("Order_Customer", customerType.GetTableName());
+
+            orderType.SetTableName(null);
+
+            Assert.Equal("Customer_Customer", customerType.GetTableName());
+
+            customerType.SetTableName("Customizer");
+
+            Assert.Equal("Customizer", customerType.GetTableName());
+        }
+
+        [ConditionalFact]
         public void Gets_model_schema_if_schema_on_entity_type_not_set()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -123,18 +149,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Entity<Customer>()
                 .Metadata;
 
-            Assert.Null(entityType.Relational().Schema);
+            Assert.Null(entityType.GetSchema());
 
-            modelBuilder.Model.Relational().DefaultSchema = "db0";
+            modelBuilder.Model.SetDefaultSchema("db0");
 
-            Assert.Equal("db0", entityType.Relational().Schema);
+            Assert.Equal("db0", entityType.GetSchema());
 
-            modelBuilder.Model.Relational().DefaultSchema = null;
+            modelBuilder.Model.SetDefaultSchema(null);
 
-            Assert.Null(entityType.Relational().Schema);
+            Assert.Null(entityType.GetSchema());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_column_type()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -144,18 +170,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Property(e => e.Name)
                 .Metadata;
 
-            Assert.Null(property.Relational().ColumnType);
+            Assert.Null(property.GetColumnType());
 
-            property.Relational().ColumnType = "nvarchar(max)";
+            property.SetColumnType("nvarchar(max)");
 
-            Assert.Equal("nvarchar(max)", property.Relational().ColumnType);
+            Assert.Equal("nvarchar(max)", property.GetColumnType());
 
-            property.Relational().ColumnType = null;
+            property.SetColumnType(null);
 
-            Assert.Null(property.Relational().ColumnType);
+            Assert.Null(property.GetColumnType());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_column_default_expression()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -165,18 +191,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Property(e => e.Name)
                 .Metadata;
 
-            Assert.Null(property.Relational().DefaultValueSql);
+            Assert.Null(property.GetDefaultValueSql());
 
-            property.Relational().DefaultValueSql = "newsequentialid()";
+            property.SetDefaultValueSql("newsequentialid()");
 
-            Assert.Equal("newsequentialid()", property.Relational().DefaultValueSql);
+            Assert.Equal("newsequentialid()", property.GetDefaultValueSql());
 
-            property.Relational().DefaultValueSql = null;
+            property.SetDefaultValueSql(null);
 
-            Assert.Null(property.Relational().DefaultValueSql);
+            Assert.Null(property.GetDefaultValueSql());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_column_computed_expression()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -186,18 +212,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Property(e => e.Name)
                 .Metadata;
 
-            Assert.Null(property.Relational().ComputedColumnSql);
+            Assert.Null(property.GetComputedColumnSql());
 
-            property.Relational().ComputedColumnSql = "newsequentialid()";
+            property.SetComputedColumnSql("newsequentialid()");
 
-            Assert.Equal("newsequentialid()", property.Relational().ComputedColumnSql);
+            Assert.Equal("newsequentialid()", property.GetComputedColumnSql());
 
-            property.Relational().ComputedColumnSql = null;
+            property.SetComputedColumnSql(null);
 
-            Assert.Null(property.Relational().ComputedColumnSql);
+            Assert.Null(property.GetComputedColumnSql());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_column_default_value()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -207,20 +233,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Property(e => e.AlternateId)
                 .Metadata;
 
-            Assert.Null(property.Relational().DefaultValue);
+            Assert.Null(property.GetDefaultValue());
 
             var guid = new Guid("{3FDFC4F5-AEAB-4D72-9C96-201E004349FA}");
 
-            property.Relational().DefaultValue = guid;
+            property.SetDefaultValue(guid);
 
-            Assert.Equal(guid, property.Relational().DefaultValue);
+            Assert.Equal(guid, property.GetDefaultValue());
 
-            property.Relational().DefaultValue = null;
+            property.SetDefaultValue(null);
 
-            Assert.Null(property.Relational().DefaultValue);
+            Assert.Null(property.GetDefaultValue());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_column_default_value_of_enum_type()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -230,19 +256,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Property(e => e.EnumValue)
                 .Metadata;
 
-            Assert.Null(property.Relational().DefaultValue);
+            Assert.Null(property.GetDefaultValue());
 
-            property.Relational().DefaultValue = MyEnum.Mon;
+            property.SetDefaultValue(MyEnum.Mon);
 
-            Assert.Equal(typeof(MyEnum), property.Relational().DefaultValue.GetType());
-            Assert.Equal(MyEnum.Mon, property.Relational().DefaultValue);
+            Assert.Equal(typeof(MyEnum), property.GetDefaultValue().GetType());
+            Assert.Equal(MyEnum.Mon, property.GetDefaultValue());
 
-            property.Relational().DefaultValue = null;
+            property.SetDefaultValue(null);
 
-            Assert.Null(property.Relational().DefaultValue);
+            Assert.Null(property.GetDefaultValue());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_when_setting_column_default_value_of_wrong_type()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -252,62 +278,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Property(e => e.Name)
                 .Metadata;
 
-            Assert.Null(property.Relational().DefaultValue);
+            Assert.Null(property.GetDefaultValue());
 
             var guid = new Guid("{3FDFC4F5-AEAB-4D72-9C96-201E004349FA}");
 
             Assert.Equal(
-                RelationalStrings.IncorrectDefaultValueType(guid, typeof(Guid), property.Name, property.ClrType, property.DeclaringEntityType.DisplayName()),
-                Assert.Throws<InvalidOperationException>(() => property.Relational().DefaultValue = guid).Message);
+                RelationalStrings.IncorrectDefaultValueType(
+                    guid, typeof(Guid), property.Name, property.ClrType, property.DeclaringEntityType.DisplayName()),
+                Assert.Throws<InvalidOperationException>(() => property.SetDefaultValue(guid)).Message);
         }
 
-        [Theory]
-        [InlineData(nameof(RelationalPropertyAnnotations.DefaultValue), nameof(RelationalPropertyAnnotations.DefaultValueSql))]
-        [InlineData(nameof(RelationalPropertyAnnotations.DefaultValue), nameof(RelationalPropertyAnnotations.ComputedColumnSql))]
-        [InlineData(nameof(RelationalPropertyAnnotations.DefaultValueSql), nameof(RelationalPropertyAnnotations.DefaultValue))]
-        [InlineData(nameof(RelationalPropertyAnnotations.DefaultValueSql), nameof(RelationalPropertyAnnotations.ComputedColumnSql))]
-        [InlineData(nameof(RelationalPropertyAnnotations.ComputedColumnSql), nameof(RelationalPropertyAnnotations.DefaultValue))]
-        [InlineData(nameof(RelationalPropertyAnnotations.ComputedColumnSql), nameof(RelationalPropertyAnnotations.DefaultValueSql))]
-        public void Metadata_throws_when_setting_conflicting_serverGenerated_values(string firstConfiguration, string secondConfiguration)
-        {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
-
-            var propertyBuilder = modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Name);
-
-            ConfigureProperty(propertyBuilder.Metadata, firstConfiguration, "first");
-
-            Assert.Equal(
-                RelationalStrings.ConflictingColumnServerGeneration(secondConfiguration, nameof(Customer.Name), firstConfiguration),
-                Assert.Throws<InvalidOperationException>(
-                    () =>
-                        ConfigureProperty(propertyBuilder.Metadata, secondConfiguration, "second")).Message);
-        }
-
-        protected virtual void ConfigureProperty(IMutableProperty property, string configuration, string value)
-        {
-            var propertyAnnotations = property.Relational();
-            switch (configuration)
-            {
-                case nameof(RelationalPropertyAnnotations.DefaultValue):
-                    property.ValueGenerated = ValueGenerated.OnAdd;
-                    propertyAnnotations.DefaultValue = value;
-                    break;
-                case nameof(RelationalPropertyAnnotations.DefaultValueSql):
-                    property.ValueGenerated = ValueGenerated.OnAdd;
-                    propertyAnnotations.DefaultValueSql = value;
-                    break;
-                case nameof(RelationalPropertyAnnotations.ComputedColumnSql):
-                    property.ValueGenerated = ValueGenerated.OnAdd;
-                    propertyAnnotations.ComputedColumnSql = value;
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
-        }
-
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_column_key_name()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -317,18 +298,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasKey(e => e.Id)
                 .Metadata;
 
-            Assert.Equal("PK_Customer", key.Relational().Name);
+            Assert.Equal("PK_Customer", key.GetName());
 
-            key.Relational().Name = "PrimaryKey";
+            key.SetName("PrimaryKey");
 
-            Assert.Equal("PrimaryKey", key.Relational().Name);
+            Assert.Equal("PrimaryKey", key.GetName());
 
-            key.Relational().Name = null;
+            key.SetName(null);
 
-            Assert.Equal("PK_Customer", key.Relational().Name);
+            Assert.Equal("PK_Customer", key.GetName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_column_foreign_key_name()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -344,18 +325,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasForeignKey<Order>(e => e.CustomerId)
                 .Metadata;
 
-            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
+            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.GetConstraintName());
 
-            foreignKey.Relational().Name = "FK";
+            foreignKey.SetConstraintName("FK");
 
-            Assert.Equal("FK", foreignKey.Relational().Name);
+            Assert.Equal("FK", foreignKey.GetConstraintName());
 
-            foreignKey.Relational().Name = null;
+            foreignKey.SetConstraintName(null);
 
-            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
+            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.GetConstraintName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_index_name()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -365,18 +346,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasIndex(e => e.Id)
                 .Metadata;
 
-            Assert.Equal("IX_Customer_Id", index.Relational().Name);
+            Assert.Equal("IX_Customer_Id", index.GetName());
 
-            index.Relational().Name = "MyIndex";
+            index.SetName("MyIndex");
 
-            Assert.Equal("MyIndex", index.Relational().Name);
+            Assert.Equal("MyIndex", index.GetName());
 
-            index.Relational().Name = null;
+            index.SetName(null);
 
-            Assert.Equal("IX_Customer_Id", index.Relational().Name);
+            Assert.Equal("IX_Customer_Id", index.GetName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_discriminator()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -385,138 +366,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Entity<Customer>()
                 .Metadata;
 
-            Assert.Null(entityType.Relational().DiscriminatorProperty);
+            Assert.Null(entityType.GetDiscriminatorProperty());
 
             var property = entityType.AddProperty("D", typeof(string));
 
-            entityType.Relational().DiscriminatorProperty = property;
+            entityType.SetDiscriminatorProperty(property);
 
-            Assert.Same(property, entityType.Relational().DiscriminatorProperty);
+            Assert.Same(property, entityType.GetDiscriminatorProperty());
 
-            entityType.Relational().DiscriminatorProperty = null;
+            entityType.SetDiscriminatorProperty(null);
 
-            Assert.Null(entityType.Relational().DiscriminatorProperty);
+            Assert.Null(entityType.GetDiscriminatorProperty());
         }
 
-        [Fact]
-        public void Setting_discriminator_on_non_root_type_throws()
-        {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
-
-            var entityType = modelBuilder
-                .Entity<Customer>()
-                .Metadata;
-            var property = entityType.AddProperty("D", typeof(string));
-
-            var derivedType = modelBuilder
-                .Entity<SpecialCustomer>()
-                .Metadata;
-            derivedType.BaseType = entityType;
-
-            Assert.Equal(
-                RelationalStrings.DiscriminatorPropertyMustBeOnRoot(nameof(SpecialCustomer)),
-                Assert.Throws<InvalidOperationException>(() => derivedType.Relational().DiscriminatorProperty = property).Message);
-        }
-
-        [Fact]
-        public void Setting_discriminator_from_different_entity_type_throws()
-        {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
-
-            var entityType = modelBuilder
-                .Entity<Customer>()
-                .Metadata;
-
-            var otherType = modelBuilder
-                .Entity<SpecialCustomer>()
-                .Metadata;
-
-            var property = entityType.AddProperty("D", typeof(string));
-
-            Assert.Equal(
-                RelationalStrings.DiscriminatorPropertyNotFound("D", nameof(SpecialCustomer)),
-                Assert.Throws<InvalidOperationException>(() => otherType.Relational().DiscriminatorProperty = property).Message);
-        }
-
-        [Fact]
-        public void Can_get_and_set_discriminator_value()
-        {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
-
-            var entityType = modelBuilder
-                .Entity<Customer>()
-                .Metadata;
-
-            var property = entityType.AddProperty("D", typeof(string));
-            entityType.Relational().DiscriminatorProperty = property;
-
-            Assert.Null(entityType.Relational().DiscriminatorValue);
-
-            entityType.Relational().DiscriminatorValue = "V";
-
-            Assert.Equal("V", entityType.Relational().DiscriminatorValue);
-
-            entityType.Relational().DiscriminatorValue = null;
-
-            Assert.Null(entityType.Relational().DiscriminatorValue);
-        }
-
-        [Fact]
-        public void Setting_discriminator_value_when_discriminator_not_set_throws()
-        {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
-
-            var entityType = modelBuilder
-                .Entity<Customer>()
-                .Metadata;
-
-            Assert.Equal(
-                RelationalStrings.NoDiscriminatorForValue("Customer", "Customer"),
-                Assert.Throws<InvalidOperationException>(
-                    () =>
-                        entityType.Relational().DiscriminatorValue = "V").Message);
-        }
-
-        [Fact]
-        public void Setting_incompatible_discriminator_value_throws()
-        {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
-
-            var entityType = modelBuilder
-                .Entity<Customer>()
-                .Metadata;
-
-            var property = entityType.AddProperty("D", typeof(int));
-            entityType.Relational().DiscriminatorProperty = property;
-
-            Assert.Equal(
-                RelationalStrings.DiscriminatorValueIncompatible("V", "D", typeof(int)),
-                Assert.Throws<InvalidOperationException>(
-                    () =>
-                        entityType.Relational().DiscriminatorValue = "V").Message);
-
-            entityType.Relational().DiscriminatorValue = null;
-        }
-
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_schema_name_on_model()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
             var model = modelBuilder.Model;
-            var extensions = model.Relational();
 
-            Assert.Null(extensions.DefaultSchema);
+            Assert.Null(model.GetDefaultSchema());
 
-            extensions.DefaultSchema = "db0";
+            model.SetDefaultSchema("db0");
 
-            Assert.Equal("db0", extensions.DefaultSchema);
+            Assert.Equal("db0", model.GetDefaultSchema());
 
-            extensions.DefaultSchema = null;
+            model.SetDefaultSchema(null);
 
-            Assert.Null(extensions.DefaultSchema);
+            Assert.Null(model.GetDefaultSchema());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_dbfunction()
         {
             var testMethod = typeof(TestDbFunctions).GetTypeInfo().GetDeclaredMethod(nameof(TestDbFunctions.MethodA));
@@ -524,29 +404,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = new ModelBuilder(new ConventionSet());
             var model = modelBuilder.Model;
 
-            Assert.Null(model.Relational().FindDbFunction(testMethod));
+            Assert.Null(model.FindDbFunction(testMethod));
 
-            var dbFunc = model.Relational().GetOrAddDbFunction(testMethod);
+            var dbFunc = model.AddDbFunction(testMethod);
 
             Assert.NotNull(dbFunc);
-            Assert.Null(dbFunc.FunctionName);
+            Assert.NotNull(dbFunc.Name);
             Assert.Null(dbFunc.Schema);
+            Assert.NotNull(((IConventionDbFunction)dbFunc).Builder);
+
+            Assert.Same(dbFunc, model.RemoveDbFunction(testMethod));
+
+            Assert.Null(((IConventionDbFunction)dbFunc).Builder);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_sequence()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
             var model = modelBuilder.Model;
-            var extensions = model.Relational();
 
-            Assert.Null(extensions.FindSequence("Foo"));
-            Assert.Null(model.Relational().FindSequence("Foo"));
+            Assert.Null(model.FindSequence("Foo"));
 
-            var sequence = extensions.GetOrAddSequence("Foo");
+            var sequence = model.AddSequence("Foo");
 
-            Assert.Equal("Foo", extensions.FindSequence("Foo").Name);
-            Assert.Equal("Foo", model.Relational().FindSequence("Foo").Name);
+            Assert.Equal("Foo", model.FindSequence("Foo").Name);
 
             Assert.Equal("Foo", sequence.Name);
             Assert.Null(sequence.Schema);
@@ -555,8 +437,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
             Assert.Same(typeof(long), sequence.ClrType);
+            Assert.False(sequence.IsCyclic);
+            Assert.NotNull(((IConventionSequence)sequence).Builder);
 
-            var sequence2 = extensions.GetOrAddSequence("Foo");
+            Assert.Same(sequence, model.FindSequence("Foo"));
 
             sequence.StartValue = 1729;
             sequence.IncrementBy = 11;
@@ -572,29 +456,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(2010, sequence.MaxValue);
             Assert.Same(typeof(int), sequence.ClrType);
 
-            Assert.Equal(sequence2.Name, sequence.Name);
-            Assert.Equal(sequence2.Schema, sequence.Schema);
-            Assert.Equal(sequence2.IncrementBy, sequence.IncrementBy);
-            Assert.Equal(sequence2.StartValue, sequence.StartValue);
-            Assert.Equal(sequence2.MinValue, sequence.MinValue);
-            Assert.Equal(sequence2.MaxValue, sequence.MaxValue);
-            Assert.Same(sequence2.ClrType, sequence.ClrType);
+            Assert.Same(sequence, model.RemoveSequence("Foo"));
+
+            Assert.Null(((IConventionSequence)sequence).Builder);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_sequence_with_schema_name()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
             var model = modelBuilder.Model;
-            var extensions = model.Relational();
 
-            Assert.Null(extensions.FindSequence("Foo", "Smoo"));
-            Assert.Null(model.Relational().FindSequence("Foo", "Smoo"));
+            Assert.Null(model.FindSequence("Foo", "Smoo"));
 
-            var sequence = extensions.GetOrAddSequence("Foo", "Smoo");
+            var sequence = model.AddSequence("Foo", "Smoo");
 
-            Assert.Equal("Foo", extensions.FindSequence("Foo", "Smoo").Name);
-            Assert.Equal("Foo", model.Relational().FindSequence("Foo", "Smoo").Name);
+            Assert.Equal("Foo", model.FindSequence("Foo", "Smoo").Name);
+            Assert.Equal("Foo", model.FindSequence("Foo", "Smoo").Name);
 
             Assert.Equal("Foo", sequence.Name);
             Assert.Equal("Smoo", sequence.Schema);
@@ -604,7 +482,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(sequence.MaxValue);
             Assert.Same(typeof(long), sequence.ClrType);
 
-            var sequence2 = extensions.GetOrAddSequence("Foo", "Smoo");
+            Assert.Same(sequence, model.FindSequence("Foo", "Smoo"));
 
             sequence.StartValue = 1729;
             sequence.IncrementBy = 11;
@@ -619,31 +497,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(2001, sequence.MinValue);
             Assert.Equal(2010, sequence.MaxValue);
             Assert.Same(typeof(int), sequence.ClrType);
-
-            Assert.Equal(sequence2.Name, sequence.Name);
-            Assert.Equal(sequence2.Schema, sequence.Schema);
-            Assert.Equal(sequence2.IncrementBy, sequence.IncrementBy);
-            Assert.Equal(sequence2.StartValue, sequence.StartValue);
-            Assert.Equal(sequence2.MinValue, sequence.MinValue);
-            Assert.Equal(sequence2.MaxValue, sequence.MaxValue);
-            Assert.Same(sequence2.ClrType, sequence.ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Sequence_is_in_model_schema_if_schema_not_specified()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
             var model = modelBuilder.Model;
-            var extensions = model.Relational();
-            extensions.DefaultSchema = "Smoo";
+            model.SetDefaultSchema("Smoo");
 
-            Assert.Null(extensions.FindSequence("Foo"));
-            Assert.Null(model.Relational().FindSequence("Foo"));
+            Assert.Null(model.FindSequence("Foo"));
 
-            var sequence = extensions.GetOrAddSequence("Foo");
+            var sequence = model.AddSequence("Foo");
 
-            Assert.Equal("Foo", extensions.FindSequence("Foo").Name);
-            Assert.Equal("Foo", model.Relational().FindSequence("Foo").Name);
+            Assert.Same(sequence, model.FindSequence("Foo"));
 
             Assert.Equal("Foo", sequence.Name);
             Assert.Equal("Smoo", sequence.Schema);
@@ -654,20 +521,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(typeof(long), sequence.ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Returns_same_sequence_if_schema_not_specified_explicitly()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
             var model = modelBuilder.Model;
-            var extensions = model.Relational();
 
-            Assert.Null(extensions.FindSequence("Foo"));
-            Assert.Null(model.Relational().FindSequence("Foo"));
+            Assert.Null(model.FindSequence("Foo"));
 
-            var sequence = extensions.GetOrAddSequence("Foo");
+            var sequence = model.AddSequence("Foo");
 
-            Assert.Equal("Foo", extensions.FindSequence("Foo").Name);
-            Assert.Equal("Foo", model.Relational().FindSequence("Foo").Name);
+            Assert.Same(sequence, model.FindSequence("Foo"));
 
             Assert.Equal("Foo", sequence.Name);
             Assert.Null(sequence.Schema);
@@ -677,9 +541,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(sequence.MaxValue);
             Assert.Same(typeof(long), sequence.ClrType);
 
-            extensions.DefaultSchema = "Smoo";
+            model.SetDefaultSchema("Smoo");
 
-            var sequence2 = extensions.GetOrAddSequence("Foo");
+            Assert.Same(sequence, model.FindSequence("Foo"));
 
             sequence.StartValue = 1729;
             sequence.IncrementBy = 11;
@@ -694,29 +558,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(2001, sequence.MinValue);
             Assert.Equal(2010, sequence.MaxValue);
             Assert.Same(typeof(int), sequence.ClrType);
-
-            Assert.Equal(sequence2.Name, sequence.Name);
-            Assert.Equal(sequence2.Schema, sequence.Schema);
-            Assert.Equal(sequence2.IncrementBy, sequence.IncrementBy);
-            Assert.Equal(sequence2.StartValue, sequence.StartValue);
-            Assert.Equal(sequence2.MinValue, sequence.MinValue);
-            Assert.Equal(sequence2.MaxValue, sequence.MaxValue);
-            Assert.Same(sequence2.ClrType, sequence.ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_multiple_sequences()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
             var model = modelBuilder.Model;
-            var extensions = model.Relational();
 
-            extensions.GetOrAddSequence("Fibonacci");
-            extensions.GetOrAddSequence("Golomb");
+            model.AddSequence("Fibonacci");
+            model.AddSequence("Golomb");
 
-            var sequences = model.Relational().Sequences;
+            var sequences = model.GetSequences();
 
-            Assert.Equal(2, sequences.Count);
+            Assert.Equal(2, sequences.Count());
             Assert.Contains(sequences, s => s.Name == "Fibonacci");
             Assert.Contains(sequences, s => s.Name == "Golomb");
         }
@@ -744,6 +599,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             public int OrderId { get; set; }
             public int CustomerId { get; set; }
+            public Customer Customer { get; set; }
         }
     }
 }

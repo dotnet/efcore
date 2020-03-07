@@ -4,6 +4,7 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -16,9 +17,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private EntityEntry _entry;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         public EntityEntryEventArgs(
             [NotNull] InternalEntityEntry internalEntityEntry)
         {
@@ -28,6 +32,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     The <see cref="EntityEntry" /> for the entity.
         /// </summary>
-        public virtual EntityEntry Entry => _entry ?? (_entry = new EntityEntry(_internalEntityEntry));
+        public virtual EntityEntry Entry => _entry ??= new EntityEntry(_internalEntityEntry);
     }
 }

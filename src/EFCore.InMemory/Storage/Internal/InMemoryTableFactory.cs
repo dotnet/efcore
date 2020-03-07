@@ -8,25 +8,30 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class InMemoryTableFactory : IdentityMapFactoryFactoryBase, IInMemoryTableFactory
+    public class InMemoryTableFactory
+        // WARNING: The in-memory provider is using EF internal code here. This should not be copied by other providers. See #15096
+        : IdentityMapFactoryFactoryBase, IInMemoryTableFactory
     {
-        private readonly bool _sensitiveLoggingEnabled = false;
+        private readonly bool _sensitiveLoggingEnabled;
 
-        private readonly ConcurrentDictionary<IKey, Func<IInMemoryTable>> _factories
-            = new ConcurrentDictionary<IKey, Func<IInMemoryTable>>();
+        private readonly ConcurrentDictionary<IEntityType, Func<IInMemoryTable>> _factories
+            = new ConcurrentDictionary<IEntityType, Func<IInMemoryTable>>();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InMemoryTableFactory([NotNull] ILoggingOptions loggingOptions)
         {
@@ -36,20 +41,22 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IInMemoryTable Create(IEntityType entityType)
-            => _factories.GetOrAdd(entityType.FindPrimaryKey(), Create)();
+            => _factories.GetOrAdd(entityType, CreateTable)();
 
-        private Func<IInMemoryTable> Create([NotNull] IKey key)
+        private Func<IInMemoryTable> CreateTable([NotNull] IEntityType entityType)
             => (Func<IInMemoryTable>)typeof(InMemoryTableFactory).GetTypeInfo()
                 .GetDeclaredMethod(nameof(CreateFactory))
-                .MakeGenericMethod(GetKeyType(key))
-                .Invoke(null, new object[] { key, _sensitiveLoggingEnabled });
+                .MakeGenericMethod(GetKeyType(entityType.FindPrimaryKey()))
+                .Invoke(null, new object[] { entityType, _sensitiveLoggingEnabled });
 
         [UsedImplicitly]
-        private static Func<IInMemoryTable> CreateFactory<TKey>(IKey key, bool sensitiveLoggingEnabled)
-            => () => new InMemoryTable<TKey>(key.GetPrincipalKeyValueFactory<TKey>(), sensitiveLoggingEnabled);
+        private static Func<IInMemoryTable> CreateFactory<TKey>(IEntityType entityType, bool sensitiveLoggingEnabled)
+            => () => new InMemoryTable<TKey>(entityType, sensitiveLoggingEnabled);
     }
 }

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -21,92 +20,39 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class ReferenceCollectionBuilder : IInfrastructure<IMutableModel>, IInfrastructure<InternalRelationshipBuilder>
+    public class ReferenceCollectionBuilder : RelationshipBuilderBase
     {
-        private readonly EntityType _principalEntityType;
-        private readonly EntityType _dependentEntityType;
-        private readonly IReadOnlyList<Property> _foreignKeyProperties;
-        private readonly IReadOnlyList<Property> _principalKeyProperties;
-        private readonly bool? _required;
-
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         public ReferenceCollectionBuilder(
-            [NotNull] EntityType principalEntityType,
-            [NotNull] EntityType dependentEntityType,
-            [NotNull] InternalRelationshipBuilder builder)
-            : this(builder, null)
+            [NotNull] IMutableEntityType principalEntityType,
+            [NotNull] IMutableEntityType dependentEntityType,
+            [NotNull] IMutableForeignKey foreignKey)
+            : base(principalEntityType, dependentEntityType, foreignKey)
         {
-            Check.NotNull(builder, nameof(builder));
-
-            _principalEntityType = principalEntityType;
-            _dependentEntityType = dependentEntityType;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected ReferenceCollectionBuilder(
-            InternalRelationshipBuilder builder,
-            ReferenceCollectionBuilder oldBuilder,
+            [NotNull] InternalRelationshipBuilder builder,
+            [CanBeNull] ReferenceCollectionBuilder oldBuilder,
             bool foreignKeySet = false,
             bool principalKeySet = false,
             bool requiredSet = false)
+            : base(builder, oldBuilder, foreignKeySet, principalKeySet, requiredSet)
         {
-            Check.NotNull(builder, nameof(builder));
-
-            Builder = builder;
-            if (oldBuilder != null)
-            {
-                _principalEntityType = oldBuilder._principalEntityType;
-                _dependentEntityType = oldBuilder._dependentEntityType;
-                _foreignKeyProperties = foreignKeySet
-                    ? builder.Metadata.Properties
-                    : oldBuilder._foreignKeyProperties;
-                _principalKeyProperties = principalKeySet
-                    ? builder.Metadata.PrincipalKey.Properties
-                    : oldBuilder._principalKeyProperties;
-                _required = requiredSet
-                    ? builder.Metadata.IsRequired
-                    : oldBuilder._required;
-
-                var foreignKey = builder.Metadata;
-                ForeignKey.AreCompatible(
-                    _principalEntityType,
-                    _dependentEntityType,
-                    foreignKey.DependentToPrincipal?.GetIdentifyingMemberInfo(),
-                    foreignKey.PrincipalToDependent?.GetIdentifyingMemberInfo(),
-                    _foreignKeyProperties,
-                    _principalKeyProperties,
-                    foreignKey.IsUnique,
-                    _required,
-                    true);
-            }
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual InternalRelationshipBuilder Builder { get; }
-
-        /// <summary>
-        ///     The foreign key that represents this relationship.
-        /// </summary>
-        public virtual IMutableForeignKey Metadata => Builder.Metadata;
-
-        /// <summary>
-        ///     The model that this relationship belongs to.
-        /// </summary>
-        IMutableModel IInfrastructure<IMutableModel>.Instance => Builder.ModelBuilder.Metadata;
-
-        /// <summary>
-        ///     Gets the internal builder being used to configure this relationship.
-        /// </summary>
-        InternalRelationshipBuilder IInfrastructure<InternalRelationshipBuilder>.Instance => Builder;
 
         /// <summary>
         ///     Adds or updates an annotation on the relationship. If an annotation with the key specified in
@@ -132,9 +78,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         If the specified property name(s) do not exist on the entity type then a new shadow state
-        ///         property(s) will be added to serve as the foreign key. A shadow state property is one that does not
-        ///         have a corresponding property in the entity class. The current value for the  property is stored in
-        ///         the <see cref="ChangeTracker" /> rather than being stored in instances
+        ///         property(s) will be added to serve as the foreign key. A shadow state property is one
+        ///         that does not have a corresponding property in the entity class. The current value for the
+        ///         property is stored in the <see cref="ChangeTracker" /> rather than being stored in instances
         ///         of the entity class.
         ///     </para>
         ///     <para>
@@ -155,18 +101,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 foreignKeySet: true);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected virtual InternalRelationshipBuilder HasForeignKeyBuilder([NotNull] IReadOnlyList<string> foreignKeyPropertyNames)
-            => Builder.HasForeignKey(foreignKeyPropertyNames, _dependentEntityType, ConfigurationSource.Explicit);
+            => Builder.HasForeignKey(foreignKeyPropertyNames, (EntityType)DependentEntityType, ConfigurationSource.Explicit);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual InternalRelationshipBuilder HasForeignKeyBuilder([NotNull] IReadOnlyList<PropertyInfo> foreignKeyProperties)
-            => Builder.HasForeignKey(foreignKeyProperties, _dependentEntityType, ConfigurationSource.Explicit);
+        [EntityFrameworkInternal]
+        protected virtual InternalRelationshipBuilder HasForeignKeyBuilder([NotNull] IReadOnlyList<MemberInfo> foreignKeyProperties)
+            => Builder.HasForeignKey(foreignKeyProperties, (EntityType)DependentEntityType, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
@@ -174,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
         ///     constraint will be introduced.
         /// </summary>
-        /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
+        /// <param name="keyPropertyNames"> The name(s) of the referenced key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceCollectionBuilder HasPrincipalKey([NotNull] params string[] keyPropertyNames)
             => new ReferenceCollectionBuilder(
@@ -183,22 +135,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 principalKeySet: true);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected virtual InternalRelationshipBuilder HasPrincipalKeyBuilder([NotNull] IReadOnlyList<string> keyPropertyNames)
             => Builder.HasPrincipalKey(keyPropertyNames, ConfigurationSource.Explicit);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual InternalRelationshipBuilder HasPrincipalKeyBuilder([NotNull] IReadOnlyList<PropertyInfo> keyProperties)
+        [EntityFrameworkInternal]
+        protected virtual InternalRelationshipBuilder HasPrincipalKeyBuilder([NotNull] IReadOnlyList<MemberInfo> keyProperties)
             => Builder.HasPrincipalKey(keyProperties, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     Configures whether this is a required relationship (i.e. whether the foreign key property(s) can
-        ///     be assigned null).
+        ///     be assigned <c>null</c>).
         /// </summary>
         /// <param name="required"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
@@ -209,40 +167,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 requiredSet: true);
 
         /// <summary>
-        ///     Configures how a delete operation is applied to dependent entities in the relationship when the
+        ///     Configures the operation applied to dependent entities in the relationship when the
         ///     principal is deleted or the relationship is severed.
         /// </summary>
         /// <param name="deleteBehavior"> The action to perform. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceCollectionBuilder OnDelete(DeleteBehavior deleteBehavior)
             => new ReferenceCollectionBuilder(
-                Builder.DeleteBehavior(deleteBehavior, ConfigurationSource.Explicit),
+                Builder.OnDelete(deleteBehavior, ConfigurationSource.Explicit),
                 this);
-
-        #region Hidden System.Object members
-
-        /// <summary>
-        ///     Returns a string that represents the current object.
-        /// </summary>
-        /// <returns> A string that represents the current object. </returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString() => base.ToString();
-
-        /// <summary>
-        ///     Determines whether the specified object is equal to the current object.
-        /// </summary>
-        /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => base.Equals(obj);
-
-        /// <summary>
-        ///     Serves as the default hash function.
-        /// </summary>
-        /// <returns> A hash code for the current object. </returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public override int GetHashCode() => base.GetHashCode();
-
-        #endregion
     }
 }

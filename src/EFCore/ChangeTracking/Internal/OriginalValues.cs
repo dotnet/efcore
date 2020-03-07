@@ -2,10 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -46,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public void SetValue(IProperty property, object value, int index)
             {
-                Debug.Assert(!IsEmpty);
+                Check.DebugAssert(!IsEmpty, "Original values are empty");
 
                 if (index == -1)
                 {
@@ -67,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             property.Name, property.DeclaringEntityType.DisplayName(), property.ClrType.DisplayName()));
                 }
 
-                _values[index] = value;
+                _values[index] = SnapshotValue(property, value);
             }
 
             public void RejectChanges(InternalEntityEntry entry)
@@ -82,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var index = property.GetOriginalValueIndex();
                     if (index >= 0)
                     {
-                        entry[property] = _values[index];
+                        entry[property] = SnapshotValue(property, _values[index]);
                     }
                 }
             }
@@ -99,9 +100,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var index = property.GetOriginalValueIndex();
                     if (index >= 0)
                     {
-                        _values[index] = entry[property];
+                        _values[index] = SnapshotValue(property, entry[property]);
                     }
                 }
+            }
+
+            private static object SnapshotValue(IProperty property, object value)
+            {
+                var comparer = property.GetValueComparer();
+
+                return comparer == null ? value : comparer.Snapshot(value);
             }
 
             public bool IsEmpty => _values == null;

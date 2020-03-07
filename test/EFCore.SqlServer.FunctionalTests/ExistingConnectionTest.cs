@@ -3,8 +3,8 @@
 
 using System;
 using System.Data;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -15,16 +15,16 @@ namespace Microsoft.EntityFrameworkCore
     public class ExistingConnectionTest
     {
         // See aspnet/Data#135
-        [Fact]
-        public async Task Can_use_an_existing_closed_connection()
+        [ConditionalFact]
+        public Task Can_use_an_existing_closed_connection()
         {
-            await Can_use_an_existing_closed_connection_test(openConnection: false);
+            return Can_use_an_existing_closed_connection_test(openConnection: false);
         }
 
-        [Fact]
-        public async Task Can_use_an_existing_open_connection()
+        [ConditionalFact]
+        public Task Can_use_an_existing_open_connection()
         {
-            await Can_use_an_existing_closed_connection_test(openConnection: true);
+            return Can_use_an_existing_closed_connection_test(openConnection: true);
         }
 
         private static async Task Can_use_an_existing_closed_connection_test(bool openConnection)
@@ -33,56 +33,52 @@ namespace Microsoft.EntityFrameworkCore
                 .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
-            using (var store = SqlServerTestStore.GetNorthwindStore())
+            using var store = SqlServerTestStore.GetNorthwindStore();
+            store.CloseConnection();
+
+            var openCount = 0;
+            var closeCount = 0;
+            var disposeCount = 0;
+
+            using var connection = new SqlConnection(store.ConnectionString);
+            if (openConnection)
             {
-                store.CloseConnection();
-
-                var openCount = 0;
-                var closeCount = 0;
-                var disposeCount = 0;
-
-                using (var connection = new SqlConnection(store.ConnectionString))
-                {
-                    if (openConnection)
-                    {
-                        await connection.OpenAsync();
-                    }
-
-                    connection.StateChange += (_, a) =>
-                        {
-                            switch (a.CurrentState)
-                            {
-                                case ConnectionState.Open:
-                                    openCount++;
-                                    break;
-                                case ConnectionState.Closed:
-                                    closeCount++;
-                                    break;
-                            }
-                        };
-                    connection.Disposed += (_, __) => disposeCount++;
-
-                    using (var context = new NorthwindContext(serviceProvider, connection))
-                    {
-                        Assert.Equal(91, await context.Customers.CountAsync());
-                    }
-
-                    if (openConnection)
-                    {
-                        Assert.Equal(ConnectionState.Open, connection.State);
-                        Assert.Equal(0, openCount);
-                        Assert.Equal(0, closeCount);
-                    }
-                    else
-                    {
-                        Assert.Equal(ConnectionState.Closed, connection.State);
-                        Assert.Equal(1, openCount);
-                        Assert.Equal(1, closeCount);
-                    }
-
-                    Assert.Equal(0, disposeCount);
-                }
+                await connection.OpenAsync();
             }
+
+            connection.StateChange += (_, a) =>
+            {
+                switch (a.CurrentState)
+                {
+                    case ConnectionState.Open:
+                        openCount++;
+                        break;
+                    case ConnectionState.Closed:
+                        closeCount++;
+                        break;
+                }
+            };
+            connection.Disposed += (_, __) => disposeCount++;
+
+            using (var context = new NorthwindContext(serviceProvider, connection))
+            {
+                Assert.Equal(91, await context.Customers.CountAsync());
+            }
+
+            if (openConnection)
+            {
+                Assert.Equal(ConnectionState.Open, connection.State);
+                Assert.Equal(0, openCount);
+                Assert.Equal(0, closeCount);
+            }
+            else
+            {
+                Assert.Equal(ConnectionState.Closed, connection.State);
+                Assert.Equal(1, openCount);
+                Assert.Equal(1, closeCount);
+            }
+
+            Assert.Equal(0, disposeCount);
         }
 
         private class NorthwindContext : DbContext
@@ -107,10 +103,10 @@ namespace Microsoft.EntityFrameworkCore
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<Customer>(
                     b =>
-                        {
-                            b.HasKey(c => c.CustomerID);
-                            b.ToTable("Customers");
-                        });
+                    {
+                        b.HasKey(c => c.CustomerID);
+                        b.ToTable("Customers");
+                    });
         }
 
         // ReSharper disable once ClassNeverInstantiated.Local

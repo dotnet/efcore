@@ -6,21 +6,22 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class SqlServerRetryingExecutionStrategyTests
     {
-        [Fact]
+        [ConditionalFact]
         public void GetNextDelay_returns_shorter_delay_for_InMemory_transient_errors()
         {
             var strategy = new TestSqlServerRetryingExecutionStrategy(CreateContext());
-            var inMemoryOltpError = SqlExceptionFactory.CreateSqlException(41302);
+            var inMemoryError = SqlExceptionFactory.CreateSqlException(41302);
             var delays = new List<TimeSpan>();
-            var delay = strategy.GetNextDelay(inMemoryOltpError);
+            var delay = strategy.GetNextDelay(inMemoryError);
             while (delay != null)
             {
                 delays.Add(delay.Value);
-                delay = strategy.GetNextDelay(inMemoryOltpError);
+                delay = strategy.GetNextDelay(inMemoryError);
             }
 
             var expectedDelays = new List<TimeSpan>
@@ -37,9 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             for (var i = 0; i < expectedDelays.Count; i++)
             {
                 Assert.True(
-                    Math.Abs((delays[i] - expectedDelays[i]).TotalMilliseconds) <=
-                    expectedDelays[i].TotalMilliseconds * 0.1 + 1,
-                    string.Format("Expected: {0}; Actual: {1}", expectedDelays[i], delays[i]));
+                    Math.Abs((delays[i] - expectedDelays[i]).TotalMilliseconds)
+                    <= expectedDelays[i].TotalMilliseconds * 0.1 + 1,
+                    $"Expected: {expectedDelays[i]}; Actual: {delays[i]}");
             }
         }
 
