@@ -525,21 +525,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             where TRelatedEntity : class
         {
             var relatedEntityType = FindRelatedEntityType(typeof(TRelatedEntity), navigationName);
-            var foreignKey = Builder.HasRelationship(
-                    relatedEntityType, navigationName, ConfigurationSource.Explicit,
-                    targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null).Metadata;
-
-            if (navigationConfiguration != null && navigationName != null)
-            {
-                var navigation =
-                    Builder.Metadata == relatedEntityType
-                    || foreignKey.PrincipalEntityType == relatedEntityType
-                    ? foreignKey.DependentToPrincipal
-                    : foreignKey.PrincipalToDependent;
-
-                navigationConfiguration(
-                    new NavigationBuilder(navigation));
-            }
+            var foreignKey = HasOneBuilder(
+                MemberIdentity.Create(navigationName), relatedEntityType, navigationConfiguration);
 
             return new ReferenceNavigationBuilder<TEntity, TRelatedEntity>(
                 Builder.Metadata,
@@ -586,22 +573,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             var navigationMember = navigationExpression?.GetPropertyAccess();
             var relatedEntityType = FindRelatedEntityType(typeof(TRelatedEntity), navigationMember?.GetSimpleMemberName());
-            var foreignKey = Builder.HasRelationship(
-                    relatedEntityType, navigationMember, ConfigurationSource.Explicit,
-                    targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null).Metadata;
-
-            if (navigationConfiguration != null
-                && navigationMember != null)
-            {
-                var navigation =
-                    Builder.Metadata == relatedEntityType
-                    || foreignKey.PrincipalEntityType == relatedEntityType
-                    ? foreignKey.DependentToPrincipal
-                    : foreignKey.PrincipalToDependent;
-
-                navigationConfiguration(
-                    new NavigationBuilder(navigation));
-            }
+            var foreignKey = HasOneBuilder(
+                MemberIdentity.Create(navigationMember), relatedEntityType, navigationConfiguration);
 
             return new ReferenceNavigationBuilder<TEntity, TRelatedEntity>(
                 Builder.Metadata,

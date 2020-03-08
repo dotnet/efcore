@@ -588,22 +588,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NullButNotEmpty(navigationName, nameof(navigationName));
 
             var relatedEntityType = FindRelatedEntityType(relatedTypeName, navigationName);
-            var foreignKey = Builder.HasRelationship(
-                    relatedEntityType, navigationName, ConfigurationSource.Explicit,
-                    targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null).Metadata;
-
-            if (navigationConfiguration != null
-                && navigationName != null)
-            {
-                var navigation =
-                    Builder.Metadata == relatedEntityType
-                    || foreignKey.PrincipalEntityType == relatedEntityType
-                    ? foreignKey.DependentToPrincipal
-                    : foreignKey.PrincipalToDependent;
-
-                navigationConfiguration(
-                    new NavigationBuilder(navigation));
-            }
+            var foreignKey = HasOneBuilder(
+                MemberIdentity.Create(navigationName), relatedEntityType, navigationConfiguration);
 
             return new ReferenceNavigationBuilder(
                 Builder.Metadata,
@@ -649,22 +635,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NullButNotEmpty(navigationName, nameof(navigationName));
 
             var relatedEntityType = FindRelatedEntityType(relatedType, navigationName);
-            var foreignKey = Builder.HasRelationship(
-                    relatedEntityType, navigationName, ConfigurationSource.Explicit,
-                    targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null).Metadata;
-
-            if (navigationConfiguration != null
-                && navigationName != null)
-            {
-                var navigation =
-                    Builder.Metadata == relatedEntityType
-                    || foreignKey.PrincipalEntityType == relatedEntityType
-                    ? foreignKey.DependentToPrincipal
-                    : foreignKey.PrincipalToDependent;
-
-                navigationConfiguration(
-                    new NavigationBuilder(navigation));
-            }
+            var foreignKey = HasOneBuilder(
+                MemberIdentity.Create(navigationName), relatedEntityType, navigationConfiguration);
 
             return new ReferenceNavigationBuilder(
                 Builder.Metadata,
@@ -703,6 +675,48 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return Metadata.ClrType == null
                 ? HasOne(navigationName, null, navigationConfiguration) // Path only used by pre 3.0 snapshots
                 : HasOne(Metadata.GetNavigationMemberInfo(navigationName).GetMemberType(), navigationName, navigationConfiguration);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        protected virtual ForeignKey HasOneBuilder(
+            MemberIdentity navigationId,
+            [NotNull] EntityType relatedEntityType,
+            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+        {
+            ForeignKey foreignKey;
+            if (navigationId.MemberInfo != null)
+            {
+                foreignKey = Builder.HasRelationship(
+                        relatedEntityType, navigationId.MemberInfo, ConfigurationSource.Explicit,
+                        targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null).Metadata;
+            }
+            else
+            {
+                foreignKey = Builder.HasRelationship(
+                        relatedEntityType, navigationId.Name, ConfigurationSource.Explicit,
+                        targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null).Metadata;
+            }
+
+            if (navigationConfiguration != null
+                && navigationId.Name != null)
+            {
+                var navigation =
+                    Builder.Metadata == relatedEntityType
+                    || foreignKey.PrincipalEntityType == relatedEntityType
+                    ? foreignKey.DependentToPrincipal
+                    : foreignKey.PrincipalToDependent;
+
+                navigationConfiguration(
+                    new NavigationBuilder(navigation));
+            }
+
+            return foreignKey;
         }
 
         /// <summary>
