@@ -980,7 +980,7 @@ WHERE '23:59:00' > TIMEFROMPARTS(23, 59, 59, [o].[OrderID] % 60, 2)");
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE CAST([o].[OrderID] AS bigint) < DATALENGTH([o].[OrderDate])");
+WHERE [o].[OrderID] < DATALENGTH([o].[OrderDate])");
             }
         }
 
@@ -997,14 +997,14 @@ WHERE CAST([o].[OrderID] AS bigint) < DATALENGTH([o].[OrderDate])");
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE CAST(100 AS bigint) < DATALENGTH([o].[OrderDate])");
+WHERE 100 < DATALENGTH([o].[OrderDate])");
             }
         }
 
         [ConditionalFact]
         public virtual void DataLength_compare_with_local_variable()
         {
-            long lenght = 100;
+            int? lenght = 100;
             using (var context = CreateContext())
             {
                 var count = context.Orders
