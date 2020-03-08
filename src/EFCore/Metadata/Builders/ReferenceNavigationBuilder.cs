@@ -71,6 +71,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Builder = ((ForeignKey)foreignKey).Builder;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
         protected virtual InternalRelationshipBuilder Builder { [DebuggerStepThrough] get; }
 
         /// <summary>
@@ -326,11 +333,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             var withOneBuilder = batch.Run(builder);
 
-            if (navigationConfiguration != null
-                && withOneBuilder.Metadata.PrincipalToDependent != null)
+            if (navigationConfiguration != null)
             {
-                navigationConfiguration(
-                    new NavigationBuilder(withOneBuilder.Metadata.PrincipalToDependent));
+                if (pointsToPrincipal)
+                {
+                    navigationConfiguration(
+                        new NavigationBuilder(withOneBuilder.Metadata.DependentToPrincipal));
+                }
+               else
+                {
+                    navigationConfiguration(
+                        new NavigationBuilder(withOneBuilder.Metadata.PrincipalToDependent));
+                }
             }
 
             return withOneBuilder;

@@ -844,7 +844,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             var foreignKey = relationship?.Metadata;
             if (navigationConfiguration != null
-                && foreignKey.PrincipalToDependent != null)
+                && foreignKey?.PrincipalToDependent != null)
             {
                 navigationConfiguration(
                     new NavigationBuilder(foreignKey.PrincipalToDependent));
