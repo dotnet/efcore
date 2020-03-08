@@ -694,6 +694,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => Wrap<TEntity, TDependentEntity>(
                     OwnedNavigationBuilder.Ignore(propertyExpression.GetPropertyAccess().GetSimpleMemberName()));
 
+            public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> OwnerToOwnedNavigation(
+                Action<NavigationBuilder> navigationConfiguration)
+                => Wrap<TEntity, TDependentEntity>(
+                    OwnedNavigationBuilder.OwnerToOwnedNavigation(navigationConfiguration));
+
+            public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> OwnedToOwnerNavigation(
+                Action<NavigationBuilder> navigationConfiguration)
+                => Wrap<TEntity, TDependentEntity>(
+                    OwnedNavigationBuilder.OwnedToOwnerNavigation(navigationConfiguration));
+
             public override TestIndexBuilder HasIndex(params string[] propertyNames)
                 => new TestIndexBuilder(OwnedNavigationBuilder.HasIndex(propertyNames));
 

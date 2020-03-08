@@ -115,6 +115,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                         .GetPropertyAccess().GetSimpleMemberName());
 
         /// <summary>
+        ///     <para>
+        ///         Used to configure the navigation property from owner to owned type.
+        ///     </para>
+        /// </summary>
+        /// <param name="navigationConfiguration">
+        ///     An action which configures the navigation property from owner to owned type.
+        /// </param>
+        public new virtual OwnedNavigationBuilder<TEntity, TDependentEntity> OwnerToOwnedNavigation(
+            [NotNull] Action<NavigationBuilder> navigationConfiguration)
+            => (OwnedNavigationBuilder<TEntity, TDependentEntity>)
+                base.OwnerToOwnedNavigation(
+                    Check.NotNull(navigationConfiguration, nameof(navigationConfiguration)));
+
+        /// <summary>
+        ///     <para>
+        ///         Used to configure the navigation property from the owned type to its owner.
+        ///     </para>
+        /// </summary>
+        /// <param name="navigationConfiguration">
+        ///     An action which configures the navigation property from the owned type to its owner.
+        /// </param>
+        public new virtual OwnedNavigationBuilder<TEntity, TDependentEntity> OwnedToOwnerNavigation(
+            [NotNull] Action<NavigationBuilder> navigationConfiguration)
+            => (OwnedNavigationBuilder<TEntity, TDependentEntity>)
+                base.OwnedToOwnerNavigation(
+                    Check.NotNull(navigationConfiguration, nameof(navigationConfiguration)));
+
+        /// <summary>
         ///     Configures an index on the specified properties. If there is an existing index on the given
         ///     set of properties, then the existing index will be returned for configuration.
         /// </summary>

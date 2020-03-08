@@ -701,6 +701,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Expression<Func<TDependentEntity, object>> propertyExpression)
                 => Wrap(OwnedNavigationBuilder.Ignore(propertyExpression));
 
+            public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> OwnerToOwnedNavigation(
+                Action<NavigationBuilder> navigationConfiguration)
+                => Wrap(OwnedNavigationBuilder.OwnerToOwnedNavigation(navigationConfiguration));
+
+            public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> OwnedToOwnerNavigation(
+                Action<NavigationBuilder> navigationConfiguration)
+                => Wrap(OwnedNavigationBuilder.OwnedToOwnerNavigation(navigationConfiguration));
+
             public override TestIndexBuilder HasIndex(params string[] propertyNames)
                 => new TestIndexBuilder(OwnedNavigationBuilder.HasIndex(propertyNames));
 

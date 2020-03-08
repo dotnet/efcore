@@ -811,6 +811,46 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
+        ///     <para>
+        ///         Used to configure the navigation property from owner to owned type.
+        ///     </para>
+        /// </summary>
+        /// <param name="navigationConfiguration">
+        ///     An action which configures the navigation property from owner to owned type.
+        /// </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual OwnedNavigationBuilder OwnerToOwnedNavigation(
+            [NotNull] Action<NavigationBuilder> navigationConfiguration)
+        {
+            if (Metadata.PrincipalToDependent != null)
+            {
+                navigationConfiguration(new NavigationBuilder(Metadata.PrincipalToDependent));
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Used to configure the navigation property from the owned type to its owner.
+        ///     </para>
+        /// </summary>
+        /// <param name="navigationConfiguration">
+        ///     An action which configures the navigation property from the owned type to its owner.
+        /// </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual OwnedNavigationBuilder OwnedToOwnerNavigation(
+            [NotNull] Action<NavigationBuilder> navigationConfiguration)
+        {
+            if (Metadata.DependentToPrincipal != null)
+            {
+                navigationConfiguration(new NavigationBuilder(Metadata.DependentToPrincipal));
+            }
+
+            return this;
+        }
+
+        /// <summary>
         ///     Configures this entity to have seed data. It is used to generate data motion migrations.
         /// </summary>
         /// <param name="data">

@@ -117,6 +117,49 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            public virtual void Can_configure_owned_type_navigation_properties_for_OwnsOne()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<Order>()
+                    .OwnsOne(o => o.Details,
+                        a =>
+                        {
+                            a.OwnerToOwnedNavigation(nb => nb.UsePropertyAccessMode(PropertyAccessMode.Field));
+                            a.OwnedToOwnerNavigation(nb => nb.UsePropertyAccessMode(PropertyAccessMode.Property));
+                        });
+
+                var model = modelBuilder.FinalizeModel();
+
+                var owner = model.FindEntityType(typeof(Order));
+                var foreignKey = owner.FindNavigation(nameof(Order.Details)).ForeignKey;
+                Assert.Equal(PropertyAccessMode.Field, foreignKey.PrincipalToDependent.GetPropertyAccessMode());
+                Assert.Equal(PropertyAccessMode.Property, foreignKey.DependentToPrincipal.GetPropertyAccessMode());
+            }
+
+            [ConditionalFact]
+            public virtual void Can_configure_owned_type_navigation_properties_for_OwnsMany()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<OrderDetails>().Ignore(od => od.Order);
+                modelBuilder.Entity<Customer>()
+                    .OwnsMany(c => c.Orders,
+                        a =>
+                        {
+                            a.OwnerToOwnedNavigation(nb => nb.UsePropertyAccessMode(PropertyAccessMode.Field));
+                            a.OwnedToOwnerNavigation(nb => nb.UsePropertyAccessMode(PropertyAccessMode.Property));
+                        });
+
+                var model = modelBuilder.FinalizeModel();
+
+                var owner = model.FindEntityType(typeof(Customer));
+                var foreignKey = owner.FindNavigation(nameof(Customer.Orders)).ForeignKey;
+                Assert.Equal(PropertyAccessMode.Field, foreignKey.PrincipalToDependent.GetPropertyAccessMode());
+                Assert.Equal(PropertyAccessMode.Property, foreignKey.DependentToPrincipal.GetPropertyAccessMode());
+            }
+
+            [ConditionalFact]
             public virtual void Can_configure_owned_type_key()
             {
                 var modelBuilder = CreateModelBuilder();
