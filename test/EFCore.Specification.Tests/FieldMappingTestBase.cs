@@ -168,6 +168,33 @@ namespace Microsoft.EntityFrameworkCore
             AssertGraph(context.Set<BlogHiding>().Include(e => e.Posts).AsTracking(tracking).ToList());
         }
 
+        [ConditionalFact]
+        public virtual void Can_update_and_query_navigation_from_backing_field()
+        {
+            using (var context = CreateContext())
+            {
+                var principal = context.Set<OneToOneFieldNavPrincipal>().First();
+                var dependent1 = new NavDependent { Id = 1, Name = "FirstName", OneToOneFieldNavPrincipal = principal };
+                context.Set<NavDependent>().Add(dependent1);
+                context.SaveChanges();
+
+                var dependentName =
+                    context.Set<OneToOneFieldNavPrincipal>().Select(p => p.Dependent.Name).First();
+
+                Assert.Equal("FirstName", dependentName);
+
+                // set the backing field directly
+                var dependent2 = new NavDependent { Id = 2, Name = "SecondName", OneToOneFieldNavPrincipal = principal };
+                principal._dependent = dependent2;
+                context.SaveChanges();
+
+                dependentName =
+                    context.Set<OneToOneFieldNavPrincipal>().Select(p => p.Dependent.Name).First();
+
+                Assert.Equal("SecondName", dependentName);
+            }
+        }
+
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
@@ -1900,6 +1927,29 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        protected class OneToOneFieldNavPrincipal
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public NavDependent _dependent;
+            public NavDependent Dependent
+            {
+                get => throw new NotImplementedException("Invalid attempt to access Dependent getter");
+                set => throw new NotImplementedException("Invalid attempt to access Dependent setter");
+            }
+        }
+
+        protected class NavDependent
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public OneToOneFieldNavPrincipal OneToOneFieldNavPrincipal { get; set; }
+        }
+
         protected DbContext CreateContext() => Fixture.CreateContext();
 
         public abstract class FieldMappingFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
@@ -1937,6 +1987,15 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<BlogFullExplicit>().Metadata.FindNavigation("Posts").SetField("_myposts");
 
                 modelBuilder.Entity<LoginSession>().UsePropertyAccessMode(PropertyAccessMode.Field);
+
+                modelBuilder.Entity<OneToOneFieldNavPrincipal>()
+                    .HasOne(
+                        e => e.Dependent,
+                        nb => nb.UsePropertyAccessMode(PropertyAccessMode.Field))
+                    .WithOne(
+                        e => e.OneToOneFieldNavPrincipal)
+                    .HasForeignKey<NavDependent>();
+                modelBuilder.Entity<NavDependent>();
 
                 if (modelBuilder.Model.GetPropertyAccessMode() != PropertyAccessMode.Property)
                 {
@@ -2111,6 +2170,8 @@ namespace Microsoft.EntityFrameworkCore
 
                     context.Add(
                         new LoginSession { User = new User2(), Users = new List<User2> { new User2() } });
+
+                    context.Add(new OneToOneFieldNavPrincipal { Id = 1, Name = "OneToOneFieldNavPrincipal1" });
 
                     context.SaveChanges();
                 }

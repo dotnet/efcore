@@ -71,8 +71,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         r => buildAction(new GenericTypeTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(r))));
 
             public override TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
-                Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null)
-                => new GenericTypeTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.HasOne(navigationExpression));
+                Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null,
+                Action<NavigationBuilder> navigationConfiguration = null)
+                => new GenericTypeTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(
+                    EntityTypeBuilder.HasOne(navigationExpression, navigationConfiguration));
         }
 
         private class GenericTypeTestReferenceNavigationBuilder<TEntity, TRelatedEntity> : GenericTestReferenceNavigationBuilder<TEntity,
@@ -86,9 +88,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne(
-                Expression<Func<TRelatedEntity, TEntity>> navigationExpression = null)
+                Expression<Func<TRelatedEntity, TEntity>> navigationExpression = null,
+                Action<NavigationBuilder> navigationConfiguration = null)
                 => new GenericTypeTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(
-                    ReferenceNavigationBuilder.WithOne(navigationExpression));
+                    ReferenceNavigationBuilder.WithOne(navigationExpression, navigationConfiguration));
         }
 
         private class GenericTypeTestReferenceReferenceBuilder<TEntity, TRelatedEntity>

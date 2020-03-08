@@ -121,12 +121,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The name of the reference navigation property on the other end of this relationship.
         ///     If null or not specified, then there is no navigation property on the other end of the relationship.
         /// </param>
+        /// <param name="navigationConfiguration">
+        ///     An optional action which further configures the navigation property.
+        /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public virtual ReferenceCollectionBuilder WithOne([CanBeNull] string navigationName = null)
+        public virtual ReferenceCollectionBuilder WithOne(
+            [CanBeNull] string navigationName = null,
+            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
             => new ReferenceCollectionBuilder(
                 DeclaringEntityType,
                 RelatedEntityType,
-                WithOneBuilder(Check.NullButNotEmpty(navigationName, nameof(navigationName))).Metadata);
+                WithOneBuilder(
+                    Check.NullButNotEmpty(navigationName, nameof(navigationName)),
+                    navigationConfiguration).Metadata);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -135,8 +142,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] string navigationName)
-            => WithOneBuilder(MemberIdentity.Create(navigationName));
+        protected virtual InternalRelationshipBuilder WithOneBuilder(
+            [CanBeNull] string navigationName,
+            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+            => WithOneBuilder(MemberIdentity.Create(navigationName), navigationConfiguration);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -145,10 +154,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] MemberInfo navigationMemberInfo)
-            => WithOneBuilder(MemberIdentity.Create(navigationMemberInfo));
+        protected virtual InternalRelationshipBuilder WithOneBuilder(
+            [CanBeNull] MemberInfo navigationMemberInfo,
+            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+            => WithOneBuilder(MemberIdentity.Create(navigationMemberInfo), navigationConfiguration);
 
-        private InternalRelationshipBuilder WithOneBuilder(MemberIdentity reference)
+        private InternalRelationshipBuilder WithOneBuilder(
+            MemberIdentity reference,
+            Action<NavigationBuilder> navigationConfiguration = null)
         {
             if (SkipNavigation != null)
             {
@@ -174,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 InternalRelationshipBuilder.ThrowForConflictingNavigation(foreignKey, referenceName, newToPrincipal: true);
             }
 
-            return reference.MemberInfo == null || CollectionMember == null
+            var withOneBuilder = reference.MemberInfo == null || CollectionMember == null
                 ? Builder.HasNavigations(
                     reference.Name, CollectionName,
                     (EntityType)DeclaringEntityType, (EntityType)RelatedEntityType,
@@ -183,6 +196,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     reference.MemberInfo, CollectionMember,
                     (EntityType)DeclaringEntityType, (EntityType)RelatedEntityType,
                     ConfigurationSource.Explicit);
+
+            if (navigationConfiguration != null
+                && withOneBuilder.Metadata.DependentToPrincipal != null)
+            {
+                navigationConfiguration(
+                    new NavigationBuilder(withOneBuilder.Metadata.DependentToPrincipal));
+            }
+
+            return withOneBuilder;
         }
 
         /// <summary>
