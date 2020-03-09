@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#18682")]
         public void Can_select_appropriate_provider_when_multiple_registered()
         {
             var serviceProvider

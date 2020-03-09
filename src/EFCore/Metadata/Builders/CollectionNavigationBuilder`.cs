@@ -50,12 +50,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The name of the reference navigation property on the other end of this relationship.
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
+        /// <param name="navigationConfiguration">
+        ///     An optional action which further configures the navigation property.
+        /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public new virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne([CanBeNull] string navigationName = null)
-            => new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
+        public new virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(
+            [CanBeNull] string navigationName = null,
+            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+        {
+            return new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
                 DeclaringEntityType,
                 RelatedEntityType,
-                WithOneBuilder(Check.NullButNotEmpty(navigationName, nameof(navigationName))).Metadata);
+                WithOneBuilder(
+                    Check.NullButNotEmpty(navigationName, nameof(navigationName)),
+                    navigationConfiguration).Metadata);
+        }
 
         /// <summary>
         ///     <para>
@@ -72,13 +81,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     relationship (<c>post => post.Blog</c>). If no property is specified, the relationship will be
         ///     configured without a navigation property on the other end of the relationship.
         /// </param>
+        /// <param name="navigationConfiguration">
+        ///     An optional action which further configures the navigation property.
+        /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(
-            [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> navigationExpression)
+            [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> navigationExpression,
+            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
             => new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
                 DeclaringEntityType,
                 RelatedEntityType,
-                WithOneBuilder(navigationExpression?.GetPropertyAccess()).Metadata);
+                WithOneBuilder(
+                    navigationExpression?.GetPropertyAccess(),
+                    navigationConfiguration).Metadata);
 
         /// <summary>
         ///     Configures this as a many-to-many relationship.

@@ -242,12 +242,26 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         r => buildAction(new GenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(r))));
 
             public override TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
-                Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null)
-                => new GenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.HasOne(navigationExpression));
+                string navigationName,
+                Action<NavigationBuilder> navigationConfiguration = null)
+                => new GenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(
+                    EntityTypeBuilder.HasOne<TRelatedEntity>(navigationName, navigationConfiguration));
+
+            public override TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
+                Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null,
+                Action<NavigationBuilder> navigationConfiguration = null)
+                => new GenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.HasOne(navigationExpression, navigationConfiguration));
 
             public override TestCollectionNavigationBuilder<TEntity, TRelatedEntity> HasMany<TRelatedEntity>(
-                Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression = null)
-                => new GenericTestCollectionNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.HasMany(navigationExpression));
+                string navigationName,
+                Action<NavigationBuilder> navigationConfiguration = null)
+                => new GenericTestCollectionNavigationBuilder<TEntity, TRelatedEntity>(
+                    EntityTypeBuilder.HasMany<TRelatedEntity>(navigationName, navigationConfiguration));
+
+            public override TestCollectionNavigationBuilder<TEntity, TRelatedEntity> HasMany<TRelatedEntity>(
+                Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression = null,
+                Action<NavigationBuilder> navigationConfiguration = null)
+                => new GenericTestCollectionNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.HasMany(navigationExpression, navigationConfiguration));
 
             public override TestEntityTypeBuilder<TEntity> HasQueryFilter(Expression<Func<TEntity, bool>> filter)
                 => Wrap(EntityTypeBuilder.HasQueryFilter(filter));
@@ -417,14 +431,28 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             protected ReferenceNavigationBuilder<TEntity, TRelatedEntity> ReferenceNavigationBuilder { get; }
 
             public override TestReferenceCollectionBuilder<TRelatedEntity, TEntity> WithMany(
-                Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> navigationExpression = null)
+                string navigationName,
+                Action<NavigationBuilder> navigationConfiguration = null)
                 => new GenericTestReferenceCollectionBuilder<TRelatedEntity, TEntity>(
-                    ReferenceNavigationBuilder.WithMany(navigationExpression));
+                    ReferenceNavigationBuilder.WithMany(navigationName, navigationConfiguration));
+
+            public override TestReferenceCollectionBuilder<TRelatedEntity, TEntity> WithMany(
+                Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> navigationExpression = null,
+                Action<NavigationBuilder> navigationConfiguration = null)
+                => new GenericTestReferenceCollectionBuilder<TRelatedEntity, TEntity>(
+                    ReferenceNavigationBuilder.WithMany(navigationExpression, navigationConfiguration));
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne(
-                Expression<Func<TRelatedEntity, TEntity>> navigationExpression = null)
+                string navigationName,
+                Action<NavigationBuilder> navigationConfiguration = null)
                 => new GenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(
-                    ReferenceNavigationBuilder.WithOne(navigationExpression));
+                    ReferenceNavigationBuilder.WithOne(navigationName, navigationConfiguration));
+
+            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne(
+                Expression<Func<TRelatedEntity, TEntity>> navigationExpression = null,
+                Action<NavigationBuilder> navigationConfiguration = null)
+                => new GenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(
+                    ReferenceNavigationBuilder.WithOne(navigationExpression, navigationConfiguration));
         }
 
         protected class GenericTestCollectionNavigationBuilder<TEntity, TRelatedEntity> :
@@ -440,9 +468,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             protected CollectionNavigationBuilder<TEntity, TRelatedEntity> CollectionNavigationBuilder { get; }
 
             public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(
-                Expression<Func<TRelatedEntity, TEntity>> navigationExpression = null)
+                string navigationName,
+                Action<NavigationBuilder> navigationConfiguration = null)
                 => new GenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(
-                    CollectionNavigationBuilder.WithOne(navigationExpression));
+                    CollectionNavigationBuilder.WithOne(navigationName, navigationConfiguration));
+
+            public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(
+                Expression<Func<TRelatedEntity, TEntity>> navigationExpression = null,
+                Action<NavigationBuilder> navigationConfiguration = null)
+                => new GenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(
+                    CollectionNavigationBuilder.WithOne(navigationExpression, navigationConfiguration));
 
             public override TestCollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany(
                 Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> navigationExpression)

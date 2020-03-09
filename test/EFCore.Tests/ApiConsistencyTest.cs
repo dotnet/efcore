@@ -41,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore
             typeof(IndexBuilder),
             typeof(IndexBuilder<SampleEntity>),
             typeof(KeyBuilder),
+            typeof(NavigationBuilder),
             typeof(OwnedNavigationBuilder),
             typeof(OwnedNavigationBuilder<SampleEntity, SampleEntity>),
             typeof(OwnedEntityTypeBuilder),
