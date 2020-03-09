@@ -28,5 +28,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected override Assembly TargetAssembly => typeof(SqliteRelationalConnection).Assembly;
+
+        protected override bool IsProvider => true;
     }
 }

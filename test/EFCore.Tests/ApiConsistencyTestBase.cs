@@ -3,12 +3,18 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Build.Locator;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.MSBuild;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -44,6 +50,8 @@ namespace Microsoft.EntityFrameworkCore
             => Enumerable.Empty<Type>();
 
         protected virtual HashSet<MethodInfo> NonVirtualMethods { get; } = new HashSet<MethodInfo>();
+
+        protected virtual bool IsProvider => false;
 
         [ConditionalFact]
         public void Fluent_api_methods_should_not_return_void()
@@ -189,6 +197,146 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(
                 errors.Count > 0,
                 "\r\n-- Mismatches: --\r\n" + string.Join(Environment.NewLine, errors));
+        }
+
+        [Fact]
+        public virtual async Task Providers_should_not_use_internal_APIs()
+        {
+            if (IsProvider)
+            {
+                var projects = GetProjectsFromSolution();
+                var project = projects.FirstOrDefault(p => p.AssemblyName == TargetAssembly.GetName().Name);
+                Assert.NotNull(project);
+
+                var failures = new List<string>();
+
+                foreach (var documentId in project.DocumentIds)
+                {
+                    var document = project.GetDocument(documentId);
+                    if (document.SupportsSyntaxTree)
+                    {
+                        var root = await document.GetSyntaxRootAsync();
+
+                        foreach(var childNode in root.DescendantNodes())
+                        {
+                            await AnalyzeNodeForInternalApiUsageAsync(childNode, document, project, failures);
+                        }
+                    }
+                }
+
+                Assert.False(failures.Any(), $"-- Internal API usage found in {project.Name} --{Environment.NewLine}{string.Join(Environment.NewLine, failures)}");
+            }
+        }
+
+        private static readonly Lazy<MSBuildWorkspace> BuildWorkspace = new Lazy<MSBuildWorkspace>(() =>
+        {
+            var vsVersions = MSBuildLocator.QueryVisualStudioInstances().ToArray();
+            var vsVersion = vsVersions.First();
+            MSBuildLocator.RegisterInstance(vsVersion);
+
+            return MSBuildWorkspace.Create();
+        });
+
+        private IEnumerable<Project> GetProjectsFromSolution()
+        {
+            var slnPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "..", "..", "All.sln"));
+            var solution = BuildWorkspace.Value.OpenSolutionAsync(slnPath).Result;
+
+            foreach (var projectId in solution.ProjectIds)
+            {
+                var project = solution.GetProject(projectId);
+                if (project != null)
+                {
+                    yield return project;
+                }
+            }
+        }
+
+        private static async Task AnalyzeNodeForInternalApiUsageAsync(SyntaxNode node, Document document, Project project, List<string> failures)
+        {
+            var semanticModel = await document.GetSemanticModelAsync();
+
+            switch (node)
+            {
+                case MemberAccessExpressionSyntax memberAccessSyntax:
+                {
+                    if (semanticModel.GetSymbolInfo(node).Symbol is ISymbol symbol
+                        && !Equals(symbol.ContainingAssembly.Name, project.AssemblyName))
+                    {
+                        var containingType = symbol.ContainingType;
+
+                        if (HasInternalAttribute(symbol))
+                        {
+                            var location = memberAccessSyntax.Name.GetLocation();
+                            failures.Add($"{containingType}.{symbol.Name} in {location.ToString()}");
+                        }
+                        else if (IsInInternalNamespace(containingType)
+                            || HasInternalAttribute(containingType))
+                        {
+                            var location = memberAccessSyntax.Name.GetLocation();
+                            failures.Add($"{containingType} in {location.ToString()}");
+                        }
+                    }
+                    break;
+                }
+
+                case ObjectCreationExpressionSyntax creationSyntax:
+                {
+                    if (semanticModel.GetSymbolInfo(node).Symbol is ISymbol symbol
+                        && !Equals(symbol.ContainingAssembly.Name, project.AssemblyName))
+                    {
+                        var containingType = symbol.ContainingType;
+
+                        if (HasInternalAttribute(symbol))
+                        {
+                            var location = creationSyntax.GetLocation();
+                            failures.Add($"{containingType} in {location.ToString()}");
+                        }
+
+                        if (IsInInternalNamespace(containingType)
+                            || HasInternalAttribute(containingType))
+                        {
+                            var location = creationSyntax.Type.GetLocation();
+                            failures.Add($"{containingType} in {location.ToString()}");
+                        }
+                    }
+                    break;
+                }
+
+                case ClassDeclarationSyntax declarationSyntax:
+                {
+                    if ((semanticModel.GetDeclaredSymbol(declarationSyntax) as ITypeSymbol)?.BaseType is ISymbol symbol
+                        && !Equals(symbol.ContainingAssembly.Name, project.AssemblyName)
+                        && (IsInInternalNamespace(symbol) || HasInternalAttribute(symbol))
+                        && declarationSyntax.BaseList?.Types.Count > 0)
+                    {
+                        var location = declarationSyntax.BaseList.Types[0].GetLocation();
+                        failures.Add($"{symbol.Name} in {location.ToString()}");
+                    }
+                    break;
+                }
+            }
+        }
+
+        private static bool HasInternalAttribute(ISymbol symbol)
+            => symbol != null && symbol.GetAttributes().Any(a => a.AttributeClass.Name == "EntityFrameworkInternalAttribute");
+
+        private const string EFNamespace = "EntityFrameworkCore";
+
+        private static bool IsInInternalNamespace(ISymbol symbol)
+        {
+            if (symbol?.ContainingNamespace?.ToDisplayString() is string ns)
+            {
+                var i = ns.IndexOf(EFNamespace);
+
+                return
+                    i != -1 &&
+                    (i == 0 || ns[i - 1] == '.') &&
+                    i + EFNamespace.Length < ns.Length && ns[i + EFNamespace.Length] == '.' &&
+                    ns.EndsWith(".Internal", StringComparison.Ordinal);
+            }
+
+            return false;
         }
 
         private string MatchConvention((MethodInfo Mutable, MethodInfo Convention) methodTuple)

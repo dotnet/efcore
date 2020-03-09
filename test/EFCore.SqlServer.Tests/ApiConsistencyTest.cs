@@ -32,5 +32,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected override Assembly TargetAssembly => typeof(SqlServerConnection).Assembly;
+
+        protected override bool IsProvider => true;
     }
 }

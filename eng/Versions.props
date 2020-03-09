@@ -21,6 +21,8 @@
     <MicrosoftAzureCosmosPackageVersion>3.7.0-preview</MicrosoftAzureCosmosPackageVersion>
     <MicrosoftCodeAnalysisCSharpPackageVersion>3.3.1</MicrosoftCodeAnalysisCSharpPackageVersion>
     <MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>3.3.1</MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>
+    <MicrosoftCodeAnalysisCSharpWorkspacesMSBuildPackageVersion>3.3.1</MicrosoftCodeAnalysisCSharpWorkspacesMSBuildPackageVersion>
+    <MicrosoftBuildLocatorPackageVersion>1.2.6</MicrosoftBuildLocatorPackageVersion>
     <mod_spatialitePackageVersion>4.3.0.1</mod_spatialitePackageVersion>
     <NetTopologySuitePackageVersion>2.0.0</NetTopologySuitePackageVersion>
     <NetTopologySuiteIOSpatiaLitePackageVersion>2.0.0</NetTopologySuiteIOSpatiaLitePackageVersion>

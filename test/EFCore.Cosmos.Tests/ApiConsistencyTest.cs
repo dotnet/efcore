@@ -25,5 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         protected override Assembly TargetAssembly => typeof(CosmosDatabaseWrapper).Assembly;
+
+        protected override bool IsProvider => true;
     }
 }

@@ -27,5 +27,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected override Assembly TargetAssembly => typeof(InMemoryDatabase).Assembly;
+
+        protected override bool IsProvider => true;
     }
 }
