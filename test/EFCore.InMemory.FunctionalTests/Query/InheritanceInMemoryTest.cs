@@ -26,7 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     @"DbSet<Bird>()
     .Select(b => InheritanceInMemoryFixture.MaterializeView(b))
     .OrderBy(a => a.CountryId)"),
-                message);
+                message,
+                ignoreLineEndingDifferences: true);
         }
 
         protected override bool EnforcesFkConstraints => false;

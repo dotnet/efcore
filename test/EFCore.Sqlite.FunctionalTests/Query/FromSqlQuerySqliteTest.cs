@@ -27,7 +27,7 @@ FROM (
 ) AS ""c""
 WHERE ('z' = '') OR (instr(""c"".""ContactName"", 'z') > 0)";
 
-            Assert.Equal(expected, queryString);
+            Assert.Equal(expected, queryString, ignoreLineEndingDifferences: true);
 
             return null;
         }
@@ -43,7 +43,7 @@ SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyN
 FROM (
     SELECT * FROM ""Customers"" WHERE ""City"" = @p0
 ) AS ""c""
-WHERE ""c"".""ContactTitle"" = @__contactTitle_1", queryString);
+WHERE ""c"".""ContactTitle"" = @__contactTitle_1", queryString, ignoreLineEndingDifferences: true);
 
             return null;
         }
