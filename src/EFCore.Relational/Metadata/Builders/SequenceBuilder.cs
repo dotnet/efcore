@@ -184,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <inheritdoc />
         IConventionSequenceBuilder IConventionSequenceBuilder.IsCyclic(bool? cyclic, bool fromDataAnnotation)
         {
-            if (((IConventionSequenceBuilder)this).CanSetCyclic(cyclic, fromDataAnnotation))
+            if (((IConventionSequenceBuilder)this).CanSetIsCyclic(cyclic, fromDataAnnotation))
             {
                 ((IConventionSequence)_sequence).SetIsCyclic(cyclic, fromDataAnnotation);
                 return this;
@@ -194,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <inheritdoc />
-        bool IConventionSequenceBuilder.CanSetCyclic(bool? cyclic, bool fromDataAnnotation)
+        bool IConventionSequenceBuilder.CanSetIsCyclic(bool? cyclic, bool fromDataAnnotation)
             => Overrides(fromDataAnnotation, _sequence.GetIsCyclicConfigurationSource())
                 || _sequence.IsCyclic == cyclic;
 

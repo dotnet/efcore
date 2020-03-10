@@ -257,13 +257,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetStartValue(long? startValue, ConfigurationSource configurationSource)
+        public virtual long? SetStartValue(long? startValue, ConfigurationSource configurationSource)
         {
             _startValue = startValue;
 
             _startValueConfigurationSource = startValue == null
                 ? (ConfigurationSource?)null
                 : configurationSource.Max(_startValueConfigurationSource);
+
+            return startValue;
         }
 
         /// <summary>
@@ -293,13 +295,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetIncrementBy(int? incrementBy, ConfigurationSource configurationSource)
+        public virtual int? SetIncrementBy(int? incrementBy, ConfigurationSource configurationSource)
         {
             _incrementBy = incrementBy;
 
             _incrementByConfigurationSource = incrementBy == null
                 ? (ConfigurationSource?)null
                 : configurationSource.Max(_incrementByConfigurationSource);
+
+            return incrementBy;
         }
 
         /// <summary>
@@ -329,13 +333,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetMinValue(long? minValue, ConfigurationSource configurationSource)
+        public virtual long? SetMinValue(long? minValue, ConfigurationSource configurationSource)
         {
             _minValue = minValue;
 
             _minValueConfigurationSource = minValue == null
                 ? (ConfigurationSource?)null
                 : configurationSource.Max(_minValueConfigurationSource);
+
+            return minValue;
         }
 
         /// <summary>
@@ -365,13 +371,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetMaxValue(long? maxValue, ConfigurationSource configurationSource)
+        public virtual long? SetMaxValue(long? maxValue, ConfigurationSource configurationSource)
         {
             _maxValue = maxValue;
 
             _maxValueConfigurationSource = maxValue == null
                 ? (ConfigurationSource?)null
                 : configurationSource.Max(_maxValueConfigurationSource);
+
+            return maxValue;
         }
 
         /// <summary>
@@ -410,7 +418,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetClrType([CanBeNull] Type clrType, ConfigurationSource configurationSource)
+        public virtual Type SetClrType([CanBeNull] Type clrType, ConfigurationSource configurationSource)
         {
             if (clrType != null
                 && !SupportedTypes.Contains(clrType))
@@ -423,6 +431,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _clrTypeConfigurationSource = clrType == null
                 ? (ConfigurationSource?)null
                 : configurationSource.Max(_clrTypeConfigurationSource);
+
+            return clrType;
         }
 
         /// <summary>
@@ -452,13 +462,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetIsCyclic(bool? cyclic, ConfigurationSource configurationSource)
+        public virtual bool? SetIsCyclic(bool? cyclic, ConfigurationSource configurationSource)
         {
             _isCyclic = cyclic;
 
             _isCyclicConfigurationSource = cyclic == null
                 ? (ConfigurationSource?)null
                 : configurationSource.Max(_isCyclicConfigurationSource);
+
+            return cyclic;
         }
 
         /// <summary>
@@ -518,7 +530,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void IConventionSequence.SetStartValue(long? startValue, bool fromDataAnnotation)
+        long? IConventionSequence.SetStartValue(long? startValue, bool fromDataAnnotation)
             => SetStartValue(startValue, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -527,7 +539,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void IConventionSequence.SetIncrementBy(int? incrementBy, bool fromDataAnnotation)
+        int? IConventionSequence.SetIncrementBy(int? incrementBy, bool fromDataAnnotation)
             => SetIncrementBy(incrementBy, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -536,7 +548,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void IConventionSequence.SetMinValue(long? minValue, bool fromDataAnnotation)
+        long? IConventionSequence.SetMinValue(long? minValue, bool fromDataAnnotation)
             => SetMinValue(minValue, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -545,7 +557,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void IConventionSequence.SetMaxValue(long? maxValue, bool fromDataAnnotation)
+        long? IConventionSequence.SetMaxValue(long? maxValue, bool fromDataAnnotation)
             => SetMaxValue(maxValue, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -554,7 +566,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void IConventionSequence.SetClrType(Type clrType, bool fromDataAnnotation)
+        Type IConventionSequence.SetClrType(Type clrType, bool fromDataAnnotation)
             => SetClrType(clrType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -563,7 +575,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void IConventionSequence.SetIsCyclic(bool? cyclic, bool fromDataAnnotation)
+        bool? IConventionSequence.SetIsCyclic(bool? cyclic, bool fromDataAnnotation)
             => SetIsCyclic(cyclic, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         [Obsolete("Don't use this in any new code")]

@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (Metadata.FieldInfo?.GetSimpleMemberName() == fieldName
                 || configurationSource.Overrides(Metadata.GetFieldInfoConfigurationSource()))
             {
-                Metadata.SetField(fieldName, configurationSource);
+                Metadata.SetFieldInfo(fieldName, configurationSource);
 
                 return this;
             }
@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (configurationSource.Overrides(Metadata.GetFieldInfoConfigurationSource())
                 || Equals(Metadata.FieldInfo, fieldInfo))
             {
-                Metadata.SetField(fieldInfo, configurationSource);
+                Metadata.SetFieldInfo(fieldInfo, configurationSource);
                 return this;
             }
 

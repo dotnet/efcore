@@ -25,21 +25,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
         }
 
-        /// <summary>
-        ///     Called after a navigation is added to the entity type.
-        /// </summary>
-        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
-        /// <param name="navigation"> The navigation. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
         public virtual void ProcessNavigationAdded(
-            IConventionRelationshipBuilder relationshipBuilder,
-            IConventionNavigation navigation,
-            IConventionContext<IConventionNavigation> context)
+            IConventionNavigationBuilder navigationBuilder,
+            IConventionContext<IConventionNavigationBuilder> context)
         {
-            Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
-            Check.NotNull(navigation, nameof(navigation));
-
-            var modelBuilder = relationshipBuilder.ModelBuilder;
+            var navigation = navigationBuilder.Metadata;
+            var foreignKey = navigation.ForeignKey;
+            var relationshipBuilder = foreignKey.Builder;
+            var modelBuilder = navigationBuilder.ModelBuilder;
 
             if (!IsNonNullable(modelBuilder, navigation)
                 || navigation.IsCollection)
@@ -60,28 +54,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
 
                 if (!navigation.ForeignKey.IsUnique
-                    || relationshipBuilder.Metadata.GetPrincipalEndConfigurationSource() != null)
+                    || foreignKey.GetPrincipalEndConfigurationSource() != null)
                 {
                     Dependencies.Logger.NonNullableReferenceOnDependent(navigation.ForeignKey.PrincipalToDependent);
                     return;
                 }
 
-                var newRelationshipBuilder = relationshipBuilder.HasEntityTypes(
-                    relationshipBuilder.Metadata.DeclaringEntityType,
-                    relationshipBuilder.Metadata.PrincipalEntityType);
+                relationshipBuilder = relationshipBuilder.HasEntityTypes(
+                    foreignKey.DeclaringEntityType,
+                    foreignKey.PrincipalEntityType);
 
-                if (newRelationshipBuilder == null)
+                if (relationshipBuilder == null)
                 {
                     return;
                 }
 
-                Dependencies.Logger.NonNullableInverted(newRelationshipBuilder.Metadata.DependentToPrincipal);
-                relationshipBuilder = newRelationshipBuilder;
+                Dependencies.Logger.NonNullableInverted(relationshipBuilder.Metadata.DependentToPrincipal);
             }
 
-            relationshipBuilder.IsRequired(true);
+            relationshipBuilder = relationshipBuilder.IsRequired(true);
 
-            context.StopProcessingIfChanged(relationshipBuilder.Metadata.DependentToPrincipal);
+            if (relationshipBuilder != null)
+            {
+                context.StopProcessingIfChanged(relationshipBuilder.Metadata.DependentToPrincipal?.Builder);
+            }
         }
 
         private bool IsNonNullable(IConventionModelBuilder modelBuilder, IConventionNavigation navigation)

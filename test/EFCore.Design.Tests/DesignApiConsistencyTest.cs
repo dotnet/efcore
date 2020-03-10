@@ -9,16 +9,25 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class ApiConsistencyTest : ApiConsistencyTestBase
+    public class DesignApiConsistencyTest : ApiConsistencyTestBase<DesignApiConsistencyTest.DesignApiConsistencyFixture>
     {
-        private static readonly Type[] _fluentApiTypes = { typeof(DesignTimeServiceCollectionExtensions) };
-
-        protected override IEnumerable<Type> FluentApiTypes => _fluentApiTypes;
+        public DesignApiConsistencyTest(DesignApiConsistencyFixture fixture)
+            : base(fixture)
+        {
+        }
 
         protected override void AddServices(ServiceCollection serviceCollection)
         {
         }
 
         protected override Assembly TargetAssembly => typeof(OperationExecutor).Assembly;
+
+        public class DesignApiConsistencyFixture : ApiConsistencyFixtureBase
+        {
+            public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>()
+            {
+                typeof(DesignTimeServiceCollectionExtensions)
+            };
+        }
     }
 }

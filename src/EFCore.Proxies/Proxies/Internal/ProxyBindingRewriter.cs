@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -136,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                                     },
                                     proxyType));
 
-                            foreach (var prop in entityType.GetProperties().Where(p => !p.IsShadowProperty()))
+                            foreach (var prop in entityType.GetDeclaredProperties().Where(p => !p.IsShadowProperty()))
                             {
                                 if (prop.PropertyInfo == null)
                                 {
@@ -152,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                             }
                         }
 
-                        foreach (var navigation in entityType.GetNavigations())
+                        foreach (var navigation in entityType.GetDeclaredNavigations())
                         {
                             if (navigation.PropertyInfo == null)
                             {

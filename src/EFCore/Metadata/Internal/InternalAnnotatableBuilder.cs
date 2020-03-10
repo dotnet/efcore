@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionAnnotatableBuilder IConventionAnnotatableBuilder.SetOrRemoveAnnotation(
+        IConventionAnnotatableBuilder IConventionAnnotatableBuilder.HasNonNullAnnotation(
             string name, object value, bool fromDataAnnotation)
             => SetOrRemoveAnnotation(name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -232,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionAnnotatableBuilder IConventionAnnotatableBuilder.RemoveAnnotation(string name, bool fromDataAnnotation)
+        IConventionAnnotatableBuilder IConventionAnnotatableBuilder.HasNoAnnotation(string name, bool fromDataAnnotation)
             => RemoveAnnotation(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>

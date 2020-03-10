@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return annotation;
             }
 
-            public override IConventionRelationshipBuilder OnForeignKeyAdded(IConventionRelationshipBuilder relationshipBuilder)
+            public override IConventionForeignKeyBuilder OnForeignKeyAdded(IConventionForeignKeyBuilder relationshipBuilder)
             {
                 Add(new OnForeignKeyAddedNode(relationshipBuilder));
                 return relationshipBuilder;
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             public override IConventionAnnotation OnForeignKeyAnnotationChanged(
-                IConventionRelationshipBuilder relationshipBuilder,
+                IConventionForeignKeyBuilder relationshipBuilder,
                 string name,
                 IConventionAnnotation annotation,
                 IConventionAnnotation oldAnnotation)
@@ -176,10 +176,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return index;
             }
 
-            public override IConventionIndexBuilder OnIndexUniquenessChanged(IConventionIndexBuilder indexBuilder)
+            public override bool? OnIndexUniquenessChanged(IConventionIndexBuilder indexBuilder)
             {
                 Add(new OnIndexUniquenessChangedNode(indexBuilder));
-                return indexBuilder;
+                return indexBuilder.Metadata.IsUnique;
             }
 
             public override IConventionAnnotation OnIndexAnnotationChanged(
@@ -192,15 +192,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return annotation;
             }
 
-            public override IConventionNavigation OnNavigationAdded(
-                IConventionRelationshipBuilder relationshipBuilder, IConventionNavigation navigation)
+            public override IConventionNavigationBuilder OnNavigationAdded(IConventionNavigationBuilder navigationBuilder)
             {
-                Add(new OnNavigationAddedNode(relationshipBuilder, navigation));
-                return navigation;
+                Add(new OnNavigationAddedNode(navigationBuilder));
+                return navigationBuilder;
             }
 
             public override IConventionAnnotation OnNavigationAnnotationChanged(
-                IConventionRelationshipBuilder relationshipBuilder,
+                IConventionForeignKeyBuilder relationshipBuilder,
                 IConventionNavigation navigation,
                 string name,
                 IConventionAnnotation annotation,
@@ -263,38 +262,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return navigation;
             }
 
-            public override IConventionRelationshipBuilder OnForeignKeyPropertiesChanged(
-                IConventionRelationshipBuilder relationshipBuilder,
+            public override IReadOnlyList<IConventionProperty> OnForeignKeyPropertiesChanged(
+                IConventionForeignKeyBuilder relationshipBuilder,
                 IReadOnlyList<IConventionProperty> oldDependentProperties,
                 IConventionKey oldPrincipalKey)
             {
                 Add(new OnForeignKeyPropertiesChangedNode(relationshipBuilder, oldDependentProperties, oldPrincipalKey));
-                return relationshipBuilder;
+                return relationshipBuilder.Metadata.Properties;
             }
 
-            public override IConventionRelationshipBuilder OnForeignKeyUniquenessChanged(
-                IConventionRelationshipBuilder relationshipBuilder)
+            public override bool? OnForeignKeyUniquenessChanged(
+                IConventionForeignKeyBuilder relationshipBuilder)
             {
                 Add(new OnForeignKeyUniquenessChangedNode(relationshipBuilder));
-                return relationshipBuilder;
+                return relationshipBuilder.Metadata.IsUnique;
             }
 
-            public override IConventionRelationshipBuilder OnForeignKeyRequirednessChanged(
-                IConventionRelationshipBuilder relationshipBuilder)
+            public override bool? OnForeignKeyRequirednessChanged(
+                IConventionForeignKeyBuilder relationshipBuilder)
             {
                 Add(new OnForeignKeyRequirednessChangedNode(relationshipBuilder));
-                return relationshipBuilder;
+                return relationshipBuilder.Metadata.IsRequired;
             }
 
-            public override IConventionRelationshipBuilder OnForeignKeyOwnershipChanged(
-                IConventionRelationshipBuilder relationshipBuilder)
+            public override bool? OnForeignKeyOwnershipChanged(
+                IConventionForeignKeyBuilder relationshipBuilder)
             {
                 Add(new OnForeignKeyOwnershipChangedNode(relationshipBuilder));
-                return relationshipBuilder;
+                return relationshipBuilder.Metadata.IsOwnership;
             }
 
-            public override IConventionRelationshipBuilder OnForeignKeyPrincipalEndChanged(
-                IConventionRelationshipBuilder relationshipBuilder)
+            public override IConventionForeignKeyBuilder OnForeignKeyPrincipalEndChanged(
+                IConventionForeignKeyBuilder relationshipBuilder)
             {
                 Add(new OnForeignKeyPrincipalEndChangedNode(relationshipBuilder));
                 return relationshipBuilder;
@@ -306,10 +305,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return propertyBuilder;
             }
 
-            public override IConventionPropertyBuilder OnPropertyNullableChanged(IConventionPropertyBuilder propertyBuilder)
+            public override bool? OnPropertyNullabilityChanged(IConventionPropertyBuilder propertyBuilder)
             {
                 Add(new OnPropertyNullableChangedNode(propertyBuilder));
-                return propertyBuilder;
+                return propertyBuilder.Metadata.IsNullable;
             }
 
             public override FieldInfo OnPropertyFieldChanged(
@@ -469,12 +468,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private sealed class OnForeignKeyAddedNode : ConventionNode
         {
-            public OnForeignKeyAddedNode(IConventionRelationshipBuilder relationshipBuilder)
+            public OnForeignKeyAddedNode(IConventionForeignKeyBuilder relationshipBuilder)
             {
                 RelationshipBuilder = relationshipBuilder;
             }
 
-            public IConventionRelationshipBuilder RelationshipBuilder { get; }
+            public IConventionForeignKeyBuilder RelationshipBuilder { get; }
 
             public override void Run(ConventionDispatcher dispatcher)
                 => dispatcher._immediateConventionScope.OnForeignKeyAdded(RelationshipBuilder);
@@ -498,7 +497,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private sealed class OnForeignKeyAnnotationChangedNode : ConventionNode
         {
             public OnForeignKeyAnnotationChangedNode(
-                IConventionRelationshipBuilder relationshipBuilder,
+                IConventionForeignKeyBuilder relationshipBuilder,
                 string name,
                 IConventionAnnotation annotation,
                 IConventionAnnotation oldAnnotation)
@@ -509,7 +508,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 OldAnnotation = oldAnnotation;
             }
 
-            public IConventionRelationshipBuilder RelationshipBuilder { get; }
+            public IConventionForeignKeyBuilder RelationshipBuilder { get; }
             public string Name { get; }
             public IConventionAnnotation Annotation { get; }
             public IConventionAnnotation OldAnnotation { get; }
@@ -522,7 +521,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private sealed class OnForeignKeyPropertiesChangedNode : ConventionNode
         {
             public OnForeignKeyPropertiesChangedNode(
-                IConventionRelationshipBuilder relationshipBuilder,
+                IConventionForeignKeyBuilder relationshipBuilder,
                 IReadOnlyList<IConventionProperty> oldDependentProperties,
                 IConventionKey oldPrincipalKey)
             {
@@ -531,7 +530,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 OldPrincipalKey = oldPrincipalKey;
             }
 
-            public IConventionRelationshipBuilder RelationshipBuilder { get; }
+            public IConventionForeignKeyBuilder RelationshipBuilder { get; }
             public IReadOnlyList<IConventionProperty> OldDependentProperties { get; }
             public IConventionKey OldPrincipalKey { get; }
 
@@ -542,12 +541,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private sealed class OnForeignKeyUniquenessChangedNode : ConventionNode
         {
-            public OnForeignKeyUniquenessChangedNode(IConventionRelationshipBuilder relationshipBuilder)
+            public OnForeignKeyUniquenessChangedNode(IConventionForeignKeyBuilder relationshipBuilder)
             {
                 RelationshipBuilder = relationshipBuilder;
             }
 
-            public IConventionRelationshipBuilder RelationshipBuilder { get; }
+            public IConventionForeignKeyBuilder RelationshipBuilder { get; }
 
             public override void Run(ConventionDispatcher dispatcher)
                 => dispatcher._immediateConventionScope.OnForeignKeyUniquenessChanged(RelationshipBuilder);
@@ -555,12 +554,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private sealed class OnForeignKeyRequirednessChangedNode : ConventionNode
         {
-            public OnForeignKeyRequirednessChangedNode(IConventionRelationshipBuilder relationshipBuilder)
+            public OnForeignKeyRequirednessChangedNode(IConventionForeignKeyBuilder relationshipBuilder)
             {
                 RelationshipBuilder = relationshipBuilder;
             }
 
-            public IConventionRelationshipBuilder RelationshipBuilder { get; }
+            public IConventionForeignKeyBuilder RelationshipBuilder { get; }
 
             public override void Run(ConventionDispatcher dispatcher)
                 => dispatcher._immediateConventionScope.OnForeignKeyRequirednessChanged(RelationshipBuilder);
@@ -568,12 +567,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private sealed class OnForeignKeyOwnershipChangedNode : ConventionNode
         {
-            public OnForeignKeyOwnershipChangedNode(IConventionRelationshipBuilder relationshipBuilder)
+            public OnForeignKeyOwnershipChangedNode(IConventionForeignKeyBuilder relationshipBuilder)
             {
                 RelationshipBuilder = relationshipBuilder;
             }
 
-            public IConventionRelationshipBuilder RelationshipBuilder { get; }
+            public IConventionForeignKeyBuilder RelationshipBuilder { get; }
 
             public override void Run(ConventionDispatcher dispatcher)
                 => dispatcher._immediateConventionScope.OnForeignKeyOwnershipChanged(RelationshipBuilder);
@@ -581,12 +580,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private sealed class OnForeignKeyPrincipalEndChangedNode : ConventionNode
         {
-            public OnForeignKeyPrincipalEndChangedNode(IConventionRelationshipBuilder relationshipBuilder)
+            public OnForeignKeyPrincipalEndChangedNode(IConventionForeignKeyBuilder relationshipBuilder)
             {
                 RelationshipBuilder = relationshipBuilder;
             }
 
-            public IConventionRelationshipBuilder RelationshipBuilder { get; }
+            public IConventionForeignKeyBuilder RelationshipBuilder { get; }
 
             public override void Run(ConventionDispatcher dispatcher)
                 => dispatcher._immediateConventionScope.OnForeignKeyPrincipalEndChanged(RelationshipBuilder);
@@ -594,23 +593,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private sealed class OnNavigationAddedNode : ConventionNode
         {
-            public OnNavigationAddedNode(IConventionRelationshipBuilder relationshipBuilder, IConventionNavigation navigation)
+            public OnNavigationAddedNode(IConventionNavigationBuilder navigationBuilder)
             {
-                RelationshipBuilder = relationshipBuilder;
-                Navigation = navigation;
+                NavigationBuilder = navigationBuilder;
             }
 
-            public IConventionRelationshipBuilder RelationshipBuilder { get; }
-            public IConventionNavigation Navigation { get; }
+            public IConventionNavigationBuilder NavigationBuilder { get; }
 
             public override void Run(ConventionDispatcher dispatcher)
-                => dispatcher._immediateConventionScope.OnNavigationAdded(RelationshipBuilder, Navigation);
+                => dispatcher._immediateConventionScope.OnNavigationAdded(NavigationBuilder);
         }
 
         private sealed class OnNavigationAnnotationChangedNode : ConventionNode
         {
             public OnNavigationAnnotationChangedNode(
-                IConventionRelationshipBuilder relationshipBuilder,
+                IConventionForeignKeyBuilder relationshipBuilder,
                 IConventionNavigation navigation,
                 string name,
                 IConventionAnnotation annotation,
@@ -623,7 +620,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 OldAnnotation = oldAnnotation;
             }
 
-            public IConventionRelationshipBuilder RelationshipBuilder { get; }
+            public IConventionForeignKeyBuilder RelationshipBuilder { get; }
             public IConventionNavigation Navigation { get; }
             public string Name { get; }
             public IConventionAnnotation Annotation { get; }
@@ -908,7 +905,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public IConventionPropertyBuilder PropertyBuilder { get; }
 
             public override void Run(ConventionDispatcher dispatcher)
-                => dispatcher._immediateConventionScope.OnPropertyNullableChanged(PropertyBuilder);
+                => dispatcher._immediateConventionScope.OnPropertyNullabilityChanged(PropertyBuilder);
         }
 
         private sealed class OnPropertyFieldChangedNode : ConventionNode

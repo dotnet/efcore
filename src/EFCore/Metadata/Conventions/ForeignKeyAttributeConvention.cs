@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyAdded(
-            IConventionRelationshipBuilder relationshipBuilder, IConventionContext<IConventionRelationshipBuilder> context)
+            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<IConventionForeignKeyBuilder> context)
         {
             Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
 
@@ -229,8 +229,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        private static IConventionRelationshipBuilder SplitNavigationsToSeparateRelationships(
-            IConventionRelationshipBuilder relationshipBuilder)
+        private static IConventionForeignKeyBuilder SplitNavigationsToSeparateRelationships(
+            IConventionForeignKeyBuilder relationshipBuilder)
         {
             var foreignKey = relationshipBuilder.Metadata;
             var dependentToPrincipalNavigationName = foreignKey.DependentToPrincipal.Name;
@@ -346,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             => Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(propertyInfo);
 
         private static IReadOnlyList<string> FindCandidateDependentPropertiesThroughNavigation(
-            IConventionRelationshipBuilder relationshipBuilder,
+            IConventionForeignKeyBuilder relationshipBuilder,
             bool pointsToPrincipal)
         {
             var navigation = pointsToPrincipal

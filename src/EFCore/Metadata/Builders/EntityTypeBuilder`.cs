@@ -808,7 +808,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(propertyExpression, nameof(propertyExpression));
 
             return new DiscriminatorBuilder<TDiscriminator>(
-                Builder.DiscriminatorBuilder(Property(propertyExpression).GetInfrastructure(), ConfigurationSource.Explicit));
+                Builder.HasDiscriminator(propertyExpression.GetPropertyAccess(), ConfigurationSource.Explicit));
         }
 
         /// <summary>

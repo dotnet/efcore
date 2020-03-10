@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -13,7 +12,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -295,13 +293,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetSchema([CanBeNull] string schema, ConfigurationSource configurationSource)
+        public virtual string SetSchema([CanBeNull] string schema, ConfigurationSource configurationSource)
         {
             _schema = schema;
 
             _schemaConfigurationSource = schema == null
                 ? (ConfigurationSource?)null
                 : configurationSource.Max(_schemaConfigurationSource);
+
+            return schema;
         }
 
         /// <summary>
@@ -330,13 +330,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetName([CanBeNull] string name, ConfigurationSource configurationSource)
+        public virtual string SetName([CanBeNull] string name, ConfigurationSource configurationSource)
         {
             _name = name;
 
             _nameConfigurationSource = name == null
                 ? (ConfigurationSource?)null
                 : configurationSource.Max(_nameConfigurationSource);
+
+            return name;
         }
 
         /// <summary>
@@ -365,13 +367,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetStoreType([CanBeNull] string storeType, ConfigurationSource configurationSource)
+        public virtual string SetStoreType([CanBeNull] string storeType, ConfigurationSource configurationSource)
         {
             _storeType = storeType;
 
             _storeTypeConfigurationSource = storeType == null
                 ? (ConfigurationSource?)null
                 : configurationSource.Max(_storeTypeConfigurationSource);
+
+            return storeType;
         }
 
         /// <summary>
@@ -400,13 +404,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetTypeMapping([CanBeNull] RelationalTypeMapping typeMapping, ConfigurationSource configurationSource)
+        public virtual RelationalTypeMapping SetTypeMapping(
+            [CanBeNull] RelationalTypeMapping typeMapping, ConfigurationSource configurationSource)
         {
             _typeMapping = typeMapping;
 
             _typeMappingConfigurationSource = typeMapping == null
                 ? (ConfigurationSource?)null
                 : configurationSource.Max(_typeMappingConfigurationSource);
+
+            return typeMapping;
         }
 
         /// <summary>
@@ -435,7 +442,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetTranslation(
+        public virtual Func<IReadOnlyCollection<SqlExpression>, SqlExpression> SetTranslation(
             [CanBeNull] Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation,
             ConfigurationSource configurationSource)
         {
@@ -444,6 +451,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _translationConfigurationSource = translation == null
                 ? (ConfigurationSource?)null
                 : configurationSource.Max(_translationConfigurationSource);
+
+            return translation;
         }
 
         /// <summary>
@@ -500,7 +509,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void IConventionDbFunction.SetName(string name, bool fromDataAnnotation)
+        string IConventionDbFunction.SetName(string name, bool fromDataAnnotation)
             => SetName(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -509,7 +518,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void IConventionDbFunction.SetSchema(string schema, bool fromDataAnnotation)
+        string IConventionDbFunction.SetSchema(string schema, bool fromDataAnnotation)
             => SetSchema(schema, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -518,7 +527,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void IConventionDbFunction.SetStoreType(string storeType, bool fromDataAnnotation)
+        string IConventionDbFunction.SetStoreType(string storeType, bool fromDataAnnotation)
             => SetStoreType(storeType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -527,7 +536,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void IConventionDbFunction.SetTypeMapping(RelationalTypeMapping returnTypeMapping, bool fromDataAnnotation)
+        RelationalTypeMapping IConventionDbFunction.SetTypeMapping(RelationalTypeMapping returnTypeMapping, bool fromDataAnnotation)
             => SetTypeMapping(returnTypeMapping, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -536,7 +545,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void IConventionDbFunction.SetTranslation(
+        Func<IReadOnlyCollection<SqlExpression>, SqlExpression> IConventionDbFunction.SetTranslation(
             Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation, bool fromDataAnnotation)
             => SetTranslation(translation, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -555,5 +564,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         IReadOnlyList<IConventionDbFunctionParameter> IConventionDbFunction.Parameters => _parameters;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IReadOnlyList<IMutableDbFunctionParameter> IMutableDbFunction.Parameters => _parameters;
     }
 }

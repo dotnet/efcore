@@ -206,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (Metadata.GetIsKeylessConfigurationSource() != ConfigurationSource.Explicit)
                 {
-                    Metadata.HasNoKey(false, configurationSource.Value);
+                    Metadata.SetIsKeyless(false, configurationSource.Value);
                 }
 
                 var containingForeignKeys = actualProperties
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             else if (configurationSource.HasValue)
             {
                 key.UpdateConfigurationSource(configurationSource.Value);
-                Metadata.HasNoKey(false, configurationSource.Value);
+                Metadata.SetIsKeyless(false, configurationSource.Value);
             }
 
             return key?.Builder;
@@ -299,6 +299,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return this;
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CanRemoveKey([NotNull] Key key, ConfigurationSource configurationSource)
+            => configurationSource.Overrides(key.GetConfigurationSource());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -355,13 +364,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (Metadata.IsKeyless)
             {
-                Metadata.HasNoKey(true, configurationSource);
+                Metadata.SetIsKeyless(true, configurationSource);
                 return this;
             }
 
-            if (!configurationSource.Overrides(Metadata.GetIsKeylessConfigurationSource())
-                || Metadata.GetReferencingForeignKeys().Any(fk => !configurationSource.Overrides(fk.GetConfigurationSource()))
-                || Metadata.GetForeignKeys().Any(fk => !configurationSource.Overrides(fk.GetPrincipalToDependentConfigurationSource())))
+            if (!CanRemoveKey(configurationSource))
             {
                 return null;
             }
@@ -386,10 +393,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                 }
 
-                Metadata.HasNoKey(true, configurationSource);
+                Metadata.SetIsKeyless(true, configurationSource);
                 return this;
             }
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CanRemoveKey(ConfigurationSource configurationSource)
+            => Metadata.IsKeyless
+                || (configurationSource.Overrides(Metadata.GetIsKeylessConfigurationSource())
+                    && !Metadata.GetKeys().Any(key => !configurationSource.Overrides(key.GetConfigurationSource()))
+                    && !Metadata.GetReferencingForeignKeys().Any(fk => !configurationSource.Overrides(fk.GetConfigurationSource()))
+                    && !Metadata.GetForeignKeys().Any(fk => !configurationSource.Overrides(fk.GetPrincipalToDependentConfigurationSource())));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1344,7 +1364,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (Metadata.BaseType == baseEntityType)
             {
-                Metadata.HasBaseType(baseEntityType, configurationSource);
+                Metadata.SetBaseType(baseEntityType, configurationSource);
                 return this;
             }
 
@@ -1455,7 +1475,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     detachedKeys = DetachKeys(Metadata.GetDeclaredKeys());
 
-                    Metadata.HasNoKey(false, configurationSource);
+                    Metadata.SetIsKeyless(false, configurationSource);
 
                     var propertiesToDetach =
                         FindConflictingMembers(Metadata.GetDerivedTypesInclusive().SelectMany(et => et.GetDeclaredProperties()),
@@ -1600,7 +1620,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                 }
 
-                Metadata.HasBaseType(baseEntityType, configurationSource);
+                Metadata.SetBaseType(baseEntityType, configurationSource);
 
                 if (removedInheritedPropertiesToDuplicate != null)
                 {
@@ -1874,8 +1894,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.DebugAssert(foreignKey.DeclaringEntityType == Metadata, "foreignKey.DeclaringEntityType != Metadata");
 
-            var currentConfigurationSource = foreignKey.GetConfigurationSource();
-            return configurationSource.Overrides(currentConfigurationSource);
+            return configurationSource.Overrides(foreignKey.GetConfigurationSource());
         }
 
         /// <summary>
@@ -1888,8 +1907,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.DebugAssert(skipNavigation.DeclaringEntityType == Metadata, "skipNavigation.DeclaringEntityType != Metadata");
 
-            var currentConfigurationSource = skipNavigation.GetConfigurationSource();
-            return configurationSource.Overrides(currentConfigurationSource);
+            return configurationSource.Overrides(skipNavigation.GetConfigurationSource());
         }
 
         /// <summary>
@@ -2227,6 +2245,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return this;
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CanRemoveIndex([NotNull] Index index, ConfigurationSource configurationSource)
+            => configurationSource.Overrides(index.GetConfigurationSource());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3226,7 +3253,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (required.HasValue
                 && foreignKey.IsRequired == required.Value)
             {
-                foreignKey = foreignKey.SetIsRequired(required.Value, configurationSource);
+                foreignKey.SetIsRequired(required.Value, configurationSource);
             }
 
             return (InternalRelationshipBuilder)batch.Run(foreignKey)?.Builder;
@@ -3908,9 +3935,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => configurationSource.Overrides(Metadata.GetPropertyAccessModeConfigurationSource())
                 || Metadata.GetPropertyAccessMode() == propertyAccessMode;
 
-        private static readonly string _defaultDiscriminatorName = "Discriminator";
-
-        private static readonly Type _defaultDiscriminatorType = typeof(string);
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual DiscriminatorBuilder HasDiscriminator(ConfigurationSource configurationSource)
+            => DiscriminatorBuilder(
+                GetOrCreateDiscriminatorProperty(type: null, name: null, ConfigurationSource.Convention),
+                configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3918,8 +3952,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalPropertyBuilder GetOrCreateDiscriminatorProperty(
-            [CanBeNull] Type type, [CanBeNull] string name, bool fromDataAnnotation)
+        public virtual DiscriminatorBuilder HasDiscriminator(
+            [CanBeNull] string name, [CanBeNull] Type type, ConfigurationSource configurationSource)
+        {
+            Check.DebugAssert(name != null || type != null, $"Either {nameof(name)} or {nameof(type)} should be non-null");
+
+            return CanSetDiscriminator(name, type, configurationSource)
+                        ? DiscriminatorBuilder(
+                            GetOrCreateDiscriminatorProperty(type, name, configurationSource),
+                            configurationSource)
+                        : null;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual DiscriminatorBuilder HasDiscriminator([NotNull] MemberInfo memberInfo, ConfigurationSource configurationSource)
+            => CanSetDiscriminator(
+                Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName(), memberInfo.GetMemberType(), configurationSource)
+                ? DiscriminatorBuilder(
+                    Metadata.RootType().Builder.Property(
+                        memberInfo, configurationSource),
+                    configurationSource)
+                : null;
+
+        private static readonly string _defaultDiscriminatorName = "Discriminator";
+
+        private static readonly Type _defaultDiscriminatorType = typeof(string);
+
+        private InternalPropertyBuilder GetOrCreateDiscriminatorProperty(Type type, string name, ConfigurationSource configurationSource)
         {
             var discriminatorProperty = ((IEntityType)Metadata).GetDiscriminatorProperty();
             if ((name != null && discriminatorProperty?.Name != name)
@@ -3928,7 +3992,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 discriminatorProperty = null;
             }
 
-            var configurationSource = fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention;
             return Metadata.RootType().Builder.Property(
                 type ?? discriminatorProperty?.ClrType ?? _defaultDiscriminatorType,
                 name ?? discriminatorProperty?.Name ?? _defaultDiscriminatorName,
@@ -3936,7 +3999,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 configurationSource: configurationSource);
         }
 
-        public virtual DiscriminatorBuilder DiscriminatorBuilder(
+        private DiscriminatorBuilder DiscriminatorBuilder(
             [CanBeNull] InternalPropertyBuilder discriminatorPropertyBuilder,
             ConfigurationSource configurationSource)
         {
@@ -3954,13 +4017,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             RemoveUnusedDiscriminatorProperty(discriminatorProperty, configurationSource);
 
             rootTypeBuilder.Metadata.SetDiscriminatorProperty(discriminatorProperty, configurationSource);
-            discriminatorPropertyBuilder.IsRequired(true, configurationSource);
-            discriminatorPropertyBuilder.HasValueGenerator(DiscriminatorValueGenerator.Factory, configurationSource);
+            discriminatorPropertyBuilder.IsRequired(true, ConfigurationSource.Convention);
+            discriminatorPropertyBuilder.HasValueGenerator(DiscriminatorValueGenerator.Factory, ConfigurationSource.Convention);
 
             return new DiscriminatorBuilder(Metadata);
         }
 
-        public virtual InternalEntityTypeBuilder HasNoDeclaredDiscriminator(ConfigurationSource configurationSource)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InternalEntityTypeBuilder HasNoDiscriminator(ConfigurationSource configurationSource)
         {
             if (Metadata[CoreAnnotationNames.DiscriminatorProperty] != null
                 && !configurationSource.Overrides(Metadata.GetDiscriminatorPropertyConfigurationSource()))
@@ -3995,23 +4064,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CanSetDiscriminator([CanBeNull] string name, [CanBeNull] Type type, ConfigurationSource configurationSource)
+            => name == null && type == null
+                ? CanRemoveDiscriminator(configurationSource)
+                : CanSetDiscriminator(((IEntityType)Metadata).GetDiscriminatorProperty(), name, type, configurationSource);
+
         private bool CanSetDiscriminator(
             IProperty discriminatorProperty,
             string name,
             Type discriminatorType,
-            bool fromDataAnnotation)
+            ConfigurationSource configurationSource)
             => ((name == null && discriminatorType == null)
                     || ((name == null || discriminatorProperty?.Name == name)
                         && (discriminatorType == null || discriminatorProperty?.ClrType == discriminatorType))
-                    || (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
-                    .Overrides(Metadata.GetDiscriminatorPropertyConfigurationSource()))
+                    || configurationSource.Overrides(Metadata.GetDiscriminatorPropertyConfigurationSource()))
                 && (discriminatorProperty != null
                     || Metadata.RootType().Builder.CanAddDiscriminatorProperty(
                         discriminatorType ?? _defaultDiscriminatorType,
                         name ?? _defaultDiscriminatorName,
                         typeConfigurationSource: discriminatorType != null
-                            ? fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention
+                            ? configurationSource
                             : (ConfigurationSource?)null));
+
+        private bool CanRemoveDiscriminator(ConfigurationSource configurationSource)
+            => CanSetAnnotation(CoreAnnotationNames.DiscriminatorProperty, null, configurationSource);
 
         private bool CanAddDiscriminatorProperty(
             [NotNull] Type propertyType, [NotNull] string name, ConfigurationSource? typeConfigurationSource)
@@ -4130,7 +4212,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionEntityTypeBuilder IConventionEntityTypeBuilder.RemoveUnusedShadowProperties(
+        IConventionEntityTypeBuilder IConventionEntityTypeBuilder.HasNoUnusedShadowProperties(
             IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
             => RemoveUnusedShadowProperties(
                 properties, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -4246,8 +4328,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
+        bool IConventionEntityTypeBuilder.CanRemoveKey([NotNull] IConventionKey key, bool fromDataAnnotation)
+            => CanRemoveKey((Key)key, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
         IConventionEntityTypeBuilder IConventionEntityTypeBuilder.HasNoKey(IConventionKey key, bool fromDataAnnotation)
             => HasNoKey((Key)key, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        bool IConventionEntityTypeBuilder.CanRemoveKey(bool fromDataAnnotation)
+            => CanRemoveKey(fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4297,7 +4399,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionEntityTypeBuilder.HasRelationship(
+        bool IConventionEntityTypeBuilder.CanRemoveIndex([NotNull] IConventionIndex index, bool fromDataAnnotation)
+            => CanRemoveIndex((Index)index, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IConventionForeignKeyBuilder IConventionEntityTypeBuilder.HasRelationship(
             IConventionEntityType targetEntityType, bool fromDataAnnotation)
             => HasRelationship(
                 (EntityType)targetEntityType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -4309,7 +4421,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionEntityTypeBuilder.HasRelationship(
+        IConventionForeignKeyBuilder IConventionEntityTypeBuilder.HasRelationship(
             IConventionEntityType principalEntityType, IReadOnlyList<IConventionProperty> dependentProperties, bool fromDataAnnotation)
             => HasRelationship(
                 (EntityType)principalEntityType,
@@ -4323,7 +4435,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionEntityTypeBuilder.HasRelationship(
+        IConventionForeignKeyBuilder IConventionEntityTypeBuilder.HasRelationship(
             IConventionEntityType principalEntityType, IConventionKey principalKey, bool fromDataAnnotation)
             => HasRelationship(
                 (EntityType)principalEntityType,
@@ -4337,7 +4449,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionEntityTypeBuilder.HasRelationship(
+        IConventionForeignKeyBuilder IConventionEntityTypeBuilder.HasRelationship(
             IConventionEntityType principalEntityType,
             IReadOnlyList<IConventionProperty> dependentProperties,
             IConventionKey principalKey,
@@ -4355,7 +4467,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionEntityTypeBuilder.HasRelationship(
+        IConventionForeignKeyBuilder IConventionEntityTypeBuilder.HasRelationship(
             IConventionEntityType targetEntityType, string navigationToTargetName, bool setTargetAsPrincipal, bool fromDataAnnotation)
             => HasRelationship(
                 (EntityType)targetEntityType,
@@ -4370,7 +4482,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionEntityTypeBuilder.HasRelationship(
+        IConventionForeignKeyBuilder IConventionEntityTypeBuilder.HasRelationship(
             IConventionEntityType targetEntityType, MemberInfo navigationToTarget, bool setTargetAsPrincipal, bool fromDataAnnotation)
             => HasRelationship(
                 (EntityType)targetEntityType,
@@ -4385,7 +4497,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionEntityTypeBuilder.HasRelationship(
+        IConventionForeignKeyBuilder IConventionEntityTypeBuilder.HasRelationship(
             IConventionEntityType targetEntityType,
             string navigationToTargetName,
             string inverseNavigationName,
@@ -4404,7 +4516,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionEntityTypeBuilder.HasRelationship(
+        IConventionForeignKeyBuilder IConventionEntityTypeBuilder.HasRelationship(
             IConventionEntityType targetEntityType,
             MemberInfo navigationToTarget,
             MemberInfo inverseNavigation,
@@ -4423,7 +4535,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionEntityTypeBuilder.HasOwnership(
+        IConventionForeignKeyBuilder IConventionEntityTypeBuilder.HasOwnership(
             Type targetEntityType, string navigationToTargetName, bool fromDataAnnotation)
             => HasOwnership(
                 targetEntityType, navigationToTargetName,
@@ -4436,7 +4548,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionEntityTypeBuilder.HasOwnership(
+        IConventionForeignKeyBuilder IConventionEntityTypeBuilder.HasOwnership(
             Type targetEntityType, MemberInfo navigationToTarget, bool fromDataAnnotation)
             => HasOwnership(
                 targetEntityType, navigationToTarget,
@@ -4449,7 +4561,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionEntityTypeBuilder.HasOwnership(
+        IConventionForeignKeyBuilder IConventionEntityTypeBuilder.HasOwnership(
             Type targetEntityType, string navigationToTargetName, string inversePropertyName, bool fromDataAnnotation)
             => HasOwnership(
                 targetEntityType, navigationToTargetName, inversePropertyName,
@@ -4462,7 +4574,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionEntityTypeBuilder.HasOwnership(
+        IConventionForeignKeyBuilder IConventionEntityTypeBuilder.HasOwnership(
             Type targetEntityType, MemberInfo navigationToTarget, MemberInfo inverseProperty, bool fromDataAnnotation)
             => HasOwnership(
                 targetEntityType, navigationToTarget, inverseProperty,
@@ -4503,6 +4615,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => HasNoRelationship(
                 (ForeignKey)foreignKey,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        bool IConventionEntityTypeBuilder.CanRemoveRelationship([NotNull] IConventionForeignKey foreignKey, bool fromDataAnnotation)
+            => CanRemoveForeignKey((ForeignKey)foreignKey,
+                    fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4641,8 +4764,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IConventionDiscriminatorBuilder IConventionEntityTypeBuilder.HasDiscriminator(bool fromDataAnnotation)
-            => DiscriminatorBuilder(
-                GetOrCreateDiscriminatorProperty(type: null, name: null, fromDataAnnotation: false),
+            => HasDiscriminator(
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -4653,11 +4775,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IConventionDiscriminatorBuilder IConventionEntityTypeBuilder.HasDiscriminator(Type type, bool fromDataAnnotation)
-            => ((IConventionEntityTypeBuilder)this).CanSetDiscriminator(type, fromDataAnnotation)
-                ? DiscriminatorBuilder(
-                    GetOrCreateDiscriminatorProperty(type, name: null, fromDataAnnotation),
-                    fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
-                : null;
+            => HasDiscriminator(name: null, Check.NotNull(type, nameof(type)),
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4667,11 +4786,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IConventionDiscriminatorBuilder IConventionEntityTypeBuilder.HasDiscriminator(string name, bool fromDataAnnotation)
-            => ((IConventionEntityTypeBuilder)this).CanSetDiscriminator(name, fromDataAnnotation)
-                ? DiscriminatorBuilder(
-                    GetOrCreateDiscriminatorProperty(type: null, name, fromDataAnnotation),
-                    fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
-                : null;
+            => HasDiscriminator(Check.NotEmpty(name, nameof(name)), type: null,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4681,13 +4797,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IConventionDiscriminatorBuilder IConventionEntityTypeBuilder.HasDiscriminator(string name, Type type, bool fromDataAnnotation)
-            => ((IConventionEntityTypeBuilder)this).CanSetDiscriminator(type, name, fromDataAnnotation)
-                ? DiscriminatorBuilder(
-                    Metadata.RootType().Builder.Property(
-                        type, name,
-                        fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention),
-                    fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
-                : null;
+            => HasDiscriminator(Check.NotEmpty(name, nameof(name)), Check.NotNull(type, nameof(type)),
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4697,13 +4808,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IConventionDiscriminatorBuilder IConventionEntityTypeBuilder.HasDiscriminator(MemberInfo memberInfo, bool fromDataAnnotation)
-            => ((IConventionEntityTypeBuilder)this).CanSetDiscriminator(
-                memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), fromDataAnnotation)
-                ? DiscriminatorBuilder(
-                    Metadata.RootType().Builder.Property(
-                        memberInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention),
-                    fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
-                : null;
+            => HasDiscriminator(
+                memberInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4712,8 +4818,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionEntityTypeBuilder IConventionEntityTypeBuilder.HasNoDeclaredDiscriminator(bool fromDataAnnotation)
-            => HasNoDeclaredDiscriminator(fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        IConventionEntityTypeBuilder IConventionEntityTypeBuilder.HasNoDiscriminator(bool fromDataAnnotation)
+            => HasNoDiscriminator(fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4723,9 +4829,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         bool IConventionEntityTypeBuilder.CanSetDiscriminator(string name, bool fromDataAnnotation)
-            => CanSetDiscriminator(
-                ((IEntityType)Metadata).GetDiscriminatorProperty(), name, discriminatorType: null,
-                fromDataAnnotation);
+            => CanSetDiscriminator(name, type: null,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4735,7 +4840,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         bool IConventionEntityTypeBuilder.CanSetDiscriminator(Type type, bool fromDataAnnotation)
-            => CanSetDiscriminator(((IEntityType)Metadata).GetDiscriminatorProperty(), name: null, type, fromDataAnnotation);
+            => CanSetDiscriminator(name: null, type,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4744,7 +4850,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        bool IConventionEntityTypeBuilder.CanSetDiscriminator(Type type, string name, bool fromDataAnnotation)
-            => CanSetDiscriminator(((IEntityType)Metadata).GetDiscriminatorProperty(), name, type, fromDataAnnotation);
+        bool IConventionEntityTypeBuilder.CanSetDiscriminator(string name, Type type, bool fromDataAnnotation)
+            => CanSetDiscriminator(name, type,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        bool IConventionEntityTypeBuilder.CanSetDiscriminator([NotNull] MemberInfo memberInfo, bool fromDataAnnotation)
+            => CanSetDiscriminator(Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName(), memberInfo.GetMemberType(),
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        bool IConventionEntityTypeBuilder.CanRemoveDiscriminator(bool fromDataAnnotation)
+            => CanRemoveDiscriminator(fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

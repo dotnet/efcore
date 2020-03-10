@@ -548,23 +548,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [ConditionalFact]
-        public void RemoveCheckConstraint_returns_true_when_constraint_exists()
+        public void RemoveCheckConstraint_returns_constraint_when_constraint_exists()
         {
             var entityTypeBuilder = CreateConventionModelBuilder().Entity<Customer>();
             var entityType = entityTypeBuilder.Metadata;
 
-            entityType.AddCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id");
+            var constraint = entityType.AddCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id");
 
-            Assert.True(entityType.RemoveCheckConstraint("CK_Customer_AlternateId"));
+            Assert.Same(constraint, entityType.RemoveCheckConstraint("CK_Customer_AlternateId"));
         }
 
         [ConditionalFact]
-        public void RemoveCheckConstraint_returns_false_when_constraint_is_missing()
+        public void RemoveCheckConstraint_returns_null_when_constraint_is_missing()
         {
             var entityTypeBuilder = CreateConventionModelBuilder().Entity<Customer>();
             var entityType = entityTypeBuilder.Metadata;
 
-            Assert.False(entityType.RemoveCheckConstraint("CK_Customer_AlternateId"));
+            Assert.Null(entityType.RemoveCheckConstraint("CK_Customer_AlternateId"));
         }
 
         [ConditionalFact]

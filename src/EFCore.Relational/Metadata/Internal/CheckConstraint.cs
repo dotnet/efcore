@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class CheckConstraint : IConventionCheckConstraint
+    public class CheckConstraint : IMutableCheckConstraint, IConventionCheckConstraint
     {
         private ConfigurationSource _configurationSource;
 
@@ -80,12 +80,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var dataDictionary = GetConstraintsDictionary(entityType);
 
-            if (dataDictionary == null)
-            {
-                return null;
-            }
-
-            return dataDictionary.TryGetValue(name, out var checkConstraint) ? checkConstraint : null;
+            return dataDictionary == null
+                ? null
+                : dataDictionary.TryGetValue(name, out var checkConstraint) ? checkConstraint : null;
         }
 
         /// <summary>
@@ -94,12 +91,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool RemoveCheckConstraint(
+        public static CheckConstraint RemoveCheckConstraint(
             [NotNull] IMutableEntityType entityType, [NotNull] string name)
         {
             var dataDictionary = GetConstraintsDictionary(entityType);
 
-            return dataDictionary?.Remove(name) ?? false;
+            if (dataDictionary != null
+                && dataDictionary.TryGetValue(name, out var constraint))
+            {
+                dataDictionary.Remove(name);
+                return constraint;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -155,5 +159,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         IConventionEntityType IConventionCheckConstraint.EntityType => (IConventionEntityType)EntityType;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IMutableEntityType IMutableCheckConstraint.EntityType => (IMutableEntityType)EntityType;
     }
 }

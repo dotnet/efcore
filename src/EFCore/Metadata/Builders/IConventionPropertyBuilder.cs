@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     public interface IConventionPropertyBuilder : IConventionAnnotatableBuilder
     {
         /// <summary>
-        ///     The property being configured.
+        ///     Gets the property being configured.
         /// </summary>
         new IConventionProperty Metadata { get; }
 

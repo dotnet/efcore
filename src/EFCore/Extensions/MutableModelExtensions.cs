@@ -151,7 +151,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model to remove the ignored entity type from. </param>
         /// <param name="type"> The ignored entity type to be removed. </param>
-        public static void RemoveIgnored([NotNull] this IMutableModel model, [NotNull] Type type)
+        /// <returns> The name of the removed ignored type. </returns>
+        public static string RemoveIgnored([NotNull] this IMutableModel model, [NotNull] Type type)
             => Check.NotNull((Model)model, nameof(model)).RemoveIgnored(
                 Check.NotNull(type, nameof(type)));
 
@@ -199,7 +200,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model to add the ignored type to. </param>
         /// <param name="clrType"> The entity type to be ignored. </param>
-        public static void AddIgnored([NotNull] this IMutableModel model, [NotNull] Type clrType)
+        /// <returns> The name of the ignored type. </returns>
+        public static string AddIgnored([NotNull] this IMutableModel model, [NotNull] Type clrType)
             => Check.NotNull((Model)model, nameof(model)).AddIgnored(
                 Check.NotNull(clrType, nameof(clrType)), ConfigurationSource.Explicit);
 
@@ -223,7 +225,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model to add the owned type to. </param>
         /// <param name="clrType"> The type of the entity type that should be owned. </param>
-        public static void AddOwned([NotNull] this IMutableModel model, [NotNull] Type clrType)
+        /// <returns> The name of the ignored type. </returns>
+        public static string AddOwned([NotNull] this IMutableModel model, [NotNull] Type clrType)
             => Check.NotNull((Model)model, nameof(model)).AddOwned(
                 Check.NotNull(clrType, nameof(clrType)), ConfigurationSource.Explicit);
 
@@ -233,7 +236,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model to remove the owned type name from. </param>
         /// <param name="clrType"> The type of the entity type that should not be owned. </param>
-        public static void RemoveOwned([NotNull] this IMutableModel model, [NotNull] Type clrType)
+        /// <returns> The name of the removed owned type. </returns>
+        public static string RemoveOwned([NotNull] this IMutableModel model, [NotNull] Type clrType)
             => Check.NotNull((Model)model, nameof(model)).RemoveOwned(
                 Check.NotNull(clrType, nameof(clrType)));
 

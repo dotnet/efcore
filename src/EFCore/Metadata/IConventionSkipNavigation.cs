@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this property.
         /// </summary>
-        IConventionSkipNavigationBuilder Builder { get; }
+        new IConventionSkipNavigationBuilder Builder { get; }
 
         /// <summary>
         ///     Gets the association type used by the foreign key.
@@ -49,6 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The foreign key. Passing <c>null</c> will result in there being no foreign key associated.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The new foreign key. </returns>
         IConventionForeignKey SetForeignKey([CanBeNull] IConventionForeignKey foreignKey, bool fromDataAnnotation = false);
 
         /// <summary>

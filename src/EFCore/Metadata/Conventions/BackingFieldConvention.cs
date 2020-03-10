@@ -63,21 +63,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        /// <summary>
-        ///     Called after a navigation is added to the entity type.
-        /// </summary>
-        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
-        /// <param name="navigation"> The navigation. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc/>
         public virtual void ProcessNavigationAdded(
-            IConventionRelationshipBuilder relationshipBuilder,
-            IConventionNavigation navigation,
-            IConventionContext<IConventionNavigation> context)
+            IConventionNavigationBuilder navigationBuilder,
+            IConventionContext<IConventionNavigationBuilder> context)
         {
+            var navigation = navigationBuilder.Metadata;
             var field = GetFieldToSet(navigation);
             if (field != null)
             {
-                relationshipBuilder.HasField(field, navigation.IsOnDependent);
+                navigation.ForeignKey.Builder.HasField(field, navigation.IsOnDependent);
             }
         }
 

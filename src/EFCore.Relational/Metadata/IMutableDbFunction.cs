@@ -41,6 +41,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IMutableModel Model { get; }
 
         /// <summary>
+        ///     Gets the parameters for this function
+        /// </summary>
+        new IReadOnlyList<IMutableDbFunctionParameter> Parameters { get; }
+
+        /// <summary>
         ///     Gets or sets the translation callback for performing custom translation of the method call into a SQL expression fragment.
         /// </summary>
         new Func<IReadOnlyCollection<SqlExpression>, SqlExpression> Translation { get; [param: CanBeNull] set; }

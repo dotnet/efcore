@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             IMutableModel model = new Model();
             var entityType = model.AddEntityType(typeof(IndexedClass));
             var id = entityType.AddProperty("Id", typeof(int));
-            var propertyA = entityType.AddIndexedProperty("PropertyA", typeof(string));
+            var propertyA = entityType.AddIndexerProperty("PropertyA", typeof(string));
             model.FinalizeModel();
 
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);

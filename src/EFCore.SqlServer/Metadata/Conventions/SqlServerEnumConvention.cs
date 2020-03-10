@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 foreach (var property in entityType.GetDeclaredProperties())
                 {
                     var typeMapping = property.FindTypeMapping();
-                    var propertyType = property.GetIdentifyingMemberInfo()?.GetMemberType();
+                    var propertyType = (property.PropertyInfo ?? (MemberInfo)property.FieldInfo)?.GetMemberType();
                     if ((propertyType?.IsEnum ?? false)
                         && typeMapping != null
                         && !propertyType.IsDefined(typeof(FlagsAttribute), true))

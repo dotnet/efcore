@@ -1983,8 +1983,8 @@ namespace Microsoft.EntityFrameworkCore
                         b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey(e => e.BlogId);
                     });
 
-                modelBuilder.Entity<PostFullExplicit>().Metadata.FindNavigation("Blog").SetField("_myblog");
-                modelBuilder.Entity<BlogFullExplicit>().Metadata.FindNavigation("Posts").SetField("_myposts");
+                modelBuilder.Entity<PostFullExplicit>().Metadata.FindNavigation("Blog").SetFieldInfo("_myblog");
+                modelBuilder.Entity<BlogFullExplicit>().Metadata.FindNavigation("Posts").SetFieldInfo("_myposts");
 
                 modelBuilder.Entity<LoginSession>().UsePropertyAccessMode(PropertyAccessMode.Field);
 
@@ -2049,8 +2049,8 @@ namespace Microsoft.EntityFrameworkCore
                             b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey(e => e.BlogId);
                         });
 
-                    modelBuilder.Entity<PostReadOnlyExplicit>().Metadata.FindNavigation("Blog").SetField("_myblog");
-                    modelBuilder.Entity<BlogReadOnlyExplicit>().Metadata.FindNavigation("Posts").SetField("_myposts");
+                    modelBuilder.Entity<PostReadOnlyExplicit>().Metadata.FindNavigation("Blog").SetFieldInfo("_myblog");
+                    modelBuilder.Entity<BlogReadOnlyExplicit>().Metadata.FindNavigation("Posts").SetFieldInfo("_myposts");
 
                     modelBuilder.Entity<PostWriteOnly>(
                         b =>
@@ -2086,8 +2086,8 @@ namespace Microsoft.EntityFrameworkCore
                             b.HasMany(typeof(PostWriteOnlyExplicit).DisplayName(), "Posts").WithOne("Blog").HasForeignKey("BlogId");
                         });
 
-                    modelBuilder.Entity<PostWriteOnlyExplicit>().Metadata.FindNavigation("Blog").SetField("_myblog");
-                    modelBuilder.Entity<BlogWriteOnlyExplicit>().Metadata.FindNavigation("Posts").SetField("_myposts");
+                    modelBuilder.Entity<PostWriteOnlyExplicit>().Metadata.FindNavigation("Blog").SetFieldInfo("_myblog");
+                    modelBuilder.Entity<BlogWriteOnlyExplicit>().Metadata.FindNavigation("Posts").SetFieldInfo("_myposts");
 
                     modelBuilder.Entity<PostFields>(
                         b =>

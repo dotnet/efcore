@@ -43,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The name of the inverse navigation property. Passing <c>null</c> will result in there being
         ///     no inverse navigation property defined.
         /// </param>
+        /// <returns> The inverse navigation. </returns>
         IMutableNavigation SetInverse([CanBeNull] string inverseName);
 
         /// <summary>
@@ -52,6 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The inverse navigation property. Passing <c>null</c> will result in there being
         ///     no inverse navigation property defined.
         /// </param>
+        /// <returns> The inverse navigation. </returns>
         IMutableNavigation SetInverse([CanBeNull] MemberInfo inverse);
     }
 }

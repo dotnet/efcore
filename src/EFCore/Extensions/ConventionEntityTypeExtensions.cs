@@ -164,23 +164,6 @@ namespace Microsoft.EntityFrameworkCore
             => ((EntityType)entityType).RemoveProperty(name);
 
         /// <summary>
-        ///     Sets the primary key for this entity type.
-        /// </summary>
-        /// <param name="entityType"> The entity type to set the key on. </param>
-        /// <param name="property"> The primary key property. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> The newly created key. </returns>
-        public static IConventionKey SetPrimaryKey(
-            [NotNull] this IConventionEntityType entityType,
-            [CanBeNull] IConventionProperty property,
-            bool fromDataAnnotation = false)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            return entityType.SetPrimaryKey(property == null ? null : new[] { property }, fromDataAnnotation);
-        }
-
-        /// <summary>
         ///     Gets the primary or alternate key that is defined on the given property. Returns <c>null</c> if no key is defined
         ///     for the given property.
         /// </summary>
@@ -509,7 +492,7 @@ namespace Microsoft.EntityFrameworkCore
             => entityType.AddProperty(name, propertyType, null, setTypeConfigurationSource, fromDataAnnotation);
 
         /// <summary>
-        ///     Adds an indexed property to this entity type.
+        ///     Adds a property backed by and indexer to this entity type.
         /// </summary>
         /// <param name="entityType"> The entity type to add the property to. </param>
         /// <param name="name"> The name of the property to add. </param>
@@ -517,7 +500,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="setTypeConfigurationSource"> Indicates whether the type configuration source should be set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly created property. </returns>
-        public static IConventionProperty AddIndexedProperty(
+        public static IConventionProperty AddIndexerProperty(
             [NotNull] this IConventionEntityType entityType, [NotNull] string name, [NotNull] Type propertyType,
             bool setTypeConfigurationSource = true, bool fromDataAnnotation = false)
         {
@@ -577,7 +560,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to set the change tracking strategy for. </param>
         /// <param name="changeTrackingStrategy"> The strategy to use. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetChangeTrackingStrategy(
+        /// <returns> The configured value. </returns>
+        public static ChangeTrackingStrategy? SetChangeTrackingStrategy(
             [NotNull] this IConventionEntityType entityType,
             ChangeTrackingStrategy? changeTrackingStrategy,
             bool fromDataAnnotation = false)
@@ -600,7 +584,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to set the query filter for. </param>
         /// <param name="queryFilter"> The LINQ expression filter. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetQueryFilter(
+        /// <returns> The configured filter. </returns>
+        public static LambdaExpression SetQueryFilter(
             [NotNull] this IConventionEntityType entityType,
             [CanBeNull] LambdaExpression queryFilter,
             bool fromDataAnnotation = false)
@@ -623,7 +608,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to set the defining query for. </param>
         /// <param name="definingQuery"> The LINQ query used as the default source. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetDefiningQuery(
+        /// <returns> The configured entity type. </returns>
+        public static LambdaExpression SetDefiningQuery(
             [NotNull] this IConventionEntityType entityType,
             [CanBeNull] LambdaExpression definingQuery,
             bool fromDataAnnotation = false)
@@ -653,11 +639,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to set the discriminator property for. </param>
         /// <param name="property"> The property to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetDiscriminatorProperty(
+        /// <returns> The discriminator property. </returns>
+        public static IConventionProperty SetDiscriminatorProperty(
             [NotNull] this IConventionEntityType entityType, [CanBeNull] IProperty property, bool fromDataAnnotation = false)
             => Check.NotNull(entityType, nameof(entityType)).AsEntityType()
                 .SetDiscriminatorProperty(
-                    property,
+                    (Property)property,
                     fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -675,13 +662,24 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to set the discriminator mapping complete for. </param>
         /// <param name="complete"> The value indicating whether the discriminator mapping is complete. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetDiscriminatorMappingComplete(
+        /// <returns> The configured value. </returns>
+        public static bool? SetDiscriminatorMappingComplete(
             [NotNull] this IConventionEntityType entityType, bool? complete, bool fromDataAnnotation = false)
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            entityType.GetRootType().SetOrRemoveAnnotation(CoreAnnotationNames.DiscriminatorMappingComplete, complete, fromDataAnnotation);
+            entityType.SetOrRemoveAnnotation(CoreAnnotationNames.DiscriminatorMappingComplete, complete, fromDataAnnotation);
+
+            return complete;
         }
+
+        /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for the discriminator value completeness.
+        /// </summary>
+        /// <returns> The <see cref="ConfigurationSource" /> or <c>null</c> if discriminator completeness has not been set. </returns>
+        public static ConfigurationSource? GetDiscriminatorMappingCompleteConfigurationSource([NotNull] this IConventionEntityType entityType)
+            => entityType.FindAnnotation(CoreAnnotationNames.DiscriminatorMappingComplete)
+                ?.GetConfigurationSource();
 
         /// <summary>
         ///     Sets the discriminator value for this entity type.
@@ -689,19 +687,23 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to set the discriminator value for. </param>
         /// <param name="value"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetDiscriminatorValue(
+        /// <returns> The configured value. </returns>
+        public static object SetDiscriminatorValue(
             [NotNull] this IConventionEntityType entityType, [CanBeNull] object value, bool fromDataAnnotation = false)
         {
             entityType.AsEntityType().CheckDiscriminatorValue(entityType, value);
 
             entityType.SetAnnotation(CoreAnnotationNames.DiscriminatorValue, value, fromDataAnnotation);
+
+            return entityType;
         }
 
         /// <summary>
         ///     Removes the discriminator value for this entity type.
         /// </summary>
-        public static void RemoveDiscriminatorValue([NotNull] this IConventionEntityType entityType)
-            => entityType.RemoveAnnotation(CoreAnnotationNames.DiscriminatorValue);
+        /// <returns> The removed discriminator value. </returns>
+        public static object RemoveDiscriminatorValue([NotNull] this IConventionEntityType entityType)
+            => entityType.RemoveAnnotation(CoreAnnotationNames.DiscriminatorValue)?.Value;
 
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the discriminator value.

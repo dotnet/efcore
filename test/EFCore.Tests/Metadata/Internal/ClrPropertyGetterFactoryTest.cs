@@ -87,8 +87,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var modelBuilder = new ModelBuilder(InMemoryConventionSetBuilder.Build());
             modelBuilder.Entity<IndexedClass>().Property(e => e.Id);
-            var propertyA = modelBuilder.Entity<IndexedClass>().Metadata.AddIndexedProperty("PropertyA", typeof(string));
-            var propertyB = modelBuilder.Entity<IndexedClass>().Metadata.AddIndexedProperty("PropertyB", typeof(int));
+            var propertyA = modelBuilder.Entity<IndexedClass>().Metadata.AddIndexerProperty("PropertyA", typeof(string));
+            var propertyB = modelBuilder.Entity<IndexedClass>().Metadata.AddIndexerProperty("PropertyB", typeof(int));
             modelBuilder.FinalizeModel();
 
             Assert.Equal("ValueA", new ClrPropertyGetterFactory().Create(propertyA).GetClrValue(new IndexedClass { Id = 7 }));

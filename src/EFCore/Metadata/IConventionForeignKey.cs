@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this foreign key.
         /// </summary>
-        IConventionRelationshipBuilder Builder { get; }
+        new IConventionForeignKeyBuilder Builder { get; }
 
         /// <summary>
         ///     Gets the foreign key properties in the dependent entity.
@@ -72,7 +72,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="properties"> Foreign key properties in the dependent entity. </param>
         /// <param name="principalKey"> The primary or alternate key to target. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetProperties(
+        /// <returns> The configured foreign key properties. </returns>
+        IReadOnlyList<IConventionProperty> SetProperties(
             [NotNull] IReadOnlyList<IConventionProperty> properties,
             [NotNull] IConventionKey principalKey,
             bool fromDataAnnotation = false);
@@ -100,7 +101,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="unique"> A value indicating whether the values assigned to the foreign key properties are unique. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetIsUnique(bool? unique, bool fromDataAnnotation = false);
+        /// <returns> The configured uniqueness. </returns>
+        bool? SetIsUnique(bool? unique, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IForeignKey.IsUnique" />.
@@ -114,7 +116,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="required"> A value indicating whether this relationship is required. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetIsRequired(bool? required, bool fromDataAnnotation = false);
+        /// <returns> The configured requiredness. </returns>
+        bool? SetIsRequired(bool? required, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IForeignKey.IsRequired" />.
@@ -128,7 +131,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="ownership"> A value indicating whether this relationship defines an ownership. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetIsOwnership(bool? ownership, bool fromDataAnnotation = false);
+        /// <returns> The configured ownership. </returns>
+        bool? SetIsOwnership(bool? ownership, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IForeignKey.IsOwnership" />.
@@ -145,7 +149,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     principal is deleted or the relationship is severed.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetDeleteBehavior(DeleteBehavior? deleteBehavior, bool fromDataAnnotation = false);
+        /// <returns> The configured behavior. </returns>
+        DeleteBehavior? SetDeleteBehavior(DeleteBehavior? deleteBehavior, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IForeignKey.DeleteBehavior" />.
@@ -162,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly created navigation property. </returns>
-        IConventionNavigation HasDependentToPrincipal([CanBeNull] string name, bool fromDataAnnotation = false);
+        IConventionNavigation SetDependentToPrincipal([CanBeNull] string name, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the navigation property on the dependent entity type that points to the principal entity.
@@ -173,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly created navigation property. </returns>
-        IConventionNavigation HasDependentToPrincipal([CanBeNull] MemberInfo property, bool fromDataAnnotation = false);
+        IConventionNavigation SetDependentToPrincipal([CanBeNull] MemberInfo property, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IForeignKey.DependentToPrincipal" />.
@@ -190,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly created navigation property. </returns>
-        IConventionNavigation HasPrincipalToDependent([CanBeNull] string name, bool fromDataAnnotation = false);
+        IConventionNavigation SetPrincipalToDependent([CanBeNull] string name, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the navigation property on the principal entity type that points to the dependent entity.
@@ -201,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly created navigation property. </returns>
-        IConventionNavigation HasPrincipalToDependent([CanBeNull] MemberInfo property, bool fromDataAnnotation = false);
+        IConventionNavigation SetPrincipalToDependent([CanBeNull] MemberInfo property, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IForeignKey.PrincipalToDependent" />.

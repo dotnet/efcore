@@ -59,11 +59,16 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <param name="name"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetName([NotNull] this IConventionIndex index, [CanBeNull] string name, bool fromDataAnnotation = false)
-            => index.SetOrRemoveAnnotation(
+        /// <returns> The configured value. </returns>
+        public static string SetName([NotNull] this IConventionIndex index, [CanBeNull] string name, bool fromDataAnnotation = false)
+        {
+            index.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.Name,
                 Check.NullButNotEmpty(name, nameof(name)),
                 fromDataAnnotation);
+
+            return name;
+        }
 
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the index name.
@@ -97,11 +102,16 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <param name="value"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetFilter([NotNull] this IConventionIndex index, [CanBeNull] string value, bool fromDataAnnotation = false)
-            => index.SetAnnotation(
+        /// <returns> The configured value. </returns>
+        public static string SetFilter([NotNull] this IConventionIndex index, [CanBeNull] string value, bool fromDataAnnotation = false)
+        {
+            index.SetAnnotation(
                 RelationalAnnotationNames.Filter,
                 Check.NullButNotEmpty(value, nameof(value)),
                 fromDataAnnotation);
+
+            return value;
+        }
 
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the index filter expression.

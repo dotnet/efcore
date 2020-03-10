@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention(property);
 
-            property.SetField("m_onTheRun");
+            property.SetFieldInfo("m_onTheRun");
 
             Validate(property);
 
@@ -234,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention((IMutableProperty)property);
 
-            property.SetField("m_onTheRun", fromDataAnnotation: true);
+            property.SetFieldInfo("m_onTheRun", fromDataAnnotation: true);
 
             Validate((IMutableProperty)property);
 
@@ -245,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public void Backing_field_is_not_discovered_for_indexer_property()
         {
             var entityType = CreateModel().AddEntityType(typeof(IndexedClass));
-            var property = entityType.AddIndexedProperty("Nation", typeof(string));
+            var property = entityType.AddIndexerProperty("Nation", typeof(string));
 
             RunConvention(property);
             Validate(property);
@@ -257,11 +257,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public void Setting_field_on_indexer_property_throws()
         {
             var entityType = CreateModel().AddEntityType(typeof(IndexedClass));
-            var property = entityType.AddIndexedProperty("Nation", typeof(string));
+            var property = entityType.AddIndexerProperty("Nation", typeof(string));
 
             Assert.Equal(
                 CoreStrings.BackingFieldOnIndexer("nation", entityType.DisplayName(), "Nation"),
-                Assert.Throws<InvalidOperationException>(() => property.SetField("nation")).Message);
+                Assert.Throws<InvalidOperationException>(() => property.SetFieldInfo("nation")).Message);
         }
 
         private void RunConvention(IMutableProperty property)

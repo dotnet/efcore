@@ -14,12 +14,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after a navigation is added to the entity type.
         /// </summary>
-        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
-        /// <param name="navigation"> The navigation. </param>
+        /// <param name="navigationBuilder"> The builder for the navigation. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         void ProcessNavigationAdded(
-            [NotNull] IConventionRelationshipBuilder relationshipBuilder,
-            [NotNull] IConventionNavigation navigation,
-            [NotNull] IConventionContext<IConventionNavigation> context);
+            [NotNull] IConventionNavigationBuilder navigationBuilder,
+            [NotNull] IConventionContext<IConventionNavigationBuilder> context);
     }
 }

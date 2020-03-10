@@ -106,12 +106,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="name"> The name to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetColumnName(
+        /// <returns> The configured value. </returns>
+        public static string SetColumnName(
             [NotNull] this IConventionProperty property, [CanBeNull] string name, bool fromDataAnnotation = false)
-            => property.SetOrRemoveAnnotation(
+        {
+            property.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.ColumnName,
                 Check.NullButNotEmpty(name, nameof(name)),
                 fromDataAnnotation);
+
+            return name;
+        }
 
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the column name.
@@ -202,12 +207,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="name"> The name to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetViewColumnName(
+        /// <returns> The configured value. </returns>
+        public static string SetViewColumnName(
             [NotNull] this IConventionProperty property, [CanBeNull] string name, bool fromDataAnnotation = false)
-            => property.SetOrRemoveAnnotation(
+        {
+            property.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.ViewColumnName,
                 Check.NullButNotEmpty(name, nameof(name)),
                 fromDataAnnotation);
+
+            return name;
+        }
 
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the view column name.
@@ -257,12 +267,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="value"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetColumnType(
+        /// <returns> The configured value. </returns>
+        public static string SetColumnType(
             [NotNull] this IConventionProperty property, [CanBeNull] string value, bool fromDataAnnotation = false)
-            => property.SetOrRemoveAnnotation(
+        {
+            property.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.ColumnType,
                 Check.NullButNotEmpty(value, nameof(value)),
                 fromDataAnnotation);
+
+            return value;
+        }
 
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the column name.
@@ -338,12 +353,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="value"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetDefaultValueSql(
+        /// <returns> The configured value. </returns>
+        public static string SetDefaultValueSql(
             [NotNull] this IConventionProperty property, [CanBeNull] string value, bool fromDataAnnotation = false)
-            => property.SetOrRemoveAnnotation(
+        {
+            property.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.DefaultValueSql,
                 Check.NullButNotEmpty(value, nameof(value)),
                 fromDataAnnotation);
+
+            return value;
+        }
 
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the default value SQL expression.
@@ -391,12 +411,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="value"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetComputedColumnSql(
+        /// <returns> The configured value. </returns>
+        public static string SetComputedColumnSql(
             [NotNull] this IConventionProperty property, [CanBeNull] string value, bool fromDataAnnotation = false)
-            => property.SetOrRemoveAnnotation(
+        {
+            property.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.ComputedColumnSql,
                 Check.NullButNotEmpty(value, nameof(value)),
                 fromDataAnnotation);
+
+            return value;
+        }
 
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the computed value SQL expression.
@@ -442,10 +467,15 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="value"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetDefaultValue(
+        /// <returns> The configured value. </returns>
+        public static object SetDefaultValue(
             [NotNull] this IConventionProperty property, [CanBeNull] object value, bool fromDataAnnotation = false)
-            => property.SetOrRemoveAnnotation(
+        {
+            property.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.DefaultValue, ConvertDefaultValue(property, value), fromDataAnnotation);
+
+            return value;
+        }
 
         private static object ConvertDefaultValue([NotNull] IProperty property, [CanBeNull] object value)
         {
@@ -503,8 +533,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="fixedLength"> A value indicating whether the property is constrained to fixed length values. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetIsFixedLength([NotNull] this IConventionProperty property, bool? fixedLength, bool fromDataAnnotation = false)
-            => property.SetOrRemoveAnnotation(RelationalAnnotationNames.IsFixedLength, fixedLength, fromDataAnnotation);
+        /// <returns> The configured value. </returns>
+        public static bool? SetIsFixedLength([NotNull] this IConventionProperty property, bool? fixedLength, bool fromDataAnnotation = false)
+        {
+            property.SetOrRemoveAnnotation(RelationalAnnotationNames.IsFixedLength, fixedLength, fromDataAnnotation);
+
+            return fixedLength;
+        }
 
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for <see cref="IsFixedLength(IProperty)" />.
@@ -595,6 +630,36 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
+        ///         Finds the <see cref="IProperty" /> that is mapped to the same column as primary key property
+        ///         as the given property, but potentially in a shared table and is not in a shared table foreign key.
+        ///     </para>
+        ///     <para>
+        ///         This type is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The property found, or <code>null</code> if none was found.</returns>
+        public static IMutableProperty FindSharedTableRootPrimaryKeyProperty([NotNull] this IMutableProperty property)
+            => (IMutableProperty)FindSharedObjectRootPrimaryKeyProperty(property, StoreObjectType.Table);
+
+        /// <summary>
+        ///     <para>
+        ///         Finds the <see cref="IProperty" /> that is mapped to the same column as primary key property
+        ///         as the given property, but potentially in a shared table and is not in a shared table foreign key.
+        ///     </para>
+        ///     <para>
+        ///         This type is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The property found, or <code>null</code> if none was found.</returns>
+        public static IConventionProperty FindSharedTableRootPrimaryKeyProperty([NotNull] this IConventionProperty property)
+            => (IConventionProperty)FindSharedObjectRootPrimaryKeyProperty(property, StoreObjectType.Table);
+
+        /// <summary>
+        ///     <para>
         ///         Finds the <see cref="IProperty" /> that is mapped to the same database object as primary key property
         ///         as the given property, but potentially in a shared object and is not in a shared object foreign key.
         ///     </para>
@@ -611,6 +676,38 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
+        ///         Finds the <see cref="IProperty" /> that is mapped to the same database object as primary key property
+        ///         as the given property, but potentially in a shared object and is not in a shared object foreign key.
+        ///     </para>
+        ///     <para>
+        ///         This type is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The property found, or <code>null</code> if none was found.</returns>
+        public static IMutableProperty FindSharedRootPrimaryKeyProperty([NotNull] this IMutableProperty property)
+            => (IMutableProperty) (FindSharedObjectRootPrimaryKeyProperty(property, StoreObjectType.Table)
+            ?? FindSharedObjectRootPrimaryKeyProperty(property, StoreObjectType.View));
+
+        /// <summary>
+        ///     <para>
+        ///         Finds the <see cref="IProperty" /> that is mapped to the same database object as primary key property
+        ///         as the given property, but potentially in a shared object and is not in a shared object foreign key.
+        ///     </para>
+        ///     <para>
+        ///         This type is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The property found, or <code>null</code> if none was found.</returns>
+        public static IConventionProperty FindSharedRootPrimaryKeyProperty([NotNull] this IConventionProperty property)
+            => (IConventionProperty)(FindSharedObjectRootPrimaryKeyProperty(property, StoreObjectType.Table)
+            ?? FindSharedObjectRootPrimaryKeyProperty(property, StoreObjectType.View));
+
+        /// <summary>
+        ///     <para>
         ///         Finds the <see cref="IProperty" /> that is mapped to the same column as primary key property
         ///         as the given property, but potentially in a shared view and is not in a shared view foreign key.
         ///     </para>
@@ -623,6 +720,36 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The property found, or <code>null</code> if none was found.</returns>
         public static IProperty FindSharedViewRootPrimaryKeyProperty([NotNull] this IProperty property)
             => FindSharedObjectRootPrimaryKeyProperty(property, StoreObjectType.View);
+
+        /// <summary>
+        ///     <para>
+        ///         Finds the <see cref="IProperty" /> that is mapped to the same column as primary key property
+        ///         as the given property, but potentially in a shared view and is not in a shared view foreign key.
+        ///     </para>
+        ///     <para>
+        ///         This type is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The property found, or <code>null</code> if none was found.</returns>
+        public static IMutableProperty FindSharedViewRootPrimaryKeyProperty([NotNull] this IMutableProperty property)
+            => (IMutableProperty)FindSharedObjectRootPrimaryKeyProperty(property, StoreObjectType.View);
+
+        /// <summary>
+        ///     <para>
+        ///         Finds the <see cref="IProperty" /> that is mapped to the same column as primary key property
+        ///         as the given property, but potentially in a shared view and is not in a shared view foreign key.
+        ///     </para>
+        ///     <para>
+        ///         This type is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The property found, or <code>null</code> if none was found.</returns>
+        public static IConventionProperty FindSharedViewRootPrimaryKeyProperty([NotNull] this IConventionProperty property)
+            => (IConventionProperty)FindSharedObjectRootPrimaryKeyProperty(property, StoreObjectType.View);
 
         private static IProperty FindSharedObjectRootPrimaryKeyProperty([NotNull] IProperty property, StoreObjectType storeObjectType)
         {
@@ -690,8 +817,22 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="comment"> The comment for the column. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetComment(
+        /// <returns> The configured value. </returns>
+        public static string SetComment(
             [NotNull] this IConventionProperty property, [CanBeNull] string comment, bool fromDataAnnotation = false)
-            => property.SetOrRemoveAnnotation(RelationalAnnotationNames.Comment, comment, fromDataAnnotation);
+        {
+            property.SetOrRemoveAnnotation(RelationalAnnotationNames.Comment, comment, fromDataAnnotation);
+
+            return comment;
+        }
+
+        /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for the column comment.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for the column comment. </returns>
+        public static ConfigurationSource? GetCommentConfigurationSource([NotNull] this IConventionProperty property)
+            => property.FindAnnotation(RelationalAnnotationNames.Comment)
+                ?.GetConfigurationSource();
     }
 }

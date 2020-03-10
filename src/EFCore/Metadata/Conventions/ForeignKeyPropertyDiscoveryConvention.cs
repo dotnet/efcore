@@ -73,7 +73,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyAdded(
-            IConventionRelationshipBuilder relationshipBuilder, IConventionContext<IConventionRelationshipBuilder> context)
+            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<IConventionForeignKeyBuilder> context)
+        {
+            var newRelationshipBuilder = ProcessForeignKey(relationshipBuilder, context);
+
+            context.StopProcessingIfChanged(newRelationshipBuilder);
+        }
+
+        private IConventionForeignKeyBuilder ProcessForeignKey(
+            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext context)
         {
             var shouldBeRequired = true;
             foreach (var property in relationshipBuilder.Metadata.Properties)
@@ -110,11 +118,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
             }
 
-            context.StopProcessingIfChanged(newRelationshipBuilder);
+            return newRelationshipBuilder;
         }
 
-        private IConventionRelationshipBuilder DiscoverProperties(
-            IConventionRelationshipBuilder relationshipBuilder, IConventionContext context)
+        private IConventionForeignKeyBuilder DiscoverProperties(
+            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext context)
         {
             var foreignKey = relationshipBuilder.Metadata;
             if (!ConfigurationSource.Convention.Overrides(foreignKey.GetPropertiesConfigurationSource()))
@@ -461,19 +469,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return null;
         }
 
-        /// <summary>
-        ///     Called after a navigation is added to the entity type.
-        /// </summary>
-        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
-        /// <param name="navigation"> The navigation. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
         public virtual void ProcessNavigationAdded(
-            IConventionRelationshipBuilder relationshipBuilder,
-            IConventionNavigation navigation,
-            IConventionContext<IConventionNavigation> context)
+            IConventionNavigationBuilder navigationBuilder,
+            IConventionContext<IConventionNavigationBuilder> context)
         {
-            var newRelationshipBuilder = DiscoverProperties(relationshipBuilder, context);
-            context.StopProcessingIfChanged(newRelationshipBuilder?.Metadata.GetNavigation(navigation.IsOnDependent));
+            var navigation = navigationBuilder.Metadata;
+            var newRelationshipBuilder = DiscoverProperties(navigation.ForeignKey.Builder, context);
+            context.StopProcessingIfChanged(newRelationshipBuilder?.Metadata.GetNavigation(navigation.IsOnDependent)?.Builder);
         }
 
         /// <summary>
@@ -560,7 +563,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessPropertyNullabilityChanged(
             IConventionPropertyBuilder propertyBuilder,
-            IConventionContext<IConventionPropertyBuilder> context)
+            IConventionContext<bool?> context)
         {
             var nullable = propertyBuilder.Metadata.IsNullable;
             foreach (var containingForeignKey in propertyBuilder.Metadata.GetContainingForeignKeys())
@@ -582,10 +585,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyUniquenessChanged(
-            IConventionRelationshipBuilder relationshipBuilder, IConventionContext<IConventionRelationshipBuilder> context)
+            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<bool?> context)
         {
             var newRelationshipBuilder = DiscoverProperties(relationshipBuilder, context);
-            context.StopProcessingIfChanged(newRelationshipBuilder);
+            context.StopProcessingIfChanged(newRelationshipBuilder.Metadata.IsUnique);
         }
 
         /// <summary>
@@ -594,7 +597,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyRequirednessChanged(
-            IConventionRelationshipBuilder relationshipBuilder, IConventionContext<IConventionRelationshipBuilder> context)
+            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<bool?> context)
         {
             var isRequired = relationshipBuilder.Metadata.IsRequired;
             using var batch = context.DelayConventions();
@@ -609,7 +612,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
 
             var newForeignKey = batch.Run(DiscoverProperties(relationshipBuilder, context).Metadata);
-            context.StopProcessingIfChanged(newForeignKey?.Builder);
+            context.StopProcessingIfChanged(newForeignKey?.IsRequired);
         }
 
         /// <summary>
@@ -620,10 +623,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="oldPrincipalKey"> The old principal key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyPropertiesChanged(
-            IConventionRelationshipBuilder relationshipBuilder,
+            IConventionForeignKeyBuilder relationshipBuilder,
             IReadOnlyList<IConventionProperty> oldDependentProperties,
             IConventionKey oldPrincipalKey,
-            IConventionContext<IConventionRelationshipBuilder> context)
+            IConventionContext<IReadOnlyList<IConventionProperty>> context)
         {
             if (relationshipBuilder.Metadata.Builder == null
                 || relationshipBuilder.Metadata.Properties == oldDependentProperties)
@@ -631,7 +634,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return;
             }
 
-            ProcessForeignKeyAdded(relationshipBuilder, context);
+            ProcessForeignKey(relationshipBuilder, context);
+
+            context.StopProcessingIfChanged(relationshipBuilder?.Metadata.Properties);
         }
 
         /// <summary>
@@ -640,8 +645,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyPrincipalEndChanged(
-            IConventionRelationshipBuilder relationshipBuilder,
-            IConventionContext<IConventionRelationshipBuilder> context)
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IConventionContext<IConventionForeignKeyBuilder> context)
         {
             ProcessForeignKeyAdded(relationshipBuilder, context);
         }

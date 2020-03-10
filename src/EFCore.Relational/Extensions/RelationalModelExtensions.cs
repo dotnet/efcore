@@ -41,11 +41,15 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to set the default schema for. </param>
         /// <param name="value"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetDefaultSchema(
+        /// <returns> The configured schema. </returns>
+        public static string SetDefaultSchema(
             [NotNull] this IConventionModel model, [CanBeNull] string value, bool fromDataAnnotation = false)
-            => model.SetOrRemoveAnnotation(
+        {
+            model.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.DefaultSchema,
                 Check.NullButNotEmpty(value, nameof(value)), fromDataAnnotation);
+            return value;
+        }
 
         /// <summary>
         ///     Returns the configuration source for the default schema.
@@ -127,8 +131,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to set the default schema for. </param>
         /// <param name="length"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetMaxIdentifierLength([NotNull] this IConventionModel model, int? length, bool fromDataAnnotation = false)
-            => model.SetOrRemoveAnnotation(RelationalAnnotationNames.MaxIdentifierLength, length, fromDataAnnotation);
+        /// <returns> The configured value. </returns>
+        public static int? SetMaxIdentifierLength([NotNull] this IConventionModel model, int? length, bool fromDataAnnotation = false)
+        {
+            model.SetOrRemoveAnnotation(RelationalAnnotationNames.MaxIdentifierLength, length, fromDataAnnotation);
+
+            return length;
+        }
 
         /// <summary>
         ///     Returns the configuration source for <see cref="GetMaxIdentifierLength" />.
@@ -321,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to add the function to. </param>
         /// <param name="methodInfo"> The <see cref="MethodInfo" /> for the method that is mapped to the function. </param>
         /// <returns> The <see cref="DbFunction" />. </returns>
-        public static DbFunction AddDbFunction([NotNull] this IMutableModel model, [NotNull] MethodInfo methodInfo)
+        public static IMutableDbFunction AddDbFunction([NotNull] this IMutableModel model, [NotNull] MethodInfo methodInfo)
             => DbFunction.AddDbFunction(
                  model, Check.NotNull(methodInfo, nameof(methodInfo)), ConfigurationSource.Explicit);
 
@@ -346,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to add the function to. </param>
         /// <param name="name"> The model name of the function. </param>
         /// <returns> The <see cref="DbFunction" />. </returns>
-        public static DbFunction AddDbFunction([NotNull] this IMutableModel model, [NotNull] string name)
+        public static IMutableDbFunction AddDbFunction([NotNull] this IMutableModel model, [NotNull] string name)
             => DbFunction.AddDbFunction(
                  model, Check.NotNull(name, nameof(name)), ConfigurationSource.Explicit);
 

@@ -8,15 +8,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class NTSApiConsistencyTest : ApiConsistencyTestBase
+    public class SqlServerNTSApiConsistencyTest : ApiConsistencyTestBase<SqlServerNTSApiConsistencyTest.SqlServerNTSApiConsistencyFixture>
     {
-        private static readonly Type[] _fluentApiTypes =
+        public SqlServerNTSApiConsistencyTest(SqlServerNTSApiConsistencyFixture fixture)
+            : base(fixture)
         {
-            typeof(SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions),
-            typeof(SqlServerNetTopologySuiteServiceCollectionExtensions)
-        };
-
-        protected override IEnumerable<Type> FluentApiTypes => _fluentApiTypes;
+        }
 
         protected override void AddServices(ServiceCollection serviceCollection)
         {
@@ -25,5 +22,14 @@ namespace Microsoft.EntityFrameworkCore
 
         protected override Assembly TargetAssembly
             => typeof(SqlServerNetTopologySuiteServiceCollectionExtensions).Assembly;
+
+        public class SqlServerNTSApiConsistencyFixture : ApiConsistencyFixtureBase
+        {
+            public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>()
+            {
+                typeof(SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions),
+                typeof(SqlServerNetTopologySuiteServiceCollectionExtensions)
+            };
+        }
     }
 }

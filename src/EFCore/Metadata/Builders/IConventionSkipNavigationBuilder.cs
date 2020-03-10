@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     public interface IConventionSkipNavigationBuilder : IConventionAnnotatableBuilder
     {
         /// <summary>
-        ///     The navigation property being configured.
+        ///     Gets the navigation property being configured.
         /// </summary>
         new IConventionSkipNavigation Metadata { get; }
 

@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static void SetOrRemoveAnnotation(
+        public static ConventionAnnotation SetOrRemoveAnnotation(
             [NotNull] this ConventionAnnotatable annotatable,
             [NotNull] string name,
             [CanBeNull] object value,
@@ -28,10 +28,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (value == null)
             {
                 annotatable.RemoveAnnotation(name);
+                return null;
             }
             else
             {
-                annotatable.SetAnnotation(name, value, configurationSource);
+                return annotatable.SetAnnotation(name, value, configurationSource);
             }
         }
     }

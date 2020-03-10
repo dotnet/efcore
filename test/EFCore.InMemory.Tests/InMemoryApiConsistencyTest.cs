@@ -10,16 +10,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class ApiConsistencyTest : ApiConsistencyTestBase
+    public class InMemoryApiConsistencyTest : ApiConsistencyTestBase<InMemoryApiConsistencyTest.InMemoryApiConsistencyFixture>
     {
-        private static readonly Type[] _fluentApiTypes =
+        public InMemoryApiConsistencyTest(InMemoryApiConsistencyFixture fixture)
+            : base(fixture)
         {
-            typeof(InMemoryServiceCollectionExtensions),
-            typeof(InMemoryDbContextOptionsExtensions),
-            typeof(InMemoryDbContextOptionsBuilder)
-        };
-
-        protected override IEnumerable<Type> FluentApiTypes => _fluentApiTypes;
+        }
 
         protected override void AddServices(ServiceCollection serviceCollection)
         {
@@ -27,5 +23,15 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected override Assembly TargetAssembly => typeof(InMemoryDatabase).Assembly;
+
+        public class InMemoryApiConsistencyFixture : ApiConsistencyFixtureBase
+        {
+            public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>()
+            {
+                typeof(InMemoryServiceCollectionExtensions),
+                typeof(InMemoryDbContextOptionsExtensions),
+                typeof(InMemoryDbContextOptionsBuilder)
+            };
+        }
     }
 }

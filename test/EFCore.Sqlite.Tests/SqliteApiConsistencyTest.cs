@@ -10,17 +10,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class ApiConsistencyTest : ApiConsistencyTestBase
+    public class SqliteApiConsistencyTest : ApiConsistencyTestBase<SqliteApiConsistencyTest.SqliteApiConsistencyFixture>
     {
-        private static readonly Type[] _fluentApiTypes =
+        public SqliteApiConsistencyTest(SqliteApiConsistencyFixture fixture)
+            : base(fixture)
         {
-            typeof(SqliteServiceCollectionExtensions),
-            typeof(SqliteDbContextOptionsBuilderExtensions),
-            typeof(SqliteDbContextOptionsBuilder),
-            typeof(SqlitePropertyBuilderExtensions)
-        };
-
-        protected override IEnumerable<Type> FluentApiTypes => _fluentApiTypes;
+        }
 
         protected override void AddServices(ServiceCollection serviceCollection)
         {
@@ -28,5 +23,16 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected override Assembly TargetAssembly => typeof(SqliteRelationalConnection).Assembly;
+
+        public class SqliteApiConsistencyFixture : ApiConsistencyFixtureBase
+        {
+            public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>()
+            {
+                typeof(SqliteServiceCollectionExtensions),
+                typeof(SqliteDbContextOptionsBuilderExtensions),
+                typeof(SqliteDbContextOptionsBuilder),
+                typeof(SqlitePropertyBuilderExtensions)
+            };
+        }
     }
 }

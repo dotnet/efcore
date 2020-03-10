@@ -85,12 +85,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to set the table name for. </param>
         /// <param name="name"> The name to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetTableName(
+        /// <returns> The configured table name. </returns>
+        public static string SetTableName(
             [NotNull] this IConventionEntityType entityType, [CanBeNull] string name, bool fromDataAnnotation = false)
-            => entityType.SetAnnotation(
+        {
+            entityType.SetAnnotation(
                 RelationalAnnotationNames.TableName,
                 Check.NullButNotEmpty(name, nameof(name)),
                 fromDataAnnotation);
+
+            return name;
+        }
 
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the table name.
@@ -146,12 +151,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to set the schema for. </param>
         /// <param name="value"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetSchema(
+        /// <returns> The configured value. </returns>
+        public static string SetSchema(
             [NotNull] this IConventionEntityType entityType, [CanBeNull] string value, bool fromDataAnnotation = false)
-            => entityType.SetOrRemoveAnnotation(
+        {
+            entityType.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.Schema,
                 Check.NullButNotEmpty(value, nameof(value)),
                 fromDataAnnotation);
+
+            return value;
+        }
 
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the database schema.
@@ -251,12 +261,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to set the view name for. </param>
         /// <param name="name"> The name to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetViewName(
+        /// <returns> The configured value. </returns>
+        public static string SetViewName(
             [NotNull] this IConventionEntityType entityType, [CanBeNull] string name, bool fromDataAnnotation = false)
-            => entityType.SetAnnotation(
+        {
+            entityType.SetAnnotation(
                 RelationalAnnotationNames.ViewName,
                 Check.NullButNotEmpty(name, nameof(name)),
                 fromDataAnnotation);
+
+            return name;
+        }
 
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the view name.
@@ -310,12 +325,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to set the view schema for. </param>
         /// <param name="value"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetViewSchema(
+        /// <returns> The configured schema. </returns>
+        public static string SetViewSchema(
             [NotNull] this IConventionEntityType entityType, [CanBeNull] string value, bool fromDataAnnotation = false)
-            => entityType.SetOrRemoveAnnotation(
+        {
+            entityType.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.ViewSchema,
                 Check.NullButNotEmpty(value, nameof(value)),
                 fromDataAnnotation);
+
+            return value;
+        }
 
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the view schema.
@@ -344,6 +364,19 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Finds an <see cref="IMutableCheckConstraint" /> with the given name.
+        /// </summary>
+        /// <param name="entityType"> The entity type to find the check constraint for. </param>
+        /// <param name="name"> The check constraint name. </param>
+        /// <returns>
+        ///     The <see cref="IMutableCheckConstraint" /> or <c>null</c> if no check constraint with the
+        ///     given name in the given entity type was found.
+        /// </returns>
+        public static IMutableCheckConstraint FindCheckConstraint(
+            [NotNull] this IMutableEntityType entityType, [NotNull] string name)
+            => (IMutableCheckConstraint)((IEntityType)entityType).FindCheckConstraint(name);
+
+        /// <summary>
         ///     Finds an <see cref="IConventionCheckConstraint" /> with the given name.
         /// </summary>
         /// <param name="entityType"> The entity type to find the check constraint for. </param>
@@ -364,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The check constraint name. </param>
         /// <param name="sql"> The logical constraint sql used in the check constraint. </param>
         /// <returns> The new check constraint. </returns>
-        public static ICheckConstraint AddCheckConstraint(
+        public static IMutableCheckConstraint AddCheckConstraint(
             [NotNull] this IMutableEntityType entityType,
             [NotNull] string name,
             [NotNull] string sql)
@@ -403,30 +436,22 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to remove the check constraint from. </param>
         /// <param name="name"> The check constraint name to be removed. </param>
-        /// <returns>
-        ///     True if the <see cref="ICheckConstraint" /> is successfully found and removed; otherwise, false.
-        /// </returns>
-        public static bool RemoveCheckConstraint(
+        /// <returns> The removed <see cref="IMutableCheckConstraint" />. </returns>
+        public static IMutableCheckConstraint RemoveCheckConstraint(
             [NotNull] this IMutableEntityType entityType,
             [NotNull] string name)
-        {
-            Check.NotEmpty(name, nameof(name));
-
-            return CheckConstraint.RemoveCheckConstraint(entityType, name);
-        }
+            => CheckConstraint.RemoveCheckConstraint(entityType, Check.NotEmpty(name, nameof(name)));
 
         /// <summary>
         ///     Removes the <see cref="IConventionCheckConstraint" /> with the given name.
         /// </summary>
         /// <param name="entityType"> The entity type to remove the check constraint from. </param>
         /// <param name="name"> The check constraint name. </param>
-        /// <returns>
-        ///     True if the <see cref="IConventionCheckConstraint" /> is successfully found and removed; otherwise, false.
-        /// </returns>
-        public static bool RemoveCheckConstraint(
+        /// <returns> The removed <see cref="IConventionCheckConstraint" />. </returns>
+        public static IConventionCheckConstraint RemoveCheckConstraint(
             [NotNull] this IConventionEntityType entityType,
             [NotNull] string name)
-            => RemoveCheckConstraint((IMutableEntityType)entityType, name);
+            => CheckConstraint.RemoveCheckConstraint((IMutableEntityType)entityType, Check.NotEmpty(name, nameof(name)));
 
         /// <summary>
         ///     Returns all <see cref="ICheckConstraint" /> contained in the entity type.
@@ -436,30 +461,58 @@ namespace Microsoft.EntityFrameworkCore
             => CheckConstraint.GetCheckConstraints(entityType);
 
         /// <summary>
-        ///     Returns the comment for the column this property is mapped to.
+        ///     Returns all <see cref="IMutableCheckConstraint" /> contained in the entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the check constraints for. </param>
+        public static IEnumerable<IMutableCheckConstraint> GetCheckConstraints([NotNull] this IMutableEntityType entityType)
+            => CheckConstraint.GetCheckConstraints(entityType);
+
+        /// <summary>
+        ///     Returns all <see cref="IConventionCheckConstraint" /> contained in the entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the check constraints for. </param>
+        public static IEnumerable<IConventionCheckConstraint> GetCheckConstraints([NotNull] this IConventionEntityType entityType)
+            => CheckConstraint.GetCheckConstraints(entityType);
+
+        /// <summary>
+        ///     Returns the comment for the table this entity is mapped to.
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
-        /// <returns> The comment for the column this property is mapped to. </returns>
+        /// <returns> The comment for the table this entity is mapped to. </returns>
         public static string GetComment([NotNull] this IEntityType entityType)
             => (string)entityType[RelationalAnnotationNames.Comment];
 
         /// <summary>
-        ///     Configures a comment to be applied to the column this property is mapped to.
+        ///     Configures a comment to be applied to the table this entity is mapped to.
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
-        /// <param name="comment"> The comment for the column. </param>
+        /// <param name="comment"> The comment for the table this entity is mapped to. </param>
         public static void SetComment([NotNull] this IMutableEntityType entityType, [CanBeNull] string comment)
             => entityType.SetOrRemoveAnnotation(RelationalAnnotationNames.Comment, comment);
 
         /// <summary>
-        ///     Configures a comment to be applied to the column this property is mapped to.
+        ///     Configures a comment to be applied to the table this entity is mapped to.
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
-        /// <param name="comment"> The comment for the column. </param>
+        /// <param name="comment"> The comment for the table. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetComment(
+        /// <returns> The configured comment. </returns>
+        public static string SetComment(
             [NotNull] this IConventionEntityType entityType, [CanBeNull] string comment, bool fromDataAnnotation = false)
-            => entityType.SetOrRemoveAnnotation(RelationalAnnotationNames.Comment, comment, fromDataAnnotation);
+        {
+            entityType.SetOrRemoveAnnotation(RelationalAnnotationNames.Comment, comment, fromDataAnnotation);
+
+            return comment;
+        }
+
+        /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for the table comment.
+        /// </summary>
+        /// <param name="entityType"> The entity type to find configuration source for. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for the table comment. </returns>
+        public static ConfigurationSource? GetCommentConfigurationSource([NotNull] this IConventionEntityType entityType)
+            => entityType.FindAnnotation(RelationalAnnotationNames.Comment)
+                ?.GetConfigurationSource();
 
         /// <summary>
         ///     Gets a value indicating whether the entity type is ignored by Migrations.

@@ -212,11 +212,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Can_create_materializer_for_entity_with_fields()
         {
             var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(SomeEntityWithFields));
-            entityType.AddProperty(SomeEntityWithFields.EnumProperty).SetField("_enum");
-            entityType.AddProperty(SomeEntityWithFields.FooProperty).SetField("_foo");
-            entityType.AddProperty(SomeEntityWithFields.GooProperty).SetField("_goo");
-            entityType.AddProperty(SomeEntityWithFields.IdProperty).SetField("_id");
-            entityType.AddProperty(SomeEntityWithFields.MaybeEnumProperty).SetField("_maybeEnum");
+            entityType.AddProperty(SomeEntityWithFields.EnumProperty).SetFieldInfo("_enum");
+            entityType.AddProperty(SomeEntityWithFields.FooProperty).SetFieldInfo("_foo");
+            entityType.AddProperty(SomeEntityWithFields.GooProperty).SetFieldInfo("_goo");
+            entityType.AddProperty(SomeEntityWithFields.IdProperty).SetFieldInfo("_id");
+            entityType.AddProperty(SomeEntityWithFields.MaybeEnumProperty).SetFieldInfo("_maybeEnum");
             ((Model)entityType.Model).FinalizeModel();
 
             var factory = GetMaterializer(new EntityMaterializerSource(new EntityMaterializerSourceDependencies()), entityType);

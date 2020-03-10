@@ -678,7 +678,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void AddIgnored(
+        public virtual string AddIgnored(
             [NotNull] Type type,
             ConfigurationSource configurationSource)
             => AddIgnored(GetDisplayName(Check.NotNull(type, nameof(type))), type, configurationSource);
@@ -689,12 +689,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void AddIgnored(
+        public virtual string AddIgnored(
             [NotNull] string name,
             ConfigurationSource configurationSource)
             => AddIgnored(Check.NotNull(name, nameof(name)), null, configurationSource);
 
-        private void AddIgnored(
+        private string AddIgnored(
             [NotNull] string name,
             [CanBeNull] Type type,
             ConfigurationSource configurationSource)
@@ -703,12 +703,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 configurationSource = configurationSource.Max(existingIgnoredConfigurationSource);
                 _ignoredTypeNames[name] = configurationSource;
-                return;
+                return name;
             }
 
             _ignoredTypeNames[name] = configurationSource;
 
-            ConventionDispatcher.OnEntityTypeIgnored(Builder, name, type);
+            return ConventionDispatcher.OnEntityTypeIgnored(Builder, name, type);
         }
 
         /// <summary>
@@ -759,10 +759,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void RemoveIgnored([NotNull] Type type)
+        public virtual string RemoveIgnored([NotNull] Type type)
         {
             Check.NotNull(type, nameof(type));
-            RemoveIgnored(GetDisplayName(type));
+            return RemoveIgnored(GetDisplayName(type));
         }
 
         /// <summary>
@@ -771,10 +771,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void RemoveIgnored(string name)
+        public virtual string RemoveIgnored(string name)
         {
             Check.NotNull(name, nameof(name));
-            _ignoredTypeNames.Remove(name);
+
+            return _ignoredTypeNames.Remove(name) ? name : null;
         }
 
         /// <summary>
@@ -818,7 +819,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void AddOwned([NotNull] Type clrType, ConfigurationSource configurationSource)
+        public virtual string AddOwned([NotNull] Type clrType, ConfigurationSource configurationSource)
         {
             var name = GetDisplayName(clrType);
             if (!(this[CoreAnnotationNames.OwnedTypes] is Dictionary<string, ConfigurationSource> ownedTypes))
@@ -830,10 +831,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (ownedTypes.TryGetValue(name, out var oldConfigurationSource))
             {
                 ownedTypes[name] = configurationSource.Max(oldConfigurationSource);
-                return;
+                return name;
             }
 
             ownedTypes.Add(name, configurationSource);
+
+            return name;
         }
 
         /// <summary>
@@ -842,14 +845,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void RemoveOwned([NotNull] Type clrType)
+        public virtual string RemoveOwned([NotNull] Type clrType)
         {
             if (!(this[CoreAnnotationNames.OwnedTypes] is Dictionary<string, ConfigurationSource> ownedTypes))
             {
-                return;
+                return null;
             }
 
-            ownedTypes.Remove(GetDisplayName(clrType));
+            var name = GetDisplayName(clrType);
+            return ownedTypes.Remove(name) ? name : null;
         }
 
         /// <summary>
@@ -858,8 +862,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetPropertyAccessMode(PropertyAccessMode? propertyAccessMode, ConfigurationSource configurationSource)
-            => this.SetOrRemoveAnnotation(CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, configurationSource);
+        public virtual PropertyAccessMode? SetPropertyAccessMode(
+            PropertyAccessMode? propertyAccessMode, ConfigurationSource configurationSource)
+        {
+            this.SetOrRemoveAnnotation(CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, configurationSource);
+
+            return propertyAccessMode;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -867,9 +876,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetChangeTrackingStrategy(
+        public virtual ChangeTrackingStrategy? SetChangeTrackingStrategy(
             ChangeTrackingStrategy? changeTrackingStrategy, ConfigurationSource configurationSource)
-            => this.SetOrRemoveAnnotation(CoreAnnotationNames.ChangeTrackingStrategy, changeTrackingStrategy, configurationSource);
+        {
+            this.SetOrRemoveAnnotation(CoreAnnotationNames.ChangeTrackingStrategy, changeTrackingStrategy, configurationSource);
+
+            return changeTrackingStrategy;
+        }
 
         /// <summary>
         ///     Runs the conventions when an annotation was set or removed.
@@ -986,7 +999,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void IMutableModel.RemoveEntityType(IMutableEntityType entityType) => RemoveEntityType((EntityType)entityType);
+        IMutableEntityType IMutableModel.RemoveEntityType(IMutableEntityType entityType) => RemoveEntityType((EntityType)entityType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1045,7 +1058,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void IMutableModel.AddIgnored(string name)
+        string IMutableModel.AddIgnored(string name)
             => AddIgnored(name, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -1055,6 +1068,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         IConventionModelBuilder IConventionModel.Builder
+        {
+            [DebuggerStepThrough]
+            get => Builder;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IConventionAnnotatableBuilder IConventionAnnotatable.Builder
         {
             [DebuggerStepThrough]
             get => Builder;
@@ -1135,7 +1160,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void IConventionModel.RemoveEntityType(IConventionEntityType entityType) => RemoveEntityType((EntityType)entityType);
+        IConventionEntityType IConventionModel.RemoveEntityType(IConventionEntityType entityType)
+            => RemoveEntityType((EntityType)entityType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1151,7 +1177,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void IConventionModel.AddIgnored(string name, bool fromDataAnnotation)
+        string IConventionModel.AddIgnored(string name, bool fromDataAnnotation)
             => AddIgnored(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

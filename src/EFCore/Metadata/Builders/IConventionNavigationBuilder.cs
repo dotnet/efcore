@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     public interface IConventionNavigationBuilder : IConventionAnnotatableBuilder
     {
         /// <summary>
-        ///     The navigation being configured.
+        ///     Gets the navigation being configured.
         /// </summary>
         new IConventionNavigation Metadata { get; }
 

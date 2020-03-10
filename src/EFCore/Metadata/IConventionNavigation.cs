@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -18,6 +19,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// </summary>
     public interface IConventionNavigation : INavigation, IConventionNavigationBase
     {
+        /// <summary>
+        ///     Gets the builder that can be used to configure this navigation.
+        /// </summary>
+        new IConventionNavigationBuilder Builder { get; }
+
         /// <summary>
         ///     Returns the configuration source for this navigation property.
         /// </summary>
@@ -53,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     no inverse navigation property defined.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        [DebuggerStepThrough]
+        /// <returns> The new inverse navigation. </returns>
         IConventionNavigation SetInverse([CanBeNull] string inverseName, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -64,7 +70,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     no inverse navigation property defined.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        [DebuggerStepThrough]
+        /// <returns> The new inverse navigation. </returns>
         IConventionNavigation SetInverse([CanBeNull] MemberInfo inverse, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns the configuration source for <see cref="Inverse" />.
+        /// </summary>
+        /// <returns> The configuration source for <see cref="Inverse" />. </returns>
+        ConfigurationSource? GetInverseConfigurationSource();
     }
 }

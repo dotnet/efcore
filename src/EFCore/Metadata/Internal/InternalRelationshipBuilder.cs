@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class InternalRelationshipBuilder : InternalModelItemBuilder<ForeignKey>, IConventionRelationshipBuilder
+    public class InternalRelationshipBuilder : InternalModelItemBuilder<ForeignKey>, IConventionForeignKeyBuilder
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -422,11 +422,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     if (navigationProperty != null)
                     {
-                        Metadata.HasDependentToPrincipal(navigationProperty, configurationSource);
+                        Metadata.SetDependentToPrincipal(navigationProperty, configurationSource);
                     }
                     else
                     {
-                        Metadata.HasDependentToPrincipal(navigationToPrincipalName, configurationSource);
+                        Metadata.SetDependentToPrincipal(navigationToPrincipalName, configurationSource);
                     }
                 }
 
@@ -942,7 +942,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (navigation.FieldInfo?.GetSimpleMemberName() == fieldName
                 || configurationSource.Overrides(navigation.GetFieldInfoConfigurationSource()))
             {
-                navigation.SetField(fieldName, configurationSource);
+                navigation.SetFieldInfo(fieldName, configurationSource);
 
                 return this;
             }
@@ -1004,7 +1004,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (configurationSource.Overrides(navigation.GetFieldInfoConfigurationSource())
                 || Equals(navigation.FieldInfo, fieldInfo))
             {
-                navigation.SetField(fieldInfo, configurationSource);
+                navigation.SetFieldInfo(fieldInfo, configurationSource);
                 return this;
             }
 
@@ -1126,9 +1126,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalRelationshipBuilder IsRequired(bool? required, ConfigurationSource configurationSource)
-            => CanSetIsRequired(required, configurationSource)
-                ? Metadata.SetIsRequired(required, configurationSource)?.Builder
-                : null;
+        {
+            if (!CanSetIsRequired(required, configurationSource))
+            {
+                return null;
+            }
+
+            Metadata.SetIsRequired(required, configurationSource);
+
+            return this;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1150,7 +1157,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (Metadata.IsOwnership == ownership)
             {
-                return Metadata.SetIsOwnership(ownership, configurationSource).Builder;
+                Metadata.SetIsOwnership(ownership, configurationSource);
+
+                return this;
             }
 
             if (ownership == null
@@ -1162,7 +1171,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var declaringType = Metadata.DeclaringEntityType;
             if (ownership.Value)
             {
-                InternalRelationshipBuilder newRelationshipBuilder;
+                var newRelationshipBuilder = this;
                 var otherOwnership = declaringType.GetDeclaredForeignKeys().SingleOrDefault(fk => fk.IsOwnership);
                 var invertedOwnerships = declaringType.GetDeclaredReferencingForeignKeys()
                     .Where(fk => fk.IsOwnership && fk.DeclaringEntityType.ClrType == Metadata.PrincipalEntityType.ClrType).ToList();
@@ -1185,7 +1194,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         return null;
                     }
 
-                    newRelationshipBuilder = Metadata.SetIsOwnership(ownership: true, configurationSource)?.Builder;
+                    Metadata.SetIsOwnership(ownership: true, configurationSource);
                     newRelationshipBuilder = newRelationshipBuilder?.OnDelete(DeleteBehavior.Cascade, ConfigurationSource.Convention);
 
                     if (newRelationshipBuilder == null)
@@ -1217,15 +1226,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         return null;
                     }
 
-                    newRelationshipBuilder = Metadata.SetIsOwnership(ownership: true, configurationSource)?.Builder;
-                    newRelationshipBuilder = newRelationshipBuilder?.OnDelete(DeleteBehavior.Cascade, ConfigurationSource.Convention);
+                    Metadata.SetIsOwnership(ownership: true, configurationSource);
 
+                    using var batch = ModelBuilder.Metadata.ConventionDispatcher.DelayConventions();
+
+                    newRelationshipBuilder = newRelationshipBuilder.OnDelete(DeleteBehavior.Cascade, ConfigurationSource.Convention);
                     if (newRelationshipBuilder == null)
                     {
                         return null;
                     }
 
-                    using var batch = ModelBuilder.Metadata.ConventionDispatcher.DelayConventions();
                     foreach (var invertedOwnership in invertedOwnerships)
                     {
                         invertedOwnership.DeclaringEntityType.Builder.HasNoRelationship(invertedOwnership, configurationSource);
@@ -1259,42 +1269,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return batch.Run(newRelationshipBuilder);
                 }
 
-                newRelationshipBuilder = Metadata.SetIsOwnership(ownership: true, configurationSource)?.Builder;
-                newRelationshipBuilder = newRelationshipBuilder?.OnDelete(DeleteBehavior.Cascade, ConfigurationSource.Convention);
-
-                if (newRelationshipBuilder == null
-                    && Metadata.PrincipalEntityType.Builder != null
-                    && Metadata.PrincipalToDependent != null)
-                {
-                    newRelationshipBuilder = Metadata.PrincipalEntityType.FindNavigation(Metadata.PrincipalToDependent.Name)
-                        ?.ForeignKey.Builder;
-                }
-
                 using (var batch = ModelBuilder.Metadata.ConventionDispatcher.DelayConventions())
                 {
+                    Metadata.SetIsOwnership(ownership: true, configurationSource);
+                    newRelationshipBuilder = newRelationshipBuilder.OnDelete(DeleteBehavior.Cascade, ConfigurationSource.Convention)
+                        ?? newRelationshipBuilder;
+
                     foreach (var invertedOwnership in invertedOwnerships)
                     {
                         invertedOwnership.DeclaringEntityType.Builder.HasNoRelationship(invertedOwnership, configurationSource);
                     }
 
-                    if (newRelationshipBuilder != null)
+                    newRelationshipBuilder.Metadata.DeclaringEntityType.Builder.HasBaseType((Type)null, configurationSource);
+
+                    if (!newRelationshipBuilder.Metadata.DeclaringEntityType.Builder
+                        .RemoveNonOwnershipRelationships(newRelationshipBuilder.Metadata, configurationSource))
                     {
-                        newRelationshipBuilder.Metadata.DeclaringEntityType.Builder.HasBaseType((Type)null, configurationSource);
-
-                        if (!newRelationshipBuilder.Metadata.DeclaringEntityType.Builder
-                            .RemoveNonOwnershipRelationships(newRelationshipBuilder.Metadata, configurationSource))
-                        {
-                            return null;
-                        }
-
-                        return batch.Run(newRelationshipBuilder);
+                        return null;
                     }
-                }
 
-                return null;
+                    return batch.Run(newRelationshipBuilder);
+                }
             }
 
-            return Metadata.SetIsOwnership(ownership: false, configurationSource)?.Builder;
+            Metadata.SetIsOwnership(ownership: false, configurationSource);
+
+            return this;
         }
 
         /// <summary>
@@ -1356,9 +1356,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalRelationshipBuilder OnDelete(DeleteBehavior? deleteBehavior, ConfigurationSource configurationSource)
-            => CanSetDeleteBehavior(deleteBehavior, configurationSource)
-                ? Metadata.SetDeleteBehavior(deleteBehavior, configurationSource)?.Builder
-                : null;
+        {
+            if (!CanSetDeleteBehavior(deleteBehavior, configurationSource))
+            {
+                return null;
+            }
+
+            Metadata.SetDeleteBehavior(deleteBehavior, configurationSource);
+
+            return this;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1379,7 +1386,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (Metadata.IsUnique == unique)
             {
-                return Metadata.SetIsUnique(unique, configurationSource).Builder;
+                Metadata.SetIsUnique(unique, configurationSource);
+
+                return this;
             }
 
             if (!CanSetIsUnique(unique, configurationSource, out var resetToDependent))
@@ -1398,8 +1407,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            builder = builder.Metadata.SetIsUnique(unique, configurationSource)?.Builder;
-            Check.DebugAssert(builder != null, "builder is null");
+            builder.Metadata.SetIsUnique(unique, configurationSource);
 
             return batch.Run(builder);
         }
@@ -1688,7 +1696,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanSetRelatedTypes(
+        public virtual bool CanSetEntityTypes(
             [NotNull] EntityType principalEntityType,
             [NotNull] EntityType dependentEntityType,
             ConfigurationSource? configurationSource)
@@ -3966,7 +3974,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionForeignKey IConventionRelationshipBuilder.Metadata
+        IConventionForeignKey IConventionForeignKeyBuilder.Metadata
         {
             [DebuggerStepThrough] get => Metadata;
         }
@@ -3978,7 +3986,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionRelationshipBuilder.HasEntityTypes(
+        IConventionForeignKeyBuilder IConventionForeignKeyBuilder.HasEntityTypes(
             IConventionEntityType principalEntityType, IConventionEntityType dependentEntityType, bool fromDataAnnotation)
             => HasEntityTypes(
                 (EntityType)principalEntityType, (EntityType)dependentEntityType,
@@ -3991,7 +3999,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        bool IConventionRelationshipBuilder.CanInvert(IReadOnlyList<IConventionProperty> newForeignKeyProperties, bool fromDataAnnotation)
+        bool IConventionForeignKeyBuilder.CanSetEntityTypes(
+            IConventionEntityType principalEntityType, IConventionEntityType dependentEntityType, bool fromDataAnnotation)
+            => CanSetEntityTypes(
+                (EntityType)principalEntityType, (EntityType)dependentEntityType,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        bool IConventionForeignKeyBuilder.CanInvert(IReadOnlyList<IConventionProperty> newForeignKeyProperties, bool fromDataAnnotation)
             => CanInvert(
                 (IReadOnlyList<Property>)newForeignKeyProperties,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -4003,7 +4024,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionRelationshipBuilder.HasForeignKey(
+        IConventionForeignKeyBuilder IConventionForeignKeyBuilder.HasForeignKey(
             [CanBeNull] IReadOnlyList<string> properties, bool fromDataAnnotation)
             => HasForeignKey(
                 properties,
@@ -4016,7 +4037,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionRelationshipBuilder.HasForeignKey(
+        IConventionForeignKeyBuilder IConventionForeignKeyBuilder.HasForeignKey(
             IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
             => HasForeignKey(
                 properties as IReadOnlyList<Property> ?? properties?.Cast<Property>().ToList(),
@@ -4029,7 +4050,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        bool IConventionRelationshipBuilder.CanSetForeignKey(
+        bool IConventionForeignKeyBuilder.CanSetForeignKey(
             [CanBeNull] IReadOnlyList<string> properties, bool fromDataAnnotation)
             => CanSetForeignKey(
                 properties,
@@ -4042,7 +4063,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        bool IConventionRelationshipBuilder.CanSetForeignKey(IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
+        bool IConventionForeignKeyBuilder.CanSetForeignKey(IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
             => CanSetForeignKey(
                 properties as IReadOnlyList<Property> ?? properties?.Cast<Property>().ToList(),
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -4054,7 +4075,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionRelationshipBuilder.HasPrincipalKey(
+        IConventionForeignKeyBuilder IConventionForeignKeyBuilder.HasPrincipalKey(
             [CanBeNull] IReadOnlyList<string> properties, bool fromDataAnnotation)
             => HasPrincipalKey(
                 properties,
@@ -4067,7 +4088,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionRelationshipBuilder.HasPrincipalKey(
+        IConventionForeignKeyBuilder IConventionForeignKeyBuilder.HasPrincipalKey(
             IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
             => HasPrincipalKey(
                 properties as IReadOnlyList<Property> ?? properties?.Cast<Property>().ToList(),
@@ -4080,7 +4101,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        bool IConventionRelationshipBuilder.CanSetPrincipalKey(
+        bool IConventionForeignKeyBuilder.CanSetPrincipalKey(
             [CanBeNull] IReadOnlyList<string> properties, bool fromDataAnnotation)
             => CanSetPrincipalKey(
                 properties,
@@ -4093,7 +4114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        bool IConventionRelationshipBuilder.CanSetPrincipalKey(IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
+        bool IConventionForeignKeyBuilder.CanSetPrincipalKey(IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
             => CanSetPrincipalKey(
                 properties as IReadOnlyList<Property> ?? properties?.Cast<Property>().ToList(),
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -4105,7 +4126,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionRelationshipBuilder.HasNavigation(
+        IConventionForeignKeyBuilder IConventionForeignKeyBuilder.HasNavigation(
             string name, bool pointsToPrincipal, bool fromDataAnnotation)
             => HasNavigation(
                 name, pointsToPrincipal,
@@ -4118,7 +4139,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionRelationshipBuilder.HasNavigation(
+        IConventionForeignKeyBuilder IConventionForeignKeyBuilder.HasNavigation(
             MemberInfo property, bool pointsToPrincipal, bool fromDataAnnotation)
             => HasNavigation(
                 property, pointsToPrincipal,
@@ -4131,7 +4152,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionRelationshipBuilder.HasNavigations(
+        IConventionForeignKeyBuilder IConventionForeignKeyBuilder.HasNavigations(
             string navigationToPrincipalName, string navigationToDependentName, bool fromDataAnnotation)
             => HasNavigations(
                 navigationToPrincipalName, navigationToDependentName,
@@ -4144,7 +4165,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionRelationshipBuilder.HasNavigations(
+        IConventionForeignKeyBuilder IConventionForeignKeyBuilder.HasNavigations(
             MemberInfo navigationToPrincipal, MemberInfo navigationToDependent, bool fromDataAnnotation)
             => HasNavigations(
                 navigationToPrincipal, navigationToDependent,
@@ -4157,7 +4178,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        bool IConventionRelationshipBuilder.CanSetNavigation(
+        bool IConventionForeignKeyBuilder.CanSetNavigation(
             MemberInfo property, bool pointsToPrincipal, bool fromDataAnnotation)
             => CanSetNavigation(
                 property, pointsToPrincipal,
@@ -4170,7 +4191,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        bool IConventionRelationshipBuilder.CanSetNavigation(string name, bool pointsToPrincipal, bool fromDataAnnotation)
+        bool IConventionForeignKeyBuilder.CanSetNavigation(string name, bool pointsToPrincipal, bool fromDataAnnotation)
             => CanSetNavigation(
                 name, pointsToPrincipal,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -4182,7 +4203,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        bool IConventionRelationshipBuilder.CanSetNavigations(
+        bool IConventionForeignKeyBuilder.CanSetNavigations(
             MemberInfo navigationToPrincipal, MemberInfo navigationToDependent, bool fromDataAnnotation)
             => CanSetNavigations(
                 navigationToPrincipal, navigationToDependent,
@@ -4195,7 +4216,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionRelationshipBuilder.HasField(
+        IConventionForeignKeyBuilder IConventionForeignKeyBuilder.HasField(
             string fieldName, bool pointsToPrincipal, bool fromDataAnnotation)
             => HasField(
                 fieldName, pointsToPrincipal, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -4207,7 +4228,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionRelationshipBuilder.HasField(
+        IConventionForeignKeyBuilder IConventionForeignKeyBuilder.HasField(
             FieldInfo fieldInfo, bool pointsToPrincipal, bool fromDataAnnotation)
             => HasField(
                 fieldInfo, pointsToPrincipal, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -4219,7 +4240,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        bool IConventionRelationshipBuilder.CanSetField(string fieldName, bool pointsToPrincipal, bool fromDataAnnotation)
+        bool IConventionForeignKeyBuilder.CanSetField(string fieldName, bool pointsToPrincipal, bool fromDataAnnotation)
             => CanSetField(
                 fieldName, pointsToPrincipal, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -4230,7 +4251,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        bool IConventionRelationshipBuilder.CanSetField(FieldInfo fieldInfo, bool pointsToPrincipal, bool fromDataAnnotation)
+        bool IConventionForeignKeyBuilder.CanSetField(FieldInfo fieldInfo, bool pointsToPrincipal, bool fromDataAnnotation)
             => CanSetField(
                 fieldInfo, pointsToPrincipal, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -4241,7 +4262,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionRelationshipBuilder.UsePropertyAccessMode(
+        IConventionForeignKeyBuilder IConventionForeignKeyBuilder.UsePropertyAccessMode(
             PropertyAccessMode? propertyAccessMode, bool pointsToPrincipal, bool fromDataAnnotation)
             => UsePropertyAccessMode(
                 propertyAccessMode,
@@ -4255,7 +4276,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        bool IConventionRelationshipBuilder.CanSetPropertyAccessMode(
+        bool IConventionForeignKeyBuilder.CanSetPropertyAccessMode(
             PropertyAccessMode? propertyAccessMode, bool pointsToPrincipal, bool fromDataAnnotation)
             => CanSetPropertyAccessMode(
                 propertyAccessMode,
@@ -4269,7 +4290,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionRelationshipBuilder.IsEagerLoaded(
+        IConventionForeignKeyBuilder IConventionForeignKeyBuilder.IsEagerLoaded(
             bool? eagerLoaded, bool pointsToPrincipal, bool fromDataAnnotation)
             => IsEagerLoaded(
                 eagerLoaded, pointsToPrincipal, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -4281,7 +4302,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        bool IConventionRelationshipBuilder.CanSetIsEagerLoaded(bool? eagerLoaded, bool pointsToPrincipal, bool fromDataAnnotation)
+        bool IConventionForeignKeyBuilder.CanSetIsEagerLoaded(bool? eagerLoaded, bool pointsToPrincipal, bool fromDataAnnotation)
             => CanSetIsEagerLoaded(
                 eagerLoaded, pointsToPrincipal, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -4292,7 +4313,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        bool IConventionRelationshipBuilder.CanSetNavigations(
+        bool IConventionForeignKeyBuilder.CanSetNavigations(
             string navigationToPrincipalName, string navigationToDependentName, bool fromDataAnnotation)
             => CanSetNavigations(
                 navigationToPrincipalName, navigationToDependentName,
@@ -4305,7 +4326,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionRelationshipBuilder.IsRequired(bool? required, bool fromDataAnnotation)
+        IConventionForeignKeyBuilder IConventionForeignKeyBuilder.IsRequired(bool? required, bool fromDataAnnotation)
             => IsRequired(required, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -4315,7 +4336,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        bool IConventionRelationshipBuilder.CanSetIsRequired(bool? required, bool fromDataAnnotation)
+        bool IConventionForeignKeyBuilder.CanSetIsRequired(bool? required, bool fromDataAnnotation)
             => CanSetIsRequired(required, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -4325,7 +4346,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionRelationshipBuilder.IsOwnership(bool? ownership, bool fromDataAnnotation)
+        IConventionForeignKeyBuilder IConventionForeignKeyBuilder.IsOwnership(bool? ownership, bool fromDataAnnotation)
             => IsOwnership(ownership, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -4335,7 +4356,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        bool IConventionRelationshipBuilder.CanSetIsOwnership(bool? ownership, bool fromDataAnnotation)
+        bool IConventionForeignKeyBuilder.CanSetIsOwnership(bool? ownership, bool fromDataAnnotation)
             => CanSetIsOwnership(ownership, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -4345,7 +4366,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionRelationshipBuilder.OnDelete(
+        IConventionForeignKeyBuilder IConventionForeignKeyBuilder.OnDelete(
             DeleteBehavior? deleteBehavior, bool fromDataAnnotation)
             => OnDelete(deleteBehavior, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -4356,7 +4377,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        bool IConventionRelationshipBuilder.CanSetOnDelete(DeleteBehavior? deleteBehavior, bool fromDataAnnotation)
+        bool IConventionForeignKeyBuilder.CanSetOnDelete(DeleteBehavior? deleteBehavior, bool fromDataAnnotation)
             => CanSetDeleteBehavior(
                 deleteBehavior, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -4367,7 +4388,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionRelationshipBuilder IConventionRelationshipBuilder.IsUnique(bool? unique, bool fromDataAnnotation)
+        IConventionForeignKeyBuilder IConventionForeignKeyBuilder.IsUnique(bool? unique, bool fromDataAnnotation)
             => IsUnique(unique, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -4377,7 +4398,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        bool IConventionRelationshipBuilder.CanSetIsUnique(bool? unique, bool fromDataAnnotation)
+        bool IConventionForeignKeyBuilder.CanSetIsUnique(bool? unique, bool fromDataAnnotation)
             => CanSetIsUnique(unique, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

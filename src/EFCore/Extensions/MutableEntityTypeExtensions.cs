@@ -139,20 +139,6 @@ namespace Microsoft.EntityFrameworkCore
             => ((EntityType)entityType).RemoveProperty(name);
 
         /// <summary>
-        ///     Sets the primary key for this entity type.
-        /// </summary>
-        /// <param name="entityType"> The entity type to set the key on. </param>
-        /// <param name="property"> The primary key property. </param>
-        /// <returns> The newly created key. </returns>
-        public static IMutableKey SetPrimaryKey(
-            [NotNull] this IMutableEntityType entityType, [CanBeNull] IMutableProperty property)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            return entityType.SetPrimaryKey(property == null ? null : new[] { property });
-        }
-
-        /// <summary>
         ///     Gets the primary or alternate key that is defined on the given property. Returns <c>null</c> if no key is defined
         ///     for the given property.
         /// </summary>
@@ -466,13 +452,13 @@ namespace Microsoft.EntityFrameworkCore
             => entityType.AddProperty(name, propertyType, null);
 
         /// <summary>
-        ///     Adds an indexed property to this entity type.
+        ///     Adds a property backed up by an indexer to this entity type.
         /// </summary>
         /// <param name="entityType"> The entity type to add the property to. </param>
         /// <param name="name"> The name of the property to add. </param>
         /// <param name="propertyType"> The type of value the property will hold. </param>
         /// <returns> The newly created property. </returns>
-        public static IMutableProperty AddIndexedProperty(
+        public static IMutableProperty AddIndexerProperty(
             [NotNull] this IMutableEntityType entityType, [NotNull] string name, [NotNull] Type propertyType)
         {
             Check.NotNull(entityType, nameof(entityType));
@@ -569,7 +555,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to set. </param>
         public static void SetDiscriminatorProperty([NotNull] this IMutableEntityType entityType, [CanBeNull] IProperty property)
             => Check.NotNull(entityType, nameof(entityType)).AsEntityType()
-                .SetDiscriminatorProperty(property, ConfigurationSource.Explicit);
+                .SetDiscriminatorProperty((Property)property, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     Sets the value indicating whether the discriminator mapping is complete.

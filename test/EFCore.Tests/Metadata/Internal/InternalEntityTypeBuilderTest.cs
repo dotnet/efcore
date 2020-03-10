@@ -2594,7 +2594,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var modelBuilder = CreateModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
             var derivedEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
-            derivedEntityBuilder.Metadata.HasBaseType(entityBuilder.Metadata, ConfigurationSource.Explicit);
+            derivedEntityBuilder.Metadata.SetBaseType(entityBuilder.Metadata, ConfigurationSource.Explicit);
 
             Assert.Same(derivedEntityBuilder, derivedEntityBuilder.HasBaseType(entityBuilder.Metadata, ConfigurationSource.Convention));
             Assert.Null(derivedEntityBuilder.HasBaseType((EntityType)null, ConfigurationSource.Convention));
@@ -2841,7 +2841,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal("Discriminator", typeBuilder.Metadata.GetDiscriminatorProperty().Name);
             Assert.Equal(typeof(string), typeBuilder.Metadata.GetDiscriminatorProperty().ClrType);
 
-            Assert.NotNull(typeBuilder.HasNoDeclaredDiscriminator());
+            Assert.NotNull(typeBuilder.HasNoDiscriminator());
             Assert.Null(typeBuilder.Metadata.GetDiscriminatorProperty());
             Assert.Empty(typeBuilder.Metadata.GetProperties());
 
@@ -2865,7 +2865,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal("Discriminator", typeBuilder.Metadata.GetDiscriminatorProperty().Name);
             Assert.Equal(typeof(int), typeBuilder.Metadata.GetDiscriminatorProperty().ClrType);
 
-            Assert.Null(typeBuilder.HasNoDeclaredDiscriminator());
+            Assert.Null(typeBuilder.HasNoDiscriminator());
         }
 
         [ConditionalFact]
@@ -2944,7 +2944,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 6, typeBuilder.ModelBuilder.Entity("Splod")
                     .Metadata.GetDiscriminatorValue());
 
-            Assert.NotNull(typeBuilder.HasNoDeclaredDiscriminator(fromDataAnnotation: true));
+            Assert.NotNull(typeBuilder.HasNoDiscriminator(fromDataAnnotation: true));
             Assert.Null(typeBuilder.Metadata.GetDiscriminatorProperty());
             Assert.Null(typeBuilder.Metadata.GetDiscriminatorValue());
             Assert.Empty(typeBuilder.Metadata.GetProperties());

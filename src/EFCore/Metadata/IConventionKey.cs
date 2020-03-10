@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this key.
         /// </summary>
-        IConventionKeyBuilder Builder { get; }
+        new IConventionKeyBuilder Builder { get; }
 
         /// <summary>
         ///     Gets the properties that make up the key.

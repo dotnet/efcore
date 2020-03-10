@@ -49,6 +49,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IMutableKey SetPrimaryKey([CanBeNull] IReadOnlyList<IMutableProperty> properties);
 
         /// <summary>
+        ///     Sets the primary key for this entity type.
+        /// </summary>
+        /// <param name="property"> The primary key property. </param>
+        /// <returns> The newly created key. </returns>
+        IMutableKey SetPrimaryKey([CanBeNull] IMutableProperty property)
+            => SetPrimaryKey(property == null ? null : new[] { property });
+
+        /// <summary>
         ///     Gets primary key for this entity type. Returns <c>null</c> if no primary key is defined.
         /// </summary>
         /// <returns> The primary key, or <c>null</c> if none is defined. </returns>
@@ -79,7 +87,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Removes a primary or alternate key from this entity type.
         /// </summary>
         /// <param name="key"> The key to be removed. </param>
-        void RemoveKey([NotNull] IMutableKey key);
+        /// <returns> The removed key. </returns>
+        IMutableKey RemoveKey([NotNull] IMutableKey key);
 
         /// <summary>
         ///     Adds a new relationship to this entity type.
@@ -124,7 +133,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Removes a foreign key from this entity type.
         /// </summary>
         /// <param name="foreignKey"> The foreign key to be removed. </param>
-        void RemoveForeignKey([NotNull] IMutableForeignKey foreignKey);
+        /// <returns> The removed foreign key. </returns>
+        IMutableForeignKey RemoveForeignKey([NotNull] IMutableForeignKey foreignKey);
 
         /// <summary>
         ///     Adds a new skip navigation properties to this entity type.
@@ -199,7 +209,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Removes a skip navigation properties from this entity type.
         /// </summary>
         /// <param name="navigation"> The skip navigation to be removed. </param>
-        void RemoveSkipNavigation([NotNull] IMutableSkipNavigation navigation);
+        /// <returns> The removed skip navigation. </returns>
+        IMutableSkipNavigation RemoveSkipNavigation([NotNull] IMutableSkipNavigation navigation);
 
         /// <summary>
         ///     Adds an index to this entity type.
@@ -225,7 +236,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Removes an index from this entity type.
         /// </summary>
         /// <param name="index"> The index to remove. </param>
-        void RemoveIndex([NotNull] IMutableIndex index);
+        /// <returns> The removed index. </returns>
+        IMutableIndex RemoveIndex([NotNull] IMutableIndex index);
 
         /// <summary>
         ///     Adds a property to this entity type.
@@ -274,7 +286,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Removes a property from this entity type.
         /// </summary>
         /// <param name="property"> The property to remove. </param>
-        void RemoveProperty([NotNull] IMutableProperty property);
+        /// <returns> The removed property. </returns>
+        IMutableProperty RemoveProperty([NotNull] IMutableProperty property);
 
         /// <summary>
         ///     Adds a <see cref="IMutableServiceProperty" /> to this entity type.

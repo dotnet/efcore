@@ -61,12 +61,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="foreignKey"> The foreign key. </param>
         /// <param name="value"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetConstraintName(
+        /// <returns> The configured name. </returns>
+        public static string SetConstraintName(
             [NotNull] this IConventionForeignKey foreignKey, [CanBeNull] string value, bool fromDataAnnotation = false)
-            => foreignKey.SetOrRemoveAnnotation(
+        {
+            foreignKey.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.Name,
                 Check.NullButNotEmpty(value, nameof(value)),
                 fromDataAnnotation);
+
+            return value;
+        }
 
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the constraint name.

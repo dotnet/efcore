@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyAdded(
-            IConventionRelationshipBuilder relationshipBuilder, IConventionContext<IConventionRelationshipBuilder> context)
+            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<IConventionForeignKeyBuilder> context)
         {
             foreach (var property in relationshipBuilder.Metadata.Properties)
             {
@@ -71,10 +71,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="oldPrincipalKey"> The old principal key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyPropertiesChanged(
-            IConventionRelationshipBuilder relationshipBuilder,
+            IConventionForeignKeyBuilder relationshipBuilder,
             IReadOnlyList<IConventionProperty> oldDependentProperties,
             IConventionKey oldPrincipalKey,
-            IConventionContext<IConventionRelationshipBuilder> context)
+            IConventionContext<IReadOnlyList<IConventionProperty>> context)
         {
             var foreignKey = relationshipBuilder.Metadata;
             if (!foreignKey.Properties.SequenceEqual(oldDependentProperties))

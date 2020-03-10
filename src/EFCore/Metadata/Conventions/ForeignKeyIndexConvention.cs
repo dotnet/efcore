@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyAdded(
-            IConventionRelationshipBuilder relationshipBuilder, IConventionContext<IConventionRelationshipBuilder> context)
+            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<IConventionForeignKeyBuilder> context)
         {
             var foreignKey = relationshipBuilder.Metadata;
             CreateIndex(foreignKey.Properties, foreignKey.IsUnique, foreignKey.DeclaringEntityType.Builder);
@@ -75,10 +75,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="oldPrincipalKey"> The old principal key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyPropertiesChanged(
-            IConventionRelationshipBuilder relationshipBuilder,
+            IConventionForeignKeyBuilder relationshipBuilder,
             IReadOnlyList<IConventionProperty> oldDependentProperties,
             IConventionKey oldPrincipalKey,
-            IConventionContext<IConventionRelationshipBuilder> context)
+            IConventionContext<IReadOnlyList<IConventionProperty>> context)
         {
             var foreignKey = relationshipBuilder.Metadata;
             if (!foreignKey.Properties.SequenceEqual(oldDependentProperties))
@@ -238,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyUniquenessChanged(
-            IConventionRelationshipBuilder relationshipBuilder, IConventionContext<IConventionRelationshipBuilder> context)
+            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<bool?> context)
         {
             var foreignKey = relationshipBuilder.Metadata;
             var index = foreignKey.DeclaringEntityType.FindIndex(foreignKey.Properties);
@@ -280,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="indexBuilder"> The builder for the index. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessIndexUniquenessChanged(
-            IConventionIndexBuilder indexBuilder, IConventionContext<IConventionIndexBuilder> context)
+            IConventionIndexBuilder indexBuilder, IConventionContext<bool?> context)
         {
             var index = indexBuilder.Metadata;
             if (index.IsUnique)

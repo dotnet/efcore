@@ -572,7 +572,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <c>true</c> if the given value can be set as default for the column. </returns>
         public static bool CanSetComment(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
-            [CanBeNull] object comment,
+            [CanBeNull] string comment,
             bool fromDataAnnotation = false)
             => propertyBuilder.CanSetAnnotation(
                 RelationalAnnotationNames.Comment,
