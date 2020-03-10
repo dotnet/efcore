@@ -511,6 +511,23 @@ WHERE [a].[Discriminator] = N'Kiwi'
 ORDER BY [a].[Name]");
         }
 
+        public override void Casting_to_base_type_joining_with_query_type_works()
+        {
+            base.Casting_to_base_type_joining_with_query_type_works();
+
+            AssertSql(
+                @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [t].[CountryId], [t].[Discriminator], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t].[FoundOn]
+FROM [Animal] AS [a]
+INNER JOIN (
+    SELECT [a0].[CountryId], [a0].[Discriminator], [a0].[Name], [a0].[EagleId], [a0].[IsFlightless], [a0].[Group], [a0].[FoundOn]
+    FROM (
+        Select * from ""Animal""
+    ) AS [a0]
+    WHERE [a0].[Discriminator] IN (N'Eagle', N'Kiwi')
+) AS [t] ON [a].[Name] = [t].[Name]
+WHERE [a].[Discriminator] = N'Eagle'");
+        }
+
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());
 
