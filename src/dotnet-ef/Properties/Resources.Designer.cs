@@ -446,6 +446,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 GetString("InvalidTemplatePattern", nameof(template)),
                 template);
 
+        /// <summary>
+        ///     The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
+        /// </summary>
+        public static string DbContextConnectionDescription
+            => GetString("DbContextConnectionDescription");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

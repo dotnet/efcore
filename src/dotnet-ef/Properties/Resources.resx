@@ -318,4 +318,7 @@
   <data name="InvalidTemplatePattern" xml:space="preserve">
     <value>Invalid template pattern '{template}'.</value>
   </data>
+  <data name="DbContextConnectionDescription" xml:space="preserve">
+    <value>The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.</value>
+  </data>
 </root>

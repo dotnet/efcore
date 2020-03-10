@@ -107,10 +107,15 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 "GetContextInfo",
                 new Dictionary<string, object> { ["contextType"] = name });
 
-        public void UpdateDatabase(string migration, string contextType)
+        public void UpdateDatabase(string migration, string connectionString, string contextType)
             => InvokeOperation(
                 "UpdateDatabase",
-                new Dictionary<string, string> { ["targetMigration"] = migration, ["contextType"] = contextType });
+                new Dictionary<string, string>
+                {
+                    ["targetMigration"] = migration,
+                    ["connectionString"] = connectionString,
+                    ["contextType"] = contextType
+                });
 
         public IEnumerable<IDictionary> GetContextTypes()
             => InvokeOperation<IEnumerable<IDictionary>>("GetContextTypes");

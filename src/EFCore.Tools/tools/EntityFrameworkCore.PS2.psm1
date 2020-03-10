@@ -282,6 +282,9 @@ function Script-Migration(
 .PARAMETER Migration
     The target migration. If '0', all migrations will be reverted. Defaults to the last migration.
 
+.PARAMETER Connection
+    The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
+
 .PARAMETER Context
     The DbContext to use.
 
@@ -297,6 +300,7 @@ function Script-Migration(
 #>
 function Update-Database(
     $Migration,
+    $Connection,
     $Context,
     $Project,
     $StartupProject)

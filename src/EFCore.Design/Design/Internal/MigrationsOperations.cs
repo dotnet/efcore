@@ -178,10 +178,16 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         public virtual void UpdateDatabase(
             [CanBeNull] string targetMigration,
+            [CanBeNull] string connectionString,
             [CanBeNull] string contextType)
         {
             using (var context = _contextOperations.CreateContext(contextType))
             {
+                if (connectionString != null)
+                {
+                    context.Database.SetConnectionString(connectionString);
+                }
+
                 var services = _servicesBuilder.Build(context);
                 EnsureServices(services);
 
