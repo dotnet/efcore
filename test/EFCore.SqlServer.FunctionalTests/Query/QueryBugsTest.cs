@@ -7044,15 +7044,15 @@ LEFT JOIN [CustomerMemberships] AS [c0] ON [c].[Id] = [c0].[CustomerId]");
             {
                 modelBuilder.Entity<CustomerFilter19708>()
                     .HasQueryFilter(e => (from a in (from c in Customers
-                                                    join cm in CustomerMemberships on c.Id equals cm.CustomerId into g
-                                                    from cm in g.DefaultIfEmpty()
-                                                    select new
-                                                    {
-                                                        c.Id,
-                                                        CustomerMembershipId = (int?)cm.Id
-                                                    })
-                                         where a.CustomerMembershipId != null && a.Id == e.CustomerId
-                                         select a).Count() > 0)
+                                                     join cm in CustomerMemberships on c.Id equals cm.CustomerId into g
+                                                     from cm in g.DefaultIfEmpty()
+                                                     select new
+                                                     {
+                                                         c.Id,
+                                                         CustomerMembershipId = (int?)cm.Id
+                                                     })
+                                          where a.CustomerMembershipId != null && a.Id == e.CustomerId
+                                          select a).Count() > 0)
                     .HasKey(e => e.CustomerId);
 
                 modelBuilder.Entity<CustomerView19708>().HasNoKey().ToQuery(Build_Customers_Sql_View_InMemory());
@@ -7103,6 +7103,146 @@ LEFT JOIN [CustomerMemberships] AS [c0] ON [c].[Id] = [c0].[CustomerId]");
             public string Name { get; set; }
             public int? CustomerMembershipId { get; set; }
             public string CustomerMembershipName { get; set; }
+        }
+
+        #endregion
+
+        #region Issue20097
+
+        [ConditionalFact]
+        public void Implicit_interface_casting_though_generic_method()
+        {
+            using var _ = CreateDatabase20097();
+            using var context = new BugContext20097(_options);
+
+            var originalQuery = context.Entities.Select(a => new MyModel20097 { Id = a.Id });
+            var query = AddFilter(originalQuery, 1).ToList();
+
+            Assert.Single(query);
+
+            AssertSql(
+                @"@__id_0='1'
+
+SELECT [e].[Id]
+FROM [Entities] AS [e]
+WHERE [e].[Id] = @__id_0");
+        }
+
+        [ConditionalFact]
+        public void Explicit_interface_casting_though_generic_method()
+        {
+            using var _ = CreateDatabase20097();
+            using var context = new BugContext20097(_options);
+
+            var originalQuery = context.Entities.Select(a => new MyModel20097 { Id = a.Id });
+            var query = originalQuery.Where<IHaveId20097>(a => a.Id == 1).ToList();
+
+            Assert.Single(query);
+
+            AssertSql(
+                @"SELECT [e].[Id]
+FROM [Entities] AS [e]
+WHERE [e].[Id] = CAST(1 AS bigint)");
+        }
+
+        [ConditionalFact]
+        public void Explicit_interface_casting_in_lambda()
+        {
+            using var _ = CreateDatabase20097();
+            using var context = new BugContext20097(_options);
+
+            var originalQuery = context.Entities.Select(a => new MyModel20097 { Id = a.Id });
+            var query = originalQuery.Where(a => ((IHaveId20097)a).Id == 1).ToList();
+
+            Assert.Single(query);
+
+            AssertSql(
+                @"SELECT [e].[Id]
+FROM [Entities] AS [e]
+WHERE [e].[Id] = CAST(1 AS bigint)");
+        }
+
+        [ConditionalFact]
+        public void Explicit_interface_soft_casting_in_lambda()
+        {
+            using var _ = CreateDatabase20097();
+            using var context = new BugContext20097(_options);
+
+            var originalQuery = context.Entities.Select(a => new MyModel20097 { Id = a.Id });
+            var query = originalQuery.Where(a => (a as IHaveId20097).Id == 1).ToList();
+
+            Assert.Single(query);
+
+            AssertSql(
+                @"SELECT [e].[Id]
+FROM [Entities] AS [e]
+WHERE [e].[Id] = CAST(1 AS bigint)");
+        }
+
+        [ConditionalFact]
+        public void Explicit_interface_casting_checked_in_lambda()
+        {
+            using var _ = CreateDatabase20097();
+            using var context = new BugContext20097(_options);
+
+            var originalQuery = context.Entities.Select(a => new MyModel20097 { Id = a.Id });
+            checked
+            {
+                var query = originalQuery.Where(a => ((IHaveId20097)a).Id == 1).ToList();
+                Assert.Single(query);
+            }
+
+            AssertSql(
+                @"SELECT [e].[Id]
+FROM [Entities] AS [e]
+WHERE [e].[Id] = CAST(1 AS bigint)");
+        }
+
+        private static IQueryable<T> AddFilter<T>(IQueryable<T> query, long id)
+            where T : IHaveId20097
+        {
+            return query.Where(a => a.Id == id);
+        }
+
+        private SqlServerTestStore CreateDatabase20097()
+            => CreateTestStore(
+                () => new BugContext20097(_options),
+                context =>
+                {
+                    context.AddRange(new Entity20097());
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        private class BugContext20097 : DbContext
+        {
+            public BugContext20097(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Entity20097> Entities { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+            }
+        }
+
+        private class Entity20097
+        {
+            public long Id { get; set; }
+        }
+
+        private interface IHaveId20097
+        {
+            long Id { get; }
+        }
+
+        private class MyModel20097 : IHaveId20097
+        {
+            public long Id { get; set; }
         }
 
         #endregion
