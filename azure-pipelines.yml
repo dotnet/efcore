@@ -99,14 +99,6 @@ stages:
                   artifactName: $(Agent.Os)_$(Agent.JobName) TestResults
                   artifactType: Container
                   parallel: true
-              - task: PublishBuildArtifacts@1
-                displayName: Upload artifacts
-                condition: and(succeeded(), eq(variables['system.pullrequest.isfork'], false))
-                inputs:
-                  pathtoPublish: 'artifacts/packages/'
-                  artifactName: packages
-                  artifactType: Container
-                  parallel: true
 
           - job: macOS
             enablePublishTestResults: true
