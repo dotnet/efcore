@@ -25,7 +25,6 @@
     <HelixBuild>t001</HelixBuild>
   </PropertyGroup>
 
-
   <ItemGroup>
     <XUnitProject Include="$(RepoRoot)/test/**/*.csproj"/>
     <XUnitProject Remove="$(RepoRoot)/test/EFCore.Specification.Tests/*.csproj"/>
