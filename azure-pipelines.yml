@@ -177,7 +177,7 @@ stages:
                   artifactType: Container
                   parallel: true
 
-          - job: Helix_Windows
+          - job: Helix
             pool:
               ${{ if eq(variables['System.TeamProject'], 'public') }}:
                 name: NetCorePublic-Pool
@@ -191,8 +191,6 @@ stages:
               - ${{ if eq(variables['System.TeamProject'], 'public') }}:
                 - name: HelixTargetQueues
                   value: Windows.10.Amd64.Open;Ubuntu.1804.Amd64.Open;OSX.1014.Amd64.Open
-                - name: Creator
-                  value: efcore
                 - name: _HelixAccessToken
                   value: '' # Needed for public queues
               - ${{ if ne(variables['System.TeamProject'], 'public') }}:
