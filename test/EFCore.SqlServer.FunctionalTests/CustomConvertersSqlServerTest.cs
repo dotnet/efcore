@@ -207,7 +207,7 @@ User.Id ---> [uniqueidentifier]
 SELECT [b].[Url]
 FROM [Blog] AS [b]
 INNER JOIN [Post] AS [p] ON (([b].[BlogId] = [p].[BlogId]) AND ([b].[IsVisible] = N'Y')) AND ([b].[BlogId] = @__blogId_0)
-WHERE [b].[Discriminator] IN (N'Blog', N'RssBlog') AND ([b].[IsVisible] = N'Y')");
+WHERE [b].[IsVisible] = N'Y'");
         }
 
         [ConditionalFact]
@@ -221,7 +221,7 @@ WHERE [b].[Discriminator] IN (N'Blog', N'RssBlog') AND ([b].[IsVisible] = N'Y')"
 SELECT [b].[Url]
 FROM [Blog] AS [b]
 LEFT JOIN [Post] AS [p] ON (([b].[BlogId] = [p].[BlogId]) AND ([b].[IsVisible] = N'Y')) AND ([b].[BlogId] = @__blogId_0)
-WHERE [b].[Discriminator] IN (N'Blog', N'RssBlog') AND ([b].[IsVisible] = N'Y')");
+WHERE [b].[IsVisible] = N'Y'");
         }
 
         [ConditionalFact]
@@ -232,7 +232,7 @@ WHERE [b].[Discriminator] IN (N'Blog', N'RssBlog') AND ([b].[IsVisible] = N'Y')"
             AssertSql(
                 @"SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
 FROM [Blog] AS [b]
-WHERE [b].[Discriminator] IN (N'Blog', N'RssBlog') AND ([b].[IsVisible] = N'Y')");
+WHERE [b].[IsVisible] = N'Y'");
         }
 
         public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
@@ -242,7 +242,7 @@ WHERE [b].[Discriminator] IN (N'Blog', N'RssBlog') AND ([b].[IsVisible] = N'Y')"
             AssertSql(
                 @"SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
 FROM [Blog] AS [b]
-WHERE [b].[Discriminator] IN (N'Blog', N'RssBlog') AND ([b].[IsVisible] = N'Y')");
+WHERE [b].[IsVisible] = N'Y'");
         }
 
         public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer()
@@ -252,7 +252,7 @@ WHERE [b].[Discriminator] IN (N'Blog', N'RssBlog') AND ([b].[IsVisible] = N'Y')"
             AssertSql(
                 @"SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
 FROM [Blog] AS [b]
-WHERE [b].[Discriminator] IN (N'Blog', N'RssBlog') AND ([b].[IndexerVisible] <> N'Aye')");
+WHERE [b].[IndexerVisible] <> N'Aye'");
         }
 
         private void AssertSql(params string[] expected)

@@ -3117,8 +3117,7 @@ WHERE [b].[SomeValue] = @__ef_filter__Tenant_0");
 
                 AssertSql(
                     @"SELECT [b].[Id], [b].[IsTwo], [b].[MoreStuffId]
-FROM [Bases] AS [b]
-WHERE [b].[IsTwo] IN (CAST(0 AS bit), CAST(1 AS bit))");
+FROM [Bases] AS [b]");
             }
         }
 
@@ -4731,7 +4730,6 @@ LEFT JOIN [Children] AS [c] ON [p].[ChildId] = [c].[Id]");
                     @"SELECT [b].[Id], [b].[Discriminator], [r].[Id], [r].[DerivedTypeId]
 FROM [Bases] AS [b]
 LEFT JOIN [Reference16233] AS [r] ON [b].[Id] = [r].[DerivedTypeId]
-WHERE [b].[Discriminator] IN (N'BaseType16233', N'DerivedType16233')
 ORDER BY [b].[Id]");
             }
         }
@@ -4753,7 +4751,6 @@ ORDER BY [b].[Id]");
                     @"SELECT [b].[Id], [b].[Discriminator], [r].[Id], [r].[DerivedTypeId]
 FROM [Bases] AS [b]
 LEFT JOIN [Reference16233] AS [r] ON [b].[Id] = [r].[DerivedTypeId]
-WHERE [b].[Discriminator] IN (N'BaseType16233', N'DerivedType16233')
 ORDER BY [b].[Id]");
             }
         }
@@ -6900,8 +6897,7 @@ LEFT JOIN (
         FROM [OtherEntities] AS [o]
     ) AS [t]
     WHERE [t].[row] <= 1
-) AS [t0] ON [b].[Data] = [t0].[OtherEntityData]
-WHERE [b].[Discriminator] IN (N'BaseEntity19138', N'SubEntity19138')");
+) AS [t0] ON [b].[Data] = [t0].[OtherEntityData]");
         }
 
         private SqlServerTestStore CreateDatabase19138()

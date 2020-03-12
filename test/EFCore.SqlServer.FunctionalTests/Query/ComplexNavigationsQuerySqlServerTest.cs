@@ -3177,8 +3177,7 @@ ORDER BY -[l].[Level1_Required_Id], [l].[Name], [l].[Id], [l0].[Id]");
                 @"SELECT [i].[Id], [i].[Discriminator], [i].[InheritanceBase2Id], [i].[InheritanceBase2Id1], [i].[Name], [i0].[Id], [i0].[DifferentTypeReference_InheritanceDerived1Id], [i0].[InheritanceDerived1Id], [i0].[InheritanceDerived1Id1], [i0].[InheritanceDerived2Id], [i0].[Name], [i0].[SameTypeReference_InheritanceDerived1Id], [i0].[SameTypeReference_InheritanceDerived2Id], [i1].[Id], [i1].[DifferentTypeReference_InheritanceDerived1Id], [i1].[InheritanceDerived1Id], [i1].[InheritanceDerived1Id1], [i1].[InheritanceDerived2Id], [i1].[Name], [i1].[SameTypeReference_InheritanceDerived1Id], [i1].[SameTypeReference_InheritanceDerived2Id]
 FROM [InheritanceOne] AS [i]
 LEFT JOIN [InheritanceLeafOne] AS [i0] ON [i].[Id] = [i0].[SameTypeReference_InheritanceDerived1Id]
-LEFT JOIN [InheritanceLeafOne] AS [i1] ON [i].[Id] = [i1].[SameTypeReference_InheritanceDerived2Id]
-WHERE [i].[Discriminator] IN (N'InheritanceBase1', N'InheritanceDerived1', N'InheritanceDerived2')");
+LEFT JOIN [InheritanceLeafOne] AS [i1] ON [i].[Id] = [i1].[SameTypeReference_InheritanceDerived2Id]");
         }
 
         public override async Task String_include_multiple_derived_navigation_with_same_name_and_different_type(bool async)
@@ -3189,8 +3188,7 @@ WHERE [i].[Discriminator] IN (N'InheritanceBase1', N'InheritanceDerived1', N'Inh
                 @"SELECT [i].[Id], [i].[Discriminator], [i].[InheritanceBase2Id], [i].[InheritanceBase2Id1], [i].[Name], [i0].[Id], [i0].[DifferentTypeReference_InheritanceDerived1Id], [i0].[InheritanceDerived1Id], [i0].[InheritanceDerived1Id1], [i0].[InheritanceDerived2Id], [i0].[Name], [i0].[SameTypeReference_InheritanceDerived1Id], [i0].[SameTypeReference_InheritanceDerived2Id], [i1].[Id], [i1].[DifferentTypeReference_InheritanceDerived2Id], [i1].[InheritanceDerived2Id], [i1].[Name]
 FROM [InheritanceOne] AS [i]
 LEFT JOIN [InheritanceLeafOne] AS [i0] ON [i].[Id] = [i0].[DifferentTypeReference_InheritanceDerived1Id]
-LEFT JOIN [InheritanceLeafTwo] AS [i1] ON [i].[Id] = [i1].[DifferentTypeReference_InheritanceDerived2Id]
-WHERE [i].[Discriminator] IN (N'InheritanceBase1', N'InheritanceDerived1', N'InheritanceDerived2')");
+LEFT JOIN [InheritanceLeafTwo] AS [i1] ON [i].[Id] = [i1].[DifferentTypeReference_InheritanceDerived2Id]");
         }
 
         public override async Task
@@ -3207,7 +3205,6 @@ FROM [InheritanceOne] AS [i]
 LEFT JOIN [InheritanceLeafOne] AS [i0] ON [i].[Id] = [i0].[DifferentTypeReference_InheritanceDerived1Id]
 LEFT JOIN [InheritanceLeafTwo] AS [i1] ON [i].[Id] = [i1].[DifferentTypeReference_InheritanceDerived2Id]
 LEFT JOIN [InheritanceTwo] AS [i2] ON [i1].[Id] = [i2].[InheritanceLeaf2Id]
-WHERE [i].[Discriminator] IN (N'InheritanceBase1', N'InheritanceDerived1', N'InheritanceDerived2')
 ORDER BY [i].[Id], [i2].[Id]");
         }
 
@@ -3220,7 +3217,6 @@ ORDER BY [i].[Id], [i2].[Id]");
 FROM [InheritanceOne] AS [i]
 LEFT JOIN [InheritanceLeafOne] AS [i0] ON [i].[Id] = [i0].[InheritanceDerived1Id1]
 LEFT JOIN [InheritanceLeafOne] AS [i1] ON [i].[Id] = [i1].[InheritanceDerived2Id]
-WHERE [i].[Discriminator] IN (N'InheritanceBase1', N'InheritanceDerived1', N'InheritanceDerived2')
 ORDER BY [i].[Id], [i0].[Id], [i1].[Id]");
         }
 
@@ -3233,7 +3229,6 @@ ORDER BY [i].[Id], [i0].[Id], [i1].[Id]");
 FROM [InheritanceOne] AS [i]
 LEFT JOIN [InheritanceLeafOne] AS [i0] ON [i].[Id] = [i0].[InheritanceDerived1Id]
 LEFT JOIN [InheritanceLeafTwo] AS [i1] ON [i].[Id] = [i1].[InheritanceDerived2Id]
-WHERE [i].[Discriminator] IN (N'InheritanceBase1', N'InheritanceDerived1', N'InheritanceDerived2')
 ORDER BY [i].[Id], [i0].[Id], [i1].[Id]");
         }
 
@@ -3254,7 +3249,6 @@ LEFT JOIN (
     FROM [InheritanceLeafTwo] AS [i1]
     LEFT JOIN [InheritanceTwo] AS [i2] ON [i1].[Id] = [i2].[InheritanceLeaf2Id]
 ) AS [t] ON [i].[Id] = [t].[InheritanceDerived2Id]
-WHERE [i].[Discriminator] IN (N'InheritanceBase1', N'InheritanceDerived1', N'InheritanceDerived2')
 ORDER BY [i].[Id], [i0].[Id], [t].[Id], [t].[Id0]");
         }
 
@@ -3263,23 +3257,18 @@ ORDER BY [i].[Id], [i0].[Id], [t].[Id], [t].[Id0]");
             await base.String_include_multiple_derived_navigations_complex(async);
 
             AssertSql(
-                @"SELECT [i].[Id], [i].[InheritanceLeaf2Id], [i].[Name], [t].[Id], [t].[Discriminator], [t].[InheritanceBase2Id], [t].[InheritanceBase2Id1], [t].[Name], [i1].[Id], [i1].[DifferentTypeReference_InheritanceDerived1Id], [i1].[InheritanceDerived1Id], [i1].[InheritanceDerived1Id1], [i1].[InheritanceDerived2Id], [i1].[Name], [i1].[SameTypeReference_InheritanceDerived1Id], [i1].[SameTypeReference_InheritanceDerived2Id], [i2].[Id], [i2].[DifferentTypeReference_InheritanceDerived2Id], [i2].[InheritanceDerived2Id], [i2].[Name], [t0].[Id], [t0].[Discriminator], [t0].[InheritanceBase2Id], [t0].[InheritanceBase2Id1], [t0].[Name], [t0].[Id0], [t0].[DifferentTypeReference_InheritanceDerived1Id], [t0].[InheritanceDerived1Id], [t0].[InheritanceDerived1Id1], [t0].[InheritanceDerived2Id], [t0].[Name0], [t0].[SameTypeReference_InheritanceDerived1Id], [t0].[SameTypeReference_InheritanceDerived2Id], [t0].[Id1], [t0].[DifferentTypeReference_InheritanceDerived1Id0], [t0].[InheritanceDerived1Id0], [t0].[InheritanceDerived1Id10], [t0].[InheritanceDerived2Id0], [t0].[Name1], [t0].[SameTypeReference_InheritanceDerived1Id0], [t0].[SameTypeReference_InheritanceDerived2Id0]
+                @"SELECT [i].[Id], [i].[InheritanceLeaf2Id], [i].[Name], [i0].[Id], [i0].[Discriminator], [i0].[InheritanceBase2Id], [i0].[InheritanceBase2Id1], [i0].[Name], [i1].[Id], [i1].[DifferentTypeReference_InheritanceDerived1Id], [i1].[InheritanceDerived1Id], [i1].[InheritanceDerived1Id1], [i1].[InheritanceDerived2Id], [i1].[Name], [i1].[SameTypeReference_InheritanceDerived1Id], [i1].[SameTypeReference_InheritanceDerived2Id], [i2].[Id], [i2].[DifferentTypeReference_InheritanceDerived2Id], [i2].[InheritanceDerived2Id], [i2].[Name], [t].[Id], [t].[Discriminator], [t].[InheritanceBase2Id], [t].[InheritanceBase2Id1], [t].[Name], [t].[Id0], [t].[DifferentTypeReference_InheritanceDerived1Id], [t].[InheritanceDerived1Id], [t].[InheritanceDerived1Id1], [t].[InheritanceDerived2Id], [t].[Name0], [t].[SameTypeReference_InheritanceDerived1Id], [t].[SameTypeReference_InheritanceDerived2Id], [t].[Id1], [t].[DifferentTypeReference_InheritanceDerived1Id0], [t].[InheritanceDerived1Id0], [t].[InheritanceDerived1Id10], [t].[InheritanceDerived2Id0], [t].[Name1], [t].[SameTypeReference_InheritanceDerived1Id0], [t].[SameTypeReference_InheritanceDerived2Id0]
 FROM [InheritanceTwo] AS [i]
-LEFT JOIN (
-    SELECT [i0].[Id], [i0].[Discriminator], [i0].[InheritanceBase2Id], [i0].[InheritanceBase2Id1], [i0].[Name]
-    FROM [InheritanceOne] AS [i0]
-    WHERE [i0].[Discriminator] IN (N'InheritanceBase1', N'InheritanceDerived1', N'InheritanceDerived2')
-) AS [t] ON [i].[Id] = [t].[InheritanceBase2Id]
-LEFT JOIN [InheritanceLeafOne] AS [i1] ON [t].[Id] = [i1].[InheritanceDerived1Id]
-LEFT JOIN [InheritanceLeafTwo] AS [i2] ON [t].[Id] = [i2].[InheritanceDerived2Id]
+LEFT JOIN [InheritanceOne] AS [i0] ON [i].[Id] = [i0].[InheritanceBase2Id]
+LEFT JOIN [InheritanceLeafOne] AS [i1] ON [i0].[Id] = [i1].[InheritanceDerived1Id]
+LEFT JOIN [InheritanceLeafTwo] AS [i2] ON [i0].[Id] = [i2].[InheritanceDerived2Id]
 LEFT JOIN (
     SELECT [i3].[Id], [i3].[Discriminator], [i3].[InheritanceBase2Id], [i3].[InheritanceBase2Id1], [i3].[Name], [i4].[Id] AS [Id0], [i4].[DifferentTypeReference_InheritanceDerived1Id], [i4].[InheritanceDerived1Id], [i4].[InheritanceDerived1Id1], [i4].[InheritanceDerived2Id], [i4].[Name] AS [Name0], [i4].[SameTypeReference_InheritanceDerived1Id], [i4].[SameTypeReference_InheritanceDerived2Id], [i5].[Id] AS [Id1], [i5].[DifferentTypeReference_InheritanceDerived1Id] AS [DifferentTypeReference_InheritanceDerived1Id0], [i5].[InheritanceDerived1Id] AS [InheritanceDerived1Id0], [i5].[InheritanceDerived1Id1] AS [InheritanceDerived1Id10], [i5].[InheritanceDerived2Id] AS [InheritanceDerived2Id0], [i5].[Name] AS [Name1], [i5].[SameTypeReference_InheritanceDerived1Id] AS [SameTypeReference_InheritanceDerived1Id0], [i5].[SameTypeReference_InheritanceDerived2Id] AS [SameTypeReference_InheritanceDerived2Id0]
     FROM [InheritanceOne] AS [i3]
     LEFT JOIN [InheritanceLeafOne] AS [i4] ON [i3].[Id] = [i4].[SameTypeReference_InheritanceDerived1Id]
     LEFT JOIN [InheritanceLeafOne] AS [i5] ON [i3].[Id] = [i5].[SameTypeReference_InheritanceDerived2Id]
-    WHERE [i3].[Discriminator] IN (N'InheritanceBase1', N'InheritanceDerived1', N'InheritanceDerived2')
-) AS [t0] ON [i].[Id] = [t0].[InheritanceBase2Id1]
-ORDER BY [i].[Id], [i1].[Id], [i2].[Id], [t0].[Id]");
+) AS [t] ON [i].[Id] = [t].[InheritanceBase2Id1]
+ORDER BY [i].[Id], [i1].[Id], [i2].[Id], [t].[Id]");
         }
 
         public override async Task Include_reference_collection_order_by_reference_navigation(bool async)
