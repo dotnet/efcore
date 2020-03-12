@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object to further configure the relationship. </returns>
         public new virtual ReferenceCollectionBuilder<TRelatedEntity, TEntity> WithMany(
             [CanBeNull] string navigationName = null,
-            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+            [CanBeNull] Action<NavigationIdentityBuilder> navigationConfiguration = null)
         {
             var foreignKey = WithManyBuilder(
                 Check.NullButNotEmpty(navigationName, nameof(navigationName))).Metadata;
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 && foreignKey.PrincipalToDependent != null)
             {
                 navigationConfiguration(
-                    new NavigationBuilder(foreignKey.PrincipalToDependent));
+                    new NavigationIdentityBuilder(foreignKey.PrincipalToDependent));
             }
 
             return new ReferenceCollectionBuilder<TRelatedEntity, TEntity>(
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceCollectionBuilder<TRelatedEntity, TEntity> WithMany(
             [CanBeNull] Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> navigationExpression,
-            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+            [CanBeNull] Action<NavigationIdentityBuilder> navigationConfiguration = null)
         {
             var navigationMember = navigationExpression?.GetPropertyAccess();
             var foreignKey = WithManyBuilder(navigationMember).Metadata;
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 && foreignKey.PrincipalToDependent != null)
             {
                 navigationConfiguration(
-                    new NavigationBuilder(foreignKey.PrincipalToDependent));
+                    new NavigationIdentityBuilder(foreignKey.PrincipalToDependent));
             }
 
             return new ReferenceCollectionBuilder<TRelatedEntity, TEntity>(
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object to further configure the relationship. </returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne(
             [CanBeNull] string navigationName = null,
-            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+            [CanBeNull] Action<NavigationIdentityBuilder> navigationConfiguration = null)
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
                 DeclaringEntityType,
                 RelatedEntityType,
@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne(
             [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> navigationExpression,
-            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+            [CanBeNull] Action<NavigationIdentityBuilder> navigationConfiguration = null)
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
                 DeclaringEntityType,
                 RelatedEntityType,

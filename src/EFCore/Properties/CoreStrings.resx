@@ -1357,4 +1357,7 @@
   <data name="AttemptToCreateEntityTypeBasedOnProxyClass" xml:space="preserve">
     <value>Cannot add an entity type with type '{typeName}'. That type is a dynamically-generated proxy type.</value>
   </data>
+  <data name="CanOnlyConfigureExistingNavigations" xml:space="preserve">
+    <value>There is no navigation property with name '{navigationName}' on entity type '{entityType}'. Only pre-existing navigations can be configured.</value>
+  </data>
 </root>

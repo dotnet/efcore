@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -157,6 +158,56 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     Assert.Throws<InvalidOperationException>(
                         () => modelBuilder.Entity<Product>()
                             .HasMany(o => o.Categories).WithMany(c => c.Products)).Message);
+            }
+
+            [ConditionalFact]
+            public virtual void Navigation_properties_can_set_access_mode_using_expressions()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<ManyToManyNavPrincipal>()
+                    .HasMany(e => e.Dependents)
+                    .WithMany(e => e.ManyToManyPrincipals);
+
+                modelBuilder.Entity<ManyToManyNavPrincipal>()
+                    .Navigation(e => e.Dependents)
+                    .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+                modelBuilder.Entity<NavDependent>()
+                    .Navigation(e => e.ManyToManyPrincipals)
+                    .UsePropertyAccessMode(PropertyAccessMode.Property);
+
+                var principal = (IEntityType)model.FindEntityType(typeof(ManyToManyNavPrincipal));
+                var dependent = (IEntityType)model.FindEntityType(typeof(NavDependent));
+
+                Assert.Equal(PropertyAccessMode.Field, principal.FindSkipNavigation("Dependents").GetPropertyAccessMode());
+                Assert.Equal(PropertyAccessMode.Property, dependent.FindSkipNavigation("ManyToManyPrincipals").GetPropertyAccessMode());
+            }
+
+            [ConditionalFact]
+            public virtual void Navigation_properties_can_set_access_mode_using_navigation_names()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<ManyToManyNavPrincipal>()
+                    .HasMany<NavDependent>("Dependents")
+                    .WithMany("ManyToManyPrincipals");
+
+                modelBuilder.Entity<ManyToManyNavPrincipal>()
+                    .Navigation("Dependents")
+                    .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+                modelBuilder.Entity<NavDependent>()
+                    .Navigation("ManyToManyPrincipals")
+                    .UsePropertyAccessMode(PropertyAccessMode.Property);
+
+                var principal = (IEntityType)model.FindEntityType(typeof(ManyToManyNavPrincipal));
+                var dependent = (IEntityType)model.FindEntityType(typeof(NavDependent));
+
+                Assert.Equal(PropertyAccessMode.Field, principal.FindSkipNavigation("Dependents").GetPropertyAccessMode());
+                Assert.Equal(PropertyAccessMode.Property, dependent.FindSkipNavigation("ManyToManyPrincipals").GetPropertyAccessMode());
             }
         }
     }

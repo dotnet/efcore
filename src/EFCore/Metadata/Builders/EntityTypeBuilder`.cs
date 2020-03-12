@@ -135,6 +135,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     .Metadata);
 
         /// <summary>
+        ///         Returns an object that can be used to configure an existing navigation property of the entity type.
+        ///         It is an error for the navigation property not to exist.
+        /// </summary>
+        /// <param name="navigationExpression">
+        ///     A lambda expression representing the navigation property to be configured (
+        ///     <c>blog => blog.Posts</c>).
+        /// </param>
+        /// <returns> An object that can be used to configure the navigation property. </returns>
+        public virtual NavigationIdentityBuilder Navigation<TNavigation>([NotNull] Expression<Func<TEntity, TNavigation>> navigationExpression)
+            => new NavigationIdentityBuilder(
+                Builder.Navigation(
+                        Check.NotNull(navigationExpression, nameof(navigationExpression)).GetPropertyAccess())
+                    .Metadata);
+
+        /// <summary>
         ///     Excludes the given property from the entity type. This method is typically used to remove properties
         ///     or navigations from the entity type that were added by convention.
         /// </summary>
@@ -502,9 +517,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.WithMany(string, Action{NavigationBuilder})" />
+        ///         <see cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.WithMany(string, Action{NavigationIdentityBuilder})" />
         ///         or
-        ///         <see cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.WithOne(string, Action{NavigationBuilder})" />
+        ///         <see cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.WithOne(string, Action{NavigationIdentityBuilder})" />
         ///         to fully configure the relationship. Calling just this method without the chained call will not
         ///         produce a valid relationship.
         ///     </para>
@@ -521,7 +536,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual ReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
             [CanBeNull] string navigationName,
-            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+            [CanBeNull] Action<NavigationIdentityBuilder> navigationConfiguration = null)
             where TRelatedEntity : class
         {
             var relatedEntityType = FindRelatedEntityType(typeof(TRelatedEntity), navigationName);
@@ -548,10 +563,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <para>
         ///         After calling this method, you should chain a call to
         ///         <see
-        ///             cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.WithMany(Expression{Func{TRelatedEntity,IEnumerable{TEntity}}}, Action{NavigationBuilder})" />
+        ///             cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.WithMany(Expression{Func{TRelatedEntity,IEnumerable{TEntity}}}, Action{NavigationIdentityBuilder})" />
         ///         or
         ///         <see
-        ///             cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.WithOne(Expression{Func{TRelatedEntity,TEntity}}, Action{NavigationBuilder})" />
+        ///             cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.WithOne(Expression{Func{TRelatedEntity,TEntity}}, Action{NavigationIdentityBuilder})" />
         ///         to fully configure the relationship. Calling just this method without the chained call will not
         ///         produce a valid relationship.
         ///     </para>
@@ -568,7 +583,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual ReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
             [CanBeNull] Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null,
-            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+            [CanBeNull] Action<NavigationIdentityBuilder> navigationConfiguration = null)
             where TRelatedEntity : class
         {
             var navigationMember = navigationExpression?.GetPropertyAccess();
@@ -596,7 +611,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <para>
         ///         After calling this method, you should chain a call to
         ///         <see
-        ///             cref="CollectionNavigationBuilder{TEntity,TRelatedEntity}.WithOne(Expression{Func{TRelatedEntity,TEntity}}, Action{NavigationBuilder})" />
+        ///             cref="CollectionNavigationBuilder{TEntity,TRelatedEntity}.WithOne(Expression{Func{TRelatedEntity,TEntity}}, Action{NavigationIdentityBuilder})" />
         ///         to fully configure the relationship. Calling just this method without the chained call will not
         ///         produce a valid relationship.
         ///     </para>
@@ -613,7 +628,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual CollectionNavigationBuilder<TEntity, TRelatedEntity> HasMany<TRelatedEntity>(
             [CanBeNull] string navigationName,
-            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+            [CanBeNull] Action<NavigationIdentityBuilder> navigationConfiguration = null)
             where TRelatedEntity : class
         {
             Check.NullButNotEmpty(navigationName, nameof(navigationName));
@@ -634,7 +649,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 && foreignKey?.PrincipalToDependent != null)
             {
                 navigationConfiguration(
-                    new NavigationBuilder(foreignKey.PrincipalToDependent));
+                    new NavigationIdentityBuilder(foreignKey.PrincipalToDependent));
             }
 
             return new CollectionNavigationBuilder<TEntity, TRelatedEntity>(
@@ -658,7 +673,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <para>
         ///         After calling this method, you should chain a call to
         ///         <see
-        ///             cref="CollectionNavigationBuilder{TEntity,TRelatedEntity}.WithOne(Expression{Func{TRelatedEntity,TEntity}}, Action{NavigationBuilder})" />
+        ///             cref="CollectionNavigationBuilder{TEntity,TRelatedEntity}.WithOne(Expression{Func{TRelatedEntity,TEntity}}, Action{NavigationIdentityBuilder})" />
         ///         to fully configure the relationship. Calling just this method without the chained call will not
         ///         produce a valid relationship.
         ///     </para>
@@ -675,7 +690,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual CollectionNavigationBuilder<TEntity, TRelatedEntity> HasMany<TRelatedEntity>(
             [CanBeNull] Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression = null,
-            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+            [CanBeNull] Action<NavigationIdentityBuilder> navigationConfiguration = null)
             where TRelatedEntity : class
         {
             var navigationMember = navigationExpression?.GetPropertyAccess();
@@ -695,7 +710,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 && foreignKey?.PrincipalToDependent != null)
             {
                 navigationConfiguration(
-                    new NavigationBuilder(foreignKey.PrincipalToDependent));
+                    new NavigationIdentityBuilder(foreignKey.PrincipalToDependent));
             }
 
             return new CollectionNavigationBuilder<TEntity, TRelatedEntity>(

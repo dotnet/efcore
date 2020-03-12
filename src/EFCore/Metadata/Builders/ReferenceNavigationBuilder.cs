@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceCollectionBuilder WithMany(
             [CanBeNull] string collection = null,
-            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+            [CanBeNull] Action<NavigationIdentityBuilder> navigationConfiguration = null)
         {
             var foreignKey = WithManyBuilder(Check.NullButNotEmpty(collection, nameof(collection))).Metadata;
 
@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 && foreignKey.PrincipalToDependent != null)
             {
                 navigationConfiguration(
-                    new NavigationBuilder(foreignKey.PrincipalToDependent));
+                    new NavigationIdentityBuilder(foreignKey.PrincipalToDependent));
             }
 
             return new ReferenceCollectionBuilder(
@@ -231,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceReferenceBuilder WithOne(
             [CanBeNull] string reference = null,
-            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+            [CanBeNull] Action<NavigationIdentityBuilder> navigationConfiguration = null)
             => new ReferenceReferenceBuilder(
                 DeclaringEntityType,
                 RelatedEntityType,
@@ -248,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [EntityFrameworkInternal]
         protected virtual InternalRelationshipBuilder WithOneBuilder(
             [CanBeNull] string navigationName,
-            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+            [CanBeNull] Action<NavigationIdentityBuilder> navigationConfiguration = null)
             => WithOneBuilder(MemberIdentity.Create(navigationName), navigationConfiguration);
 
         /// <summary>
@@ -260,12 +260,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [EntityFrameworkInternal]
         protected virtual InternalRelationshipBuilder WithOneBuilder(
             [CanBeNull] MemberInfo navigationMemberInfo,
-            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+            [CanBeNull] Action<NavigationIdentityBuilder> navigationConfiguration = null)
             => WithOneBuilder(MemberIdentity.Create(navigationMemberInfo), navigationConfiguration);
 
         private InternalRelationshipBuilder WithOneBuilder(
             MemberIdentity reference,
-            Action<NavigationBuilder> navigationConfiguration = null)
+            Action<NavigationIdentityBuilder> navigationConfiguration = null)
         {
             var referenceName = reference.Name;
             if (!Builder.Metadata.IsUnique
@@ -338,12 +338,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 if (pointsToPrincipal)
                 {
                     navigationConfiguration(
-                        new NavigationBuilder(withOneBuilder.Metadata.DependentToPrincipal));
+                        new NavigationIdentityBuilder(withOneBuilder.Metadata.DependentToPrincipal));
                 }
                else
                 {
                     navigationConfiguration(
-                        new NavigationBuilder(withOneBuilder.Metadata.PrincipalToDependent));
+                        new NavigationIdentityBuilder(withOneBuilder.Metadata.PrincipalToDependent));
                 }
             }
 

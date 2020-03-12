@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object to further configure the relationship. </returns>
         public new virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(
             [CanBeNull] string navigationName = null,
-            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+            [CanBeNull] Action<NavigationIdentityBuilder> navigationConfiguration = null)
         {
             return new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
                 DeclaringEntityType,
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(
             [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> navigationExpression,
-            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+            [CanBeNull] Action<NavigationIdentityBuilder> navigationConfiguration = null)
             => new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
                 DeclaringEntityType,
                 RelatedEntityType,

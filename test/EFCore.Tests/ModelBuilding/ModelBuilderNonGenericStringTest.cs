@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public override TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null,
-                Action<NavigationBuilder> navigationConfiguration = null)
+                Action<NavigationIdentityBuilder> navigationConfiguration = null)
                 => new NonGenericStringTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(
                     EntityTypeBuilder.HasOne(
                         typeof(TRelatedEntity).FullName,
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public override TestCollectionNavigationBuilder<TEntity, TRelatedEntity> HasMany<TRelatedEntity>(
                 Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression = null,
-                Action<NavigationBuilder> navigationConfiguration = null)
+                Action<NavigationIdentityBuilder> navigationConfiguration = null)
                 => new NonGenericTestCollectionNavigationBuilder<TEntity, TRelatedEntity>(
                     EntityTypeBuilder.HasMany(
                         typeof(TRelatedEntity).FullName,
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne(
                 Expression<Func<TRelatedEntity, TEntity>> navigationExpression = null,
-                Action<NavigationBuilder> navigationConfiguration = null)
+                Action<NavigationIdentityBuilder> navigationConfiguration = null)
                 => new NonGenericStringTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(
                     ReferenceNavigationBuilder.WithOne(
                         navigationExpression?.GetPropertyAccess().GetSimpleMemberName(),

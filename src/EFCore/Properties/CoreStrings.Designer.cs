@@ -2562,6 +2562,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("AttemptToCreateEntityTypeBasedOnProxyClass", nameof(typeName)),
                 typeName);
 
+        /// <summary>
+        ///     There is no navigation property with name '{navigationName}' on entity type '{entityType}'. Only pre-existing navigations can be configured.
+        /// </summary>
+        public static string CanOnlyConfigureExistingNavigations([CanBeNull] object navigationName, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("CanOnlyConfigureExistingNavigations", nameof(navigationName), nameof(entityType)),
+                navigationName, entityType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceCollectionBuilder WithOne(
             [CanBeNull] string navigationName = null,
-            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+            [CanBeNull] Action<NavigationIdentityBuilder> navigationConfiguration = null)
             => new ReferenceCollectionBuilder(
                 DeclaringEntityType,
                 RelatedEntityType,
@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [EntityFrameworkInternal]
         protected virtual InternalRelationshipBuilder WithOneBuilder(
             [CanBeNull] string navigationName,
-            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+            [CanBeNull] Action<NavigationIdentityBuilder> navigationConfiguration = null)
             => WithOneBuilder(MemberIdentity.Create(navigationName), navigationConfiguration);
 
         /// <summary>
@@ -156,12 +156,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [EntityFrameworkInternal]
         protected virtual InternalRelationshipBuilder WithOneBuilder(
             [CanBeNull] MemberInfo navigationMemberInfo,
-            [CanBeNull] Action<NavigationBuilder> navigationConfiguration = null)
+            [CanBeNull] Action<NavigationIdentityBuilder> navigationConfiguration = null)
             => WithOneBuilder(MemberIdentity.Create(navigationMemberInfo), navigationConfiguration);
 
         private InternalRelationshipBuilder WithOneBuilder(
             MemberIdentity reference,
-            Action<NavigationBuilder> navigationConfiguration = null)
+            Action<NavigationIdentityBuilder> navigationConfiguration = null)
         {
             if (SkipNavigation != null)
             {
@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 && withOneBuilder.Metadata.DependentToPrincipal != null)
             {
                 navigationConfiguration(
-                    new NavigationBuilder(withOneBuilder.Metadata.DependentToPrincipal));
+                    new NavigationIdentityBuilder(withOneBuilder.Metadata.DependentToPrincipal));
             }
 
             return withOneBuilder;

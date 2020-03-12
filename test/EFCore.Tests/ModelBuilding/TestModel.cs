@@ -866,6 +866,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public NavDependent Dependent { get; set; }
         }
 
+        private class ManyToManyNavPrincipal
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public List<NavDependent> Dependents { get; set; }
+        }
+
         private class NavDependent
         {
             public int Id { get; set; }
@@ -873,6 +881,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public OneToManyNavPrincipal OneToManyPrincipal { get; set; }
             public OneToOneNavPrincipal OneToOnePrincipal { get; set; }
+            public List<ManyToManyNavPrincipal> ManyToManyPrincipals { get; set; }
         }
 
         private class OneToManyNavPrincipalOwner
@@ -880,7 +889,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int Id { get; set; }
             public string Description { get; set; }
 
-            public List<OwnedNavDependent> OwnedDependents { get; set; }
+            public List<OwnedOneToManyNavDependent> OwnedDependents { get; set; }
         }
 
         private class OneToOneNavPrincipalOwner
@@ -895,6 +904,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
             public string FirstName { get; set; }
             public string LastName { get; set; }
+
+            public OneToOneNavPrincipalOwner OneToOneOwner { get; set; }
+        }
+
+        private class OwnedOneToManyNavDependent
+        {
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+
+            public OneToManyNavPrincipalOwner OneToManyOwner { get; set; }
         }
     }
 }

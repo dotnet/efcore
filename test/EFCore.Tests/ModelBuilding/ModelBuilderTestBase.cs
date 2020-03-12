@@ -194,6 +194,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestPropertyBuilder<TProperty> Property<TProperty>(string propertyName);
             public abstract TestPropertyBuilder<TProperty> IndexedProperty<TProperty>(string propertyName);
 
+            public abstract TestNavigationIdentityBuilder Navigation<TNavigation>(
+                Expression<Func<TEntity, TNavigation>> propertyExpression);
+            public abstract TestNavigationIdentityBuilder Navigation(string propertyName);
+
             public abstract TestEntityTypeBuilder<TEntity> Ignore(
                 Expression<Func<TEntity, object>> propertyExpression);
 
@@ -202,6 +206,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestIndexBuilder HasIndex(Expression<Func<TEntity, object>> indexExpression);
             public abstract TestIndexBuilder HasIndex(params string[] propertyNames);
 
+            public abstract TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(string navigationName)
+                where TRelatedEntity : class;
             public abstract TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression)
                 where TRelatedEntity : class;
@@ -211,6 +217,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Action<TestOwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
                 where TRelatedEntity : class;
 
+            public abstract TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsMany<TRelatedEntity>(string navigationName)
+                where TRelatedEntity : class;
             public abstract TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsMany<TRelatedEntity>(
                 Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression)
                 where TRelatedEntity : class;
@@ -222,22 +230,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public abstract TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
                 string navigationName,
-                Action<NavigationBuilder> navigationConfiguration = null)
+                Action<NavigationIdentityBuilder> navigationConfiguration = null)
                 where TRelatedEntity : class;
 
             public abstract TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null,
-                Action<NavigationBuilder> navigationConfiguration = null)
+                Action<NavigationIdentityBuilder> navigationConfiguration = null)
                 where TRelatedEntity : class;
 
             public abstract TestCollectionNavigationBuilder<TEntity, TRelatedEntity> HasMany<TRelatedEntity>(
                 string navigationName,
-                Action<NavigationBuilder> navigationConfiguration = null)
+                Action<NavigationIdentityBuilder> navigationConfiguration = null)
                 where TRelatedEntity : class;
 
             public abstract TestCollectionNavigationBuilder<TEntity, TRelatedEntity> HasMany<TRelatedEntity>(
                 Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression = null,
-                Action<NavigationBuilder> navigationConfiguration = null)
+                Action<NavigationIdentityBuilder> navigationConfiguration = null)
                 where TRelatedEntity : class;
 
             public abstract TestEntityTypeBuilder<TEntity> HasQueryFilter(Expression<Func<TEntity, bool>> filter);
@@ -350,17 +358,26 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestPropertyBuilder<TProperty> HasConversion(ValueConverter converter);
         }
 
+        public abstract class TestNavigationIdentityBuilder
+        {
+            public abstract TestNavigationIdentityBuilder HasAnnotation(string annotation, object value);
+            public abstract TestNavigationIdentityBuilder UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
+        }
+
         public abstract class TestCollectionNavigationBuilder<TEntity, TRelatedEntity>
             where TEntity : class
             where TRelatedEntity : class
         {
             public abstract TestReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(
                 string navigationName,
-                Action<NavigationBuilder> navigationConfiguration = null);
+                Action<NavigationIdentityBuilder> navigationConfiguration = null);
 
             public abstract TestReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(
                 Expression<Func<TRelatedEntity, TEntity>> navigationExpression = null,
-                Action<NavigationBuilder> navigationConfiguration = null);
+                Action<NavigationIdentityBuilder> navigationConfiguration = null);
+
+            public abstract TestCollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany(
+                string navigationName);
 
             public abstract TestCollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany(
                 Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> navigationExpression);
@@ -372,19 +389,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
             public abstract TestReferenceCollectionBuilder<TRelatedEntity, TEntity> WithMany(
                 string navigationName,
-                Action<NavigationBuilder> navigationConfiguration = null);
+                Action<NavigationIdentityBuilder> navigationConfiguration = null);
 
             public abstract TestReferenceCollectionBuilder<TRelatedEntity, TEntity> WithMany(
                 Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> navigationExpression = null,
-                Action<NavigationBuilder> navigationConfiguration = null);
+                Action<NavigationIdentityBuilder> navigationConfiguration = null);
 
             public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne(
                 string navigationName,
-                Action<NavigationBuilder> navigationConfiguration = null);
+                Action<NavigationIdentityBuilder> navigationConfiguration = null);
 
             public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne(
                 Expression<Func<TRelatedEntity, TEntity>> navigationExpression = null,
-                Action<NavigationBuilder> navigationConfiguration = null);
+                Action<NavigationIdentityBuilder> navigationConfiguration = null);
         }
 
         public abstract class TestReferenceCollectionBuilder<TEntity, TRelatedEntity>
@@ -512,6 +529,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestIndexBuilder HasIndex(params string[] propertyNames);
             public abstract TestIndexBuilder HasIndex(Expression<Func<TDependentEntity, object>> indexExpression);
 
+            public abstract TestOwnershipBuilder<TEntity, TDependentEntity> WithOwner(string ownerReference);
             public abstract TestOwnershipBuilder<TEntity, TDependentEntity> WithOwner(
                 Expression<Func<TDependentEntity, TEntity>> referenceExpression = null);
 
