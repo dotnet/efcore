@@ -11,14 +11,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
     ///     <para>
-    ///         Provides a simple API for configuring a <see cref="INavigation" />.
+    ///         Provides a simple API for configuring a <see cref="INavigation" /> or <see cref="ISkipNavigation" />.
     ///     </para>
     ///     <para>
     ///         Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class NavigationBuilder : IInfrastructure<IConventionNavigationBuilder>
+    public class NavigationBuilder : IInfrastructure<IConventionSkipNavigationBuilder>, IInfrastructure<IConventionNavigationBuilder>
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -27,22 +27,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public NavigationBuilder([NotNull] IMutableNavigation navigation)
+        public NavigationBuilder([NotNull] IMutableNavigationBase navigationOrSkipNavigation)
         {
-            Check.NotNull(navigation, nameof(navigation));
+            Check.NotNull(navigationOrSkipNavigation, nameof(navigationOrSkipNavigation));
 
-            Builder = ((Navigation)navigation).Builder;
+            NavBuilder = (navigationOrSkipNavigation as Navigation)?.Builder;
+            SkipNavBuilder = (navigationOrSkipNavigation as SkipNavigation)?.Builder;
+            Metadata = (IMutableNavigationBase)NavBuilder?.Metadata ?? SkipNavBuilder?.Metadata;
+
+            Check.DebugAssert(NavBuilder != null || SkipNavBuilder != null, "Expected either a Navigation or SkipNavigation");
         }
 
-        /// <summary>
-        ///     The internal builder being used to configure the property.
-        /// </summary>
-        IConventionNavigationBuilder IInfrastructure<IConventionNavigationBuilder>.Instance => Builder;
+        private InternalNavigationBuilder NavBuilder { get; }
+
+        private InternalSkipNavigationBuilder SkipNavBuilder { get; }
 
         /// <summary>
         ///     The navigation being configured.
         /// </summary>
-        public virtual IMutableNavigation Metadata => Builder.Metadata;
+        public virtual IMutableNavigationBase Metadata { get; private set; }
 
         /// <summary>
         ///     Adds or updates an annotation on the navigation property. If an annotation
@@ -57,7 +60,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(annotation, nameof(annotation));
             Check.NotNull(value, nameof(value));
 
-            Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
+            if (NavBuilder != null)
+            {
+                NavBuilder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
+            }
+            else
+            {
+                SkipNavBuilder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
+            }
 
             return this;
         }
@@ -81,12 +91,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual NavigationBuilder UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
         {
-            Builder.UsePropertyAccessMode(propertyAccessMode, ConfigurationSource.Explicit);
+            if (NavBuilder != null)
+            {
+                NavBuilder.UsePropertyAccessMode(propertyAccessMode, ConfigurationSource.Explicit);
+            }
+            else
+            {
+                SkipNavBuilder.UsePropertyAccessMode(propertyAccessMode, ConfigurationSource.Explicit);
+            }
 
             return this;
         }
 
-        private InternalNavigationBuilder Builder { get; }
+        IConventionSkipNavigationBuilder IInfrastructure<IConventionSkipNavigationBuilder>.Instance => SkipNavBuilder;
+
+        IConventionNavigationBuilder IInfrastructure<IConventionNavigationBuilder>.Instance => NavBuilder;
+
 
         #region Hidden System.Object members
 
