@@ -7,9 +7,9 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class CompleteMappingInheritanceInMemoryTest : InheritanceTestBase<CompleteMappingInheritanceInMemoryFixture>
+    public class IncompleteMappingInheritanceInMemoryTest : InheritanceTestBase<IncompleteMappingInheritanceInMemoryFixture>
     {
-        public CompleteMappingInheritanceInMemoryTest(CompleteMappingInheritanceInMemoryFixture fixture)
+        public IncompleteMappingInheritanceInMemoryTest(IncompleteMappingInheritanceInMemoryFixture fixture)
             : base(fixture)
         {
         }

@@ -5,9 +5,9 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class CompleteMappingInheritanceSqliteTest : InheritanceTestBase<CompleteMappingInheritanceSqliteFixture>
+    public class IncompleteMappingInheritanceSqliteTest : InheritanceTestBase<IncompleteMappingInheritanceSqliteFixture>
     {
-        public CompleteMappingInheritanceSqliteTest(CompleteMappingInheritanceSqliteFixture fixture)
+        public IncompleteMappingInheritanceSqliteTest(IncompleteMappingInheritanceSqliteFixture fixture)
             : base(fixture)
         {
         }

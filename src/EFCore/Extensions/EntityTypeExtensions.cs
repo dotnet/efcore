@@ -658,8 +658,11 @@ namespace Microsoft.EntityFrameworkCore
                 return entityType.GetRootType().GetIsDiscriminatorMappingComplete();
             }
 
-            return (bool?)entityType[CoreAnnotationNames.DiscriminatorMappingComplete] ?? false;
+            return (bool?)entityType[CoreAnnotationNames.DiscriminatorMappingComplete]
+                ?? GetDefaultIsDiscriminatorMappingComplete(entityType);
         }
+
+        private static bool GetDefaultIsDiscriminatorMappingComplete(IEntityType entityType) => true;
 
         /// <summary>
         ///     Returns the discriminator value for this entity type.

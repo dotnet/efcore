@@ -131,7 +131,6 @@ LEFT JOIN (
     WHERE [o10].[LeafAAddress_Country_PlanetId] IS NOT NULL
 ) AS [t9] ON [t8].[Id] = [t9].[Id]
 LEFT JOIN [Order] AS [o11] ON [o].[Id] = [o11].[ClientId]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
 ORDER BY [o].[Id], [o11].[ClientId], [o11].[Id]");
         }
 
@@ -141,8 +140,7 @@ ORDER BY [o].[Id], [o11].[ClientId], [o11].[Id]");
 
             AssertSql(
                 @"SELECT COUNT(*)
-FROM [OwnedPerson] AS [o]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
+FROM [OwnedPerson] AS [o]");
         }
 
         public override async Task Query_for_branch_type_loads_all_owned_navs(bool async)
@@ -308,7 +306,6 @@ FROM (
     FROM (
         SELECT DISTINCT [o].[Id], [o].[Discriminator], [o].[Name]
         FROM [OwnedPerson] AS [o]
-        WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
     ) AS [t]
     ORDER BY [t].[Id]
 ) AS [t0]
@@ -390,7 +387,7 @@ LEFT JOIN (
     FROM [OwnedPerson] AS [o1]
     WHERE [o1].[PersonAddress_Country_PlanetId] IS NOT NULL
 ) AS [t0] ON [t].[Id] = [t0].[Id]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND ([t0].[PersonAddress_Country_Name] = N'USA')");
+WHERE [t0].[PersonAddress_Country_Name] = N'USA'");
         }
 
         public override async Task Navigation_rewrite_on_owned_reference_projecting_entity(bool async)
@@ -453,7 +450,7 @@ LEFT JOIN (
     WHERE [o10].[LeafAAddress_Country_PlanetId] IS NOT NULL
 ) AS [t9] ON [t8].[Id] = [t9].[Id]
 LEFT JOIN [Order] AS [o11] ON [o].[Id] = [o11].[ClientId]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND ([t0].[PersonAddress_Country_Name] = N'USA')
+WHERE [t0].[PersonAddress_Country_Name] = N'USA'
 ORDER BY [o].[Id], [o11].[ClientId], [o11].[Id]");
         }
 
@@ -465,10 +462,10 @@ ORDER BY [o].[Id], [o11].[ClientId], [o11].[Id]");
                 @"SELECT [o].[Id], [o0].[ClientId], [o0].[Id], [o0].[OrderDate]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND ((
+WHERE (
     SELECT COUNT(*)
     FROM [Order] AS [o1]
-    WHERE [o].[Id] = [o1].[ClientId]) > 0)
+    WHERE [o].[Id] = [o1].[ClientId]) > 0
 ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
         }
 
@@ -486,7 +483,6 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
     WHERE [o0].[Id] = [o].[ClientId]
     ORDER BY [o].[Id])
 FROM [OwnedPerson] AS [o0]
-WHERE [o0].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
 ORDER BY [o0].[Id]");
         }
 
@@ -496,27 +492,22 @@ ORDER BY [o0].[Id]");
 
             AssertSql(
                 @"SELECT (
-    SELECT TOP(1) [t1].[PersonAddress_Country_Name]
+    SELECT TOP(1) [t0].[PersonAddress_Country_Name]
     FROM [Order] AS [o]
-    LEFT JOIN (
-        SELECT [o0].[Id], [o0].[Discriminator], [o0].[Name]
-        FROM [OwnedPerson] AS [o0]
-        WHERE [o0].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
-    ) AS [t] ON [o].[ClientId] = [t].[Id]
+    LEFT JOIN [OwnedPerson] AS [o0] ON [o].[ClientId] = [o0].[Id]
     LEFT JOIN (
         SELECT [o1].[Id], [o1].[PersonAddress_AddressLine], [o1].[PersonAddress_ZipCode]
         FROM [OwnedPerson] AS [o1]
         WHERE [o1].[PersonAddress_ZipCode] IS NOT NULL
-    ) AS [t0] ON [t].[Id] = [t0].[Id]
+    ) AS [t] ON [o0].[Id] = [t].[Id]
     LEFT JOIN (
         SELECT [o2].[Id], [o2].[PersonAddress_Country_Name], [o2].[PersonAddress_Country_PlanetId]
         FROM [OwnedPerson] AS [o2]
         WHERE [o2].[PersonAddress_Country_PlanetId] IS NOT NULL
-    ) AS [t1] ON [t0].[Id] = [t1].[Id]
+    ) AS [t0] ON [t].[Id] = [t0].[Id]
     WHERE [o3].[Id] = [o].[ClientId]
     ORDER BY [o].[Id])
-FROM [OwnedPerson] AS [o3]
-WHERE [o3].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
+FROM [OwnedPerson] AS [o3]");
         }
 
         public override async Task SelectMany_on_owned_collection(bool async)
@@ -526,8 +517,7 @@ WHERE [o3].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
             AssertSql(
                 @"SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate]
 FROM [OwnedPerson] AS [o]
-INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
+INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]");
         }
 
         public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity(bool async)
@@ -547,8 +537,7 @@ LEFT JOIN (
     FROM [OwnedPerson] AS [o1]
     WHERE [o1].[PersonAddress_Country_PlanetId] IS NOT NULL
 ) AS [t0] ON [t].[Id] = [t0].[Id]
-LEFT JOIN [Planet] AS [p] ON [t0].[PersonAddress_Country_PlanetId] = [p].[Id]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
+LEFT JOIN [Planet] AS [p] ON [t0].[PersonAddress_Country_PlanetId] = [p].[Id]");
         }
 
         public override async Task Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection(bool async)
@@ -570,7 +559,7 @@ LEFT JOIN (
 ) AS [t0] ON [t].[Id] = [t0].[Id]
 LEFT JOIN [Planet] AS [p] ON [t0].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN [Order] AS [o2] ON [o].[Id] = [o2].[ClientId]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND (([p].[Id] <> 42) OR [p].[Id] IS NULL)
+WHERE ([p].[Id] <> 42) OR [p].[Id] IS NULL
 ORDER BY [o].[Id], [o2].[ClientId], [o2].[Id]");
         }
 
@@ -593,7 +582,6 @@ LEFT JOIN (
 ) AS [t0] ON [t].[Id] = [t0].[Id]
 LEFT JOIN [Planet] AS [p] ON [t0].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN [Order] AS [o2] ON [o].[Id] = [o2].[ClientId]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
 ORDER BY [o].[Id], [o2].[ClientId], [o2].[Id]");
         }
 
@@ -602,25 +590,21 @@ ORDER BY [o].[Id], [o2].[ClientId], [o2].[Id]");
             await base.Project_multiple_owned_navigations_with_expansion_on_owned_collections(async);
 
             AssertSql(
-                @"SELECT (
+    @"SELECT (
     SELECT COUNT(*)
     FROM [Order] AS [o]
-    LEFT JOIN (
-        SELECT [o0].[Id], [o0].[Discriminator], [o0].[Name]
-        FROM [OwnedPerson] AS [o0]
-        WHERE [o0].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
-    ) AS [t] ON [o].[ClientId] = [t].[Id]
+    LEFT JOIN [OwnedPerson] AS [o0] ON [o].[ClientId] = [o0].[Id]
     LEFT JOIN (
         SELECT [o1].[Id], [o1].[PersonAddress_AddressLine], [o1].[PersonAddress_ZipCode]
         FROM [OwnedPerson] AS [o1]
         WHERE [o1].[PersonAddress_ZipCode] IS NOT NULL
-    ) AS [t0] ON [t].[Id] = [t0].[Id]
+    ) AS [t] ON [o0].[Id] = [t].[Id]
     LEFT JOIN (
         SELECT [o2].[Id], [o2].[PersonAddress_Country_Name], [o2].[PersonAddress_Country_PlanetId]
         FROM [OwnedPerson] AS [o2]
         WHERE [o2].[PersonAddress_Country_PlanetId] IS NOT NULL
-    ) AS [t1] ON [t0].[Id] = [t1].[Id]
-    LEFT JOIN [Planet] AS [p] ON [t1].[PersonAddress_Country_PlanetId] = [p].[Id]
+    ) AS [t0] ON [t].[Id] = [t0].[Id]
+    LEFT JOIN [Planet] AS [p] ON [t0].[PersonAddress_Country_PlanetId] = [p].[Id]
     LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]
     WHERE ([o3].[Id] = [o].[ClientId]) AND (([s].[Id] <> 42) OR [s].[Id] IS NULL)) AS [Count], [p0].[Id], [p0].[StarId]
 FROM [OwnedPerson] AS [o3]
@@ -628,14 +612,13 @@ LEFT JOIN (
     SELECT [o4].[Id], [o4].[PersonAddress_AddressLine], [o4].[PersonAddress_ZipCode]
     FROM [OwnedPerson] AS [o4]
     WHERE [o4].[PersonAddress_ZipCode] IS NOT NULL
-) AS [t2] ON [o3].[Id] = [t2].[Id]
+) AS [t1] ON [o3].[Id] = [t1].[Id]
 LEFT JOIN (
     SELECT [o5].[Id], [o5].[PersonAddress_Country_Name], [o5].[PersonAddress_Country_PlanetId]
     FROM [OwnedPerson] AS [o5]
     WHERE [o5].[PersonAddress_Country_PlanetId] IS NOT NULL
-) AS [t3] ON [t2].[Id] = [t3].[Id]
-LEFT JOIN [Planet] AS [p0] ON [t3].[PersonAddress_Country_PlanetId] = [p0].[Id]
-WHERE [o3].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
+) AS [t2] ON [t1].[Id] = [t2].[Id]
+LEFT JOIN [Planet] AS [p0] ON [t2].[PersonAddress_Country_PlanetId] = [p0].[Id]
 ORDER BY [o3].[Id]");
         }
 
@@ -700,7 +683,7 @@ LEFT JOIN (
     WHERE [o10].[LeafAAddress_Country_PlanetId] IS NOT NULL
 ) AS [t9] ON [t8].[Id] = [t9].[Id]
 LEFT JOIN [Order] AS [o11] ON [o].[Id] = [o11].[ClientId]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND (([p].[Id] <> 7) OR [p].[Id] IS NULL)
+WHERE ([p].[Id] <> 7) OR [p].[Id] IS NULL
 ORDER BY [o].[Id], [o11].[ClientId], [o11].[Id]");
         }
 
@@ -721,8 +704,7 @@ LEFT JOIN (
     FROM [OwnedPerson] AS [o1]
     WHERE [o1].[PersonAddress_Country_PlanetId] IS NOT NULL
 ) AS [t0] ON [t].[Id] = [t0].[Id]
-LEFT JOIN [Planet] AS [p] ON [t0].[PersonAddress_Country_PlanetId] = [p].[Id]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
+LEFT JOIN [Planet] AS [p] ON [t0].[PersonAddress_Country_PlanetId] = [p].[Id]");
         }
 
         public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection(bool async)
@@ -744,7 +726,6 @@ LEFT JOIN (
 ) AS [t0] ON [t].[Id] = [t0].[Id]
 LEFT JOIN [Planet] AS [p] ON [t0].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN [Moon] AS [m] ON [p].[Id] = [m].[PlanetId]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
 ORDER BY [o].[Id], [m].[Id]");
         }
 
@@ -766,8 +747,7 @@ LEFT JOIN (
     WHERE [o1].[PersonAddress_Country_PlanetId] IS NOT NULL
 ) AS [t0] ON [t].[Id] = [t0].[Id]
 LEFT JOIN [Planet] AS [p] ON [t0].[PersonAddress_Country_PlanetId] = [p].[Id]
-INNER JOIN [Moon] AS [m] ON [p].[Id] = [m].[PlanetId]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
+INNER JOIN [Moon] AS [m] ON [p].[Id] = [m].[PlanetId]");
         }
 
         public override async Task SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(bool async)
@@ -789,8 +769,7 @@ LEFT JOIN (
 ) AS [t0] ON [t].[Id] = [t0].[Id]
 LEFT JOIN [Planet] AS [p] ON [t0].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]
-INNER JOIN [Element] AS [e] ON [s].[Id] = [e].[StarId]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
+INNER JOIN [Element] AS [e] ON [s].[Id] = [e].[StarId]");
         }
 
         public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference(bool async)
@@ -813,7 +792,6 @@ LEFT JOIN (
 LEFT JOIN [Planet] AS [p] ON [t0].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]
 LEFT JOIN [Element] AS [e] ON [s].[Id] = [e].[StarId]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
 ORDER BY [o].[Id], [e].[Id]");
         }
 
@@ -836,8 +814,7 @@ LEFT JOIN (
     WHERE [o1].[PersonAddress_Country_PlanetId] IS NOT NULL
 ) AS [t0] ON [t].[Id] = [t0].[Id]
 LEFT JOIN [Planet] AS [p] ON [t0].[PersonAddress_Country_PlanetId] = [p].[Id]
-LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
+LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]");
         }
 
         public override async Task
@@ -862,7 +839,7 @@ LEFT JOIN (
 LEFT JOIN [Planet] AS [p] ON [t0].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]
 LEFT JOIN [Element] AS [e] ON [s].[Id] = [e].[StarId]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND ([s].[Name] = N'Sol')
+WHERE [s].[Name] = N'Sol'
 ORDER BY [o].[Id], [e].[Id]");
         }
 
@@ -912,7 +889,7 @@ LEFT JOIN (
     WHERE [o7].[LeafAAddress_Country_PlanetId] IS NOT NULL
 ) AS [t6] ON [t5].[Id] = [t6].[Id]
 LEFT JOIN [Order] AS [o8] ON [o].[Id] = [o8].[ClientId]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND ([o].[Discriminator] = N'LeafA')
+WHERE [o].[Discriminator] = N'LeafA'
 ORDER BY [o].[Id], [o8].[ClientId], [o8].[Id]");
         }
 
@@ -922,8 +899,7 @@ ORDER BY [o].[Id], [o8].[ClientId], [o8].[Id]");
 
             AssertSql(
                 @"SELECT COUNT(*)
-FROM [OwnedPerson] AS [o]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')",
+FROM [OwnedPerson] AS [o]",
                 //
                 @"@__p_1='0'
 @__p_2='100'
@@ -932,7 +908,6 @@ SELECT [t].[Id], [t].[Discriminator], [t].[Name], [t1].[Id], [t1].[PersonAddress
 FROM (
     SELECT [o].[Id], [o].[Discriminator], [o].[Name]
     FROM [OwnedPerson] AS [o]
-    WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
     ORDER BY [o].[Id]
     OFFSET @__p_1 ROWS FETCH NEXT @__p_2 ROWS ONLY
 ) AS [t]
@@ -1057,7 +1032,7 @@ LEFT JOIN (
     WHERE [o10].[LeafAAddress_Country_PlanetId] IS NOT NULL
 ) AS [t9] ON [t8].[Id] = [t9].[Id]
 LEFT JOIN [Order] AS [o11] ON [o].[Id] = [o11].[ClientId]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND ([o].[Id] = 1)
+WHERE [o].[Id] = 1
 ORDER BY [o].[Id], [o11].[ClientId], [o11].[Id]");
         }
 
@@ -1072,7 +1047,6 @@ SELECT [t].[Id], [t].[Discriminator], [t].[Name], [t1].[Id], [t1].[PersonAddress
 FROM (
     SELECT [o].[Id], [o].[Discriminator], [o].[Name]
     FROM [OwnedPerson] AS [o]
-    WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
     ORDER BY [o].[Id]
     OFFSET @__p_0 ROWS
 ) AS [t]
@@ -1148,7 +1122,6 @@ SELECT [t].[Id], [t].[Discriminator], [t].[Name], [t1].[Id], [t1].[PersonAddress
 FROM (
     SELECT TOP(@__p_0) [o].[Id], [o].[Discriminator], [o].[Name]
     FROM [OwnedPerson] AS [o]
-    WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
     ORDER BY [o].[Id]
 ) AS [t]
 LEFT JOIN (
@@ -1224,7 +1197,6 @@ SELECT [t].[Id], [t].[Discriminator], [t].[Name], [t1].[Id], [t1].[PersonAddress
 FROM (
     SELECT [o].[Id], [o].[Discriminator], [o].[Name]
     FROM [OwnedPerson] AS [o]
-    WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
     ORDER BY [o].[Id]
     OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
 ) AS [t]
@@ -1300,7 +1272,6 @@ SELECT [t].[Id], [t].[Discriminator], [t].[Name], [t1].[Id], [t1].[PersonAddress
 FROM (
     SELECT [o].[Id], [o].[Discriminator], [o].[Name]
     FROM [OwnedPerson] AS [o]
-    WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
     ORDER BY [o].[Id]
     OFFSET @__p_0 ROWS
 ) AS [t]
@@ -1376,7 +1347,6 @@ SELECT [t].[Id], [t].[Discriminator], [t].[Name], [t1].[Id], [t1].[PersonAddress
 FROM (
     SELECT TOP(@__p_0) [o].[Id], [o].[Discriminator], [o].[Name]
     FROM [OwnedPerson] AS [o]
-    WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
     ORDER BY [o].[Id]
 ) AS [t]
 LEFT JOIN (
@@ -1452,7 +1422,6 @@ SELECT [t].[Id], [t].[Discriminator], [t].[Name], [t1].[Id], [t1].[PersonAddress
 FROM (
     SELECT [o].[Id], [o].[Discriminator], [o].[Name]
     FROM [OwnedPerson] AS [o]
-    WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
     ORDER BY [o].[Id]
     OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
 ) AS [t]
@@ -1525,10 +1494,10 @@ ORDER BY [t].[Id], [o12].[ClientId], [o12].[Id]");
                 @"SELECT [o].[Id], [o0].[ClientId], [o0].[Id], [o0].[OrderDate]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND ((
+WHERE (
     SELECT COUNT(*)
     FROM [Order] AS [o1]
-    WHERE [o].[Id] = [o1].[ClientId]) = 0)
+    WHERE [o].[Id] = [o1].[ClientId]) = 0
 ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
         }
 
@@ -1540,10 +1509,10 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
                 @"SELECT [o].[Id], [o0].[ClientId], [o0].[Id], [o0].[OrderDate]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Order] AS [o0] ON ([o].[Id] = [o0].[ClientId]) AND ([o].[Id] = [o0].[ClientId])
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND ((
+WHERE (
     SELECT COUNT(*)
     FROM [Order] AS [o1]
-    WHERE [o].[Id] = [o1].[ClientId]) = 0)
+    WHERE [o].[Id] = [o1].[ClientId]) = 0
 ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
         }
 
@@ -1555,10 +1524,10 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
                 @"SELECT [o].[Id], [o0].[ClientId], [o0].[Id], [o0].[OrderDate]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND ((
+WHERE (
     SELECT COUNT(*)
     FROM [Order] AS [o1]
-    WHERE [o].[Id] = [o1].[ClientId]) = 0)
+    WHERE [o].[Id] = [o1].[ClientId]) = 0
 ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
         }
 
@@ -1570,10 +1539,10 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
                 @"SELECT [o].[Id], [o0].[ClientId], [o0].[Id], [o0].[OrderDate]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND ((
+WHERE (
     SELECT COUNT(*)
     FROM [Order] AS [o1]
-    WHERE [o].[Id] = [o1].[ClientId]) = 0)
+    WHERE [o].[Id] = [o1].[ClientId]) = 0
 ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
         }
 
@@ -1644,7 +1613,7 @@ LEFT JOIN (
     WHERE [o10].[LeafAAddress_Country_PlanetId] IS NOT NULL
 ) AS [t9] ON [t8].[Id] = [t9].[Id]
 LEFT JOIN [Order] AS [o11] ON [o].[Id] = [o11].[ClientId]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND ([o].[Name] = N'Mona Cy')
+WHERE [o].[Name] = N'Mona Cy'
 ORDER BY [o].[Id], [o11].[ClientId], [o11].[Id]");
         }
 
@@ -1660,7 +1629,7 @@ LEFT JOIN (
     FROM [OwnedPerson] AS [o0]
     WHERE [o0].[PersonAddress_ZipCode] IS NOT NULL
 ) AS [t] ON [o].[Id] = [t].[Id]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND ([t].[PersonAddress_ZipCode] = 38654)");
+WHERE [t].[PersonAddress_ZipCode] = 38654");
         }
 
         public override async Task Can_query_on_indexer_property_when_property_name_from_closure(bool async)
@@ -1670,7 +1639,7 @@ WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND
             AssertSql(
                 @"SELECT [o].[Name]
 FROM [OwnedPerson] AS [o]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND ([o].[Name] = N'Mona Cy')");
+WHERE [o].[Name] = N'Mona Cy'");
         }
 
         public override async Task Can_project_indexer_properties(bool async)
@@ -1679,8 +1648,7 @@ WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND
 
             AssertSql(
                 @"SELECT [o].[Name]
-FROM [OwnedPerson] AS [o]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
+FROM [OwnedPerson] AS [o]");
         }
 
         public override async Task Can_project_owned_indexer_properties(bool async)
@@ -1694,8 +1662,7 @@ LEFT JOIN (
     SELECT [o0].[Id], [o0].[PersonAddress_AddressLine], [o0].[PersonAddress_ZipCode]
     FROM [OwnedPerson] AS [o0]
     WHERE [o0].[PersonAddress_ZipCode] IS NOT NULL
-) AS [t] ON [o].[Id] = [t].[Id]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
+) AS [t] ON [o].[Id] = [t].[Id]");
         }
 
         public override async Task Can_project_indexer_properties_converted(bool async)
@@ -1704,8 +1671,7 @@ WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
 
             AssertSql(
                 @"SELECT [o].[Name]
-FROM [OwnedPerson] AS [o]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
+FROM [OwnedPerson] AS [o]");
         }
 
         public override async Task Can_project_owned_indexer_properties_converted(bool async)
@@ -1719,8 +1685,7 @@ LEFT JOIN (
     SELECT [o0].[Id], [o0].[PersonAddress_AddressLine], [o0].[PersonAddress_ZipCode]
     FROM [OwnedPerson] AS [o0]
     WHERE [o0].[PersonAddress_ZipCode] IS NOT NULL
-) AS [t] ON [o].[Id] = [t].[Id]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
+) AS [t] ON [o].[Id] = [t].[Id]");
         }
 
         public override async Task Can_OrderBy_indexer_properties(bool async)
@@ -1783,7 +1748,6 @@ LEFT JOIN (
     WHERE [o10].[LeafAAddress_Country_PlanetId] IS NOT NULL
 ) AS [t9] ON [t8].[Id] = [t9].[Id]
 LEFT JOIN [Order] AS [o11] ON [o].[Id] = [o11].[ClientId]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
 ORDER BY [o].[Name], [o].[Id], [o11].[ClientId], [o11].[Id]");
         }
 
@@ -1794,7 +1758,6 @@ ORDER BY [o].[Name], [o].[Id], [o11].[ClientId], [o11].[Id]");
             AssertSql(
                 @"SELECT [o].[Name]
 FROM [OwnedPerson] AS [o]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
 ORDER BY [o].[Name], [o].[Id]");
         }
 
@@ -1810,7 +1773,6 @@ LEFT JOIN (
     FROM [OwnedPerson] AS [o0]
     WHERE [o0].[PersonAddress_ZipCode] IS NOT NULL
 ) AS [t] ON [o].[Id] = [t].[Id]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
 ORDER BY [t].[PersonAddress_ZipCode], [o].[Id]");
         }
 
@@ -1826,7 +1788,6 @@ LEFT JOIN (
     FROM [OwnedPerson] AS [o0]
     WHERE [o0].[PersonAddress_ZipCode] IS NOT NULL
 ) AS [t] ON [o].[Id] = [t].[Id]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
 ORDER BY [t].[PersonAddress_ZipCode], [o].[Id]");
         }
 
@@ -1837,7 +1798,6 @@ ORDER BY [t].[PersonAddress_ZipCode], [o].[Id]");
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [OwnedPerson] AS [o]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
 GROUP BY [o].[Name]");
         }
 
@@ -1848,7 +1808,6 @@ GROUP BY [o].[Name]");
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [OwnedPerson] AS [o]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
 GROUP BY [o].[Name]");
         }
 
@@ -1864,7 +1823,6 @@ LEFT JOIN (
     FROM [OwnedPerson] AS [o0]
     WHERE [o0].[PersonAddress_ZipCode] IS NOT NULL
 ) AS [t] ON [o].[Id] = [t].[Id]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
 GROUP BY [t].[PersonAddress_ZipCode]");
         }
 
@@ -1880,7 +1838,6 @@ LEFT JOIN (
     FROM [OwnedPerson] AS [o0]
     WHERE [o0].[PersonAddress_ZipCode] IS NOT NULL
 ) AS [t] ON [o].[Id] = [t].[Id]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
 GROUP BY [t].[PersonAddress_ZipCode]");
         }
 
@@ -1904,14 +1861,12 @@ INNER JOIN (
         FROM [OwnedPerson] AS [o2]
         WHERE [o2].[PersonAddress_ZipCode] IS NOT NULL
     ) AS [t0] ON [o1].[Id] = [t0].[Id]
-    WHERE [o1].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
 ) AS [t1] ON [t].[PersonAddress_ZipCode] = [t1].[PersonAddress_ZipCode]
 LEFT JOIN (
     SELECT [o3].[Id], [o3].[PersonAddress_Country_Name], [o3].[PersonAddress_Country_PlanetId]
     FROM [OwnedPerson] AS [o3]
     WHERE [o3].[PersonAddress_Country_PlanetId] IS NOT NULL
-) AS [t2] ON [t1].[Id0] = [t2].[Id]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
+) AS [t2] ON [t1].[Id0] = [t2].[Id]");
         }
 
         public override async Task Projecting_indexer_property_ignores_include(bool isAsync)
@@ -1925,8 +1880,7 @@ LEFT JOIN (
     SELECT [o0].[Id], [o0].[PersonAddress_AddressLine], [o0].[PersonAddress_ZipCode]
     FROM [OwnedPerson] AS [o0]
     WHERE [o0].[PersonAddress_ZipCode] IS NOT NULL
-) AS [t] ON [o].[Id] = [t].[Id]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
+) AS [t] ON [o].[Id] = [t].[Id]");
         }
 
         public override async Task Projecting_indexer_property_ignores_include_converted(bool isAsync)
@@ -1940,8 +1894,7 @@ LEFT JOIN (
     SELECT [o0].[Id], [o0].[PersonAddress_AddressLine], [o0].[PersonAddress_ZipCode]
     FROM [OwnedPerson] AS [o0]
     WHERE [o0].[PersonAddress_ZipCode] IS NOT NULL
-) AS [t] ON [o].[Id] = [t].[Id]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
+) AS [t] ON [o].[Id] = [t].[Id]");
         }
 
         public override async Task Indexer_property_is_pushdown_into_subquery(bool isAsync)
@@ -1951,10 +1904,10 @@ WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
             AssertSql(
                 @"SELECT [o].[Name]
 FROM [OwnedPerson] AS [o]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND ((
+WHERE (
     SELECT TOP(1) [o0].[Name]
     FROM [OwnedPerson] AS [o0]
-    WHERE [o0].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND ([o0].[Id] = [o].[Id])) = N'Mona Cy')");
+    WHERE [o0].[Id] = [o].[Id]) = N'Mona Cy'");
         }
 
         public override async Task Can_query_indexer_property_on_owned_collection(bool isAsync)
@@ -1964,10 +1917,10 @@ WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND
             AssertSql(
                 @"SELECT [o].[Name]
 FROM [OwnedPerson] AS [o]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND ((
+WHERE (
     SELECT COUNT(*)
     FROM [Order] AS [o0]
-    WHERE ([o].[Id] = [o0].[ClientId]) AND (DATEPART(year, [o0].[OrderDate]) = 2018)) = 1)");
+    WHERE ([o].[Id] = [o0].[ClientId]) AND (DATEPART(year, [o0].[OrderDate]) = 2018)) = 1");
         }
 
         private void AssertSql(params string[] expected)
