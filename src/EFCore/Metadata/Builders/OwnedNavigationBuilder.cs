@@ -235,6 +235,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
+        ///     <para>
+        ///         Returns an object that can be used to configure an existing navigation property
+        ///         from the owned type to its owner. It is an error for the navigation property
+        ///         not to exist.
+        ///     </para>
+        /// </summary>
+        /// <param name="navigationName"> The name of the navigation property to be configured. </param>
+        /// <returns> An object that can be used to configure the navigation property. </returns>
+        public virtual NavigationIdentityBuilder Navigation([NotNull] string navigationName)
+            => new NavigationIdentityBuilder(
+                DependentEntityType.Builder.Navigation(
+                    Check.NotEmpty(navigationName, nameof(navigationName))).Metadata);
+
+        /// <summary>
         ///     Excludes the given property from the entity type. This method is typically used to remove properties
         ///     or navigations from the owned entity type that were added by convention.
         /// </summary>

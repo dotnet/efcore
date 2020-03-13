@@ -173,6 +173,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(string navigationName)
                 => new NonGenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(
                     EntityTypeBuilder.OwnsOne(typeof(TRelatedEntity), navigationName));
+            public override TestEntityTypeBuilder<TEntity> OwnsOne<TRelatedEntity>(
+                string navigationName,
+                Action<TestOwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
+                => Wrap(
+                    EntityTypeBuilder.OwnsOne(
+                        typeof(TRelatedEntity),
+                        navigationName,
+                        r => buildAction(new NonGenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(r))));
 
             public override TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression)
@@ -191,6 +199,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsMany<TRelatedEntity>(string navigationName)
                 => new NonGenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(
                     EntityTypeBuilder.OwnsMany(typeof(TRelatedEntity), navigationName));
+            public override TestEntityTypeBuilder<TEntity> OwnsMany<TRelatedEntity>(
+                string navigationName,
+                Action<TestOwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
+                => Wrap(
+                    EntityTypeBuilder.OwnsMany(
+                        typeof(TRelatedEntity),
+                        navigationName,
+                        r => buildAction(new NonGenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(r))));
 
             public override TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsMany<TRelatedEntity>(
                 Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression)
@@ -724,6 +740,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 return new NonGenericTestPropertyBuilder<TProperty>(
                     OwnedNavigationBuilder.Property(propertyInfo.PropertyType, propertyInfo.GetSimpleMemberName()));
             }
+
+            public override TestNavigationIdentityBuilder Navigation<TNavigation>(string navigationName)
+                => new NonGenericTestNavigationIdentityBuilder(OwnedNavigationBuilder.Navigation(navigationName));
+            public override TestNavigationIdentityBuilder Navigation<TNavigation>(
+                Expression<Func<TDependentEntity, TNavigation>> navigationExpression)
+                => new NonGenericTestNavigationIdentityBuilder(
+                    OwnedNavigationBuilder.Navigation(navigationExpression.GetPropertyAccess().GetSimpleMemberName()));
 
             public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> Ignore(string propertyName)
                 => Wrap<TEntity, TDependentEntity>(OwnedNavigationBuilder.Ignore(propertyName));
