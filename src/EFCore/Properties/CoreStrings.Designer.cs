@@ -2563,7 +2563,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 typeName);
 
         /// <summary>
-        ///     There is no navigation property with name '{navigationName}' on entity type '{entityType}'. Please add the navigation to the model before configuring it.
+        ///     There is no navigation property with name '{navigationName}' on entity type '{entityType}'. Please add the navigation to the entity type before configuring it.
         /// </summary>
         public static string CanOnlyConfigureExistingNavigations([CanBeNull] object navigationName, [CanBeNull] object entityType)
             => string.Format(

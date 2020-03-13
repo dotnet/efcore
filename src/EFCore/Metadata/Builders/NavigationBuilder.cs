@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             NavBuilder = (navigationOrSkipNavigation as Navigation)?.Builder;
             SkipNavBuilder = (navigationOrSkipNavigation as SkipNavigation)?.Builder;
-            Metadata = (IMutableNavigationBase)NavBuilder?.Metadata ?? SkipNavBuilder?.Metadata;
+            Metadata = navigationOrSkipNavigation;
 
             Check.DebugAssert(NavBuilder != null || SkipNavBuilder != null, "Expected either a Navigation or SkipNavigation");
         }

@@ -1358,6 +1358,6 @@
     <value>Cannot add an entity type with type '{typeName}'. That type is a dynamically-generated proxy type.</value>
   </data>
   <data name="CanOnlyConfigureExistingNavigations" xml:space="preserve">
-    <value>There is no navigation property with name '{navigationName}' on entity type '{entityType}'. Please add the navigation to the model before configuring it.</value>
+    <value>There is no navigation property with name '{navigationName}' on entity type '{entityType}'. Please add the navigation to the entity type before configuring it.</value>
   </data>
 </root>
