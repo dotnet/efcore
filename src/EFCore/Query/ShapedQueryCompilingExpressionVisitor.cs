@@ -401,32 +401,46 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
                 else
                 {
-                    expressions.Add(
-                        Expression.IfThen(
-                            primaryKey != null
-                                ? primaryKey.Properties.Select(
-                                        p =>
-                                            Expression.NotEqual(
-                                                _entityMaterializerSource.CreateReadValueExpression(
-                                                    valueBufferExpression,
-                                                    typeof(object),
-                                                    p.GetIndex(),
-                                                    p),
-                                                Expression.Constant(null)))
-                                    .Aggregate((a, b) => Expression.AndAlso(a, b))
-                                : entityType.GetProperties()
-                                    .Select(
-                                        p =>
-                                            Expression.NotEqual(
-                                                _entityMaterializerSource.CreateReadValueExpression(
-                                                    valueBufferExpression,
-                                                    typeof(object),
-                                                    p.GetIndex(),
-                                                    p),
-                                                Expression.Constant(null)))
-                                    .Aggregate((a, b) => Expression.OrElse(a, b)),
+                    if (primaryKey != null)
+                    {
+
+                        expressions.Add(Expression.IfThen(
+                            primaryKey.Properties.Select(
+                                p => Expression.NotEqual(
+                                        _entityMaterializerSource.CreateReadValueExpression(
+                                            valueBufferExpression, typeof(object), p.GetIndex(), p),
+                                        Expression.Constant(null)))
+                                .Aggregate((a, b) => Expression.AndAlso(a, b)),
                             MaterializeEntity(
                                 entityType, materializationContextVariable, concreteEntityTypeVariable, instanceVariable, null)));
+                    }
+                    else
+                    {
+                        if (entityShaperExpression.IsNullable)
+                        {
+                            expressions.Add(
+                                Expression.IfThen(
+                                    entityType.GetProperties()
+                                        .Select(
+                                            p =>
+                                                Expression.NotEqual(
+                                                    _entityMaterializerSource.CreateReadValueExpression(
+                                                        valueBufferExpression,
+                                                        typeof(object),
+                                                        p.GetIndex(),
+                                                        p),
+                                                    Expression.Constant(null)))
+                                        .Aggregate((a, b) => Expression.OrElse(a, b)),
+                                MaterializeEntity(
+                                    entityType, materializationContextVariable, concreteEntityTypeVariable, instanceVariable, null)));
+                        }
+                        else
+                        {
+                            expressions.Add(
+                                MaterializeEntity(
+                                    entityType, materializationContextVariable, concreteEntityTypeVariable, instanceVariable, null));
+                        }
+                    }
                 }
 
                 expressions.Add(instanceVariable);

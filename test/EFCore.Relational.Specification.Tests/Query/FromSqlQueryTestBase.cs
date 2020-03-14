@@ -966,6 +966,19 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             Assert.Equal(7, actual.Length);
         }
 
+        [ConditionalFact]
+        public virtual void Keyless_entity_with_all_nulls()
+        {
+            using var context = CreateContext();
+
+            var actual = context.Set<OrderQuery>()
+                .FromSqlRaw(NormalizeDelimitersInRawString("SELECT NULL AS [CustomerID] FROM [Customers] WHERE [City] = 'Berlin'"))
+                .IgnoreQueryFilters()
+                .ToArray();
+
+            Assert.NotNull(Assert.Single(actual));
+        }
+
         protected string NormalizeDelimitersInRawString(string sql)
             => Fixture.TestStore.NormalizeDelimitersInRawString(sql);
 
