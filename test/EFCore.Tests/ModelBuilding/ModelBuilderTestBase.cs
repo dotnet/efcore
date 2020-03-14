@@ -208,6 +208,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public abstract TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(string navigationName)
                 where TRelatedEntity : class;
+            public abstract TestEntityTypeBuilder<TEntity> OwnsOne<TRelatedEntity>(
+                string navigationName,
+                Action<TestOwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
+                where TRelatedEntity : class;
+
             public abstract TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression)
                 where TRelatedEntity : class;
@@ -219,6 +224,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public abstract TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsMany<TRelatedEntity>(string navigationName)
                 where TRelatedEntity : class;
+            public abstract TestEntityTypeBuilder<TEntity> OwnsMany<TRelatedEntity>(
+                string navigationName,
+                Action<TestOwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
+                where TRelatedEntity : class;
+
             public abstract TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsMany<TRelatedEntity>(
                 Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression)
                 where TRelatedEntity : class;
@@ -520,6 +530,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public abstract TestPropertyBuilder<TProperty> Property<TProperty>(
                 Expression<Func<TDependentEntity, TProperty>> propertyExpression);
+
+            public abstract TestNavigationBuilder Navigation<TNavigation>(string navigationName);
+            public abstract TestNavigationBuilder Navigation<TNavigation>(
+                Expression<Func<TDependentEntity, TNavigation>> navigationExpression);
 
             public abstract TestOwnedNavigationBuilder<TEntity, TDependentEntity> Ignore(string propertyName);
 
