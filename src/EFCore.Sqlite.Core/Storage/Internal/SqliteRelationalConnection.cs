@@ -136,28 +136,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
 
                 sqliteConnection.CreateFunction(
                     name: "ef_add",
-                    (decimal? left, decimal? right) => left.HasValue && right.HasValue
-                        ? decimal.Add(left.Value, right.Value)
-                        : default(decimal?),
+                    (decimal? left, decimal? right) => left + right,
                     isDeterministic: true);
 
                 sqliteConnection.CreateFunction(
                     name: "ef_divide",
-                    (decimal? dividend, decimal? divisor) =>
-                    {
-                        if (dividend == null
-                            || divisor == null)
-                        {
-                            return new decimal(null);
-                        }
-
-                        if (divisor.Value != 0)
-                        {
-                            return decimal.Divide(dividend.Value, divisor.Value);
-                        }
-
-                        throw new DivideByZeroException();
-                    },
+                    (decimal? dividend, decimal? divisor) => dividend / divisor,
                     isDeterministic: true);
 
                 sqliteConnection.CreateFunction(
@@ -169,16 +153,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
 
                 sqliteConnection.CreateFunction(
                     name: "ef_multiply",
-                    (decimal? left, decimal? right) => left.HasValue && right.HasValue
-                        ? decimal.Multiply(left.Value, right.Value)
-                        : default(decimal?),
+                    (decimal? left, decimal? right) => left * right,
                     isDeterministic: true);
 
                 sqliteConnection.CreateFunction(
                     name: "ef_negate",
-                    (decimal? m) => m.HasValue
-                        ? decimal.Negate(m.Value)
-                        : default(decimal?),
+                    (decimal? m) => -m,
                     isDeterministic: true);
             }
             else
