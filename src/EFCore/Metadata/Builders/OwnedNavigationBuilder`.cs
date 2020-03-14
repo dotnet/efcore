@@ -105,9 +105,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the navigation property. </returns>
         public virtual NavigationBuilder Navigation<TNavigation>(
             [NotNull] Expression<Func<TDependentEntity, TNavigation>> navigationExpression)
-            => base.Navigation(
-                    Check.NotNull(navigationExpression, nameof(navigationExpression))
-                        .GetPropertyAccess().GetSimpleMemberName());
+            => new NavigationBuilder(DependentEntityType.Builder.Navigation(
+                Check.NotNull(navigationExpression, nameof(navigationExpression)).GetPropertyAccess()));
 
         /// <summary>
         ///     Excludes the given property from the entity type. This method is typically used to remove properties
