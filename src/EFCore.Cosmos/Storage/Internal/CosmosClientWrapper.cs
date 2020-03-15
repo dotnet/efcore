@@ -475,11 +475,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         /// </summary>
         public virtual IEnumerable<JObject> ExecuteSqlQuery(
             [NotNull] string containerId,
+            [CanBeNull] string partitionKey,
             [NotNull] CosmosSqlQuery query)
         {
             _commandLogger.ExecutingSqlQuery(query);
 
-            return new DocumentEnumerable(this, containerId, query);
+            return new DocumentEnumerable(this, containerId, partitionKey, query);
         }
 
         /// <summary>
@@ -490,15 +491,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         /// </summary>
         public virtual IAsyncEnumerable<JObject> ExecuteSqlQueryAsync(
             [NotNull] string containerId,
+            [CanBeNull] string partitionKey,
             [NotNull] CosmosSqlQuery query)
         {
             _commandLogger.ExecutingSqlQuery(query);
 
-            return new DocumentAsyncEnumerable(this, containerId, query);
+            return new DocumentAsyncEnumerable(this, containerId, partitionKey, query);
         }
 
         private FeedIterator CreateQuery(
             string containerId,
+            string partitionKey,
             CosmosSqlQuery query)
         {
             var container = Client.GetDatabase(_databaseId).GetContainer(containerId);
@@ -508,22 +511,33 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 queryDefinition = queryDefinition.WithParameter(parameter.Name, parameter.Value);
             }
 
-            return container.GetItemQueryStreamIterator(queryDefinition);
+            if (string.IsNullOrEmpty(partitionKey))
+            {
+                return container.GetItemQueryStreamIterator(queryDefinition);
+            }
+
+            var queryRequestOptions = new QueryRequestOptions { PartitionKey = new PartitionKey(partitionKey) };
+
+            return container.GetItemQueryStreamIterator(queryDefinition, requestOptions: queryRequestOptions);
+
         }
 
         private sealed class DocumentEnumerable : IEnumerable<JObject>
         {
             private readonly CosmosClientWrapper _cosmosClient;
             private readonly string _containerId;
+            private readonly string _partitionKey;
             private readonly CosmosSqlQuery _cosmosSqlQuery;
 
             public DocumentEnumerable(
                 CosmosClientWrapper cosmosClient,
                 string containerId,
+                string partitionKey,
                 CosmosSqlQuery cosmosSqlQuery)
             {
                 _cosmosClient = cosmosClient;
                 _containerId = containerId;
+                _partitionKey = partitionKey;
                 _cosmosSqlQuery = cosmosSqlQuery;
             }
 
@@ -540,12 +554,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 private JsonTextReader _jsonReader;
                 private readonly CosmosClientWrapper _cosmosClient;
                 private readonly string _containerId;
+                private readonly string _partitionKey;
                 private readonly CosmosSqlQuery _cosmosSqlQuery;
-
+                
                 public Enumerator(DocumentEnumerable documentEnumerable)
                 {
                     _cosmosClient = documentEnumerable._cosmosClient;
                     _containerId = documentEnumerable._containerId;
+                    _partitionKey = documentEnumerable._partitionKey;
                     _cosmosSqlQuery = documentEnumerable._cosmosSqlQuery;
                 }
 
@@ -560,7 +576,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     {
                         if (_query == null)
                         {
-                            _query = _cosmosClient.CreateQuery(_containerId, _cosmosSqlQuery);
+                            _query = _cosmosClient.CreateQuery(_containerId, _partitionKey, _cosmosSqlQuery);
                         }
 
                         if (!_query.HasMoreResults)
@@ -633,15 +649,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             private readonly CosmosClientWrapper _cosmosClient;
             private readonly string _containerId;
+            private readonly string _patitionKey;
             private readonly CosmosSqlQuery _cosmosSqlQuery;
 
             public DocumentAsyncEnumerable(
                 CosmosClientWrapper cosmosClient,
                 string containerId,
+                string partitionKey,
                 CosmosSqlQuery cosmosSqlQuery)
             {
                 _cosmosClient = cosmosClient;
                 _containerId = containerId;
+                _patitionKey = partitionKey;
                 _cosmosSqlQuery = cosmosSqlQuery;
             }
 
@@ -657,6 +676,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 private JsonTextReader _jsonReader;
                 private readonly CosmosClientWrapper _cosmosClient;
                 private readonly string _containerId;
+                private readonly string _partitionKey;
                 private readonly CosmosSqlQuery _cosmosSqlQuery;
                 private readonly CancellationToken _cancellationToken;
 
@@ -664,6 +684,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 {
                     _cosmosClient = documentEnumerable._cosmosClient;
                     _containerId = documentEnumerable._containerId;
+                    _partitionKey = documentEnumerable._patitionKey;
                     _cosmosSqlQuery = documentEnumerable._cosmosSqlQuery;
                     _cancellationToken = cancellationToken;
                 }
@@ -679,7 +700,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     {
                         if (_query == null)
                         {
-                            _query = _cosmosClient.CreateQuery(_containerId, _cosmosSqlQuery);
+                            _query = _cosmosClient.CreateQuery(_containerId, _partitionKey, _cosmosSqlQuery);
                         }
 
                         if (!_query.HasMoreResults)

@@ -30,6 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             [NotNull] ISqlExpressionFactory sqlExpressionFactory,
             [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory)
         {
+            Check.NotNull(dependencies, nameof(dependencies));
+            Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
+            Check.NotNull(querySqlGeneratorFactory, nameof(querySqlGeneratorFactory));
+
             _dependencies = dependencies;
             _sqlExpressionFactory = sqlExpressionFactory;
             _querySqlGeneratorFactory = querySqlGeneratorFactory;
@@ -47,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             return new CosmosShapedQueryCompilingExpressionVisitor(
                 _dependencies,
-                queryCompilationContext,
+                (CosmosQueryCompilationContext)queryCompilationContext,
                 _sqlExpressionFactory,
                 _querySqlGeneratorFactory);
         }
