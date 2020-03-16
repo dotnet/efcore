@@ -245,7 +245,7 @@ namespace Microsoft.Data.Sqlite
             {
                 if (!string.IsNullOrEmpty(ConnectionOptions.Password))
                 {
-                    if (SQLitePCLExtensions.EncryptionNotSupported())
+                    if (SQLitePCLExtensions.EncryptionSupported() == false)
                     {
                         throw new InvalidOperationException(Resources.EncryptionNotSupported);
                     }
@@ -256,7 +256,10 @@ namespace Microsoft.Data.Sqlite
                         "SELECT quote($password);",
                         new SqliteParameter("$password", ConnectionOptions.Password));
                     this.ExecuteNonQuery("PRAGMA key = " + quotedPassword + ";");
+                }
 
+                if (SQLitePCLExtensions.EncryptionSupported() != false)
+                {
                     // NB: Forces decryption. Throws when the key is incorrect.
                     this.ExecuteNonQuery("SELECT COUNT(*) FROM sqlite_master;");
                 }

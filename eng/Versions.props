@@ -27,6 +27,7 @@
     <NetTopologySuiteIOSqlServerBytesPackageVersion>2.0.0</NetTopologySuiteIOSqlServerBytesPackageVersion>
     <SQLitePCLRawBundleESqlite3PackageVersion>2.0.2</SQLitePCLRawBundleESqlite3PackageVersion>
     <SQLitePCLRawBundleESqlcipherPackageVersion>2.0.2</SQLitePCLRawBundleESqlcipherPackageVersion>
+    <SQLitePCLRawBundleWinsqlite3PackageVersion>2.0.2</SQLitePCLRawBundleWinsqlite3PackageVersion>
     <SQLitePCLRawCorePackageVersion>2.0.2</SQLitePCLRawCorePackageVersion>
     <StyleCopAnalyzersPackageVersion>1.1.118</StyleCopAnalyzersPackageVersion>
     <BenchmarkDotNetPackageVersion>0.12.0</BenchmarkDotNetPackageVersion>
