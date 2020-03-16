@@ -71,6 +71,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 ");
         }
 
+        public override void DefaultValue_with_line_breaks(bool isUnicode)
+        {
+            base.DefaultValue_with_line_breaks(isUnicode);
+
+            AssertSql(
+                @"CREATE TABLE ""TestLineBreaks"" (
+    ""TestDefaultValue"" TEXT NOT NULL DEFAULT (CHAR(13) || CHAR(10) || 'Various Line' || CHAR(13) || 'Breaks' || CHAR(10))
+);
+");
+        }
+
         [ConditionalTheory]
         [InlineData(true, null)]
         [InlineData(false, "PK_Id")]

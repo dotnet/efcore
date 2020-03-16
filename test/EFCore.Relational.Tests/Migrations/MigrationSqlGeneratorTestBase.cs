@@ -138,6 +138,30 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => Generate(
                 new SqlOperation { Sql = "-- I <3 DDL" });
 
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void DefaultValue_with_line_breaks(bool isUnicode)
+        {
+            Generate(
+                new CreateTableOperation
+                {
+                    Name = "TestLineBreaks",
+                    Schema = "dbo",
+                    Columns =
+                    {
+                        new AddColumnOperation
+                        {
+                            Name = "TestDefaultValue",
+                            Table = "Test",
+                            ClrType = typeof(string),
+                            DefaultValue = "\r\nVarious Line\rBreaks\n",
+                            IsUnicode = isUnicode
+                        }
+                    }
+                });
+        }
+
         protected TestHelpers TestHelpers { get; }
 
         protected MigrationSqlGeneratorTestBase(TestHelpers testHelpers)

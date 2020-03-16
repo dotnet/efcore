@@ -545,6 +545,19 @@ GO
 ");
         }
 
+        public override void DefaultValue_with_line_breaks(bool isUnicode)
+        {
+            base.DefaultValue_with_line_breaks(isUnicode);
+
+            var storeType = isUnicode ? "nvarchar(max)" : "varchar(max)";
+            var unicodePrefix = isUnicode ? "N" : string.Empty;
+            var expectedSql = @$"CREATE TABLE [dbo].[TestLineBreaks] (
+    [TestDefaultValue] {storeType} NOT NULL DEFAULT CONCAT(CHAR(13), CHAR(10), {unicodePrefix}'Various Line', CHAR(13), {unicodePrefix}'Breaks', CHAR(10))
+);
+";
+            AssertSql(expectedSql);
+        }
+
         public SqlServerMigrationSqlGeneratorTest()
             : base(SqlServerTestHelpers.Instance)
         {

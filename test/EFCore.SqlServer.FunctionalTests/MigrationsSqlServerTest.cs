@@ -59,8 +59,11 @@ namespace Microsoft.EntityFrameworkCore
     CONSTRAINT [CK_EmployerId] CHECK ([EmployerId] > 0),
     CONSTRAINT [FK_People_Employers_EmployerId] FOREIGN KEY ([EmployerId]) REFERENCES [Employers] ([Id]) ON DELETE NO ACTION
 );
-EXEC sp_addextendedproperty 'MS_Description', N'Table comment', 'SCHEMA', N'dbo2', 'TABLE', N'People';
-EXEC sp_addextendedproperty 'MS_Description', N'Employer ID comment', 'SCHEMA', N'dbo2', 'TABLE', N'People', 'COLUMN', N'EmployerId';");
+DECLARE @description AS sql_variant;
+SET @description = N'Table comment';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', N'dbo2', 'TABLE', N'People';
+SET @description = N'Employer ID comment';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', N'dbo2', 'TABLE', N'People', 'COLUMN', N'EmployerId';");
         }
 
         public override async Task Create_table_no_key()
@@ -84,8 +87,11 @@ EXEC sp_addextendedproperty 'MS_Description', N'Employer ID comment', 'SCHEMA', 
 );
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
-EXEC sp_addextendedproperty 'MS_Description', N'Table comment', 'SCHEMA', @defaultSchema, 'TABLE', N'People';
-EXEC sp_addextendedproperty 'MS_Description', N'Column comment', 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', N'Name';");
+DECLARE @description AS sql_variant;
+SET @description = N'Table comment';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'People';
+SET @description = N'Column comment';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', N'Name';");
         }
 
         public override async Task Create_table_with_multiline_comments()
@@ -99,14 +105,11 @@ EXEC sp_addextendedproperty 'MS_Description', N'Column comment', 'SCHEMA', @defa
 );
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
-EXEC sp_addextendedproperty 'MS_Description', N'This is a multi-line
-table comment.
-More information can
-be found in the docs.', 'SCHEMA', @defaultSchema, 'TABLE', N'People';
-EXEC sp_addextendedproperty 'MS_Description', N'This is a multi-line
-column comment.
-More information can
-be found in the docs.', 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', N'Name';");
+DECLARE @description AS sql_variant;
+SET @description = CONCAT(N'This is a multi-line', CHAR(13), CHAR(10), N'table comment.', CHAR(13), CHAR(10), N'More information can', CHAR(13), CHAR(10), N'be found in the docs.');
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'People';
+SET @description = CONCAT(N'This is a multi-line', CHAR(13), CHAR(10), N'column comment.', CHAR(13), CHAR(10), N'More information can', CHAR(13), CHAR(10), N'be found in the docs.');
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', N'Name';");
         }
 
         public override async Task Drop_table()
@@ -124,7 +127,9 @@ be found in the docs.', 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', 
             AssertSql(
                 @"DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
-EXEC sp_addextendedproperty 'MS_Description', N'Table comment', 'SCHEMA', @defaultSchema, 'TABLE', N'People';");
+DECLARE @description AS sql_variant;
+SET @description = N'Table comment';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'People';");
         }
 
         public override async Task Alter_table_add_comment_non_default_schema()
@@ -132,7 +137,9 @@ EXEC sp_addextendedproperty 'MS_Description', N'Table comment', 'SCHEMA', @defau
             await base.Alter_table_add_comment_non_default_schema();
 
             AssertSql(
-                @"EXEC sp_addextendedproperty 'MS_Description', N'Table comment', 'SCHEMA', N'SomeOtherSchema', 'TABLE', N'People';");
+                @"DECLARE @description AS sql_variant;
+SET @description = N'Table comment';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', N'SomeOtherSchema', 'TABLE', N'People';");
         }
 
         public override async Task Alter_table_change_comment()
@@ -142,8 +149,10 @@ EXEC sp_addextendedproperty 'MS_Description', N'Table comment', 'SCHEMA', @defau
             AssertSql(
                 @"DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
+DECLARE @description AS sql_variant;
 EXEC sp_dropextendedproperty 'MS_Description', 'SCHEMA', @defaultSchema, 'TABLE', N'People';
-EXEC sp_addextendedproperty 'MS_Description', N'Table comment2', 'SCHEMA', @defaultSchema, 'TABLE', N'People';");
+SET @description = N'Table comment2';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'People';");
         }
 
         public override async Task Alter_table_remove_comment()
@@ -153,6 +162,7 @@ EXEC sp_addextendedproperty 'MS_Description', N'Table comment2', 'SCHEMA', @defa
             AssertSql(
                 @"DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
+DECLARE @description AS sql_variant;
 EXEC sp_dropextendedproperty 'MS_Description', 'SCHEMA', @defaultSchema, 'TABLE', N'People';");
         }
 
@@ -373,7 +383,9 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [TestTableSchema].[TestTa
                 @"ALTER TABLE [People] ADD [FullName] nvarchar(max) NULL;
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
-EXEC sp_addextendedproperty 'MS_Description', N'My comment', 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', N'FullName';");
+DECLARE @description AS sql_variant;
+SET @description = N'My comment';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', N'FullName';");
         }
 
         public override async Task Add_column_shared()
@@ -531,7 +543,9 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [People] ALTER COLUMN [Id] int NOT NULL;
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
-EXEC sp_addextendedproperty 'MS_Description', N'Some comment', 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', N'Id';");
+DECLARE @description AS sql_variant;
+SET @description = N'Some comment';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', N'Id';");
         }
 
         [ConditionalFact]
@@ -549,8 +563,10 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [People] ALTER COLUMN [Id] int NOT NULL;
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
+DECLARE @description AS sql_variant;
 EXEC sp_dropextendedproperty 'MS_Description', 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', N'Id';
-EXEC sp_addextendedproperty 'MS_Description', N'Some comment2', 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', N'Id';");
+SET @description = N'Some comment2';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', N'Id';");
         }
 
         [ConditionalFact]
@@ -568,6 +584,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [People] ALTER COLUMN [Id] int NOT NULL;
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
+DECLARE @description AS sql_variant;
 EXEC sp_dropextendedproperty 'MS_Description', 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', N'Id';");
         }
 
