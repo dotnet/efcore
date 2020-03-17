@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -372,8 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     typeof(object),
                                     primaryKey.Properties
                                         .Select(
-                                            p => _entityMaterializerSource.CreateReadValueExpression(
-                                                valueBufferExpression,
+                                            p => valueBufferExpression.CreateValueBufferReadValueExpression(
                                                 typeof(object),
                                                 p.GetIndex(),
                                                 p))),
@@ -407,8 +407,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         expressions.Add(Expression.IfThen(
                             primaryKey.Properties.Select(
                                 p => Expression.NotEqual(
-                                        _entityMaterializerSource.CreateReadValueExpression(
-                                            valueBufferExpression, typeof(object), p.GetIndex(), p),
+                                        valueBufferExpression.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
                                         Expression.Constant(null)))
                                 .Aggregate((a, b) => Expression.AndAlso(a, b)),
                             MaterializeEntity(
@@ -424,8 +423,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         .Select(
                                             p =>
                                                 Expression.NotEqual(
-                                                    _entityMaterializerSource.CreateReadValueExpression(
-                                                        valueBufferExpression,
+                                                    valueBufferExpression.CreateValueBufferReadValueExpression(
                                                         typeof(object),
                                                         p.GetIndex(),
                                                         p),
@@ -486,8 +484,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     expressions.Add(
                         Expression.Assign(
                             discriminatorValueVariable,
-                            _entityMaterializerSource.CreateReadValueExpression(
-                                valueBufferExpression,
+                            valueBufferExpression.CreateValueBufferReadValueExpression(
                                 discriminatorProperty.ClrType,
                                 discriminatorProperty.GetIndex(),
                                 discriminatorProperty)));
@@ -578,11 +575,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 Expression.NewArrayInit(
                                     typeof(object),
                                     shadowProperties.Select(
-                                        p => _entityMaterializerSource.CreateReadValueExpression(
-                                            valueBufferExpression,
-                                            typeof(object),
-                                            p.GetIndex(),
-                                            p))))));
+                                        p => valueBufferExpression.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p))))));
                 }
 
                 materializer = materializer.Type == returnType
