@@ -548,79 +548,16 @@ WHERE DATEDIFF(WEEK, CAST([o].[OrderDate] AS datetimeoffset), '1998-05-06T00:00:
             var count = context.Orders
                 .Count(c => EF.Functions.DateDiffWeek(
                     null,
-                    new DateTimeOffset(1998, 5, 6, 0, 0, 0, TimeSpan.Zero)) == 5);
+                    c.OrderDate) == 5);
 
             Assert.Equal(0, count);
 
             AssertSql(
-                @"@__p_0='False'
-
-SELECT COUNT(*)
+                @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE @__p_0 = CAST(1 AS bit)");
+WHERE DATEDIFF(WEEK, NULL, [o].[OrderDate]) = 5");
         }
 
-        [ConditionalFact]
-        public virtual void DateDiff_Week_server_vs_client_eval_datetime()
-        {
-            using var context = CreateContext();
-            var endDate = new DateTime(1998, 5, 6, 0, 0, 0);
-
-            var orders = context.Orders
-                .OrderBy(p => p.OrderID)
-                .Take(200)
-                .Select(c => new
-                {
-                    Weeks = EF.Functions.DateDiffWeek(c.OrderDate, endDate),
-                    c.OrderDate
-                });
-
-            foreach (var order in orders)
-            {
-                var weeks = EF.Functions.DateDiffWeek(order.OrderDate, endDate);
-
-                Assert.Equal(weeks, order.Weeks);
-            }
-
-            AssertSql(
-                @"@__p_0='200'
-@__endDate_2='1998-05-06T00:00:00' (Nullable = true) (DbType = DateTime)
-
-SELECT TOP(@__p_0) DATEDIFF(WEEK, [o].[OrderDate], @__endDate_2) AS [Weeks], [o].[OrderDate]
-FROM [Orders] AS [o]
-ORDER BY [o].[OrderID]");
-        }
-
-        [ConditionalFact]
-        public virtual void DateDiff_Week_server_vs_client_eval_datetimeoffset()
-        {
-            using var context = CreateContext();
-            var endDate = new DateTimeOffset(1998, 5, 6, 0, 0, 0, TimeSpan.Zero);
-
-            var orders = context.Orders
-                .OrderBy(p => p.OrderID)
-                .Take(200)
-                .Select(c => new
-                {
-                    Weeks = EF.Functions.DateDiffWeek(c.OrderDate, endDate),
-                    c.OrderDate
-                });
-
-            foreach (var order in orders)
-            {
-                var weeks = EF.Functions.DateDiffWeek(order.OrderDate, endDate);
-
-                Assert.Equal(weeks, order.Weeks);
-            }
-
-            AssertSql(
-                @"@__p_0='200'
-@__endDate_2='1998-05-06T00:00:00.0000000+00:00' (Nullable = true)
-
-SELECT TOP(@__p_0) DATEDIFF(WEEK, CAST([o].[OrderDate] AS datetimeoffset), @__endDate_2) AS [Weeks], [o].[OrderDate]
-FROM [Orders] AS [o]
-ORDER BY [o].[OrderID]");
-        }
         [ConditionalFact]
         public virtual void IsDate_not_valid()
         {
