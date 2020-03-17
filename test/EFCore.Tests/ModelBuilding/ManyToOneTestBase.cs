@@ -2062,48 +2062,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Navigation_properties_can_set_access_mode_using_HasMany_WithOne()
-            {
-                var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
-
-                modelBuilder.Entity<OneToManyNavPrincipal>()
-                    .HasMany(
-                        e => e.Dependents,
-                        nb => nb.UsePropertyAccessMode(PropertyAccessMode.Field))
-                    .WithOne(
-                        e => e.OneToManyPrincipal,
-                        nb => nb.UsePropertyAccessMode(PropertyAccessMode.Property));
-
-                var principal = (IEntityType)model.FindEntityType(typeof(OneToManyNavPrincipal));
-                var dependent = (IEntityType)model.FindEntityType(typeof(NavDependent));
-
-                Assert.Equal(PropertyAccessMode.Field, principal.FindNavigation("Dependents").GetPropertyAccessMode());
-                Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToManyPrincipal").GetPropertyAccessMode());
-            }
-
-            [ConditionalFact]
-            public virtual void Navigation_properties_can_set_access_mode_using_named_HasMany_WithOne()
-            {
-                var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
-
-                modelBuilder.Entity<OneToManyNavPrincipal>()
-                    .HasMany<NavDependent>(
-                        "Dependents",
-                        nb => nb.UsePropertyAccessMode(PropertyAccessMode.Field))
-                    .WithOne(
-                        "OneToManyPrincipal",
-                        nb => nb.UsePropertyAccessMode(PropertyAccessMode.Property));
-
-                var principal = (IEntityType)model.FindEntityType(typeof(OneToManyNavPrincipal));
-                var dependent = (IEntityType)model.FindEntityType(typeof(NavDependent));
-
-                Assert.Equal(PropertyAccessMode.Field, principal.FindNavigation("Dependents").GetPropertyAccessMode());
-                Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToManyPrincipal").GetPropertyAccessMode());
-            }
-
-            [ConditionalFact]
             public virtual void Navigation_properties_can_set_access_mode_using_expressions()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2163,16 +2121,21 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var principal = modelBuilder.Entity<OneToManyNavPrincipal>();
                 principal.UsePropertyAccessMode(PropertyAccessMode.PreferProperty);
+
                 var dependent = modelBuilder.Entity<NavDependent>();
                 dependent.UsePropertyAccessMode(PropertyAccessMode.Field);
 
                 modelBuilder.Entity<OneToManyNavPrincipal>()
-                    .HasMany(
-                        e => e.Dependents,
-                        nb => nb.UsePropertyAccessMode(PropertyAccessMode.Field))
-                    .WithOne(
-                        e => e.OneToManyPrincipal,
-                        nb => nb.UsePropertyAccessMode(PropertyAccessMode.Property));
+                    .HasMany(e => e.Dependents)
+                    .WithOne(e => e.OneToManyPrincipal);
+
+                modelBuilder.Entity<OneToManyNavPrincipal>()
+                    .Navigation(e => e.Dependents)
+                    .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+                modelBuilder.Entity<NavDependent>()
+                    .Navigation(e => e.OneToManyPrincipal)
+                    .UsePropertyAccessMode(PropertyAccessMode.Property);
 
                 Assert.Equal(PropertyAccessMode.FieldDuringConstruction, model.GetPropertyAccessMode());
 

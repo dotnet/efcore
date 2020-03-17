@@ -525,9 +525,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.WithMany(string, Action{NavigationBuilder})" />
+        ///         <see cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.WithMany(string)" />
         ///         or
-        ///         <see cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.WithOne(string, Action{NavigationBuilder})" />
+        ///         <see cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.WithOne(string)" />
         ///         to fully configure the relationship. Calling just this method without the chained call will not
         ///         produce a valid relationship.
         ///     </para>
@@ -567,10 +567,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <para>
         ///         After calling this method, you should chain a call to
         ///         <see cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}
-        /// .WithMany(Expression{Func{TRelatedEntity,IEnumerable{TEntity}}}, Action{NavigationBuilder})" />
+        /// .WithMany(Expression{Func{TRelatedEntity,IEnumerable{TEntity}}})" />
         ///         or
         ///         <see cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}
-        /// .WithOne(Expression{Func{TRelatedEntity,TEntity}}, Action{NavigationBuilder})" />
+        /// .WithOne(Expression{Func{TRelatedEntity,TEntity}})" />
         ///         to fully configure the relationship. Calling just this method without the chained call will not
         ///         produce a valid relationship.
         ///     </para>
