@@ -112,6 +112,22 @@ WHERE FREETEXT([e].[Title], N'President', LANGUAGE 1033)");
 
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+        public void FreeText_with_non_literal_language_term()
+        {
+            int language = 1033;
+            using var context = CreateContext();
+            var result = context.Employees.SingleOrDefault(c => EF.Functions.FreeText(c.Title, "President", language));
+
+            Assert.Equal(2u, result.EmployeeID);
+
+            AssertSql(
+                @"SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE FREETEXT([e].[Title], N'President', LANGUAGE 1033)");
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
         public void FreeText_with_multiple_words_and_language_term()
         {
             using var context = CreateContext();
@@ -300,6 +316,22 @@ WHERE CONTAINS([e].[Title], N'Representative')");
         {
             using var context = CreateContext();
             var result = context.Employees.SingleOrDefault(c => EF.Functions.Contains(c.Title, "President", 1033));
+
+            Assert.Equal(2u, result.EmployeeID);
+
+            AssertSql(
+                @"SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE CONTAINS([e].[Title], N'President', LANGUAGE 1033)");
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+        public void Contains_with_non_literal_language_term()
+        {
+            int language = 1033;
+            using var context = CreateContext();
+            var result = context.Employees.SingleOrDefault(c => EF.Functions.Contains(c.Title, "President", language));
 
             Assert.Equal(2u, result.EmployeeID);
 
