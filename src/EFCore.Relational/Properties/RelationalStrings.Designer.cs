@@ -586,6 +586,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static string NestedAmbientTransactionError
             => GetString("NestedAmbientTransactionError");
 
+        /// <summary>
+        ///     Cannot set custom translation on the DbFunction '{function}' since it returns IQueryable type.
+        /// </summary>
+        public static string DbFunctionQueryableCustomTranslation([CanBeNull] object function)
+            => string.Format(
+                GetString("DbFunctionQueryableCustomTranslation", nameof(function)),
+                function);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

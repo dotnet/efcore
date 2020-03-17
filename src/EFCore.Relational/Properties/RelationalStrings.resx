@@ -500,4 +500,7 @@
   <data name="NestedAmbientTransactionError" xml:space="preserve">
     <value>Root ambient transaction was completed before the nested transaction. The more nested transactions should be completed first.</value>
   </data>
+  <data name="DbFunctionQueryableCustomTranslation" xml:space="preserve">
+    <value>Cannot set custom translation on the DbFunction '{function}' since it returns IQueryable type.</value>
+  </data>
 </root>

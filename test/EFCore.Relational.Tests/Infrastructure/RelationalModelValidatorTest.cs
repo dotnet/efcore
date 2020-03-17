@@ -9,8 +9,10 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.TestModels.Inheritance;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -1013,6 +1015,22 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public void Detects_function_with_empty_name()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            var methodInfo
+                = typeof(DbFunctionMetadataTests.TestMethods)
+                    .GetRuntimeMethod(nameof(DbFunctionMetadataTests.TestMethods.MethodD), Array.Empty<Type>());
+
+            ((IConventionDbFunctionBuilder)modelBuilder.HasDbFunction(methodInfo)).HasName("");
+
+            VerifyError(
+                RelationalStrings.DbFunctionNameEmpty(methodInfo.DisplayName()),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
         public void Detects_function_with_invalid_return_type()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -1027,6 +1045,26 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 RelationalStrings.DbFunctionInvalidReturnType(
                     methodInfo.DisplayName(),
                     typeof(DbFunctionMetadataTests.TestMethods).ShortDisplayName()),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public void Detects_function_with_invalid_parameter_type()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            var methodInfo
+                = typeof(DbFunctionMetadataTests.TestMethods)
+                    .GetRuntimeMethod(nameof(DbFunctionMetadataTests.TestMethods.MethodF),
+                        new[] { typeof(DbFunctionMetadataTests.MyBaseContext) });
+
+            modelBuilder.HasDbFunction(methodInfo);
+
+            VerifyError(
+                RelationalStrings.DbFunctionInvalidParameterType(
+                    "context",
+                    methodInfo.DisplayName(),
+                    typeof(DbFunctionMetadataTests.MyBaseContext).ShortDisplayName()),
                 modelBuilder.Model);
         }
 

@@ -455,15 +455,6 @@ FROM [dbo].[GetTopTwoSellingProducts]() AS [t]
 ORDER BY [t].[ProductId]");
         }
 
-        public override void QF_Stand_Alone_With_Translation()
-        {
-            base.QF_Stand_Alone_With_Translation();
-
-            AssertSql(@"SELECT [t].[AmountSold], [t].[ProductId]
-FROM [dbo].[GetTopTwoSellingProducts]() AS [t]
-ORDER BY [t].[ProductId]");
-        }
-
         public override void QF_Stand_Alone_Parameter()
         {
             base.QF_Stand_Alone_Parameter();
