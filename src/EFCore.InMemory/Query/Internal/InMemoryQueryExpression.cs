@@ -8,12 +8,14 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
@@ -324,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private static IPropertyBase InferPropertyFromInner(Expression expression)
             => expression is MethodCallExpression methodCallExpression
                 && methodCallExpression.Method.IsGenericMethod
-                && methodCallExpression.Method.GetGenericMethodDefinition() == EntityMaterializerSource.TryReadValueMethod
+                && methodCallExpression.Method.GetGenericMethodDefinition() == ExpressionExtensions.ValueBufferTryReadValueMethod
                 ? (IPropertyBase)((ConstantExpression)methodCallExpression.Arguments[2]).Value
                 : null;
 
@@ -440,24 +442,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 default:
                     var index = groupingExpressions.Count;
                     groupingExpressions.Add(key);
-                    return CreateReadValueExpression(
-                        groupingKeyAccessExpression,
+                    return groupingKeyAccessExpression.CreateValueBufferReadValueExpression(
                         key.Type,
                         index,
                         InferPropertyFromInner(key));
             }
         }
 
-        private static Expression CreateReadValueExpression(
-            Expression valueBufferParameter, Type type, int index, IPropertyBase property)
-            => Call(
-                EntityMaterializerSource.TryReadValueMethod.MakeGenericMethod(type),
-                valueBufferParameter,
-                Constant(index),
-                Constant(property, typeof(IPropertyBase)));
-
         private Expression CreateReadValueExpression(Type type, int index, IPropertyBase property)
-            => CreateReadValueExpression(_valueBufferParameter, type, index, property);
+            => _valueBufferParameter.CreateValueBufferReadValueExpression(type, index, property);
 
         public virtual void AddInnerJoin(
             [NotNull] InMemoryQueryExpression innerQueryExpression,
@@ -943,11 +936,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
                 if (methodCallExpression.Method.IsGenericMethod
-                    && methodCallExpression.Method.GetGenericMethodDefinition() == EntityMaterializerSource.TryReadValueMethod
+                    && methodCallExpression.Method.GetGenericMethodDefinition() == ExpressionExtensions.ValueBufferTryReadValueMethod
                     && !methodCallExpression.Type.IsNullableType())
                 {
                     return Call(
-                        EntityMaterializerSource.TryReadValueMethod.MakeGenericMethod(methodCallExpression.Type.MakeNullable()),
+                        ExpressionExtensions.ValueBufferTryReadValueMethod.MakeGenericMethod(methodCallExpression.Type.MakeNullable()),
                         methodCallExpression.Arguments);
                 }
 

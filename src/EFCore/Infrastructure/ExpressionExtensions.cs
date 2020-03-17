@@ -6,11 +6,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -225,5 +227,48 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             return propertyPaths;
         }
+
+        /// <summary>
+        ///     <para>
+        ///         Creates an <see cref="Expression" /> tree representing reading a value from a <see cref="ValueBuffer" />
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="valueBuffer"> The expression that exposes the <see cref="ValueBuffer" />. </param>
+        /// <param name="type"> The type to read. </param>
+        /// <param name="index"> The index in the buffer to read from. </param>
+        /// <param name="property"> The IPropertyBase being read if any. </param>
+        /// <returns> An expression to read the value. </returns>
+        public static Expression CreateValueBufferReadValueExpression(
+            [NotNull] this Expression valueBuffer,
+            [NotNull] Type type,
+            int index,
+            [CanBeNull] IPropertyBase property)
+            => Expression.Call(
+                ValueBufferTryReadValueMethod.MakeGenericMethod(type),
+                valueBuffer,
+                Expression.Constant(index),
+                Expression.Constant(property, typeof(IPropertyBase)));
+
+        /// <summary>
+        ///     <para>
+        ///         MethodInfo which is used to generate an <see cref="Expression" /> tree representing reading a value from a <see cref="ValueBuffer" />
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        public static readonly MethodInfo ValueBufferTryReadValueMethod
+            = typeof(ExpressionExtensions).GetTypeInfo()
+                .GetDeclaredMethod(nameof(ValueBufferTryReadValue));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static TValue ValueBufferTryReadValue<TValue>(
+            in ValueBuffer valueBuffer, int index, IPropertyBase property)
+            => valueBuffer[index] is TValue value ? value : default;
     }
 }
