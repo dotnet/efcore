@@ -299,14 +299,21 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_with_grouping_key_using_Like(bool async)
+        public virtual async Task GroupBy_with_grouping_key_using_Like(bool async)
         {
-            return AssertQuery(
-                async,
-                ss => ss.Set<Order>()
-                    .GroupBy(o => EF.Functions.Like(o.CustomerID, "A%"))
-                    .Select(g => new { g.Key, Count = g.Count() }),
-                elementSorter: e => e.Key);
+            using var context = CreateContext();
+
+            var query = context.Set<Order>()
+                .GroupBy(o => EF.Functions.Like(o.CustomerID, "A%"))
+                .Select(g => new { g.Key, Count = g.Count() });
+
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Equal(2, result.Count);
+            Assert.Equal(800, result.Single(t => !t.Key).Count);
+            Assert.Equal(30, result.Single(t => t.Key).Count);
         }
 
         [ConditionalTheory]
