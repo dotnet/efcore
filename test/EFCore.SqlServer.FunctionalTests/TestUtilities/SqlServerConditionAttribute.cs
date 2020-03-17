@@ -27,11 +27,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsSequences)) ?? true;
             }
 
-            if (Conditions.HasFlag(SqlServerCondition.SupportsOffset))
-            {
-                isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true;
-            }
-
             if (Conditions.HasFlag(SqlServerCondition.SupportsHiddenColumns))
             {
                 isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsHiddenColumns)) ?? false;
@@ -66,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             if (Conditions.HasFlag(SqlServerCondition.SupportsFullTextSearch))
             {
-                isMet &= TestEnvironment.IsFullTestSearchSupported;
+                isMet &= TestEnvironment.IsFullTextSearchSupported;
             }
 
             return new ValueTask<bool>(isMet);
