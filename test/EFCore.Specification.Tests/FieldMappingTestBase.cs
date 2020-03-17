@@ -169,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void Can_update_and_query_navigation_from_backing_field()
+        public virtual void Can_define_a_backing_field_for_a_navigation_and_query_and_update_it()
         {
             using (var context = CreateContext())
             {
@@ -183,9 +183,9 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal("FirstName", dependentName);
 
-                // set the backing field directly
+                // use the backing field directly
                 var dependent2 = new NavDependent { Id = 2, Name = "SecondName", OneToOneFieldNavPrincipal = principal };
-                principal._dependent = dependent2;
+                principal._unconventionalDependent = dependent2;
                 context.SaveChanges();
 
                 dependentName =
@@ -1933,7 +1933,7 @@ namespace Microsoft.EntityFrameworkCore
             public int Id { get; set; }
             public string Name { get; set; }
 
-            public NavDependent _dependent;
+            public NavDependent _unconventionalDependent; // won't be picked up by convention
             public NavDependent Dependent
             {
                 get => throw new NotImplementedException("Invalid attempt to access Dependent getter");
@@ -1995,6 +1995,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 modelBuilder.Entity<OneToOneFieldNavPrincipal>()
                     .Navigation(e => e.Dependent)
+                    .HasField("_unconventionalDependent")
                     .UsePropertyAccessMode(PropertyAccessMode.Field);
 
                 modelBuilder.Entity<NavDependent>();

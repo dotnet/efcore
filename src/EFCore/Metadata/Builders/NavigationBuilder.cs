@@ -103,6 +103,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return this;
         }
 
+        /// <summary>
+        ///     <para>
+        ///         Sets a backing field to use for this navigation property.
+        ///     </para>
+        /// </summary>
+        /// <param name="fieldName"> The name of the field to use for this navigation property. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual NavigationBuilder HasField([CanBeNull] string fieldName)
+        {
+            if (NavBuilder != null)
+            {
+                NavBuilder.HasField(fieldName, ConfigurationSource.Explicit);
+            }
+            else
+            {
+                SkipNavBuilder.HasField(fieldName, ConfigurationSource.Explicit);
+            }
+
+            return this;
+        }
+
         IConventionSkipNavigationBuilder IInfrastructure<IConventionSkipNavigationBuilder>.Instance => SkipNavBuilder;
 
         IConventionNavigationBuilder IInfrastructure<IConventionNavigationBuilder>.Instance => NavBuilder;
