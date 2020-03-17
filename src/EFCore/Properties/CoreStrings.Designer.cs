@@ -2570,6 +2570,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("CanOnlyConfigureExistingNavigations", nameof(navigationName), nameof(entityType)),
                 navigationName, entityType);
 
+        /// <summary>
+        ///     The '{methodName}' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.
+        /// </summary>
+        public static string FunctionOnClient([CanBeNull] object methodName)
+            => string.Format(
+                GetString("FunctionOnClient", nameof(methodName)),
+                methodName);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

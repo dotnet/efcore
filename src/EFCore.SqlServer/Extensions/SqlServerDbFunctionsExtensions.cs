@@ -4,6 +4,7 @@
 using System;
 using System.Globalization;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -54,9 +55,7 @@ namespace Microsoft.EntityFrameworkCore
             => FreeTextCore(propertyReference, freeText, null);
 
         private static bool FreeTextCore(string propertyName, string freeText, int? languageTerm)
-        {
-            throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(FreeText)));
-        }
+            => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(FreeText)));
 
         /// <summary>
         ///     <para>
@@ -97,9 +96,7 @@ namespace Microsoft.EntityFrameworkCore
             => ContainsCore(propertyReference, searchCondition, null);
 
         private static bool ContainsCore(string propertyName, string searchCondition, int? languageTerm)
-        {
-            throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(Contains)));
-        }
+            => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Contains)));
 
         /// <summary>
         ///     Counts the number of year boundaries crossed between the startDate and endDate.
@@ -982,7 +979,7 @@ namespace Microsoft.EntityFrameworkCore
         public static bool IsDate(
             [CanBeNull] this DbFunctions _,
             [NotNull] string expression)
-            => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(IsDate)));
+            => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(IsDate)));
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DateTime" /> structure to the specified year, month, day, hour, minute, second, and millisecond.
@@ -1006,7 +1003,7 @@ namespace Microsoft.EntityFrameworkCore
             int minute,
             int second,
             int millisecond)
-            => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DateTimeFromParts)));
+            => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DateTimeFromParts)));
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DateTime" /> structure to the specified year, month, day.
@@ -1022,7 +1019,7 @@ namespace Microsoft.EntityFrameworkCore
             int year,
             int month,
             int day)
-            => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DateFromParts)));
+            => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DateFromParts)));
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DateTime" /> structure to the specified year, month, day, hour, minute, second, fractions, and precision.
@@ -1048,7 +1045,7 @@ namespace Microsoft.EntityFrameworkCore
             int second,
             int fractions,
             int precision)
-            => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DateTime2FromParts)));
+            => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DateTime2FromParts)));
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DateTimeOffset" /> structure to the specified year, month, day, hour, minute, second, fractions, hourOffset, minuteOffset and precision.
@@ -1078,7 +1075,7 @@ namespace Microsoft.EntityFrameworkCore
             int hourOffset,
             int minuteOffset,
             int precision)
-            => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DateTimeOffsetFromParts)));
+            => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DateTimeOffsetFromParts)));
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DateTime" /> structure to the specified year, month, day, hour and minute.
@@ -1098,7 +1095,7 @@ namespace Microsoft.EntityFrameworkCore
             int day,
             int hour,
             int minute)
-            => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(SmallDateTimeFromParts)));
+            => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(SmallDateTimeFromParts)));
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="TimeSpan" /> structure to the specified hour, minute, second, fractions, and precision.
@@ -1118,6 +1115,6 @@ namespace Microsoft.EntityFrameworkCore
             int second,
             int fractions,
             int precision)
-            => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(TimeFromParts)));
+            => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(TimeFromParts)));
     }
 }

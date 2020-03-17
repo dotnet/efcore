@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -240,12 +241,12 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEX
         {
             var exNoLang = Assert.Throws<InvalidOperationException>(() => EF.Functions.Contains("teststring", "teststring"));
             Assert.Equal(
-                SqlServerStrings.FunctionOnClient(nameof(SqlServerDbFunctionsExtensions.Contains)),
+                CoreStrings.FunctionOnClient(nameof(SqlServerDbFunctionsExtensions.Contains)),
                 exNoLang.Message);
 
             var exLang = Assert.Throws<InvalidOperationException>(() => EF.Functions.Contains("teststring", "teststring", 1033));
             Assert.Equal(
-                SqlServerStrings.FunctionOnClient(nameof(SqlServerDbFunctionsExtensions.Contains)),
+                CoreStrings.FunctionOnClient(nameof(SqlServerDbFunctionsExtensions.Contains)),
                 exLang.Message);
         }
 
@@ -676,7 +677,7 @@ WHERE CAST(ISDATE(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nchar(
             var exIsDate = Assert.Throws<InvalidOperationException>(() => EF.Functions.IsDate("#ISDATE#"));
 
             Assert.Equal(
-                SqlServerStrings.FunctionOnClient(nameof(SqlServerDbFunctionsExtensions.IsDate)),
+                CoreStrings.FunctionOnClient(nameof(SqlServerDbFunctionsExtensions.IsDate)),
                 exIsDate.Message);
         }
 
