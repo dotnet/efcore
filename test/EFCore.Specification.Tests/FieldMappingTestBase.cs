@@ -1989,12 +1989,14 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<LoginSession>().UsePropertyAccessMode(PropertyAccessMode.Field);
 
                 modelBuilder.Entity<OneToOneFieldNavPrincipal>()
-                    .HasOne(
-                        e => e.Dependent,
-                        nb => nb.UsePropertyAccessMode(PropertyAccessMode.Field))
-                    .WithOne(
-                        e => e.OneToOneFieldNavPrincipal)
+                    .HasOne(e => e.Dependent)
+                    .WithOne(e => e.OneToOneFieldNavPrincipal)
                     .HasForeignKey<NavDependent>();
+
+                modelBuilder.Entity<OneToOneFieldNavPrincipal>()
+                    .Navigation(e => e.Dependent)
+                    .UsePropertyAccessMode(PropertyAccessMode.Field);
+
                 modelBuilder.Entity<NavDependent>();
 
                 if (modelBuilder.Model.GetPropertyAccessMode() != PropertyAccessMode.Property)
