@@ -221,11 +221,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return CreateQuery(() => GetTopSellingProductsForCustomer(customerId));
             }
 
-            public IQueryable<TopSellingProduct> GetTopTwoSellingProductsCustomTranslation()
-            {
-                return CreateQuery(() => GetTopTwoSellingProductsCustomTranslation());
-            }
-
             public IQueryable<MultProductOrders> GetOrdersWithMultipleProducts(int customerId)
             {
                 return CreateQuery(() => GetOrdersWithMultipleProducts(customerId));
@@ -337,11 +332,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetPhoneInformation)));
 
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetOrdersWithMultipleProducts)));
-
-                modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetTopTwoSellingProductsCustomTranslation)))
-#pragma warning disable CS0618 // Type or member is obsolete
-                     .HasTranslation(args => SqlFunctionExpression.Create("dbo", "GetTopTwoSellingProducts", args, typeof(TopSellingProduct), null));
-#pragma warning restore CS0618 // Type or member is obsolete
             }
         }
 
@@ -1456,23 +1446,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#20163")]
-        public virtual void QF_Stand_Alone_With_Translation()
-        {
-            using (var context = CreateContext())
-            {
-                var products = (from t in context.GetTopTwoSellingProductsCustomTranslation()
-                                orderby t.ProductId
-                                select t).ToList();
-
-                Assert.Equal(2, products.Count);
-                Assert.Equal(3, products[0].ProductId);
-                Assert.Equal(249, products[0].AmountSold);
-                Assert.Equal(4, products[1].ProductId);
-                Assert.Equal(184, products[1].AmountSold);
-            }
-        }
-
         [ConditionalFact]
         public virtual void QF_Stand_Alone_Parameter()
         {
@@ -2105,7 +2078,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
     #endregion
-
 
     private void AssertTranslationFailed(Action testCode)
         => Assert.Contains(

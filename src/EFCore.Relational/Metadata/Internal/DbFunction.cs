@@ -446,6 +446,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation,
             ConfigurationSource configurationSource)
         {
+            if (translation != null
+                && IsQueryable)
+            {
+                if (configurationSource == ConfigurationSource.Explicit)
+                {
+                    throw new InvalidOperationException(RelationalStrings.DbFunctionQueryableCustomTranslation(MethodInfo.DisplayName()));
+                }
+
+                return null;
+            }
+
             _translation = translation;
 
             _translationConfigurationSource = translation == null
