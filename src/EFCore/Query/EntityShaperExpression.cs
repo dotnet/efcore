@@ -45,9 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (discriminatorCondition == null)
             {
-                // Generate condition to discriminator if TPH
-                discriminatorCondition = GenerateDiscriminatorCondition(entityType);
-
+                discriminatorCondition = GenerateDiscriminatorCondition(entityType, nullable);
             }
             else if (discriminatorCondition.Parameters.Count != 1
                     || discriminatorCondition.Parameters[0].Type != typeof(ValueBuffer)
@@ -63,11 +61,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             DiscriminatorCondition = discriminatorCondition;
         }
 
-        private LambdaExpression GenerateDiscriminatorCondition(IEntityType entityType)
+        private LambdaExpression GenerateDiscriminatorCondition(IEntityType entityType, bool nullable)
         {
             var valueBufferParameter = Parameter(typeof(ValueBuffer));
             Expression body;
-            var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToList();
+            var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToArray();
             var discriminatorProperty = entityType.GetDiscriminatorProperty();
             if (discriminatorProperty != null)
             {
@@ -80,8 +78,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                             discriminatorProperty.ClrType, discriminatorProperty.GetIndex(), discriminatorProperty))
                 };
 
-                var switchCases = new SwitchCase[concreteEntityTypes.Count];
-                for (var i = 0; i < concreteEntityTypes.Count; i++)
+                var switchCases = new SwitchCase[concreteEntityTypes.Length];
+                for (var i = 0; i < concreteEntityTypes.Length; i++)
                 {
                     var discriminatorValue = Constant(concreteEntityTypes[i].GetDiscriminatorValue(), discriminatorProperty.ClrType);
                     switchCases[i] = SwitchCase(Constant(concreteEntityTypes[i], typeof(IEntityType)), discriminatorValue);
@@ -97,7 +95,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
             else
             {
-                body = Constant(concreteEntityTypes.Count == 1 ? concreteEntityTypes[0] : entityType, typeof(IEntityType));
+                body = Constant(concreteEntityTypes.Length == 1 ? concreteEntityTypes[0] : entityType, typeof(IEntityType));
+            }
+
+            if (entityType.FindPrimaryKey() == null
+                && nullable)
+            {
+                body = Condition(
+                    entityType.GetProperties()
+                        .Select(p => NotEqual(
+                            valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
+                            Constant(null)))
+                        .Aggregate((a, b) => OrElse(a, b)),
+                    body,
+                    Default(typeof(IEntityType)));
             }
 
             return Lambda(body, valueBufferParameter);
@@ -128,7 +139,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual EntityShaperExpression MarkAsNullable()
             => !IsNullable
-                ? new EntityShaperExpression(EntityType, ValueBufferExpression, true, DiscriminatorCondition)
+                // Marking nullable requires recomputation of Discriminator condition
+                ? new EntityShaperExpression(EntityType, ValueBufferExpression, true)
                 : this;
 
         public virtual EntityShaperExpression Update([NotNull] Expression valueBufferExpression)
