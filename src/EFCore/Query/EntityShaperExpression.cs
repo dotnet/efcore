@@ -2,31 +2,111 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class EntityShaperExpression : Expression, IPrintableExpression
     {
+        private static readonly MethodInfo _createUnableToDiscriminateException
+            = typeof(EntityShaperExpression).GetTypeInfo()
+                .GetDeclaredMethod(nameof(CreateUnableToDiscriminateException));
+
+        [UsedImplicitly]
+        private static Exception CreateUnableToDiscriminateException(IEntityType entityType, object discriminator)
+            => new InvalidOperationException(CoreStrings.UnableToDiscriminate(entityType.DisplayName(), discriminator?.ToString()));
+
         public EntityShaperExpression(
             [NotNull] IEntityType entityType,
             [NotNull] Expression valueBufferExpression,
             bool nullable)
+            : this(entityType, valueBufferExpression, nullable, null)
+        {
+        }
+
+        protected EntityShaperExpression(
+            [NotNull] IEntityType entityType,
+            [NotNull] Expression valueBufferExpression,
+            bool nullable,
+            [CanBeNull] LambdaExpression discriminatorCondition)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(valueBufferExpression, nameof(valueBufferExpression));
 
+            if (discriminatorCondition == null)
+            {
+                // Generate condition to discriminator if TPH
+                discriminatorCondition = GenerateDiscriminatorCondition(entityType);
+
+            }
+            else if (discriminatorCondition.Parameters.Count != 1
+                    || discriminatorCondition.Parameters[0].Type != typeof(ValueBuffer)
+                    || discriminatorCondition.ReturnType != typeof(IEntityType))
+            {
+                throw new InvalidOperationException(
+                    "Discriminator condition must be lambda expression of type Func<ValueBuffer, IEntityType>.");
+            }
+
             EntityType = entityType;
             ValueBufferExpression = valueBufferExpression;
             IsNullable = nullable;
+            DiscriminatorCondition = discriminatorCondition;
+        }
+
+        private LambdaExpression GenerateDiscriminatorCondition(IEntityType entityType)
+        {
+            var valueBufferParameter = Parameter(typeof(ValueBuffer));
+            Expression body;
+            var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToList();
+            var discriminatorProperty = entityType.GetDiscriminatorProperty();
+            if (discriminatorProperty != null)
+            {
+                var discriminatorValueVariable = Variable(discriminatorProperty.ClrType, "discriminator");
+                var expressions = new List<Expression>
+                {
+                    Assign(
+                        discriminatorValueVariable,
+                        valueBufferParameter.CreateValueBufferReadValueExpression(
+                            discriminatorProperty.ClrType, discriminatorProperty.GetIndex(), discriminatorProperty))
+                };
+
+                var switchCases = new SwitchCase[concreteEntityTypes.Count];
+                for (var i = 0; i < concreteEntityTypes.Count; i++)
+                {
+                    var discriminatorValue = Constant(concreteEntityTypes[i].GetDiscriminatorValue(), discriminatorProperty.ClrType);
+                    switchCases[i] = SwitchCase(Constant(concreteEntityTypes[i], typeof(IEntityType)), discriminatorValue);
+                }
+
+                var exception = Block(
+                    Throw(Call(
+                        _createUnableToDiscriminateException, Constant(entityType), Convert(discriminatorValueVariable, typeof(object)))),
+                    Constant(null, typeof(IEntityType)));
+
+                expressions.Add(Switch(discriminatorValueVariable, exception, switchCases));
+                body = Block(new[] { discriminatorValueVariable }, expressions);
+            }
+            else
+            {
+                body = Constant(concreteEntityTypes.Count == 1 ? concreteEntityTypes[0] : entityType, typeof(IEntityType));
+            }
+
+            return Lambda(body, valueBufferParameter);
         }
 
         public virtual IEntityType EntityType { get; }
         public virtual Expression ValueBufferExpression { get; }
         public virtual bool IsNullable { get; }
+        public virtual LambdaExpression DiscriminatorCondition { get; }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
@@ -48,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual EntityShaperExpression MarkAsNullable()
             => !IsNullable
-                ? new EntityShaperExpression(EntityType, ValueBufferExpression, true)
+                ? new EntityShaperExpression(EntityType, ValueBufferExpression, true, DiscriminatorCondition)
                 : this;
 
         public virtual EntityShaperExpression Update([NotNull] Expression valueBufferExpression)
@@ -56,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(valueBufferExpression, nameof(valueBufferExpression));
 
             return valueBufferExpression != ValueBufferExpression
-                ? new EntityShaperExpression(EntityType, valueBufferExpression, IsNullable)
+                ? new EntityShaperExpression(EntityType, valueBufferExpression, IsNullable, DiscriminatorCondition)
                 : this;
         }
 
