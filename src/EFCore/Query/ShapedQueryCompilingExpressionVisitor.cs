@@ -414,29 +414,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                     else
                     {
-                        if (entityShaperExpression.IsNullable)
-                        {
-                            expressions.Add(
-                                Expression.IfThen(
-                                    entityType.GetProperties()
-                                        .Select(
-                                            p =>
-                                                Expression.NotEqual(
-                                                    valueBufferExpression.CreateValueBufferReadValueExpression(
-                                                        typeof(object),
-                                                        p.GetIndex(),
-                                                        p),
-                                                    Expression.Constant(null)))
-                                        .Aggregate((a, b) => Expression.OrElse(a, b)),
-                                MaterializeEntity(
-                                    entityShaperExpression, materializationContextVariable, concreteEntityTypeVariable, instanceVariable, null)));
-                        }
-                        else
-                        {
-                            expressions.Add(
-                                MaterializeEntity(
-                                    entityShaperExpression, materializationContextVariable, concreteEntityTypeVariable, instanceVariable, null));
-                        }
+                        expressions.Add(
+                            MaterializeEntity(
+                                entityShaperExpression, materializationContextVariable, concreteEntityTypeVariable, instanceVariable, null));
                     }
                 }
 
@@ -476,29 +456,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                             valueBufferExpression,
                             entityShaperExpression.DiscriminatorCondition.Body)));
 
-                var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToList();
+                var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToArray();
                 var discriminatorProperty = entityType.GetDiscriminatorProperty();
-                if (discriminatorProperty != null)
+                if (discriminatorProperty == null
+                    && concreteEntityTypes.Length > 1)
                 {
-                    var switchCases = new SwitchCase[concreteEntityTypes.Count];
-                    for (var i = 0; i < concreteEntityTypes.Count; i++)
-                    {
-                        switchCases[i] = Expression.SwitchCase(
-                            CreateFullMaterializeExpression(concreteEntityTypes[i], expressionContext),
-                            Expression.Constant(concreteEntityTypes[i], typeof(IEntityType)));
-                    }
+                    concreteEntityTypes = new [] { entityType };
+                }
 
-                    materializationExpression = Expression.Switch(
-                        concreteEntityTypeVariable,
-                        Expression.Constant(null, returnType),
-                        switchCases);
-                }
-                else
+                var switchCases = new SwitchCase[concreteEntityTypes.Length];
+                for (var i = 0; i < concreteEntityTypes.Length; i++)
                 {
-                    materializationExpression = CreateFullMaterializeExpression(
-                        concreteEntityTypes.Count == 1 ? concreteEntityTypes[0] : entityType,
-                        expressionContext);
+                    switchCases[i] = Expression.SwitchCase(
+                        CreateFullMaterializeExpression(concreteEntityTypes[i], expressionContext),
+                        Expression.Constant(concreteEntityTypes[i], typeof(IEntityType)));
                 }
+
+                materializationExpression = Expression.Switch(
+                    concreteEntityTypeVariable,
+                    Expression.Constant(null, returnType),
+                    switchCases);
 
                 expressions.Add(Expression.Assign(instanceVariable, materializationExpression));
 
