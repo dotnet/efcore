@@ -6630,7 +6630,7 @@ ORDER BY [w0].[IsAutomatic]");
             await base.DateTimeOffset_Date_returns_datetime(async);
 
             AssertSql(
-                @"@__dateTimeOffset_Date_0='0002-03-01T00:00:00'
+                @"@__dateTimeOffset_Date_0='0002-03-01T00:00:00.0000000'
 
 SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]

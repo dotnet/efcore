@@ -359,5 +359,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 
             return null;
         }
+
+        protected override ICollection<string> StoreTypeNameBasesUsingPrecision
+            => new List<string>() { "decimal", "dec", "numeric", "datetime2", "datetimeoffset" };
     }
 }

@@ -63,6 +63,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 ");
         }
 
+        public override void AddColumnOperation_with_precision_and_scale_overridden()
+        {
+            base.AddColumnOperation_with_precision_and_scale_overridden();
+
+            AssertSql(
+                @"ALTER TABLE [Person] ADD [Pi] decimal(15,10) NOT NULL;
+");
+        }
+
+        public override void AddColumnOperation_with_precision_and_scale_no_model()
+        {
+            base.AddColumnOperation_with_precision_and_scale_no_model();
+
+            AssertSql(
+                @"ALTER TABLE [Person] ADD [Pi] decimal(20,7) NOT NULL;
+");
+        }
+
         public override void AddColumnOperation_with_unicode_overridden()
         {
             base.AddColumnOperation_with_unicode_overridden();

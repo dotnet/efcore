@@ -78,6 +78,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             {
                 parameter.Size = Size.Value;
             }
+
+            if (Precision.HasValue)
+            {
+                parameter.Precision = unchecked((byte)Precision.Value);
+            }
         }
 
         /// <summary>
@@ -107,13 +112,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     case "smalldatetime":
                         return SmallDateTimeFormatConst;
                     default:
-                        if (Size.HasValue)
+                        if (Precision.HasValue)
                         {
-                            var size = Size.Value;
-                            if (size <= 7
-                                && size >= 0)
+                            var precision = Precision.Value;
+                            if (precision <= 7
+                                && precision >= 0)
                             {
-                                return _dateTime2Formats[size];
+                                return _dateTime2Formats[precision];
                             }
                         }
 

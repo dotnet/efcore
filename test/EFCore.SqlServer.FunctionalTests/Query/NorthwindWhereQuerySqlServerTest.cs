@@ -711,7 +711,7 @@ WHERE SUBSTRING([c].[City], 1 + 1, 2) = N'ea'");
             await base.Where_datetime_now(async);
 
             AssertSql(
-                @"@__myDatetime_0='2015-04-10T00:00:00'
+                @"@__myDatetime_0='2015-04-10T00:00:00.0000000'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -723,7 +723,7 @@ WHERE GETDATE() <> @__myDatetime_0");
             await base.Where_datetime_utcnow(async);
 
             AssertSql(
-                @"@__myDatetime_0='2015-04-10T00:00:00'
+                @"@__myDatetime_0='2015-04-10T00:00:00.0000000'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -745,7 +745,7 @@ WHERE CONVERT(date, GETDATE()) = CONVERT(date, GETDATE())");
             await base.Where_datetime_date_component(async);
 
             AssertSql(
-                @"@__myDatetime_0='1998-05-04T00:00:00' (DbType = DateTime)
+                @"@__myDatetime_0='1998-05-04T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]

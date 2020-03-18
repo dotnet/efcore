@@ -91,6 +91,26 @@ namespace Microsoft.EntityFrameworkCore
             => property.AsProperty().SetMaxLength(maxLength, ConfigurationSource.Explicit);
 
         /// <summary>
+        ///     Sets the precision of data that is allowed in this property.
+        ///     For example, if the property is a <see cref="decimal" />
+        ///     then this is the maximum number of digits.
+        /// </summary>
+        /// <param name="property"> The property to set the precision of. </param>
+        /// <param name="precision"> The maximum number of digits that is allowed in this property. </param>
+        public static void SetPrecision([NotNull] this IMutableProperty property, int? precision)
+            => property.AsProperty().SetPrecision(precision, ConfigurationSource.Explicit);
+
+        /// <summary>
+        ///     Sets the scale of data that is allowed in this property.
+        ///     For example, if the property is a <see cref="decimal" />
+        ///     then this is the maximum number of decimal places.
+        /// </summary>
+        /// <param name="property"> The property to set the scale of. </param>
+        /// <param name="scale"> The maximum number of decimal places that is allowed in this property. </param>
+        public static void SetScale([NotNull] this IMutableProperty property, int? scale)
+            => property.AsProperty().SetScale(scale, ConfigurationSource.Explicit);
+
+        /// <summary>
         ///     Sets a value indicating whether this property can persist Unicode characters.
         /// </summary>
         /// <param name="property"> The property to set the value for. </param>

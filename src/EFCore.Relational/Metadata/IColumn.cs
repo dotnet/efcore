@@ -28,6 +28,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         int? MaxLength => PropertyMappings.First().Property.GetMaxLength();
 
         /// <summary>
+        ///     Gets the precision of data that is allowed in this column. For example, if the property is a <see cref="decimal" /> '
+        ///     then this is the maximum number of digits.
+        /// </summary>
+        int? Precision => PropertyMappings.First().Property.GetPrecision();
+
+        /// <summary>
+        ///     Gets the scale of data that is allowed in this column. For example, if the property is a <see cref="decimal" /> '
+        ///     then this is the maximum number of decimal places.
+        /// </summary>
+        int? Scale => PropertyMappings.First().Property.GetScale();
+
+        /// <summary>
         ///     Gets a value indicating whether or not the property can persist Unicode characters.
         /// </summary>
         bool? IsUnicode => PropertyMappings.First().Property.IsUnicode();

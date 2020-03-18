@@ -723,7 +723,7 @@ WHERE '2018-12-29T23:20:40.000' > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), 1
                 c => dateTime > new DateTime(DateTime.Now.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond));
 
             AssertSql(
-                @$"@__dateTime_0='1919-12-12T10:20:15' (DbType = DateTime)
+                @$"@__dateTime_0='1919-12-12T10:20:15.0000000' (DbType = DateTime)
 @__dateTime_Month_2='12'
 @__dateTime_Day_3='12'
 @__dateTime_Hour_4='10'
@@ -783,7 +783,7 @@ WHERE '2018-12-29' > DATEFROMPARTS(DATEPART(year, GETDATE()), 12, 31)");
                 c => date > new DateTime(DateTime.Now.Year, date.Month, date.Day));
 
             AssertSql(
-                @$"@__date_0='1919-12-12T00:00:00' (DbType = Date)
+                @$"@__date_0='1919-12-12T00:00:00.0000000' (DbType = Date)
 @__date_Month_2='12'
 @__date_Day_3='12'
 
@@ -839,7 +839,7 @@ WHERE '2018-12-29T23:20:40.0000000' > DATETIME2FROMPARTS(DATEPART(year, GETDATE(
                 Assert.Equal(0, count);
 
                 AssertSql(
-                    @$"@__dateTime_0='1919-12-12T10:20:15'
+                    @$"@__dateTime_0='1919-12-12T10:20:15.0000000'
 @__dateTime_Month_2='12'
 @__dateTime_Day_3='12'
 @__dateTime_Hour_4='10'
@@ -965,7 +965,7 @@ WHERE '2018-12-29T23:20:00' > SMALLDATETIMEFROMPARTS(DATEPART(year, GETDATE()), 
                 c => dateTime > new DateTime(DateTime.Now.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, 0));
 
             AssertSql(
-                @$"@__dateTime_0='1919-12-12T23:20:00' (DbType = DateTime)
+                @$"@__dateTime_0='1919-12-12T23:20:00.0000000' (DbType = DateTime)
 @__dateTime_Month_2='12'
 @__dateTime_Day_3='12'
 @__dateTime_Hour_4='23'

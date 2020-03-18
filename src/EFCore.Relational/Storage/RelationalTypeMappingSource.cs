@@ -9,7 +9,6 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -415,6 +414,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 var openParen = storeTypeName.IndexOf("(", StringComparison.Ordinal);
                 if (openParen > 0)
                 {
+                    string storeTypeNameBase = storeTypeName.Substring(0, openParen).Trim();
                     var closeParen = storeTypeName.IndexOf(")", openParen + 1, StringComparison.Ordinal);
                     if (closeParen > openParen)
                     {
@@ -435,16 +435,30 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         else if (int.TryParse(
                             storeTypeName.Substring(openParen + 1, closeParen - openParen - 1).Trim(), out var parsedSize))
                         {
-                            size = parsedSize;
-                            precision = parsedSize;
+                            if (StoreTypeNameBasesUsingPrecision.Contains(storeTypeNameBase))
+                            {
+                                precision = parsedSize;
+                                scale = 0;
+                            }
+                            else
+                            {
+                                size = parsedSize;
+                            }
                         }
 
-                        return storeTypeName.Substring(0, openParen).Trim();
+                        return storeTypeNameBase;
                     }
                 }
             }
 
             return storeTypeName;
         }
+
+        /// <summary>
+        /// Returns the store type name bases which interpret
+        /// nameBase(n) as a precision rather than a length
+        /// </summary>
+        protected virtual ICollection<string> StoreTypeNameBasesUsingPrecision
+            => Array.Empty<string>();
     }
 }

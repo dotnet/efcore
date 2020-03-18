@@ -633,6 +633,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var annotations = property.GetAnnotations().ToList();
 
             RemoveAnnotation(ref annotations, CoreAnnotationNames.MaxLength);
+            RemoveAnnotation(ref annotations, CoreAnnotationNames.Precision);
+            RemoveAnnotation(ref annotations, CoreAnnotationNames.Scale);
             RemoveAnnotation(ref annotations, CoreAnnotationNames.TypeMapping);
             RemoveAnnotation(ref annotations, CoreAnnotationNames.Unicode);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.ColumnName);
@@ -693,6 +695,21 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         $".{nameof(PropertyBuilder.HasMaxLength)}" +
                         $"({_code.Literal(maxLength.Value)})");
                 }
+            }
+
+            var precision = property.GetPrecision();
+            var scale = property.GetScale();
+            if (precision != null && scale != null && scale != 0)
+            {
+                lines.Add(
+                $".{nameof(PropertyBuilder.HasPrecision)}" +
+                $"({_code.Literal(precision.Value)}, {_code.Literal(scale.Value)})");
+            }
+            else if (precision != null)
+            {
+                lines.Add(
+                $".{nameof(PropertyBuilder.HasPrecision)}" +
+                $"({_code.Literal(precision.Value)})");
             }
 
             if (property.IsUnicode() != null)
