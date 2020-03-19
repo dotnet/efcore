@@ -47,6 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     <para><c>startupTargetName</c>--The assembly name of the startup project.</para>
         ///     <para><c>projectDir</c>--The target project's root directory.</para>
         ///     <para><c>rootNamespace</c>--The target project's root namespace.</para>
+        ///     <para><c>language</c>--The programming language to be used to generate classes.</para>
+        ///     <para><c>remainingArguments</c>--Extra arguments passed into the operation.</para>
         /// </summary>
         /// <param name="reportHandler"> The <see cref="IOperationReportHandler" />. </param>
         /// <param name="args"> The executor arguments. </param>
@@ -61,9 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             _projectDir = (string)args["projectDir"];
             _rootNamespace = (string)args["rootNamespace"];
             _language = (string)args["language"];
-
-            // TODO: Flow in from tools (issue #8332)
-            _designArgs = Array.Empty<string>();
+            _designArgs = (string[])args["remainingArguments"];
 
             var toolsVersion = (string)args["toolsVersion"];
             var runtimeVersion = ProductInfo.GetVersion();

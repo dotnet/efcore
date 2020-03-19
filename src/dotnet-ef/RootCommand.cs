@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             _command = command;
         }
 
-        protected override int Execute()
+        protected override int Execute(string[] _)
         {
             var commands = _args.TakeWhile(a => a[0] != '-').ToList();
             if (_help.HasValue()

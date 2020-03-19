@@ -9,9 +9,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
     // ReSharper disable once ArrangeTypeModifiers
     internal partial class DatabaseDropCommand
     {
-        protected override int Execute()
+        protected override int Execute(string[] args)
         {
-            var executor = CreateExecutor();
+            var executor = CreateExecutor(args);
 
             void LogDropCommand(Func<object, object, string> resource)
             {
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 
             executor.DropDatabase(Context.Value());
 
-            return base.Execute();
+            return base.Execute(args);
         }
     }
 }
