@@ -35,9 +35,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] IEntityType entityType,
             [NotNull] Expression valueBufferExpression,
             bool nullable,
-            [NotNull] LambdaExpression discriminatorCondition)
+            [CanBeNull] LambdaExpression materializationCondition)
             : base(entityType, valueBufferExpression, nullable,
-                  discriminatorCondition ?? GenerateMaterializationCondition(Check.NotNull(entityType, nameof(entityType)), nullable))
+                  materializationCondition ?? GenerateMaterializationCondition(Check.NotNull(entityType, nameof(entityType)), nullable))
         {
         }
 
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(valueBufferExpression, nameof(valueBufferExpression));
 
             return valueBufferExpression != ValueBufferExpression
-                ? new RelationalEntityShaperExpression(EntityType, valueBufferExpression, IsNullable, DiscriminatorCondition)
+                ? new RelationalEntityShaperExpression(EntityType, valueBufferExpression, IsNullable, MaterializationCondition)
                 : this;
         }
     }

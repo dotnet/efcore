@@ -452,9 +452,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expressions.Add(
                     Expression.Assign(concreteEntityTypeVariable,
                         ReplacingExpressionVisitor.Replace(
-                            entityShaperExpression.DiscriminatorCondition.Parameters[0],
+                            entityShaperExpression.MaterializationCondition.Parameters[0],
                             valueBufferExpression,
-                            entityShaperExpression.DiscriminatorCondition.Body)));
+                            entityShaperExpression.MaterializationCondition.Body)));
 
                 var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToArray();
                 var discriminatorProperty = entityType.GetDiscriminatorProperty();
@@ -550,14 +550,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 return Expression.Block(blockExpressions);
             }
-
-            private static readonly MethodInfo _createUnableToDiscriminateException
-                = typeof(EntityMaterializerInjectingExpressionVisitor).GetTypeInfo()
-                    .GetDeclaredMethod(nameof(CreateUnableToDiscriminateException));
-
-            [UsedImplicitly]
-            private static Exception CreateUnableToDiscriminateException(IEntityType entityType, object discriminator)
-                => new InvalidOperationException(CoreStrings.UnableToDiscriminate(entityType.DisplayName(), discriminator?.ToString()));
         }
     }
 }
