@@ -386,7 +386,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Expression.IfThenElse(
                                 Expression.NotEqual(
                                     entryVariable,
-                                    Expression.Constant(default(InternalEntityEntry), typeof(InternalEntityEntry))),
+                                    Expression.Default(typeof(InternalEntityEntry))),
                                 Expression.Block(
                                     Expression.Assign(
                                         concreteEntityTypeVariable,
@@ -489,12 +489,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     expressions.Add(
                         Expression.Assign(
-                            entryVariable, Expression.Call(
-                                QueryCompilationContext.QueryContextParameter,
-                                _startTrackingMethodInfo,
-                                concreteEntityTypeVariable,
-                                instanceVariable,
-                                shadowValuesVariable)));
+                            entryVariable,
+                            Expression.Condition(
+                                Expression.Equal(concreteEntityTypeVariable, Expression.Default(typeof(IEntityType))),
+                                Expression.Default(typeof(InternalEntityEntry)),
+                                Expression.Call(
+                                    QueryCompilationContext.QueryContextParameter,
+                                    _startTrackingMethodInfo,
+                                    concreteEntityTypeVariable,
+                                    instanceVariable,
+                                    shadowValuesVariable))));
                 }
 
                 expressions.Add(instanceVariable);
