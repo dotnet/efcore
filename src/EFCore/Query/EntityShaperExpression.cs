@@ -38,30 +38,29 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] IEntityType entityType,
             [NotNull] Expression valueBufferExpression,
             bool nullable,
-            [CanBeNull] LambdaExpression discriminatorCondition)
+            [CanBeNull] LambdaExpression materializationCondition)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(valueBufferExpression, nameof(valueBufferExpression));
 
-            if (discriminatorCondition == null)
+            if (materializationCondition == null)
             {
-                discriminatorCondition = GenerateDiscriminatorCondition(entityType, nullable);
+                materializationCondition = GenerateMaterializationCondition(entityType, nullable);
             }
-            else if (discriminatorCondition.Parameters.Count != 1
-                    || discriminatorCondition.Parameters[0].Type != typeof(ValueBuffer)
-                    || discriminatorCondition.ReturnType != typeof(IEntityType))
+            else if (materializationCondition.Parameters.Count != 1
+                    || materializationCondition.Parameters[0].Type != typeof(ValueBuffer)
+                    || materializationCondition.ReturnType != typeof(IEntityType))
             {
-                throw new InvalidOperationException(
-                    "Discriminator condition must be lambda expression of type Func<ValueBuffer, IEntityType>.");
+                throw new InvalidOperationException(CoreStrings.QueryEntityMaterializationConditionWrongShape(entityType.DisplayName()));
             }
 
             EntityType = entityType;
             ValueBufferExpression = valueBufferExpression;
             IsNullable = nullable;
-            DiscriminatorCondition = discriminatorCondition;
+            MaterializationCondition = materializationCondition;
         }
 
-        private LambdaExpression GenerateDiscriminatorCondition(IEntityType entityType, bool nullable)
+        private LambdaExpression GenerateMaterializationCondition(IEntityType entityType, bool nullable)
         {
             var valueBufferParameter = Parameter(typeof(ValueBuffer));
             Expression body;
@@ -117,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual IEntityType EntityType { get; }
         public virtual Expression ValueBufferExpression { get; }
         public virtual bool IsNullable { get; }
-        public virtual LambdaExpression DiscriminatorCondition { get; }
+        public virtual LambdaExpression MaterializationCondition { get; }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
@@ -139,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual EntityShaperExpression MarkAsNullable()
             => !IsNullable
-                // Marking nullable requires recomputation of Discriminator condition
+                // Marking nullable requires recomputation of materialization condition
                 ? new EntityShaperExpression(EntityType, ValueBufferExpression, true)
                 : this;
 
@@ -148,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(valueBufferExpression, nameof(valueBufferExpression));
 
             return valueBufferExpression != ValueBufferExpression
-                ? new EntityShaperExpression(EntityType, valueBufferExpression, IsNullable, DiscriminatorCondition)
+                ? new EntityShaperExpression(EntityType, valueBufferExpression, IsNullable, MaterializationCondition)
                 : this;
         }
 
