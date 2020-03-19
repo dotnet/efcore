@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Branch>());
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#20336")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Query_for_branch_type_loads_all_owned_navs_tracking(bool async)
         {
@@ -408,7 +408,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#20336")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Unmapped_property_projection_loads_owned_navigations(bool async)
         {
