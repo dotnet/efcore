@@ -1029,8 +1029,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             {
                 _queryExpression = queryExpression;
                 _innerSelectExpression = innerSelectExpression;
-                _indexMap = indexMap;
                 _pendingCollectionOffset = pendingCollectionOffset;
+                _indexMap = indexMap;
             }
 
             protected override Expression VisitExtension(Expression extensionExpression)
@@ -1052,7 +1052,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                             indexMap[keyValuePair.Key] = _indexMap[keyValuePair.Value];
                         }
 
-                        return new EntityShaperExpression(
+                        return new RelationalEntityShaperExpression(
                             entityShaperExpression.EntityType,
                             new ProjectionBindingExpression(_queryExpression, indexMap),
                             nullable: true);

@@ -2289,23 +2289,10 @@ WHERE [e].[Name] IS NULL");
                 Assert.True(result[0].Cast.All(a => a.Details != null));
 
                 AssertSql(
-                    @"SELECT [m].[Id], [m].[Title], [t].[Id], [t].[Details_Info], [t1].[Id], [t1].[Movie9202Id], [t1].[Name], [t1].[Id0], [t1].[Details_Info]
+                    @"SELECT [m].[Id], [m].[Title], [m].[Details_Info], [a].[Id], [a].[Movie9202Id], [a].[Name], [a].[Details_Info]
 FROM [Movies] AS [m]
-LEFT JOIN (
-    SELECT [m0].[Id], [m0].[Details_Info]
-    FROM [Movies] AS [m0]
-    WHERE [m0].[Details_Info] IS NOT NULL
-) AS [t] ON [m].[Id] = [t].[Id]
-LEFT JOIN (
-    SELECT [a].[Id], [a].[Movie9202Id], [a].[Name], [t0].[Id] AS [Id0], [t0].[Details_Info]
-    FROM [Actors] AS [a]
-    LEFT JOIN (
-        SELECT [a0].[Id], [a0].[Details_Info]
-        FROM [Actors] AS [a0]
-        WHERE [a0].[Details_Info] IS NOT NULL
-    ) AS [t0] ON [a].[Id] = [t0].[Id]
-) AS [t1] ON [m].[Id] = [t1].[Movie9202Id]
-ORDER BY [m].[Id], [t1].[Id]");
+LEFT JOIN [Actors] AS [a] ON [m].[Id] = [a].[Movie9202Id]
+ORDER BY [m].[Id], [a].[Id]");
             }
         }
 
@@ -2324,23 +2311,10 @@ ORDER BY [m].[Id], [t1].[Id]");
                 Assert.True(result[0].Cast.All(a => a.Details != null));
 
                 AssertSql(
-                    @"SELECT [m].[Id], [m].[Title], [t].[Id], [t].[Details_Info], [t1].[Id], [t1].[Movie9202Id], [t1].[Name], [t1].[Id0], [t1].[Details_Info]
+                    @"SELECT [m].[Id], [m].[Title], [m].[Details_Info], [a].[Id], [a].[Movie9202Id], [a].[Name], [a].[Details_Info]
 FROM [Movies] AS [m]
-LEFT JOIN (
-    SELECT [m0].[Id], [m0].[Details_Info]
-    FROM [Movies] AS [m0]
-    WHERE [m0].[Details_Info] IS NOT NULL
-) AS [t] ON [m].[Id] = [t].[Id]
-LEFT JOIN (
-    SELECT [a].[Id], [a].[Movie9202Id], [a].[Name], [t0].[Id] AS [Id0], [t0].[Details_Info]
-    FROM [Actors] AS [a]
-    LEFT JOIN (
-        SELECT [a0].[Id], [a0].[Details_Info]
-        FROM [Actors] AS [a0]
-        WHERE [a0].[Details_Info] IS NOT NULL
-    ) AS [t0] ON [a].[Id] = [t0].[Id]
-) AS [t1] ON [m].[Id] = [t1].[Movie9202Id]
-ORDER BY [m].[Id], [t1].[Id]");
+LEFT JOIN [Actors] AS [a] ON [m].[Id] = [a].[Movie9202Id]
+ORDER BY [m].[Id], [a].[Id]");
             }
         }
 
@@ -4303,7 +4277,7 @@ END IN ('0a47bcb7-a1cb-4345-8944-c58f82d6aac7', '5f221fb9-66f4-442a-92c9-d97ed59
 
         #region Bug13157
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#20342")]
         public virtual void Correlated_subquery_with_owned_navigation_being_compared_to_null_works()
         {
             using (CreateDatabase13157())
@@ -4323,26 +4297,22 @@ END IN ('0a47bcb7-a1cb-4345-8944-c58f82d6aac7', '5f221fb9-66f4-442a-92c9-d97ed59
                         }).ToList();
 
                 Assert.Single(partners);
-                Assert.Single(partners[0].Addresses);
-                Assert.NotNull(partners[0].Addresses[0].Turnovers);
-                Assert.Equal(10, partners[0].Addresses[0].Turnovers.AmountIn);
+                Assert.Collection(partners[0].Addresses,
+                    t =>
+                    {
+                        Assert.NotNull(t.Turnovers);
+                        Assert.Equal(10, t.Turnovers.AmountIn);
+                    },
+                    t =>
+                    {
+                        Assert.Null(t.Turnovers);
+                    });
 
-                AssertSql(
-                    @"SELECT [p].[Id], [t0].[c], [t0].[Turnovers_AmountIn], [t0].[Id]
+            AssertSql(
+                @"SELECT [p].[Id], CAST(0 AS bit), [a].[Turnovers_AmountIn], [a].[Id]
 FROM [Partners] AS [p]
-LEFT JOIN (
-    SELECT CASE
-        WHEN [t].[Id] IS NULL THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END AS [c], [t].[Turnovers_AmountIn], [a].[Id], [a].[Partner13157Id]
-    FROM [Address13157] AS [a]
-    LEFT JOIN (
-        SELECT [a0].[Id], [a0].[Turnovers_AmountIn]
-        FROM [Address13157] AS [a0]
-        WHERE [a0].[Turnovers_AmountIn] IS NOT NULL
-    ) AS [t] ON [a].[Id] = [t].[Id]
-) AS [t0] ON [p].[Id] = [t0].[Partner13157Id]
-ORDER BY [p].[Id], [t0].[Id]");
+LEFT JOIN [Address13157] AS [a] ON [p].[Id] = [a].[Partner13157Id]
+ORDER BY [p].[Id], [a].[Id]");
             }
         }
 
@@ -4357,7 +4327,8 @@ ORDER BY [p].[Id], [t0].[Id]");
                         {
                             Addresses = new List<Address13157>
                             {
-                                new Address13157 { Turnovers = new AddressTurnovers13157 { AmountIn = 10 } }
+                                new Address13157 { Turnovers = new AddressTurnovers13157 { AmountIn = 10 } },
+                                new Address13157 { Turnovers = null },
                             }
                         }
                     );
@@ -5421,13 +5392,8 @@ WHERE EXISTS (
                 var query = List17276(context.RemovableEntities);
 
                 AssertSql(
-                    @"SELECT [r].[Id], [r].[IsRemoved], [r].[Removed], [r].[RemovedByUser], [t].[Id], [t].[OwnedEntity_OwnedValue]
+                    @"SELECT [r].[Id], [r].[IsRemoved], [r].[Removed], [r].[RemovedByUser], [r].[OwnedEntity_OwnedValue]
 FROM [RemovableEntities] AS [r]
-LEFT JOIN (
-    SELECT [r0].[Id], [r0].[OwnedEntity_OwnedValue]
-    FROM [RemovableEntities] AS [r0]
-    WHERE [r0].[OwnedEntity_OwnedValue] IS NOT NULL
-) AS [t] ON [r].[Id] = [t].[Id]
 WHERE [r].[IsRemoved] <> CAST(1 AS bit)");
             }
         }
@@ -5461,14 +5427,9 @@ WHERE [r].[IsRemoved] = CAST(1 AS bit)");
                     .ToList();
 
                 AssertSql(
-                    @"SELECT [r].[Id], [r].[IsRemoved], [r].[Removed], [r].[RemovedByUser], [t].[Id], [t].[OwnedEntity_OwnedValue]
+                    @"SELECT [r].[Id], [r].[IsRemoved], [r].[Removed], [r].[RemovedByUser], [r].[OwnedEntity_OwnedValue]
 FROM [RemovableEntities] AS [r]
-LEFT JOIN (
-    SELECT [r0].[Id], [r0].[OwnedEntity_OwnedValue]
-    FROM [RemovableEntities] AS [r0]
-    WHERE [r0].[OwnedEntity_OwnedValue] IS NOT NULL
-) AS [t] ON [r].[Id] = [t].[Id]
-WHERE [t].[OwnedEntity_OwnedValue] = N'Abc'");
+WHERE [r].[OwnedEntity_OwnedValue] = N'Abc'");
             }
         }
 
