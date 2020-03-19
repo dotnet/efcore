@@ -2578,6 +2578,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("FunctionOnClient", nameof(methodName)),
                 methodName);
 
+        /// <summary>
+        ///     Materialization condition passed for entity shaper of entity type '{entityType}' is not of correct shape. Materialization condition must be LambdaExpression of 'Func&lt;ValueBuffer, IEntityType&gt;'
+        /// </summary>
+        public static string QueryEntityMaterializationConditionWrongShape([CanBeNull] object entityType)
+            => string.Format(
+                GetString("QueryEntityMaterializationConditionWrongShape", nameof(entityType)),
+                entityType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
