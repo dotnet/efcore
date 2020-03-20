@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -46,6 +47,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var migration = scaffolder.ScaffoldMigration("EmptyMigration", "WebApplication1");
 
             Assert.Equal("GenericContextModelSnapshot", migration.SnapshotName);
+        }
+
+        [ConditionalFact]
+        public void ScaffoldMigration_can_override_namespace()
+        {
+            var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
+
+            var migration = scaffolder.ScaffoldMigration("EmptyMigration", "OverrideNamespace", "OverrideSubNamespace", overrideNamespace: true);
+
+            Assert.Contains("namespace OverrideNamespace.OverrideSubNamespace", migration.MigrationCode);
+            Assert.Equal("OverrideSubNamespace", migration.MigrationSubNamespace);
+
+            Assert.Contains("namespace OverrideNamespace.OverrideSubNamespace", migration.SnapshotCode);
+            Assert.Equal("OverrideSubNamespace", migration.SnapshotSubnamespace);
         }
 
         private IMigrationsScaffolder CreateMigrationScaffolder<TContext>()

@@ -104,9 +104,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             var scaffolder = services.GetRequiredService<IMigrationsScaffolder>();
             var migration =
-                migrationNamespace == null
+                string.IsNullOrEmpty(migrationNamespace)
                 ? scaffolder.ScaffoldMigration(name, _rootNamespace, subNamespace, _language)
-                : scaffolder.ScaffoldMigration(name, migrationNamespace, null, _language);
+                : scaffolder.ScaffoldMigration(name, migrationNamespace, null, _language, true);
             var files = scaffolder.Save(_projectDir, migration, outputDir);
 
             return files;

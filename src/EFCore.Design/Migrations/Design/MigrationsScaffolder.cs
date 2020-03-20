@@ -64,12 +64,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="rootNamespace"> The project's root namespace. </param>
         /// <param name="subNamespace"> The migration's sub-namespace. </param>
         /// <param name="language"> The project's language. </param>
+        /// <param name="overrideNamespace"> Set to true to override all automatic namespace generation. </param>
         /// <returns> The scaffolded migration. </returns>
         public virtual ScaffoldedMigration ScaffoldMigration(
             string migrationName,
             string rootNamespace,
             string subNamespace = null,
-            string language = null)
+            string language = null,
+            bool overrideNamespace = false)
         {
             Check.NotEmpty(migrationName, nameof(migrationName));
             Check.NotEmpty(rootNamespace, nameof(rootNamespace));
@@ -80,7 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
 
             var subNamespaceDefaulted = false;
-            if (string.IsNullOrEmpty(subNamespace))
+            var subNamespaceNullOrEmpty = string.IsNullOrEmpty(subNamespace);
+            if (subNamespaceNullOrEmpty && !overrideNamespace)
             {
                 subNamespaceDefaulted = true;
                 subNamespace = "Migrations";
@@ -88,7 +91,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             var lastMigration = Dependencies.MigrationsAssembly.Migrations.LastOrDefault();
 
-            var migrationNamespace = rootNamespace + "." + subNamespace;
+            var migrationNamespace = rootNamespace +
+                (subNamespaceNullOrEmpty
+                    ? string.Empty
+                    : "." + subNamespace);
+
             if (subNamespaceDefaulted)
             {
                 migrationNamespace = GetNamespace(lastMigration.Value?.AsType(), migrationNamespace);
@@ -136,7 +143,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 ? Dependencies.MigrationsModelDiffer.GetDifferences(Dependencies.Model.GetRelationalModel(), lastModel)
                 : new List<MigrationOperation>();
             var migrationId = Dependencies.MigrationsIdGenerator.GenerateId(migrationName);
-            var modelSnapshotNamespace = GetNamespace(modelSnapshot?.GetType(), migrationNamespace);
+            var modelSnapshotNamespace = overrideNamespace
+                ? migrationNamespace
+                : GetNamespace(modelSnapshot?.GetType(), migrationNamespace);
 
             var modelSnapshotName = sanitizedContextName + "ModelSnapshot";
             if (modelSnapshot != null)

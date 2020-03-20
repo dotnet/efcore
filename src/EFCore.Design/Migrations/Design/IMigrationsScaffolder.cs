@@ -17,12 +17,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="rootNamespace"> The project's root namespace. </param>
         /// <param name="subNamespace"> The migration's sub-namespace. </param>
         /// <param name="language"> The project's language. </param>
+        /// <param name="overrideNamespace"> Set to true to override all automatic namespace generation. </param>
         /// <returns> The scaffolded migration. </returns>
         ScaffoldedMigration ScaffoldMigration(
             [NotNull] string migrationName,
             [NotNull] string rootNamespace,
             [CanBeNull] string subNamespace = null,
-            [CanBeNull] string language = null);
+            [CanBeNull] string language = null,
+            bool overrideNamespace = false);
 
         /// <summary>
         ///     Removes the previous migration.
