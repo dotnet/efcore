@@ -42,7 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             builder.Append(view.Name);
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
             if ((options & MetadataDebugStringOptions.SingleLine) == 0)
+#pragma warning restore EF1001 // Internal EF Core API usage.
             {
                 var mappings = view.EntityTypeMappings.ToList();
                 if (mappings.Count != 0)
@@ -64,9 +66,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                 }
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 {
+#pragma warning disable EF1001 // Internal EF Core API usage.
                     builder.Append(view.AnnotationsToDebugString(indent: indent + "  "));
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 }
             }
 

@@ -32,7 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             bool logParameterValues)
             => parameters
                 .Cast<DbParameter>()
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 .Select(p => FormatParameter(p, logParameterValues)).Join();
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

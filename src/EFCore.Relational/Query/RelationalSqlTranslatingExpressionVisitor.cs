@@ -234,7 +234,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (node is SqlExpression sqlExpression
                     && !(node is SqlFragmentExpression)
                     && !(node is SqlFunctionExpression sqlFunctionExpression
+#pragma warning disable EF1001 // Internal EF Core API usage.
                         && sqlFunctionExpression.Type.IsQueryableType()))
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 {
                     if (sqlExpression.TypeMapping == null)
                     {

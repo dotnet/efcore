@@ -682,7 +682,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return source;
                 }
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 var baseType = entityType.GetAllBaseTypes().SingleOrDefault(et => et.ClrType == resultType);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 if (baseType != null)
                 {
                     return source.UpdateShaperExpression(entityShaperExpression.WithEntityType(baseType));
@@ -1186,12 +1188,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                     var innerSequenceType = innerShapedQuery.Type.TryGetSequenceType();
                     var correlationPredicateParameter = Expression.Parameter(innerSequenceType);
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
                     var outerKey = entityShaperExpression.CreateKeyAccessExpression(
+#pragma warning restore EF1001 // Internal EF Core API usage.
                         navigation.IsOnDependent
                             ? foreignKey.Properties
                             : foreignKey.PrincipalKey.Properties,
                         makeNullable);
+#pragma warning disable EF1001 // Internal EF Core API usage.
                     var innerKey = correlationPredicateParameter.CreateKeyAccessExpression(
+#pragma warning restore EF1001 // Internal EF Core API usage.
                         navigation.IsOnDependent
                             ? foreignKey.PrincipalKey.Properties
                             : foreignKey.Properties,
@@ -1247,12 +1253,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .Select(p => p.ClrType)
                             .Any(t => t.IsNullableType());
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
                         var outerKey = entityShaperExpression.CreateKeyAccessExpression(
+#pragma warning restore EF1001 // Internal EF Core API usage.
                             navigation.IsOnDependent
                                 ? foreignKey.Properties
                                 : foreignKey.PrincipalKey.Properties,
                             makeNullable);
+#pragma warning disable EF1001 // Internal EF Core API usage.
                         var innerKey = innerShapedQuery.ShaperExpression.CreateKeyAccessExpression(
+#pragma warning restore EF1001 // Internal EF Core API usage.
                             navigation.IsOnDependent
                                 ? foreignKey.PrincipalKey.Properties
                                 : foreignKey.Properties,
@@ -1306,7 +1316,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 IEntityType entityType, TableExpression table, bool nullable)
             {
                 var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 foreach (var property in entityType.GetTypesInHierarchy().SelectMany(EntityTypeExtensions.GetDeclaredProperties))
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 {
                     propertyExpressions[property] = new ColumnExpression(property, table, nullable || !property.IsPrimaryKey());
                 }

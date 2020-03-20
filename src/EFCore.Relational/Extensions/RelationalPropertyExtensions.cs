@@ -775,7 +775,9 @@ namespace Microsoft.EntityFrameworkCore
                     return null;
                 }
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 principalProperty = linkingRelationship.PrincipalKey.Properties[linkingRelationship.Properties.IndexOf(principalProperty)];
+#pragma warning restore EF1001 // Internal EF Core API usage.
             }
 
             return principalProperty == property ? null : principalProperty;

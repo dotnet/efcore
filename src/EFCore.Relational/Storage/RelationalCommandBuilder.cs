@@ -20,7 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public class RelationalCommandBuilder : IRelationalCommandBuilder
     {
         private readonly List<IRelationalParameter> _parameters = new List<IRelationalParameter>();
+#pragma warning disable EF1001 // Internal EF Core API usage.
         private readonly IndentedStringBuilder _commandTextBuilder = new IndentedStringBuilder();
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         /// <summary>
         ///     <para>
@@ -55,12 +57,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <returns> The newly created command. </returns>
         public virtual IRelationalCommand Build()
+#pragma warning disable EF1001 // Internal EF Core API usage.
             => new RelationalCommand(Dependencies, _commandTextBuilder.ToString(), Parameters);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         /// <summary>
         ///     Gets the command text.
         /// </summary>
+#pragma warning disable EF1001 // Internal EF Core API usage.
         public override string ToString() => _commandTextBuilder.ToString();
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         /// <summary>
         ///     The collection of parameters.
@@ -90,7 +96,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(value, nameof(value));
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
             _commandTextBuilder.Append(value);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
             return this;
         }
@@ -101,7 +109,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual IRelationalCommandBuilder AppendLine()
         {
+#pragma warning disable EF1001 // Internal EF Core API usage.
             _commandTextBuilder.AppendLine();
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
             return this;
         }
@@ -112,7 +122,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual IRelationalCommandBuilder IncrementIndent()
         {
+#pragma warning disable EF1001 // Internal EF Core API usage.
             _commandTextBuilder.IncrementIndent();
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
             return this;
         }
@@ -123,7 +135,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual IRelationalCommandBuilder DecrementIndent()
         {
+#pragma warning disable EF1001 // Internal EF Core API usage.
             _commandTextBuilder.DecrementIndent();
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
             return this;
         }
@@ -131,6 +145,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the length of the command text.
         /// </summary>
+#pragma warning disable EF1001 // Internal EF Core API usage.
         public virtual int CommandTextLength => _commandTextBuilder.Length;
+#pragma warning restore EF1001 // Internal EF Core API usage.
     }
 }

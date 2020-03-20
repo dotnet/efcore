@@ -15,7 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly ISet<string> _usedAliases = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         private readonly ISet<TableExpressionBase> _visitedTableExpressionBases
+#pragma warning disable EF1001 // Internal EF Core API usage.
             = new HashSet<TableExpressionBase>(ReferenceEqualityComparer.Instance);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         protected override Expression VisitExtension(Expression extensionExpression)
         {

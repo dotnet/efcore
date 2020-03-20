@@ -273,6 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         /// </summary>
         protected virtual IReadOnlyList<List<ModificationCommand>> TopologicalSort([NotNull] IEnumerable<ModificationCommand> commands)
         {
+#pragma warning disable EF1001 // Internal EF Core API usage.
             var modificationCommandGraph = new Multigraph<ModificationCommand, IAnnotatable>();
             modificationCommandGraph.AddVertices(commands);
 
@@ -283,6 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             AddUniqueValueEdges(modificationCommandGraph);
 
             return modificationCommandGraph.BatchingTopologicalSort(FormatCycle);
+#pragma warning restore EF1001 // Internal EF Core API usage.
         }
 
         private string FormatCycle(IReadOnlyList<Tuple<ModificationCommand, ModificationCommand, IEnumerable<IAnnotatable>>> data)
@@ -458,7 +460,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             Graph<ModificationCommand> commandGraph)
         {
             var predecessorsMap = new Dictionary<IKeyValueIndex, List<ModificationCommand>>();
+#pragma warning disable EF1001 // Internal EF Core API usage.
             foreach (var command in commandGraph.Vertices)
+#pragma warning restore EF1001 // Internal EF Core API usage.
             {
                 var columnModifications = command.ColumnModifications;
                 if (command.EntityState == EntityState.Modified
@@ -543,7 +547,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             Multigraph<ModificationCommand, IAnnotatable> commandGraph,
             Dictionary<IKeyValueIndex, List<ModificationCommand>> predecessorsMap)
         {
+#pragma warning disable EF1001 // Internal EF Core API usage.
             foreach (var command in commandGraph.Vertices)
+#pragma warning restore EF1001 // Internal EF Core API usage.
             {
                 switch (command.EntityState)
                 {
@@ -609,7 +615,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 {
                     if (predecessor != command)
                     {
+#pragma warning disable EF1001 // Internal EF Core API usage.
                         commandGraph.AddEdge(predecessor, command, foreignKey);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                     }
                 }
             }
@@ -618,7 +626,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private void AddUniqueValueEdges(Multigraph<ModificationCommand, IAnnotatable> commandGraph)
         {
             Dictionary<IIndex, Dictionary<object[], ModificationCommand>> predecessorsMap = null;
+#pragma warning disable EF1001 // Internal EF Core API usage.
             foreach (var command in commandGraph.Vertices)
+#pragma warning restore EF1001 // Internal EF Core API usage.
             {
                 if (command.EntityState != EntityState.Modified
                     && command.EntityState != EntityState.Deleted)
@@ -653,15 +663,19 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             }
                         }
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
                         var valueFactory = index.GetNullableValueFactory<object[]>();
                         if (valueFactory.TryCreateFromOriginalValues(
+#pragma warning restore EF1001 // Internal EF Core API usage.
                             (InternalEntityEntry)entry, out var indexValue))
                         {
                             predecessorsMap ??= new Dictionary<IIndex, Dictionary<object[], ModificationCommand>>();
                             if (!predecessorsMap.TryGetValue(index, out var predecessorCommands))
                             {
                                 predecessorCommands =
+#pragma warning disable EF1001 // Internal EF Core API usage.
                                     new Dictionary<object[], ModificationCommand>(valueFactory.EqualityComparer);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                                 predecessorsMap.Add(index, predecessorCommands);
                             }
 
@@ -679,7 +693,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 return;
             }
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
             foreach (var command in commandGraph.Vertices)
+#pragma warning restore EF1001 // Internal EF Core API usage.
             {
                 if (command.EntityState == EntityState.Modified
                     || command.EntityState == EntityState.Added)
@@ -696,13 +712,17 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             if (command.EntityState == EntityState.Added
                                 || indexColumnModifications.Any())
                             {
+#pragma warning disable EF1001 // Internal EF Core API usage.
                                 var valueFactory = index.GetNullableValueFactory<object[]>();
                                 if (valueFactory.TryCreateFromCurrentValues((InternalEntityEntry)entry, out var indexValue)
+#pragma warning restore EF1001 // Internal EF Core API usage.
                                     && predecessorsMap.TryGetValue(index, out var predecessorCommands)
                                     && predecessorCommands.TryGetValue(indexValue, out var predecessor)
                                     && predecessor != command)
                                 {
+#pragma warning disable EF1001 // Internal EF Core API usage.
                                     commandGraph.AddEdge(predecessor, command, index);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                                 }
                             }
                         }

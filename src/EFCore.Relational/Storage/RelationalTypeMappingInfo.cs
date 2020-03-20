@@ -25,7 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="property"> The property for which mapping is needed. </param>
         public RelationalTypeMappingInfo([NotNull] IProperty property)
+#pragma warning disable EF1001 // Internal EF Core API usage.
             : this(property.FindPrincipals())
+#pragma warning restore EF1001 // Internal EF Core API usage.
         {
         }
 

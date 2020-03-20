@@ -348,8 +348,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     {
                         var declaringType = tokenPair.Value.DeclaringEntityType;
                         if (!declaringType.IsAssignableFrom(entityType)
+#pragma warning disable EF1001 // Internal EF Core API usage.
                             && !declaringType.IsInOwnershipPath(entityType)
                             && !entityType.IsInOwnershipPath(declaringType))
+#pragma warning restore EF1001 // Internal EF Core API usage.
                         {
                             missingConcurrencyTokens.Add(tokenPair.Key);
                         }
@@ -373,7 +375,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     foreach (var missingColumn in missingConcurrencyTokens)
                     {
+#pragma warning disable EF1001 // Internal EF Core API usage.
                         if (entityType.GetAllBaseTypes().SelectMany(t => t.GetDeclaredProperties())
+#pragma warning restore EF1001 // Internal EF Core API usage.
                             .All(p => p.GetColumnName() != missingColumn))
                         {
                             throw new InvalidOperationException(
@@ -641,7 +645,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             foreach (var entityType in model.GetEntityTypes())
             {
                 if (entityType.BaseType != null
+#pragma warning disable EF1001 // Internal EF Core API usage.
                     && ((EntityType)entityType).FindAnnotation(RelationalAnnotationNames.TableName)?.GetConfigurationSource()
+#pragma warning restore EF1001 // Internal EF Core API usage.
                         == ConfigurationSource.Explicit)
                 {
                     throw new InvalidOperationException(

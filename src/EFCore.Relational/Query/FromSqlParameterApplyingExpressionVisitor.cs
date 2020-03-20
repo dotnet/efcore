@@ -17,7 +17,9 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class FromSqlParameterApplyingExpressionVisitor : ExpressionVisitor
     {
         private readonly IDictionary<FromSqlExpression, Expression> _visitedFromSqlExpressions
+#pragma warning disable EF1001 // Internal EF Core API usage.
             = new Dictionary<FromSqlExpression, Expression>(ReferenceEqualityComparer.Instance);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly ParameterNameGenerator _parameterNameGenerator;

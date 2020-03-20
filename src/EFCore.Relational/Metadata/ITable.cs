@@ -49,7 +49,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         IEnumerable<ICheckConstraint> CheckConstraints
             => EntityTypeMappings.SelectMany(m => CheckConstraint.GetCheckConstraints(m.EntityType))
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 .Distinct((x, y) => x.Name == y.Name);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         /// <summary>
         ///     Gets the comment for this table.

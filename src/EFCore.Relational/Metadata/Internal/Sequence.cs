@@ -263,7 +263,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             _startValueConfigurationSource = startValue == null
                 ? (ConfigurationSource?)null
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 : configurationSource.Max(_startValueConfigurationSource);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
             return startValue;
         }
@@ -301,7 +303,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             _incrementByConfigurationSource = incrementBy == null
                 ? (ConfigurationSource?)null
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 : configurationSource.Max(_incrementByConfigurationSource);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
             return incrementBy;
         }
@@ -339,7 +343,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             _minValueConfigurationSource = minValue == null
                 ? (ConfigurationSource?)null
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 : configurationSource.Max(_minValueConfigurationSource);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
             return minValue;
         }
@@ -377,7 +383,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             _maxValueConfigurationSource = maxValue == null
                 ? (ConfigurationSource?)null
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 : configurationSource.Max(_maxValueConfigurationSource);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
             return maxValue;
         }
@@ -430,7 +438,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             _clrTypeConfigurationSource = clrType == null
                 ? (ConfigurationSource?)null
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 : configurationSource.Max(_clrTypeConfigurationSource);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
             return clrType;
         }
@@ -468,7 +478,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             _isCyclicConfigurationSource = cyclic == null
                 ? (ConfigurationSource?)null
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 : configurationSource.Max(_isCyclicConfigurationSource);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
             return cyclic;
         }
@@ -498,7 +510,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
+#pragma warning disable EF1001 // Internal EF Core API usage.
             => _configurationSource = _configurationSource.Max(configurationSource);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

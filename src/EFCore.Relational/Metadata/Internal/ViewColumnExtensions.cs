@@ -30,7 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             builder.Append(indent);
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
             var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
+#pragma warning restore EF1001 // Internal EF Core API usage.
             if (singleLine)
             {
                 builder.Append($"Column: {column.Table.Name}.");
@@ -52,9 +54,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             builder.Append(")");
 
             if (!singleLine &&
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+#pragma warning restore EF1001 // Internal EF Core API usage.
             {
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 builder.Append(column.AnnotationsToDebugString(indent + "  "));
+#pragma warning restore EF1001 // Internal EF Core API usage.
             }
 
             return builder.ToString();

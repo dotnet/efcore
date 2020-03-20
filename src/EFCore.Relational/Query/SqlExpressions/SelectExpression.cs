@@ -143,7 +143,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         private static IEnumerable<IProperty> GetAllPropertiesInHierarchy(IEntityType entityType)
+#pragma warning disable EF1001 // Internal EF Core API usage.
             => entityType.GetTypesInHierarchy().SelectMany(EntityTypeExtensions.GetDeclaredProperties);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         public void ReplaceProjectionMapping([NotNull] IDictionary<ProjectionMember, Expression> projectionMapping)
         {
@@ -819,7 +821,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
                 var newEntityProjection = new EntityProjectionExpression(entityProjection.EntityType, propertyExpressions);
                 // Also lift nested entity projections
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 foreach (var navigation in entityProjection.EntityType.GetTypesInHierarchy()
+#pragma warning restore EF1001 // Internal EF Core API usage.
                     .SelectMany(EntityTypeExtensions.GetDeclaredNavigations))
                 {
                     var boundEntityShaperExpression = entityProjection.BindNavigation(navigation);

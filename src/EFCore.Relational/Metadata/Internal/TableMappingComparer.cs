@@ -36,7 +36,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public int Compare(ITableMapping x, ITableMapping y)
         {
+#pragma warning disable EF1001 // Internal EF Core API usage.
             var result = EntityTypePathComparer.Instance.Compare(x.EntityType, y.EntityType);
+#pragma warning restore EF1001 // Internal EF Core API usage.
             if (result != 0)
             {
                 return result;
@@ -91,7 +93,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public int GetHashCode(ITableMapping obj)
         {
             var hashCode = new HashCode();
+#pragma warning disable EF1001 // Internal EF Core API usage.
             hashCode.Add(obj.EntityType, EntityTypePathComparer.Instance);
+#pragma warning restore EF1001 // Internal EF Core API usage.
             hashCode.Add(obj.Table.Name);
             hashCode.Add(obj.Table.Schema);
             foreach (var columnMapping in obj.ColumnMappings)

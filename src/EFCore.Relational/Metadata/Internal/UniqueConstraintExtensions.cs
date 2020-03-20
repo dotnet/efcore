@@ -29,7 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var builder = new StringBuilder();
 
             builder.Append(indent);
+#pragma warning disable EF1001 // Internal EF Core API usage.
             var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
+#pragma warning restore EF1001 // Internal EF Core API usage.
             if (singleLine)
             {
                 builder.Append("Key: ");
@@ -46,9 +48,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             if (!singleLine &&
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+#pragma warning restore EF1001 // Internal EF Core API usage.
             {
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 builder.Append(uniqueConstraint.AnnotationsToDebugString(indent + "  "));
+#pragma warning restore EF1001 // Internal EF Core API usage.
             }
 
             return builder.ToString();

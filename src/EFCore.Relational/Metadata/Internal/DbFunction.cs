@@ -273,7 +273,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
+#pragma warning disable EF1001 // Internal EF Core API usage.
             => _configurationSource = configurationSource.Max(_configurationSource);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -299,7 +301,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             _schemaConfigurationSource = schema == null
                 ? (ConfigurationSource?)null
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 : configurationSource.Max(_schemaConfigurationSource);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
             return schema;
         }
@@ -336,7 +340,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             _nameConfigurationSource = name == null
                 ? (ConfigurationSource?)null
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 : configurationSource.Max(_nameConfigurationSource);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
             return name;
         }
@@ -373,7 +379,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             _storeTypeConfigurationSource = storeType == null
                 ? (ConfigurationSource?)null
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 : configurationSource.Max(_storeTypeConfigurationSource);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
             return storeType;
         }
@@ -411,7 +419,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             _typeMappingConfigurationSource = typeMapping == null
                 ? (ConfigurationSource?)null
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 : configurationSource.Max(_typeMappingConfigurationSource);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
             return typeMapping;
         }
@@ -461,7 +471,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             _translationConfigurationSource = translation == null
                 ? (ConfigurationSource?)null
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 : configurationSource.Max(_translationConfigurationSource);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
             return translation;
         }

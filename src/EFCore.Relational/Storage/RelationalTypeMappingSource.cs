@@ -204,7 +204,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 return mapping;
             }
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
             var principals = property.FindPrincipals();
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
             string storeTypeName = null;
             bool? isFixedLength = null;

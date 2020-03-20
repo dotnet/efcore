@@ -86,7 +86,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         private void UpdateStoreTypeConfigurationSource(ConfigurationSource configurationSource)
+#pragma warning disable EF1001 // Internal EF Core API usage.
             => _storeTypeConfigurationSource = configurationSource.Max(_storeTypeConfigurationSource);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -125,7 +127,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private void UpdateTypeMappingConfigurationSource(ConfigurationSource configurationSource)
+#pragma warning disable EF1001 // Internal EF Core API usage.
             => _typeMappingConfigurationSource = configurationSource.Max(_typeMappingConfigurationSource);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

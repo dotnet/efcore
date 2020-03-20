@@ -26,7 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             [NotNull] ProviderConventionSetBuilderDependencies dependencies,
             [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
         {
+#pragma warning disable EF1001 // Internal EF Core API usage.
             _sets = dependencies.SetFinder.CreateClrTypeDbSetMapping(dependencies.ContextType);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
             Dependencies = dependencies;
         }
@@ -61,7 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 && entityType.ClrType != null
                 && _sets.ContainsKey(entityType.ClrType))
             {
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 entityTypeBuilder.ToTable(_sets[entityType.ClrType].Name);
+#pragma warning restore EF1001 // Internal EF Core API usage.
             }
         }
 
@@ -79,7 +83,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 && entityType.ClrType != null
                 && _sets.ContainsKey(entityType.ClrType))
             {
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 entityTypeBuilder.ToTable(_sets[entityType.ClrType].Name);
+#pragma warning restore EF1001 // Internal EF Core API usage.
             }
         }
 

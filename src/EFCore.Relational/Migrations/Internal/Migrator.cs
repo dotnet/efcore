@@ -318,6 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 out var migrationsToRevert,
                 out var actualTargetMigration);
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
             var builder = new IndentedStringBuilder();
 
             if (fromMigration == Migration.InitialDatabase
@@ -383,6 +384,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
 
             return builder.ToString();
+#pragma warning restore EF1001 // Internal EF Core API usage.
         }
 
         /// <summary>

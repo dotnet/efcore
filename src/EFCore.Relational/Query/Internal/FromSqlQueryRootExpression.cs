@@ -64,9 +64,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private bool Equals(FromSqlQueryRootExpression queryRootExpression)
             => base.Equals(queryRootExpression)
                 && string.Equals(Sql, queryRootExpression.Sql, StringComparison.OrdinalIgnoreCase)
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 && ExpressionEqualityComparer.Instance.Equals(Argument, queryRootExpression.Argument);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         public override int GetHashCode()
+#pragma warning disable EF1001 // Internal EF Core API usage.
             => HashCode.Combine(base.GetHashCode(), Sql, ExpressionEqualityComparer.Instance.GetHashCode(Argument));
+#pragma warning restore EF1001 // Internal EF Core API usage.
     }
 }

@@ -146,7 +146,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
         {
+#pragma warning disable EF1001 // Internal EF Core API usage.
             _configurationSource = configurationSource.Max(_configurationSource);
+#pragma warning restore EF1001 // Internal EF Core API usage.
         }
 
         private static Dictionary<string, CheckConstraint> GetConstraintsDictionary(IEntityType entityType)

@@ -49,7 +49,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                         body = Condition(
                             requiredNonPkProperties
                                 .Select(p => NotEqual(
+#pragma warning disable EF1001 // Internal EF Core API usage.
                                     valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
+#pragma warning restore EF1001 // Internal EF Core API usage.
                                     Constant(null)))
                                 .Aggregate((a, b) => AndAlso(a, b)),
                             body,
@@ -63,7 +65,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                             body = Condition(
                                 allNonPkProperties
                                     .Select(p => NotEqual(
+#pragma warning disable EF1001 // Internal EF Core API usage.
                                         valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
+#pragma warning restore EF1001 // Internal EF Core API usage.
                                         Constant(null)))
                                     .Aggregate((a, b) => OrElse(a, b)),
                                 body,

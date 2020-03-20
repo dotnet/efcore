@@ -99,7 +99,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Gets a comparer that can be used to compare two product versions.
         /// </summary>
+#pragma warning disable EF1001 // Internal EF Core API usage.
         protected virtual IComparer<string> VersionComparer { get; } = new SemanticVersionComparer();
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         /// <summary>
         ///     Generates commands from a list of operations.
@@ -1665,7 +1667,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns> True if the version could be retrieved. </returns>
         protected virtual bool TryGetVersion([CanBeNull] IModel model, out string version)
         {
+#pragma warning disable EF1001 // Internal EF Core API usage.
             if (!(model?[CoreAnnotationNames.ProductVersion] is string versionString))
+#pragma warning restore EF1001 // Internal EF Core API usage.
             {
                 version = null;
 

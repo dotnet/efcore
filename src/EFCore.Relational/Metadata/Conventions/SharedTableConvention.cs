@@ -157,9 +157,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     continue;
                 }
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 var identifyingMemberInfo = property.GetIdentifyingMemberInfo();
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 if (identifyingMemberInfo != null
+#pragma warning disable EF1001 // Internal EF Core API usage.
                     && identifyingMemberInfo.IsSameAs(otherProperty.GetIdentifyingMemberInfo()))
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 {
                     continue;
                 }

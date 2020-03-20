@@ -275,8 +275,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
             }
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
             var createTableGraph = new Multigraph<CreateTableOperation, AddForeignKeyOperation>();
             createTableGraph.AddVertices(createTableOperations);
+#pragma warning restore EF1001 // Internal EF Core API usage.
             foreach (var createTableOperation in createTableOperations)
             {
                 foreach (var addForeignKeyOperation in createTableOperation.ForeignKeys)
@@ -292,12 +294,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             && o.Schema == addForeignKeyOperation.PrincipalSchema);
                     if (principalCreateTableOperation != null)
                     {
+#pragma warning disable EF1001 // Internal EF Core API usage.
                         createTableGraph.AddEdge(principalCreateTableOperation, createTableOperation, addForeignKeyOperation);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                     }
                 }
             }
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
             createTableOperations = createTableGraph.TopologicalSort(
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 (principalCreateTableOperation, createTableOperation, cyclicAddForeignKeyOperations) =>
                 {
                     foreach (var cyclicAddForeignKeyOperation in cyclicAddForeignKeyOperations)
@@ -309,8 +315,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     return true;
                 }).ToList();
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
             var dropTableGraph = new Multigraph<DropTableOperation, IForeignKey>();
             dropTableGraph.AddVertices(dropTableOperations);
+#pragma warning restore EF1001 // Internal EF Core API usage.
             foreach (var dropTableOperation in dropTableOperations)
             {
                 var table = diffContext.FindTable(dropTableOperation);
@@ -321,13 +329,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     if (principalDropTableOperation != null
                         && principalDropTableOperation != dropTableOperation)
                     {
+#pragma warning disable EF1001 // Internal EF Core API usage.
                         dropTableGraph.AddEdge(dropTableOperation, principalDropTableOperation, foreignKey);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                     }
                 }
             }
 
             var newDiffContext = new DiffContext(null, null);
+#pragma warning disable EF1001 // Internal EF Core API usage.
             dropTableOperations = dropTableGraph.TopologicalSort(
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 (dropTableOperation, principalDropTableOperation, foreignKeys) =>
                 {
                     dropForeignKeyOperations.AddRange(foreignKeys.SelectMany(c => Remove(c, newDiffContext)));
@@ -686,7 +698,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private static IEnumerable<IProperty> GetSortedProperties(ITable table)
             => GetSortedProperties(GetRootType(table))
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 .Distinct((x, y) => x.GetColumnName() == y.GetColumnName());
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         private static IEnumerable<IProperty> GetSortedProperties(IEntityType entityType)
         {
@@ -720,7 +734,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }
 
                     clrProperty = foreignKey.DependentToPrincipal.PropertyInfo;
+#pragma warning disable EF1001 // Internal EF Core API usage.
                     var groupIndex = foreignKey.Properties.IndexOf(property);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
                     unorderedGroups.GetOrAddNew(clrProperty).Add(groupIndex, property);
                 }
@@ -737,7 +753,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                 var clrType = clrProperty.DeclaringType;
                 var index = clrType.GetTypeInfo().DeclaredProperties
+#pragma warning disable EF1001 // Internal EF Core API usage.
                     .IndexOf(clrProperty, PropertyInfoEqualityComparer.Instance);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
                 Check.DebugAssert(clrType != null, "clrType is null");
                 types.GetOrAddNew(clrType)[index] = clrProperty;
@@ -773,14 +791,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                 var clrType = clrProperty.DeclaringType;
                 var index = clrType.GetTypeInfo().DeclaredProperties
+#pragma warning disable EF1001 // Internal EF Core API usage.
                     .IndexOf(clrProperty, PropertyInfoEqualityComparer.Instance);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
                 Check.DebugAssert(clrType != null, "clrType is null");
                 types.GetOrAddNew(clrType)[index] = clrProperty;
             }
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
             var graph = new Multigraph<Type, object>();
             graph.AddVertices(types.Keys);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
             foreach (var left in types.Keys)
             {
@@ -791,7 +813,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         if (right == baseType)
                         {
+#pragma warning disable EF1001 // Internal EF Core API usage.
                             graph.AddEdge(right, left, null);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                             found = true;
 
                             break;
@@ -805,7 +829,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
             }
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
             var sortedPropertyInfos = graph.TopologicalSort().SelectMany(e => types[e].Values).ToList();
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
             return sortedPropertyInfos
                 .Select(pi => primaryKeyPropertyGroups.ContainsKey(pi) ? primaryKeyPropertyGroups[pi] : null)
@@ -911,7 +937,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 return entityType.DefiningNavigationName;
             }
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
             var primaryKey = entityType.FindDeclaredPrimaryKey();
+#pragma warning restore EF1001 // Internal EF Core API usage.
             if (primaryKey != null)
             {
                 var definingForeignKey = entityType
@@ -2179,7 +2207,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<string> GetSchemas([NotNull] IModel model)
+#pragma warning disable EF1001 // Internal EF Core API usage.
             => model.GetRootEntityTypes().Where(t => !t.IsIgnoredByMigrations()).Select(t => t.GetSchema())
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 .Concat(model.GetSequences().Select(s => s.Schema))
                 .Where(s => !string.IsNullOrEmpty(s))
                 .Distinct();
@@ -2239,15 +2269,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private static IEnumerable<IKey> GetKeys(ITable table)
             => table.EntityTypeMappings.SelectMany(m => m.EntityType.GetDeclaredKeys())
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 .Distinct((x, y) => x.GetName() == y.GetName());
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         private static IEnumerable<IIndex> GetIndexes(ITable table)
             => table.EntityTypeMappings.SelectMany(m => m.EntityType.GetDeclaredIndexes())
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 .Distinct((x, y) => x.GetName() == y.GetName());
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         private static IEnumerable<IForeignKey> GetForeignKeys(ITable table)
             => table.EntityTypeMappings.SelectMany(m => m.EntityType.GetDeclaredForeignKeys())
+#pragma warning disable EF1001 // Internal EF Core API usage.
                    .Distinct((x, y) => x.GetConstraintName() == y.GetConstraintName())
+#pragma warning restore EF1001 // Internal EF Core API usage.
                    .Where(fk => !fk.PrincipalKey.Properties
                        .Select(p => p.GetTableColumnMappings().Select(m => m.Column).SingleOrDefault(m => m.Table == table))
                            .SequenceEqual(fk.Properties.
