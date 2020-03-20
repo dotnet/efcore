@@ -58,7 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory,
             [NotNull] ISqlExpressionFactory sqlExpressionFactory,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
-            [NotNull] IRelationalParameterBasedQueryTranslationPostprocessorFactory relationalParameterBasedQueryTranslationPostprocessorFactory)
+            [NotNull] IRelationalParameterBasedQueryTranslationPostprocessorFactory relationalParameterBasedQueryTranslationPostprocessorFactory,
+            [NotNull] ICoreSingletonOptions coreSingletonOptions)
         {
             Check.NotNull(querySqlGeneratorFactory, nameof(querySqlGeneratorFactory));
             Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
@@ -69,6 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             SqlExpressionFactory = sqlExpressionFactory;
             ParameterNameGeneratorFactory = parameterNameGeneratorFactory;
             RelationalParameterBasedQueryTranslationPostprocessorFactory = relationalParameterBasedQueryTranslationPostprocessorFactory;
+            CoreSingletonOptions = coreSingletonOptions;
         }
 
         /// <summary>
@@ -92,6 +94,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         public IRelationalParameterBasedQueryTranslationPostprocessorFactory RelationalParameterBasedQueryTranslationPostprocessorFactory { get; }
 
         /// <summary>
+        ///     Core singleton options.
+        /// </summary>
+        public ICoreSingletonOptions CoreSingletonOptions { get; }
+
+        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="querySqlGeneratorFactory"> A replacement for the current dependency of this type. </param>
@@ -102,7 +109,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 querySqlGeneratorFactory,
                 SqlExpressionFactory,
                 ParameterNameGeneratorFactory,
-                RelationalParameterBasedQueryTranslationPostprocessorFactory);
+                RelationalParameterBasedQueryTranslationPostprocessorFactory,
+                CoreSingletonOptions);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -114,7 +122,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 QuerySqlGeneratorFactory,
                 sqlExpressionFactory,
                 ParameterNameGeneratorFactory,
-                RelationalParameterBasedQueryTranslationPostprocessorFactory);
+                RelationalParameterBasedQueryTranslationPostprocessorFactory,
+                CoreSingletonOptions);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -127,7 +136,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 QuerySqlGeneratorFactory,
                 SqlExpressionFactory,
                 parameterNameGeneratorFactory,
-                RelationalParameterBasedQueryTranslationPostprocessorFactory);
+                RelationalParameterBasedQueryTranslationPostprocessorFactory,
+                CoreSingletonOptions);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -140,6 +150,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                 QuerySqlGeneratorFactory,
                 SqlExpressionFactory,
                 ParameterNameGeneratorFactory,
-                relationalParameterBasedQueryTranslationPostprocessorFactory);
+                relationalParameterBasedQueryTranslationPostprocessorFactory,
+                CoreSingletonOptions);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="coreSingletonOptions"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalShapedQueryCompilingExpressionVisitorDependencies With(
+            [NotNull] ICoreSingletonOptions coreSingletonOptions)
+            => new RelationalShapedQueryCompilingExpressionVisitorDependencies(
+                QuerySqlGeneratorFactory,
+                SqlExpressionFactory,
+                ParameterNameGeneratorFactory,
+                RelationalParameterBasedQueryTranslationPostprocessorFactory,
+                coreSingletonOptions);
     }
 }

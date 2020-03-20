@@ -785,6 +785,54 @@ FROM (
 ) AS [c0]");
         }
 
+        [ConditionalFact(Skip = "Issue#20364")]
+        public override void Bad_data_error_handling_invalid_cast()
+        {
+            base.Bad_data_error_handling_invalid_cast();
+        }
+
+        [ConditionalFact(Skip = "Issue#20364")]
+        public override void Bad_data_error_handling_invalid_cast_key()
+        {
+            base.Bad_data_error_handling_invalid_cast_key();
+        }
+
+        [ConditionalFact(Skip = "Issue#20364")]
+        public override void Bad_data_error_handling_invalid_cast_no_tracking()
+        {
+            base.Bad_data_error_handling_invalid_cast_no_tracking();
+        }
+
+        [ConditionalFact(Skip = "Issue#20364")]
+        public override void Bad_data_error_handling_invalid_cast_projection()
+        {
+            base.Bad_data_error_handling_invalid_cast_projection();
+        }
+
+        [ConditionalFact(Skip = "Issue#20364")]
+        public override void Bad_data_error_handling_null()
+        {
+            base.Bad_data_error_handling_null();
+        }
+
+        [ConditionalFact(Skip = "Issue#20364")]
+        public override void Bad_data_error_handling_null_no_tracking()
+        {
+            base.Bad_data_error_handling_null_no_tracking();
+        }
+
+        [ConditionalFact(Skip = "Issue#20364")]
+        public override void Bad_data_error_handling_null_projection()
+        {
+            base.Bad_data_error_handling_null_projection();
+        }
+
+        [ConditionalFact(Skip = "Issue#20364")]
+        public override void FromSqlRaw_queryable_simple_columns_out_of_order_and_not_enough_columns_throws()
+        {
+            base.FromSqlRaw_queryable_simple_columns_out_of_order_and_not_enough_columns_throws();
+        }
+
         protected override DbParameter CreateDbParameter(string name, object value)
             => new SqlParameter { ParameterName = name, Value = value };
 

@@ -442,7 +442,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
 
         #endregion
 
-        [ConditionalFact(Skip = "Issue#15751")]
+        [ConditionalFact(Skip = "Issue#20364")]
         public void Query_when_null_key_in_database_should_throw()
         {
             using var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest");
