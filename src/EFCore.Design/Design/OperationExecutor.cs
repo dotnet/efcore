@@ -160,22 +160,25 @@ namespace Microsoft.EntityFrameworkCore.Design
                 var name = (string)args["name"];
                 var outputDir = (string)args["outputDir"];
                 var contextType = (string)args["contextType"];
+                var migrationNamespace = (string)args["migrationNamespace"];
 
-                Execute(() => executor.AddMigrationImpl(name, outputDir, contextType));
+                Execute(() => executor.AddMigrationImpl(name, outputDir, contextType, migrationNamespace));
             }
         }
 
         private IDictionary AddMigrationImpl(
             [NotNull] string name,
             [CanBeNull] string outputDir,
-            [CanBeNull] string contextType)
+            [CanBeNull] string contextType,
+            [CanBeNull] string migrationNamespace)
         {
             Check.NotEmpty(name, nameof(name));
 
             var files = MigrationsOperations.AddMigration(
                 name,
                 outputDir,
-                contextType);
+                contextType,
+                migrationNamespace);
 
             return new Hashtable
             {
@@ -464,11 +467,14 @@ namespace Microsoft.EntityFrameworkCore.Design
                 var useDataAnnotations = (bool)args["useDataAnnotations"];
                 var overwriteFiles = (bool)args["overwriteFiles"];
                 var useDatabaseNames = (bool)args["useDatabaseNames"];
+                var entityNamespace = (string)args["entityNamespace"];
+                var dbContextNamespace = (string)args["dbContextNamespace"];
 
                 Execute(
                     () => executor.ScaffoldContextImpl(
                         provider, connectionString, outputDir, outputDbContextDir, dbContextClassName,
-                        schemaFilters, tableFilters, useDataAnnotations, overwriteFiles, useDatabaseNames));
+                        schemaFilters, tableFilters, useDataAnnotations, overwriteFiles, useDatabaseNames,
+                        entityNamespace, dbContextNamespace));
             }
         }
 
@@ -482,7 +488,9 @@ namespace Microsoft.EntityFrameworkCore.Design
             [NotNull] IEnumerable<string> tableFilters,
             bool useDataAnnotations,
             bool overwriteFiles,
-            bool useDatabaseNames)
+            bool useDatabaseNames,
+            [CanBeNull] string entityNamespace,
+            [CanBeNull] string dbContextNamespace)
         {
             Check.NotNull(provider, nameof(provider));
             Check.NotNull(connectionString, nameof(connectionString));
@@ -491,7 +499,8 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             var files = DatabaseOperations.ScaffoldContext(
                 provider, connectionString, outputDir, outputDbContextDir, dbContextClassName,
-                schemaFilters, tableFilters, useDataAnnotations, overwriteFiles, useDatabaseNames);
+                schemaFilters, tableFilters, useDataAnnotations, overwriteFiles, useDatabaseNames,
+                entityNamespace, dbContextNamespace);
 
             return new Hashtable { ["ContextFile"] = files.ContextFile, ["EntityTypeFiles"] = files.AdditionalFiles.ToArray() };
         }

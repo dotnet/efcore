@@ -452,6 +452,24 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         public static string DbContextConnectionDescription
             => GetString("DbContextConnectionDescription");
 
+        /// <summary>
+        ///     Specify to override the namespace for the generated entity types.
+        /// </summary>
+        public static string NamespaceDescription
+            => GetString("NamespaceDescription");
+
+        /// <summary>
+        ///     Specify to override the namespace for the DbContext class.
+        /// </summary>
+        public static string ContextNamespaceDescription
+            => GetString("ContextNamespaceDescription");
+
+        /// <summary>
+        ///     Specify to override the namespace for the migration.
+        /// </summary>
+        public static string MigrationsNamespaceDescription
+            => GetString("MigrationsNamespaceDescription");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
