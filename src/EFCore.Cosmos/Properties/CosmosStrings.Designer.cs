@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 itemId);
 
         /// <summary>
-        ///      Non-embedded IncludeExpression is not supported: {expression}
+        ///     Non-embedded IncludeExpression is not supported: {expression}
         /// </summary>
         public static string NonEmbeddedIncludeNotSupported([CanBeNull] object expression)
             => string.Format(
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 expression);
 
         /// <summary>
-        ///      Navigation '{entityType}.{navigationName}' doesn't point to an embedded entity.
+        ///     Navigation '{entityType}.{navigationName}' doesn't point to an embedded entity.
         /// </summary>
         public static string NavigationPropertyIsNotAnEmbeddedEntity([CanBeNull] object entityType, [CanBeNull] object navigationName)
             => string.Format(
@@ -137,16 +137,34 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType, navigationName);
 
         /// <summary>
-        ///      Offset is not supported without Limit.
+        ///     Offset is not supported without Limit.
         /// </summary>
         public static string OffsetRequiresLimit
             => GetString("OffsetRequiresLimit");
 
         /// <summary>
-        ///      Reverse is not supported without Limit or Offset.
+        ///     Reverse is not supported without Limit or Offset.
         /// </summary>
         public static string ReverseRequiresOffsetOrLimit
             => GetString("ReverseRequiresOffsetOrLimit");
+
+        /// <summary>
+        ///     Invalid Resource id. Resource id cannot be null or empty and must be a string value.
+        /// </summary>
+        public static string InvalidResourceId
+            => GetString("InvalidResourceId");
+
+        /// <summary>
+        ///     Partition key missing.
+        /// </summary>
+        public static string ParitionKeyMissing
+            => GetString("ParitionKeyMissing");
+
+        /// <summary>
+        ///     Resource id missing or cannot be generated.
+        /// </summary>
+        public static string ResourceIdMissing
+            => GetString("ResourceIdMissing");
 
         private static string GetString(string name, params string[] formatterNames)
         {

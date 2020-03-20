@@ -23,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
-        private readonly string _partitionKey;
-
+        private readonly string _partitionKeyFromExtension;
+            
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             _querySqlGeneratorFactory = querySqlGeneratorFactory;
             _contextType = cosmosQueryCompilationContext.ContextType;
             _logger = cosmosQueryCompilationContext.Logger;
-            _partitionKey = cosmosQueryCompilationContext.PartitionKey;
+            _partitionKeyFromExtension = cosmosQueryCompilationContext.PartitionKeyFromExtension;
         }
 
         /// <summary>
@@ -55,32 +55,63 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             Check.NotNull(shapedQueryExpression, nameof(shapedQueryExpression));
 
-            var selectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
-            selectExpression.ApplyProjection();
             var jObjectParameter = Expression.Parameter(typeof(JObject), "jObject");
 
             var shaperBody = shapedQueryExpression.ShaperExpression;
-            shaperBody = new JObjectInjectingExpressionVisitor()
-                .Visit(shaperBody);
+            shaperBody = new JObjectInjectingExpressionVisitor().Visit(shaperBody);
             shaperBody = InjectEntityMaterializers(shaperBody);
-            shaperBody = new CosmosProjectionBindingRemovingExpressionVisitor(selectExpression, jObjectParameter, IsTracking)
-                .Visit(shaperBody);
 
-            var shaperLambda = Expression.Lambda(
-                shaperBody,
-                QueryCompilationContext.QueryContextParameter,
-                jObjectParameter);
+            switch (shapedQueryExpression.QueryExpression)
+            {
+                case SelectExpression selectExpression:
 
-            return Expression.New(
-                typeof(QueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
-                Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(CosmosQueryContext)),
-                Expression.Constant(_sqlExpressionFactory),
-                Expression.Constant(_querySqlGeneratorFactory),
-                Expression.Constant(selectExpression),
-                Expression.Constant(shaperLambda.Compile()),
-                Expression.Constant(_contextType),
-                Expression.Constant(_partitionKey, typeof(string)),
-                Expression.Constant(_logger));
+                    selectExpression.ApplyProjection();
+
+                    shaperBody = new CosmosProjectionBindingRemovingExpressionVisitor(selectExpression, jObjectParameter, IsTracking)
+                        .Visit(shaperBody);
+
+                    var shaperLambda = Expression.Lambda(
+                        shaperBody,
+                        QueryCompilationContext.QueryContextParameter,
+                        jObjectParameter);
+
+                    return Expression.New(
+                        typeof(QueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
+                        Expression.Convert(
+                            QueryCompilationContext.QueryContextParameter,
+                            typeof(CosmosQueryContext)),
+                        Expression.Constant(_sqlExpressionFactory),
+                        Expression.Constant(_querySqlGeneratorFactory),
+                        Expression.Constant(selectExpression),
+                        Expression.Constant(shaperLambda.Compile()),
+                        Expression.Constant(_contextType),
+                        Expression.Constant(_partitionKeyFromExtension, typeof(string)),
+                        Expression.Constant(_logger));
+
+                case ReadItemExpression readItemExpression:
+
+                    shaperBody =
+                        new CosmosProjectionBindingRemovingReadItemExpressionVisitor(readItemExpression, jObjectParameter, IsTracking)
+                        .Visit(shaperBody);
+
+                    var shaperReadItemLambda = Expression.Lambda(
+                        shaperBody,
+                        QueryCompilationContext.QueryContextParameter,
+                        jObjectParameter);
+
+                    return Expression.New(
+                        typeof(ReadItemQueryingEnumerable<>).MakeGenericType(shaperReadItemLambda.ReturnType).GetConstructors()[0],
+                        Expression.Convert(
+                            QueryCompilationContext.QueryContextParameter,
+                            typeof(CosmosQueryContext)),
+                        Expression.Constant(readItemExpression),
+                        Expression.Constant(shaperReadItemLambda.Compile()),
+                        Expression.Constant(_contextType),
+                        Expression.Constant(_logger));
+                    
+                default:
+                    throw new NotImplementedException();
+            }
         }
     }
 }

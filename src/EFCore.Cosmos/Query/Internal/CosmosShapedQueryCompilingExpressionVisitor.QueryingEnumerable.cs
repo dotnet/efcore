@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             private readonly CosmosQueryContext _cosmosQueryContext;
             private readonly ISqlExpressionFactory _sqlExpressionFactory;
             private readonly SelectExpression _selectExpression;
-            private readonly Func<QueryContext, JObject, T> _shaper;
+            private readonly Func<CosmosQueryContext, JObject, T> _shaper;
             private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
             private readonly Type _contextType;
             private readonly string _partitionKey;
@@ -38,9 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 ISqlExpressionFactory sqlExpressionFactory,
                 IQuerySqlGeneratorFactory querySqlGeneratorFactory,
                 SelectExpression selectExpression,
-                Func<QueryContext, JObject, T> shaper,
+                Func<CosmosQueryContext, JObject, T> shaper,
                 Type contextType,
-                string partitionKey,
+                string partitionKeyFromExtension,
                 IDiagnosticsLogger<DbLoggerCategory.Query> logger)
             {
                 _cosmosQueryContext = cosmosQueryContext;
@@ -49,8 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 _selectExpression = selectExpression;
                 _shaper = shaper;
                 _contextType = contextType;
-                _partitionKey = partitionKey;
                 _logger = logger;
+                _partitionKey = partitionKeyFromExtension;
             }
 
             public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 private IAsyncEnumerator<JObject> _enumerator;
                 private readonly CosmosQueryContext _cosmosQueryContext;
                 private readonly SelectExpression _selectExpression;
-                private readonly Func<QueryContext, JObject, T> _shaper;
+                private readonly Func<CosmosQueryContext, JObject, T> _shaper;
                 private readonly ISqlExpressionFactory _sqlExpressionFactory;
                 private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
                 private readonly Type _contextType;
@@ -192,7 +192,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                         _selectExpression.Container,
                                         _partitionKey,
                                         _querySqlGeneratorFactory.Create().GetSqlQuery(
-                                            selectExpression, _cosmosQueryContext.ParameterValues))
+                                            selectExpression,
+                                            _cosmosQueryContext.ParameterValues))
                                     .GetAsyncEnumerator(_cancellationToken);
                             }
 
