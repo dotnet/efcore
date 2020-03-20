@@ -7562,6 +7562,55 @@ FROM [Missions] AS [m]
 WHERE CONVERT(date, [m].[Timeline]) >= @__dateTimeOffset_Date_0");
         }
 
+        public override async Task Enum_closure_typed_as_underlying_type_generates_correct_parameter_type(bool async)
+        {
+            await base.Enum_closure_typed_as_underlying_type_generates_correct_parameter_type(async);
+
+            AssertSql(
+                @"@__prm_0='1'
+
+SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapons] AS [w]
+WHERE @__prm_0 = [w].[AmmunitionType]");
+        }
+
+        public override async Task Enum_flags_closure_typed_as_underlying_type_generates_correct_parameter_type(bool async)
+        {
+            await base.Enum_flags_closure_typed_as_underlying_type_generates_correct_parameter_type(async);
+
+            AssertSql(
+                @"@__prm_0='66'
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND ((@__prm_0 & [g].[Rank]) = [g].[Rank])");
+        }
+
+        public override async Task Enum_flags_closure_typed_as_different_type_generates_correct_parameter_type(bool async)
+        {
+            await base.Enum_flags_closure_typed_as_different_type_generates_correct_parameter_type(async);
+
+            AssertSql(
+                @"@__prm_0='2'
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND ((@__prm_0 & CAST([g].[Rank] AS int)) = CAST([g].[Rank] AS int))");
+        }
+
+        public override async Task Constant_enum_with_same_underlying_value_as_previously_parameterized_int(bool async)
+        {
+            await base.Constant_enum_with_same_underlying_value_as_previously_parameterized_int(async);
+
+            AssertSql(
+                @"@__p_0='1'
+
+SELECT TOP(@__p_0) [g].[Rank] & @__p_0
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
+ORDER BY [g].[Nickname]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
