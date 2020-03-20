@@ -4363,10 +4363,8 @@ LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Level2_Optional_Id]
 LEFT JOIN [LevelFour] AS [l2] ON [l1].[Id] = [l2].[Level3_Optional_Id]
 WHERE CASE
     WHEN [l0].[Id] IS NULL THEN NULL
-    ELSE CASE
-        WHEN [l1].[Id] IS NULL THEN NULL
-        ELSE [l2].[Name]
-    END
+    WHEN [l1].[Id] IS NULL THEN NULL
+    ELSE [l2].[Name]
 END = N'L4 01'");
         }
 
