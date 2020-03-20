@@ -108,7 +108,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 && Tables[0] is FromSqlExpression fromSql
                 && Projection.All(
                     pe => pe.Expression is ColumnExpression column
-                        && string.Equals(fromSql.Alias, column.Table.Alias, StringComparison.OrdinalIgnoreCase));
+                        && string.Equals(fromSql.Alias, column.Table.Alias, StringComparison.OrdinalIgnoreCase))
+                && _projectionMapping.TryGetValue(new ProjectionMember(), out var mapping)
+                && mapping.Type == typeof(Dictionary<IProperty, int>);
 
         public void ApplyProjection()
         {
