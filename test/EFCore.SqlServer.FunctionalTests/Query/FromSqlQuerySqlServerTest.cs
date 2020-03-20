@@ -396,15 +396,14 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
         {
             base.FromSqlRaw_queryable_simple_projection_composed();
 
-            // issue #16079
-            //            AssertSql(
-            //                @"SELECT [p].[ProductName]
-            //FROM (
-            //    SELECT *
-            //    FROM ""Products""
-            //    WHERE ""Discontinued"" <> CAST(1 AS bit)
-            //    AND ((""UnitsInStock"" + ""UnitsOnOrder"") < ""ReorderLevel"")
-            //) AS [p]");
+            AssertSql(
+                @"SELECT [p].[ProductName]
+FROM (
+    SELECT *
+    FROM ""Products""
+    WHERE ""Discontinued"" <> CAST(1 AS bit)
+    AND ((""UnitsInStock"" + ""UnitsOnOrder"") < ""ReorderLevel"")
+) AS [p]");
         }
 
         public override void FromSqlRaw_queryable_simple_include()
@@ -717,7 +716,10 @@ WHERE EXISTS (
             AssertSql(
                 @"p0='10300'
 
-SELECT * FROM ""Orders"" WHERE ""OrderID"" >= @p0",
+SELECT [o].[OrderID]
+FROM (
+    SELECT * FROM ""Orders"" WHERE ""OrderID"" >= @p0
+) AS [o]",
                 //
                 @"@__max_0='10400'
 p0='10300'
