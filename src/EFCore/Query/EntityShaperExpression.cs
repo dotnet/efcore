@@ -60,8 +60,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             MaterializationCondition = materializationCondition;
         }
 
-        private LambdaExpression GenerateMaterializationCondition(IEntityType entityType, bool nullable)
+        protected virtual LambdaExpression GenerateMaterializationCondition([NotNull] IEntityType entityType, bool nullable)
         {
+            Check.NotNull(entityType, nameof(EntityType));
+
             var valueBufferParameter = Parameter(typeof(ValueBuffer));
             Expression body;
             var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToArray();
