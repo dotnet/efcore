@@ -14,6 +14,7 @@
     <FailOnTestFailure>true</FailOnTestFailure>
     <EnableXUnitReporter>true</EnableXUnitReporter>
     <FailOnMissionControlTestFailure>true</FailOnMissionControlTestFailure>
+	<HelixTargetQueues>Ubuntu.1804.Amd64.Open@mcr.microsoft.com/mssql/server:2019-CU3-ubuntu-18.04</HelixTargetQueues>
   </PropertyGroup>
 
   <PropertyGroup Condition = "'$(SYSTEM_ACCESSTOKEN)' == ''">
@@ -21,7 +22,6 @@
 
 
     <!--<HelixTargetQueues Condition = "'$(HelixTargetQueues)' == ''">Windows.10.Amd64.Open;Ubuntu.1804.Amd64.Open;OSX.1014.Amd64.Open</HelixTargetQueues>-->
-    <HelixTargetQueues Condition = "'$(HelixTargetQueues)' == ''">Ubuntu.1804.Amd64.Open@mcr.microsoft.com/mssql/server:2019-CU3-ubuntu-18.04</HelixTargetQueues>
     <EnableAzurePipelinesReporter>false</EnableAzurePipelinesReporter>
     <FailOnMissionControlTestFailure>false</FailOnMissionControlTestFailure>
     <HelixSource>efcore/localbuild/</HelixSource>
