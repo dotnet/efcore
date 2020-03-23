@@ -18,7 +18,10 @@
 
   <PropertyGroup Condition = "'$(SYSTEM_ACCESSTOKEN)' == ''">
     <!-- Local build outside of Azure Pipeline -->
-    <HelixTargetQueues Condition = "'$(HelixTargetQueues)' == ''">Windows.10.Amd64.Open;Ubuntu.1804.Amd64.Open;OSX.1014.Amd64.Open</HelixTargetQueues>
+
+
+    <!--<HelixTargetQueues Condition = "'$(HelixTargetQueues)' == ''">Windows.10.Amd64.Open;Ubuntu.1804.Amd64.Open;OSX.1014.Amd64.Open</HelixTargetQueues>-->
+    <HelixTargetQueues Condition = "'$(HelixTargetQueues)' == ''">Ubuntu.1804.Amd64.Open@mcr.microsoft.com/mssql/server:2019-CU3-ubuntu-18.04</HelixTargetQueues>
     <EnableAzurePipelinesReporter>false</EnableAzurePipelinesReporter>
     <FailOnMissionControlTestFailure>false</FailOnMissionControlTestFailure>
     <HelixSource>efcore/localbuild/</HelixSource>
@@ -26,7 +29,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <XUnitProject Include="$(RepoRoot)/test/**/*.csproj"/>
+    <!--<XUnitProject Include="$(RepoRoot)/test/**/*.csproj"/>-->
+    <XUnitProject Include="$(RepoRoot)/test/EFCore.SqlServer.FunctionalTests/*.csproj"/>
     <XUnitProject Remove="$(RepoRoot)/test/EFCore.Specification.Tests/*.csproj"/>
     <XUnitProject Remove="$(RepoRoot)/test/EFCore.Relational.Specification.Tests/*.csproj"/>
   </ItemGroup>
