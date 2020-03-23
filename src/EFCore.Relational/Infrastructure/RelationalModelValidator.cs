@@ -714,7 +714,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             foreach (var entityType in model.GetEntityTypes())
             {
                 if (entityType.BaseType != null
-                    && ((EntityType)entityType).FindAnnotation(RelationalAnnotationNames.TableName)?.GetConfigurationSource()
+                    && ((IConventionEntityType)entityType).FindAnnotation(RelationalAnnotationNames.TableName)?.GetConfigurationSource()
                         == ConfigurationSource.Explicit)
                 {
                     throw new InvalidOperationException(

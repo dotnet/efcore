@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -1186,12 +1185,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                     var innerSequenceType = innerShapedQuery.Type.TryGetSequenceType();
                     var correlationPredicateParameter = Expression.Parameter(innerSequenceType);
 
-                    var outerKey = entityShaperExpression.CreateKeyAccessExpression(
+                    var outerKey = entityShaperExpression.CreateKeyValueReadExpression(
                         navigation.IsOnDependent
                             ? foreignKey.Properties
                             : foreignKey.PrincipalKey.Properties,
                         makeNullable);
-                    var innerKey = correlationPredicateParameter.CreateKeyAccessExpression(
+                    var innerKey = correlationPredicateParameter.CreateKeyValueReadExpression(
                         navigation.IsOnDependent
                             ? foreignKey.PrincipalKey.Properties
                             : foreignKey.Properties,
@@ -1247,12 +1246,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .Select(p => p.ClrType)
                             .Any(t => t.IsNullableType());
 
-                        var outerKey = entityShaperExpression.CreateKeyAccessExpression(
+                        var outerKey = entityShaperExpression.CreateKeyValueReadExpression(
                             navigation.IsOnDependent
                                 ? foreignKey.Properties
                                 : foreignKey.PrincipalKey.Properties,
                             makeNullable);
-                        var innerKey = innerShapedQuery.ShaperExpression.CreateKeyAccessExpression(
+                        var innerKey = innerShapedQuery.ShaperExpression.CreateKeyValueReadExpression(
                             navigation.IsOnDependent
                                 ? foreignKey.PrincipalKey.Properties
                                 : foreignKey.Properties,

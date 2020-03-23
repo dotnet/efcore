@@ -7,19 +7,12 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 
 // ReSharper disable SwitchStatementMissingSomeCases
 // ReSharper disable ForCanBeConvertedToForeach
 // ReSharper disable LoopCanBeConvertedToQuery
-namespace Microsoft.EntityFrameworkCore.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Query
 {
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     public class ExpressionEqualityComparer : IEqualityComparer<Expression>
     {
         /// <summary>
@@ -30,19 +23,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Gets an instance of <see cref="ExpressionEqualityComparer" />.
         /// </summary>
         public static ExpressionEqualityComparer Instance { get; } = new ExpressionEqualityComparer();
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Returns the hash code for given expression.
         /// </summary>
+        /// <param name="obj"> The <see cref="Expression"/> obj to compute hash code for. </param>
+        /// <returns> The hash code value for <paramref name="obj"/>. </returns>
         public virtual int GetHashCode(Expression obj)
         {
             if (obj == null)
@@ -285,11 +274,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Returns a value indicating whether the given expressions are equal.
         /// </summary>
+        /// <param name="x"> The left expression. </param>
+        /// <param name="y"> The right expression. </param>
+        /// <returns> <c>true</c> if the expressions are equal, <c>false</c> otherwise. </returns>
         public virtual bool Equals(Expression x, Expression y) => new ExpressionComparer().Compare(x, y);
 
         private struct ExpressionComparer

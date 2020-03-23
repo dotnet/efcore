@@ -93,5 +93,13 @@ namespace Microsoft.EntityFrameworkCore
         public static bool IsIndexerProperty([NotNull] this IPropertyBase property)
             => Check.NotNull(property, nameof(property)).GetIdentifyingMemberInfo() is PropertyInfo propertyInfo
                 && propertyInfo == property.DeclaringType.FindIndexerPropertyInfo();
+
+        /// <summary>
+        ///     Gets the property index for this property.
+        /// </summary>
+        /// <param name="property"> The property for which the property index will be returned. </param>
+        /// <returns> The index of the property. </returns>
+        public static int GetIndex([NotNull] this IPropertyBase property)
+            => property.GetPropertyIndexes().Index;
     }
 }
