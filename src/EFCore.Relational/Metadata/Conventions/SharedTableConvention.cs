@@ -157,9 +157,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     continue;
                 }
 
-                var identifyingMemberInfo = property.GetIdentifyingMemberInfo();
+                var identifyingMemberInfo = property.PropertyInfo ?? (MemberInfo)property.FieldInfo;
                 if (identifyingMemberInfo != null
-                    && identifyingMemberInfo.IsSameAs(otherProperty.GetIdentifyingMemberInfo()))
+                    && identifyingMemberInfo.IsSameAs(otherProperty.PropertyInfo ?? (MemberInfo)otherProperty.FieldInfo))
                 {
                     continue;
                 }

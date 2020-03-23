@@ -107,8 +107,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                 _integerGenerators = new Dictionary<int, IInMemoryIntegerValueGenerator>();
             }
 
-            // WARNING: The in-memory provider is using EF internal code here. This should not be copied by other providers. See #15096
-            var propertyIndex = EntityFrameworkCore.Metadata.Internal.PropertyBaseExtensions.GetIndex(property);
+            var propertyIndex = property.GetIndex();
             if (!_integerGenerators.TryGetValue(propertyIndex, out var generator))
             {
                 generator = new InMemoryIntegerValueGenerator<TProperty>(propertyIndex);

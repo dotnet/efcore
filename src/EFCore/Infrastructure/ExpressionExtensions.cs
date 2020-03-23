@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -268,7 +269,37 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static TValue ValueBufferTryReadValue<TValue>(
+#pragma warning disable IDE0060 // Remove unused parameter
             in ValueBuffer valueBuffer, int index, IPropertyBase property)
+#pragma warning restore IDE0060 // Remove unused parameter
             => valueBuffer[index] is TValue value ? value : default;
+
+        /// <summary>
+        ///     <para>
+        ///         Creates an <see cref="Expression" /> tree representing reading of a key values on given expression.
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="target"> The expression that will be root for generated read operation. </param>
+        /// <param name="properties"> The list of properties to use to generate key values. </param>
+        /// <param name="makeNullable"> A value indicating if the key values should be read nullable. </param>
+        /// <returns> An expression to read the key values. </returns>
+        public static Expression CreateKeyValueReadExpression(
+            [NotNull] this Expression target,
+            [NotNull] IReadOnlyList<IProperty> properties,
+            bool makeNullable = false)
+            => properties.Count == 1
+                ? target.CreateEFPropertyExpression(properties[0], makeNullable)
+                : Expression.New(
+                    AnonymousObject.AnonymousObjectCtor,
+                    Expression.NewArrayInit(
+                        typeof(object),
+                        properties
+                            .Select(p => Expression.Convert(target.CreateEFPropertyExpression(p, makeNullable), typeof(object)))
+                            .Cast<Expression>()
+                            .ToArray()));
     }
 }
