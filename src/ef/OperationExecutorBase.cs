@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             return resultHandler.Result;
         }
 
-        public IDictionary AddMigration(string name, string outputDir, string contextType, string migrationNamespace)
+        public IDictionary AddMigration(string name, string outputDir, string contextType, string @namespace)
             => InvokeOperation<IDictionary>(
                 "AddMigration",
                 new Dictionary<string, string>
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     ["name"] = name,
                     ["outputDir"] = outputDir,
                     ["contextType"] = contextType,
-                    ["migrationNamespace"] = migrationNamespace
+                    ["namespace"] = @namespace
                 });
 
         public IDictionary RemoveMigration(string contextType, bool force)
@@ -137,8 +137,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
             bool useDataAnnotations,
             bool overwriteFiles,
             bool useDatabaseNames,
-            string entityNamespace,
-            string dbContextNamespace)
+            string modelNamespace,
+            string contextNamespace)
             => InvokeOperation<IDictionary>(
                 "ScaffoldContext",
                 new Dictionary<string, object>
@@ -153,8 +153,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     ["useDataAnnotations"] = useDataAnnotations,
                     ["overwriteFiles"] = overwriteFiles,
                     ["useDatabaseNames"] = useDatabaseNames,
-                    ["entityNamespace"] = entityNamespace,
-                    ["dbContextNamespace"] = dbContextNamespace
+                    ["modelNamespace"] = modelNamespace,
+                    ["contextNamespace"] = contextNamespace
                 });
 
         public string ScriptMigration(

@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             [NotNull] string name,
             [CanBeNull] string outputDir,
             [CanBeNull] string contextType,
-            [CanBeNull] string migrationNamespace)
+            [CanBeNull] string @namespace)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -104,9 +104,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             var scaffolder = services.GetRequiredService<IMigrationsScaffolder>();
             var migration =
-                string.IsNullOrEmpty(migrationNamespace)
+                string.IsNullOrEmpty(@namespace)
                 ? scaffolder.ScaffoldMigration(name, _rootNamespace, subNamespace, _language)
-                : scaffolder.ScaffoldMigration(name, migrationNamespace, null, _language, true);
+                : scaffolder.ScaffoldMigration(name, null, @namespace, _language);
             var files = scaffolder.Save(_projectDir, migration, outputDir);
 
             return files;

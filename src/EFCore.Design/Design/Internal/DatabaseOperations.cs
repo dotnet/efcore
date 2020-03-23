@@ -69,11 +69,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             [CanBeNull] string dbContextClassName,
             [NotNull] IEnumerable<string> schemas,
             [NotNull] IEnumerable<string> tables,
+            [CanBeNull] string modelNamespace,
+            [CanBeNull] string contextNamespace,
             bool useDataAnnotations,
             bool overwriteFiles,
-            bool useDatabaseNames,
-            [CanBeNull] string entityNamespace,
-            [CanBeNull] string dbContextNamespace)
+            bool useDatabaseNames)
         {
             Check.NotEmpty(provider, nameof(provider));
             Check.NotEmpty(connectionString, nameof(connectionString));
@@ -92,10 +92,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             var scaffolder = services.GetRequiredService<IReverseEngineerScaffolder>();
 
-            var modelNamespace = entityNamespace ?? GetNamespaceFromOutputPath(outputDir);
-            var contextNamespace =
-                dbContextNamespace ??
-                entityNamespace ??
+            var finalModelNamespace = modelNamespace ?? GetNamespaceFromOutputPath(outputDir);
+            var finalContextNamespace =
+                contextNamespace ??
+                modelNamespace ??
                 GetNamespaceFromOutputPath(outputContextDir);
 
             var scaffoldedModel = scaffolder.ScaffoldModel(
@@ -106,8 +106,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 {
                     UseDataAnnotations = useDataAnnotations,
                     RootNamespace = _rootNamespace,
-                    ModelNamespace = modelNamespace,
-                    ContextNamespace = contextNamespace,
+                    ModelNamespace = finalModelNamespace,
+                    ContextNamespace = finalContextNamespace,
                     Language = _language,
                     ContextDir = MakeDirRelative(outputDir, outputContextDir),
                     ContextName = dbContextClassName

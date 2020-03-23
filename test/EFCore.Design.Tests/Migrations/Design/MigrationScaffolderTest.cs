@@ -54,13 +54,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
 
-            var migration = scaffolder.ScaffoldMigration("EmptyMigration", "OverrideNamespace", "OverrideSubNamespace", overrideNamespace: true);
+            var migration = scaffolder.ScaffoldMigration("EmptyMigration", null, "OverrideNamespace.OverrideSubNamespace");
 
             Assert.Contains("namespace OverrideNamespace.OverrideSubNamespace", migration.MigrationCode);
-            Assert.Equal("OverrideSubNamespace", migration.MigrationSubNamespace);
+            Assert.Equal("OverrideNamespace.OverrideSubNamespace", migration.MigrationSubNamespace);
 
             Assert.Contains("namespace OverrideNamespace.OverrideSubNamespace", migration.SnapshotCode);
-            Assert.Equal("OverrideSubNamespace", migration.SnapshotSubnamespace);
+            Assert.Equal("OverrideNamespace.OverrideSubNamespace", migration.SnapshotSubnamespace);
         }
 
         private IMigrationsScaffolder CreateMigrationScaffolder<TContext>()

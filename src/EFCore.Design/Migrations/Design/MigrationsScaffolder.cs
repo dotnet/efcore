@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <returns> The scaffolded migration. </returns>
         public virtual ScaffoldedMigration ScaffoldMigration(
             [NotNull] string migrationName,
-            [NotNull] string rootNamespace,
+            [CanBeNull] string rootNamespace,
             [CanBeNull] string subNamespace)
             => ScaffoldMigration(migrationName, rootNamespace, subNamespace, language: null);
 
@@ -61,29 +61,33 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         ///     Scaffolds a new migration.
         /// </summary>
         /// <param name="migrationName"> The migration's name. </param>
-        /// <param name="rootNamespace"> The project's root namespace. </param>
-        /// <param name="subNamespace"> The migration's sub-namespace. </param>
+        /// <param name="rootNamespace">
+        ///     The project's root namespace, <c>null</c> to indicate no automatic
+        ///     namespace generation, just use sub-namespace as is.
+        /// </param>
+        /// <param name="subNamespace">
+        ///     The migration's sub-namespace. Note: the root-namespace and
+        ///     the sub-namespace should not both be empty.
+        /// </param>
         /// <param name="language"> The project's language. </param>
-        /// <param name="overrideNamespace"> Set to true to override all automatic namespace generation. </param>
         /// <returns> The scaffolded migration. </returns>
         public virtual ScaffoldedMigration ScaffoldMigration(
             string migrationName,
             string rootNamespace,
             string subNamespace = null,
-            string language = null,
-            bool overrideNamespace = false)
+            string language = null)
         {
             Check.NotEmpty(migrationName, nameof(migrationName));
-            Check.NotEmpty(rootNamespace, nameof(rootNamespace));
+            Check.NotEmpty(string.Empty + rootNamespace + subNamespace, "rootNamespace + subNamespace");
 
             if (Dependencies.MigrationsAssembly.FindMigrationId(migrationName) != null)
             {
                 throw new OperationException(DesignStrings.DuplicateMigrationName(migrationName));
             }
 
+            var overrideNamespace = rootNamespace == null;
             var subNamespaceDefaulted = false;
-            var subNamespaceNullOrEmpty = string.IsNullOrEmpty(subNamespace);
-            if (subNamespaceNullOrEmpty && !overrideNamespace)
+            if (string.IsNullOrEmpty(subNamespace) && !overrideNamespace)
             {
                 subNamespaceDefaulted = true;
                 subNamespace = "Migrations";
@@ -91,10 +95,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             var lastMigration = Dependencies.MigrationsAssembly.Migrations.LastOrDefault();
 
-            var migrationNamespace = rootNamespace +
-                (subNamespaceNullOrEmpty
-                    ? string.Empty
-                    : "." + subNamespace);
+            var migrationNamespace =
+                (!string.IsNullOrEmpty(rootNamespace)
+                    && !string.IsNullOrEmpty(subNamespace))
+                ? rootNamespace + "." + subNamespace
+                : !string.IsNullOrEmpty(rootNamespace)
+                    ? rootNamespace
+                    : subNamespace;
 
             if (subNamespaceDefaulted)
             {
@@ -112,9 +119,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             {
                 if (subNamespaceDefaulted)
                 {
-                    var builder = new StringBuilder()
-                        .Append(rootNamespace)
-                        .Append(".Migrations.");
+                    var builder = new StringBuilder();
+                    if (!string.IsNullOrEmpty(rootNamespace))
+                    {
+                        builder.Append(rootNamespace);
+                        builder.Append(".");
+                    }
+
+                    builder.Append("Migrations.");
 
                     if (sanitizedContextName.EndsWith("Context", StringComparison.Ordinal))
                     {
