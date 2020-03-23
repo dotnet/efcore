@@ -696,12 +696,11 @@ ORDER BY [c].[Id], [o].[Year]");
             base.QF_OuterApply_Correlated_Select_Entity();
 
             AssertSql(
-                @"SELECT [c].[Id], [c].[FirstName], [c].[LastName], [c].[CreditCard_CreditCardType], [c].[CreditCard_Number], [p].[CustomerId], [p].[Id], [p].[Number], [p].[PhoneType]
+                @"SELECT [c].[Id], [c].[FirstName], [c].[LastName]
 FROM [Customers] AS [c]
 OUTER APPLY [dbo].[GetCustomerOrderCountByYear]([c].[Id]) AS [o]
-LEFT JOIN [PhoneInformation] AS [p] ON [c].[Id] = [p].[CustomerId]
 WHERE [o].[Year] = 2000
-ORDER BY [c].[Id], [o].[Year], [p].[CustomerId], [p].[Id]");
+ORDER BY [c].[Id], [o].[Year]");
         }
 
         public override void QF_OuterApply_Correlated_Select_Anonymous()
@@ -751,59 +750,6 @@ OUTER APPLY (
     INNER JOIN [Customers] AS [c0] ON [m].[CustomerId] = [c0].[Id]
 ) AS [t]
 ORDER BY [c].[Id], [t].[OrderId], [t].[Id]");
-        }
-
-        public override void QF_Owned_Many_NoTracking_Select_Owned()
-        {
-            base.QF_Owned_Many_NoTracking_Select_Owned();
-
-            AssertSql(@"SELECT [p].[CustomerId], [p].[Id], [p].[Number], [p].[PhoneType]
-FROM [Customers] AS [c]
-CROSS APPLY [dbo].[GetPhoneInformation]([c].[Id], N'234') AS [p]
-ORDER BY [p].[Number]");
-        }
-
-        public override void QF_Owned_Many_Tracked_Select_Owned()
-        {
-            base.QF_Owned_Many_Tracked_Select_Owned();
-
-            AssertSql(
-                @"SELECT [c].[Id], [c].[FirstName], [c].[LastName], [c].[CreditCard_CreditCardType], [c].[CreditCard_Number], [p].[CustomerId], [p].[Id], [p0].[CustomerId], [p0].[Id], [p0].[Number], [p0].[PhoneType]
-FROM [Customers] AS [c]
-CROSS APPLY [dbo].[GetPhoneInformation]([c].[Id], N'234') AS [p]
-LEFT JOIN [PhoneInformation] AS [p0] ON [c].[Id] = [p0].[CustomerId]
-ORDER BY [c].[Id], [p].[CustomerId], [p].[Id], [p0].[CustomerId], [p0].[Id]");
-        }
-
-        public override void QF_Owned_One_NoTracking_Select_Owned()
-        {
-            base.QF_Owned_One_NoTracking_Select_Owned();
-
-            AssertSql(
-                @"SELECT [t].[Id], [t].[CreditCard_CreditCardType], [t].[CreditCard_Number]
-FROM [Customers] AS [c]
-CROSS APPLY (
-    SELECT [c0].[Id], [c0].[CreditCard_CreditCardType], [c0].[CreditCard_Number]
-    FROM [dbo].[GetCreditCards]([c].[Id]) AS [c0]
-    WHERE [c0].[CreditCard_CreditCardType] IS NOT NULL
-) AS [t]
-ORDER BY [t].[CreditCard_Number]");
-        }
-
-        public override void QF_Owned_One_Tracked()
-        {
-            base.QF_Owned_One_Tracked();
-
-            AssertSql(
-                @"SELECT [c].[Id], [c].[FirstName], [c].[LastName], [c].[CreditCard_CreditCardType], [c].[CreditCard_Number], [t].[Id], [t].[CreditCard_CreditCardType], [t].[CreditCard_Number], [p].[CustomerId], [p].[Id], [p].[Number], [p].[PhoneType]
-FROM [Customers] AS [c]
-CROSS APPLY (
-    SELECT [c0].[Id], [c0].[CreditCard_CreditCardType], [c0].[CreditCard_Number]
-    FROM [dbo].[GetCreditCards]([c].[Id]) AS [c0]
-    WHERE [c0].[CreditCard_CreditCardType] IS NOT NULL
-) AS [t]
-LEFT JOIN [PhoneInformation] AS [p] ON [c].[Id] = [p].[CustomerId]
-ORDER BY [t].[CreditCard_Number], [c].[Id], [t].[Id], [p].[CustomerId], [p].[Id]");
         }
 
         #endregion
@@ -954,46 +900,6 @@ ORDER BY [t].[CreditCard_Number], [c].[Id], [t].[Id], [p].[CustomerId], [p].[Id]
                                                         where o.customerId = @customerId
                                                         group by o.id, OrderDate
                                                         having count(productId) > 1
-
-                                                        return
-                                                    end");
-
-
-                context.Database.ExecuteSqlRaw(
-                   @"create function [dbo].[GetCreditCards] (@customerId int)
-                                                    returns @cc table
-                                                    (
-                                                        id int not null,
-                                                        CreditCard_CreditCardType int null,
-                                                        CreditCard_Number nvarchar(max)
-                                                    )
-                                                    as
-                                                    begin
-                                                        insert into @cc
-                                                        select id, CreditCard_CreditCardType, CreditCard_Number
-                                                        from customers c
-                                                        where c.CreditCard_CreditCardType is not null and c.CreditCard_Number is not null
-                                                        and c.id = @customerId
-
-                                                        return
-                                                    end");
-
-                context.Database.ExecuteSqlRaw(
-                  @"create function [dbo].[GetPhoneInformation] (@customerId int, @areaCode nvarchar(3))
-                                                    returns @pn table
-                                                    (
-                                                        PhoneType int,
-                                                        Number nvarchar(max),
-                                                        CustomerId int not null,
-                                                        Id int not null
-                                                    )
-                                                    as
-                                                    begin
-                                                        insert into @pn
-                                                        select PhoneType, Number, CustomerId, Id
-                                                        from PhoneInformation pi
-                                                        where pi.customerId = @customerId
-                                                        and charindex(@areaCode, pi.number) = 1
 
                                                         return
                                                     end");

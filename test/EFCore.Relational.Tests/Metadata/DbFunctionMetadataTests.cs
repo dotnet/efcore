@@ -327,6 +327,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("InstancePublicBase", dbFunc.Name);
             Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
+            Assert.Equal(typeof(int), dbFunc.ReturnType);
         }
 
         [ConditionalFact]
@@ -575,6 +576,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [ConditionalFact]
+        public void DbFunction_HasName()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var methodA = typeof(OuterA.Inner).GetMethod(nameof(OuterA.Inner.Min));
+            var methodB = typeof(OuterB.Inner).GetMethod(nameof(OuterB.Inner.Min));
+
+            var funcA = modelBuilder.HasDbFunction(methodA);
+            var funcB = modelBuilder.HasDbFunction(methodB);
+
+            funcA.HasName("MinA");
+
+            modelBuilder.FinalizeModel();
+
+            Assert.Equal("MinA", funcA.Metadata.Name);
+            Assert.Equal("Min", funcB.Metadata.Name);
+            Assert.NotEqual(funcA.Metadata.Name, funcB.Metadata.Name);
+        }
+
+        [ConditionalFact]
         public virtual void Set_empty_function_name_throws()
         {
             var modelBuilder = GetModelBuilder();
@@ -596,6 +617,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder.FinalizeModel();
 
             Assert.Equal(0, dbFunc.Parameters.Count);
+        }
+
+        [ConditionalFact]
+        public void DbFunction_IsQueryable()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var queryableNoParams
+                = typeof(MyDerivedContext)
+                    .GetRuntimeMethod(nameof(MyDerivedContext.QueryableNoParams), Array.Empty<Type>());
+
+            IDbFunction function = modelBuilder.HasDbFunction(queryableNoParams).Metadata;
+
+            var model = modelBuilder.FinalizeModel();
+
+            function = model.FindDbFunction(function.ModelName);
+            var entityType = model.FindEntityType(typeof(Foo));
+
+            Assert.True(function.IsQueryable);
+            Assert.Same(entityType, function.QueryableEntityType);
         }
 
         [ConditionalFact]
@@ -694,36 +735,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [ConditionalFact]
-        public void DbFunction_Annotation_FullName()
-        {
-            var modelBuilder = GetModelBuilder();
-
-            var methodA = typeof(OuterA.Inner).GetMethod(nameof(OuterA.Inner.Min));
-            var methodB = typeof(OuterB.Inner).GetMethod(nameof(OuterB.Inner.Min));
-
-            var funcA = modelBuilder.HasDbFunction(methodA);
-            var funcB = modelBuilder.HasDbFunction(methodB);
-
-            funcA.HasName("MinA");
-
-            modelBuilder.FinalizeModel();
-
-            Assert.Equal("MinA", funcA.Metadata.Name);
-            Assert.Equal("Min", funcB.Metadata.Name);
-            Assert.NotEqual(funcA.Metadata.Name, funcB.Metadata.Name);
-        }
-
-        [ConditionalFact]
         public void DbFunction_Queryable_custom_translation()
         {
             var modelBuilder = GetModelBuilder();
             var methodInfo = typeof(TestMethods).GetMethod(nameof(TestMethods.MethodJ));
             var dbFunctionBuilder = modelBuilder.HasDbFunction(methodInfo);
 
-            ((IConventionDbFunctionBuilder)dbFunctionBuilder).HasTranslation(args => new SqlFragmentExpression("Empty"));
+            Assert.False(dbFunctionBuilder.GetInfrastructure()
+                .CanSetTranslation(args => new SqlFragmentExpression("Empty"), fromDataAnnotation: true));
             Assert.Null(dbFunctionBuilder.Metadata.Translation);
 
-            ((IConventionDbFunctionBuilder)dbFunctionBuilder)
+            dbFunctionBuilder.GetInfrastructure().HasTranslation(args => new SqlFragmentExpression("Empty"));
+            Assert.Null(dbFunctionBuilder.Metadata.Translation);
+
+            dbFunctionBuilder.GetInfrastructure()
                 .HasTranslation(args => new SqlFragmentExpression("Empty"), fromDataAnnotation: true);
             Assert.Null(dbFunctionBuilder.Metadata.Translation);
 
@@ -733,9 +758,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var dbFunction = dbFunctionBuilder.Metadata;
 
-            Assert.Null(((IConventionDbFunction)dbFunction).SetTranslation(args => new SqlFragmentExpression("Empty")));
-            Assert.Null(((IConventionDbFunction)dbFunction)
-                .SetTranslation(args => new SqlFragmentExpression("Empty"), fromDataAnnotation: true));
+            Assert.Equal(RelationalStrings.DbFunctionQueryableCustomTranslation(methodInfo.DisplayName()),
+                Assert.Throws<InvalidOperationException>(
+                    () => ((IConventionDbFunction)dbFunction).SetTranslation(args => new SqlFragmentExpression("Empty"))).Message);
+
+            Assert.Equal(RelationalStrings.DbFunctionQueryableCustomTranslation(methodInfo.DisplayName()),
+                Assert.Throws<InvalidOperationException>(
+                    () => ((IConventionDbFunction)dbFunction)
+                        .SetTranslation(args => new SqlFragmentExpression("Empty"), fromDataAnnotation: true)).Message);
 
             Assert.Equal(RelationalStrings.DbFunctionQueryableCustomTranslation(methodInfo.DisplayName()),
                 Assert.Throws<InvalidOperationException>(

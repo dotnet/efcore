@@ -152,7 +152,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return true;
             }
 
-            return configurationSource.Overrides(Metadata.GetPrimaryKeyConfigurationSource());
+            return configurationSource.Overrides(Metadata.GetPrimaryKeyConfigurationSource())
+                && (properties == null
+                    || !Metadata.IsKeyless
+                    || configurationSource.Overrides(Metadata.GetIsKeylessConfigurationSource()));
         }
 
         /// <summary>

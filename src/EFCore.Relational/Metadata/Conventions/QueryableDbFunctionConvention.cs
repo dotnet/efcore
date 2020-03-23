@@ -1,26 +1,27 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
-using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     A convention that configures model function mappings based on public static methods on the context marked with
-    ///     <see cref="DbFunctionAttribute" />.
+    ///     A convention that configures the entity type to which a queryable function is mapped.
     /// </summary>
-    public class RelationalDbFunctionAttributeConvention : IModelInitializedConvention, IModelFinalizingConvention
+    public class QueryableDbFunctionConvention : IModelFinalizingConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="RelationalDbFunctionAttributeConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
-        public RelationalDbFunctionAttributeConvention(
+        public QueryableDbFunctionConvention(
             [NotNull] ProviderConventionSetBuilderDependencies dependencies,
             [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
         {
@@ -31,35 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Parameter object containing service dependencies.
         /// </summary>
         protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
-
-        /// <summary>
-        ///     Called after a model is initialized.
-        /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessModelInitialized(
-            IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
-        {
-            var contextType = Dependencies.ContextType;
-            while (contextType != null
-                && contextType != typeof(DbContext))
-            {
-                var functions = contextType.GetMethods(
-                        BindingFlags.Public
-                        | BindingFlags.NonPublic
-                        | BindingFlags.Instance
-                        | BindingFlags.Static
-                        | BindingFlags.DeclaredOnly)
-                    .Where(mi => mi.IsDefined(typeof(DbFunctionAttribute)));
-
-                foreach (var function in functions)
-                {
-                    modelBuilder.HasDbFunction(function);
-                }
-
-                contextType = contextType.BaseType;
-            }
-        }
 
         /// <inheritdoc />
         public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
@@ -75,19 +47,46 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         /// <param name="dbFunctionBuilder"> The builder for the <see cref="IConventionDbFunction" />. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
-        protected virtual void ProcessDbFunctionAdded(
+        private void ProcessDbFunctionAdded(
             [NotNull] IConventionDbFunctionBuilder dbFunctionBuilder, [NotNull] IConventionContext context)
         {
-            var methodInfo = dbFunctionBuilder.Metadata.MethodInfo;
-            var dbFunctionAttribute = methodInfo?.GetCustomAttributes<DbFunctionAttribute>().SingleOrDefault();
-            if (dbFunctionAttribute != null)
+            var function = dbFunctionBuilder.Metadata;
+            if (!function.IsQueryable)
             {
-                dbFunctionBuilder.HasName(dbFunctionAttribute.Name, fromDataAnnotation: true);
-                if (dbFunctionAttribute.Schema != null)
+                return;
+            }
+
+            var elementType = function.ReturnType.TryGetElementType(typeof(IQueryable<>));
+            if (!elementType.IsValidEntityType())
+            {
+                throw new InvalidOperationException(RelationalStrings.DbFunctionInvalidIQueryableReturnType(
+                    function.Name, function.ReturnType.ShortDisplayName()));
+            }
+
+            var model = function.Model;
+            IConventionEntityTypeBuilder entityTypeBuilder;
+            var entityType = model.FindEntityType(elementType);
+            if (entityType?.IsOwned() == true || model.IsOwned(elementType))
+            {
+                throw new InvalidOperationException(RelationalStrings.DbFunctionInvalidIQueryableOwnedReturnType(
+                    function.Name, function.ReturnType.ShortDisplayName()));
+            }
+
+            if (entityType != null)
+            {
+                entityTypeBuilder = entityType.Builder;
+            }
+            else
+            {
+                entityTypeBuilder = dbFunctionBuilder.ModelBuilder.Entity(elementType);
+                if (entityTypeBuilder == null)
                 {
-                    dbFunctionBuilder.HasSchema(dbFunctionAttribute.Schema, fromDataAnnotation: true);
+                    return;
                 }
             }
+
+            entityTypeBuilder.ToTable(null);
+            entityTypeBuilder.HasNoKey();
         }
     }
 }

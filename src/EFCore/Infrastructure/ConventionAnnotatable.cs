@@ -24,7 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
     public abstract class ConventionAnnotatable : Annotatable, IConventionAnnotatable
     {
-
         /// <summary>
         ///     Gets all convention annotations on the current object.
         /// </summary>

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -20,26 +21,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
     public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     {
-        private class TestQueryType
-        {
-            public string Something { get; set; }
-        }
-
-        [ConditionalFact(Skip = "Issue#20051")]
-        public void Model_differ_does_not_detect_queryable_function_result_type()
-        {
-            Execute(
-                _ => { },
-                modelBuilder => modelBuilder.Entity<TestQueryType>().ToQueryableFunctionResultType(),
-                result => Assert.Equal(0, result.Count));
-        }
-
         [ConditionalFact]
         public void Model_differ_does_not_detect_views()
         {
             Execute(
                 _ => { },
-                modelBuilder => modelBuilder.Entity<TestQueryType>().HasNoKey().ToView("Vista", "dbo"),
+                modelBuilder => modelBuilder.Entity<TestKeylessType>().HasNoKey().ToView("Vista", "dbo"),
                 result => Assert.Equal(0, result.Count));
         }
 
@@ -78,8 +65,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             DbContext context = null;
             Execute(
                 _ => { },
-                modelBuilder => modelBuilder.Entity<TestQueryType>().HasNoKey().ToQuery(
-                    () => context.Set<TestQueryType>().FromSqlRaw("SELECT * FROM Vista")),
+                modelBuilder => modelBuilder.Entity<TestKeylessType>().HasNoKey().ToQuery(
+                    () => context.Set<TestKeylessType>().FromSqlRaw("SELECT * FROM Vista")),
                 result => Assert.Empty(result));
         }
 
@@ -8495,6 +8482,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .WithMany()
                     .HasForeignKey("UserId"),
                 ops => { });
+        }
+
+        private class TestKeylessType
+        {
+            public string Something { get; set; }
+        }
+
+        private static IQueryable<TestKeylessType> GetCountByYear(int id)
+            => throw new NotImplementedException();
+
+        [ConditionalFact]
+        public void Model_differ_does_not_detect_queryable_function_result_type()
+        {
+            Execute(
+                _ => { },
+                modelBuilder =>
+                    modelBuilder.HasDbFunction(typeof(MigrationsModelDifferTest).GetMethod(
+                        nameof(GetCountByYear),
+                        BindingFlags.NonPublic | BindingFlags.Static)),
+                result => Assert.Equal(0, result.Count),
+                skipSourceConventions: true);
         }
 
         protected override TestHelpers TestHelpers => RelationalTestHelpers.Instance;

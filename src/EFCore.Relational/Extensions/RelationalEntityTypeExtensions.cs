@@ -531,11 +531,6 @@ namespace Microsoft.EntityFrameworkCore
                 return false;
             }
 
-            if (entityType.FindAnnotation(RelationalAnnotationNames.QueryableFunctionResultType) != null)
-            {
-                return true;
-            }
-
             var viewDefinition = entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinition);
             if (viewDefinition?.Value != null)
             {

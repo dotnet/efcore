@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public virtual string ActiveProvider { get; [param: NotNull] set; }
 
         /// <summary>
-        ///     Implemented to builds the <see cref="TargetModel" />.
+        ///     Implemented to build the <see cref="TargetModel" />.
         /// </summary>
         /// <param name="modelBuilder"> The <see cref="ModelBuilder" /> to use to build the model. </param>
         protected virtual void BuildTargetModel([NotNull] ModelBuilder modelBuilder)

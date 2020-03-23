@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore
             => (IConventionDbFunction)((IModel)model).FindDbFunction(method);
 
         /// <summary>
-        ///     Finds a <see cref="IDbFunction" /> that is mapped to the method represented by the given name.
+        ///     Finds an <see cref="IDbFunction" /> that is mapped to the method represented by the given name.
         /// </summary>
         /// <param name="model"> The model to find the function in. </param>
         /// <param name="name"> The model name of the function. </param>
@@ -274,7 +274,7 @@ namespace Microsoft.EntityFrameworkCore
                 Check.NotNull(name, nameof(name)));
 
         /// <summary>
-        ///     Finds a <see cref="IMutableDbFunction" /> that is mapped to the method represented by the given name.
+        ///     Finds an <see cref="IMutableDbFunction" /> that is mapped to the method represented by the given name.
         /// </summary>
         /// <param name="model"> The model to find the function in. </param>
         /// <param name="name"> The model name of the function. </param>
@@ -283,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore
             => (IMutableDbFunction)((IModel)model).FindDbFunction(name);
 
         /// <summary>
-        ///     Finds a <see cref="IConventionDbFunction" /> that is mapped to the method represented by the given name.
+        ///     Finds an <see cref="IConventionDbFunction" /> that is mapped to the method represented by the given name.
         /// </summary>
         /// <param name="model"> The model to find the function in. </param>
         /// <param name="name"> The model name of the function. </param>
@@ -292,24 +292,22 @@ namespace Microsoft.EntityFrameworkCore
             => (IConventionDbFunction)((IModel)model).FindDbFunction(name);
 
         /// <summary>
-        ///     Either returns the existing <see cref="DbFunction" /> mapped to the given method
-        ///     or creates a new function mapped to the method.
+        ///     Creates an <see cref="IMutableDbFunction" /> mapped to the given method.
         /// </summary>
         /// <param name="model"> The model to add the function to. </param>
         /// <param name="methodInfo"> The <see cref="MethodInfo" /> for the method that is mapped to the function. </param>
-        /// <returns> The <see cref="DbFunction" />. </returns>
+        /// <returns> The new <see cref="IMutableDbFunction" />. </returns>
         public static IMutableDbFunction AddDbFunction([NotNull] this IMutableModel model, [NotNull] MethodInfo methodInfo)
             => DbFunction.AddDbFunction(
                  model, Check.NotNull(methodInfo, nameof(methodInfo)), ConfigurationSource.Explicit);
 
         /// <summary>
-        ///     Either returns the existing <see cref="DbFunction" /> mapped to the given method
-        ///     or creates a new function mapped to the method.
+        ///     Creates an <see cref="IConventionDbFunction" /> mapped to the given method.
         /// </summary>
         /// <param name="model"> The model to add the function to. </param>
         /// <param name="methodInfo"> The <see cref="MethodInfo" /> for the method that is mapped to the function. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> The <see cref="DbFunction" />. </returns>
+        /// <returns> The new <see cref="IConventionDbFunction" />. </returns>
         public static IConventionDbFunction AddDbFunction(
             [NotNull] this IConventionModel model, [NotNull] MethodInfo methodInfo, bool fromDataAnnotation = false)
             => DbFunction.AddDbFunction(
@@ -317,28 +315,36 @@ namespace Microsoft.EntityFrameworkCore
                  fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
-        ///     Either returns the existing <see cref="DbFunction" /> mapped to the given method
-        ///     or creates a new function mapped to the method.
+        ///     Creates an <see cref="IMutableDbFunction" />.
         /// </summary>
         /// <param name="model"> The model to add the function to. </param>
         /// <param name="name"> The model name of the function. </param>
-        /// <returns> The <see cref="DbFunction" />. </returns>
-        public static IMutableDbFunction AddDbFunction([NotNull] this IMutableModel model, [NotNull] string name)
+        /// <param name="returnType"> The function return type. </param>
+        /// <returns> The new <see cref="IMutableDbFunction" />. </returns>
+        public static IMutableDbFunction AddDbFunction(
+            [NotNull] this IMutableModel model,
+            [NotNull] string name,
+            [NotNull] Type returnType)
             => DbFunction.AddDbFunction(
-                 model, Check.NotNull(name, nameof(name)), ConfigurationSource.Explicit);
+                 model, Check.NotNull(name, nameof(name)), returnType, ConfigurationSource.Explicit);
 
         /// <summary>
-        ///     Either returns the existing <see cref="DbFunction" /> mapped to the given method
-        ///     or creates a new function mapped to the method.
+        ///     Creates an <see cref="IConventionDbFunction" />.
         /// </summary>
         /// <param name="model"> The model to add the function to. </param>
         /// <param name="name"> The model name of the function. </param>
+        /// <param name="returnType"> The function return type. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> The <see cref="DbFunction" />. </returns>
+        /// <returns> The new <see cref="IConventionDbFunction" />. </returns>
         public static IConventionDbFunction AddDbFunction(
-            [NotNull] this IConventionModel model, [NotNull] string name, bool fromDataAnnotation = false)
+            [NotNull] this IConventionModel model,
+            [NotNull] string name,
+            [NotNull] Type returnType,
+            bool fromDataAnnotation = false)
             => DbFunction.AddDbFunction(
-                 (IMutableModel)model, Check.NotNull(name, nameof(name)),
+                 (IMutableModel)model,
+                 Check.NotNull(name, nameof(name)),
+                 returnType,
                  fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>

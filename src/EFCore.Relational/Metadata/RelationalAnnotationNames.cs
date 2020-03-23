@@ -154,11 +154,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string ViewColumnMappings = Prefix + "ViewColumnMappings";
 
         /// <summary>
-        ///     The definition of a Queryable Function Result Type.
-        /// </summary>
-        public const string QueryableFunctionResultType = Prefix + "QueryableFunctionResultType";
-
-        /// <summary>
         ///     The name for foreign key mappings annotations.
         /// </summary>
         public const string ForeignKeyMappings = Prefix + "ForeignKeyMappings";

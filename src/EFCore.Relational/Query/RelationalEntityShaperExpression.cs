@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (entityType.FindPrimaryKey() != null)
             {
-                var linkingFks = entityType.GetViewOrTableMappings().Single().Table.GetInternalForeignKeys(entityType);
+                var linkingFks = entityType.GetViewOrTableMappings().SingleOrDefault()?.Table.GetInternalForeignKeys(entityType);
                 if (linkingFks != null
                     && linkingFks.Any())
                 {

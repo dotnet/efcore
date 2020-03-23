@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static class TableExtensions
+    public static class DbFunctionExtensions
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static string ToDebugString(
-            [NotNull] this ITable table,
+            [NotNull] this IDbFunction function,
             MetadataDebugStringOptions options,
             [NotNull] string indent = "")
         {
@@ -31,57 +31,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             builder
                 .Append(indent)
-                .Append("Table: ");
+                .Append("DbFunction: ");
 
-            if (table.Schema != null)
+            builder.Append(function.ReturnType.ShortDisplayName())
+                .Append(" ");
+
+            if (function.Schema != null)
             {
                 builder
-                    .Append(table.Schema)
+                    .Append(function.Schema)
                     .Append(".");
             }
 
-            builder.Append(table.Name);
-
-            if (!table.IsMigratable)
-            {
-                builder.Append(" NonMigratable");
-            }
+            builder.Append(function.Name);
 
             if ((options & MetadataDebugStringOptions.SingleLine) == 0)
             {
-                var mappings = table.EntityTypeMappings.ToList();
-                if (mappings.Count != 0)
+                var parameters = function.Parameters.ToList();
+                if (parameters.Count != 0)
                 {
-                    builder.AppendLine().Append(indent).Append("  EntityTypeMappings: ");
-                    foreach (var mapping in mappings)
+                    builder.AppendLine().Append(indent).Append("  Parameters: ");
+                    foreach (var parameter in parameters)
                     {
-                        builder.AppendLine().Append(mapping.ToDebugString(options, indent + "    "));
-                    }
-                }
-
-                var columns = table.Columns.ToList();
-                if (columns.Count != 0)
-                {
-                    builder.AppendLine().Append(indent).Append("  Columns: ");
-                    foreach (var column in columns)
-                    {
-                        builder.AppendLine().Append(column.ToDebugString(options, indent + "    "));
-                    }
-                }
-
-                var checkConstraints = table.CheckConstraints.ToList();
-                if (checkConstraints.Count != 0)
-                {
-                    builder.AppendLine().Append(indent).Append("  Check constraints: ");
-                    foreach (var checkConstraint in checkConstraints)
-                    {
-                        builder.AppendLine().Append(checkConstraint.ToDebugString(options, indent + "    "));
+                        builder.AppendLine().Append(parameter.ToDebugString(options, indent + "    "));
                     }
                 }
 
                 if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
                 {
-                    builder.Append(table.AnnotationsToDebugString(indent + "  "));
+                    builder.Append(function.AnnotationsToDebugString(indent: indent + "  "));
                 }
             }
 

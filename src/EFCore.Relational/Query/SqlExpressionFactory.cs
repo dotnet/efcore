@@ -762,7 +762,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             else
             {
                 var tableMappings = entityType.GetViewOrTableMappings();
-                if (tableMappings == null)
+                if (!tableMappings.Any())
                 {
                     return;
                 }

@@ -74,14 +74,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 var methodInfo = dbFunction.MethodInfo;
 
-                if (string.IsNullOrEmpty(dbFunction.Name))
-                {
-                    throw new InvalidOperationException(
-                        RelationalStrings.DbFunctionNameEmpty(methodInfo.DisplayName()));
-                }
-
-                if (dbFunction.TypeMapping == null &&
-                    !(dbFunction.IsQueryable && model.FindEntityType(dbFunction.MethodInfo.ReturnType.GetGenericArguments()[0]) != null))
+                if (dbFunction.TypeMapping == null
+                    && dbFunction.QueryableEntityType == null)
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.DbFunctionInvalidReturnType(

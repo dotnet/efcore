@@ -88,6 +88,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             var dbFunctionAttributeConvention = new RelationalDbFunctionAttributeConvention(Dependencies, RelationalDependencies);
             conventionSet.ModelInitializedConventions.Add(dbFunctionAttributeConvention);
 
+            // ModelCleanupConvention would remove the entity types added by QueryableDbFunctionConvention #15898
+            ConventionSet.AddAfter(
+                conventionSet.ModelFinalizingConventions,
+                new QueryableDbFunctionConvention(Dependencies, RelationalDependencies),
+                typeof(ModelCleanupConvention));
             conventionSet.ModelFinalizingConventions.Add(dbFunctionAttributeConvention);
             conventionSet.ModelFinalizingConventions.Add(tableNameFromDbSetConvention);
             conventionSet.ModelFinalizingConventions.Add(storeGenerationConvention);

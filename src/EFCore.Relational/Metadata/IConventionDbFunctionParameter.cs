@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -20,6 +21,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The <see cref="IConventionDbFunctionParameterBuilder" /> for building a by-convention function parameter.
         /// </summary>
         new IConventionDbFunctionParameterBuilder Builder { get; }
+
+        /// <summary>
+        ///     Returns the configuration source for the parameter.
+        /// </summary>
+        /// <returns> The configuration source for the parameter. </returns>
+        ConfigurationSource GetConfigurationSource();
 
         /// <summary>
         ///     Sets the store type of the parameter in the database.

@@ -82,6 +82,11 @@ namespace Microsoft.EntityFrameworkCore
                                 && m.DeclaringType == typeof(RelationalCompiledQueryCacheKeyGenerator))
                 };
 
+            public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new HashSet<MethodInfo>
+            {
+                typeof(IDbFunction).GetMethod("get_QueryableEntityType")
+            };
+
             public override HashSet<MethodInfo> AsyncMethodExceptions { get; } = new HashSet<MethodInfo>
             {
                 typeof(RelationalDatabaseFacadeExtensions).GetMethod(nameof(RelationalDatabaseFacadeExtensions.CloseConnectionAsync)),

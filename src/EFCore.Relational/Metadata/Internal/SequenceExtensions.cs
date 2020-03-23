@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -14,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static class TableExtensions
+    public static class SequenceExtensions
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -23,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static string ToDebugString(
-            [NotNull] this ITable table,
+            [NotNull] this ISequence sequence,
             MetadataDebugStringOptions options,
             [NotNull] string indent = "")
         {
@@ -31,57 +30,51 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             builder
                 .Append(indent)
-                .Append("Table: ");
+                .Append("Sequence: ");
 
-            if (table.Schema != null)
+            if (sequence.Schema != null)
             {
                 builder
-                    .Append(table.Schema)
+                    .Append(sequence.Schema)
                     .Append(".");
             }
 
-            builder.Append(table.Name);
+            builder.Append(sequence.Name);
 
-            if (!table.IsMigratable)
+            if (!sequence.IsCyclic)
             {
-                builder.Append(" NonMigratable");
+                builder.Append(" Cyclic");
+            }
+
+            if (sequence.StartValue != 1)
+            {
+                builder.Append(" Start: ")
+                    .Append(sequence.StartValue);
+            }
+
+            if (sequence.IncrementBy != 1)
+            {
+                builder.Append(" IncrementBy: ")
+                    .Append(sequence.IncrementBy);
+            }
+
+            if (sequence.MinValue != null)
+            {
+                builder.Append(" Min: ")
+                    .Append(sequence.MinValue);
+            }
+
+            if (sequence.MaxValue != null)
+            {
+                builder.Append(" Max: ")
+                    .Append(sequence.MaxValue);
             }
 
             if ((options & MetadataDebugStringOptions.SingleLine) == 0)
             {
-                var mappings = table.EntityTypeMappings.ToList();
-                if (mappings.Count != 0)
-                {
-                    builder.AppendLine().Append(indent).Append("  EntityTypeMappings: ");
-                    foreach (var mapping in mappings)
-                    {
-                        builder.AppendLine().Append(mapping.ToDebugString(options, indent + "    "));
-                    }
-                }
-
-                var columns = table.Columns.ToList();
-                if (columns.Count != 0)
-                {
-                    builder.AppendLine().Append(indent).Append("  Columns: ");
-                    foreach (var column in columns)
-                    {
-                        builder.AppendLine().Append(column.ToDebugString(options, indent + "    "));
-                    }
-                }
-
-                var checkConstraints = table.CheckConstraints.ToList();
-                if (checkConstraints.Count != 0)
-                {
-                    builder.AppendLine().Append(indent).Append("  Check constraints: ");
-                    foreach (var checkConstraint in checkConstraints)
-                    {
-                        builder.AppendLine().Append(checkConstraint.ToDebugString(options, indent + "    "));
-                    }
-                }
-
                 if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
                 {
-                    builder.Append(table.AnnotationsToDebugString(indent + "  "));
+                    builder.Append(sequence.AnnotationsToDebugString(indent: indent + "  "));
                 }
             }
 

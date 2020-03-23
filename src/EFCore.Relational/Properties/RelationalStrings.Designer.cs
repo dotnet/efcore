@@ -413,14 +413,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 function, type);
 
         /// <summary>
-        ///     The DbFunction '{function}' has no name set. Name is a required property of a DbFunction.
-        /// </summary>
-        public static string DbFunctionNameEmpty([CanBeNull] object function)
-            => string.Format(
-                GetString("DbFunctionNameEmpty", nameof(function)),
-                function);
-
-        /// <summary>
         ///     The parameter '{parameter}' for the DbFunction '{function}' has an invalid type '{type}'. Ensure the parameter type can be mapped by the current provider.
         /// </summary>
         public static string DbFunctionInvalidParameterType([CanBeNull] object parameter, [CanBeNull] object function, [CanBeNull] object type)
@@ -631,6 +623,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("DbFunctionQueryableCustomTranslation", nameof(function)),
                 function);
+
+        /// <summary>
+        ///     The DbFunction '{function}' has an invalid return type '{type}'. Only functions that return IQueryable of entity type are supported.
+        /// </summary>
+        public static string DbFunctionInvalidIQueryableReturnType([CanBeNull] object function, [CanBeNull] object type)
+            => string.Format(
+                GetString("DbFunctionInvalidIQueryableReturnType", nameof(function), nameof(type)),
+                function, type);
+
+        /// <summary>
+        ///     The DbFunction '{function}' has an invalid return type '{type}'. Owned entity types cannot be used as the return type of a DbFunction.
+        /// </summary>
+        public static string DbFunctionInvalidIQueryableOwnedReturnType([CanBeNull] object function, [CanBeNull] object type)
+            => string.Format(
+                GetString("DbFunctionInvalidIQueryableOwnedReturnType", nameof(function), nameof(type)),
+                function, type);
 
         private static string GetString(string name, params string[] formatterNames)
         {

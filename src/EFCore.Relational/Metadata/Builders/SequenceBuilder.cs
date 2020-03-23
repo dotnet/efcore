@@ -3,8 +3,10 @@
 
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -13,10 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// <summary>
     ///     Provides a simple API for configuring a <see cref="ISequence" />.
     /// </summary>
-    public class SequenceBuilder : IConventionSequenceBuilder
+    public class SequenceBuilder : IInfrastructure<IConventionSequenceBuilder>
     {
-        private readonly Sequence _sequence;
-
         /// <summary>
         ///     Creates a new builder for the given <see cref="ISequence" />.
         /// </summary>
@@ -25,32 +25,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             Check.NotNull(sequence, nameof(sequence));
 
-            _sequence = (Sequence)sequence;
+            Builder = ((Sequence)sequence).Builder;
+        }
+
+        private InternalSequenceBuilder Builder { [DebuggerStepThrough] get; }
+
+        /// <inheritdoc />
+        IConventionSequenceBuilder IInfrastructure<IConventionSequenceBuilder>.Instance
+        {
+            [DebuggerStepThrough]
+            get => Builder;
         }
 
         /// <summary>
         ///     The sequence.
         /// </summary>
-        public virtual IMutableSequence Metadata => _sequence;
-
-        /// <inheritdoc />
-        IConventionSequenceBuilder IConventionSequenceBuilder.HasType(Type type, bool fromDataAnnotation)
-        {
-            if (Overrides(fromDataAnnotation, _sequence.GetClrTypeConfigurationSource())
-                || _sequence.ClrType == type)
-            {
-                ((IConventionSequence)_sequence).SetClrType(type, fromDataAnnotation);
-                return this;
-            }
-
-            return null;
-        }
-
-        /// <inheritdoc />
-        bool IConventionSequenceBuilder.CanSetType(Type type, bool fromDataAnnotation)
-            => (type == null || Sequence.SupportedTypes.Contains(type))
-                && (Overrides(fromDataAnnotation, _sequence.GetClrTypeConfigurationSource())
-                    || _sequence.ClrType == type);
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        public virtual IMutableSequence Metadata => Builder.Metadata;
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         /// <summary>
         ///     Sets the <see cref="ISequence" /> to increment by the given amount when generating each next value.
@@ -59,27 +51,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual SequenceBuilder IncrementsBy(int increment)
         {
-            _sequence.IncrementBy = increment;
+            Builder.IncrementsBy(increment, ConfigurationSource.Explicit);
 
             return this;
         }
-
-        /// <inheritdoc />
-        IConventionSequenceBuilder IConventionSequenceBuilder.IncrementsBy(int? increment, bool fromDataAnnotation)
-        {
-            if (((IConventionSequenceBuilder)this).CanSetIncrementsBy(increment, fromDataAnnotation))
-            {
-                ((IConventionSequence)_sequence).SetIncrementBy(increment, fromDataAnnotation);
-                return this;
-            }
-
-            return null;
-        }
-
-        /// <inheritdoc />
-        bool IConventionSequenceBuilder.CanSetIncrementsBy(int? increment, bool fromDataAnnotation)
-            => Overrides(fromDataAnnotation, _sequence.GetIncrementByConfigurationSource())
-                || _sequence.IncrementBy == increment;
 
         /// <summary>
         ///     Sets the <see cref="ISequence" /> to start at the given value.
@@ -88,27 +63,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual SequenceBuilder StartsAt(long startValue)
         {
-            _sequence.StartValue = startValue;
+            Builder.StartsAt(startValue, ConfigurationSource.Explicit);
 
             return this;
         }
-
-        /// <inheritdoc />
-        IConventionSequenceBuilder IConventionSequenceBuilder.StartsAt(long? startValue, bool fromDataAnnotation)
-        {
-            if (((IConventionSequenceBuilder)this).CanSetStartsAt(startValue, fromDataAnnotation))
-            {
-                ((IConventionSequence)_sequence).SetStartValue(startValue, fromDataAnnotation);
-                return this;
-            }
-
-            return null;
-        }
-
-        /// <inheritdoc />
-        bool IConventionSequenceBuilder.CanSetStartsAt(long? startValue, bool fromDataAnnotation)
-            => Overrides(fromDataAnnotation, _sequence.GetStartValueConfigurationSource())
-                || _sequence.StartValue == startValue;
 
         /// <summary>
         ///     Sets the maximum value for the <see cref="ISequence" />.
@@ -117,27 +75,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual SequenceBuilder HasMax(long maximum)
         {
-            _sequence.MaxValue = maximum;
+            Builder.HasMax(maximum, ConfigurationSource.Explicit);
 
             return this;
         }
-
-        /// <inheritdoc />
-        IConventionSequenceBuilder IConventionSequenceBuilder.HasMax(long? maximum, bool fromDataAnnotation)
-        {
-            if (((IConventionSequenceBuilder)this).CanSetMax(maximum, fromDataAnnotation))
-            {
-                ((IConventionSequence)_sequence).SetMaxValue(maximum, fromDataAnnotation);
-                return this;
-            }
-
-            return null;
-        }
-
-        /// <inheritdoc />
-        bool IConventionSequenceBuilder.CanSetMax(long? maximum, bool fromDataAnnotation)
-            => Overrides(fromDataAnnotation, _sequence.GetMaxValueConfigurationSource())
-                || _sequence.MaxValue == maximum;
 
         /// <summary>
         ///     Sets the minimum value for the <see cref="ISequence" />.
@@ -146,27 +87,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual SequenceBuilder HasMin(long minimum)
         {
-            _sequence.MinValue = minimum;
+            Builder.HasMin(minimum, ConfigurationSource.Explicit);
 
             return this;
         }
-
-        /// <inheritdoc />
-        IConventionSequenceBuilder IConventionSequenceBuilder.HasMin(long? minimum, bool fromDataAnnotation)
-        {
-            if (((IConventionSequenceBuilder)this).CanSetMin(minimum, fromDataAnnotation))
-            {
-                ((IConventionSequence)_sequence).SetMinValue(minimum, fromDataAnnotation);
-                return this;
-            }
-
-            return null;
-        }
-
-        /// <inheritdoc />
-        bool IConventionSequenceBuilder.CanSetMin(long? minimum, bool fromDataAnnotation)
-            => Overrides(fromDataAnnotation, _sequence.GetMinValueConfigurationSource())
-                || _sequence.MinValue == minimum;
 
         /// <summary>
         ///     Sets whether or not the sequence will start again from the beginning once
@@ -176,33 +100,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual SequenceBuilder IsCyclic(bool cyclic = true)
         {
-            _sequence.IsCyclic = cyclic;
+            Builder.IsCyclic(cyclic, ConfigurationSource.Explicit);
 
             return this;
         }
-
-        /// <inheritdoc />
-        IConventionSequenceBuilder IConventionSequenceBuilder.IsCyclic(bool? cyclic, bool fromDataAnnotation)
-        {
-            if (((IConventionSequenceBuilder)this).CanSetIsCyclic(cyclic, fromDataAnnotation))
-            {
-                ((IConventionSequence)_sequence).SetIsCyclic(cyclic, fromDataAnnotation);
-                return this;
-            }
-
-            return null;
-        }
-
-        /// <inheritdoc />
-        bool IConventionSequenceBuilder.CanSetIsCyclic(bool? cyclic, bool fromDataAnnotation)
-            => Overrides(fromDataAnnotation, _sequence.GetIsCyclicConfigurationSource())
-                || _sequence.IsCyclic == cyclic;
-
-        private bool Overrides(bool fromDataAnnotation, ConfigurationSource? configurationSource)
-            => (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
-                .Overrides(configurationSource);
-
-        IConventionSequence IConventionSequenceBuilder.Metadata => (IConventionSequence)Metadata;
 
         #region Hidden System.Object members
 

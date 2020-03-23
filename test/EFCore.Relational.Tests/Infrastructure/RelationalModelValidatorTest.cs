@@ -1057,22 +1057,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
-        public void Detects_function_with_empty_name()
-        {
-            var modelBuilder = CreateConventionalModelBuilder();
-
-            var methodInfo
-                = typeof(DbFunctionMetadataTests.TestMethods)
-                    .GetRuntimeMethod(nameof(DbFunctionMetadataTests.TestMethods.MethodD), Array.Empty<Type>());
-
-            ((IConventionDbFunctionBuilder)modelBuilder.HasDbFunction(methodInfo)).HasName("");
-
-            VerifyError(
-                RelationalStrings.DbFunctionNameEmpty(methodInfo.DisplayName()),
-                modelBuilder.Model);
-        }
-
-        [ConditionalFact]
         public void Detects_function_with_invalid_return_type()
         {
             var modelBuilder = CreateConventionalModelBuilder();

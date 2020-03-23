@@ -68,6 +68,9 @@ namespace Microsoft.EntityFrameworkCore
                 "\r\n-- Errors: --\r\n" + string.Join(Environment.NewLine, errors));
         }
 
+        private static readonly string MetadataNamespace = typeof(IModel).Namespace;
+        private static readonly string MetadataBuilderNamespace = typeof(IConventionModelBuilder).Namespace;
+
         private string ValidateMetadata(KeyValuePair<Type, (Type, Type, Type)> types)
         {
             var readonlyType = types.Key;
@@ -83,11 +86,12 @@ namespace Microsoft.EntityFrameworkCore
                 return $"{mutableType.Name} should derive from {readonlyType.Name}";
             }
 
-            if (typeof(IAnnotation) != readonlyType)
+            if (typeof(IAnnotation) != readonlyType
+                && typeof(IAnnotatable) != readonlyType)
             {
                 if (!typeof(IAnnotatable).IsAssignableFrom(readonlyType))
                 {
-                    return $"{mutableType.Name} should derive from IAnnotatable";
+                    return $"{readonlyType.Name} should derive from IAnnotatable";
                 }
 
                 if (!typeof(IMutableAnnotatable).IsAssignableFrom(mutableType))
@@ -97,7 +101,34 @@ namespace Microsoft.EntityFrameworkCore
 
                 if (!typeof(IConventionAnnotatable).IsAssignableFrom(conventionType))
                 {
-                    return $"{mutableType.Name} should derive from IConventionAnnotatable";
+                    return $"{conventionType.Name} should derive from IConventionAnnotatable";
+                }
+
+                if (conventionBuilderType != null
+                    && !typeof(IConventionAnnotatableBuilder).IsAssignableFrom(conventionBuilderType))
+                {
+                    return $"{conventionBuilderType.Name} should derive from IConventionAnnotatableBuilder";
+                }
+
+                if (readonlyType.Namespace != MetadataNamespace)
+                {
+                    return $"{readonlyType.Name} is expected to be in the {MetadataNamespace} namespace";
+                }
+
+                if (mutableType.Namespace != MetadataNamespace)
+                {
+                    return $"{mutableType.Name} is expected to be in the {MetadataNamespace} namespace";
+                }
+
+                if (conventionType.Namespace != MetadataNamespace)
+                {
+                    return $"{conventionType.Name} is expected to be in the {MetadataNamespace} namespace";
+                }
+
+                if (conventionBuilderType != null
+                    && conventionBuilderType.Namespace != MetadataBuilderNamespace)
+                {
+                    return $"{conventionBuilderType.Name} is expected to be in the {MetadataBuilderNamespace} namespace";
                 }
             }
 

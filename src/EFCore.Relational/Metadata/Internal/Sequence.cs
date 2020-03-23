@@ -108,7 +108,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _name = name;
             _schema = schema;
             _configurationSource = configurationSource;
-            Builder = new SequenceBuilder(this);
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            Builder = new InternalSequenceBuilder(this, ((Model)model).Builder.ModelBuilder);
+#pragma warning restore EF1001 // Internal EF Core API usage.
         }
 
         /// <summary>
@@ -135,7 +137,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _maxValue = data.MaxValue;
             _clrType = data.ClrType;
             _isCyclic = data.IsCyclic;
-            Builder = new SequenceBuilder(this);
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            Builder = new InternalSequenceBuilder(this, ((Model)model).Builder.ModelBuilder);
+#pragma warning restore EF1001 // Internal EF Core API usage.
         }
 
         /// <summary>
@@ -214,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SequenceBuilder Builder { get; private set; }
+        public virtual InternalSequenceBuilder Builder { get; private set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -239,6 +243,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string Schema => _schema ?? Model.GetDefaultSchema();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual ConfigurationSource GetConfigurationSource()
+            => _configurationSource;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
+            => _configurationSource = _configurationSource.Max(configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -489,17 +511,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConfigurationSource GetConfigurationSource()
-            => _configurationSource;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
-            => _configurationSource = _configurationSource.Max(configurationSource);
+        public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
