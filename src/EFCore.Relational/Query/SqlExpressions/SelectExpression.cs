@@ -1035,6 +1035,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 _indexMap = indexMap;
             }
 
+            public ShaperRemappingExpressionVisitor(
+                SelectExpression queryExpression, SelectExpression innerSelectExpression, int[] indexMap)
+            {
+                _queryExpression = queryExpression;
+                _innerSelectExpression = innerSelectExpression;
+                _indexMap = indexMap;
+            }
+
             protected override Expression VisitExtension(Expression extensionExpression)
             {
                 Check.NotNull(extensionExpression, nameof(extensionExpression));

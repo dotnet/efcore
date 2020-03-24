@@ -1,0 +1,10 @@
+<!--
+    This file contains Runtime Directives used by .NET Native.
+-->
+
+<Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">
+  <Library>
+    <Type Name="Windows.Storage.ApplicationData" Dynamic="Required All" />
+    <Type Name="Windows.Storage.StorageFolder" Dynamic="Required All" />
+  </Library>
+</Directives>
