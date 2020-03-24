@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (concurrencyDetector.EnterCriticalSection())
             {
-                var rawSqlCommand = GetFacadeDependencies(databaseFacade).RawSqlCommandBuilder
+                var rawSqlCommand = facadeDependencies.RawSqlCommandBuilder
                     .Build(sql, parameters);
 
                 return rawSqlCommand
@@ -361,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (concurrencyDetector.EnterCriticalSection())
             {
-                var rawSqlCommand = GetFacadeDependencies(databaseFacade).RawSqlCommandBuilder
+                var rawSqlCommand = facadeDependencies.RawSqlCommandBuilder
                     .Build(sql, parameters);
 
                 return await rawSqlCommand
