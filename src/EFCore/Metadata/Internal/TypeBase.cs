@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Threading;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 

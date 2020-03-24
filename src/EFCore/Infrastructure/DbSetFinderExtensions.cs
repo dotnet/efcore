@@ -4,23 +4,23 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Internal
+namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     Extension methods for <see cref="IDbSetFinder" />.
     /// </summary>
     public static class DbSetFinderExtensions
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Create a mapping between clrType and <see cref="DbSetProperty"/> specified on given context type.
         /// </summary>
+        /// <param name="setFinder"> The <see cref="IDbSetFinder"/> to use to find DbSet on context. </param>
+        /// <param name="contextType"> The type of context to create mapping for. </param>
+        /// <returns>
+        ///     Mapping of type to <see cref="DbSetProperty"/> for given context type.
+        /// </returns>
         public static IDictionary<Type, DbSetProperty> CreateClrTypeDbSetMapping(
             [NotNull] this IDbSetFinder setFinder, [NotNull] Type contextType)
         {

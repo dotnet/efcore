@@ -1668,7 +1668,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns> True if the version could be retrieved. </returns>
         protected virtual bool TryGetVersion([CanBeNull] IModel model, out string version)
         {
-            if (!(model?[CoreAnnotationNames.ProductVersion] is string versionString))
+            if (!(model?.GetProductVersion() is string versionString))
             {
                 version = null;
 

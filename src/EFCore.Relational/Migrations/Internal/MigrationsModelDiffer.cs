@@ -912,7 +912,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 return entityType.DefiningNavigationName;
             }
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
             var primaryKey = entityType.FindDeclaredPrimaryKey();
+#pragma warning restore EF1001 // Internal EF Core API usage.
             if (primaryKey != null)
             {
                 var definingForeignKey = entityType

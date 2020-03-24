@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal
@@ -455,7 +456,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         // Builds a map from foreign key values to list of modification commands, with an entry for every command
         // that may need to precede some other command involving that foreign key value.
         private Dictionary<IKeyValueIndex, List<ModificationCommand>> CreateKeyValuePredecessorMap(
-            Graph<ModificationCommand> commandGraph)
+            Multigraph<ModificationCommand, IAnnotatable> commandGraph)
         {
             var predecessorsMap = new Dictionary<IKeyValueIndex, List<ModificationCommand>>();
             foreach (var command in commandGraph.Vertices)
@@ -653,15 +654,19 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             }
                         }
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
                         var valueFactory = index.GetNullableValueFactory<object[]>();
                         if (valueFactory.TryCreateFromOriginalValues(
                             (InternalEntityEntry)entry, out var indexValue))
+#pragma warning restore EF1001 // Internal EF Core API usage.
                         {
                             predecessorsMap ??= new Dictionary<IIndex, Dictionary<object[], ModificationCommand>>();
                             if (!predecessorsMap.TryGetValue(index, out var predecessorCommands))
                             {
                                 predecessorCommands =
+#pragma warning disable EF1001 // Internal EF Core API usage.
                                     new Dictionary<object[], ModificationCommand>(valueFactory.EqualityComparer);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                                 predecessorsMap.Add(index, predecessorCommands);
                             }
 
@@ -696,8 +701,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             if (command.EntityState == EntityState.Added
                                 || indexColumnModifications.Any())
                             {
+#pragma warning disable EF1001 // Internal EF Core API usage.
                                 var valueFactory = index.GetNullableValueFactory<object[]>();
                                 if (valueFactory.TryCreateFromCurrentValues((InternalEntityEntry)entry, out var indexValue)
+#pragma warning restore EF1001 // Internal EF Core API usage.
                                     && predecessorsMap.TryGetValue(index, out var predecessorCommands)
                                     && predecessorCommands.TryGetValue(indexValue, out var predecessor)
                                     && predecessor != command)

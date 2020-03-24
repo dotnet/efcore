@@ -78,6 +78,44 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Finds the list of principal properties including the given property that the given property is constrained by
+        ///     if the given property is part of a foreign key.
+        /// </summary>
+        /// <param name="property"> The foreign key property. </param>
+        /// <returns> The list of all associated principal properties including the given property. </returns>
+        public static IReadOnlyList<IProperty> FindPrincipals([NotNull] this IProperty property)
+        {
+            var principals = new List<IProperty> { property };
+            AddPrincipals(property, principals);
+            return principals;
+        }
+
+        private static void AddPrincipals(IProperty property, List<IProperty> visited)
+        {
+            var concreteProperty = property.AsProperty();
+
+            if (concreteProperty.ForeignKeys != null)
+            {
+                foreach (var foreignKey in concreteProperty.ForeignKeys)
+                {
+                    for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
+                    {
+                        if (property == foreignKey.Properties[propertyIndex])
+                        {
+                            var principal = foreignKey.PrincipalKey.Properties[propertyIndex];
+                            if (!visited.Contains(principal))
+                            {
+                                visited.Add(principal);
+
+                                AddPrincipals(principal, visited);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         ///     Gets a value indicating whether this property is used as a foreign key (or part of a composite foreign key).
         /// </summary>
         /// <param name="property"> The property to check. </param>

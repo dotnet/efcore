@@ -28,7 +28,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     public class RelationalValueGeneratorSelector : ValueGeneratorSelector
     {
         private readonly TemporaryNumberValueGeneratorFactory _numberFactory
+#pragma warning disable EF1001 // Internal EF Core API usage.
             = new TemporaryNumberValueGeneratorFactory();
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalValueGeneratorSelector" /> class.
@@ -62,17 +64,23 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
                     || propertyType == typeof(float)
                     || propertyType == typeof(double))
                 {
+#pragma warning disable EF1001 // Internal EF Core API usage.
                     return _numberFactory.Create(property);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 }
 
                 if (propertyType == typeof(DateTime))
                 {
+#pragma warning disable EF1001 // Internal EF Core API usage.
                     return new TemporaryDateTimeValueGenerator();
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 }
 
                 if (propertyType == typeof(DateTimeOffset))
                 {
+#pragma warning disable EF1001 // Internal EF Core API usage.
                     return new TemporaryDateTimeOffsetValueGenerator();
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 }
 
                 if (property.GetDefaultValueSql() != null)
@@ -84,12 +92,16 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
                     if (propertyType == typeof(string))
                     {
+#pragma warning disable EF1001 // Internal EF Core API usage.
                         return new StringValueGenerator(generateTemporaryValues: true);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                     }
 
                     if (propertyType == typeof(byte[]))
                     {
+#pragma warning disable EF1001 // Internal EF Core API usage.
                         return new BinaryValueGenerator(generateTemporaryValues: true);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                     }
                 }
             }

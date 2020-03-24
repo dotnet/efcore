@@ -24,7 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
+#pragma warning disable EF1001 // Internal EF Core API usage.
     public class KeyValueIndexFactorySource : IdentityMapFactoryFactoryBase, IKeyValueIndexFactorySource
+#pragma warning restore EF1001 // Internal EF Core API usage.
     {
         private readonly ConcurrentDictionary<IKey, IKeyValueIndexFactory> _factories
             = new ConcurrentDictionary<IKey, IKeyValueIndexFactory>();
@@ -52,6 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
         [UsedImplicitly]
         private static IKeyValueIndexFactory CreateFactory<TKey>(IKey key)
+#pragma warning disable EF1001 // Internal EF Core API usage.
             => new KeyValueIndexFactory<TKey>(key.GetPrincipalKeyValueFactory<TKey>());
+#pragma warning restore EF1001 // Internal EF Core API usage.
     }
 }
