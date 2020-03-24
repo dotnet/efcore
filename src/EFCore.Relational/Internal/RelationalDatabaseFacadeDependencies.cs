@@ -9,7 +9,9 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
+#pragma warning disable EF1001 // Internal EF Core API usage.
     public class RelationalDatabaseFacadeDependencies : DatabaseFacadeDependencies, IRelationalDatabaseFacadeDependencies
+#pragma warning restore EF1001 // Internal EF Core API usage.
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
