@@ -14,7 +14,7 @@
     <FailOnTestFailure>true</FailOnTestFailure>
     <EnableXUnitReporter>true</EnableXUnitReporter>
     <FailOnMissionControlTestFailure>true</FailOnMissionControlTestFailure>
-	<HelixTargetQueues>Ubuntu.1804.Amd64.Open@mcr.microsoft.com/mssql/server:2019-CU3-ubuntu-18.04</HelixTargetQueues>
+	<HelixTargetQueues>Windows.10.Amd64.Open@microsoft/azure-cosmosdb-emulator</HelixTargetQueues>
   </PropertyGroup>
 
   <PropertyGroup Condition = "'$(SYSTEM_ACCESSTOKEN)' == ''">
@@ -30,7 +30,7 @@
 
   <ItemGroup>
     <!--<XUnitProject Include="$(RepoRoot)/test/**/*.csproj"/>-->
-    <XUnitProject Include="$(RepoRoot)/test/EFCore.SqlServer.FunctionalTests/*.csproj"/>
+    <XUnitProject Include="$(RepoRoot)/test/EFCore.Cosmos.FunctionalTests/*.csproj"/>
     <XUnitProject Remove="$(RepoRoot)/test/EFCore.Specification.Tests/*.csproj"/>
     <XUnitProject Remove="$(RepoRoot)/test/EFCore.Relational.Specification.Tests/*.csproj"/>
   </ItemGroup>
