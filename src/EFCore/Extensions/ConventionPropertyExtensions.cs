@@ -29,6 +29,15 @@ namespace Microsoft.EntityFrameworkCore
             => (IConventionProperty)((IProperty)property).FindFirstPrincipal();
 
         /// <summary>
+        ///     Finds the list of principal properties including the given property that the given property is constrained by
+        ///     if the given property is part of a foreign key.
+        /// </summary>
+        /// <param name="property"> The foreign key property. </param>
+        /// <returns> The list of all associated principal properties including the given property. </returns>
+        public static IReadOnlyList<IConventionProperty> FindPrincipals([NotNull] this IConventionProperty property)
+            => ((IProperty)property).FindPrincipals().Cast<IConventionProperty>().ToList();
+
+        /// <summary>
         ///     Gets all foreign keys that use this property (including composite foreign keys in which this property
         ///     is included).
         /// </summary>

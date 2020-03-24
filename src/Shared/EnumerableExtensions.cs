@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 
 // ReSharper disable once CheckNamespace
-namespace Microsoft.EntityFrameworkCore.Internal
+namespace Microsoft.EntityFrameworkCore.Utilities
 {
     [DebuggerStepThrough]
     internal static class EnumerableExtensions

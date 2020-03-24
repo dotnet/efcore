@@ -53,7 +53,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     current database provider.
         /// </summary>
         protected virtual IExecutionStrategy CreateDefaultStrategy([NotNull] ExecutionStrategyDependencies dependencies)
+#pragma warning disable EF1001 // Internal EF Core API usage.
             => new NoopExecutionStrategy(Dependencies);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         /// <summary>
         ///     Creates an <see cref="IExecutionStrategy" /> for the current database provider.

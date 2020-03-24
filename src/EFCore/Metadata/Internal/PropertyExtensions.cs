@@ -160,44 +160,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IReadOnlyList<IProperty> FindPrincipals([NotNull] this IProperty property)
-        {
-            var principals = new List<IProperty> { property };
-            AddPrincipals(property, principals);
-            return principals;
-        }
-
-        private static void AddPrincipals(IProperty property, List<IProperty> visited)
-        {
-            var concreteProperty = property.AsProperty();
-
-            if (concreteProperty.ForeignKeys != null)
-            {
-                foreach (var foreignKey in concreteProperty.ForeignKeys)
-                {
-                    for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
-                    {
-                        if (property == foreignKey.Properties[propertyIndex])
-                        {
-                            var principal = foreignKey.PrincipalKey.Properties[propertyIndex];
-                            if (!visited.Contains(principal))
-                            {
-                                visited.Add(principal);
-
-                                AddPrincipals(principal, visited);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public static string ToDebugString(
             [NotNull] this IProperty property,
             MetadataDebugStringOptions options,

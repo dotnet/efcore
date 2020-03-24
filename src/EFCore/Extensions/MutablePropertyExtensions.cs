@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -26,6 +27,15 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The first associated principal property, or <c>null</c> if none exists. </returns>
         public static IMutableProperty FindFirstPrincipal([NotNull] this IMutableProperty property)
             => (IMutableProperty)((IProperty)property).FindFirstPrincipal();
+
+        /// <summary>
+        ///     Finds the list of principal properties including the given property that the given property is constrained by
+        ///     if the given property is part of a foreign key.
+        /// </summary>
+        /// <param name="property"> The foreign key property. </param>
+        /// <returns> The list of all associated principal properties including the given property. </returns>
+        public static IReadOnlyList<IMutableProperty> FindPrincipals([NotNull] this IMutableProperty property)
+            => ((IProperty)property).FindPrincipals().Cast<IMutableProperty>().ToList();
 
         /// <summary>
         ///     Gets all foreign keys that use this property (including composite foreign keys in which this property
