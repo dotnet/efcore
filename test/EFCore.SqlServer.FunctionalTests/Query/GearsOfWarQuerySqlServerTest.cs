@@ -2,7 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -6974,6 +6977,20 @@ WHERE (@__prm_0 & CAST([g].[Rank] AS int)) = CAST([g].[Rank] AS int)");
 SELECT TOP(@__p_0) [g].[Rank] & @__p_0
 FROM [Gears] AS [g]
 ORDER BY [g].[Nickname]");
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public async Task DataLength_function_for_string_parameter(bool async)
+        {
+            await AssertQueryScalar(
+                async,
+                ss => ss.Set<Mission>().Select(m => EF.Functions.DataLength(m.CodeName)),
+                ss => ss.Set<Mission>().Select(m => (int?)(m.CodeName.Length * 2)));
+
+            AssertSql(
+                @"SELECT CAST(DATALENGTH([m].[CodeName]) AS int)
+FROM [Missions] AS [m]");
         }
 
         private void AssertSql(params string[] expected)

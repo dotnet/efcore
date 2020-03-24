@@ -976,7 +976,7 @@ namespace Microsoft.EntityFrameworkCore
         public static int? DataLength(
             [CanBeNull] this DbFunctions _,
             [CanBeNull] string arg)
-            => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DataLength)));
+            => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DataLength)));
 
         /// <summary>
         ///     Returns the number of bytes used to represent any expression.
@@ -987,7 +987,7 @@ namespace Microsoft.EntityFrameworkCore
         public static int? DataLength(
             [CanBeNull] this DbFunctions _,
             bool? arg)
-            => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DataLength)));
+            => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DataLength)));
 
         /// <summary>
         ///     Returns the number of bytes used to represent any expression.
@@ -998,7 +998,7 @@ namespace Microsoft.EntityFrameworkCore
         public static int? DataLength(
             [CanBeNull] this DbFunctions _,
             double? arg)
-            => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DataLength)));
+            => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DataLength)));
 
         /// <summary>
         ///     Returns the number of bytes used to represent any expression.
@@ -1009,7 +1009,7 @@ namespace Microsoft.EntityFrameworkCore
         public static int? DataLength(
             [CanBeNull] this DbFunctions _,
             decimal? arg)
-            => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DataLength)));
+            => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DataLength)));
 
         /// <summary>
         ///     Returns the number of bytes used to represent any expression.
@@ -1020,7 +1020,7 @@ namespace Microsoft.EntityFrameworkCore
         public static int? DataLength(
             [CanBeNull] this DbFunctions _,
             DateTime? arg)
-            => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DataLength)));
+            => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DataLength)));
 
         /// <summary>
         ///     Returns the number of bytes used to represent any expression.
@@ -1031,7 +1031,7 @@ namespace Microsoft.EntityFrameworkCore
         public static int? DataLength(
             [CanBeNull] this DbFunctions _,
             TimeSpan? arg)
-            => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DataLength)));
+            => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DataLength)));
 
         /// <summary>
         ///     Returns the number of bytes used to represent any expression.
@@ -1042,7 +1042,7 @@ namespace Microsoft.EntityFrameworkCore
         public static int? DataLength(
             [CanBeNull] this DbFunctions _,
             DateTimeOffset? arg)
-            => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DataLength)));
+            => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DataLength)));
 
         /// <summary>
         ///     Returns the number of bytes used to represent any expression.
@@ -1053,7 +1053,7 @@ namespace Microsoft.EntityFrameworkCore
         public static int? DataLength(
             [CanBeNull] this DbFunctions _,
             [CanBeNull] byte[] arg)
-            => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DataLength)));
+            => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DataLength)));
 
         /// <summary>
         ///     Returns the number of bytes used to represent any expression.
@@ -1064,6 +1064,6 @@ namespace Microsoft.EntityFrameworkCore
         public static int? DataLength(
             [CanBeNull] this DbFunctions _,
             Guid? arg)
-            => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DataLength)));
+            => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DataLength)));
     }
 }

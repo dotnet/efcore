@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
     public class SqlServerDataLengthFunctionTranslator : IMethodCallTranslator
     {
+        private static readonly List<string> _longReturningTypes = new List<string> { "nvarchar(max)", "varchar(max)", "varbinary(max)" };
+
         private static readonly HashSet<MethodInfo> _methodInfoDataLengthMapping
             = new HashSet<MethodInfo>
             {
@@ -68,6 +70,24 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             if (_methodInfoDataLengthMapping.Contains(method))
             {
+                var argument = arguments[1];
+                if (argument.TypeMapping == null)
+                {
+                    argument = _sqlExpressionFactory.ApplyDefaultTypeMapping(argument);
+                }
+
+                if (_longReturningTypes.Contains(argument.TypeMapping.StoreType))
+                {
+                    var result = _sqlExpressionFactory.Function(
+                        "DATALENGTH",
+                        arguments.Skip(1),
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { true },
+                        typeof(long));
+
+                    return _sqlExpressionFactory.Convert(result, method.ReturnType);
+                }
+
                 return _sqlExpressionFactory.Function(
                     "DATALENGTH",
                     arguments.Skip(1),
