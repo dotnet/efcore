@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using JetBrains.Annotations;
-using Microsoft.Data.SqlClient; // Note: Hard reference to SqlClient here.
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
@@ -344,11 +344,9 @@ SELECT 1 ELSE SELECT 0");
         {
             ClearAllPools();
 
-            using (var masterConnection = _connection.CreateMasterConnection())
-            {
-                Dependencies.MigrationCommandExecutor
-                    .ExecuteNonQuery(CreateDropCommands(), masterConnection);
-            }
+            using var masterConnection = _connection.CreateMasterConnection();
+            Dependencies.MigrationCommandExecutor
+                .ExecuteNonQuery(CreateDropCommands(), masterConnection);
         }
 
         /// <summary>
@@ -361,11 +359,9 @@ SELECT 1 ELSE SELECT 0");
         {
             ClearAllPools();
 
-            using (var masterConnection = _connection.CreateMasterConnection())
-            {
-                await Dependencies.MigrationCommandExecutor
-                    .ExecuteNonQueryAsync(CreateDropCommands(), masterConnection, cancellationToken);
-            }
+            using var masterConnection = _connection.CreateMasterConnection();
+            await Dependencies.MigrationCommandExecutor
+                .ExecuteNonQueryAsync(CreateDropCommands(), masterConnection, cancellationToken);
         }
 
         private IReadOnlyList<MigrationCommand> CreateDropCommands()

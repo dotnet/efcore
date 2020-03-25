@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -18,6 +19,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitExtension(Expression extensionExpression)
         {
+            Check.NotNull(extensionExpression, nameof(extensionExpression));
+
+            if (extensionExpression is ShapedQueryExpression shapedQueryExpression)
+            {
+                return shapedQueryExpression.Update(Visit(shapedQueryExpression.QueryExpression), shapedQueryExpression.ShaperExpression);
+            }
+
             var visitedExpression = base.VisitExtension(extensionExpression);
             if (visitedExpression is TableExpressionBase tableExpressionBase
                 && !_visitedTableExpressionBases.Contains(tableExpressionBase)

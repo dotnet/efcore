@@ -141,14 +141,6 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     Adds an <see cref="IUpdateEntry" /> to this command representing an entity to be inserted, updated, or deleted.
         /// </summary>
         /// <param name="entry"> The entry representing the entity to add. </param>
-        [Obsolete("Use AddEntry with most parameters")]
-        public virtual void AddEntry([NotNull] IUpdateEntry entry)
-            => AddEntry(entry, mainEntry: false);
-
-        /// <summary>
-        ///     Adds an <see cref="IUpdateEntry" /> to this command representing an entity to be inserted, updated, or deleted.
-        /// </summary>
-        /// <param name="entry"> The entry representing the entity to add. </param>
         /// <param name="mainEntry"> A value indicating whether this is the main entry for the row. </param>
         public virtual void AddEntry([NotNull] IUpdateEntry entry, bool mainEntry)
         {
@@ -361,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             }
         }
 
-        private class ColumnValuePropagator
+        private sealed class ColumnValuePropagator
         {
             private bool _write;
             private object _originalValue;
@@ -385,7 +377,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     case EntityState.Added:
                         _currentValue = entry.GetCurrentValue(property);
 
-                        var comparer = property.GetValueComparer() ?? property.FindTypeMapping()?.Comparer;
+                        var comparer = property.GetValueComparer();
                         if (comparer == null)
                         {
                             _write = !Equals(_originalValue, _currentValue);

@@ -9,13 +9,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     public enum SqlServerCondition
     {
         SupportsSequences = 1 << 0,
-        SupportsOffset = 1 << 1,
-        IsSqlAzure = 1 << 2,
-        IsNotSqlAzure = 1 << 3,
-        SupportsMemoryOptimized = 1 << 4,
-        SupportsAttach = 1 << 5,
-        SupportsHiddenColumns = 1 << 6,
-        IsNotCI = 1 << 7,
-        SupportsFullTextSearch = 1 << 8
+        IsSqlAzure = 1 << 1,
+        IsNotSqlAzure = 1 << 2,
+        SupportsMemoryOptimized = 1 << 3,
+        SupportsAttach = 1 << 4,
+        SupportsHiddenColumns = 1 << 5,
+        IsNotCI = 1 << 6,
+        SupportsFullTextSearch = 1 << 7,
+        SupportsOnlineIndexes = 1 << 8
     }
 }

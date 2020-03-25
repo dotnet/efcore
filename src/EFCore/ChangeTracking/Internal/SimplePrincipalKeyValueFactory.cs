@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -34,13 +33,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _property = property;
             _propertyAccessors = _property.GetPropertyAccessors();
 
-            var comparer = property.GetKeyValueComparer()
-                ?? property.FindTypeMapping()?.KeyComparer;
+            var comparer = property.GetKeyValueComparer();
 
             EqualityComparer
                 = comparer != null
                     ? new NoNullsCustomEqualityComparer(comparer)
-                    : typeof(IStructuralEquatable).GetTypeInfo().IsAssignableFrom(typeof(TKey).GetTypeInfo())
+                    : typeof(IStructuralEquatable).IsAssignableFrom(typeof(TKey))
                         ? (IEqualityComparer<TKey>)new NoNullsStructuralEqualityComparer()
                         : EqualityComparer<TKey>.Default;
         }

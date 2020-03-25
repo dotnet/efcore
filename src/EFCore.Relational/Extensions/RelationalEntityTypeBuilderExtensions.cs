@@ -265,6 +265,37 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Configures the entity as a result of a queryable function.  Prevents a table from being created for this entity.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static EntityTypeBuilder ToQueryableFunctionResultType(
+            [NotNull] this EntityTypeBuilder entityTypeBuilder)
+        {
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+
+            entityTypeBuilder.Metadata.SetAnnotation(RelationalAnnotationNames.QueryableFunctionResultType, null);
+
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the entity as a result of a queryable function.  Prevents a table from being created for this entity.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static EntityTypeBuilder<TEntity> ToQueryableFunctionResultType<TEntity>(
+            [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder)
+             where TEntity : class
+        {
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+
+            entityTypeBuilder.Metadata.SetAnnotation(RelationalAnnotationNames.QueryableFunctionResultType, null);
+
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
         ///     Configures the view that the entity type maps to when targeting a relational database.
         /// </summary>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
@@ -277,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
-            entityTypeBuilder.Metadata.SetTableName(name);
+            entityTypeBuilder.Metadata.SetViewName(name);
             entityTypeBuilder.Metadata.SetAnnotation(RelationalAnnotationNames.ViewDefinition, null);
 
             return entityTypeBuilder;
@@ -312,8 +343,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NullButNotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
-            entityTypeBuilder.Metadata.SetTableName(name);
-            entityTypeBuilder.Metadata.SetSchema(schema);
+            entityTypeBuilder.Metadata.SetViewName(name);
+            entityTypeBuilder.Metadata.SetViewSchema(schema);
             entityTypeBuilder.Metadata.SetAnnotation(RelationalAnnotationNames.ViewDefinition, null);
 
             return entityTypeBuilder;

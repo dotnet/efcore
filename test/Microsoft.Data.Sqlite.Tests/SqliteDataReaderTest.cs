@@ -128,6 +128,27 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void GetBytes_works_streaming()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (x'01020304');");
+
+                using (var reader = connection.ExecuteReader("SELECT rowid, Value FROM Data;"))
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    var buffer = new byte[2];
+                    reader.GetBytes(1, 1, buffer, 0, buffer.Length);
+                    Assert.Equal(new byte[] { 0x02, 0x03 }, buffer);
+                }
+            }
+        }
+
+        [Fact]
         public void GetBytes_NullBuffer()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -253,6 +274,26 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void GetChars_throws_when_dataOffset_out_of_range()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("SELECT 'test';"))
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    var buffer = new char[1];
+                    var ex = Assert.Throws<ArgumentOutOfRangeException>(
+                        () => reader.GetChars(0, 5, buffer, 0, buffer.Length));
+                    Assert.Equal("dataOffset", ex.ParamName);
+                }
+            }
+        }
+
+        [Fact]
         public void GetChars_throws_when_closed()
         {
             X_throws_when_closed(r => r.GetChars(0, 0, null, 0, 0), nameof(SqliteDataReader.GetChars));
@@ -261,6 +302,27 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void GetChars_throws_when_non_query()
             => X_throws_when_non_query(r => r.GetChars(0, 0, null, 0, 0));
+
+        [Fact]
+        public void GetChars_works_streaming()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES ('test');");
+
+                using (var reader = connection.ExecuteReader("SELECT rowid, Value FROM Data;"))
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    var buffer = new char[2];
+                    reader.GetChars(1, 1, buffer, 0, buffer.Length);
+                    Assert.Equal(new[] { 'e', 's' }, buffer);
+                }
+            }
+        }
 
         [Fact]
         public void GetStream_works()
@@ -387,6 +449,71 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void GetStream_throws_when_non_query()
             => X_throws_when_non_query(r => r.GetStream(0));
+
+        [Fact]
+        public void GetTextReader_works()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("SELECT 'test';"))
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    using (var textReader = reader.GetTextReader(0))
+                    {
+                        Assert.IsType<MemoryStream>(Assert.IsType<StreamReader>(textReader).BaseStream);
+                        Assert.Equal("test", textReader.ReadToEnd());
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void GetTextReader_works_when_null()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("SELECT NULL;"))
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    using (var textReader = reader.GetTextReader(0))
+                    {
+                        Assert.IsType<StringReader>(textReader);
+                        Assert.Empty(textReader.ReadToEnd());
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void GetTextReader_works_streaming()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES ('test');");
+
+                using (var reader = connection.ExecuteReader("SELECT rowid, Value FROM Data;"))
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    using (var textReader = reader.GetTextReader(1))
+                    {
+                        Assert.IsType<SqliteBlob>(Assert.IsType<StreamReader>(textReader).BaseStream);
+                        Assert.Equal("test", textReader.ReadToEnd());
+                    }
+                }
+            }
+        }
 
         [Fact]
         public void GetDateTime_works_with_text()

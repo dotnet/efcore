@@ -5,8 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
@@ -63,13 +65,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public SqlServerMathTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        public SqlServerMathTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
         public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
+            Check.NotNull(method, nameof(method));
+            Check.NotNull(arguments, nameof(arguments));
+
             if (_supportedMethodTranslations.TryGetValue(method, out var sqlFunctionName))
             {
                 var typeMapping = arguments.Count == 1
@@ -87,6 +92,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return _sqlExpressionFactory.Function(
                     sqlFunctionName,
                     newArguments,
+                    nullable: true,
+                    argumentsPropagateNullability: newArguments.Select(a => true).ToArray(),
                     method.ReturnType,
                     sqlFunctionName == "SIGN" ? null : typeMapping);
             }
@@ -98,6 +105,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return _sqlExpressionFactory.Function(
                     "ROUND",
                     new[] { argument, _sqlExpressionFactory.Constant(0), _sqlExpressionFactory.Constant(1) },
+                    nullable: true,
+                    argumentsPropagateNullability: new[] { true, false, false },
                     method.ReturnType,
                     argument.TypeMapping);
             }
@@ -110,6 +119,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return _sqlExpressionFactory.Function(
                     "ROUND",
                     new[] { argument, digits },
+                    nullable: true,
+                    argumentsPropagateNullability: new[] { true, true },
                     method.ReturnType,
                     argument.TypeMapping);
             }

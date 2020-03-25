@@ -570,6 +570,9 @@ Register-TabExpansion Update-Database @{
 .PARAMETER Migration
     The target migration. If '0', all migrations will be reverted. Defaults to the last migration.
 
+.PARAMETER Connection
+    The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
+
 .PARAMETER Context
     The DbContext to use.
 
@@ -589,6 +592,7 @@ function Update-Database
     param(
         [Parameter(Position = 0)]
         [string] $Migration,
+        [string] $Connection,
         [string] $Context,
         [string] $Project,
         [string] $StartupProject)
@@ -603,6 +607,11 @@ function Update-Database
     if ($Migration)
     {
         $params += $Migration
+    }
+
+    if ($Connection)
+    {
+        $params += '--connection', $Connection
     }
 
     $params += GetParams $Context

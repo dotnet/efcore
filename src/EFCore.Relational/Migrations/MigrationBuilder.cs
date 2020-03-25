@@ -1171,7 +1171,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="DeleteDataOperation" /> to delete a single row of seed data.
         /// </summary>
-        /// <param name="table"> The table from which the data will deleted. </param>
+        /// <param name="table"> The table from which the data will be deleted. </param>
         /// <param name="keyColumn"> The name of the key column used to select the row to delete. </param>
         /// <param name="keyValue"> The key value of the row to delete. </param>
         /// <param name="schema"> The schema that contains the table, or <c>null</c> to use the default schema. </param>
@@ -1187,7 +1187,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds an <see cref="DeleteDataOperation" /> to delete a single row of seed data from
         ///     a table with a composite (multi-column) key.
         /// </summary>
-        /// <param name="table"> The table from which the data will deleted. </param>
+        /// <param name="table"> The table from which the data will be deleted. </param>
         /// <param name="keyColumns"> The names of the key columns used to select the row to delete. </param>
         /// <param name="keyValues"> The key values of the row to delete, one value for each column in 'keyColumns'. </param>
         /// <param name="schema"> The schema that contains the table, or <c>null</c> to use the default schema. </param>
@@ -1206,7 +1206,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="DeleteDataOperation" /> to delete multiple rows of seed data.
         /// </summary>
-        /// <param name="table"> The table from which the data will deleted. </param>
+        /// <param name="table"> The table from which the data will be deleted. </param>
         /// <param name="keyColumn"> The name of the key column used to select the row to delete. </param>
         /// <param name="keyValues"> The key values of the rows to delete, one value per row. </param>
         /// <param name="schema"> The schema that contains the table, or <c>null</c> to use the default schema. </param>
@@ -1226,7 +1226,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds an <see cref="DeleteDataOperation" /> to delete multiple rows of seed data from
         ///     a table with a composite (multi-column) key.
         /// </summary>
-        /// <param name="table"> The table from which the data will deleted. </param>
+        /// <param name="table"> The table from which the data will be deleted. </param>
         /// <param name="keyColumns"> The names of the key columns used to select the rows to delete. </param>
         /// <param name="keyValues">
         ///     The key values of the rows to delete, where each element of the outer array represents a row, and each inner array contains values for

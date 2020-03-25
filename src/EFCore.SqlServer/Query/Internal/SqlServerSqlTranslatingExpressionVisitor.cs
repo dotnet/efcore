@@ -3,9 +3,11 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
@@ -31,20 +33,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 ExpressionType.Modulo
             };
 
-        // TODO: Possibly make this protected in base
-        private readonly ISqlExpressionFactory _sqlExpressionFactory;
-
         public SqlServerSqlTranslatingExpressionVisitor(
-            RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
-            IModel model,
-            QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
+            [NotNull] RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
+            [NotNull] IModel model,
+            [NotNull] QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
             : base(dependencies, model, queryableMethodTranslatingExpressionVisitor)
         {
-            _sqlExpressionFactory = dependencies.SqlExpressionFactory;
         }
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
+            Check.NotNull(binaryExpression, nameof(binaryExpression));
+
             var visitedExpression = (SqlExpression)base.VisitBinary(binaryExpression);
 
             if (visitedExpression == null)
@@ -60,6 +60,34 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     : visitedExpression;
         }
 
+        protected override Expression VisitUnary(UnaryExpression unaryExpression)
+        {
+            if (unaryExpression.NodeType == ExpressionType.ArrayLength
+                && unaryExpression.Operand.Type == typeof(byte[]))
+            {
+                var sqlExpression = base.Visit(unaryExpression.Operand) as SqlExpression;
+
+                if (sqlExpression == null)
+                {
+                    return null;
+                }
+
+                var isBinaryMaxDataType = GetProviderType(sqlExpression) == "varbinary(max)" || sqlExpression is SqlParameterExpression;
+                var dataLengthSqlFunction = SqlExpressionFactory.Function(
+                    "DATALENGTH",
+                    new[] { sqlExpression },
+                    nullable: true,
+                    argumentsPropagateNullability: new bool[] { true },
+                    isBinaryMaxDataType ? typeof(long) : typeof(int));
+
+                return isBinaryMaxDataType
+                    ? (Expression)SqlExpressionFactory.Convert(dataLengthSqlFunction, typeof(int))
+                    : dataLengthSqlFunction;
+            }
+
+            return base.VisitUnary(unaryExpression);
+        }
+
         public override SqlExpression TranslateLongCount(Expression expression = null)
         {
             if (expression != null)
@@ -68,8 +96,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return null;
             }
 
-            return _sqlExpressionFactory.ApplyDefaultTypeMapping(
-                _sqlExpressionFactory.Function("COUNT_BIG", new[] { _sqlExpressionFactory.Fragment("*") }, typeof(long)));
+            return SqlExpressionFactory.ApplyDefaultTypeMapping(
+                SqlExpressionFactory.Function(
+                    "COUNT_BIG",
+                    new[] { SqlExpressionFactory.Fragment("*") },
+                    nullable: false,
+                    argumentsPropagateNullability: new[] { false },
+                    typeof(long)));
         }
 
         private static string GetProviderType(SqlExpression expression)

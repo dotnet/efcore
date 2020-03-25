@@ -229,6 +229,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 () => new ClrPropertySetterFactory().Create(property));
         }
 
+        [ConditionalFact]
+        public void Delegate_setter_can_set_index_properties()
+        {
+            var entityType = CreateModel().AddEntityType(typeof(IndexedClass));
+            var propertyA = entityType.AddIndexerProperty("PropertyA", typeof(string));
+            var propertyB = entityType.AddIndexerProperty("PropertyB", typeof(int));
+
+            var indexedClass = new IndexedClass { Id = 7 };
+
+            Assert.Equal("ValueA", indexedClass["PropertyA"]);
+            Assert.Equal(123, indexedClass["PropertyB"]);
+
+            new ClrPropertySetterFactory().Create(propertyA).SetClrValue(indexedClass, "UpdatedValue");
+            new ClrPropertySetterFactory().Create(propertyB).SetClrValue(indexedClass, 42);
+
+            Assert.Equal("UpdatedValue", indexedClass["PropertyA"]);
+            Assert.Equal(42, indexedClass["PropertyB"]);
+        }
+
         private IMutableModel CreateModel()
             => new Model();
 
@@ -273,6 +292,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public virtual int VirtualPrivateProperty_NoOverride { get; private set; }
             public int PrivateProperty { get; private set; }
             public int NoSetterProperty { get; }
+        }
+
+        private class IndexedClass
+        {
+            private readonly Dictionary<string, object> _internalValues = new Dictionary<string, object>
+            {
+                {"PropertyA", "ValueA" },
+                {"PropertyB", 123 }
+            };
+
+            internal int Id { get; set; }
+            internal object this[string name] { get => _internalValues[name]; set => _internalValues[name] = value; }
         }
 
         #endregion

@@ -18,7 +18,9 @@ namespace System.Linq.Expressions
         {
             convertedType = null;
             while (expression is UnaryExpression unaryExpression
-                && unaryExpression.NodeType == ExpressionType.Convert)
+                && (unaryExpression.NodeType == ExpressionType.Convert
+                    || unaryExpression.NodeType == ExpressionType.ConvertChecked
+                    || unaryExpression.NodeType == ExpressionType.TypeAs))
             {
                 expression = unaryExpression.Operand;
                 if (unaryExpression.Type != typeof(object) // Ignore object conversion

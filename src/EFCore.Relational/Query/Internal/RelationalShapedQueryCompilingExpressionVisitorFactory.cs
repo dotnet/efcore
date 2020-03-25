@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
@@ -21,17 +23,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly RelationalShapedQueryCompilingExpressionVisitorDependencies _relationalDependencies;
 
         public RelationalShapedQueryCompilingExpressionVisitorFactory(
-            ShapedQueryCompilingExpressionVisitorDependencies dependencies,
-            RelationalShapedQueryCompilingExpressionVisitorDependencies relationalDependencies)
+            [NotNull] ShapedQueryCompilingExpressionVisitorDependencies dependencies,
+            [NotNull] RelationalShapedQueryCompilingExpressionVisitorDependencies relationalDependencies)
         {
             _dependencies = dependencies;
             _relationalDependencies = relationalDependencies;
         }
 
         public virtual ShapedQueryCompilingExpressionVisitor Create(QueryCompilationContext queryCompilationContext)
-            => new RelationalShapedQueryCompilingExpressionVisitor(
+        {
+            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
+
+            return new RelationalShapedQueryCompilingExpressionVisitor(
                 _dependencies,
                 _relationalDependencies,
                 queryCompilationContext);
+        }
     }
 }

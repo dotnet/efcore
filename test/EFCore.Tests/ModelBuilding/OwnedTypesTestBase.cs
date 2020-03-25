@@ -410,8 +410,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("CustomerId", ownership2.Properties.Single().Name);
 
                 var foreignKey = model.FindEntityType(typeof(SpecialCustomer)).GetReferencingForeignKeys()
-                    .Single(
-                        fk => fk.DeclaringEntityType.ClrType == typeof(Order)
+                    .Single(fk => fk.DeclaringEntityType.ClrType == typeof(Order)
                             && fk.PrincipalToDependent == null);
                 Assert.Same(ownership1.DeclaringEntityType, foreignKey.DeclaringEntityType);
                 Assert.Null(foreignKey.PrincipalToDependent);
@@ -426,8 +425,23 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Null(model.FindEntityType(typeof(SpecialOrder)));
             }
 
-            [ConditionalFact]
-            public virtual void Can_configure_owned_type_from_an_owned_type_collection()
+            [Flags]
+            public enum HasDataOverload
+            {
+                Array = 0,
+                Enumerable = 1,
+                Generic = 2,
+                Params = 4
+            }
+
+            [ConditionalTheory]
+            [InlineData(HasDataOverload.Array)]
+            [InlineData(HasDataOverload.Array | HasDataOverload.Params)]
+            [InlineData(HasDataOverload.Array | HasDataOverload.Generic)]
+            [InlineData(HasDataOverload.Array | HasDataOverload.Params | HasDataOverload.Generic)]
+            [InlineData(HasDataOverload.Enumerable)]
+            [InlineData(HasDataOverload.Enumerable | HasDataOverload.Generic)]
+            public virtual void Can_configure_owned_type_from_an_owned_type_collection(HasDataOverload hasDataOverload)
             {
                 var modelBuilder = CreateModelBuilder();
 
@@ -436,9 +450,33 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     c => c.Orders, ob =>
                     {
                         ob.HasKey(o => o.OrderId);
-                        ob.OwnsOne(o => o.Details)
-                            .HasData(
-                                new OrderDetails { OrderId = -1 });
+                        var ownedNavigationBuilder = ob.OwnsOne(o => o.Details);
+
+                        switch (hasDataOverload)
+                        {
+                            case HasDataOverload.Array:
+                                ownedNavigationBuilder.HasData(new object[] { new OrderDetails { OrderId = -1 } });
+                                break;
+                            case HasDataOverload.Array | HasDataOverload.Params:
+                                ownedNavigationBuilder.HasData((object)new OrderDetails { OrderId = -1 });
+                                break;
+                            case HasDataOverload.Array | HasDataOverload.Generic:
+                                // ReSharper disable once RedundantExplicitParamsArrayCreation
+                                ownedNavigationBuilder.HasData(new[] { new OrderDetails { OrderId = -1 } });
+                                break;
+                            case HasDataOverload.Array | HasDataOverload.Params | HasDataOverload.Generic:
+                                ownedNavigationBuilder.HasData(new OrderDetails { OrderId = -1 });
+                                break;
+                            case HasDataOverload.Enumerable:
+                                ownedNavigationBuilder.HasData(new List<object> { new OrderDetails { OrderId = -1 } });
+                                break;
+                            case HasDataOverload.Enumerable | HasDataOverload.Generic:
+                                ownedNavigationBuilder.HasData(new List<OrderDetails>() { new OrderDetails { OrderId = -1 } });
+                                break;
+                            default:
+                                Assert.True(false, $"Unexpected HasData overload specification {hasDataOverload}");
+                                break;
+                        }
                     });
 
                 var model = modelBuilder.FinalizeModel();
@@ -472,8 +510,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         ob.HasKey(o => o.OrderId);
                         ob.HasData(
                             new Order { OrderId = -2, CustomerId = -1 });
-                        ob.OwnsMany(o => o.Products)
-                            .HasKey(p => p.Id);
+                        ob.OwnsMany(o => o.Products, pb =>
+                        {
+                            pb.WithOwner(p => p.Order);
+                            pb.Ignore(p => p.Categories);
+                            pb.HasKey(p => p.Id);
+                        });
                     });
 
                 var model = modelBuilder.FinalizeModel();
@@ -509,7 +551,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     {
                         r.Ignore(o => o.OrderCombination);
                         r.Ignore(o => o.Details);
-                        r.OwnsMany(o => o.Products);
+                        r.OwnsMany(o => o.Products, pb =>
+                        {
+                            pb.WithOwner(p => p.Order);
+                            pb.Ignore(p => p.Categories);
+                        });
                     });
 
                 var model = modelBuilder.FinalizeModel();
@@ -551,8 +597,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         r.Ignore(o => o.OrderCombination);
                         r.Ignore(o => o.Details);
                         r.Ignore(o => o.OrderId);
-                        r.OwnsMany(o => o.Products)
-                            .Ignore(p => p.Id);
+                        r.OwnsMany(o => o.Products, pb =>
+                        {
+                            pb.WithOwner(p => p.Order);
+                            pb.Ignore(p => p.Categories);
+                            pb.Ignore(p => p.Id);
+                        });
                     });
 
                 var model = modelBuilder.FinalizeModel();
@@ -594,7 +644,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<Tomato>();
 
                 Assert.Equal(
-                    CoreStrings.AmbiguousOwnedNavigation(nameof(Whoopper), nameof(Mustard)),
+                    CoreStrings.AmbiguousOwnedNavigation(
+                        "ToastedBun.Whoopper#Whoopper.Mustard",
+                        nameof(Mustard)),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
 
@@ -804,7 +856,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var navigationsToDerived = model.GetEntityTypes().SelectMany(e => e.GetDeclaredNavigations()).Where(
                     n =>
                     {
-                        var targetType = n.GetTargetType().ClrType;
+                        var targetType = n.TargetEntityType.ClrType;
                         return targetType != typeof(DetailsBase) && typeof(DetailsBase).IsAssignableFrom(targetType);
                     });
                 Assert.Empty(navigationsToDerived);
@@ -832,7 +884,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     model.GetEntityTypes().SelectMany(e => e.GetDeclaredNavigations()).Where(
                         n =>
                         {
-                            var targetType = n.GetTargetType().ClrType;
+                            var targetType = n.TargetEntityType.ClrType;
                             return targetType != typeof(DetailsBase) && typeof(DetailsBase).IsAssignableFrom(targetType);
                         }));
                 Assert.Single(owned.GetForeignKeys());
@@ -1276,6 +1328,114 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var model = modelBuilder.FinalizeModel();
 
                 Assert.Equal(4, model.GetEntityTypes().Count());
+            }
+
+            [ConditionalFact]
+            public virtual void Navigations_on_OwnsOne_Owned_types_can_set_access_mode_using_expressions()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<OneToOneNavPrincipalOwner>()
+                    .OwnsOne(
+                        e => e.OwnedDependent,
+                        a =>
+                        {
+                            a.WithOwner(owned => owned.OneToOneOwner);
+                            a.Navigation(owned => owned.OneToOneOwner)
+                                .UsePropertyAccessMode(PropertyAccessMode.Property);
+                        });
+
+                modelBuilder.Entity<OneToOneNavPrincipalOwner>()
+                    .Navigation(e => e.OwnedDependent)
+                    .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+                var principal = (IEntityType)model.FindEntityType(typeof(OneToOneNavPrincipalOwner));
+                var dependent = (IEntityType)model.FindEntityType(typeof(OwnedNavDependent));
+
+                Assert.Equal(PropertyAccessMode.Field, principal.FindNavigation("OwnedDependent").GetPropertyAccessMode());
+                Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToOneOwner").GetPropertyAccessMode());
+            }
+
+            [ConditionalFact]
+            public virtual void Navigations_on_OwnsOne_Owned_types_can_set_access_mode_using_navigation_names()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<OneToOneNavPrincipalOwner>()
+                    .OwnsOne<OwnedNavDependent>(
+                        "OwnedDependent",
+                        a =>
+                        {
+                            a.WithOwner("OneToOneOwner");
+                            a.Navigation<OneToOneNavPrincipalOwner>("OneToOneOwner")
+                                .UsePropertyAccessMode(PropertyAccessMode.Property);
+                        });
+
+                modelBuilder.Entity<OneToOneNavPrincipalOwner>()
+                    .Navigation("OwnedDependent")
+                    .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+                var principal = (IEntityType)model.FindEntityType(typeof(OneToOneNavPrincipalOwner));
+                var dependent = (IEntityType)model.FindEntityType(typeof(OwnedNavDependent));
+
+                Assert.Equal(PropertyAccessMode.Field, principal.FindNavigation("OwnedDependent").GetPropertyAccessMode());
+                Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToOneOwner").GetPropertyAccessMode());
+            }
+
+            [ConditionalFact]
+            public virtual void Navigations_on_OwnsMany_Owned_types_can_set_access_mode_using_expressions()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<OneToManyNavPrincipalOwner>()
+                    .OwnsMany(
+                        e => e.OwnedDependents,
+                        a =>
+                        {
+                            a.WithOwner(owned => owned.OneToManyOwner);
+                            a.Navigation(owned => owned.OneToManyOwner)
+                                .UsePropertyAccessMode(PropertyAccessMode.Property);
+                        });
+
+                modelBuilder.Entity<OneToManyNavPrincipalOwner>()
+                    .Navigation(e => e.OwnedDependents)
+                    .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+                var principal = (IEntityType)model.FindEntityType(typeof(OneToManyNavPrincipalOwner));
+                var dependent = (IEntityType)model.FindEntityType(typeof(OwnedOneToManyNavDependent));
+
+                Assert.Equal(PropertyAccessMode.Field, principal.FindNavigation("OwnedDependents").GetPropertyAccessMode());
+                Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToManyOwner").GetPropertyAccessMode());
+            }
+
+            [ConditionalFact]
+            public virtual void Navigations_on_OwnsMany_Owned_types_can_set_access_mode_using_navigation_names()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<OneToManyNavPrincipalOwner>()
+                    .OwnsMany<OwnedOneToManyNavDependent>(
+                    "OwnedDependents",
+                    a =>
+                    {
+                        a.WithOwner("OneToManyOwner");
+                        a.Navigation<OneToManyNavPrincipalOwner>("OneToManyOwner")
+                            .UsePropertyAccessMode(PropertyAccessMode.Property);
+                    });
+
+                modelBuilder.Entity<OneToManyNavPrincipalOwner>()
+                    .Navigation("OwnedDependents")
+                    .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+                var principal = (IEntityType)model.FindEntityType(typeof(OneToManyNavPrincipalOwner));
+                var dependent = (IEntityType)model.FindEntityType(typeof(OwnedOneToManyNavDependent));
+
+                Assert.Equal(PropertyAccessMode.Field, principal.FindNavigation("OwnedDependents").GetPropertyAccessMode());
+                Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToManyOwner").GetPropertyAccessMode());
             }
         }
     }

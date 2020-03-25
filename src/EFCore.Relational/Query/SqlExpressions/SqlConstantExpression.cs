@@ -4,7 +4,9 @@
 using System;
 using System.Collections;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -12,19 +14,32 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     {
         private readonly ConstantExpression _constantExpression;
 
-        public SqlConstantExpression(ConstantExpression constantExpression, RelationalTypeMapping typeMapping)
-            : base(constantExpression.Type, typeMapping)
+        public SqlConstantExpression([NotNull] ConstantExpression constantExpression, [CanBeNull] RelationalTypeMapping typeMapping)
+            : base(Check.NotNull(constantExpression, nameof(constantExpression)).Type, typeMapping)
         {
             _constantExpression = constantExpression;
         }
 
         public virtual object Value => _constantExpression.Value;
 
-        public virtual SqlExpression ApplyTypeMapping(RelationalTypeMapping typeMapping)
-            => new SqlConstantExpression(_constantExpression, typeMapping);
+        public virtual SqlExpression ApplyTypeMapping([CanBeNull] RelationalTypeMapping typeMapping)
+        {
+            return new SqlConstantExpression(_constantExpression, typeMapping);
+        }
 
-        protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
-        public override void Print(ExpressionPrinter expressionPrinter) => Print(Value, expressionPrinter);
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+        {
+            Check.NotNull(visitor, nameof(visitor));
+
+            return this;
+        }
+
+        public override void Print(ExpressionPrinter expressionPrinter)
+        {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
+            Print(Value, expressionPrinter);
+        }
 
         private void Print(object value, ExpressionPrinter expressionPrinter)
             => expressionPrinter.Append(TypeMapping?.GenerateSqlLiteral(value) ?? Value?.ToString() ?? "NULL");

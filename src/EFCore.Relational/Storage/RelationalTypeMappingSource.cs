@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -89,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The type mapping, or <c>null</c> if none could be found. </returns>
         protected override CoreTypeMapping FindMapping(in TypeMappingInfo mappingInfo)
             => throw new InvalidOperationException(
-                "FindMapping on a 'RelationalTypeMappingSource' with a non-relational 'TypeMappingInfo'.");
+                RelationalStrings.NoneRelationalTypeMappingOnARelationalTypeMappingSource);
 
         private RelationalTypeMapping FindMappingWithConversion(
             in RelationalTypeMappingInfo mappingInfo,
@@ -197,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
         public override CoreTypeMapping FindMapping(IProperty property)
         {
-            var mapping = property.FindRelationalMapping();
+            var mapping = property.FindRelationalTypeMapping();
             if (mapping != null)
             {
                 return mapping;

@@ -4,17 +4,25 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public partial class CosmosShapedQueryCompilingExpressionVisitor
     {
-        private class QueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>
+        private sealed class QueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, IQueryingEnumerable
         {
             private readonly CosmosQueryContext _cosmosQueryContext;
             private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -22,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             private readonly Func<QueryContext, JObject, T> _shaper;
             private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
             private readonly Type _contextType;
+            private readonly string _partitionKey;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
 
             public QueryingEnumerable(
@@ -31,6 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 SelectExpression selectExpression,
                 Func<QueryContext, JObject, T> shaper,
                 Type contextType,
+                string partitionKey,
                 IDiagnosticsLogger<DbLoggerCategory.Query> logger)
             {
                 _cosmosQueryContext = cosmosQueryContext;
@@ -39,6 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 _selectExpression = selectExpression;
                 _shaper = shaper;
                 _contextType = contextType;
+                _partitionKey = partitionKey;
                 _logger = logger;
             }
 
@@ -48,26 +59,44 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             public IEnumerator<T> GetEnumerator() => new Enumerator(this);
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+            private CosmosSqlQuery GenerateQuery()
+                => _querySqlGeneratorFactory.Create().GetSqlQuery(
+                    (SelectExpression)new InExpressionValuesExpandingExpressionVisitor(
+                            _sqlExpressionFactory,
+                            _cosmosQueryContext.ParameterValues)
+                        .Visit(_selectExpression),
+                    _cosmosQueryContext.ParameterValues);
+
+            public string ToQueryString()
+            {
+                var sqlQuery = GenerateQuery();
+                if (sqlQuery.Parameters.Count == 0)
+                {
+                    return sqlQuery.Query;
+                }
+
+                var builder = new StringBuilder();
+                foreach (var parameter in sqlQuery.Parameters)
+                {
+                    builder
+                        .Append("-- ")
+                        .Append(parameter.Name)
+                        .Append("='")
+                        .Append(parameter.Value)
+                        .AppendLine("'");
+                }
+
+                return builder.Append(sqlQuery.Query).ToString();
+            }
+
             private sealed class Enumerator : IEnumerator<T>
             {
+                private readonly QueryingEnumerable<T> _queryingEnumerable;
                 private IEnumerator<JObject> _enumerator;
-                private readonly CosmosQueryContext _cosmosQueryContext;
-                private readonly SelectExpression _selectExpression;
-                private readonly Func<QueryContext, JObject, T> _shaper;
-                private readonly ISqlExpressionFactory _sqlExpressionFactory;
-                private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
-                private readonly Type _contextType;
-                private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
 
                 public Enumerator(QueryingEnumerable<T> queryingEnumerable)
                 {
-                    _cosmosQueryContext = queryingEnumerable._cosmosQueryContext;
-                    _shaper = queryingEnumerable._shaper;
-                    _selectExpression = queryingEnumerable._selectExpression;
-                    _sqlExpressionFactory = queryingEnumerable._sqlExpressionFactory;
-                    _querySqlGeneratorFactory = queryingEnumerable._querySqlGeneratorFactory;
-                    _contextType = queryingEnumerable._contextType;
-                    _logger = queryingEnumerable._logger;
+                    _queryingEnumerable = queryingEnumerable;
                 }
 
                 public T Current { get; private set; }
@@ -78,19 +107,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
                     try
                     {
-                        using (_cosmosQueryContext.ConcurrencyDetector.EnterCriticalSection())
+                        using (_queryingEnumerable._cosmosQueryContext.ConcurrencyDetector.EnterCriticalSection())
                         {
                             if (_enumerator == null)
                             {
-                                var selectExpression = (SelectExpression)new InExpressionValuesExpandingExpressionVisitor(
-                                    _sqlExpressionFactory, _cosmosQueryContext.ParameterValues).Visit(_selectExpression);
+                                var sqlQuery = _queryingEnumerable.GenerateQuery();
 
-                                var sqlQuery = _querySqlGeneratorFactory.Create().GetSqlQuery(
-                                    selectExpression, _cosmosQueryContext.ParameterValues);
-
-                                _enumerator = _cosmosQueryContext.CosmosClient
+                                _enumerator = _queryingEnumerable._cosmosQueryContext.CosmosClient
                                     .ExecuteSqlQuery(
-                                        _selectExpression.Container,
+                                        _queryingEnumerable._selectExpression.Container,
+                                        _queryingEnumerable._partitionKey,
                                         sqlQuery)
                                     .GetEnumerator();
                             }
@@ -99,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                             Current
                                 = hasNext
-                                    ? _shaper(_cosmosQueryContext, _enumerator.Current)
+                                    ? _queryingEnumerable._shaper(_queryingEnumerable._cosmosQueryContext, _enumerator.Current)
                                     : default;
 
                             return hasNext;
@@ -107,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     }
                     catch (Exception exception)
                     {
-                        _logger.QueryIterationFailed(_contextType, exception);
+                        _queryingEnumerable._logger.QueryIterationFailed(_queryingEnumerable._contextType, exception);
 
                         throw;
                     }
@@ -131,6 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 private readonly ISqlExpressionFactory _sqlExpressionFactory;
                 private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
                 private readonly Type _contextType;
+                private readonly string _partitionKey;
                 private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
                 private readonly CancellationToken _cancellationToken;
 
@@ -142,6 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     _sqlExpressionFactory = queryingEnumerable._sqlExpressionFactory;
                     _querySqlGeneratorFactory = queryingEnumerable._querySqlGeneratorFactory;
                     _contextType = queryingEnumerable._contextType;
+                    _partitionKey = queryingEnumerable._partitionKey;
                     _logger = queryingEnumerable._logger;
                     _cancellationToken = cancellationToken;
                 }
@@ -162,6 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                 _enumerator = _cosmosQueryContext.CosmosClient
                                     .ExecuteSqlQueryAsync(
                                         _selectExpression.Container,
+                                        _partitionKey,
                                         _querySqlGeneratorFactory.Create().GetSqlQuery(
                                             selectExpression, _cosmosQueryContext.ParameterValues))
                                     .GetAsyncEnumerator(_cancellationToken);

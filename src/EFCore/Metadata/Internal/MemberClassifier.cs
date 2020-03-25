@@ -66,12 +66,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             targetType = targetSequenceType ?? targetType;
             targetType = targetType.UnwrapNullableType();
 
-            return targetType.GetTypeInfo().IsInterface
-                || targetType.GetTypeInfo().IsValueType
+            return targetType.IsInterface
+                || targetType.IsValueType
                 || targetType == typeof(object)
                 || _parameterBindingFactories.FindFactory(targetType, memberInfo.GetSimpleMemberName()) != null
                 || _typeMappingSource.FindMapping(targetType) != null
-                || targetType.GetTypeInfo().IsArray
+                || targetType.IsArray
                     ? null
                     : targetType;
         }

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -76,11 +77,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [EntityFrameworkInternal]
         protected virtual T UpdateBuilder<T>([NotNull] Func<T> configure)
         {
-            var foreignKey = _builder.Metadata;
+            IConventionForeignKey foreignKey = _builder.Metadata;
             var result = DependentEntityType.Model.ConventionDispatcher.Run(configure, ref foreignKey);
             if (foreignKey != null)
             {
-                _builder = foreignKey.Builder;
+                _builder = ((ForeignKey)foreignKey).Builder;
             }
 
             return result;
@@ -192,6 +193,60 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 DependentEntityType.Builder.Property(
                     Check.NotNull(propertyType, nameof(propertyType)),
                     Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit).Metadata);
+
+        /// <summary>
+        ///     <para>
+        ///         Returns an object that can be used to configure a property of the entity type.
+        ///         If no property with the given name exists, then a new property will be added.
+        ///     </para>
+        ///     <para>
+        ///         Indexed properties are stored in the entity using
+        ///         <see href="https://docs.microsoft.com/dotnet/csharp/programming-guide/indexers/">an indexer</see>
+        ///         supplying the provided property name.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TProperty"> The type of the property to be configured. </typeparam>
+        /// <param name="propertyName"> The name of the property to be configured. </param>
+        /// <returns> An object that can be used to configure the property. </returns>
+        public virtual PropertyBuilder<TProperty> IndexedProperty<TProperty>([NotNull] string propertyName)
+            => new PropertyBuilder<TProperty>(
+                DependentEntityType.Builder.IndexedProperty(
+                    typeof(TProperty),
+                    Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit).Metadata);
+
+        /// <summary>
+        ///     <para>
+        ///         Returns an object that can be used to configure a property of the entity type.
+        ///         If no property with the given name exists, then a new property will be added.
+        ///     </para>
+        ///     <para>
+        ///         Indexed properties are stored in the entity using
+        ///         <see href="https://docs.microsoft.com/dotnet/csharp/programming-guide/indexers/">an indexer</see>
+        ///         supplying the provided property name.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyType"> The type of the property to be configured. </param>
+        /// <param name="propertyName"> The name of the property to be configured. </param>
+        /// <returns> An object that can be used to configure the property. </returns>
+        public virtual PropertyBuilder IndexedProperty([NotNull] Type propertyType, [NotNull] string propertyName)
+            => new PropertyBuilder(
+                DependentEntityType.Builder.IndexedProperty(
+                    Check.NotNull(propertyType, nameof(propertyType)),
+                    Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit).Metadata);
+
+        /// <summary>
+        ///     <para>
+        ///         Returns an object that can be used to configure an existing navigation property
+        ///         from the owned type to its owner. It is an error for the navigation property
+        ///         not to exist.
+        ///     </para>
+        /// </summary>
+        /// <param name="navigationName"> The name of the navigation property to be configured. </param>
+        /// <returns> An object that can be used to configure the navigation property. </returns>
+        public virtual NavigationBuilder Navigation([NotNull] string navigationName)
+            => new NavigationBuilder(
+                DependentEntityType.Builder.Navigation(
+                    Check.NotEmpty(navigationName, nameof(navigationName))));
 
         /// <summary>
         ///     Excludes the given property from the entity type. This method is typically used to remove properties
@@ -597,7 +652,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 navigationName,
                 DependentEntityType.Builder.HasRelationship(
                     relatedEntityType, navigationName, ConfigurationSource.Explicit,
-                    setTargetAsPrincipal: DependentEntityType == relatedEntityType).Metadata);
+                    targetIsPrincipal: DependentEntityType == relatedEntityType ? true : (bool?)null).Metadata);
         }
 
         /// <summary>
@@ -672,7 +727,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 navigationName,
                 DependentEntityType.Builder.HasRelationship(
                     relatedEntityType, navigationName, ConfigurationSource.Explicit,
-                    setTargetAsPrincipal: DependentEntityType == relatedEntityType).Metadata);
+                    targetIsPrincipal: DependentEntityType == relatedEntityType ? true : (bool?)null).Metadata);
         }
 
         /// <summary>
@@ -777,6 +832,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the model data. </returns>
         public virtual DataBuilder HasData([NotNull] params object[] data)
+        {
+            Check.NotNull(data, nameof(data));
+
+            OwnedEntityType.AddData(data);
+
+            return new DataBuilder();
+        }
+
+        /// <summary>
+        ///     Configures this entity to have seed data. It is used to generate data motion migrations.
+        /// </summary>
+        /// <param name="data">
+        ///     A collection of seed data represented by anonymous types.
+        /// </param>
+        /// <returns> An object that can be used to configure the model data. </returns>
+        public virtual DataBuilder HasData([NotNull] IEnumerable<object> data)
         {
             Check.NotNull(data, nameof(data));
 

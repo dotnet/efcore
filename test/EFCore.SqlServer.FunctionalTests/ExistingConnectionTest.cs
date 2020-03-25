@@ -33,56 +33,52 @@ namespace Microsoft.EntityFrameworkCore
                 .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
-            using (var store = SqlServerTestStore.GetNorthwindStore())
+            using var store = SqlServerTestStore.GetNorthwindStore();
+            store.CloseConnection();
+
+            var openCount = 0;
+            var closeCount = 0;
+            var disposeCount = 0;
+
+            using var connection = new SqlConnection(store.ConnectionString);
+            if (openConnection)
             {
-                store.CloseConnection();
-
-                var openCount = 0;
-                var closeCount = 0;
-                var disposeCount = 0;
-
-                using (var connection = new SqlConnection(store.ConnectionString))
-                {
-                    if (openConnection)
-                    {
-                        await connection.OpenAsync();
-                    }
-
-                    connection.StateChange += (_, a) =>
-                    {
-                        switch (a.CurrentState)
-                        {
-                            case ConnectionState.Open:
-                                openCount++;
-                                break;
-                            case ConnectionState.Closed:
-                                closeCount++;
-                                break;
-                        }
-                    };
-                    connection.Disposed += (_, __) => disposeCount++;
-
-                    using (var context = new NorthwindContext(serviceProvider, connection))
-                    {
-                        Assert.Equal(91, await context.Customers.CountAsync());
-                    }
-
-                    if (openConnection)
-                    {
-                        Assert.Equal(ConnectionState.Open, connection.State);
-                        Assert.Equal(0, openCount);
-                        Assert.Equal(0, closeCount);
-                    }
-                    else
-                    {
-                        Assert.Equal(ConnectionState.Closed, connection.State);
-                        Assert.Equal(1, openCount);
-                        Assert.Equal(1, closeCount);
-                    }
-
-                    Assert.Equal(0, disposeCount);
-                }
+                await connection.OpenAsync();
             }
+
+            connection.StateChange += (_, a) =>
+            {
+                switch (a.CurrentState)
+                {
+                    case ConnectionState.Open:
+                        openCount++;
+                        break;
+                    case ConnectionState.Closed:
+                        closeCount++;
+                        break;
+                }
+            };
+            connection.Disposed += (_, __) => disposeCount++;
+
+            using (var context = new NorthwindContext(serviceProvider, connection))
+            {
+                Assert.Equal(91, await context.Customers.CountAsync());
+            }
+
+            if (openConnection)
+            {
+                Assert.Equal(ConnectionState.Open, connection.State);
+                Assert.Equal(0, openCount);
+                Assert.Equal(0, closeCount);
+            }
+            else
+            {
+                Assert.Equal(ConnectionState.Closed, connection.State);
+                Assert.Equal(1, openCount);
+                Assert.Equal(1, closeCount);
+            }
+
+            Assert.Equal(0, disposeCount);
         }
 
         private class NorthwindContext : DbContext

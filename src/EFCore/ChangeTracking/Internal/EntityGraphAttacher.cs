@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var inboundNavigation = node.InboundNavigation;
             if (inboundNavigation != null
-                && !inboundNavigation.IsCollection())
+                && !inboundNavigation.IsCollection)
             {
                 node.SourceEntry.GetInfrastructure().SetIsLoaded(inboundNavigation);
             }

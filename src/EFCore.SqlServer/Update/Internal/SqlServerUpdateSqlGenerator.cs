@@ -3,13 +3,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             IReadOnlyList<ModificationCommand> modificationCommands,
             List<ColumnModification> writeOperations)
         {
-            Debug.Assert(writeOperations.Count > 0);
+            Check.DebugAssert(writeOperations.Count > 0, $"writeOperations.Count is {writeOperations.Count}");
 
             var name = modificationCommands[0].TableName;
             var schema = modificationCommands[0].Schema;

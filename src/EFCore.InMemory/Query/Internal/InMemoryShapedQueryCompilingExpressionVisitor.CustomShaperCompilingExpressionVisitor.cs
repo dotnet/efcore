@@ -10,12 +10,13 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     public partial class InMemoryShapedQueryCompilingExpressionVisitor
     {
-        private class CustomShaperCompilingExpressionVisitor : ExpressionVisitor
+        private sealed class CustomShaperCompilingExpressionVisitor : ExpressionVisitor
         {
             private readonly bool _tracking;
 
@@ -78,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         {
                             fixup(includingEntity, relatedEntity);
                             if (inverseNavigation != null
-                                && !inverseNavigation.IsCollection())
+                                && !inverseNavigation.IsCollection)
                             {
                                 SetIsLoadedNoTracking(relatedEntity, inverseNavigation);
                             }
@@ -158,19 +159,21 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             protected override Expression VisitExtension(Expression extensionExpression)
             {
+                Check.NotNull(extensionExpression, nameof(extensionExpression));
+
                 if (extensionExpression is IncludeExpression includeExpression)
                 {
                     var entityClrType = includeExpression.EntityExpression.Type;
                     var includingClrType = includeExpression.Navigation.DeclaringEntityType.ClrType;
-                    var inverseNavigation = includeExpression.Navigation.FindInverse();
-                    var relatedEntityClrType = includeExpression.Navigation.GetTargetType().ClrType;
+                    var inverseNavigation = includeExpression.Navigation.Inverse;
+                    var relatedEntityClrType = includeExpression.Navigation.TargetEntityType.ClrType;
                     if (includingClrType != entityClrType
                         && includingClrType.IsAssignableFrom(entityClrType))
                     {
                         includingClrType = entityClrType;
                     }
 
-                    if (includeExpression.Navigation.IsCollection())
+                    if (includeExpression.Navigation.IsCollection)
                     {
                         var collectionShaper = (CollectionShaperExpression)includeExpression.NavigationExpression;
                         return Expression.Call(
@@ -237,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 var relatedEntityParameter = Expression.Parameter(relatedEntityType);
                 var expressions = new List<Expression>
                 {
-                    navigation.IsCollection()
+                    navigation.IsCollection
                         ? AddToCollectionNavigation(entityParameter, relatedEntityParameter, navigation)
                         : AssignReferenceNavigation(entityParameter, relatedEntityParameter, navigation)
                 };
@@ -245,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 if (inverseNavigation != null)
                 {
                     expressions.Add(
-                        inverseNavigation.IsCollection()
+                        inverseNavigation.IsCollection
                             ? AddToCollectionNavigation(relatedEntityParameter, entityParameter, inverseNavigation)
                             : AssignReferenceNavigation(relatedEntityParameter, entityParameter, inverseNavigation));
                 }

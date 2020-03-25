@@ -31,8 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     /// </summary>
     public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
     {
-        private readonly IMigrationsAnnotationProvider _migrationsAnnotations;
-
         /// <summary>
         ///     Creates a new <see cref="SqliteMigrationsSqlGenerator" /> instance.
         /// </summary>
@@ -40,9 +38,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="migrationsAnnotations"> Provider-specific Migrations annotations to use. </param>
         public SqliteMigrationsSqlGenerator(
             [NotNull] MigrationsSqlGeneratorDependencies dependencies,
-            [NotNull] IMigrationsAnnotationProvider migrationsAnnotations)
+            [NotNull] IRelationalAnnotationProvider migrationsAnnotations)
             : base(dependencies)
-            => _migrationsAnnotations = migrationsAnnotations;
+        {
+        }
 
         /// <summary>
         ///     Generates commands from a list of operations.
@@ -229,9 +228,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected override void Generate(RenameIndexOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
-            var index = FindEntityTypes(model, operation.Schema, operation.Table)
-                ?.SelectMany(t => t.GetDeclaredIndexes()).Where(i => i.GetName() == operation.NewName)
-                .FirstOrDefault();
+            var index = model.GetRelationalModel().FindTable(operation.Table, operation.Schema)
+                ?.Indexes.FirstOrDefault(i => i.Name == operation.NewName);
             if (index == null)
             {
                 throw new NotSupportedException(
@@ -244,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Table = operation.Table,
                 Name = operation.Name
             };
-            dropOperation.AddAnnotations(_migrationsAnnotations.ForRemove(index));
+            dropOperation.AddAnnotations(index.GetAnnotations());
 
             var createOperation = new CreateIndexOperation
             {
@@ -252,10 +250,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Name = operation.NewName,
                 Schema = operation.Schema,
                 Table = operation.Table,
-                Columns = index.Properties.Select(p => p.GetColumnName()).ToArray(),
-                Filter = index.GetFilter()
+                Columns = index.Columns.Select(p => p.Name).ToArray(),
+                Filter = index.Filter
             };
-            createOperation.AddAnnotations(_migrationsAnnotations.For(index));
+            createOperation.AddAnnotations(index.GetAnnotations());
 
             Generate(dropOperation, model, builder, terminate: false);
             builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);

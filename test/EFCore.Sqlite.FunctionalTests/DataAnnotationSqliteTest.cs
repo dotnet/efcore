@@ -97,33 +97,13 @@ namespace Microsoft.EntityFrameworkCore
             base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
 
             AssertSql(
-                @"SELECT ""s"".""UniqueNo"", ""s"".""MaxLengthProperty"", ""s"".""Name"", ""s"".""RowVersion"", ""t"".""UniqueNo"", ""t"".""AdditionalDetails_Name"", ""t0"".""UniqueNo"", ""t0"".""Details_Name""
+                @"SELECT ""s"".""UniqueNo"", ""s"".""MaxLengthProperty"", ""s"".""Name"", ""s"".""RowVersion"", ""s"".""AdditionalDetails_Name"", ""s"".""Details_Name""
 FROM ""Sample"" AS ""s""
-LEFT JOIN (
-    SELECT ""s0"".""UniqueNo"", ""s0"".""AdditionalDetails_Name""
-    FROM ""Sample"" AS ""s0""
-    WHERE ""s0"".""AdditionalDetails_Name"" IS NOT NULL
-) AS ""t"" ON ""s"".""UniqueNo"" = ""t"".""UniqueNo""
-LEFT JOIN (
-    SELECT ""s1"".""UniqueNo"", ""s1"".""Details_Name""
-    FROM ""Sample"" AS ""s1""
-    WHERE ""s1"".""Details_Name"" IS NOT NULL
-) AS ""t0"" ON ""s"".""UniqueNo"" = ""t0"".""UniqueNo""
 WHERE ""s"".""UniqueNo"" = 1
 LIMIT 1",
                 //
-                @"SELECT ""s"".""UniqueNo"", ""s"".""MaxLengthProperty"", ""s"".""Name"", ""s"".""RowVersion"", ""t"".""UniqueNo"", ""t"".""AdditionalDetails_Name"", ""t0"".""UniqueNo"", ""t0"".""Details_Name""
+                @"SELECT ""s"".""UniqueNo"", ""s"".""MaxLengthProperty"", ""s"".""Name"", ""s"".""RowVersion"", ""s"".""AdditionalDetails_Name"", ""s"".""Details_Name""
 FROM ""Sample"" AS ""s""
-LEFT JOIN (
-    SELECT ""s0"".""UniqueNo"", ""s0"".""AdditionalDetails_Name""
-    FROM ""Sample"" AS ""s0""
-    WHERE ""s0"".""AdditionalDetails_Name"" IS NOT NULL
-) AS ""t"" ON ""s"".""UniqueNo"" = ""t"".""UniqueNo""
-LEFT JOIN (
-    SELECT ""s1"".""UniqueNo"", ""s1"".""Details_Name""
-    FROM ""Sample"" AS ""s1""
-    WHERE ""s1"".""Details_Name"" IS NOT NULL
-) AS ""t0"" ON ""s"".""UniqueNo"" = ""t0"".""UniqueNo""
 WHERE ""s"".""UniqueNo"" = 1
 LIMIT 1",
                 //
@@ -167,10 +147,8 @@ WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();");
         // Sqlite does not support length
         public override void MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(10, context.Model.FindEntityType(typeof(One)).FindProperty("MaxLengthProperty").GetMaxLength());
-            }
+            using var context = CreateContext();
+            Assert.Equal(10, context.Model.FindEntityType(typeof(One)).FindProperty("MaxLengthProperty").GetMaxLength());
         }
 
         public override void RequiredAttribute_for_navigation_throws_while_inserting_null_value()
@@ -230,19 +208,15 @@ WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();");
         // Sqlite does not support length
         public override void StringLengthAttribute_throws_while_inserting_value_longer_than_max_length()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(16, context.Model.FindEntityType(typeof(Two)).FindProperty("Data").GetMaxLength());
-            }
+            using var context = CreateContext();
+            Assert.Equal(16, context.Model.FindEntityType(typeof(Two)).FindProperty("Data").GetMaxLength());
         }
 
         // Sqlite does not support rowversion. See issue #2195
         public override void TimestampAttribute_throws_if_value_in_database_changed()
         {
-            using (var context = CreateContext())
-            {
-                Assert.True(context.Model.FindEntityType(typeof(Two)).FindProperty("Timestamp").IsConcurrencyToken);
-            }
+            using var context = CreateContext();
+            Assert.True(context.Model.FindEntityType(typeof(Two)).FindProperty("Timestamp").IsConcurrencyToken);
         }
 
         private static readonly string _eol = Environment.NewLine;

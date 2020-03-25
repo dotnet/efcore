@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var conventionSet = new ConventionSet();
 
             var dependencies = CreateDependencies(sensitiveDataLoggingEnabled);
-            conventionSet.ModelFinalizedConventions.Add(new TypeMappingConvention(dependencies));
+            conventionSet.ModelFinalizingConventions.Add(new TypeMappingConvention(dependencies));
 
             return new ModelBuilder(conventionSet);
         }

@@ -35,9 +35,14 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="memoryOptimized"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetIsMemoryOptimized(
+        /// <returns> The configured value. </returns>
+        public static bool? SetIsMemoryOptimized(
             [NotNull] this IConventionEntityType entityType, bool? memoryOptimized, bool fromDataAnnotation = false)
-            => entityType.SetOrRemoveAnnotation(SqlServerAnnotationNames.MemoryOptimized, memoryOptimized, fromDataAnnotation);
+        {
+            entityType.SetOrRemoveAnnotation(SqlServerAnnotationNames.MemoryOptimized, memoryOptimized, fromDataAnnotation);
+
+            return memoryOptimized;
+        }
 
         /// <summary>
         ///     Gets the configuration source for the memory-optimized setting.

@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 var jObjectProperty = entityType.FindDeclaredProperty(JObjectPropertyName);
                 if (jObjectProperty != null)
                 {
-                    entityType.Builder.RemoveUnusedShadowProperties(new[] { jObjectProperty });
+                    entityType.Builder.HasNoUnusedShadowProperties(new[] { jObjectProperty });
                 }
             }
         }
@@ -132,8 +132,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyOwnershipChanged(
-            IConventionRelationshipBuilder relationshipBuilder,
-            IConventionContext<IConventionRelationshipBuilder> context)
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IConventionContext<bool?> context)
         {
             Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
             Check.NotNull(context, nameof(context));

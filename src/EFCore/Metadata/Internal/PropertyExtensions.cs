@@ -141,7 +141,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => property.DeclaringEntityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.ChangingAndChangedNotifications
                 || property.IsConcurrencyToken
                 || property.IsKey()
-                || property.IsForeignKey();
+                || property.IsForeignKey()
+                || property.IsUniqueIndex();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -199,14 +200,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static string ToDebugString(
             [NotNull] this IProperty property,
-            bool singleLine = true,
-            bool includeIndexes = false,
+            MetadataDebugStringOptions options,
             [NotNull] string indent = "")
         {
             var builder = new StringBuilder();
 
             builder.Append(indent);
 
+            var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
             if (singleLine)
             {
                 builder.Append($"Property: {property.DeclaringEntityType.DisplayName()}.");
@@ -279,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (property.GetMaxLength() != null)
             {
-                builder.Append(" MaxLength").Append(property.GetMaxLength());
+                builder.Append(" MaxLength(").Append(property.GetMaxLength()).Append(")");
             }
 
             if (property.IsUnicode() == false)
@@ -292,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append(" PropertyAccessMode.").Append(property.GetPropertyAccessMode());
             }
 
-            if (includeIndexes)
+            if ((options & MetadataDebugStringOptions.IncludePropertyIndexes) != 0)
             {
                 var indexes = property.GetPropertyIndexes();
                 if (indexes != null)
@@ -305,7 +306,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            if (!singleLine)
+            if (!singleLine &&
+                (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
             {
                 builder.Append(property.AnnotationsToDebugString(indent + "  "));
             }

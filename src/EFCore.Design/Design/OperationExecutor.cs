@@ -245,14 +245,15 @@ namespace Microsoft.EntityFrameworkCore.Design
                 Check.NotNull(args, nameof(args));
 
                 var targetMigration = (string)args["targetMigration"];
+                var connectionString = (string)args["connectionString"];
                 var contextType = (string)args["contextType"];
 
-                Execute(() => executor.UpdateDatabaseImpl(targetMigration, contextType));
+                Execute(() => executor.UpdateDatabaseImpl(targetMigration, connectionString, contextType));
             }
         }
 
-        private void UpdateDatabaseImpl([CanBeNull] string targetMigration, [CanBeNull] string contextType) =>
-            MigrationsOperations.UpdateDatabase(targetMigration, contextType);
+        private void UpdateDatabaseImpl([CanBeNull] string targetMigration, [CanBeNull] string connectionString, [CanBeNull] string contextType) =>
+            MigrationsOperations.UpdateDatabase(targetMigration, connectionString, contextType);
 
         /// <summary>
         ///     Represents an operation to generate a SQL script from migrations.

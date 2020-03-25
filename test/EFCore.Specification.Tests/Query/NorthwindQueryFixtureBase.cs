@@ -17,25 +17,30 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         protected NorthwindQueryFixtureBase()
         {
-            var entitySorters = new Dictionary<Type, Func<dynamic, object>>
+            var entitySorters = new Dictionary<Type, Func<object, object>>
             {
-                { typeof(Customer), e => e?.CustomerID },
-                { typeof(CustomerView), e => e?.CompanyName },
-                { typeof(Order), e => e?.OrderID },
-                { typeof(OrderQuery), e => e?.CustomerID },
-                { typeof(Employee), e => e?.EmployeeID },
-                { typeof(Product), e => e?.ProductID },
-                { typeof(OrderDetail), e => (e?.OrderID.ToString(), e?.ProductID.ToString()) }
+                { typeof(Customer), e => ((Customer)e)?.CustomerID },
+                { typeof(CustomerView), e => ((CustomerView)e)?.CompanyName },
+                { typeof(Order), e => ((Order)e)?.OrderID },
+                { typeof(OrderQuery), e => ((OrderQuery)e)?.CustomerID },
+                { typeof(Employee), e => ((Employee)e)?.EmployeeID },
+                { typeof(Product), e => ((Product)e)?.ProductID },
+                { typeof(OrderDetail), e => (((OrderDetail)e)?.OrderID.ToString(), ((OrderDetail)e)?.ProductID.ToString()) }
             }.ToDictionary(e => e.Key, e => (object)e.Value);
 
             var entityAsserters = new Dictionary<Type, object>();
 
-            QueryAsserter = new QueryAsserter<NorthwindContext>(
+            QueryAsserter = CreateQueryAsserter(entitySorters, entityAsserters);
+        }
+
+        protected virtual QueryAsserter<NorthwindContext> CreateQueryAsserter(
+            Dictionary<Type, object> entitySorters,
+            Dictionary<Type, object> entityAsserters)
+            => new QueryAsserter<NorthwindContext>(
                 CreateContext,
                 new NorthwindData(),
                 entitySorters,
                 entityAsserters);
-        }
 
         protected override string StoreName { get; } = "Northwind";
 

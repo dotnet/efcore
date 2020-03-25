@@ -1662,7 +1662,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var existingFk = navigation.ForeignKey;
                 Assert.Same(existingFk, principalType.GetNavigations().Single().ForeignKey);
                 Assert.Equal(nameof(ToastedBun.Whoopper), navigation.Name);
-                Assert.Equal(nameof(Whoopper.ToastedBun), navigation.FindInverse().Name);
+                Assert.Equal(nameof(Whoopper.ToastedBun), navigation.Inverse.Name);
                 Assert.Equal(existingFk.DeclaringEntityType == dependentType ? 0 : 1, principalType.GetForeignKeys().Count());
                 Assert.Equal(2, principalType.GetKeys().Count());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
@@ -1740,14 +1740,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(
                     CoreStrings.ConflictingRelationshipNavigation(
-                        principalType.DisplayName(),
-                        nameof(Nob.Hobs),
-                        dependentType.DisplayName(),
-                        nameof(Hob.Nob),
-                        principalType.DisplayName(),
-                        nameof(Nob.Hob),
-                        dependentType.DisplayName(),
-                        nameof(Hob.Nob)),
+                        principalType.DisplayName() + "." + nameof(Nob.Hobs),
+                        dependentType.DisplayName() + "." + nameof(Hob.Nob),
+                        principalType.DisplayName() + "." + nameof(Nob.Hob),
+                        dependentType.DisplayName() + "." + nameof(Hob.Nob)),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             modelBuilder.Entity<Hob>().HasOne(e => e.Nob).WithMany(e => e.Hobs)).Message);
@@ -2063,6 +2059,91 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     "KappaId",
                     modelBuilder.Model.FindEntityType(typeof(Omega)).FindNavigation(nameof(Omega.Kappa)).ForeignKey.Properties.Single()
                         .Name);
+            }
+
+            [ConditionalFact]
+            public virtual void Navigation_properties_can_set_access_mode_using_expressions()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<OneToManyNavPrincipal>()
+                    .HasMany(e => e.Dependents)
+                    .WithOne(e => e.OneToManyPrincipal);
+
+                modelBuilder.Entity<OneToManyNavPrincipal>()
+                    .Navigation(e => e.Dependents)
+                    .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+                modelBuilder.Entity<NavDependent>()
+                    .Navigation(e => e.OneToManyPrincipal)
+                    .UsePropertyAccessMode(PropertyAccessMode.Property);
+
+                var principal = (IEntityType)model.FindEntityType(typeof(OneToManyNavPrincipal));
+                var dependent = (IEntityType)model.FindEntityType(typeof(NavDependent));
+
+                Assert.Equal(PropertyAccessMode.Field, principal.FindNavigation("Dependents").GetPropertyAccessMode());
+                Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToManyPrincipal").GetPropertyAccessMode());
+            }
+
+            [ConditionalFact]
+            public virtual void Navigation_properties_can_set_access_mode_using_navigation_names()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<OneToManyNavPrincipal>()
+                    .HasMany<NavDependent>("Dependents")
+                    .WithOne("OneToManyPrincipal");
+
+                modelBuilder.Entity<OneToManyNavPrincipal>()
+                    .Navigation("Dependents")
+                    .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+                modelBuilder.Entity<NavDependent>()
+                    .Navigation("OneToManyPrincipal")
+                    .UsePropertyAccessMode(PropertyAccessMode.Property);
+
+                var principal = (IEntityType)model.FindEntityType(typeof(OneToManyNavPrincipal));
+                var dependent = (IEntityType)model.FindEntityType(typeof(NavDependent));
+
+                Assert.Equal(PropertyAccessMode.Field, principal.FindNavigation("Dependents").GetPropertyAccessMode());
+                Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToManyPrincipal").GetPropertyAccessMode());
+            }
+
+            [ConditionalFact]
+            public virtual void Access_mode_can_be_overridden_at_entity_and_navigation_property_levels()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.UsePropertyAccessMode(PropertyAccessMode.FieldDuringConstruction);
+
+                var principal = modelBuilder.Entity<OneToManyNavPrincipal>();
+                principal.UsePropertyAccessMode(PropertyAccessMode.PreferProperty);
+
+                var dependent = modelBuilder.Entity<NavDependent>();
+                dependent.UsePropertyAccessMode(PropertyAccessMode.Field);
+
+                modelBuilder.Entity<OneToManyNavPrincipal>()
+                    .HasMany(e => e.Dependents)
+                    .WithOne(e => e.OneToManyPrincipal);
+
+                modelBuilder.Entity<OneToManyNavPrincipal>()
+                    .Navigation(e => e.Dependents)
+                    .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+                modelBuilder.Entity<NavDependent>()
+                    .Navigation(e => e.OneToManyPrincipal)
+                    .UsePropertyAccessMode(PropertyAccessMode.Property);
+
+                Assert.Equal(PropertyAccessMode.FieldDuringConstruction, model.GetPropertyAccessMode());
+
+                Assert.Equal(PropertyAccessMode.PreferProperty, principal.Metadata.GetPropertyAccessMode());
+                Assert.Equal(PropertyAccessMode.Field, principal.Metadata.FindNavigation("Dependents").GetPropertyAccessMode());
+
+                Assert.Equal(PropertyAccessMode.Field, dependent.Metadata.GetPropertyAccessMode());
+                Assert.Equal(PropertyAccessMode.Property, dependent.Metadata.FindNavigation("OneToManyPrincipal").GetPropertyAccessMode());
             }
         }
     }

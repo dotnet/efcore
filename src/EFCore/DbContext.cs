@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -16,7 +16,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore
         IDbSetCache,
         IDbContextPoolable
     {
-        private IDictionary<Type, object> _sets;
+        private IDictionary<(Type Type, string Name), object> _sets;
         private readonly DbContextOptions _options;
 
         private IDbContextServices _contextServices;
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(options, nameof(options));
 
-            if (!options.ContextType.GetTypeInfo().IsAssignableFrom(GetType().GetTypeInfo()))
+            if (!options.ContextType.IsAssignableFrom(GetType()))
             {
                 throw new InvalidOperationException(CoreStrings.NonGenericOptions(GetType().ShortDisplayName()));
             }
@@ -158,7 +158,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [EntityFrameworkInternal]
         IDbSetSource IDbContextDependencies.SetSource => DbContextDependencies.SetSource;
 
         /// <summary>
@@ -167,7 +166,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [EntityFrameworkInternal]
         IEntityFinderFactory IDbContextDependencies.EntityFinderFactory => DbContextDependencies.EntityFinderFactory;
 
         /// <summary>
@@ -176,7 +174,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [EntityFrameworkInternal]
         IAsyncQueryProvider IDbContextDependencies.QueryProvider => DbContextDependencies.QueryProvider;
 
         /// <summary>
@@ -185,7 +182,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [EntityFrameworkInternal]
         IStateManager IDbContextDependencies.StateManager => DbContextDependencies.StateManager;
 
         /// <summary>
@@ -194,7 +190,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [EntityFrameworkInternal]
         IChangeDetector IDbContextDependencies.ChangeDetector => DbContextDependencies.ChangeDetector;
 
         /// <summary>
@@ -203,7 +198,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [EntityFrameworkInternal]
         IEntityGraphAttacher IDbContextDependencies.EntityGraphAttacher => DbContextDependencies.EntityGraphAttacher;
 
         /// <summary>
@@ -212,7 +206,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [EntityFrameworkInternal]
         IDiagnosticsLogger<DbLoggerCategory.Update> IDbContextDependencies.UpdateLogger => DbContextDependencies.UpdateLogger;
 
         /// <summary>
@@ -221,7 +214,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [EntityFrameworkInternal]
         IDiagnosticsLogger<DbLoggerCategory.Infrastructure> IDbContextDependencies.InfrastructureLogger
             => DbContextDependencies.InfrastructureLogger;
 
@@ -231,20 +223,43 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [EntityFrameworkInternal]
         object IDbSetCache.GetOrAddSet(IDbSetSource source, Type type)
         {
             CheckDisposed();
 
             if (_sets == null)
             {
-                _sets = new Dictionary<Type, object>();
+                _sets = new Dictionary<(Type Type, string Name), object>();
             }
 
-            if (!_sets.TryGetValue(type, out var set))
+            if (!_sets.TryGetValue((type, null), out var set))
             {
                 set = source.Create(this, type);
-                _sets[type] = set;
+                _sets[(type, null)] = set;
+            }
+
+            return set;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        object IDbSetCache.GetOrAddSet(IDbSetSource source, string name, Type type)
+        {
+            CheckDisposed();
+
+            if (_sets == null)
+            {
+                _sets = new Dictionary<(Type Type, string Name), object>();
+            }
+
+            if (!_sets.TryGetValue((type, name), out var set))
+            {
+                set = source.Create(this, name, type);
+                _sets[(type, name)] = set;
             }
 
             return set;
@@ -260,14 +275,13 @@ namespace Microsoft.EntityFrameworkCore
             => (DbSet<TEntity>)((IDbSetCache)this).GetOrAddSet(DbContextDependencies.SetSource, typeof(TEntity));
 
         /// <summary>
-        ///     Creates a <see cref="DbSet{TQuery}" /> that can be used to query instances of <typeparamref name="TQuery" />.
+        ///     Creates a <see cref="DbSet{TEntity}" /> that can be used to query and save instances of <typeparamref name="TEntity" />.
         /// </summary>
-        /// <typeparam name="TQuery"> The type of query for which a DbQuery should be returned. </typeparam>
-        /// <returns> A DbQuery for the given keyless entity type. </returns>
-        [Obsolete("Use Set() for entity types without keys")]
-        public virtual DbQuery<TQuery> Query<TQuery>()
-            where TQuery : class
-            => (DbQuery<TQuery>)((IDbSetCache)this).GetOrAddSet(DbContextDependencies.SetSource, typeof(TQuery));
+        /// <typeparam name="TEntity"> The type of entity for which a set should be returned. </typeparam>
+        /// <returns> A set for the given entity type. </returns>
+        public virtual DbSet<TEntity> Set<TEntity>([NotNull] string name)
+            where TEntity : class
+            => (DbSet<TEntity>)((IDbSetCache)this).GetOrAddSet(DbContextDependencies.SetSource, name, typeof(TEntity));
 
         private IEntityFinder Finder(Type type)
         {
@@ -631,10 +645,10 @@ namespace Microsoft.EntityFrameworkCore
 
             if (configurationSnapshot.AutoDetectChangesEnabled != null)
             {
-                Debug.Assert(configurationSnapshot.QueryTrackingBehavior.HasValue);
-                Debug.Assert(configurationSnapshot.LazyLoadingEnabled.HasValue);
-                Debug.Assert(configurationSnapshot.CascadeDeleteTiming.HasValue);
-                Debug.Assert(configurationSnapshot.DeleteOrphansTiming.HasValue);
+                Check.DebugAssert(configurationSnapshot.QueryTrackingBehavior.HasValue, "!configurationSnapshot.QueryTrackingBehavior.HasValue");
+                Check.DebugAssert(configurationSnapshot.LazyLoadingEnabled.HasValue, "!configurationSnapshot.LazyLoadingEnabled.HasValue");
+                Check.DebugAssert(configurationSnapshot.CascadeDeleteTiming.HasValue, "!configurationSnapshot.CascadeDeleteTiming.HasValue");
+                Check.DebugAssert(configurationSnapshot.DeleteOrphansTiming.HasValue, "!configurationSnapshot.DeleteOrphansTiming.HasValue");
 
                 ChangeTracker.AutoDetectChangesEnabled = configurationSnapshot.AutoDetectChangesEnabled.Value;
                 ChangeTracker.QueryTrackingBehavior = configurationSnapshot.QueryTrackingBehavior.Value;
@@ -1666,6 +1680,22 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         IServiceProvider IInfrastructure<IServiceProvider>.Instance => InternalServiceProvider;
+
+        /// <summary>
+        /// Creates a query expression, which represents a function call, against the query store.
+        /// </summary>
+        /// <typeparam name="TResult"> The result type of the query expression </typeparam>
+        /// <param name="expression"> The query expression to create. </param>
+        /// <returns> An IQueryable representing the query. </returns>
+        protected virtual IQueryable<TResult> CreateQuery<TResult>([NotNull] Expression<Func<IQueryable<TResult>>> expression)
+        {
+            //should we add this method as an extension in relational?  That would require making DbContextDependencies public.
+            //Is there a 3rd way?
+
+            Check.NotNull(expression, nameof(expression));
+
+            return DbContextDependencies.QueryProvider.CreateQuery<TResult>(expression.Body);
+        }
 
         #region Hidden System.Object members
 

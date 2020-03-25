@@ -30,72 +30,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool TryGetEFIndexerArguments(
-            [NotNull] this MethodCallExpression methodCallExpression,
-            out Expression entityExpression,
-            out string propertyName)
-        {
-            if (IsEFIndexer(methodCallExpression)
-                && methodCallExpression.Arguments[0] is ConstantExpression propertyNameExpression)
-            {
-                entityExpression = methodCallExpression.Object;
-                propertyName = (string)propertyNameExpression.Value;
-                return true;
-            }
-
-            (entityExpression, propertyName) = (null, null);
-            return false;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static bool IsEFIndexer([NotNull] this MethodCallExpression methodCallExpression)
-            => IsEFIndexer(methodCallExpression.Method);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static bool IsEFIndexer(this MethodInfo methodInfo)
-            => !methodInfo.IsStatic
-                && "get_Item".Equals(methodInfo.Name, StringComparison.Ordinal)
-                && typeof(object) == methodInfo.ReturnType
-                && methodInfo.GetParameters()?.Count() == 1
-                && typeof(string) == methodInfo.GetParameters().First().ParameterType;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static Expression CreateKeyAccessExpression(
-            [NotNull] this Expression target,
-            [NotNull] IReadOnlyList<IProperty> properties,
-            bool makeNullable = false)
-            => properties.Count == 1
-                ? target.CreateEFPropertyExpression(properties[0], makeNullable)
-                : Expression.New(
-                    AnonymousObject.AnonymousObjectCtor,
-                    Expression.NewArrayInit(
-                        typeof(object),
-                        properties
-                            .Select(p => Expression.Convert(target.CreateEFPropertyExpression(p, makeNullable), typeof(object)))
-                            .Cast<Expression>()
-                            .ToArray()));
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public static Expression CreateEFPropertyExpression(
             [NotNull] this Expression target,
             [NotNull] IPropertyBase property,
@@ -122,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             bool makeNullable)
         {
             if (propertyDeclaringType != target.Type
-                && target.Type.GetTypeInfo().IsAssignableFrom(propertyDeclaringType.GetTypeInfo()))
+                && target.Type.IsAssignableFrom(propertyDeclaringType))
             {
                 target = Expression.Convert(target, propertyDeclaringType);
             }

@@ -7,8 +7,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -30,7 +30,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public virtual IncludeTreeNode LastIncludeTreeNode { get; private set; }
             public override ExpressionType NodeType => ExpressionType.Extension;
             public override Type Type => EntityType.ClrType;
-            protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
+
+            protected override Expression VisitChildren(ExpressionVisitor visitor)
+            {
+                Check.NotNull(visitor, nameof(visitor));
+
+                return this;
+            }
 
             public virtual void SetIncludePaths(IncludeTreeNode includePaths)
             {
@@ -52,6 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public virtual void Print(ExpressionPrinter expressionPrinter)
             {
+                Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
                 expressionPrinter.Append($"{nameof(EntityReference)}: {EntityType.DisplayName()}");
                 if (IsOptional)
                 {
@@ -69,9 +77,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        /// <summary>
+        ///     A tree structure of includes for a given entity type in <see cref="EntityReference"/>.
+        /// </summary>
         protected class IncludeTreeNode : Dictionary<INavigation, IncludeTreeNode>
         {
             private EntityReference _entityReference;
+
+            public virtual LambdaExpression FilterExpression { get; set; }
 
             public IncludeTreeNode(IEntityType entityType, EntityReference entityReference)
             {
@@ -95,14 +108,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         NavigationTreeExpression navigationTree => (EntityReference)navigationTree.Value,
                         OwnedNavigationReference ownedNavigationReference => ownedNavigationReference.EntityReference,
-                        _ => throw new InvalidOperationException("Invalid expression type stored in NavigationMap."),
+                        _ => throw new InvalidOperationException(CoreStrings.InvalidExpressionTypeStoredInNavigationMap),
                     };
 
                     this[navigation] = entityReference.IncludePaths;
                 }
                 else
                 {
-                    this[navigation] = new IncludeTreeNode(navigation.GetTargetType(), null);
+                    this[navigation] = new IncludeTreeNode(navigation.TargetEntityType, null);
                 }
 
                 return this[navigation];
@@ -153,6 +166,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), EntityType);
         }
 
+        /// <summary>
+        ///     Stores information about the current queryable, its source, structure of projection, parameter type etc.
+        ///     This is needed because once navigations are expanded we still remember these to avoid expanding again.
+        /// </summary>
         protected class NavigationExpansionExpression : Expression, IPrintableExpression
         {
             private readonly List<(MethodInfo OrderingMethod, Expression KeySelector)> _pendingOrderings
@@ -213,10 +230,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public override Type Type => CardinalityReducingGenericMethodInfo == null
                 ? typeof(IQueryable<>).MakeGenericType(PendingSelector.Type)
                 : PendingSelector.Type;
-            protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
+            protected override Expression VisitChildren(ExpressionVisitor visitor)
+            {
+                Check.NotNull(visitor, nameof(visitor));
+
+                return this;
+            }
 
             public virtual void Print(ExpressionPrinter expressionPrinter)
             {
+                Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
                 expressionPrinter.AppendLine(nameof(NavigationExpansionExpression));
                 using (expressionPrinter.Indent())
                 {
@@ -234,6 +258,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        /// <summary>
+        ///     A leaf node on navigation tree, representing projection structures of
+        ///     <see cref="NavigationExpansionExpression"/>. Contains <see cref="NavigationTreeExpression.Value"/>,
+        ///     which can be <see cref="NewExpression"/> or <see cref="EntityReference"/>.
+        /// </summary>
         protected class NavigationTreeExpression : NavigationTreeNode, IPrintableExpression
         {
             public NavigationTreeExpression(Expression value)
@@ -242,10 +271,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 Value = value;
             }
 
+            /// <summary>
+            ///     Either <see cref="NewExpression"/> or <see cref="EntityReference"/>.
+            /// </summary>
             public virtual Expression Value { get; private set; }
 
             protected override Expression VisitChildren(ExpressionVisitor visitor)
             {
+                Check.NotNull(visitor, nameof(visitor));
+
                 Value = visitor.Visit(Value);
 
                 return this;
@@ -255,6 +289,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public virtual void Print(ExpressionPrinter expressionPrinter)
             {
+                Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
                 expressionPrinter.AppendLine(nameof(NavigationTreeExpression));
                 using (expressionPrinter.Indent())
                 {
@@ -267,6 +303,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        /// <summary>
+        ///     A node in navigation binary tree. A navigation tree is a structure of the current parameter, which
+        ///     would be transparent identifier (hence it's a binary structure). This allows us to easily condense to
+        ///     inner/outer member access.
+        /// </summary>
         protected class NavigationTreeNode : Expression
         {
             private NavigationTreeNode _parent;
@@ -296,9 +337,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public virtual NavigationTreeNode Right { get; }
             public virtual ParameterExpression CurrentParameter { get; private set; }
 
-            protected override Expression VisitChildren(ExpressionVisitor visitor)
-                => throw new InvalidOperationException(CoreStrings.QueryFailed(this.Print(), GetType().Name));
-
             public virtual void SetParameter(string parameterName) => CurrentParameter = Parameter(Type, parameterName);
 
             public override ExpressionType NodeType => ExpressionType.Extension;
@@ -313,11 +351,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var parentExperssion = Parent.GetExpression();
                 return Parent.Left == this
-                    ? MakeMemberAccess(parentExperssion, parentExperssion.Type.GetTypeInfo().GetMember("Outer")[0])
-                    : MakeMemberAccess(parentExperssion, parentExperssion.Type.GetTypeInfo().GetMember("Inner")[0]);
+                    ? MakeMemberAccess(parentExperssion, parentExperssion.Type.GetMember("Outer")[0])
+                    : MakeMemberAccess(parentExperssion, parentExperssion.Type.GetMember("Inner")[0]);
             }
         }
 
+        /// <summary>
+        ///     Owned navigations are not expanded, since they map differently in different providers.
+        ///     This remembers such references so that they can still be treated like navigations.
+        /// </summary>
         protected class OwnedNavigationReference : Expression
         {
             public OwnedNavigationReference(Expression parent, INavigation navigation, EntityReference entityReference)
@@ -329,6 +371,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitChildren(ExpressionVisitor visitor)
             {
+                Check.NotNull(visitor, nameof(visitor));
+
                 Parent = visitor.Visit(Parent);
 
                 return this;

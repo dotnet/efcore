@@ -44,7 +44,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public ValueComparer(bool favorStructuralComparisons)
             : this(
                 CreateDefaultEqualsExpression(),
-                CreateDefaultHashCodeExpression(favorStructuralComparisons))
+                CreateDefaultHashCodeExpression(favorStructuralComparisons),
+                CreateDefaultSnapshotExpression(favorStructuralComparisons))
         {
         }
 
@@ -57,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public ValueComparer(
             [NotNull] Expression<Func<T, T, bool>> equalsExpression,
             [NotNull] Expression<Func<T, int>> hashCodeExpression)
-            : this(equalsExpression, hashCodeExpression, v => v)
+            : this(equalsExpression, hashCodeExpression, CreateDefaultSnapshotExpression(false))
         {
         }
 
@@ -94,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var param1 = Expression.Parameter(type, "v1");
             var param2 = Expression.Parameter(type, "v2");
 
-            if (typeof(IStructuralEquatable).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
+            if (typeof(IStructuralEquatable).IsAssignableFrom(type))
             {
                 return Expression.Lambda<Func<T, T, bool>>(
                     Expression.Call(
@@ -157,7 +158,46 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     Creates an expression for generated a hash code.
+        ///     Creates an expression for creating a snapshot of a value.
+        /// </summary>
+        /// <returns> The snapshot expression. </returns>
+        protected static Expression<Func<T, T>> CreateDefaultSnapshotExpression(bool favorStructuralComparisons)
+        {
+            if (!favorStructuralComparisons
+                || !typeof(T).IsArray)
+            {
+                return v => v;
+            }
+
+            var sourceParameter = Expression.Parameter(typeof(T), "source");
+            var lengthVariable = Expression.Variable(typeof(int), "length");
+            var destinationVariable = Expression.Variable(typeof(T), "destination");
+
+            // Code looks like:
+            // var length = source.Length;
+            // var destination = new T[length];
+            // Array.Copy(source, destination, length);
+            // return destination;
+            return Expression.Lambda<Func<T, T>>(
+                Expression.Block(
+                    new[] { lengthVariable, destinationVariable },
+                    Expression.Assign(
+                        lengthVariable,
+                        Expression.Property(sourceParameter, typeof(T).GetProperty(nameof(Array.Length)))),
+                    Expression.Assign(
+                        destinationVariable,
+                        Expression.NewArrayBounds(typeof(T).TryGetSequenceType(), lengthVariable)),
+                    Expression.Call(
+                        ArrayCopyMethod,
+                        sourceParameter,
+                        destinationVariable,
+                        lengthVariable),
+                    destinationVariable),
+                sourceParameter);
+        }
+
+        /// <summary>
+        ///     Creates an expression for generating a hash code.
         /// </summary>
         /// <param name="favorStructuralComparisons">
         ///     If <c>true</c>, then <see cref="IStructuralEquatable" /> is used if the type implements it.
@@ -170,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var param = Expression.Parameter(type, "v");
 
             if (favorStructuralComparisons
-                && typeof(IStructuralEquatable).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
+                && typeof(IStructuralEquatable).IsAssignableFrom(type))
             {
                 return Expression.Lambda<Func<T, int>>(
                     Expression.Call(

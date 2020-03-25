@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -20,7 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     {
         private ServiceParameterBinding _parameterBinding;
 
-        private ConfigurationSource _configurationSource;
         private ConfigurationSource? _parameterBindingConfigurationSource;
 
         /// <summary>
@@ -35,13 +35,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] FieldInfo fieldInfo,
             [NotNull] EntityType declaringEntityType,
             ConfigurationSource configurationSource)
-            : base(name, propertyInfo, fieldInfo)
+            : base(name, propertyInfo, fieldInfo, configurationSource)
         {
             Check.NotNull(declaringEntityType, nameof(declaringEntityType));
 
             DeclaringEntityType = declaringEntityType;
             ClrType = propertyInfo?.PropertyType ?? fieldInfo?.FieldType;
-            _configurationSource = configurationSource;
 
             Builder = new InternalServicePropertyBuilder(this, declaringEntityType.Model.Builder);
         }
@@ -81,28 +80,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalServicePropertyBuilder Builder
         {
-            [DebuggerStepThrough] get;
-            [DebuggerStepThrough]
-            [param: CanBeNull]
-            set;
+            get;
+            [param: CanBeNull] set;
         }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
-            => _configurationSource = configurationSource.Max(_configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -122,11 +102,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetParameterBinding(ServiceParameterBinding parameterBinding, ConfigurationSource configurationSource)
+        public virtual ServiceParameterBinding SetParameterBinding(
+            [CanBeNull] ServiceParameterBinding parameterBinding, ConfigurationSource configurationSource)
         {
             _parameterBinding = parameterBinding;
 
             UpdateParameterBindingConfigurationSource(configurationSource);
+
+            return parameterBinding;
         }
 
         /// <summary>
@@ -135,7 +118,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void IConventionServiceProperty.SetParameterBinding(ServiceParameterBinding parameterBinding, bool fromDataAnnotation)
+        ServiceParameterBinding IConventionServiceProperty.SetParameterBinding(
+            ServiceParameterBinding parameterBinding, bool fromDataAnnotation)
             => SetParameterBinding(
                 parameterBinding, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -156,7 +140,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IEntityType IServiceProperty.DeclaringEntityType => DeclaringEntityType;
+        IEntityType IServiceProperty.DeclaringEntityType
+        {
+            [DebuggerStepThrough] get => DeclaringEntityType;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -164,7 +151,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IMutableEntityType IMutableServiceProperty.DeclaringEntityType => DeclaringEntityType;
+        IMutableEntityType IMutableServiceProperty.DeclaringEntityType
+        {
+            [DebuggerStepThrough] get => DeclaringEntityType;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -172,7 +162,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionServicePropertyBuilder IConventionServiceProperty.Builder => Builder;
+        IConventionServicePropertyBuilder IConventionServiceProperty.Builder
+        {
+            [DebuggerStepThrough] get => Builder;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -180,7 +173,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionEntityType IConventionServiceProperty.DeclaringEntityType => DeclaringEntityType;
+        IConventionAnnotatableBuilder IConventionAnnotatable.Builder
+        {
+            [DebuggerStepThrough] get => Builder;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -188,7 +184,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override string ToString() => this.ToDebugString();
+        IConventionEntityType IConventionServiceProperty.DeclaringEntityType
+        {
+            [DebuggerStepThrough] get => DeclaringEntityType;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -196,7 +195,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual DebugView<ServiceProperty> DebugView
-            => new DebugView<ServiceProperty>(this, m => m.ToDebugString(false));
+        public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual DebugView DebugView
+            => new DebugView(
+                () => this.ToDebugString(MetadataDebugStringOptions.ShortDefault),
+                () => this.ToDebugString(MetadataDebugStringOptions.LongDefault));
     }
 }

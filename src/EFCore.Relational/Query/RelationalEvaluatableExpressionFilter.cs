@@ -55,9 +55,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> True if the expression can be evaluated; false otherwise. </returns>
         public override bool IsEvaluatableExpression(Expression expression, IModel model)
         {
+            Check.NotNull(expression, nameof(expression));
+            Check.NotNull(model, nameof(model));
+
             if (expression is MethodCallExpression methodCallExpression
                 && model.FindDbFunction(methodCallExpression.Method) != null)
             {
+                // Never evaluate DbFunction
+                // If it is inside lambda then we will have whole method call
+                // If it is outside of lambda then it will be evaluated for queryable function already.
                 return false;
             }
 

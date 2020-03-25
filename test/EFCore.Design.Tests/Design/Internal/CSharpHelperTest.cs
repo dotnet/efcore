@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public void Literal_works_when_empty_ByteArray() =>
             Literal_works(
                 Array.Empty<byte>(),
-                "new byte[] {  }");
+                "new byte[0]");
 
         [ConditionalFact]
         public void Literal_works_when_single_ByteArray() =>
@@ -190,6 +190,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             var literal = new CSharpHelper(TypeMappingSource).Literal(new[] { "A", "B" });
             Assert.Equal("new[] { \"A\", \"B\" }", literal);
+        }
+
+        [ConditionalFact]
+        public void Literal_works_when_empty_StringArray()
+        {
+            var literal = new CSharpHelper(TypeMappingSource).Literal(new string[] { });
+            Assert.Equal("new string[0]", literal);
         }
 
         [ConditionalFact]
@@ -565,7 +572,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         [ConditionalFact]
-        public void Literal_with_unsupported_node_throws()
+        public void Literal_with_add()
         {
             var typeMapping = CreateTypeMappingSource<SimpleTestType>(
                 v => Expression.Add(
@@ -573,8 +580,21 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     Expression.Constant(10)));
 
             Assert.Equal(
+                "10 + 10",
+                new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType()));
+        }
+
+        [ConditionalFact]
+        public void Literal_with_unsupported_node_throws()
+        {
+            var typeMapping = CreateTypeMappingSource<SimpleTestType>(
+                v => Expression.Multiply(
+                    Expression.Constant(10),
+                    Expression.Constant(10)));
+
+            Assert.Equal(
                 DesignStrings.LiteralExpressionNotSupported(
-                    "(10 + 10)",
+                    "(10 * 10)",
                     nameof(SimpleTestType)),
                 Assert.Throws<NotSupportedException>(
                     () => new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType())).Message);

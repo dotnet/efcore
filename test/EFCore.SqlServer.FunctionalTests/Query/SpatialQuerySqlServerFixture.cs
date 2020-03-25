@@ -27,6 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return optionsBuilder;
         }
 
+        protected override bool CanExecuteQueryString => true;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             base.OnModelCreating(modelBuilder, context);
@@ -35,9 +37,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 typeof(GeoExtensions).GetMethod(nameof(GeoExtensions.Distance)),
                 b => b.HasTranslation(
                     e => SqlFunctionExpression.Create(
-                        e.First(),
+                        instance: e.First(),
                         "STDistance",
-                        e.Skip(1),
+                        arguments: e.Skip(1),
+                        nullable: true,
+                        instancePropagatesNullability: true,
+                        argumentsPropagateNullability: e.Skip(1).Select(a => true),
                         typeof(double),
                         null)));
         }

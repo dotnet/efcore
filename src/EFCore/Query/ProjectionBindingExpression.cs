@@ -4,29 +4,49 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class ProjectionBindingExpression : Expression, IPrintableExpression
     {
-        public ProjectionBindingExpression(Expression queryExpression, ProjectionMember projectionMember, Type type)
+        public ProjectionBindingExpression(
+            [NotNull] Expression queryExpression,
+            [NotNull] ProjectionMember projectionMember,
+            [NotNull] Type type)
         {
+            Check.NotNull(queryExpression, nameof(queryExpression));
+            Check.NotNull(projectionMember, nameof(projectionMember));
+            Check.NotNull(type, nameof(type));
+
             QueryExpression = queryExpression;
             ProjectionMember = projectionMember;
             Type = type;
         }
 
-        public ProjectionBindingExpression(Expression queryExpression, int index, Type type)
+        public ProjectionBindingExpression(
+            [NotNull] Expression queryExpression,
+            int index,
+            [NotNull] Type type)
         {
+            Check.NotNull(queryExpression, nameof(queryExpression));
+            Check.NotNull(type, nameof(type));
+
             QueryExpression = queryExpression;
             Index = index;
             Type = type;
         }
 
-        public ProjectionBindingExpression(Expression queryExpression, IDictionary<IProperty, int> indexMap)
+        public ProjectionBindingExpression(
+            [NotNull] Expression queryExpression,
+            [NotNull] IDictionary<IProperty, int> indexMap)
         {
+            Check.NotNull(queryExpression, nameof(queryExpression));
+            Check.NotNull(indexMap, nameof(indexMap));
+
             QueryExpression = queryExpression;
             IndexMap = indexMap;
             Type = typeof(ValueBuffer);
@@ -39,10 +59,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override Type Type { get; }
         public sealed override ExpressionType NodeType => ExpressionType.Extension;
 
-        protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+        {
+            Check.NotNull(visitor, nameof(visitor));
+
+            return this;
+        }
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.Append(nameof(ProjectionBindingExpression) + ": ");
             if (ProjectionMember != null)
             {

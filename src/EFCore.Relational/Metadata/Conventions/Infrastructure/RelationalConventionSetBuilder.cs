@@ -87,24 +87,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
 
             var dbFunctionAttributeConvention = new RelationalDbFunctionAttributeConvention(Dependencies, RelationalDependencies);
             conventionSet.ModelInitializedConventions.Add(dbFunctionAttributeConvention);
-            conventionSet.ModelAnnotationChangedConventions.Add(dbFunctionAttributeConvention);
 
-            ConventionSet.AddBefore(
-                conventionSet.ModelFinalizedConventions,
-                storeGenerationConvention,
-                typeof(ValidatingConvention));
-            ConventionSet.AddBefore(
-                conventionSet.ModelFinalizedConventions,
-                new SharedTableConvention(Dependencies, RelationalDependencies),
-                typeof(ValidatingConvention));
-            ConventionSet.AddBefore(
-                conventionSet.ModelFinalizedConventions,
-                new DbFunctionTypeMappingConvention(Dependencies, RelationalDependencies),
-                typeof(ValidatingConvention));
+            conventionSet.ModelFinalizingConventions.Add(dbFunctionAttributeConvention);
+            conventionSet.ModelFinalizingConventions.Add(tableNameFromDbSetConvention);
+            conventionSet.ModelFinalizingConventions.Add(storeGenerationConvention);
+            conventionSet.ModelFinalizingConventions.Add(new SharedTableConvention(Dependencies, RelationalDependencies));
+            conventionSet.ModelFinalizingConventions.Add(new DbFunctionTypeMappingConvention(Dependencies, RelationalDependencies));
             ReplaceConvention(
-                conventionSet.ModelFinalizedConventions,
+                conventionSet.ModelFinalizingConventions,
                 (QueryFilterDefiningQueryRewritingConvention)new RelationalQueryFilterDefiningQueryRewritingConvention(
                     Dependencies, RelationalDependencies));
+
+            ConventionSet.AddAfter(
+                conventionSet.ModelFinalizedConventions,
+                new RelationalModelConvention(Dependencies, RelationalDependencies),
+                typeof(ValidatingConvention));
 
             return conventionSet;
         }

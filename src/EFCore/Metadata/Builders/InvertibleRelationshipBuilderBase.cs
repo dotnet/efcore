@@ -50,8 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected InvertibleRelationshipBuilderBase(
-            InternalRelationshipBuilder builder,
-            InvertibleRelationshipBuilderBase oldBuilder,
+            [NotNull] InternalRelationshipBuilder builder,
+            [CanBeNull] InvertibleRelationshipBuilderBase oldBuilder,
             bool inverted = false,
             bool foreignKeySet = false,
             bool principalKeySet = false,

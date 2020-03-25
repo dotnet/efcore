@@ -14,6 +14,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     /// <summary>
@@ -26,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     {
         private readonly ICSharpHelper _code;
 
-        private IndentedStringBuilder _sb;
+        private IndentedStringBuilder _sb = null!;
         private bool _useDataAnnotations;
 
         /// <summary>
@@ -64,6 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 _sb.AppendLine("using System.ComponentModel.DataAnnotations;");
                 _sb.AppendLine("using System.ComponentModel.DataAnnotations.Schema;");
+                _sb.AppendLine("using Microsoft.EntityFrameworkCore;"); // For attributes coming out of Abstractions
             }
 
             foreach (var ns in entityType.GetProperties()
@@ -130,7 +133,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             Check.NotNull(entityType, nameof(entityType));
 
+            GenerateKeylessAttribute(entityType);
             GenerateTableAttribute(entityType);
+        }
+
+        private void GenerateKeylessAttribute(IEntityType entityType)
+        {
+            if (entityType.FindPrimaryKey() == null)
+            {
+                _sb.AppendLine(new AttributeWriter(nameof(KeylessAttribute)));
+            }
         }
 
         private void GenerateTableAttribute(IEntityType entityType)
@@ -140,9 +152,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var defaultSchema = entityType.Model.GetDefaultSchema();
 
             var schemaParameterNeeded = schema != null && schema != defaultSchema;
-            var isView = entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinition) != null;
+            var isView = entityType.GetViewName() != null;
             var tableAttributeNeeded = !isView && (schemaParameterNeeded || tableName != null && tableName != entityType.GetDbSetName());
-
             if (tableAttributeNeeded)
             {
                 var tableAttribute = new AttributeWriter(nameof(TableAttribute));
@@ -154,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     tableAttribute.AddParameter($"{nameof(TableAttribute.Schema)} = {_code.Literal(schema)}");
                 }
 
-                _sb.AppendLine(tableAttribute.ToString());
+                _sb.AppendLine(tableAttribute);
             }
         }
 
@@ -169,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            var collectionNavigations = entityType.GetNavigations().Where(n => n.IsCollection()).ToList();
+            var collectionNavigations = entityType.GetNavigations().Where(n => n.IsCollection).ToList();
 
             if (collectionNavigations.Count > 0)
             {
@@ -180,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     foreach (var navigation in collectionNavigations)
                     {
-                        _sb.AppendLine($"{navigation.Name} = new HashSet<{navigation.GetTargetType().Name}>();");
+                        _sb.AppendLine($"{navigation.Name} = new HashSet<{navigation.TargetEntityType.Name}>();");
                     }
                 }
 
@@ -276,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                 lengthAttribute.AddParameter(_code.Literal(maxLength.Value));
 
-                _sb.AppendLine(lengthAttribute.ToString());
+                _sb.AppendLine(lengthAttribute);
             }
         }
 
@@ -286,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 && property.ClrType.IsNullableType()
                 && !property.IsPrimaryKey())
             {
-                _sb.AppendLine(new AttributeWriter(nameof(RequiredAttribute)).ToString());
+                _sb.AppendLine(new AttributeWriter(nameof(RequiredAttribute)));
             }
         }
 
@@ -302,8 +313,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotNull(entityType, nameof(entityType));
 
             var sortedNavigations = entityType.GetNavigations()
-                .OrderBy(n => n.IsDependentToPrincipal() ? 0 : 1)
-                .ThenBy(n => n.IsCollection() ? 1 : 0)
+                .OrderBy(n => n.IsOnDependent ? 0 : 1)
+                .ThenBy(n => n.IsCollection ? 1 : 0)
                 .ToList();
 
             if (sortedNavigations.Any())
@@ -317,8 +328,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         GenerateNavigationDataAnnotations(navigation);
                     }
 
-                    var referencedTypeName = navigation.GetTargetType().Name;
-                    var navigationType = navigation.IsCollection() ? $"ICollection<{referencedTypeName}>" : referencedTypeName;
+                    var referencedTypeName = navigation.TargetEntityType.Name;
+                    var navigationType = navigation.IsCollection ? $"ICollection<{referencedTypeName}>" : referencedTypeName;
                     _sb.AppendLine($"public virtual {navigationType} {navigation.Name} {{ get; set; }}");
                 }
             }
@@ -332,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateForeignKeyAttribute(INavigation navigation)
         {
-            if (navigation.IsDependentToPrincipal())
+            if (navigation.IsOnDependent)
             {
                 if (navigation.ForeignKey.PrincipalKey.IsPrimaryKey())
                 {
@@ -349,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         foreignKeyAttribute.AddParameter($"nameof({navigation.ForeignKey.Properties.First().Name})");
                     }
 
-                    _sb.AppendLine(foreignKeyAttribute.ToString());
+                    _sb.AppendLine(foreignKeyAttribute);
                 }
             }
         }
@@ -358,7 +369,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             if (navigation.ForeignKey.PrincipalKey.IsPrimaryKey())
             {
-                var inverseNavigation = navigation.FindInverse();
+                var inverseNavigation = navigation.Inverse;
 
                 if (inverseNavigation != null)
                 {
@@ -370,12 +381,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             ? $"nameof({inverseNavigation.DeclaringEntityType.Name}.{inverseNavigation.Name})"
                             : _code.Literal(inverseNavigation.Name));
 
-                    _sb.AppendLine(inversePropertyAttribute.ToString());
+                    _sb.AppendLine(inversePropertyAttribute);
                 }
             }
         }
 
-        private class AttributeWriter
+        private sealed class AttributeWriter
         {
             private readonly string _attributeName;
             private readonly List<string> _parameters = new List<string>();
@@ -401,7 +412,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             private static string StripAttribute([NotNull] string attributeName)
                 => attributeName.EndsWith("Attribute", StringComparison.Ordinal)
-                    ? attributeName.Substring(0, attributeName.Length - 9)
+                    ? attributeName[..^9]
                     : attributeName;
         }
     }

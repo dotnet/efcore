@@ -7,6 +7,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -14,6 +15,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -31,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private readonly ICSharpHelper _code;
         private readonly IProviderConfigurationCodeGenerator _providerConfigurationCodeGenerator;
         private readonly IAnnotationCodeGenerator _annotationCodeGenerator;
-        private IndentedStringBuilder _sb;
+        private IndentedStringBuilder _sb = null!;
         private bool _entityTypeBuilderInitialized;
 
         /// <summary>
@@ -64,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             IModel model,
             string contextName,
             string connectionString,
-            string contextNamespace,
+            string? contextNamespace,
             string modelNamespace,
             bool useDataAnnotations,
             bool suppressConnectionStringWarning)
@@ -224,13 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     _sb.Append("optionsBuilder");
 
                     var useProviderCall = _providerConfigurationCodeGenerator.GenerateUseProvider(
-                        connectionString,
-                        _providerConfigurationCodeGenerator.GenerateProviderOptions());
-                    var contextOptions = _providerConfigurationCodeGenerator.GenerateContextOptions();
-                    if (contextOptions != null)
-                    {
-                        useProviderCall = useProviderCall.Chain(contextOptions);
-                    }
+                        connectionString);
 
                     _sb
                         .Append(_code.Fragment(useProviderCall))
@@ -266,14 +263,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             RemoveAnnotation(ref annotations, CoreAnnotationNames.OwnedTypes);
             RemoveAnnotation(ref annotations, ChangeDetector.SkipDetectChangesAnnotation);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.MaxIdentifierLength);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.RelationalModel);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.CheckConstraints);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.Sequences);
             RemoveAnnotation(ref annotations, ScaffoldingAnnotationNames.DatabaseName);
             RemoveAnnotation(ref annotations, ScaffoldingAnnotationNames.EntityTypeErrors);
 
             var annotationsToRemove = new List<IAnnotation>();
-            annotationsToRemove.AddRange(
-                annotations.Where(
-                    a => a.Name.StartsWith(RelationalAnnotationNames.SequencePrefix, StringComparison.Ordinal)));
 
             var lines = new List<string>();
 
@@ -366,13 +362,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var annotations = entityType.GetAnnotations().ToList();
             RemoveAnnotation(ref annotations, CoreAnnotationNames.ConstructorBinding);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.TableName);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.Comment);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.Schema);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ViewName);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ViewSchema);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.TableMappings);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ViewMappings);
             RemoveAnnotation(ref annotations, ScaffoldingAnnotationNames.DbSetName);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.Comment);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.ViewDefinition);
 
-            var isView = entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinition) != null;
-            if (!useDataAnnotations || isView)
+            if (!useDataAnnotations || entityType.GetViewName() != null)
             {
                 GenerateTableName(entityType);
             }
@@ -457,9 +456,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             if (key == null)
             {
-                var line = new List<string> { $".{nameof(EntityTypeBuilder.HasNoKey)}()" };
+                if (!useDataAnnotations)
+                {
+                    var line = new List<string> { $".{nameof(EntityTypeBuilder.HasNoKey)}()" };
 
-                AppendMultiLineFluentApi(entityType, line);
+                    AppendMultiLineFluentApi(entityType, line);
+                }
 
                 return;
             }
@@ -468,6 +470,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var explicitName = key.GetName() != key.GetDefaultName();
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.Name);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.UniqueConstraintMappings);
 
             if (key.Properties.Count == 1
                 && annotations.Count == 0)
@@ -488,7 +491,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
             }
 
-            var lines = new List<string> { $".{nameof(EntityTypeBuilder.HasKey)}(e => {GenerateLambdaToKey(key.Properties, "e")})" };
+            var lines = new List<string> { $".{nameof(EntityTypeBuilder.HasKey)}({_code.Lambda(key.Properties)})" };
 
             if (explicitName)
             {
@@ -530,9 +533,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var explicitSchema = schema != null && schema != defaultSchema;
             var explicitTable = explicitSchema || tableName != null && tableName != entityType.GetDbSetName();
-
-            var isView = entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinition) != null;
-            if (explicitTable || isView)
+            if (explicitTable)
             {
                 var parameterString = _code.Literal(tableName);
                 if (explicitSchema)
@@ -542,7 +543,29 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                 var lines = new List<string>
                 {
-                    $".{(isView ? nameof(RelationalEntityTypeBuilderExtensions.ToView) : nameof(RelationalEntityTypeBuilderExtensions.ToTable))}({parameterString})"
+                    $".{nameof(RelationalEntityTypeBuilderExtensions.ToTable)}({parameterString})"
+                };
+
+                AppendMultiLineFluentApi(entityType, lines);
+            }
+
+            var viewName = entityType.GetViewName();
+            var viewSchema = entityType.GetViewSchema();
+
+            var explicitViewSchema = viewSchema != null && viewSchema != defaultSchema;
+            var explicitViewTable = explicitViewSchema || viewName != null;
+
+            if (explicitViewTable)
+            {
+                var parameterString = _code.Literal(viewName);
+                if (explicitViewSchema)
+                {
+                    parameterString += ", " + _code.Literal(viewSchema);
+                }
+
+                var lines = new List<string>
+                {
+                    $".{nameof(RelationalEntityTypeBuilderExtensions.ToView)}({parameterString})"
                 };
 
                 AppendMultiLineFluentApi(entityType, lines);
@@ -551,9 +574,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateIndex(IIndex index)
         {
-            var lines = new List<string> { $".{nameof(EntityTypeBuilder.HasIndex)}(e => {GenerateLambdaToKey(index.Properties, "e")})" };
+            var lines = new List<string> { $".{nameof(EntityTypeBuilder.HasIndex)}({_code.Lambda(index.Properties)})" };
 
             var annotations = index.GetAnnotations().ToList();
+
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.TableIndexMappings);
 
             if (!string.IsNullOrEmpty((string)index[RelationalAnnotationNames.Name]))
             {
@@ -607,16 +632,19 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var annotations = property.GetAnnotations().ToList();
 
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ColumnName);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ColumnType);
             RemoveAnnotation(ref annotations, CoreAnnotationNames.MaxLength);
             RemoveAnnotation(ref annotations, CoreAnnotationNames.TypeMapping);
             RemoveAnnotation(ref annotations, CoreAnnotationNames.Unicode);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ColumnName);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ViewColumnName);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ColumnType);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.DefaultValue);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.DefaultValueSql);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.Comment);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.ComputedColumnSql);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.IsFixedLength);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.TableColumnMappings);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ViewColumnMappings);
             RemoveAnnotation(ref annotations, ScaffoldingAnnotationNames.ColumnOrdinal);
 
             if (!useDataAnnotations)
@@ -635,6 +663,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     lines.Add(
                         $".{nameof(RelationalPropertyBuilderExtensions.HasColumnName)}" +
+                        $"({_code.Literal(columnName)})");
+                }
+
+                var viewColumnName = property.GetViewColumnName();
+
+                if (viewColumnName != null
+                    && viewColumnName != columnName)
+                {
+                    lines.Add(
+                        $".{nameof(RelationalPropertyBuilderExtensions.HasViewColumnName)}" +
                         $"({_code.Literal(columnName)})");
                 }
 
@@ -664,7 +702,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     $"({(property.IsUnicode() == false ? "false" : "")})");
             }
 
-            if (property.IsFixedLength())
+            if (property.IsFixedLength() != null)
             {
                 lines.Add(
                     $".{nameof(RelationalPropertyBuilderExtensions.IsFixedLength)}()");
@@ -711,7 +749,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         : nameof(PropertyBuilder.ValueGeneratedOnAddOrUpdate),
                     ValueGenerated.OnUpdate => nameof(PropertyBuilder.ValueGeneratedOnUpdate),
                     ValueGenerated.Never => nameof(PropertyBuilder.ValueGeneratedNever),
-                    _ => throw new InvalidOperationException($"Unhandled enum value '{nameof(ValueGenerated)}.{valueGenerated}'")
+                    _ => throw new InvalidOperationException(DesignStrings.UnhandledEnumValue($"{nameof(ValueGenerated)}.{valueGenerated}"))
                 };
 
                 lines.Add($".{methodName}()");
@@ -762,6 +800,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var canUseDataAnnotations = true;
             var annotations = foreignKey.GetAnnotations().ToList();
 
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ForeignKeyMappings);
+
             var lines = new List<string>
             {
                 $".{nameof(EntityTypeBuilder.HasOne)}("
@@ -776,13 +816,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 lines.Add(
                     $".{nameof(ReferenceReferenceBuilder.HasPrincipalKey)}"
                     + (foreignKey.IsUnique ? $"<{foreignKey.PrincipalEntityType.DisplayName()}>" : "")
-                    + $"(p => {GenerateLambdaToKey(foreignKey.PrincipalKey.Properties, "p")})");
+                    + $"({_code.Lambda(foreignKey.PrincipalKey.Properties)})");
             }
 
             lines.Add(
                 $".{nameof(ReferenceReferenceBuilder.HasForeignKey)}"
                 + (foreignKey.IsUnique ? $"<{foreignKey.DeclaringEntityType.DisplayName()}>" : "")
-                + $"(d => {GenerateLambdaToKey(foreignKey.Properties, "d")})");
+                + $"({_code.Lambda(foreignKey.Properties)})");
 
             var defaultOnDeleteAction = foreignKey.IsRequired
                 ? DeleteBehavior.Cascade
@@ -897,17 +937,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             _sb.AppendLine(";");
-        }
-
-        private static string GenerateLambdaToKey(
-            IReadOnlyList<IProperty> properties,
-            string lambdaIdentifier)
-        {
-            return properties.Count <= 0
-                ? ""
-                : properties.Count == 1
-                    ? $"{lambdaIdentifier}.{properties[0].Name}"
-                    : $"new {{ {string.Join(", ", properties.Select(p => lambdaIdentifier + "." + p.Name))} }}";
         }
 
         private static void RemoveAnnotation(ref List<IAnnotation> annotations, string annotationName)

@@ -9,7 +9,8 @@ namespace Microsoft.EntityFrameworkCore
     ///     Provides CLR methods that get translated to database functions when used in LINQ to Entities queries.
     ///     The methods on this class are accessed via <see cref="EF.Functions" />.
     /// </summary>
-    public class DbFunctions
+    // Class is sealed because there are no public/protected constructors. Can be unsealed if this is changed.
+    public sealed class DbFunctions
     {
         internal DbFunctions()
         {

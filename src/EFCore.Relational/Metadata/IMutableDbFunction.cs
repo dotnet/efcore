@@ -13,35 +13,40 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Represents a relational database function in an <see cref="IMutableModel" /> in
     ///     the a form that can be mutated while the model is being built.
     /// </summary>
-    public interface IMutableDbFunction : IDbFunction
+    public interface IMutableDbFunction : IMutableAnnotatable, IDbFunction
     {
         /// <summary>
-        ///     The name of the function in the database.
+        ///     Gets or sets the name of the function in the database.
         /// </summary>
         new string Name { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     The schema of the function in the database.
+        ///     Gets or sets the schema of the function in the database.
         /// </summary>
         new string Schema { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     The store type of the function in the database.
+        ///     Gets or sets the store type of the function in the database.
         /// </summary>
         new string StoreType { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     The type mapping of the function in the database.
+        ///     Gets or sets the type mapping of the function in the database.
         /// </summary>
         new RelationalTypeMapping TypeMapping { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     The <see cref="IMutableModel" /> in which this function is defined.
+        ///     Gets the <see cref="IMutableModel" /> in which this function is defined.
         /// </summary>
         new IMutableModel Model { get; }
 
         /// <summary>
-        ///     A translation callback for performing custom translation of the method call into a SQL expression fragment.
+        ///     Gets the parameters for this function
+        /// </summary>
+        new IReadOnlyList<IMutableDbFunctionParameter> Parameters { get; }
+
+        /// <summary>
+        ///     Gets or sets the translation callback for performing custom translation of the method call into a SQL expression fragment.
         /// </summary>
         new Func<IReadOnlyCollection<SqlExpression>, SqlExpression> Translation { get; [param: CanBeNull] set; }
     }

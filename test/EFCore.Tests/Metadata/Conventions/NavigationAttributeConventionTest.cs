@@ -432,7 +432,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Principal.Dependent));
             Assert.DoesNotContain(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Dependent.Principal));
 
-            convention.ProcessModelFinalized(
+            convention.ProcessModelFinalizing(
                 dependentEntityTypeBuilder.ModelBuilder,
                 new ConventionContext<IConventionModelBuilder>(
                     dependentEntityTypeBuilder.Metadata.Model.ConventionDispatcher));
@@ -810,7 +810,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private InternalRelationshipBuilder RunConvention(InternalRelationshipBuilder relationshipBuilder)
         {
             var dependencies = CreateDependencies(CreateLogger());
-            var context = new ConventionContext<IConventionRelationshipBuilder>(
+            var context = new ConventionContext<IConventionForeignKeyBuilder>(
                 relationshipBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
 
             new ForeignKeyAttributeConvention(dependencies)
@@ -822,11 +822,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private void RunConvention(InternalRelationshipBuilder relationshipBuilder, Navigation navigation)
         {
             var dependencies = CreateDependencies(CreateLogger());
-            var context = new ConventionContext<IConventionNavigation>(
+            var context = new ConventionContext<IConventionNavigationBuilder>(
                 relationshipBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
 
             new RequiredNavigationAttributeConvention(dependencies)
-                .ProcessNavigationAdded(relationshipBuilder, navigation, context);
+                .ProcessNavigationAdded(navigation.Builder, context);
         }
 
         private void Validate(InternalEntityTypeBuilder entityTypeBuilder)
@@ -836,13 +836,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 entityTypeBuilder.Metadata.Model.ConventionDispatcher);
 
             new KeyAttributeConvention(dependencies)
-                .ProcessModelFinalized(entityTypeBuilder.ModelBuilder, context);
+                .ProcessModelFinalizing(entityTypeBuilder.ModelBuilder, context);
 
             new InversePropertyAttributeConvention(dependencies)
-                .ProcessModelFinalized(entityTypeBuilder.ModelBuilder, context);
+                .ProcessModelFinalizing(entityTypeBuilder.ModelBuilder, context);
 
             new ForeignKeyAttributeConvention(dependencies)
-                .ProcessModelFinalized(entityTypeBuilder.ModelBuilder, context);
+                .ProcessModelFinalizing(entityTypeBuilder.ModelBuilder, context);
         }
 
         #endregion
@@ -896,7 +896,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 ListLoggerFactory,
                 options,
                 new DiagnosticListener("Fake"),
-                new TestLoggingDefinitions());
+                new TestLoggingDefinitions(),
+                new NullDbContextLogger());
             return modelLogger;
         }
 

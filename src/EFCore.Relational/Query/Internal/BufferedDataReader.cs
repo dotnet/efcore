@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        public static bool IsSupportedValueType(Type type)
+        public static bool IsSupportedValueType([NotNull] Type type)
             => type == typeof(int)
                 || type == typeof(bool)
                 || type == typeof(Guid)
@@ -378,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return _currentResultSet.ReadAsync(cancellationToken);
         }
 
-        private class BufferedDataRecord
+        private sealed class BufferedDataRecord
         {
             private int _currentRowNumber = -1;
             private int _rowCount;
@@ -937,7 +937,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var fieldCount = FieldCount;
                 if (FieldCount < _columns.Count)
                 {
-                    throw new InvalidOperationException("The underlying reader doesn't have as many fields as expected.");
+                    throw new InvalidOperationException(RelationalStrings.TooFewReaderFields);
                 }
 
                 _columnTypeCases = Enumerable.Repeat(TypeCase.Empty, fieldCount).ToArray();

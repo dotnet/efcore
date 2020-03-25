@@ -87,22 +87,18 @@ namespace Microsoft.EntityFrameworkCore
 
         public virtual void Reseed()
         {
-            using (var context = CreateContext())
-            {
-                Clean(context);
-                TestStore.Clean(context);
-                Seed(context);
-            }
+            using var context = CreateContext();
+            Clean(context);
+            TestStore.Clean(context);
+            Seed(context);
         }
 
         public virtual async Task ReseedAsync()
         {
-            using (var context = CreateContext())
-            {
-                await CleanAsync(context);
-                await TestStore.CleanAsync(context);
-                await SeedAsync(context);
-            }
+            using var context = CreateContext();
+            await CleanAsync(context);
+            await TestStore.CleanAsync(context);
+            await SeedAsync(context);
         }
 
         protected virtual void Seed(TContext context)

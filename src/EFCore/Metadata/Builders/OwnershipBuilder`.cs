@@ -43,8 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected OwnershipBuilder(
-            InternalRelationshipBuilder builder,
-            OwnershipBuilder oldBuilder,
+            [NotNull] InternalRelationshipBuilder builder,
+            [CanBeNull] OwnershipBuilder oldBuilder,
             bool foreignKeySet = false,
             bool principalKeySet = false,
             bool requiredSet = false)

@@ -6,11 +6,13 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -19,19 +21,23 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
         private readonly ISet<string> _tags;
+        private readonly bool _detailedErrorsEnabled;
         private readonly bool _useRelationalNulls;
 
         public RelationalShapedQueryCompilingExpressionVisitor(
-            ShapedQueryCompilingExpressionVisitorDependencies dependencies,
-            RelationalShapedQueryCompilingExpressionVisitorDependencies relationalDependencies,
-            QueryCompilationContext queryCompilationContext)
+            [NotNull] ShapedQueryCompilingExpressionVisitorDependencies dependencies,
+            [NotNull] RelationalShapedQueryCompilingExpressionVisitorDependencies relationalDependencies,
+            [NotNull] QueryCompilationContext queryCompilationContext)
             : base(dependencies, queryCompilationContext)
         {
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+
             RelationalDependencies = relationalDependencies;
 
             _contextType = queryCompilationContext.ContextType;
             _logger = queryCompilationContext.Logger;
             _tags = queryCompilationContext.Tags;
+            _detailedErrorsEnabled = relationalDependencies.CoreSingletonOptions.AreDetailedErrorsEnabled;
             _useRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
         }
 
@@ -39,6 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression)
         {
+            Check.NotNull(shapedQueryExpression, nameof(shapedQueryExpression));
+
             var selectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
             selectExpression.ApplyTags(_tags);
 
@@ -60,6 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     selectExpression,
                     dataReaderParameter,
                     isNonComposedFromSql ? indexMapParameter : null,
+                    _detailedErrorsEnabled,
                     IsBuffering)
                 .Visit(shaper, out var projectionColumns);
 
@@ -75,8 +84,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             var relationalCommandCache = new RelationalCommandCache(
                 Dependencies.MemoryCache,
                 RelationalDependencies.SqlExpressionFactory,
-                RelationalDependencies.ParameterNameGeneratorFactory,
                 RelationalDependencies.QuerySqlGeneratorFactory,
+                RelationalDependencies.RelationalParameterBasedQueryTranslationPostprocessorFactory,
                 _useRelationalNulls,
                 selectExpression);
 

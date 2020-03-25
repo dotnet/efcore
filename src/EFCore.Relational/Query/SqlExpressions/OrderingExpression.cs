@@ -3,13 +3,17 @@
 
 using System;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     public class OrderingExpression : Expression, IPrintableExpression
     {
-        public OrderingExpression(SqlExpression expression, bool ascending)
+        public OrderingExpression([NotNull] SqlExpression expression, bool ascending)
         {
+            Check.NotNull(expression, nameof(expression));
+
             Expression = expression;
             IsAscending = ascending;
         }
@@ -21,15 +25,25 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public override Type Type => Expression.Type;
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-            => Update((SqlExpression)visitor.Visit(Expression));
+        {
+            Check.NotNull(visitor, nameof(visitor));
 
-        public virtual OrderingExpression Update(SqlExpression expression)
-            => expression != Expression
+            return Update((SqlExpression)visitor.Visit(Expression));
+        }
+
+        public virtual OrderingExpression Update([NotNull] SqlExpression expression)
+        {
+            Check.NotNull(expression, nameof(expression));
+
+            return expression != Expression
                 ? new OrderingExpression(expression, IsAscending)
                 : this;
+        }
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.Visit(Expression);
 
             expressionPrinter.Append(IsAscending ? " ASC" : " DESC");

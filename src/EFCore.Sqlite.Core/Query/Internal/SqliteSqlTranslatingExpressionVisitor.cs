@@ -5,9 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
@@ -32,32 +34,28 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 [ExpressionType.GreaterThan] = new HashSet<Type>
                 {
                     typeof(DateTimeOffset),
-                    typeof(decimal),
                     typeof(TimeSpan),
                     typeof(ulong)
                 },
                 [ExpressionType.GreaterThanOrEqual] = new HashSet<Type>
                 {
                     typeof(DateTimeOffset),
-                    typeof(decimal),
                     typeof(TimeSpan),
                     typeof(ulong)
                 },
                 [ExpressionType.LessThan] = new HashSet<Type>
                 {
                     typeof(DateTimeOffset),
-                    typeof(decimal),
                     typeof(TimeSpan),
                     typeof(ulong)
                 },
                 [ExpressionType.LessThanOrEqual] = new HashSet<Type>
                 {
                     typeof(DateTimeOffset),
-                    typeof(decimal),
                     typeof(TimeSpan),
                     typeof(ulong)
                 },
-                [ExpressionType.Modulo] = new HashSet<Type> { typeof(decimal), typeof(ulong) },
+                [ExpressionType.Modulo] = new HashSet<Type> { typeof(ulong) },
                 [ExpressionType.Multiply] = new HashSet<Type>
                 {
                     typeof(decimal),
@@ -73,16 +71,38 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 }
             };
 
+        private static readonly IReadOnlyCollection<Type> _functionModuloTypes = new HashSet<Type>
+        {
+            typeof(decimal),
+            typeof(double),
+            typeof(float)
+        };
+
         public SqliteSqlTranslatingExpressionVisitor(
-            RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
-            IModel model,
-            QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
+            [NotNull] RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
+            [NotNull] IModel model,
+            [NotNull] QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
             : base(dependencies, model, queryableMethodTranslatingExpressionVisitor)
         {
         }
 
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
+            Check.NotNull(unaryExpression, nameof(unaryExpression));
+
+            if (unaryExpression.NodeType == ExpressionType.ArrayLength
+                && unaryExpression.Operand.Type == typeof(byte[]))
+            {
+                return base.Visit(unaryExpression.Operand) is SqlExpression sqlExpression
+                    ? SqlExpressionFactory.Function(
+                        "length",
+                        new[] { sqlExpression },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { true },
+                        typeof(int))
+                    : null;
+            }
+
             var visitedExpression = base.VisitUnary(unaryExpression);
             if (visitedExpression == null)
             {
@@ -105,6 +125,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
+            Check.NotNull(binaryExpression, nameof(binaryExpression));
+
             var visitedExpression = (SqlExpression)base.VisitBinary(binaryExpression);
 
             if (visitedExpression == null)
@@ -112,16 +134,41 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 return null;
             }
 
-            return visitedExpression is SqlBinaryExpression sqlBinary
-                && _restrictedBinaryExpressions.TryGetValue(sqlBinary.OperatorType, out var restrictedTypes)
-                && (restrictedTypes.Contains(GetProviderType(sqlBinary.Left))
-                    || restrictedTypes.Contains(GetProviderType(sqlBinary.Right)))
-                    ? null
-                    : visitedExpression;
+            if (visitedExpression is SqlBinaryExpression sqlBinary)
+            {
+                if (sqlBinary.OperatorType == ExpressionType.Modulo
+                    && (_functionModuloTypes.Contains(GetProviderType(sqlBinary.Left))
+                        || _functionModuloTypes.Contains(GetProviderType(sqlBinary.Right))))
+                {
+                    return SqlExpressionFactory.Function(
+                        "ef_mod",
+                        new[] { sqlBinary.Left, sqlBinary.Right },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { true, true },
+                        visitedExpression.Type,
+                        visitedExpression.TypeMapping);
+                }
+
+                if (AttemptDecimalCompare(sqlBinary))
+                {
+                    return DoDecimalCompare(visitedExpression, sqlBinary.OperatorType, sqlBinary.Left, sqlBinary.Right);
+                }
+
+                if (_restrictedBinaryExpressions.TryGetValue(sqlBinary.OperatorType, out var restrictedTypes)
+                    && (restrictedTypes.Contains(GetProviderType(sqlBinary.Left))
+                        || restrictedTypes.Contains(GetProviderType(sqlBinary.Right))))
+                {
+                    return null;
+                }
+            }
+
+            return visitedExpression;
         }
 
         public override SqlExpression TranslateAverage(Expression expression)
         {
+            Check.NotNull(expression, nameof(expression));
+
             var visitedExpression = base.TranslateAverage(expression);
             if (GetProviderType(visitedExpression) == typeof(decimal))
             {
@@ -133,6 +180,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
         public override SqlExpression TranslateMax(Expression expression)
         {
+            Check.NotNull(expression, nameof(expression));
+
             var visitedExpression = base.TranslateMax(expression);
             var argumentType = GetProviderType(visitedExpression);
             if (argumentType == typeof(DateTimeOffset)
@@ -148,6 +197,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
         public override SqlExpression TranslateMin(Expression expression)
         {
+            Check.NotNull(expression, nameof(expression));
+
             var visitedExpression = base.TranslateMin(expression);
             var argumentType = GetProviderType(visitedExpression);
             if (argumentType == typeof(DateTimeOffset)
@@ -163,6 +214,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
         public override SqlExpression TranslateSum(Expression expression)
         {
+            Check.NotNull(expression, nameof(expression));
+
             var visitedExpression = base.TranslateSum(expression);
             if (GetProviderType(visitedExpression) == typeof(decimal))
             {
@@ -178,5 +231,33 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 : (expression.TypeMapping?.Converter?.ProviderClrType
                     ?? expression.TypeMapping?.ClrType
                     ?? expression.Type).UnwrapNullableType();
+
+        private static bool AttemptDecimalCompare(SqlBinaryExpression sqlBinary) =>
+            GetProviderType(sqlBinary.Left) == typeof(decimal)
+            && GetProviderType(sqlBinary.Right) == typeof(decimal)
+            && new[]
+            {
+                ExpressionType.GreaterThan, ExpressionType.GreaterThanOrEqual, ExpressionType.LessThan, ExpressionType.LessThanOrEqual
+            }.Contains(sqlBinary.OperatorType);
+
+        private Expression DoDecimalCompare(SqlExpression visitedExpression, ExpressionType op, SqlExpression left, SqlExpression right)
+        {
+            var actual = SqlExpressionFactory.Function(
+                name: "ef_compare",
+                new[] { left, right },
+                nullable: true,
+                new[] { true, true },
+                typeof(int));
+            var oracle = SqlExpressionFactory.Constant(value: 0);
+
+            return op switch
+            {
+                ExpressionType.GreaterThan => SqlExpressionFactory.GreaterThan(left: actual, right: oracle),
+                ExpressionType.GreaterThanOrEqual => SqlExpressionFactory.GreaterThanOrEqual(left: actual, right: oracle),
+                ExpressionType.LessThan => SqlExpressionFactory.LessThan(left: actual, right: oracle),
+                ExpressionType.LessThanOrEqual => SqlExpressionFactory.LessThanOrEqual(left: actual, right: oracle),
+                _ => visitedExpression
+            };
+        }
     }
 }

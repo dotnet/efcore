@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -30,7 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             ExpressionType.Equal,
             ExpressionType.NotEqual,
             //ExpressionType.ExclusiveOr,
-            ExpressionType.Coalesce
             //ExpressionType.ArrayIndex,
             //ExpressionType.RightShift,
             //ExpressionType.LeftShift,
@@ -39,14 +40,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private static ExpressionType VerifyOperator(ExpressionType operatorType)
             => _allowedOperators.Contains(operatorType)
                 ? operatorType
-                : throw new InvalidOperationException("Unsupported Binary operator type specified.");
+                : throw new InvalidOperationException(CoreStrings.UnsupportedBinaryOperator);
 
         public SqlBinaryExpression(
             ExpressionType operatorType,
-            SqlExpression left,
-            SqlExpression right,
-            Type type,
-            RelationalTypeMapping typeMapping)
+            [NotNull] SqlExpression left,
+            [NotNull] SqlExpression right,
+            [NotNull] Type type,
+            [CanBeNull] RelationalTypeMapping typeMapping)
             : base(type, typeMapping)
         {
             Check.NotNull(left, nameof(left));
@@ -64,19 +65,28 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
+            Check.NotNull(visitor, nameof(visitor));
+
             var left = (SqlExpression)visitor.Visit(Left);
             var right = (SqlExpression)visitor.Visit(Right);
 
             return Update(left, right);
         }
 
-        public virtual SqlBinaryExpression Update(SqlExpression left, SqlExpression right)
-            => left != Left || right != Right
+        public virtual SqlBinaryExpression Update([NotNull] SqlExpression left, [NotNull] SqlExpression right)
+        {
+            Check.NotNull(left, nameof(left));
+            Check.NotNull(right, nameof(right));
+
+            return left != Left || right != Right
                 ? new SqlBinaryExpression(OperatorType, left, right, Type, TypeMapping)
                 : this;
+        }
 
         public override void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             var requiresBrackets = RequiresBrackets(Left);
 
             if (requiresBrackets)
@@ -106,13 +116,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             {
                 expressionPrinter.Append(")");
             }
-        }
 
-        private bool RequiresBrackets(SqlExpression expression)
-        {
-            return expression is SqlBinaryExpression sqlBinary
-                && sqlBinary.OperatorType != ExpressionType.Coalesce
-                || expression is LikeExpression;
+            static bool RequiresBrackets(SqlExpression expression) => expression is SqlBinaryExpression || expression is LikeExpression;
         }
 
         public override bool Equals(object obj)

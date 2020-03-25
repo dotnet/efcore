@@ -82,6 +82,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     new Customer { Id = 7, Fuel = new Fuel(1.0) }));
         }
 
+        [ConditionalFact]
+        public void Delegate_getter_is_returned_for_index_property()
+        {
+            var modelBuilder = new ModelBuilder(InMemoryConventionSetBuilder.Build());
+            modelBuilder.Entity<IndexedClass>().Property(e => e.Id);
+            var propertyA = modelBuilder.Entity<IndexedClass>().Metadata.AddIndexerProperty("PropertyA", typeof(string));
+            var propertyB = modelBuilder.Entity<IndexedClass>().Metadata.AddIndexerProperty("PropertyB", typeof(int));
+            modelBuilder.FinalizeModel();
+
+            Assert.Equal("ValueA", new ClrPropertyGetterFactory().Create(propertyA).GetClrValue(new IndexedClass { Id = 7 }));
+            Assert.Equal(123, new ClrPropertyGetterFactory().Create(propertyB).GetClrValue(new IndexedClass { Id = 7 }));
+        }
+
         private class Customer
         {
             internal int Id { get; set; }
@@ -92,6 +105,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             public Fuel(double volume) => Volume = volume;
             public double Volume { get; }
+        }
+
+        private class IndexedClass
+        {
+            private readonly Dictionary<string, object> _internalValues = new Dictionary<string, object>
+            {
+                {"PropertyA", "ValueA" },
+                {"PropertyB", 123 }
+            };
+
+            internal int Id { get; set; }
+            internal object this[string name] => _internalValues[name];
         }
     }
 }

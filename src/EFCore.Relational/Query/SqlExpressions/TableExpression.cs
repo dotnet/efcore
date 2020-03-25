@@ -3,20 +3,25 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
-    public class TableExpression : TableExpressionBase
+    // Class is sealed because there are no public/protected constructors. Can be unsealed if this is changed.
+    public sealed class TableExpression : TableExpressionBase
     {
-        internal TableExpression(string name, string schema, [NotNull] string alias)
-            : base(alias)
+        internal TableExpression([NotNull] ITableBase table)
+            : base(table.Name.Substring(0, 1).ToLower())
         {
-            Name = name;
-            Schema = schema;
+            Name = table.Name;
+            Schema = table.Schema;
         }
 
         public override void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             if (!string.IsNullOrEmpty(Schema))
             {
                 expressionPrinter.Append(Schema).Append(".");

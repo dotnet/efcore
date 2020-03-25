@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
@@ -32,14 +33,14 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The default key constraint name that would be used for this key. </returns>
         public static string GetDefaultName([NotNull] this IKey key)
         {
-            var sharedTablePrincipalPrimaryKeyProperty = key.Properties[0].FindSharedTableRootPrimaryKeyProperty();
+            var sharedTablePrincipalPrimaryKeyProperty = key.Properties[0].FindSharedRootPrimaryKeyProperty();
             if (sharedTablePrincipalPrimaryKeyProperty != null)
             {
                 return sharedTablePrincipalPrimaryKeyProperty.FindContainingPrimaryKey().GetName();
             }
 
             var builder = new StringBuilder();
-            var tableName = key.DeclaringEntityType.GetTableName();
+            var tableName = key.DeclaringEntityType.GetTableName() ?? key.DeclaringEntityType.GetViewName();
 
             if (key.IsPrimaryKey())
             {
@@ -75,11 +76,16 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="key"> The key. </param>
         /// <param name="name"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetName([NotNull] this IConventionKey key, [CanBeNull] string name, bool fromDataAnnotation = false)
-            => key.SetOrRemoveAnnotation(
+        /// <returns> The configured name. </returns>
+        public static string SetName([NotNull] this IConventionKey key, [CanBeNull] string name, bool fromDataAnnotation = false)
+        {
+            key.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.Name,
                 Check.NullButNotEmpty(name, nameof(name)),
                 fromDataAnnotation);
+
+            return name;
+        }
 
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the constraint name.
@@ -88,5 +94,14 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The <see cref="ConfigurationSource" /> for the constraint name. </returns>
         public static ConfigurationSource? GetNameConfigurationSource([NotNull] this IConventionKey key)
             => key.FindAnnotation(RelationalAnnotationNames.Name)?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Gets the unique constraints to which the key is mapped.
+        /// </summary>
+        /// <param name="key"> The key. </param>
+        /// <returns> The unique constraints to which the key is mapped. </returns>
+        public static IEnumerable<IUniqueConstraint> GetMappedConstraints([NotNull] this IKey key) =>
+            (IEnumerable<IUniqueConstraint>)key[RelationalAnnotationNames.UniqueConstraintMappings]
+                ?? Enumerable.Empty<IUniqueConstraint>();
     }
 }

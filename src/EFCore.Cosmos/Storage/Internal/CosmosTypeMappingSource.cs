@@ -3,10 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             _clrTypeMappings
                 = new Dictionary<Type, CosmosTypeMapping>
                 {
-                    { typeof(byte[]), new CosmosTypeMapping(typeof(byte[]), structuralComparer: new ArrayStructuralComparer<byte>()) }
+                    { typeof(byte[]), new CosmosTypeMapping(typeof(byte[]), keyComparer: new ArrayStructuralComparer<byte>()) }
                 };
         }
 
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         protected override CoreTypeMapping FindMapping(in TypeMappingInfo mappingInfo)
         {
             var clrType = mappingInfo.ClrType;
-            Debug.Assert(clrType != null);
+            Check.DebugAssert(clrType != null, "ClrType is null");
 
             if (_clrTypeMappings.TryGetValue(clrType, out var mapping))
             {

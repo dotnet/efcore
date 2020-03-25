@@ -5,7 +5,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -13,15 +15,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public ContainsTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        public ContainsTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
         public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
+            Check.NotNull(method, nameof(method));
+            Check.NotNull(arguments, nameof(arguments));
+
             if (method.IsGenericMethod
-                && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains))
+                && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains)
+                && ValidateValues(arguments[0]))
             {
                 return _sqlExpressionFactory.In(arguments[1], arguments[0], negated: false);
             }
@@ -31,12 +37,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && method.DeclaringType.GetInterfaces().Append(method.DeclaringType).Any(
                     t => t == typeof(IList)
                         || (t.IsGenericType
-                            && t.GetGenericTypeDefinition() == typeof(ICollection<>))))
+                            && t.GetGenericTypeDefinition() == typeof(ICollection<>)))
+                && ValidateValues(instance))
             {
                 return _sqlExpressionFactory.In(arguments[0], instance, negated: false);
             }
 
             return null;
         }
+
+        private bool ValidateValues(SqlExpression values)
+            => values is SqlConstantExpression || values is SqlParameterExpression;
     }
 }

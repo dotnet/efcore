@@ -319,16 +319,14 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var commandBatches = CreateCommandBatchPreparer(factory).BatchCommands(new[] { relatedEntry, entry }, modelData);
 
-            using (var commandBatchesEnumerator = commandBatches.GetEnumerator())
-            {
-                commandBatchesEnumerator.MoveNext();
+            using var commandBatchesEnumerator = commandBatches.GetEnumerator();
+            commandBatchesEnumerator.MoveNext();
 
-                Assert.Equal(1, factory.CreateCount);
+            Assert.Equal(1, factory.CreateCount);
 
-                commandBatchesEnumerator.MoveNext();
+            commandBatchesEnumerator.MoveNext();
 
-                Assert.Equal(2, factory.CreateCount);
-            }
+            Assert.Equal(2, factory.CreateCount);
         }
 
         [ConditionalFact]

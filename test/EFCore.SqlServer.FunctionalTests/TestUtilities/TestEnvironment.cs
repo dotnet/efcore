@@ -29,12 +29,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public static bool IsSqlAzure { get; } = _dataSource.Contains("database.windows.net");
 
-        public static bool IsCI { get; } = Environment.GetEnvironmentVariable("PIPELINE_WORKSPACE") != null
-            || Environment.GetEnvironmentVariable("TEAMCITY_VERSION") != null;
+        public static bool IsCI { get; } = Environment.GetEnvironmentVariable("PIPELINE_WORKSPACE") != null;
 
         private static bool? _fullTextInstalled;
 
-        public static bool IsFullTestSearchSupported
+        public static bool IsFullTextSearchSupported
         {
             get
             {
@@ -48,27 +47,21 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     return _fullTextInstalled.Value;
                 }
 
-                using (var sqlConnection = new SqlConnection(SqlServerTestStore.CreateConnectionString("master")))
+                try
                 {
-                    sqlConnection.Open();
-
-                    using (var command = new SqlCommand(
-                        "SELECT FULLTEXTSERVICEPROPERTY('IsFullTextInstalled')", sqlConnection))
+                    using (var sqlConnection = new SqlConnection(SqlServerTestStore.CreateConnectionString("master")))
                     {
+                        sqlConnection.Open();
+
+                        using var command = new SqlCommand(
+                            "SELECT FULLTEXTSERVICEPROPERTY('IsFullTextInstalled')", sqlConnection);
                         var result = (int)command.ExecuteScalar();
 
                         _fullTextInstalled = result == 1;
-
-                        if (_fullTextInstalled.Value)
-                        {
-                            var flag = GetFlag("SupportsFullTextSearch");
-
-                            if (flag.HasValue)
-                            {
-                                return flag.Value;
-                            }
-                        }
                     }
+                }
+                catch (PlatformNotSupportedException)
+                {
                 }
 
                 _fullTextInstalled = false;

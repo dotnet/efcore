@@ -15,9 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var builder = CreateModelBuilder();
 
             builder.Entity<MyType>().Property(e => e.Id).HasColumnType("money");
-            builder.Entity<MyRelatedType1>().Property(e => e.Id).HasMaxLength(200);
+            builder.Entity<MyRelatedType1>().Property(e => e.Id).HasMaxLength(200).IsFixedLength();
             builder.Entity<MyRelatedType1>().Property(e => e.Relationship2Id).HasColumnType("dec(6,1)");
-            builder.Entity<MyRelatedType2>().Property(e => e.Id).HasMaxLength(100);
+            builder.Entity<MyRelatedType2>().Property(e => e.Id).HasMaxLength(100).IsFixedLength();
             builder.Entity<MyRelatedType2>().Property(e => e.Relationship2Id).HasMaxLength(787);
             builder.Entity<MyRelatedType3>().Property(e => e.Id).IsUnicode(false);
             builder.Entity<MyRelatedType3>().Property(e => e.Relationship2Id).HasMaxLength(767);

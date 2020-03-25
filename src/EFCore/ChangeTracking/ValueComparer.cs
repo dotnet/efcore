@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -28,6 +29,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     /// </summary>
     public abstract class ValueComparer : IEqualityComparer
     {
+        internal static readonly MethodInfo ArrayCopyMethod
+            = typeof(Array).GetMethods()
+                .Single(t => t.Name == nameof(Array.Copy)
+                    && t.GetParameters().Length == 3
+                    && t.GetParameters()[0].ParameterType == typeof(Array)
+                    && t.GetParameters()[1].ParameterType == typeof(Array)
+                    && t.GetParameters()[2].ParameterType == typeof(int));
+
         internal static readonly MethodInfo EqualityComparerHashCodeMethod
             = typeof(IEqualityComparer).GetRuntimeMethod(nameof(IEqualityComparer.GetHashCode), new[] { typeof(object) });
 
@@ -173,6 +182,63 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 SnapshotExpression.Parameters[0],
                 expression,
                 SnapshotExpression.Body);
+        }
+
+        /// <summary>
+        ///     If true, then expressions and delegates for comparisons, snapshots, and hash codes correspond to the default
+        ///     .NET behavior for the given type.
+        /// </summary>
+        public virtual bool HasDefaultBehavior => false;
+
+        /// <summary>
+        ///     Creates a default <see cref="ValueComparer{T}" /> for the given type.
+        /// </summary>
+        /// <param name="type"> The type. </param>
+        /// <param name="favorStructuralComparisons">
+        ///     If <c>true</c>, then EF will use <see cref="IStructuralEquatable" /> if the type
+        ///     implements it. This is usually used when byte arrays act as keys.
+        /// </param>
+        /// <returns> The <see cref="ValueComparer{T}" />. </returns>
+        public static ValueComparer CreateDefault([NotNull] Type type, bool favorStructuralComparisons)
+        {
+            var nonNullabletype = type.UnwrapNullableType();
+
+            var comparerType =
+                nonNullabletype.IsNumeric()
+                || nonNullabletype == typeof(bool)
+                || nonNullabletype == typeof(string)
+                || nonNullabletype == typeof(DateTime)
+                || nonNullabletype == typeof(Guid)
+                || nonNullabletype == typeof(DateTimeOffset)
+                || nonNullabletype == typeof(TimeSpan)
+                    ? typeof(DefaultValueComparer<>)
+                    : typeof(ValueComparer<>);
+
+            return (ValueComparer)Activator.CreateInstance(
+                comparerType.MakeGenericType(type),
+                new object[] { favorStructuralComparisons });
+        }
+
+        private sealed class DefaultValueComparer<T> : ValueComparer<T>
+        {
+            public DefaultValueComparer(bool favorStructuralComparisons)
+                : base(favorStructuralComparisons)
+            {
+            }
+
+            public override Expression ExtractEqualsBody(Expression leftExpression, Expression rightExpression)
+                => Expression.Equal(leftExpression, rightExpression);
+
+            public override Expression ExtractSnapshotBody(Expression expression)
+                => expression;
+
+            public override object Snapshot(object instance)
+                => instance;
+
+            public override T Snapshot(T instance)
+                => instance;
+
+            public override bool HasDefaultBehavior => true;
         }
     }
 }

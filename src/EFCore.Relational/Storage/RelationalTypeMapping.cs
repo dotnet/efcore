@@ -12,7 +12,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#pragma warning disable 618
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -223,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         public static readonly RelationalTypeMapping NullMapping = new NullTypeMapping("NULL");
 
-        private class NullTypeMapping : RelationalTypeMapping
+        private sealed class NullTypeMapping : RelationalTypeMapping
         {
             public NullTypeMapping(string storeType)
                 : base(storeType, typeof(object))
@@ -435,6 +434,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             parameter.Direction = ParameterDirection.Input;
             parameter.ParameterName = name;
 
+            value = ConvertUnderlyingEnumValueToEnum(value);
+
             if (Converter != null)
             {
                 value = Converter.ConvertToProvider(value);
@@ -457,6 +458,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return parameter;
         }
 
+        // Enum when compared to constant will always have value of integral type
+        // when enum would contain convert node. We remove the convert node but we also
+        // need to convert the integral value to enum value.
+        // This allows us to use converter on enum value or print enum value directly if supported by provider
+        private object ConvertUnderlyingEnumValueToEnum(object value)
+            => value?.GetType().IsInteger() == true && ClrType.UnwrapNullableType().IsEnum
+            ? Enum.ToObject(ClrType.UnwrapNullableType(), value)
+            : value;
+
         /// <summary>
         ///     Configures type information of a <see cref="DbParameter" />.
         /// </summary>
@@ -474,15 +484,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         public virtual string GenerateSqlLiteral([CanBeNull] object value)
         {
-            // Enum when compared to constant will always have constant of integral type
-            // when enum would contain convert node. We remove the convert node but we also
-            // need to convert the integral value to enum value.
-            // This allows us to use converter on enum value or print enum value directly if supported by provider
-            if (value?.GetType().IsInteger() == true
-                && ClrType.UnwrapNullableType().IsEnum)
-            {
-                value = Enum.ToObject(ClrType.UnwrapNullableType(), value);
-            }
+            value = ConvertUnderlyingEnumValueToEnum(value);
 
             if (Converter != null)
             {

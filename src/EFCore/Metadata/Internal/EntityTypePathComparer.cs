@@ -12,7 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class EntityTypePathComparer : IComparer<IEntityType>, IEqualityComparer<IEntityType>
+    // Sealed for perf
+    public sealed class EntityTypePathComparer : IComparer<IEntityType>, IEqualityComparer<IEntityType>
     {
         private EntityTypePathComparer()
         {
@@ -32,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int Compare(IEntityType x, IEntityType y)
+        public int Compare(IEntityType x, IEntityType y)
         {
             if (ReferenceEquals(x, y))
             {
@@ -99,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int GetHashCode(IEntityType entityType)
+        public int GetHashCode(IEntityType entityType)
         {
             var hash = new HashCode();
             while (true)

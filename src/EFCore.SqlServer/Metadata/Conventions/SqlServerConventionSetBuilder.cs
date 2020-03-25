@@ -88,11 +88,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             ReplaceConvention(
                 conventionSet.PropertyAnnotationChangedConventions, (RelationalValueGenerationConvention)valueGenerationConvention);
 
-            ConventionSet.AddBefore(
-                conventionSet.ModelFinalizedConventions,
-                valueGenerationStrategyConvention,
-                typeof(ValidatingConvention));
-            ReplaceConvention(conventionSet.ModelFinalizedConventions, storeGenerationConvention);
+            conventionSet.ModelFinalizingConventions.Add(valueGenerationStrategyConvention);
+            conventionSet.ModelFinalizingConventions.Add(new SqlServerEnumConvention(Dependencies));
+            ReplaceConvention(conventionSet.ModelFinalizingConventions, storeGenerationConvention);
 
             return conventionSet;
         }
@@ -118,13 +116,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                             .UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            {
-                using (var context = serviceScope.ServiceProvider.GetService<DbContext>())
-                {
-                    return ConventionSet.CreateConventionSet(context);
-                }
-            }
+            using var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
+            using var context = serviceScope.ServiceProvider.GetService<DbContext>();
+            return ConventionSet.CreateConventionSet(context);
         }
     }
 }

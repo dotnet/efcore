@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
             ExistingTestStore = Fixture.CreateTestStore(SqlServerTestStoreFactory.Instance, StoreName, Seed);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#18682")]
         public void Can_register_multiple_context_types()
         {
             var serviceProvider = new ServiceCollection()
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#18682")]
         public void Can_select_appropriate_provider_when_multiple_registered()
         {
             var serviceProvider
@@ -227,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore
                 ExistingTestStore = Fixture.CreateTestStore(SqlServerTestStoreFactory.Instance, StoreName, Seed);
             }
 
-            [ConditionalFact]
+            [ConditionalFact(Skip = "#18682")]
             public async Task Can_use_one_context_nested_inside_another_of_a_different_type()
             {
                 var inMemoryServiceProvider = InMemoryFixture.DefaultServiceProvider;
@@ -244,33 +244,27 @@ namespace Microsoft.EntityFrameworkCore
 
             private async Task NestedContextTest(Func<BlogContext> createBlogContext, Func<CrossStoreContext> createSimpleContext)
             {
-                using (var context0 = createBlogContext())
-                {
-                    Assert.Empty(context0.ChangeTracker.Entries());
-                    var blog0 = context0.Add(new Blog { Id = 1, Name = "Giddyup" }).Entity;
-                    Assert.Same(blog0, context0.ChangeTracker.Entries().Select(e => e.Entity).Single());
-                    await context0.SaveChangesAsync();
+                using var context0 = createBlogContext();
+                Assert.Empty(context0.ChangeTracker.Entries());
+                var blog0 = context0.Add(new Blog { Id = 1, Name = "Giddyup" }).Entity;
+                Assert.Same(blog0, context0.ChangeTracker.Entries().Select(e => e.Entity).Single());
+                await context0.SaveChangesAsync();
 
-                    using (var context1 = createSimpleContext())
-                    {
-                        var customers1 = await context1.SimpleEntities.ToListAsync();
-                        Assert.Single(customers1);
-                        Assert.Single(context1.ChangeTracker.Entries());
-                        Assert.Same(blog0, context0.ChangeTracker.Entries().Select(e => e.Entity).Single());
+                using var context1 = createSimpleContext();
+                var customers1 = await context1.SimpleEntities.ToListAsync();
+                Assert.Single(customers1);
+                Assert.Single(context1.ChangeTracker.Entries());
+                Assert.Same(blog0, context0.ChangeTracker.Entries().Select(e => e.Entity).Single());
 
-                        using (var context2 = createBlogContext())
-                        {
-                            Assert.Empty(context2.ChangeTracker.Entries());
-                            Assert.Same(blog0, context0.ChangeTracker.Entries().Select(e => e.Entity).Single());
+                using var context2 = createBlogContext();
+                Assert.Empty(context2.ChangeTracker.Entries());
+                Assert.Same(blog0, context0.ChangeTracker.Entries().Select(e => e.Entity).Single());
 
-                            var blog0Prime = (await context2.Blogs.ToArrayAsync()).Single();
-                            Assert.Same(blog0Prime, context2.ChangeTracker.Entries().Select(e => e.Entity).Single());
+                var blog0Prime = (await context2.Blogs.ToArrayAsync()).Single();
+                Assert.Same(blog0Prime, context2.ChangeTracker.Entries().Select(e => e.Entity).Single());
 
-                            Assert.Equal(blog0.Id, blog0Prime.Id);
-                            Assert.NotSame(blog0, blog0Prime);
-                        }
-                    }
-                }
+                Assert.Equal(blog0.Id, blog0Prime.Id);
+                Assert.NotSame(blog0, blog0Prime);
             }
 
             private CrossStoreFixture Fixture { get; }

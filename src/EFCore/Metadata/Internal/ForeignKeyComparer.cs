@@ -12,7 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class ForeignKeyComparer : IEqualityComparer<IForeignKey>, IComparer<IForeignKey>
+    // Sealed for perf
+    public sealed class ForeignKeyComparer : IEqualityComparer<IForeignKey>, IComparer<IForeignKey>
     {
         private ForeignKeyComparer()
         {
@@ -32,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int Compare(IForeignKey x, IForeignKey y)
+        public int Compare(IForeignKey x, IForeignKey y)
         {
             var result = PropertyListComparer.Instance.Compare(x.Properties, y.Properties);
             if (result != 0)
@@ -56,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool Equals(IForeignKey x, IForeignKey y)
+        public bool Equals(IForeignKey x, IForeignKey y)
             => Compare(x, y) == 0;
 
         /// <summary>
@@ -65,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int GetHashCode(IForeignKey obj)
+        public int GetHashCode(IForeignKey obj)
         {
             var hashCode = new HashCode();
             hashCode.Add(obj.PrincipalKey.Properties, PropertyListComparer.Instance);

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
@@ -60,12 +61,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="foreignKey"> The foreign key. </param>
         /// <param name="value"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetConstraintName(
+        /// <returns> The configured name. </returns>
+        public static string SetConstraintName(
             [NotNull] this IConventionForeignKey foreignKey, [CanBeNull] string value, bool fromDataAnnotation = false)
-            => foreignKey.SetOrRemoveAnnotation(
+        {
+            foreignKey.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.Name,
                 Check.NullButNotEmpty(value, nameof(value)),
                 fromDataAnnotation);
+
+            return value;
+        }
 
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the constraint name.
@@ -75,5 +81,14 @@ namespace Microsoft.EntityFrameworkCore
         public static ConfigurationSource? GetConstraintNameConfigurationSource([NotNull] this IConventionForeignKey foreignKey)
             => foreignKey.FindAnnotation(RelationalAnnotationNames.Name)
                 ?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Gets the foreign key constraints to which the foreign key is mapped.
+        /// </summary>
+        /// <param name="foreignKey"> The foreign key. </param>
+        /// <returns> The foreign key constraints to which the foreign key is mapped. </returns>
+        public static IEnumerable<IForeignKeyConstraint> GetMappedConstraints([NotNull] this IForeignKey foreignKey) =>
+            (IEnumerable<IForeignKeyConstraint>)foreignKey[RelationalAnnotationNames.ForeignKeyMappings]
+                ?? Enumerable.Empty<IForeignKeyConstraint>();
     }
 }

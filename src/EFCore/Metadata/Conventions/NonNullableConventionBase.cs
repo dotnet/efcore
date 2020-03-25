@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -15,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A base type for conventions that configure model aspects based on whether the member type
     ///     is a non-nullable reference type.
     /// </summary>
-    public abstract class NonNullableConventionBase : IModelFinalizedConvention
+    public abstract class NonNullableConventionBase : IModelFinalizingConvention
     {
         // For the interpretation of nullability metadata, see
         // https://github.com/dotnet/roslyn/blob/master/docs/features/nullable-metadata.md
@@ -23,7 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private const string StateAnnotationName = "NonNullableConventionState";
         private const string NullableAttributeFullName = "System.Runtime.CompilerServices.NullableAttribute";
         private const string NullableContextAttributeFullName = "System.Runtime.CompilerServices.NullableContextAttribute";
-        private const string MaybeNullAttributeFullName = "System.Diagnostics.CodeAnalysis.MaybeNullAttribute";
 
         /// <summary>
         ///     Creates a new instance of <see cref="NonNullableConventionBase" />.
@@ -59,10 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             // First check for [MaybeNull] on the return value. If it exists, the member is nullable.
             var isMaybeNull = memberInfo switch
             {
-                FieldInfo f => f.CustomAttributes.Any(a => a.AttributeType.FullName == MaybeNullAttributeFullName),
-                PropertyInfo p => p.GetMethod?.ReturnParameter?.CustomAttributes.FirstOrDefault(
-                    a => a.AttributeType.FullName == MaybeNullAttributeFullName)
-                != null,
+                FieldInfo f => f.GetCustomAttribute<MaybeNullAttribute>() != null,
+                PropertyInfo p => p.GetMethod?.ReturnParameter?.GetCustomAttribute<MaybeNullAttribute>() != null,
                 _ => false
             };
 
@@ -132,15 +130,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 ?? modelBuilder.Metadata.AddAnnotation(StateAnnotationName, new NonNullabilityConventionState())
             ).Value;
 
-        /// <summary>
-        ///     Called after a model is finalized. Removes the cached state annotation used by this convention.
-        /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessModelFinalized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        /// <inheritdoc />
+        public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
             => modelBuilder.Metadata.RemoveAnnotation(StateAnnotationName);
 
-        private class NonNullabilityConventionState
+        private sealed class NonNullabilityConventionState
         {
             public Type NullableAttrType;
             public Type NullableContextAttrType;

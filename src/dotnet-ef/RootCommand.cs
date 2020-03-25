@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             var args = new List<string>();
 
             var toolsPath = Path.Combine(
-                Path.GetDirectoryName(typeof(Program).GetTypeInfo().Assembly.Location),
+                Path.GetDirectoryName(typeof(Program).Assembly.Location),
                 "tools");
 
             var targetDir = Path.GetFullPath(Path.Combine(startupProject.ProjectDir, startupProject.OutputPath));
@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         }
 
         private static string GetVersion()
-            => typeof(RootCommand).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+            => typeof(RootCommand).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
                 .InformationalVersion;
 
         private static bool ShouldHelp(IReadOnlyList<string> commands)

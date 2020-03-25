@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static IReadOnlyList<PropertyInfo> MatchPropertyAccessList(
             [NotNull] this LambdaExpression lambdaExpression, [NotNull] Func<Expression, Expression, PropertyInfo> propertyMatcher)
         {
-            Debug.Assert(lambdaExpression.Body != null);
+            Check.DebugAssert(lambdaExpression.Body != null, "lambdaExpression.Body is null");
 
             var parameterExpression = lambdaExpression.Parameters.Single();
 
@@ -138,9 +138,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsEntityQueryable([NotNull] this ConstantExpression constantExpression)
-            => constantExpression.Type.GetTypeInfo().IsGenericType
-                && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>);
+        public static LambdaExpression GetLambdaOrNull([NotNull] this Expression expression)
+            => expression is LambdaExpression lambda
+                ? lambda
+                : expression is UnaryExpression unary && expression.NodeType == ExpressionType.Quote
+                    ? (LambdaExpression)unary.Operand
+                    : null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -148,12 +151,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static LambdaExpression GetLambdaOrNull(this Expression expression)
-            => expression is LambdaExpression lambda
-                ? lambda
-                : expression is UnaryExpression unary && expression.NodeType == ExpressionType.Quote
-                    ? (LambdaExpression)unary.Operand
-                    : null;
+        public static bool IsLogicalNot([NotNull] this UnaryExpression sqlUnaryExpression)
+            => sqlUnaryExpression.NodeType == ExpressionType.Not
+                && (sqlUnaryExpression.Type == typeof(bool)
+                    || sqlUnaryExpression.Type == typeof(bool?));
 
         private static Expression RemoveConvert(Expression expression)
         {

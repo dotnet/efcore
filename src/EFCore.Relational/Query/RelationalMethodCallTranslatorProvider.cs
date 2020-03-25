@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -19,6 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public RelationalMethodCallTranslatorProvider([NotNull] RelationalMethodCallTranslatorProviderDependencies dependencies)
         {
+            Check.NotNull(dependencies, nameof(dependencies));
+
             _plugins.AddRange(dependencies.Plugins.SelectMany(p => p.Translators));
 
             var sqlExpressionFactory = dependencies.SqlExpressionFactory;
@@ -32,7 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new LikeTranslator(sqlExpressionFactory),
                     new EnumHasFlagTranslator(sqlExpressionFactory),
                     new GetValueOrDefaultTranslator(sqlExpressionFactory),
-                    new ComparisonTranslator(sqlExpressionFactory)
+                    new ComparisonTranslator(sqlExpressionFactory),
+                    new ByteArraySequenceEqualTranslator(sqlExpressionFactory)
                 });
             _sqlExpressionFactory = sqlExpressionFactory;
         }
@@ -40,6 +44,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual SqlExpression Translate(
             IModel model, SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
+            Check.NotNull(model, nameof(model));
+            Check.NotNull(method, nameof(method));
+            Check.NotNull(arguments, nameof(arguments));
+
             var dbFunction = model.FindDbFunction(method);
             if (dbFunction != null)
             {
@@ -49,6 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         dbFunction.Schema,
                         dbFunction.Name,
                         arguments,
+                        nullable: true,
+                        argumentsPropagateNullability: arguments.Select(a => false).ToList(),
                         method.ReturnType);
             }
 
@@ -57,7 +67,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .FirstOrDefault(t => t != null);
         }
 
-        protected virtual void AddTranslators(IEnumerable<IMethodCallTranslator> translators)
-            => _translators.InsertRange(0, translators);
+        protected virtual void AddTranslators([NotNull] IEnumerable<IMethodCallTranslator> translators)
+        {
+            Check.NotNull(translators, nameof(translators));
+
+            _translators.InsertRange(0, translators);
+        }
     }
 }

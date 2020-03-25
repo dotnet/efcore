@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
     internal static class Resources
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Tools.Properties.Resources", typeof(Resources).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Tools.Properties.Resources", typeof(Resources).Assembly);
 
         /// <summary>
         ///     The assembly to use.
@@ -451,10 +451,50 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("WorkingDirDescription");
 
         /// <summary>
-        ///     Generate a script to create all tables for the DbContext.
+        ///     The last argument '{argumentName}' accepts multiple values. No more argument can be added.
         /// </summary>
-        public static string DbContextScriptDescription
-            => GetString("DbContextScriptDescription");
+        public static string LastArgumentHasMultipleValues([CanBeNull] object argumentName)
+            => string.Format(
+                GetString("LastArgumentHasMultipleValues", nameof(argumentName)),
+                argumentName);
+
+        /// <summary>
+        ///     Unexpected value '{optionValue}' for option '{optionName}'.
+        /// </summary>
+        public static string UnexpectedOptionValue([CanBeNull] object optionValue, [CanBeNull] object optionName)
+            => string.Format(
+                GetString("UnexpectedOptionValue", nameof(optionValue), nameof(optionName)),
+                optionValue, optionName);
+
+        /// <summary>
+        ///     Unrecognized {argumentName} '{argumentValue}'.
+        /// </summary>
+        public static string UnexpectedArgument([CanBeNull] object argumentName, [CanBeNull] object argumentValue)
+            => string.Format(
+                GetString("UnexpectedArgument", nameof(argumentName), nameof(argumentValue)),
+                argumentName, argumentValue);
+
+        /// <summary>
+        ///     Response file '{fileName}' doesn't exist.
+        /// </summary>
+        public static string ResponseFileMissing([CanBeNull] object fileName)
+            => string.Format(
+                GetString("ResponseFileMissing", nameof(fileName)),
+                fileName);
+
+        /// <summary>
+        ///     Invalid template pattern '{template}'.
+        /// </summary>
+        public static string InvalidTemplatePattern([CanBeNull] object template)
+            => string.Format(
+                GetString("InvalidTemplatePattern", nameof(template)),
+                template);
+
+        /// <summary>
+        ///     The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
+        /// </summary>
+        public static string DbContextConnectionDescription
+            => GetString("DbContextConnectionDescription");
 
         private static string GetString(string name, params string[] formatterNames)
         {

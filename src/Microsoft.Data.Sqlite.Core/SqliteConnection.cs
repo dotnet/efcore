@@ -17,6 +17,8 @@ namespace Microsoft.Data.Sqlite
     /// <summary>
     ///     Represents a connection to a SQLite database.
     /// </summary>
+    /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/connection-strings">Connection Strings</seealso>
+    /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/async">Async Limitations</seealso>
     public partial class SqliteConnection : DbConnection
     {
         internal const string MainDatabaseName = "main";
@@ -25,18 +27,14 @@ namespace Microsoft.Data.Sqlite
 
         private readonly List<WeakReference<SqliteCommand>> _commands = new List<WeakReference<SqliteCommand>>();
 
-        private readonly Dictionary<string, (object state, strdelegate_collation collation)> _collations
-            = new Dictionary<string, (object, strdelegate_collation)>(StringComparer.OrdinalIgnoreCase);
+        private Dictionary<string, (object state, strdelegate_collation collation)> _collations;
 
-        private readonly Dictionary<(string name, int arity), (int flags, object state, delegate_function_scalar func)> _functions
-            = new Dictionary<(string, int), (int, object, delegate_function_scalar)>(FunctionsKeyComparer.Instance);
+        private Dictionary<(string name, int arity), (int flags, object state, delegate_function_scalar func)> _functions;
 
-        private readonly Dictionary<(string name, int arity), (int flags, object state, delegate_function_aggregate_step func_step,
-            delegate_function_aggregate_final func_final)> _aggregates
-            = new Dictionary<(string, int), (int, object, delegate_function_aggregate_step, delegate_function_aggregate_final)>(
-                FunctionsKeyComparer.Instance);
+        private Dictionary<(string name, int arity), (int flags, object state, delegate_function_aggregate_step func_step,
+            delegate_function_aggregate_final func_final)> _aggregates;
 
-        private readonly HashSet<(string file, string proc)> _extensions = new HashSet<(string, string)>();
+        private HashSet<(string file, string proc)> _extensions;
 
         private string _connectionString;
         private ConnectionState _state;
@@ -57,6 +55,7 @@ namespace Microsoft.Data.Sqlite
         ///     Initializes a new instance of the <see cref="SqliteConnection" /> class.
         /// </summary>
         /// <param name="connectionString">The string used to open the connection.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/connection-strings">Connection Strings</seealso>
         /// <seealso cref="SqliteConnectionStringBuilder" />
         public SqliteConnection(string connectionString)
             => ConnectionString = connectionString;
@@ -65,7 +64,7 @@ namespace Microsoft.Data.Sqlite
         ///     Gets a handle to underlying database connection.
         /// </summary>
         /// <value>A handle to underlying database connection.</value>
-        /// <seealso href="http://sqlite.org/c3ref/sqlite3.html">Database Connection Handle</seealso>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/interop">Interoperability</seealso>
         public virtual sqlite3 Handle
             => _db;
 
@@ -73,6 +72,7 @@ namespace Microsoft.Data.Sqlite
         ///     Gets or sets a string used to open the connection.
         /// </summary>
         /// <value>A string used to open the connection.</value>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/connection-strings">Connection Strings</seealso>
         /// <seealso cref="SqliteConnectionStringBuilder" />
         public override string ConnectionString
         {
@@ -122,6 +122,7 @@ namespace Microsoft.Data.Sqlite
         ///     <see cref="BeginTransaction()" />.
         /// </summary>
         /// <value>The default <see cref="SqliteCommand.CommandTimeout" /> value.</value>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/database-errors">Database Errors</seealso>
         public virtual int DefaultTimeout { get; set; } = 30;
 
         /// <summary>
@@ -271,27 +272,37 @@ namespace Microsoft.Data.Sqlite
                     this.ExecuteNonQuery("PRAGMA recursive_triggers = 1;");
                 }
 
-                foreach (var item in _collations)
+                if (_collations != null)
                 {
-                    rc = sqlite3_create_collation(_db, item.Key, item.Value.state, item.Value.collation);
-                    SqliteException.ThrowExceptionForRC(rc, _db);
+                    foreach (var item in _collations)
+                    {
+                        rc = sqlite3_create_collation(_db, item.Key, item.Value.state, item.Value.collation);
+                        SqliteException.ThrowExceptionForRC(rc, _db);
+                    }
                 }
 
-                foreach (var item in _functions)
+                if (_functions != null)
                 {
-                    rc = sqlite3_create_function(_db, item.Key.name, item.Key.arity, item.Value.state, item.Value.func);
-                    SqliteException.ThrowExceptionForRC(rc, _db);
+                    foreach (var item in _functions)
+                    {
+                        rc = sqlite3_create_function(_db, item.Key.name, item.Key.arity, item.Value.state, item.Value.func);
+                        SqliteException.ThrowExceptionForRC(rc, _db);
+                    }
                 }
 
-                foreach (var item in _aggregates)
+                if (_aggregates != null)
                 {
-                    rc = sqlite3_create_function(
-                        _db, item.Key.name, item.Key.arity, item.Value.state, item.Value.func_step, item.Value.func_final);
-                    SqliteException.ThrowExceptionForRC(rc, _db);
+                    foreach (var item in _aggregates)
+                    {
+                        rc = sqlite3_create_function(
+                            _db, item.Key.name, item.Key.arity, item.Value.state, item.Value.func_step, item.Value.func_final);
+                        SqliteException.ThrowExceptionForRC(rc, _db);
+                    }
                 }
 
                 var extensionsEnabledForLoad = false;
-                if (_extensions.Count != 0)
+                if (_extensions != null
+                    && _extensions.Count != 0)
                 {
                     rc = sqlite3_enable_load_extension(_db, 1);
                     SqliteException.ThrowExceptionForRC(rc, _db);
@@ -378,7 +389,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <returns>The new command.</returns>
         /// <remarks>
-        ///     The command's <seealso cref="SqliteCommand.Transaction" /> property will also be set to the current
+        ///     The command's <see cref="SqliteCommand.Transaction" /> property will also be set to the current
         ///     transaction.
         /// </remarks>
         public new virtual SqliteCommand CreateCommand()
@@ -416,6 +427,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <param name="name">Name of the collation.</param>
         /// <param name="comparison">Method that compares two strings.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/collation">Collation</seealso>
         public virtual void CreateCollation(string name, Comparison<string> comparison)
             => CreateCollation(
                 name, null, comparison != null ? (_, s1, s2) => comparison(s1, s2) : (Func<object, string, string, int>)null);
@@ -427,6 +439,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="name">Name of the collation.</param>
         /// <param name="state">State object passed to each invocation of the collation.</param>
         /// <param name="comparison">Method that compares two strings, using additional state.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/collation">Collation</seealso>
         public virtual void CreateCollation<T>(string name, T state, Func<T, string, string, int> comparison)
         {
             if (string.IsNullOrEmpty(name))
@@ -442,6 +455,7 @@ namespace Microsoft.Data.Sqlite
                 SqliteException.ThrowExceptionForRC(rc, _db);
             }
 
+            _collations ??= new Dictionary<string, (object, strdelegate_collation)>(StringComparer.OrdinalIgnoreCase);
             _collations[name] = (state, collation);
         }
 
@@ -449,6 +463,9 @@ namespace Microsoft.Data.Sqlite
         ///     Begins a transaction on the connection.
         /// </summary>
         /// <returns>The transaction.</returns>
+        /// <exception cref="SqliteException">A SQLite error occurs during execution.</exception>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/transactions">Transactions</seealso>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/database-errors">Database Errors</seealso>
         public new virtual SqliteTransaction BeginTransaction()
             => BeginTransaction(IsolationLevel.Unspecified);
 
@@ -465,6 +482,9 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <param name="isolationLevel">The isolation level of the transaction.</param>
         /// <returns>The transaction.</returns>
+        /// <exception cref="SqliteException">A SQLite error occurs during execution.</exception>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/transactions">Transactions</seealso>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/database-errors">Database Errors</seealso>
         public new virtual SqliteTransaction BeginTransaction(IsolationLevel isolationLevel)
         {
             if (State != ConnectionState.Open)
@@ -492,7 +512,7 @@ namespace Microsoft.Data.Sqlite
         ///     Enables extension loading on the connection.
         /// </summary>
         /// <param name="enable">true to enable; false to disable.</param>
-        /// <seealso href="http://sqlite.org/loadext.html">Run-Time Loadable Extensions</seealso>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/extensions">Extensions</seealso>
         public virtual void EnableExtensions(bool enable = true)
         {
             if (State == ConnectionState.Open)
@@ -509,6 +529,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <param name="file">The shared library containing the extension.</param>
         /// <param name="proc">The entry point. If null, the default entry point is used.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/extensions">Extensions</seealso>
         public virtual void LoadExtension(string file, string proc = null)
         {
             if (State == ConnectionState.Open)
@@ -532,6 +553,7 @@ namespace Microsoft.Data.Sqlite
                 }
             }
 
+            _extensions ??= new HashSet<(string, string)>();
             _extensions.Add((file, proc));
         }
 
@@ -557,6 +579,7 @@ namespace Microsoft.Data.Sqlite
         ///     Backup of the connected database.
         /// </summary>
         /// <param name="destination">The destination of the backup.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/backup">Online Backup</seealso>
         public virtual void BackupDatabase(SqliteConnection destination)
             => BackupDatabase(destination, MainDatabaseName, MainDatabaseName);
 
@@ -566,6 +589,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="destination">The destination of the backup.</param>
         /// <param name="destinationName">The name of the destination database.</param>
         /// <param name="sourceName">The name of the source database.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/backup">Online Backup</seealso>
         public virtual void BackupDatabase(SqliteConnection destination, string destinationName, string sourceName)
         {
             if (State != ConnectionState.Open)
@@ -587,18 +611,16 @@ namespace Microsoft.Data.Sqlite
 
             try
             {
-                using (var backup = sqlite3_backup_init(destination._db, destinationName, _db, sourceName))
+                using var backup = sqlite3_backup_init(destination._db, destinationName, _db, sourceName);
+                int rc;
+                if (backup.IsInvalid)
                 {
-                    int rc;
-                    if (backup.IsInvalid)
-                    {
-                        rc = sqlite3_errcode(destination._db);
-                        SqliteException.ThrowExceptionForRC(rc, destination._db);
-                    }
-
-                    rc = sqlite3_backup_step(backup, -1);
+                    rc = sqlite3_errcode(destination._db);
                     SqliteException.ThrowExceptionForRC(rc, destination._db);
                 }
+
+                rc = sqlite3_backup_step(backup, -1);
+                SqliteException.ThrowExceptionForRC(rc, destination._db);
             }
             finally
             {
@@ -663,6 +685,7 @@ namespace Microsoft.Data.Sqlite
                 SqliteException.ThrowExceptionForRC(rc, _db);
             }
 
+            _functions ??= new Dictionary<(string, int), (int, object, delegate_function_scalar)>(FunctionsKeyComparer.Instance);
             _functions[(name, arity)] = (flags, state, func);
         }
 
@@ -757,6 +780,8 @@ namespace Microsoft.Data.Sqlite
                 SqliteException.ThrowExceptionForRC(rc, _db);
             }
 
+            _aggregates ??= new Dictionary<(string, int), (int, object, delegate_function_aggregate_step, delegate_function_aggregate_final)>(
+                FunctionsKeyComparer.Instance);
             _aggregates[(name, arity)] = (flags, state, func_step, func_final);
         }
 
@@ -773,7 +798,7 @@ namespace Microsoft.Data.Sqlite
             return values;
         }
 
-        private class AggregateContext<T>
+        private sealed class AggregateContext<T>
         {
             public AggregateContext(T seed)
                 => Accumulate = seed;
@@ -782,7 +807,7 @@ namespace Microsoft.Data.Sqlite
             public Exception Exception { get; set; }
         }
 
-        private class FunctionsKeyComparer : IEqualityComparer<(string name, int arity)>
+        private sealed class FunctionsKeyComparer : IEqualityComparer<(string name, int arity)>
         {
             public static readonly FunctionsKeyComparer Instance = new FunctionsKeyComparer();
 

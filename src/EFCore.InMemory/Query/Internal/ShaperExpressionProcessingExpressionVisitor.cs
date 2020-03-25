@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
@@ -24,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             _valueBufferParameter = valueBufferParameter;
         }
 
-        public virtual Expression Inject(Expression expression)
+        public virtual Expression Inject([NotNull] Expression expression)
         {
             var result = Visit(expression);
             _expressions.Add(result);
@@ -41,6 +42,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         protected override Expression VisitExtension(Expression extensionExpression)
         {
+            Check.NotNull(extensionExpression, nameof(extensionExpression));
+
             switch (extensionExpression)
             {
                 case EntityShaperExpression entityShaperExpression:

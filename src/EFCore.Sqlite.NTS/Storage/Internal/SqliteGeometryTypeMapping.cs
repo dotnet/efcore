@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [UsedImplicitly]
-        public SqliteGeometryTypeMapping(NtsGeometryServices geometryServices, string storeType)
+        public SqliteGeometryTypeMapping([NotNull] NtsGeometryServices geometryServices, [NotNull] string storeType)
             : base(new GeometryValueConverter<TGeometry>(CreateReader(geometryServices), CreateWriter()), storeType)
         {
         }
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// </summary>
         protected SqliteGeometryTypeMapping(
             RelationalTypeMappingParameters parameters,
-            ValueConverter<TGeometry, byte[]> converter)
+            [CanBeNull] ValueConverter<TGeometry, byte[]> converter)
             : base(parameters, converter)
         {
         }

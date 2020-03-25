@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -12,10 +13,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         protected override Expression VisitInvocation(InvocationExpression invocationExpression)
         {
+            Check.NotNull(invocationExpression, nameof(invocationExpression));
+
             var invokedExpression = StripTrivialConversions(invocationExpression.Expression);
 
             return invokedExpression is LambdaExpression lambdaExpression
-                ? InlineLambdaExpression(lambdaExpression, invocationExpression.Arguments)
+                ? Visit(InlineLambdaExpression(lambdaExpression, invocationExpression.Arguments))
                 : base.VisitInvocation(invocationExpression);
         }
 

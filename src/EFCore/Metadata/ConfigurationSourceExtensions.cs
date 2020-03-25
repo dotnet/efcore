@@ -68,5 +68,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> <c>true</c> if the configuration source always takes precedence over the other configuration source. </returns>
         public static bool OverridesStrictly(this ConfigurationSource? newConfigurationSource, ConfigurationSource? oldConfigurationSource)
             => newConfigurationSource.HasValue && newConfigurationSource.Value.OverridesStrictly(oldConfigurationSource);
+
+        /// <summary>
+        ///     Returns the configuration source which has higher priority.
+        /// </summary>
+        /// <param name="left"> The left configuration source. </param>
+        /// <param name="right"> The right configuration source. </param>
+        /// <returns> The configuration source with higher priority. </returns>
+        [ContractAnnotation("left:notnull => notnull;right:notnull => notnull")]
+        public static ConfigurationSource? Max(this ConfigurationSource? left, ConfigurationSource? right)
+            => left.Overrides(right)
+                ? left
+                : right;
+
+        /// <summary>
+        ///     Returns the configuration source which has higher priority.
+        /// </summary>
+        /// <param name="left"> The left configuration source. </param>
+        /// <param name="right"> The right configuration source. </param>
+        /// <returns> The configuration source with higher priority. </returns>
+        public static ConfigurationSource Max(this ConfigurationSource left, ConfigurationSource? right)
+            => left.Overrides(right)
+                ? left
+                : right.Value;
     }
 }

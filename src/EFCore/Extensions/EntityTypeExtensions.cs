@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> True if the type is abstract, false otherwise. </returns>
         [DebuggerStepThrough]
         public static bool IsAbstract([NotNull] this ITypeBase type)
-            => type.ClrType?.GetTypeInfo().IsAbstract ?? false;
+            => type.ClrType?.IsAbstract ?? false;
 
         /// <summary>
         ///     Gets the root base type for a given entity type.
@@ -49,15 +49,14 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Gets the root base type for a given entity type.
+        ///     Gets all types in the model which a given entity type derives from.
         /// </summary>
-        /// <param name="entityType"> The type to find the root of. </param>
+        /// <param name="entityType"> The type to find base types. </param>
         /// <returns>
-        ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
+        ///     The base types.
         /// </returns>
-        [Obsolete("Use GetRootType")]
-        public static IEntityType RootType([NotNull] this IEntityType entityType)
-            => entityType.GetRootType();
+        public static IEnumerable<IEntityType> GetAllBaseTypes([NotNull] this IEntityType entityType)
+            => entityType.GetAllBaseTypesAscending().Reverse();
 
         /// <summary>
         ///     Gets all types in the model that derive from a given entity type.
@@ -194,6 +193,27 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Determines if an entity type is in same hierarchy as the given entity type.
+        /// </summary>
+        /// <param name="firstEntityType"> An entity type for hierachy. </param>
+        /// <param name="secondEntityType"> The entity type to check if it is in same hierarchy from <paramref name="firstEntityType" />. </param>
+        /// <returns>
+        ///     <c>true</c> if <paramref name="secondEntityType" /> is in same hierarchy as <paramref name="firstEntityType" />,
+        ///     otherwise <c>false</c>.
+        /// </returns>
+        public static bool IsSameHierarchy([NotNull] this IEntityType firstEntityType, [NotNull] IEntityType secondEntityType)
+            => firstEntityType.IsAssignableFrom(secondEntityType)
+                || secondEntityType.IsAssignableFrom(firstEntityType);
+
+        /// <summary>
+        ///     Returns all types in hierarchy of the given <see cref="IEntityType" />.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> All types in the hierarchy. </returns>
+        public static IEnumerable<IEntityType> GetTypesInHierarchy([NotNull] this IEntityType entityType)
+            => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive());
+
+        /// <summary>
         ///     <para>
         ///         Gets all keys declared on the given <see cref="IEntityType" />.
         ///     </para>
@@ -303,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore
             => entityType.AsEntityType().GetDeclaredIndexes();
 
         private static string DisplayNameDefault(this ITypeBase type)
-            => type.ClrType != null
+            => type.ClrType != null && !type.IsSharedType
                 ? type.ClrType.ShortDisplayName()
                 : type.Name;
 
@@ -356,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore
         [DebuggerStepThrough]
         public static string ShortName([NotNull] this ITypeBase type)
         {
-            if (type.ClrType != null)
+            if (type.ClrType != null && !type.IsSharedType)
             {
                 return type.ClrType.ShortDisplayName();
             }
@@ -387,6 +407,32 @@ namespace Microsoft.EntityFrameworkCore
             => entityType.GetForeignKeys().Any(fk => fk.IsOwnership);
 
         /// <summary>
+        ///     Gets a value indicating whether given entity type is in ownership path for this entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="targetType"> Entity type to search for in ownership path. </param>
+        ///     <c>true</c> if <paramref name="targetType" /> is in ownership path of <paramref name="entityType" />,
+        ///     otherwise <c>false</c>.
+        public static bool IsInOwnershipPath([NotNull] this IEntityType entityType, [NotNull] IEntityType targetType)
+        {
+            var owner = entityType;
+            while (true)
+            {
+                var ownOwnership = owner.FindOwnership();
+                if (ownOwnership == null)
+                {
+                    return false;
+                }
+
+                owner = ownOwnership.PrincipalEntityType;
+                if (owner.IsAssignableFrom(targetType))
+                {
+                    return true;
+                }
+            }
+        }
+
+        /// <summary>
         ///     Gets the primary or alternate key that is defined on the given property. Returns <c>null</c> if no key is defined
         ///     for the given property.
         /// </summary>
@@ -408,7 +454,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to find the foreign keys on. </param>
         /// <returns> The foreign keys. </returns>
         public static IEnumerable<IForeignKey> FindForeignKeys([NotNull] this IEntityType entityType, [NotNull] IProperty property)
-            => entityType.FindForeignKeys(new[] { property });
+            => property.GetContainingForeignKeys();
 
         /// <summary>
         ///     Gets the foreign keys defined on the given properties. Only foreign keys that are defined on exactly the specified
@@ -424,13 +470,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotEmpty(properties, nameof(properties));
             Check.HasNoNulls(properties, nameof(properties));
 
-            foreach (var foreignKey in entityType.GetForeignKeys())
-            {
-                if (PropertyListComparer.Instance.Equals(foreignKey.Properties, properties))
-                {
-                    yield return foreignKey;
-                }
-            }
+            return entityType.GetForeignKeys()
+                .Where(foreignKey => PropertyListComparer.Instance.Equals(foreignKey.Properties, properties));
         }
 
         /// <summary>
@@ -527,7 +568,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             var definingNavigation = entityType.DefiningEntityType.FindNavigation(entityType.DefiningNavigationName);
-            return definingNavigation?.GetTargetType() == entityType ? definingNavigation : null;
+            return definingNavigation?.TargetEntityType == entityType ? definingNavigation : null;
         }
 
         /// <summary>
@@ -555,7 +596,9 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(memberInfo, nameof(memberInfo));
 
-            return entityType.FindProperty(memberInfo.GetSimpleMemberName());
+            return (memberInfo as PropertyInfo)?.IsIndexerProperty() == true
+                ? null
+                : entityType.FindProperty(memberInfo.GetSimpleMemberName());
         }
 
         /// <summary>
@@ -660,6 +703,23 @@ namespace Microsoft.EntityFrameworkCore
 
             return propertyName == null ? null : entityType.FindProperty(propertyName);
         }
+
+        /// <summary>
+        ///     Returns the value indicating whether the discriminator mapping is complete for this entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to check whether the discriminator mapping is complete. </param>
+        public static bool GetIsDiscriminatorMappingComplete([NotNull] this IEntityType entityType)
+        {
+            if (entityType.BaseType != null)
+            {
+                return entityType.GetRootType().GetIsDiscriminatorMappingComplete();
+            }
+
+            return (bool?)entityType[CoreAnnotationNames.DiscriminatorMappingComplete]
+                ?? GetDefaultIsDiscriminatorMappingComplete(entityType);
+        }
+
+        private static bool GetDefaultIsDiscriminatorMappingComplete(IEntityType entityType) => true;
 
         /// <summary>
         ///     Returns the discriminator value for this entity type.

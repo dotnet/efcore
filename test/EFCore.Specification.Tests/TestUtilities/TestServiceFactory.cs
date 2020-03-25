@@ -5,7 +5,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -123,10 +122,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         private static Type TryGetEnumerableType(Type type)
-            => !type.GetTypeInfo().IsGenericTypeDefinition
-                && type.GetTypeInfo().IsGenericType
+            => !type.IsGenericTypeDefinition
+                && type.IsGenericType
                 && type.GetGenericTypeDefinition() == typeof(IEnumerable<>)
-                    ? type.GetTypeInfo().GenericTypeArguments[0]
+                    ? type.GenericTypeArguments[0]
                     : null;
     }
 }

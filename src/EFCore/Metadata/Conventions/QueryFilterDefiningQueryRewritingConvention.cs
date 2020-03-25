@@ -6,7 +6,8 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -15,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     This makes them consistent with how DbSet accesses in the actual queries are represented, which allows for easier processing in the
     ///     query pipeline.
     /// </summary>
-    public class QueryFilterDefiningQueryRewritingConvention : IModelFinalizedConvention
+    public class QueryFilterDefiningQueryRewritingConvention : IModelFinalizingConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="QueryFilterDefiningQueryRewritingConvention" />.
@@ -37,12 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         protected virtual DbSetAccessRewritingExpressionVisitor DbSetAccessRewriter { get; [param: NotNull] set; }
 
-        /// <summary>
-        ///     Called after a model is finalized.
-        /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessModelFinalized(
+        /// <inheritdoc />
+        public virtual void ProcessModelFinalizing(
             IConventionModelBuilder modelBuilder,
             IConventionContext<IConventionModelBuilder> context)
         {
@@ -51,13 +48,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 var queryFilter = entityType.GetQueryFilter();
                 if (queryFilter != null)
                 {
-                    entityType.SetQueryFilter((LambdaExpression)DbSetAccessRewriter.Visit(queryFilter));
+                    entityType.SetQueryFilter((LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, queryFilter));
                 }
 
                 var definingQuery = entityType.GetDefiningQuery();
                 if (definingQuery != null)
                 {
-                    entityType.SetDefiningQuery((LambdaExpression)DbSetAccessRewriter.Visit(definingQuery));
+                    entityType.SetDefiningQuery((LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, definingQuery));
                 }
             }
         }
@@ -65,24 +62,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         protected class DbSetAccessRewritingExpressionVisitor : ExpressionVisitor
         {
             private readonly Type _contextType;
+            private IModel _model;
 
             public DbSetAccessRewritingExpressionVisitor(Type contextType)
             {
                 _contextType = contextType;
             }
 
+            public Expression Rewrite(IModel model, Expression expression)
+            {
+                _model = model;
+
+                return Visit(expression);
+            }
+
             protected override Expression VisitMember(MemberExpression memberExpression)
             {
+                Check.NotNull(memberExpression, nameof(memberExpression));
+
                 if (memberExpression.Expression != null
                     && (memberExpression.Expression.Type.IsAssignableFrom(_contextType)
                         || _contextType.IsAssignableFrom(memberExpression.Expression.Type))
                     && memberExpression.Type.IsGenericType
-                    && (memberExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>)
-#pragma warning disable CS0618 // Type or member is obsolete
-                        || memberExpression.Type.GetGenericTypeDefinition() == typeof(DbQuery<>)))
-#pragma warning restore CS0618 // Type or member is obsolete
+                    && memberExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>)
+                    && _model != null)
                 {
-                    return NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(memberExpression.Type.GetGenericArguments()[0]);
+                    return new QueryRootExpression(FindEntityType(memberExpression.Type));
                 }
 
                 return base.VisitMember(memberExpression);
@@ -90,18 +95,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
+                Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
                 if (methodCallExpression.Method.Name == nameof(DbContext.Set)
                     && methodCallExpression.Object != null
                     && typeof(DbContext).IsAssignableFrom(methodCallExpression.Object.Type)
                     && methodCallExpression.Type.IsGenericType
-                    && methodCallExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>))
+                    && methodCallExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>)
+                    && _model != null)
                 {
-                    return NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(
-                        methodCallExpression.Type.GetGenericArguments()[0]);
+                    return new QueryRootExpression(FindEntityType(methodCallExpression.Type));
                 }
 
                 return base.VisitMethodCall(methodCallExpression);
             }
+
+            private IEntityType FindEntityType(Type dbSetType) => _model.FindRuntimeEntityType(dbSetType.GetGenericArguments()[0]);
         }
     }
 }

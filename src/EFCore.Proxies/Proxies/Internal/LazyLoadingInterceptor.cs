@@ -67,7 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                     var navigationName = methodName.Substring(4);
                     var navigation = _entityType.FindNavigation(navigationName);
 
-                    if (navigation != null)
+                    if (navigation != null
+                        && !navigation.ForeignKey.IsOwnership)
                     {
                         _loader.Load(invocation.Proxy, navigationName);
                     }

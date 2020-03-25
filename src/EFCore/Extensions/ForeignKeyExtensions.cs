@@ -5,6 +5,7 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -49,5 +50,14 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static INavigation GetNavigation([NotNull] this IForeignKey foreignKey, bool pointsToPrincipal)
             => pointsToPrincipal ? foreignKey.DependentToPrincipal : foreignKey.PrincipalToDependent;
+
+        /// <summary>
+        ///     Gets a value indicating whether given foreign key is defined in same hierarchy.
+        /// </summary>
+        /// <param name="foreignKey"> The foreign key to check. </param>
+        ///     <c>true</c> if <paramref name="foreignKey" /> is defined in same hierarchy,
+        ///     otherwise <c>false</c>.
+        public static bool IsIntraHierarchical([NotNull] this IForeignKey foreignKey)
+            => foreignKey.DeclaringEntityType.IsSameHierarchy(foreignKey.PrincipalEntityType);
     }
 }

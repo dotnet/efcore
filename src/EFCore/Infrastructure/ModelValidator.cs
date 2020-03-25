@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -31,6 +30,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     public class ModelValidator : IModelValidator
     {
         /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public const string SkipChangeTrackingStrategyValidationAnnotation = "ModelValidator.SkipChangeTrackingStrategyValidation";
+
+        /// <summary>
         ///     Creates a new instance of <see cref="ModelValidator" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
@@ -53,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="logger"> The logger to use. </param>
         public virtual void Validate(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            ((Model)model).MakeReadonly();
+            ((Model)model).IsValidated = true;
 
             ValidateNoShadowEntities(model, logger);
             ValidateIgnoredMembers(model, logger);
@@ -108,6 +115,27 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                     : "." + foreignKey.PrincipalToDependent.Name)));
                     }
                 }
+
+                foreach (var skipNavigation in entityType.GetDeclaredSkipNavigations())
+                {
+                    if (!skipNavigation.IsCollection)
+                    {
+                        throw new InvalidOperationException(CoreStrings.SkipNavigationNonCollection(
+                            skipNavigation.Name, skipNavigation.DeclaringEntityType.DisplayName()));
+                    }
+
+                    if (skipNavigation.ForeignKey == null)
+                    {
+                        throw new InvalidOperationException(CoreStrings.SkipNavigationNoForeignKey(
+                            skipNavigation.Name, skipNavigation.DeclaringEntityType.DisplayName()));
+                    }
+
+                    if (skipNavigation.Inverse == null)
+                    {
+                        throw new InvalidOperationException(CoreStrings.SkipNavigationNoInverse(
+                            skipNavigation.Name, skipNavigation.DeclaringEntityType.DisplayName()));
+                    }
+                }
             }
         }
 
@@ -156,6 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                 clrProperties.ExceptWith(entityType.GetProperties().Select(p => p.Name));
                 clrProperties.ExceptWith(entityType.GetNavigations().Select(p => p.Name));
+                clrProperties.ExceptWith(entityType.GetSkipNavigations().Select(p => p.Name));
                 clrProperties.ExceptWith(entityType.GetServiceProperties().Select(p => p.Name));
                 clrProperties.RemoveWhere(p => entityType.FindIgnoredConfigurationSource(p) != null);
 
@@ -210,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             {
                                 throw new InvalidOperationException(
                                     CoreStrings.AmbiguousOwnedNavigation(
-                                        entityType.ClrType.ShortDisplayName(), targetType.ShortDisplayName()));
+                                        entityType.DisplayName() + "." + actualProperty.Name, targetType.ShortDisplayName()));
                             }
 
                             throw new InvalidOperationException(
@@ -220,8 +249,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         // ReSharper restore CheckForReferenceEqualityInstead.3
                         // ReSharper restore CheckForReferenceEqualityInstead.1
                     }
-                    else if (targetSequenceType == null && propertyType.GetTypeInfo().IsInterface
-                        || targetSequenceType?.GetTypeInfo().IsInterface == true)
+                    else if (targetSequenceType == null && propertyType.IsInterface
+                        || targetSequenceType?.IsInterface == true)
                     {
                         throw new InvalidOperationException(
                             CoreStrings.InterfacePropertyNotAdded(
@@ -274,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                     ignoredMember, entityType.DisplayName(), property.DeclaringEntityType.DisplayName()));
                         }
 
-                        Debug.Assert(false);
+                        Check.DebugAssert(false, "Should never get here...");
                     }
 
                     var navigation = entityType.FindNavigation(ignoredMember);
@@ -287,7 +316,33 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                     ignoredMember, entityType.DisplayName(), navigation.DeclaringEntityType.DisplayName()));
                         }
 
-                        Debug.Assert(false);
+                        Check.DebugAssert(false, "Should never get here...");
+                    }
+
+                    var skipNavigation = entityType.FindSkipNavigation(ignoredMember);
+                    if (skipNavigation != null)
+                    {
+                        if (skipNavigation.DeclaringEntityType != entityType)
+                        {
+                            throw new InvalidOperationException(
+                                CoreStrings.InheritedPropertyCannotBeIgnored(
+                                    ignoredMember, entityType.DisplayName(), skipNavigation.DeclaringEntityType.DisplayName()));
+                        }
+
+                        Check.DebugAssert(false, "Should never get here...");
+                    }
+
+                    var serviceProperty = entityType.FindServiceProperty(ignoredMember);
+                    if (serviceProperty != null)
+                    {
+                        if (serviceProperty.DeclaringEntityType != entityType)
+                        {
+                            throw new InvalidOperationException(
+                                CoreStrings.InheritedPropertyCannotBeIgnored(
+                                    ignoredMember, entityType.DisplayName(), serviceProperty.DeclaringEntityType.DisplayName()));
+                        }
+
+                        Check.DebugAssert(false, "Should never get here...");
                     }
                 }
             }
@@ -477,7 +532,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 && entityType.FindDeclaredOwnership() == null
                 && entityType.BaseType != null)
             {
-                var baseClrType = entityType.ClrType?.GetTypeInfo().BaseType;
+                var baseClrType = entityType.ClrType?.BaseType;
                 while (baseClrType != null)
                 {
                     var baseEntityType = model.FindEntityType(baseClrType);
@@ -492,7 +547,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         break;
                     }
 
-                    baseClrType = baseClrType.GetTypeInfo().BaseType;
+                    baseClrType = baseClrType.BaseType;
                 }
             }
 
@@ -570,12 +625,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotNull(model, nameof(model));
 
-            foreach (var entityType in model.GetEntityTypes())
+            if ((string)model[SkipChangeTrackingStrategyValidationAnnotation] != "true")
             {
-                var errorMessage = entityType.AsEntityType().CheckChangeTrackingStrategy(entityType.GetChangeTrackingStrategy());
-                if (errorMessage != null)
+                foreach (var entityType in model.GetEntityTypes())
                 {
-                    throw new InvalidOperationException(errorMessage);
+                    var errorMessage = entityType.AsEntityType().CheckChangeTrackingStrategy(entityType.GetChangeTrackingStrategy());
+                    if (errorMessage != null)
+                    {
+                        throw new InvalidOperationException(errorMessage);
+                    }
                 }
             }
         }
@@ -768,7 +826,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         .GetDeclaredProperties()
                         .Cast<IPropertyBase>()
                         .Concat(entityType.GetDeclaredNavigations())
-                        .Where(p => !p.IsShadowProperty()));
+                        .Where(p => !p.IsShadowProperty() && !p.IsIndexerProperty()));
 
                 var constructorBinding = (InstantiationBinding)entityType[CoreAnnotationNames.ConstructorBinding];
 
@@ -829,7 +887,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     var converter = property.GetValueConverter();
                     if (converter != null
-                        && property.GetValueComparer() == null)
+                        && property.GetValueComparer(fallback: false) == null)
                     {
                         var type = converter.ModelClrType;
                         if (type != typeof(string)
@@ -838,6 +896,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         {
                             logger.CollectionWithoutComparer(property);
                         }
+                    }
+
+                    if (property.IsKeyOrForeignKey()
+                        || property.IsUniqueIndex())
+                    {
+                        var _ = property.GetCurrentValueComparer(); // Will throw if there is no way to compare
                     }
                 }
             }
@@ -965,7 +1029,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 CoreStrings.SeedDatumDefaultValue(
                                     entityType.DisplayName(), property.Name, property.ClrType.GetDefaultValue()));
                         }
-                        else if (!property.ClrType.GetTypeInfo().IsAssignableFrom(value.GetType().GetTypeInfo()))
+                        else if (!property.ClrType.IsAssignableFrom(value.GetType().GetTypeInfo()))
                         {
                             if (sensitiveDataLogged)
                             {
@@ -989,8 +1053,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     foreach (var navigation in entityType.GetNavigations())
                     {
                         if (seedDatum.TryGetValue(navigation.Name, out var value)
-                            && ((navigation.IsCollection() && value is IEnumerable collection && collection.Any())
-                                || (!navigation.IsCollection() && value != null)))
+                            && ((navigation.IsCollection && value is IEnumerable collection && collection.Any())
+                                || (!navigation.IsCollection && value != null)))
                         {
                             if (sensitiveDataLogged)
                             {
@@ -999,7 +1063,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                         entityType.DisplayName(),
                                         string.Join(", ", key.Properties.Select((p, i) => p.Name + ":" + keyValues[i])),
                                         navigation.Name,
-                                        navigation.GetTargetType().DisplayName(),
+                                        navigation.TargetEntityType.DisplayName(),
                                         navigation.ForeignKey.Properties.Format()));
                             }
 
@@ -1007,7 +1071,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 CoreStrings.SeedDatumNavigation(
                                     entityType.DisplayName(),
                                     navigation.Name,
-                                    navigation.GetTargetType().DisplayName(),
+                                    navigation.TargetEntityType.DisplayName(),
                                     navigation.ForeignKey.Properties.Format()));
                         }
                     }

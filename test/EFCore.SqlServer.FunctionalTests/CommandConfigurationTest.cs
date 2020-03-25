@@ -25,10 +25,8 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Constructed_select_query_CommandBuilder_throws_when_negative_CommandTimeout_is_used()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Throws<ArgumentException>(() => context.Database.SetCommandTimeout(-5));
-            }
+            using var context = CreateContext();
+            Assert.Throws<ArgumentException>(() => context.Database.SetCommandTimeout(-5));
         }
 
         [ConditionalTheory]

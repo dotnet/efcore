@@ -37,6 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace TestNamespace
 {
@@ -58,17 +59,17 @@ namespace TestNamespace
     }
 }
 ",
-                        postFile.Code);
+                        postFile.Code, ignoreLineEndingDifferences: true);
                 },
                 model =>
                 {
                     var postType = model.FindEntityType("TestNamespace.Post");
                     var authorNavigation = postType.FindNavigation("Author");
-                    Assert.True(authorNavigation.IsDependentToPrincipal());
+                    Assert.True(authorNavigation.IsOnDependent);
                     Assert.Equal("TestNamespace.Person", authorNavigation.ForeignKey.PrincipalEntityType.Name);
 
                     var contributionsNav = postType.FindNavigation("Contributions");
-                    Assert.False(contributionsNav.IsDependentToPrincipal());
+                    Assert.False(contributionsNav.IsOnDependent);
                     Assert.Equal("TestNamespace.Contribution", contributionsNav.ForeignKey.DeclaringEntityType.Name);
                 });
         }
@@ -97,6 +98,7 @@ namespace TestNamespace
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace TestNamespace
 {
@@ -112,7 +114,7 @@ namespace TestNamespace
     }
 }
 ",
-                        postFile.Code);
+                        postFile.Code, ignoreLineEndingDifferences: true);
                 },
                 model =>
                 {
@@ -122,7 +124,7 @@ namespace TestNamespace
                     var foreignKeyProperty = Assert.Single(blogNavigation.ForeignKey.Properties);
                     Assert.Equal("BlogId", foreignKeyProperty.Name);
 
-                    var inverseNavigation = blogNavigation.FindInverse();
+                    var inverseNavigation = blogNavigation.Inverse;
                     Assert.Equal("TestNamespace.Blog", inverseNavigation.DeclaringEntityType.Name);
                     Assert.Equal("Posts", inverseNavigation.Name);
                 });
@@ -152,6 +154,7 @@ namespace TestNamespace
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace TestNamespace
 {
@@ -167,7 +170,7 @@ namespace TestNamespace
     }
 }
 ",
-                        postFile.Code);
+                        postFile.Code, ignoreLineEndingDifferences: true);
                 },
                 model =>
                 {
@@ -177,7 +180,7 @@ namespace TestNamespace
                     var foreignKeyProperty = Assert.Single(blogNavigation.ForeignKey.Properties);
                     Assert.Equal("Blog", foreignKeyProperty.Name);
 
-                    var inverseNavigation = blogNavigation.FindInverse();
+                    var inverseNavigation = blogNavigation.Inverse;
                     Assert.Equal("TestNamespace.Blog", inverseNavigation.DeclaringEntityType.Name);
                     Assert.Equal("Posts", inverseNavigation.Name);
                 });
@@ -208,6 +211,7 @@ namespace TestNamespace
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace TestNamespace
 {
@@ -227,7 +231,7 @@ namespace TestNamespace
     }
 }
 ",
-                        postFile.Code);
+                        postFile.Code, ignoreLineEndingDifferences: true);
                 },
                 model =>
                 {
@@ -238,7 +242,7 @@ namespace TestNamespace
                     var foreignKeyProperty = Assert.Single(blogNavigation.ForeignKey.Properties);
                     Assert.Equal("BlogId", foreignKeyProperty.Name);
 
-                    var inverseNavigation = blogNavigation.FindInverse();
+                    var inverseNavigation = blogNavigation.Inverse;
                     Assert.Equal("TestNamespace.Blog", inverseNavigation.DeclaringEntityType.Name);
                     Assert.Equal("Posts", inverseNavigation.Name);
 
@@ -247,7 +251,7 @@ namespace TestNamespace
                     var originalForeignKeyProperty = Assert.Single(originalBlogNavigation.ForeignKey.Properties);
                     Assert.Equal("OriginalBlogId", originalForeignKeyProperty.Name);
 
-                    var originalInverseNavigation = originalBlogNavigation.FindInverse();
+                    var originalInverseNavigation = originalBlogNavigation.Inverse;
                     Assert.Equal("TestNamespace.Blog", originalInverseNavigation.DeclaringEntityType.Name);
                     Assert.Equal("OriginalPosts", originalInverseNavigation.Name);
                 });
@@ -275,6 +279,7 @@ namespace TestNamespace
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace TestNamespace
 {
@@ -287,7 +292,7 @@ namespace TestNamespace
     }
 }
 ",
-                        postFile.Code);
+                        postFile.Code, ignoreLineEndingDifferences: true);
                 },
                 model =>
                 {
@@ -302,14 +307,106 @@ namespace TestNamespace
             Test(
                 modelBuilder => modelBuilder.Entity("Vista").ToView("Vistas", "dbo"),
                 new ModelCodeGenerationOptions { UseDataAnnotations = true },
-                code => Assert.DoesNotContain(
-                    "[Table(",
-                    code.AdditionalFiles.First(f => f.Path == "Vista.cs").Code),
+                code =>
+                {
+                    var vistaFile = code.AdditionalFiles.First(f => f.Path == "Vista.cs");
+                    Assert.Equal(
+                        @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+namespace TestNamespace
+{
+    [Keyless]
+    public partial class Vista
+    {
+    }
+}
+",
+                        vistaFile.Code, ignoreLineEndingDifferences: true);
+                },
                 model =>
                 {
                     var entityType = model.FindEntityType("TestNamespace.Vista");
-                    Assert.Equal("Vistas", entityType.GetTableName());
-                    Assert.Equal("dbo", entityType.GetSchema());
+                    Assert.Equal("Vistas", entityType.GetViewName());
+                    Assert.Null(entityType.GetTableName());
+                    Assert.Equal("dbo", entityType.GetViewSchema());
+                    Assert.Null(entityType.GetSchema());
+                });
+        }
+
+        [ConditionalFact]
+        public void Keyless_entity_generates_KeylesssAttribute()
+        {
+            Test(
+                modelBuilder => modelBuilder.Entity("Vista").HasNoKey(),
+                new ModelCodeGenerationOptions { UseDataAnnotations = true },
+                code =>
+                {
+                    var vistaFile = code.AdditionalFiles.First(f => f.Path == "Vista.cs");
+                    Assert.Equal(
+                        @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+namespace TestNamespace
+{
+    [Keyless]
+    public partial class Vista
+    {
+    }
+}
+",
+                        vistaFile.Code, ignoreLineEndingDifferences: true);
+
+                    Assert.Equal(
+                        @"using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+
+namespace TestNamespace
+{
+    public partial class TestDbContext : DbContext
+    {
+        public TestDbContext()
+        {
+        }
+
+        public TestDbContext(DbContextOptions<TestDbContext> options)
+            : base(options)
+        {
+        }
+
+        public virtual DbSet<Vista> Vista { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+            }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            OnModelCreatingPartial(modelBuilder);
+        }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+    }
+}
+",
+                        code.ContextFile.Code, ignoreLineEndingDifferences: true);
+                },
+                model =>
+                {
+                    var entityType = model.FindEntityType("TestNamespace.Vista");
+                    Assert.Null(entityType.FindPrimaryKey());
                 });
         }
     }

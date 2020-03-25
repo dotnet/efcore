@@ -3,13 +3,15 @@
 
 using System;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     public abstract class SqlExpression : Expression, IPrintableExpression
     {
-        protected SqlExpression(Type type, RelationalTypeMapping typeMapping)
+        protected SqlExpression([NotNull] Type type, [CanBeNull] RelationalTypeMapping typeMapping)
         {
             Type = type;
             TypeMapping = typeMapping;
@@ -19,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public virtual RelationalTypeMapping TypeMapping { get; }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-            => throw new InvalidOperationException("VisitChildren must be overridden in class deriving from SqlExpression");
+            => throw new InvalidOperationException(CoreStrings.VisitChildrenMustBeOverridden);
 
         public sealed override ExpressionType NodeType => ExpressionType.Extension;
         public abstract void Print(ExpressionPrinter expressionPrinter);

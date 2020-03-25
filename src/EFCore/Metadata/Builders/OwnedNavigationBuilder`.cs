@@ -92,6 +92,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                         ConfigurationSource.Explicit).Metadata));
 
         /// <summary>
+        ///     <para>
+        ///         Returns an object that can be used to configure an existing navigation property
+        ///         from the owned type to its owner. It is an error for the navigation property
+        ///         not to exist.
+        ///     </para>
+        /// </summary>
+        /// <param name="navigationExpression">
+        ///     A lambda expression representing the navigation property to be configured (
+        ///     <c>blog => blog.Posts</c>).
+        /// </param>
+        /// <returns> An object that can be used to configure the navigation property. </returns>
+        public virtual NavigationBuilder Navigation<TNavigation>(
+            [NotNull] Expression<Func<TDependentEntity, TNavigation>> navigationExpression)
+            => new NavigationBuilder(DependentEntityType.Builder.Navigation(
+                Check.NotNull(navigationExpression, nameof(navigationExpression)).GetPropertyAccess()));
+
+        /// <summary>
         ///     Excludes the given property from the entity type. This method is typically used to remove properties
         ///     or navigations from the owned entity type that were added by convention.
         /// </summary>
@@ -534,7 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 navigationName,
                 DependentEntityType.Builder.HasRelationship(
                     relatedEntityType, navigationName, ConfigurationSource.Explicit,
-                    setTargetAsPrincipal: DependentEntityType == relatedEntityType).Metadata);
+                    targetIsPrincipal: DependentEntityType == relatedEntityType ? true : (bool?)null).Metadata);
         }
 
         /// <summary>
@@ -578,7 +595,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 navigation,
                 DependentEntityType.Builder.HasRelationship(
                     relatedEntityType, navigation, ConfigurationSource.Explicit,
-                    setTargetAsPrincipal: DependentEntityType == relatedEntityType).Metadata);
+                    targetIsPrincipal: DependentEntityType == relatedEntityType ? true : (bool?)null).Metadata);
         }
 
         /// <summary>
@@ -631,10 +648,40 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures this entity to have seed data. It is used to generate data motion migrations.
         /// </summary>
         /// <param name="data">
+        ///     A collection of seed data.
+        /// </param>
+        /// <returns> An object that can be used to configure the model data. </returns>
+        public virtual DataBuilder<TDependentEntity> HasData([NotNull] IEnumerable<TDependentEntity> data)
+        {
+            Check.NotNull(data, nameof(data));
+
+            OwnedEntityType.AddData(data);
+
+            return new DataBuilder<TDependentEntity>();
+        }
+
+        /// <summary>
+        ///     Configures this entity to have seed data. It is used to generate data motion migrations.
+        /// </summary>
+        /// <param name="data">
         ///     An array of seed data represented by anonymous types.
         /// </param>
         /// <returns> An object that can be used to configure the model data. </returns>
         public new virtual DataBuilder<TDependentEntity> HasData([NotNull] params object[] data)
+        {
+            base.HasData(data);
+
+            return new DataBuilder<TDependentEntity>();
+        }
+
+        /// <summary>
+        ///     Configures this entity to have seed data. It is used to generate data motion migrations.
+        /// </summary>
+        /// <param name="data">
+        ///     A collection of seed data represented by anonymous types.
+        /// </param>
+        /// <returns> An object that can be used to configure the model data. </returns>
+        public new virtual DataBuilder<TDependentEntity> HasData([NotNull] IEnumerable<object> data)
         {
             base.HasData(data);
 

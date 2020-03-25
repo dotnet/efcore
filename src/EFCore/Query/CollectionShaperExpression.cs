@@ -4,18 +4,23 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class CollectionShaperExpression : Expression, IPrintableExpression
     {
         public CollectionShaperExpression(
-            Expression projection,
-            Expression innerShaper,
-            INavigation navigation,
-            Type elementType)
+            [NotNull] Expression projection,
+            [NotNull] Expression innerShaper,
+            [CanBeNull] INavigation navigation,
+            [CanBeNull] Type elementType)
         {
+            Check.NotNull(projection, nameof(projection));
+            Check.NotNull(innerShaper, nameof(innerShaper));
+
             Projection = projection;
             InnerShaper = innerShaper;
             Navigation = navigation;
@@ -24,16 +29,25 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
+            Check.NotNull(visitor, nameof(visitor));
+
             var projection = visitor.Visit(Projection);
             var innerShaper = visitor.Visit(InnerShaper);
 
             return Update(projection, innerShaper);
         }
 
-        public virtual CollectionShaperExpression Update(Expression projection, Expression innerShaper)
-            => projection != Projection || innerShaper != InnerShaper
+        public virtual CollectionShaperExpression Update(
+            [NotNull] Expression projection,
+            [NotNull] Expression innerShaper)
+        {
+            Check.NotNull(projection, nameof(projection));
+            Check.NotNull(innerShaper, nameof(innerShaper));
+
+            return projection != Projection || innerShaper != InnerShaper
                 ? new CollectionShaperExpression(projection, innerShaper, Navigation, ElementType)
                 : this;
+        }
 
         public sealed override ExpressionType NodeType => ExpressionType.Extension;
         public override Type Type => Navigation?.ClrType ?? typeof(List<>).MakeGenericType(ElementType);
@@ -45,6 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.AppendLine("CollectionShaper:");
             using (expressionPrinter.Indent())
             {

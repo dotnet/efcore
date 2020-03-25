@@ -4,6 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -28,6 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             [NotNull] QueryContextDependencies dependencies,
             [NotNull] CosmosClientWrapper cosmosClient)
         {
+            Check.NotNull(dependencies, nameof(dependencies));
+            Check.NotNull(cosmosClient, nameof(cosmosClient));
+
             _dependencies = dependencies;
             _cosmosClient = cosmosClient;
         }

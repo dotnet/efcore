@@ -71,6 +71,19 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public void Can_add_extension_with_no_connection()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
+
+            optionsBuilder.UseSqlite();
+
+            var extension = optionsBuilder.Options.Extensions.OfType<SqliteOptionsExtension>().Single();
+
+            Assert.Null(extension.Connection);
+            Assert.Null(extension.ConnectionString);
+        }
+
+        [ConditionalFact]
         public void Can_add_extension_with_connection_using_generic_options()
         {
             var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
