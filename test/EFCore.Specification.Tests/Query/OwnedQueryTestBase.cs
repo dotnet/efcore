@@ -1035,7 +1035,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 modelBuilder.Entity<OwnedPerson>(
                     eb =>
                     {
-                        eb.IndexedProperty<string>("Name");
+                        eb.IndexerProperty<string>("Name");
                         var ownedPerson = new OwnedPerson { Id = 1 };
                         ownedPerson["Name"] = "Mona Cy";
                         eb.HasData(ownedPerson);
@@ -1043,8 +1043,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         eb.OwnsOne(
                             p => p.PersonAddress, ab =>
                             {
-                                ab.IndexedProperty<string>("AddressLine");
-                                ab.IndexedProperty(typeof(int), "ZipCode");
+                                ab.IndexerProperty<string>("AddressLine");
+                                ab.IndexerProperty(typeof(int), "ZipCode");
                                 ab.HasData(
                                     new { OwnedPersonId = 1, PlaceType = "Land", AddressLine = "804 S. Lakeshore Road", ZipCode = 38654 },
                                     new { OwnedPersonId = 2, PlaceType = "Land", AddressLine = "7 Church Dr.", ZipCode = 28655 },
@@ -1088,7 +1088,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         eb.OwnsMany(
                             p => p.Orders, ob =>
                             {
-                                ob.IndexedProperty<DateTime>("OrderDate");
+                                ob.IndexerProperty<DateTime>("OrderDate");
                                 ob.HasData(
                                     new { Id = -10, ClientId = 1, OrderDate = Convert.ToDateTime("2018-07-11 10:01:41") },
                                     new { Id = -11, ClientId = 1, OrderDate = Convert.ToDateTime("2015-03-03 04:37:59") },
@@ -1107,7 +1107,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         eb.OwnsOne(
                             p => p.BranchAddress, ab =>
                             {
-                                ab.IndexedProperty<string>("BranchName");
+                                ab.IndexerProperty<string>("BranchName");
                                 ab.HasData(
                                     new { BranchId = 2, PlaceType = "Land", BranchName = "BranchA" },
                                     new { BranchId = 3, PlaceType = "Land", BranchName = "BranchB" });
@@ -1142,7 +1142,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         eb.OwnsOne(
                             p => p.LeafAAddress, ab =>
                             {
-                                ab.IndexedProperty<int>("LeafType");
+                                ab.IndexerProperty<int>("LeafType");
 
                                 ab.HasData(
                                     new { LeafAId = 3, PlaceType = "Land", LeafType = 1 });
@@ -1174,7 +1174,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         eb.OwnsOne(
                             p => p.LeafBAddress, ab =>
                             {
-                                ab.IndexedProperty<string>("LeafBType");
+                                ab.IndexerProperty<string>("LeafBType");
                                 ab.HasData(
                                     new { LeafBId = 4, PlaceType = "Land", LeafBType = "Green" });
 

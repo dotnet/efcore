@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                 interfacesToProxy.Add(_proxyLazyLoaderInterface);
             }
 
-            if (options.UseChangeDetectionProxies)
+            if (options.UseChangeTrackingProxies)
             {
                 var changeTrackingStrategy = entityType.GetChangeTrackingStrategy();
                 switch (changeTrackingStrategy)
@@ -205,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                 interceptors.Add(lazyLoadingInterceptor);
             }
 
-            if (options.UseChangeDetectionProxies)
+            if (options.UseChangeTrackingProxies)
             {
                 var changeTrackingStrategy = entityType.GetChangeTrackingStrategy();
                 switch (changeTrackingStrategy)

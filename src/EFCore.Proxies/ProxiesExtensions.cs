@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
     {
         /// <summary>
         ///     <para>
-        ///         Turns on the creation of change detection proxies.
+        ///         Turns on the creation of change tracking proxies.
         ///     </para>
         ///     <para>
         ///         Note that this requires appropriate services to be available in the EF internal service provider. Normally this
@@ -30,12 +30,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     The options builder, as passed to <see cref="DbContext.OnConfiguring" />
         ///     or exposed AddDbContext.
         /// </param>
-        /// <param name="useChangeDetectionProxies"> <c>True</c> to use change detection proxies; false to prevent their use. </param>
+        /// <param name="useChangeTrackingProxies"> <c>True</c> to use change tracking proxies; false to prevent their use. </param>
         /// <param name="checkEquality"> <c>True</c> if proxy change detection should check if the incoming value is equal to the current value before notifying. Defaults to <c>True</c>. </param>
         /// <returns> The same builder to allow method calls to be chained. </returns>
-        public static DbContextOptionsBuilder UseChangeDetectionProxies(
+        public static DbContextOptionsBuilder UseChangeTrackingProxies(
             [NotNull] this DbContextOptionsBuilder optionsBuilder,
-            bool useChangeDetectionProxies = true,
+            bool useChangeTrackingProxies = true,
             bool checkEquality = true)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore
             var extension = optionsBuilder.Options.FindExtension<ProxiesOptionsExtension>()
                 ?? new ProxiesOptionsExtension();
 
-            extension = extension.WithChangeDetection(useChangeDetectionProxies, checkEquality);
+            extension = extension.WithChangeTracking(useChangeTrackingProxies, checkEquality);
 
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Turns on the creation of change detection proxies.
+        ///         Turns on the creation of change tracking proxies.
         ///     </para>
         ///     <para>
         ///         Note that this requires appropriate services to be available in the EF internal service provider. Normally this
@@ -65,15 +65,15 @@ namespace Microsoft.EntityFrameworkCore
         ///     The options builder, as passed to <see cref="DbContext.OnConfiguring" />
         ///     or exposed AddDbContext.
         /// </param>
-        /// <param name="useChangeDetectionProxies"> <c>True</c> to use change detection proxies; false to prevent their use. </param>
+        /// <param name="useChangeTrackingProxies"> <c>True</c> to use change tracking proxies; false to prevent their use. </param>
         /// <param name="checkEquality"> <c>True</c> if proxy change detection should check if the incoming value is equal to the current value before notifying. Defaults to <c>True</c>. </param>
         /// <returns> The same builder to allow method calls to be chained. </returns>
-        public static DbContextOptionsBuilder<TContext> UseChangeDetectionProxies<TContext>(
+        public static DbContextOptionsBuilder<TContext> UseChangeTrackingProxies<TContext>(
             [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
-            bool useChangeDetectionProxies = true,
+            bool useChangeTrackingProxies = true,
             bool checkEquality = true)
             where TContext : DbContext
-            => (DbContextOptionsBuilder<TContext>)UseChangeDetectionProxies((DbContextOptionsBuilder)optionsBuilder, useChangeDetectionProxies, checkEquality);
+            => (DbContextOptionsBuilder<TContext>)UseChangeTrackingProxies((DbContextOptionsBuilder)optionsBuilder, useChangeTrackingProxies, checkEquality);
 
         /// <summary>
         ///     <para>

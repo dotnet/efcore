@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var (connection, context, logger) = (parameterObject.Connection, parameterObject.Context, parameterObject.Logger);
 
             var commandId = Guid.NewGuid();
-            var command = CreateCommand(parameterObject, commandId, DbCommandMethod.ExecuteNonQuery);
+            var command = CreateDbCommand(parameterObject, commandId, DbCommandMethod.ExecuteNonQuery);
 
             connection.Open();
 
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var (connection, context, logger) = (parameterObject.Connection, parameterObject.Context, parameterObject.Logger);
 
             var commandId = Guid.NewGuid();
-            var command = CreateCommand(parameterObject, commandId, DbCommandMethod.ExecuteNonQuery);
+            var command = CreateDbCommand(parameterObject, commandId, DbCommandMethod.ExecuteNonQuery);
 
             await connection.OpenAsync(cancellationToken);
 
@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var (connection, context, logger) = (parameterObject.Connection, parameterObject.Context, parameterObject.Logger);
 
             var commandId = Guid.NewGuid();
-            var command = CreateCommand(parameterObject, commandId, DbCommandMethod.ExecuteScalar);
+            var command = CreateDbCommand(parameterObject, commandId, DbCommandMethod.ExecuteScalar);
 
             connection.Open();
 
@@ -304,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var (connection, context, logger) = (parameterObject.Connection, parameterObject.Context, parameterObject.Logger);
 
             var commandId = Guid.NewGuid();
-            var command = CreateCommand(parameterObject, commandId, DbCommandMethod.ExecuteScalar);
+            var command = CreateDbCommand(parameterObject, commandId, DbCommandMethod.ExecuteScalar);
 
             await connection.OpenAsync(cancellationToken);
 
@@ -382,7 +382,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var logger = parameterObject.Logger;
 
             var commandId = Guid.NewGuid();
-            var command = CreateCommand(parameterObject, commandId, DbCommandMethod.ExecuteReader);
+            var command = CreateDbCommand(parameterObject, commandId, DbCommandMethod.ExecuteReader);
 
             connection.Open();
 
@@ -476,7 +476,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var logger = parameterObject.Logger;
 
             var commandId = Guid.NewGuid();
-            var command = CreateCommand(parameterObject, commandId, DbCommandMethod.ExecuteReader);
+            var command = CreateDbCommand(parameterObject, commandId, DbCommandMethod.ExecuteReader);
 
             await connection.OpenAsync(cancellationToken);
 
@@ -574,7 +574,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="commandId"> The command correlation ID. </param>
         /// <param name="commandMethod"> The method that will be called on the created command. </param>
         /// <returns> The created command. </returns>
-        public virtual DbCommand CreateCommand(
+        public virtual DbCommand CreateDbCommand(
             RelationalCommandParameterObject parameterObject,
             Guid commandId,
             DbCommandMethod commandMethod)

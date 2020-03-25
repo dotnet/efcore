@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore
                 protected override string StoreName { get; } = "ProxyGraphChangeTrackingUpdatesTest";
 
                 public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-                    => base.AddOptions(builder.UseChangeDetectionProxies());
+                    => base.AddOptions(builder.UseChangeTrackingProxies());
 
                 protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
                     => base.AddServices(serviceCollection.AddEntityFrameworkProxies());
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore
                 protected override string StoreName { get; } = "ProxyGraphChangeTrackingAndLazyLoadingUpdatesTest";
 
                 public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-                    => base.AddOptions(builder.UseLazyLoadingProxies().UseChangeDetectionProxies());
+                    => base.AddOptions(builder.UseLazyLoadingProxies().UseChangeTrackingProxies());
 
                 protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
                     => base.AddServices(serviceCollection.AddEntityFrameworkProxies());

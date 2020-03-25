@@ -1317,8 +1317,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<IndexedClass>(
                     b =>
                     {
-                        b.IndexedProperty<int>("Required");
-                        b.IndexedProperty<string>("Optional");
+                        b.IndexerProperty<int>("Required");
+                        b.IndexerProperty<string>("Optional");
                         var d = new IndexedClass { Id = -1 };
                         d["Required"] = 2;
                         b.HasData(d);
@@ -1341,8 +1341,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<IndexedClass>(
                     b =>
                     {
-                        b.IndexedProperty<int>("Required");
-                        b.IndexedProperty<string>("Optional");
+                        b.IndexerProperty<int>("Required");
+                        b.IndexerProperty<string>("Optional");
                         b.HasData(new { Id = -1, Required = 2 });
                     });
 
@@ -1363,8 +1363,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<IndexedClassByDictionary>(
                     b =>
                     {
-                        b.IndexedProperty<int>("Required");
-                        b.IndexedProperty<string>("Optional");
+                        b.IndexerProperty<int>("Required");
+                        b.IndexerProperty<string>("Optional");
                         var d = new IndexedClassByDictionary { Id = -1 };
                         d["Required"] = 2;
                         b.HasData(d);
@@ -1387,8 +1387,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<IndexedClassByDictionary>(
                     b =>
                     {
-                        b.IndexedProperty<int>("Required");
-                        b.IndexedProperty<string>("Optional");
+                        b.IndexerProperty<int>("Required");
+                        b.IndexerProperty<string>("Optional");
                         b.HasData(new { Id = -1, Required = 2 });
                     });
 

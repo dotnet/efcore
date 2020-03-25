@@ -533,7 +533,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     ? entityTypeBuilder.Property(
                         Metadata.ClrType, Metadata.Name, Metadata.GetTypeConfigurationSource(), configurationSource)
                     : (identifyingMemberInfo as PropertyInfo)?.IsIndexerProperty() == true
-                        ? entityTypeBuilder.IndexedProperty(Metadata.ClrType, Metadata.Name, configurationSource)
+                        ? entityTypeBuilder.IndexerProperty(Metadata.ClrType, Metadata.Name, configurationSource)
                         : entityTypeBuilder.Property(identifyingMemberInfo, configurationSource);
             }
 

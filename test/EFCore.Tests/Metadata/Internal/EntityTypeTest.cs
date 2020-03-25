@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();
             public IModel Model { get; }
             public string Name { get; }
-            public bool IsSharedType { get; }
+            public bool HasSharedClrType { get; }
             public Type ClrType { get; }
             public IEntityType BaseType { get; }
             public string DefiningNavigationName { get; }

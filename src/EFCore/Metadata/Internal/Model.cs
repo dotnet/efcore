@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(CoreStrings.DuplicateEntityType(entityType.DisplayName()));
                 }
 
-                if (entityType.IsSharedType)
+                if (entityType.HasSharedClrType)
                 {
                     _sharedEntityClrTypes.Add(entityType.ClrType);
                 }

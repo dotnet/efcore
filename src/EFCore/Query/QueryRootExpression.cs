@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 
-            if (EntityType.IsSharedType)
+            if (EntityType.HasSharedClrType)
             {
                 expressionPrinter.Append($"DbSet<{EntityType.ClrType.ShortDisplayName()}>(\"{EntityType.Name}\")");
             }

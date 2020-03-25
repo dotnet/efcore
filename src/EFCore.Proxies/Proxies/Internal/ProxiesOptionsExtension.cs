@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
     {
         private DbContextOptionsExtensionInfo _info;
         private bool _useLazyLoadingProxies;
-        private bool _useChangeDetectionProxies;
+        private bool _useChangeTrackingProxies;
         private bool _checkEquality;
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         protected ProxiesOptionsExtension([NotNull] ProxiesOptionsExtension copyFrom)
         {
             _useLazyLoadingProxies = copyFrom._useLazyLoadingProxies;
-            _useChangeDetectionProxies = copyFrom._useChangeDetectionProxies;
+            _useChangeTrackingProxies = copyFrom._useChangeTrackingProxies;
             _checkEquality = copyFrom._checkEquality;
         }
 
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool UseChangeDetectionProxies => _useChangeDetectionProxies;
+        public virtual bool UseChangeTrackingProxies => _useChangeTrackingProxies;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool UseProxies => UseLazyLoadingProxies || UseChangeDetectionProxies;
+        public virtual bool UseProxies => UseLazyLoadingProxies || UseChangeTrackingProxies;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -119,11 +119,11 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ProxiesOptionsExtension WithChangeDetection(bool useChangeDetectionProxies = true, bool checkEquality = true)
+        public virtual ProxiesOptionsExtension WithChangeTracking(bool useChangeTrackingProxies = true, bool checkEquality = true)
         {
             var clone = Clone();
 
-            clone._useChangeDetectionProxies = useChangeDetectionProxies;
+            clone._useChangeTrackingProxies = useChangeTrackingProxies;
             clone._checkEquality = checkEquality;
 
             return clone;
@@ -176,12 +176,12 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             public override bool IsDatabaseProvider => false;
 
             public override string LogFragment
-                => _logFragment ??= Extension.UseLazyLoadingProxies && Extension.UseChangeDetectionProxies
-                    ? "using lazy-loading and change detection proxies "
+                => _logFragment ??= Extension.UseLazyLoadingProxies && Extension.UseChangeTrackingProxies
+                    ? "using lazy-loading and change tracking proxies "
                     : Extension.UseLazyLoadingProxies
                     ? "using lazy-loading proxies "
-                    : Extension.UseChangeDetectionProxies
-                    ? "using change detection proxies "
+                    : Extension.UseChangeTrackingProxies
+                    ? "using change tracking proxies "
                     : "";
 
             public override long GetServiceProviderHashCode() => Extension.UseProxies ? 541 : 0;
@@ -191,8 +191,8 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                 debugInfo["Proxies:" + nameof(ProxiesExtensions.UseLazyLoadingProxies)]
                     = (Extension._useLazyLoadingProxies ? 541 : 0).ToString(CultureInfo.InvariantCulture);
 
-                debugInfo["Proxies:" + nameof(ProxiesExtensions.UseChangeDetectionProxies)]
-                    = (Extension._useChangeDetectionProxies ? 541 : 0).ToString(CultureInfo.InvariantCulture);
+                debugInfo["Proxies:" + nameof(ProxiesExtensions.UseChangeTrackingProxies)]
+                    = (Extension._useChangeTrackingProxies ? 541 : 0).ToString(CultureInfo.InvariantCulture);
             }
         }
     }

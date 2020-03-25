@@ -1170,7 +1170,7 @@
     <value>The property '{property}' cannot be added to type '{entityType}' because the name of the given CLR property or field '{clrName}' is different.</value>
   </data>
   <data name="PropertyClashingNonIndexer" xml:space="preserve">
-    <value>The indexed property '{property}' cannot be added to type '{entityType}' because the CLR class contains a member with the same name.</value>
+    <value>The indexer property '{property}' cannot be added to type '{entityType}' because the CLR class contains a member with the same name.</value>
   </data>
   <data name="EntityEqualitySubqueryWithCompositeKeyNotSupported" xml:space="preserve">
     <value>This query would cause multiple evaluation of a subquery because entity '{entityType}' has a composite key. Rewrite your query avoiding the subquery.</value>

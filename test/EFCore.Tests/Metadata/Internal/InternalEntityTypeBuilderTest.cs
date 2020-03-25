@@ -1426,7 +1426,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var modelBuilder = CreateModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(IndexedClass), ConfigurationSource.Explicit);
 
-            var propertyBuilder = entityBuilder.IndexedProperty(
+            var propertyBuilder = entityBuilder.IndexerProperty(
                 typeof(string), IndexedClass.IndexedPropertyName, ConfigurationSource.DataAnnotation);
 
             Assert.NotNull(propertyBuilder);
@@ -1438,7 +1438,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var modelBuilder = CreateModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(IndexedClass), ConfigurationSource.Explicit);
 
-            var propertyBuilder = entityBuilder.IndexedProperty(
+            var propertyBuilder = entityBuilder.IndexerProperty(
                 typeof(string), IndexedClass.IndexedPropertyName, ConfigurationSource.DataAnnotation);
 
             Assert.NotNull(propertyBuilder);
@@ -1459,7 +1459,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var modelBuilder = CreateModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(IndexedClass), ConfigurationSource.Explicit);
 
-            var propertyBuilder = entityBuilder.IndexedProperty(
+            var propertyBuilder = entityBuilder.IndexerProperty(
                 typeof(string), IndexedClass.IndexedPropertyName, ConfigurationSource.Convention);
 
             Assert.NotNull(propertyBuilder);
@@ -1485,7 +1485,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotNull(shadowPropertyBuilder);
             Assert.True(shadowPropertyBuilder.Metadata.IsShadowProperty());
 
-            var replacedPropertyBuilder = entityBuilder.IndexedProperty(
+            var replacedPropertyBuilder = entityBuilder.IndexerProperty(
                 typeof(string), IndexedClass.IndexedPropertyName, ConfigurationSource.DataAnnotation);
 
             Assert.NotNull(replacedPropertyBuilder);
@@ -1503,7 +1503,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(
                 CoreStrings.NonIndexerEntityType(IndexedClass.IndexedPropertyName, nameof(Order), typeof(string).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(
-                    () => entityBuilder.IndexedProperty(
+                    () => entityBuilder.IndexerProperty(
                         typeof(string), IndexedClass.IndexedPropertyName, ConfigurationSource.Convention)).Message);
         }
 
