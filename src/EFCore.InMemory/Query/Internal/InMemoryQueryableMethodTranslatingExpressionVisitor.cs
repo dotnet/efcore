@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -30,13 +29,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         public InMemoryQueryableMethodTranslatingExpressionVisitor(
             [NotNull] QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
-            [NotNull] IModel model)
+            [NotNull] QueryCompilationContext queryCompilationContext)
             : base(dependencies, subquery: false)
         {
-            _expressionTranslator = new InMemoryExpressionTranslatingExpressionVisitor(this, model);
+            _expressionTranslator = new InMemoryExpressionTranslatingExpressionVisitor(this, queryCompilationContext.Model);
             _weakEntityExpandingExpressionVisitor = new WeakEntityExpandingExpressionVisitor(_expressionTranslator);
             _projectionBindingExpressionVisitor = new InMemoryProjectionBindingExpressionVisitor(this, _expressionTranslator);
-            _model = model;
+            _model = queryCompilationContext.Model;
         }
 
         protected InMemoryQueryableMethodTranslatingExpressionVisitor(

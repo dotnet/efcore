@@ -36,16 +36,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public CosmosQueryableMethodTranslatingExpressionVisitor(
             [NotNull] QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
-            [NotNull] IModel model,
+            [NotNull] QueryCompilationContext queryCompilationContext,
             [NotNull] ISqlExpressionFactory sqlExpressionFactory,
             [NotNull] IMemberTranslatorProvider memberTranslatorProvider,
             [NotNull] IMethodCallTranslatorProvider methodCallTranslatorProvider)
             : base(dependencies, subquery: false)
         {
-            _model = model;
+            _model = queryCompilationContext.Model;
             _sqlExpressionFactory = sqlExpressionFactory;
             _sqlTranslator = new CosmosSqlTranslatingExpressionVisitor(
-                model,
+                _model,
                 sqlExpressionFactory,
                 memberTranslatorProvider,
                 methodCallTranslatorProvider);

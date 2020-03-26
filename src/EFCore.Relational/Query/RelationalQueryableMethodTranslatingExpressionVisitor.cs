@@ -29,20 +29,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         public RelationalQueryableMethodTranslatingExpressionVisitor(
             [NotNull] QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
             [NotNull] RelationalQueryableMethodTranslatingExpressionVisitorDependencies relationalDependencies,
-            [NotNull] IModel model)
+            [NotNull] QueryCompilationContext queryCompilationContext)
             : base(dependencies, subquery: false)
         {
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
-            Check.NotNull(model, nameof(model));
+            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
             RelationalDependencies = relationalDependencies;
 
             var sqlExpressionFactory = relationalDependencies.SqlExpressionFactory;
-            _sqlTranslator = relationalDependencies.RelationalSqlTranslatingExpressionVisitorFactory.Create(model, this);
+            _model = queryCompilationContext.Model;
+            _sqlTranslator = relationalDependencies.RelationalSqlTranslatingExpressionVisitorFactory.Create(queryCompilationContext, this);
             _weakEntityExpandingExpressionVisitor = new WeakEntityExpandingExpressionVisitor(_sqlTranslator, sqlExpressionFactory);
-            _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator, model);
-            _model = model;
+            _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator);
             _sqlExpressionFactory = sqlExpressionFactory;
             _subquery = false;
         }
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             _model = parentVisitor._model;
             _sqlTranslator = parentVisitor._sqlTranslator;
             _weakEntityExpandingExpressionVisitor = parentVisitor._weakEntityExpandingExpressionVisitor;
-            _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator, _model);
+            _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator);
             _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
             _subquery = true;
         }

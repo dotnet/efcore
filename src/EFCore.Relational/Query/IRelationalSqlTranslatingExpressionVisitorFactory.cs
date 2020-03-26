@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public interface IRelationalSqlTranslatingExpressionVisitorFactory
     {
         RelationalSqlTranslatingExpressionVisitor Create(
-            [NotNull] IModel model,
+            [NotNull] QueryCompilationContext queryCompilationContext,
             [NotNull] QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor);
     }
 }

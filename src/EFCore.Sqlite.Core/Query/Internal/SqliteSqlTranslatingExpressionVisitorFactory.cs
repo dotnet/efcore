@@ -18,11 +18,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         }
 
         public virtual RelationalSqlTranslatingExpressionVisitor Create(
-            IModel model,
+            QueryCompilationContext queryCompilationContext,
             QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
             => new SqliteSqlTranslatingExpressionVisitor(
                 _dependencies,
-                model,
+                queryCompilationContext,
                 queryableMethodTranslatingExpressionVisitor);
     }
 }

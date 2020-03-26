@@ -9,7 +9,6 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -27,17 +26,17 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public RelationalSqlTranslatingExpressionVisitor(
             [NotNull] RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
-            [NotNull] IModel model,
+            [NotNull] QueryCompilationContext queryCompilationContext,
             [NotNull] QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
         {
             Check.NotNull(dependencies, nameof(dependencies));
-            Check.NotNull(model, nameof(model));
+            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
             Check.NotNull(queryableMethodTranslatingExpressionVisitor, nameof(queryableMethodTranslatingExpressionVisitor));
 
             Dependencies = dependencies;
             SqlExpressionFactory = dependencies.SqlExpressionFactory;
 
-            _model = model;
+            _model = queryCompilationContext.Model;
             _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
             _sqlTypeMappingVerifyingExpressionVisitor = new SqlTypeMappingVerifyingExpressionVisitor();
         }

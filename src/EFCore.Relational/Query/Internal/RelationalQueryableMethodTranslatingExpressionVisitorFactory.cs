@@ -31,14 +31,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _relationalDependencies = relationalDependencies;
         }
 
-        public virtual QueryableMethodTranslatingExpressionVisitor Create(IModel model)
+        public virtual QueryableMethodTranslatingExpressionVisitor Create(QueryCompilationContext queryCompilationContext)
         {
-            Check.NotNull(model, nameof(model));
+            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
             return new RelationalQueryableMethodTranslatingExpressionVisitor(
                 _dependencies,
                 _relationalDependencies,
-                model);
+                queryCompilationContext);
         }
     }
 }

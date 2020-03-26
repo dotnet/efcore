@@ -35,9 +35,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
         public SqlServerSqlTranslatingExpressionVisitor(
             [NotNull] RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
-            [NotNull] IModel model,
+            [NotNull] QueryCompilationContext queryCompilationContext,
             [NotNull] QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
-            : base(dependencies, model, queryableMethodTranslatingExpressionVisitor)
+            : base(dependencies, queryCompilationContext, queryableMethodTranslatingExpressionVisitor)
         {
         }
 

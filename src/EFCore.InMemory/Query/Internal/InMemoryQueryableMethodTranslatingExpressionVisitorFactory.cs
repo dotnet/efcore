@@ -32,11 +32,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             _dependencies = dependencies;
         }
 
-        public virtual QueryableMethodTranslatingExpressionVisitor Create(IModel model)
+        public virtual QueryableMethodTranslatingExpressionVisitor Create(QueryCompilationContext queryCompilationContext)
         {
-            Check.NotNull(model, nameof(model));
+            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
-            return new InMemoryQueryableMethodTranslatingExpressionVisitor(_dependencies, model);
+            return new InMemoryQueryableMethodTranslatingExpressionVisitor(_dependencies, queryCompilationContext);
         }
     }
 }

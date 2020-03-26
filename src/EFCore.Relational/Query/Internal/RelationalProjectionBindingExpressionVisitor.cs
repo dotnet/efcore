@@ -23,7 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private SelectExpression _selectExpression;
         private bool _clientEval;
-        private readonly IModel _model;
 
         private readonly IDictionary<ProjectionMember, Expression> _projectionMapping
             = new Dictionary<ProjectionMember, Expression>();
@@ -32,12 +31,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         public RelationalProjectionBindingExpressionVisitor(
             [NotNull] RelationalQueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor,
-            [NotNull] RelationalSqlTranslatingExpressionVisitor sqlTranslatingExpressionVisitor,
-            [NotNull] IModel model)
+            [NotNull] RelationalSqlTranslatingExpressionVisitor sqlTranslatingExpressionVisitor)
         {
             _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
             _sqlTranslator = sqlTranslatingExpressionVisitor;
-            _model = model;
         }
 
         public virtual Expression Translate([NotNull] SelectExpression selectExpression, [NotNull] Expression expression)
