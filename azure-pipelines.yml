@@ -21,7 +21,7 @@ variables:
   - ${{ if eq(variables['System.TeamProject'], 'public') }}:
     - name: _InternalRuntimeDownloadArgs
       value: ''
-    
+
   # used for post-build phases, internal builds only
   - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
     - group: DotNet-EFCore-SDLValidation-Params
@@ -52,10 +52,10 @@ stages:
             pool:
               ${{ if eq(variables['System.TeamProject'], 'public') }}:
                 name: NetCorePublic-Pool
-                queue: BuildPool.Windows.10.Amd64.VS2017.Open
+                queue: BuildPool.Server.Amd64.VS2017.Open
               ${{ if ne(variables['System.TeamProject'], 'public') }}:
                 name: NetCoreInternal-Pool
-                queue: BuildPool.Windows.10.Amd64.VS2017
+                queue: BuildPool.Server.Amd64.VS2017
             variables:
               - _InternalBuildArgs: ''
               - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
@@ -72,10 +72,10 @@ stages:
                   command: custom
                   arguments: 'locals all -clear'
               - script: "echo ##vso[build.addbuildtag]daily-build"
-                condition: and(ne(variables['Build.Reason'], 'PullRequest'), ne(variables['IsFinalBuild'], 'true'))
+                condition: and(notin(variables['Build.Reason'], 'PullRequest'), ne(variables['IsFinalBuild'], 'true'))
                 displayName: 'Set CI tags'
               - script: "echo ##vso[build.addbuildtag]release-candidate"
-                condition: and(ne(variables['Build.Reason'], 'PullRequest'), eq(variables['IsFinalBuild'], 'true'))
+                condition: and(notin(variables['Build.Reason'], 'PullRequest'), eq(variables['IsFinalBuild'], 'true'))
                 displayName: 'Set CI tags'
               - ${{ if ne(variables['System.TeamProject'], 'public') }}:
                 - task: PowerShell@2
@@ -109,7 +109,7 @@ stages:
 
           - job: macOS
             pool:
-              vmImage: macOS-10.13
+              vmImage: macOS-10.14
             steps:
               # HACK: Use an older version to work around #16667
               - bash: brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/835ae521c065524abdf66578e68032fa24bce514/Formula/libspatialite.rb
@@ -167,7 +167,7 @@ stages:
                   env:
                     Token: $(dn-bot-dnceng-artifact-feeds-rw)
               - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
-                env: 
+                env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                   Test__Cosmos__AuthToken: $(_CosmosToken)
                 name: Build
