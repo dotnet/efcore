@@ -362,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         operation.Schema,
                         operation.Table,
                         operation.Name,
-                        omitSchemaVariable: dropDescription);
+                        omitVariableDeclarations: dropDescription);
                 }
             }
 
@@ -516,7 +516,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     operation.Schema,
                     operation.Name,
                     column.Name,
-                    omitSchemaVariable: !firstDescription);
+                    omitVariableDeclarations: !firstDescription);
 
                 firstDescription = false;
             }
@@ -1025,7 +1025,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         operation.Comment,
                         operation.Schema,
                         operation.Name,
-                        omitSchemaVariable: dropDescription);
+                        omitVariableDeclarations: dropDescription);
                 }
             }
 
@@ -1709,8 +1709,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema of the table. </param>
         /// <param name="table"> The name of the table. </param>
         /// <param name="column"> The name of the column. </param>
-        /// <param name="omitSchemaVariable">
-        ///     Indicates whether the @defaultSchema variable declaraion should be omitted.
+        /// <param name="omitVariableDeclarations">
+        ///     Indicates whether the variable declarations should be omitted.
         /// </param>
         protected virtual void AddDescription(
             [NotNull] MigrationCommandListBuilder builder,
@@ -1718,14 +1718,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] string schema,
             [NotNull] string table,
             [CanBeNull] string column = null,
-            bool omitSchemaVariable = false)
+            bool omitVariableDeclarations = false)
         {
             var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
 
             string schemaLiteral;
             if (schema == null)
             {
-                if (!omitSchemaVariable)
+                if (!omitVariableDeclarations)
                 {
                     builder.Append("DECLARE @defaultSchema AS sysname")
                         .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
@@ -1740,9 +1740,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 schemaLiteral = Literal(schema);
             }
 
+            if (!omitVariableDeclarations)
+            {
+                builder.Append("DECLARE @description AS sql_variant")
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+            }
+
+            builder.Append("SET @description = ")
+                .Append(Literal(description))
+                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
             builder
                 .Append("EXEC sp_addextendedproperty 'MS_Description', ")
-                .Append(Literal(description))
+                .Append("@description")
                 .Append(", 'SCHEMA', ")
                 .Append(schemaLiteral)
                 .Append(", 'TABLE', ")
@@ -1769,22 +1778,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema of the table. </param>
         /// <param name="table"> The name of the table. </param>
         /// <param name="column"> The name of the column. </param>
-        /// <param name="omitSchemaVariable">
-        ///     Indicates whether the @defaultSchema variable declaraion should be omitted.
+        /// <param name="omitVariableDeclarations">
+        ///     Indicates whether the variable declarations should be omitted.
         /// </param>
         protected virtual void DropDescription(
             [NotNull] MigrationCommandListBuilder builder,
             [CanBeNull] string schema,
             [NotNull] string table,
             [CanBeNull] string column = null,
-            bool omitSchemaVariable = false)
+            bool omitVariableDeclarations = false)
         {
             var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
 
             string schemaLiteral;
             if (schema == null)
             {
-                if (!omitSchemaVariable)
+                if (!omitVariableDeclarations)
                 {
                     builder.Append("DECLARE @defaultSchema AS sysname")
                         .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
@@ -1797,6 +1806,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             else
             {
                 schemaLiteral = Literal(schema);
+            }
+
+            if (!omitVariableDeclarations)
+            {
+                builder.Append("DECLARE @description AS sql_variant")
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
             }
 
             builder
