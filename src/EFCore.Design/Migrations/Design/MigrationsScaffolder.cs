@@ -78,7 +78,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             string language = null)
         {
             Check.NotEmpty(migrationName, nameof(migrationName));
-            Check.NotEmpty(string.Empty + rootNamespace + subNamespace, "rootNamespace + subNamespace");
 
             if (Dependencies.MigrationsAssembly.FindMigrationId(migrationName) != null)
             {
