@@ -19,6 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         private CommandOption _tables;
         private CommandOption _useDatabaseNames;
         private CommandOption _json;
+        private CommandOption _namespace;
+        private CommandOption _contextNamespace;
 
         public override void Configure(CommandLineApplication command)
         {
@@ -36,6 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             _tables = command.Option("-t|--table <TABLE_NAME>...", Resources.TablesDescription);
             _useDatabaseNames = command.Option("--use-database-names", Resources.UseDatabaseNamesDescription);
             _json = Json.ConfigureOption(command);
+            _namespace = command.Option("-n|--namespace <NAMESPACE>", Resources.NamespaceDescription);
+            _contextNamespace = command.Option("--context-namespace <NAMESPACE>", Resources.ContextNamespaceDescription);
 
             base.Configure(command);
         }

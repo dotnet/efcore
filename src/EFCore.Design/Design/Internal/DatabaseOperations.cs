@@ -69,6 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             [CanBeNull] string dbContextClassName,
             [NotNull] IEnumerable<string> schemas,
             [NotNull] IEnumerable<string> tables,
+            [CanBeNull] string modelNamespace,
+            [CanBeNull] string contextNamespace,
             bool useDataAnnotations,
             bool overwriteFiles,
             bool useDatabaseNames)
@@ -90,8 +92,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             var scaffolder = services.GetRequiredService<IReverseEngineerScaffolder>();
 
-            var modelNamespace = GetNamespaceFromOutputPath(outputDir);
-            var contextNamespace = GetNamespaceFromOutputPath(outputContextDir);
+            var finalModelNamespace = modelNamespace ?? GetNamespaceFromOutputPath(outputDir);
+            var finalContextNamespace =
+                contextNamespace ??
+                modelNamespace ??
+                GetNamespaceFromOutputPath(outputContextDir);
 
             var scaffoldedModel = scaffolder.ScaffoldModel(
                 connectionString,
@@ -101,8 +106,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 {
                     UseDataAnnotations = useDataAnnotations,
                     RootNamespace = _rootNamespace,
-                    ModelNamespace = modelNamespace,
-                    ContextNamespace = contextNamespace,
+                    ModelNamespace = finalModelNamespace,
+                    ContextNamespace = finalContextNamespace,
                     Language = _language,
                     ContextDir = MakeDirRelative(outputDir, outputContextDir),
                     ContextName = dbContextClassName

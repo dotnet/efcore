@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <returns> The scaffolded migration. </returns>
         ScaffoldedMigration ScaffoldMigration(
             [NotNull] string migrationName,
-            [NotNull] string rootNamespace,
+            [CanBeNull] string rootNamespace,
             [CanBeNull] string subNamespace = null,
             [CanBeNull] string language = null);
 
