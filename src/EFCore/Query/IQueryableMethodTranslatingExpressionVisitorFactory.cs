@@ -19,6 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public interface IQueryableMethodTranslatingExpressionVisitorFactory
     {
-        QueryableMethodTranslatingExpressionVisitor Create([NotNull] IModel model);
+        QueryableMethodTranslatingExpressionVisitor Create([NotNull] QueryCompilationContext queryCompilationContext);
     }
 }

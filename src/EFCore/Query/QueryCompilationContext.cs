@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             query = _queryTranslationPreprocessorFactory.Create(this).Process(query);
             // Convert EntityQueryable to ShapedQueryExpression
-            query = _queryableMethodTranslatingExpressionVisitorFactory.Create(Model).Visit(query);
+            query = _queryableMethodTranslatingExpressionVisitorFactory.Create(this).Visit(query);
             query = _queryTranslationPostprocessorFactory.Create(this).Process(query);
 
             // Inject actual entity materializer

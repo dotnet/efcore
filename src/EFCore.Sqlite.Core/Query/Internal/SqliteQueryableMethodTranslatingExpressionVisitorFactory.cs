@@ -21,11 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             _relationalDependencies = relationalDependencies;
         }
 
-        public virtual QueryableMethodTranslatingExpressionVisitor Create(IModel model)
+        public virtual QueryableMethodTranslatingExpressionVisitor Create(QueryCompilationContext queryCompilationContext)
         {
-            Check.NotNull(model, nameof(model));
+            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
-            return new SqliteQueryableMethodTranslatingExpressionVisitor(_dependencies, _relationalDependencies, model);
+            return new SqliteQueryableMethodTranslatingExpressionVisitor(_dependencies, _relationalDependencies, queryCompilationContext);
         }
     }
 }
