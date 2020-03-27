@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 && unaryExpression.Operand.Type == typeof(byte[]))
             {
                 return base.Visit(unaryExpression.Operand) is SqlExpression sqlExpression
-                    ? SqlExpressionFactory.Function(
+                    ? Dependencies.SqlExpressionFactory.Function(
                         "length",
                         new[] { sqlExpression },
                         nullable: true,
@@ -127,9 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 
-            var visitedExpression = (SqlExpression)base.VisitBinary(binaryExpression);
-
-            if (visitedExpression == null)
+            if (!(base.VisitBinary(binaryExpression) is SqlExpression visitedExpression))
             {
                 return null;
             }
@@ -140,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     && (_functionModuloTypes.Contains(GetProviderType(sqlBinary.Left))
                         || _functionModuloTypes.Contains(GetProviderType(sqlBinary.Right))))
                 {
-                    return SqlExpressionFactory.Function(
+                    return Dependencies.SqlExpressionFactory.Function(
                         "ef_mod",
                         new[] { sqlBinary.Left, sqlBinary.Right },
                         nullable: true,
@@ -242,20 +240,20 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
         private Expression DoDecimalCompare(SqlExpression visitedExpression, ExpressionType op, SqlExpression left, SqlExpression right)
         {
-            var actual = SqlExpressionFactory.Function(
+            var actual = Dependencies.SqlExpressionFactory.Function(
                 name: "ef_compare",
                 new[] { left, right },
                 nullable: true,
                 new[] { true, true },
                 typeof(int));
-            var oracle = SqlExpressionFactory.Constant(value: 0);
+            var oracle = Dependencies.SqlExpressionFactory.Constant(value: 0);
 
             return op switch
             {
-                ExpressionType.GreaterThan => SqlExpressionFactory.GreaterThan(left: actual, right: oracle),
-                ExpressionType.GreaterThanOrEqual => SqlExpressionFactory.GreaterThanOrEqual(left: actual, right: oracle),
-                ExpressionType.LessThan => SqlExpressionFactory.LessThan(left: actual, right: oracle),
-                ExpressionType.LessThanOrEqual => SqlExpressionFactory.LessThanOrEqual(left: actual, right: oracle),
+                ExpressionType.GreaterThan => Dependencies.SqlExpressionFactory.GreaterThan(left: actual, right: oracle),
+                ExpressionType.GreaterThanOrEqual => Dependencies.SqlExpressionFactory.GreaterThanOrEqual(left: actual, right: oracle),
+                ExpressionType.LessThan => Dependencies.SqlExpressionFactory.LessThan(left: actual, right: oracle),
+                ExpressionType.LessThanOrEqual => Dependencies.SqlExpressionFactory.LessThanOrEqual(left: actual, right: oracle),
                 _ => visitedExpression
             };
         }

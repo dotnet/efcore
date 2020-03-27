@@ -1341,8 +1341,8 @@
   <data name="UnsupportedBinaryOperator" xml:space="preserve">
     <value>Unsupported Binary operator type specified.</value>
   </data>
-  <data name="EFPropertyCalledWithWrongPropertyName" xml:space="preserve">
-    <value>EF.Property called with wrong property name.</value>
+  <data name="QueryUnableToTranslateEFProperty" xml:space="preserve">
+    <value>Translation of '{expression}' failed. Either source is not an entity type or the specified property does not exist on the entity type.</value>
   </data>
   <data name="InvalidStateEncountered" xml:space="preserve">
     <value>Invalid {state} encountered.</value>
