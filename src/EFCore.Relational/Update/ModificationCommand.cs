@@ -119,7 +119,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     The list of <see cref="ColumnModification" />s needed to perform the insert, update, or delete.
         /// </summary>
         public virtual IReadOnlyList<ColumnModification> ColumnModifications
+#pragma warning disable EF1001 // Internal EF Core API usage.
             => NonCapturingLazyInitializer.EnsureInitialized(
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 ref _columnModifications, this, command => command.GenerateColumnModifications());
 
         /// <summary>
@@ -404,9 +406,11 @@ namespace Microsoft.EntityFrameworkCore.Update
             public bool TryPropagate(IProperty property, InternalEntityEntry entry)
             {
                 if (_write
+#pragma warning disable EF1001 // Internal EF Core API usage.
                     && (entry.EntityState == EntityState.Unchanged
                         || (entry.EntityState == EntityState.Modified && !entry.IsModified(property))
                         || (entry.EntityState == EntityState.Added && Equals(_originalValue, entry.GetCurrentValue(property)))))
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 {
                     entry[property] = _currentValue;
 

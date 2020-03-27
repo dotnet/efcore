@@ -168,6 +168,33 @@ namespace Microsoft.EntityFrameworkCore
             AssertGraph(context.Set<BlogHiding>().Include(e => e.Posts).AsTracking(tracking).ToList());
         }
 
+        [ConditionalFact]
+        public virtual void Can_define_a_backing_field_for_a_navigation_and_query_and_update_it()
+        {
+            using (var context = CreateContext())
+            {
+                var principal = context.Set<OneToOneFieldNavPrincipal>().First();
+                var dependent1 = new NavDependent { Id = 1, Name = "FirstName", OneToOneFieldNavPrincipal = principal };
+                context.Set<NavDependent>().Add(dependent1);
+                context.SaveChanges();
+
+                var dependentName =
+                    context.Set<OneToOneFieldNavPrincipal>().Select(p => p.Dependent.Name).First();
+
+                Assert.Equal("FirstName", dependentName);
+
+                // use the backing field directly
+                var dependent2 = new NavDependent { Id = 2, Name = "SecondName", OneToOneFieldNavPrincipal = principal };
+                principal._unconventionalDependent = dependent2;
+                context.SaveChanges();
+
+                dependentName =
+                    context.Set<OneToOneFieldNavPrincipal>().Select(p => p.Dependent.Name).First();
+
+                Assert.Equal("SecondName", dependentName);
+            }
+        }
+
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
@@ -1900,6 +1927,29 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        protected class OneToOneFieldNavPrincipal
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public NavDependent _unconventionalDependent; // won't be picked up by convention
+            public NavDependent Dependent
+            {
+                get => throw new NotImplementedException("Invalid attempt to access Dependent getter");
+                set => throw new NotImplementedException("Invalid attempt to access Dependent setter");
+            }
+        }
+
+        protected class NavDependent
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public OneToOneFieldNavPrincipal OneToOneFieldNavPrincipal { get; set; }
+        }
+
         protected DbContext CreateContext() => Fixture.CreateContext();
 
         public abstract class FieldMappingFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
@@ -1933,10 +1983,22 @@ namespace Microsoft.EntityFrameworkCore
                         b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey(e => e.BlogId);
                     });
 
-                modelBuilder.Entity<PostFullExplicit>().Metadata.FindNavigation("Blog").SetField("_myblog");
-                modelBuilder.Entity<BlogFullExplicit>().Metadata.FindNavigation("Posts").SetField("_myposts");
+                modelBuilder.Entity<PostFullExplicit>().Metadata.FindNavigation("Blog").SetFieldInfo("_myblog");
+                modelBuilder.Entity<BlogFullExplicit>().Metadata.FindNavigation("Posts").SetFieldInfo("_myposts");
 
                 modelBuilder.Entity<LoginSession>().UsePropertyAccessMode(PropertyAccessMode.Field);
+
+                modelBuilder.Entity<OneToOneFieldNavPrincipal>()
+                    .HasOne(e => e.Dependent)
+                    .WithOne(e => e.OneToOneFieldNavPrincipal)
+                    .HasForeignKey<NavDependent>();
+
+                modelBuilder.Entity<OneToOneFieldNavPrincipal>()
+                    .Navigation(e => e.Dependent)
+                    .HasField("_unconventionalDependent")
+                    .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+                modelBuilder.Entity<NavDependent>();
 
                 if (modelBuilder.Model.GetPropertyAccessMode() != PropertyAccessMode.Property)
                 {
@@ -1990,8 +2052,8 @@ namespace Microsoft.EntityFrameworkCore
                             b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey(e => e.BlogId);
                         });
 
-                    modelBuilder.Entity<PostReadOnlyExplicit>().Metadata.FindNavigation("Blog").SetField("_myblog");
-                    modelBuilder.Entity<BlogReadOnlyExplicit>().Metadata.FindNavigation("Posts").SetField("_myposts");
+                    modelBuilder.Entity<PostReadOnlyExplicit>().Metadata.FindNavigation("Blog").SetFieldInfo("_myblog");
+                    modelBuilder.Entity<BlogReadOnlyExplicit>().Metadata.FindNavigation("Posts").SetFieldInfo("_myposts");
 
                     modelBuilder.Entity<PostWriteOnly>(
                         b =>
@@ -2027,8 +2089,8 @@ namespace Microsoft.EntityFrameworkCore
                             b.HasMany(typeof(PostWriteOnlyExplicit).DisplayName(), "Posts").WithOne("Blog").HasForeignKey("BlogId");
                         });
 
-                    modelBuilder.Entity<PostWriteOnlyExplicit>().Metadata.FindNavigation("Blog").SetField("_myblog");
-                    modelBuilder.Entity<BlogWriteOnlyExplicit>().Metadata.FindNavigation("Posts").SetField("_myposts");
+                    modelBuilder.Entity<PostWriteOnlyExplicit>().Metadata.FindNavigation("Blog").SetFieldInfo("_myblog");
+                    modelBuilder.Entity<BlogWriteOnlyExplicit>().Metadata.FindNavigation("Posts").SetFieldInfo("_myposts");
 
                     modelBuilder.Entity<PostFields>(
                         b =>
@@ -2111,6 +2173,8 @@ namespace Microsoft.EntityFrameworkCore
 
                     context.Add(
                         new LoginSession { User = new User2(), Users = new List<User2> { new User2() } });
+
+                    context.Add(new OneToOneFieldNavPrincipal { Id = 1, Name = "OneToOneFieldNavPrincipal1" });
 
                     context.SaveChanges();
                 }

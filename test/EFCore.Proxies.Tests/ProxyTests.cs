@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 if (_useChangeDetectionProxies)
                 {
-                    optionsBuilder.UseChangeDetectionProxies();
+                    optionsBuilder.UseChangeTrackingProxies();
                 }
 
                 if (_internalServiceProvider != null)

@@ -442,7 +442,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
 
         #endregion
 
-        [ConditionalFact(Skip = "Issue#15751")]
+        [ConditionalFact(Skip = "Issue#20364")]
         public void Query_when_null_key_in_database_should_throw()
         {
             using var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest");
@@ -2289,23 +2289,10 @@ WHERE [e].[Name] IS NULL");
                 Assert.True(result[0].Cast.All(a => a.Details != null));
 
                 AssertSql(
-                    @"SELECT [m].[Id], [m].[Title], [t].[Id], [t].[Details_Info], [t1].[Id], [t1].[Movie9202Id], [t1].[Name], [t1].[Id0], [t1].[Details_Info]
+                    @"SELECT [m].[Id], [m].[Title], [m].[Details_Info], [a].[Id], [a].[Movie9202Id], [a].[Name], [a].[Details_Info]
 FROM [Movies] AS [m]
-LEFT JOIN (
-    SELECT [m0].[Id], [m0].[Details_Info]
-    FROM [Movies] AS [m0]
-    WHERE [m0].[Details_Info] IS NOT NULL
-) AS [t] ON [m].[Id] = [t].[Id]
-LEFT JOIN (
-    SELECT [a].[Id], [a].[Movie9202Id], [a].[Name], [t0].[Id] AS [Id0], [t0].[Details_Info]
-    FROM [Actors] AS [a]
-    LEFT JOIN (
-        SELECT [a0].[Id], [a0].[Details_Info]
-        FROM [Actors] AS [a0]
-        WHERE [a0].[Details_Info] IS NOT NULL
-    ) AS [t0] ON [a].[Id] = [t0].[Id]
-) AS [t1] ON [m].[Id] = [t1].[Movie9202Id]
-ORDER BY [m].[Id], [t1].[Id]");
+LEFT JOIN [Actors] AS [a] ON [m].[Id] = [a].[Movie9202Id]
+ORDER BY [m].[Id], [a].[Id]");
             }
         }
 
@@ -2324,23 +2311,10 @@ ORDER BY [m].[Id], [t1].[Id]");
                 Assert.True(result[0].Cast.All(a => a.Details != null));
 
                 AssertSql(
-                    @"SELECT [m].[Id], [m].[Title], [t].[Id], [t].[Details_Info], [t1].[Id], [t1].[Movie9202Id], [t1].[Name], [t1].[Id0], [t1].[Details_Info]
+                    @"SELECT [m].[Id], [m].[Title], [m].[Details_Info], [a].[Id], [a].[Movie9202Id], [a].[Name], [a].[Details_Info]
 FROM [Movies] AS [m]
-LEFT JOIN (
-    SELECT [m0].[Id], [m0].[Details_Info]
-    FROM [Movies] AS [m0]
-    WHERE [m0].[Details_Info] IS NOT NULL
-) AS [t] ON [m].[Id] = [t].[Id]
-LEFT JOIN (
-    SELECT [a].[Id], [a].[Movie9202Id], [a].[Name], [t0].[Id] AS [Id0], [t0].[Details_Info]
-    FROM [Actors] AS [a]
-    LEFT JOIN (
-        SELECT [a0].[Id], [a0].[Details_Info]
-        FROM [Actors] AS [a0]
-        WHERE [a0].[Details_Info] IS NOT NULL
-    ) AS [t0] ON [a].[Id] = [t0].[Id]
-) AS [t1] ON [m].[Id] = [t1].[Movie9202Id]
-ORDER BY [m].[Id], [t1].[Id]");
+LEFT JOIN [Actors] AS [a] ON [m].[Id] = [a].[Movie9202Id]
+ORDER BY [m].[Id], [a].[Id]");
             }
         }
 
@@ -3117,8 +3091,7 @@ WHERE [b].[SomeValue] = @__ef_filter__Tenant_0");
 
                 AssertSql(
                     @"SELECT [b].[Id], [b].[IsTwo], [b].[MoreStuffId]
-FROM [Bases] AS [b]
-WHERE [b].[IsTwo] IN (CAST(0 AS bit), CAST(1 AS bit))");
+FROM [Bases] AS [b]");
             }
         }
 
@@ -4304,7 +4277,7 @@ END IN ('0a47bcb7-a1cb-4345-8944-c58f82d6aac7', '5f221fb9-66f4-442a-92c9-d97ed59
 
         #region Bug13157
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#20342")]
         public virtual void Correlated_subquery_with_owned_navigation_being_compared_to_null_works()
         {
             using (CreateDatabase13157())
@@ -4324,26 +4297,22 @@ END IN ('0a47bcb7-a1cb-4345-8944-c58f82d6aac7', '5f221fb9-66f4-442a-92c9-d97ed59
                         }).ToList();
 
                 Assert.Single(partners);
-                Assert.Single(partners[0].Addresses);
-                Assert.NotNull(partners[0].Addresses[0].Turnovers);
-                Assert.Equal(10, partners[0].Addresses[0].Turnovers.AmountIn);
+                Assert.Collection(partners[0].Addresses,
+                    t =>
+                    {
+                        Assert.NotNull(t.Turnovers);
+                        Assert.Equal(10, t.Turnovers.AmountIn);
+                    },
+                    t =>
+                    {
+                        Assert.Null(t.Turnovers);
+                    });
 
-                AssertSql(
-                    @"SELECT [p].[Id], [t0].[c], [t0].[Turnovers_AmountIn], [t0].[Id]
+            AssertSql(
+                @"SELECT [p].[Id], CAST(0 AS bit), [a].[Turnovers_AmountIn], [a].[Id]
 FROM [Partners] AS [p]
-LEFT JOIN (
-    SELECT CASE
-        WHEN [t].[Id] IS NULL THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END AS [c], [t].[Turnovers_AmountIn], [a].[Id], [a].[Partner13157Id]
-    FROM [Address13157] AS [a]
-    LEFT JOIN (
-        SELECT [a0].[Id], [a0].[Turnovers_AmountIn]
-        FROM [Address13157] AS [a0]
-        WHERE [a0].[Turnovers_AmountIn] IS NOT NULL
-    ) AS [t] ON [a].[Id] = [t].[Id]
-) AS [t0] ON [p].[Id] = [t0].[Partner13157Id]
-ORDER BY [p].[Id], [t0].[Id]");
+LEFT JOIN [Address13157] AS [a] ON [p].[Id] = [a].[Partner13157Id]
+ORDER BY [p].[Id], [a].[Id]");
             }
         }
 
@@ -4358,7 +4327,8 @@ ORDER BY [p].[Id], [t0].[Id]");
                         {
                             Addresses = new List<Address13157>
                             {
-                                new Address13157 { Turnovers = new AddressTurnovers13157 { AmountIn = 10 } }
+                                new Address13157 { Turnovers = new AddressTurnovers13157 { AmountIn = 10 } },
+                                new Address13157 { Turnovers = null },
                             }
                         }
                     );
@@ -4731,7 +4701,6 @@ LEFT JOIN [Children] AS [c] ON [p].[ChildId] = [c].[Id]");
                     @"SELECT [b].[Id], [b].[Discriminator], [r].[Id], [r].[DerivedTypeId]
 FROM [Bases] AS [b]
 LEFT JOIN [Reference16233] AS [r] ON [b].[Id] = [r].[DerivedTypeId]
-WHERE [b].[Discriminator] IN (N'BaseType16233', N'DerivedType16233')
 ORDER BY [b].[Id]");
             }
         }
@@ -4753,7 +4722,6 @@ ORDER BY [b].[Id]");
                     @"SELECT [b].[Id], [b].[Discriminator], [r].[Id], [r].[DerivedTypeId]
 FROM [Bases] AS [b]
 LEFT JOIN [Reference16233] AS [r] ON [b].[Id] = [r].[DerivedTypeId]
-WHERE [b].[Discriminator] IN (N'BaseType16233', N'DerivedType16233')
 ORDER BY [b].[Id]");
             }
         }
@@ -5424,13 +5392,8 @@ WHERE EXISTS (
                 var query = List17276(context.RemovableEntities);
 
                 AssertSql(
-                    @"SELECT [r].[Id], [r].[IsRemoved], [r].[Removed], [r].[RemovedByUser], [t].[Id], [t].[OwnedEntity_OwnedValue]
+                    @"SELECT [r].[Id], [r].[IsRemoved], [r].[Removed], [r].[RemovedByUser], [r].[OwnedEntity_OwnedValue]
 FROM [RemovableEntities] AS [r]
-LEFT JOIN (
-    SELECT [r0].[Id], [r0].[OwnedEntity_OwnedValue]
-    FROM [RemovableEntities] AS [r0]
-    WHERE [r0].[OwnedEntity_OwnedValue] IS NOT NULL
-) AS [t] ON [r].[Id] = [t].[Id]
 WHERE [r].[IsRemoved] <> CAST(1 AS bit)");
             }
         }
@@ -5464,14 +5427,9 @@ WHERE [r].[IsRemoved] = CAST(1 AS bit)");
                     .ToList();
 
                 AssertSql(
-                    @"SELECT [r].[Id], [r].[IsRemoved], [r].[Removed], [r].[RemovedByUser], [t].[Id], [t].[OwnedEntity_OwnedValue]
+                    @"SELECT [r].[Id], [r].[IsRemoved], [r].[Removed], [r].[RemovedByUser], [r].[OwnedEntity_OwnedValue]
 FROM [RemovableEntities] AS [r]
-LEFT JOIN (
-    SELECT [r0].[Id], [r0].[OwnedEntity_OwnedValue]
-    FROM [RemovableEntities] AS [r0]
-    WHERE [r0].[OwnedEntity_OwnedValue] IS NOT NULL
-) AS [t] ON [r].[Id] = [t].[Id]
-WHERE [t].[OwnedEntity_OwnedValue] = N'Abc'");
+WHERE [r].[OwnedEntity_OwnedValue] = N'Abc'");
             }
         }
 
@@ -6900,8 +6858,7 @@ LEFT JOIN (
         FROM [OtherEntities] AS [o]
     ) AS [t]
     WHERE [t].[row] <= 1
-) AS [t0] ON [b].[Data] = [t0].[OtherEntityData]
-WHERE [b].[Discriminator] IN (N'BaseEntity19138', N'SubEntity19138')");
+) AS [t0] ON [b].[Data] = [t0].[OtherEntityData]");
         }
 
         private SqlServerTestStore CreateDatabase19138()
@@ -7044,15 +7001,15 @@ LEFT JOIN [CustomerMemberships] AS [c0] ON [c].[Id] = [c0].[CustomerId]");
             {
                 modelBuilder.Entity<CustomerFilter19708>()
                     .HasQueryFilter(e => (from a in (from c in Customers
-                                                    join cm in CustomerMemberships on c.Id equals cm.CustomerId into g
-                                                    from cm in g.DefaultIfEmpty()
-                                                    select new
-                                                    {
-                                                        c.Id,
-                                                        CustomerMembershipId = (int?)cm.Id
-                                                    })
-                                         where a.CustomerMembershipId != null && a.Id == e.CustomerId
-                                         select a).Count() > 0)
+                                                     join cm in CustomerMemberships on c.Id equals cm.CustomerId into g
+                                                     from cm in g.DefaultIfEmpty()
+                                                     select new
+                                                     {
+                                                         c.Id,
+                                                         CustomerMembershipId = (int?)cm.Id
+                                                     })
+                                          where a.CustomerMembershipId != null && a.Id == e.CustomerId
+                                          select a).Count() > 0)
                     .HasKey(e => e.CustomerId);
 
                 modelBuilder.Entity<CustomerView19708>().HasNoKey().ToQuery(Build_Customers_Sql_View_InMemory());
@@ -7103,6 +7060,146 @@ LEFT JOIN [CustomerMemberships] AS [c0] ON [c].[Id] = [c0].[CustomerId]");
             public string Name { get; set; }
             public int? CustomerMembershipId { get; set; }
             public string CustomerMembershipName { get; set; }
+        }
+
+        #endregion
+
+        #region Issue20097
+
+        [ConditionalFact]
+        public void Implicit_interface_casting_though_generic_method()
+        {
+            using var _ = CreateDatabase20097();
+            using var context = new BugContext20097(_options);
+
+            var originalQuery = context.Entities.Select(a => new MyModel20097 { Id = a.Id });
+            var query = AddFilter(originalQuery, 1).ToList();
+
+            Assert.Single(query);
+
+            AssertSql(
+                @"@__id_0='1'
+
+SELECT [e].[Id]
+FROM [Entities] AS [e]
+WHERE [e].[Id] = @__id_0");
+        }
+
+        [ConditionalFact]
+        public void Explicit_interface_casting_though_generic_method()
+        {
+            using var _ = CreateDatabase20097();
+            using var context = new BugContext20097(_options);
+
+            var originalQuery = context.Entities.Select(a => new MyModel20097 { Id = a.Id });
+            var query = originalQuery.Where<IHaveId20097>(a => a.Id == 1).ToList();
+
+            Assert.Single(query);
+
+            AssertSql(
+                @"SELECT [e].[Id]
+FROM [Entities] AS [e]
+WHERE [e].[Id] = CAST(1 AS bigint)");
+        }
+
+        [ConditionalFact]
+        public void Explicit_interface_casting_in_lambda()
+        {
+            using var _ = CreateDatabase20097();
+            using var context = new BugContext20097(_options);
+
+            var originalQuery = context.Entities.Select(a => new MyModel20097 { Id = a.Id });
+            var query = originalQuery.Where(a => ((IHaveId20097)a).Id == 1).ToList();
+
+            Assert.Single(query);
+
+            AssertSql(
+                @"SELECT [e].[Id]
+FROM [Entities] AS [e]
+WHERE [e].[Id] = CAST(1 AS bigint)");
+        }
+
+        [ConditionalFact]
+        public void Explicit_interface_soft_casting_in_lambda()
+        {
+            using var _ = CreateDatabase20097();
+            using var context = new BugContext20097(_options);
+
+            var originalQuery = context.Entities.Select(a => new MyModel20097 { Id = a.Id });
+            var query = originalQuery.Where(a => (a as IHaveId20097).Id == 1).ToList();
+
+            Assert.Single(query);
+
+            AssertSql(
+                @"SELECT [e].[Id]
+FROM [Entities] AS [e]
+WHERE [e].[Id] = CAST(1 AS bigint)");
+        }
+
+        [ConditionalFact]
+        public void Explicit_interface_casting_checked_in_lambda()
+        {
+            using var _ = CreateDatabase20097();
+            using var context = new BugContext20097(_options);
+
+            var originalQuery = context.Entities.Select(a => new MyModel20097 { Id = a.Id });
+            checked
+            {
+                var query = originalQuery.Where(a => ((IHaveId20097)a).Id == 1).ToList();
+                Assert.Single(query);
+            }
+
+            AssertSql(
+                @"SELECT [e].[Id]
+FROM [Entities] AS [e]
+WHERE [e].[Id] = CAST(1 AS bigint)");
+        }
+
+        private static IQueryable<T> AddFilter<T>(IQueryable<T> query, long id)
+            where T : IHaveId20097
+        {
+            return query.Where(a => a.Id == id);
+        }
+
+        private SqlServerTestStore CreateDatabase20097()
+            => CreateTestStore(
+                () => new BugContext20097(_options),
+                context =>
+                {
+                    context.AddRange(new Entity20097());
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        private class BugContext20097 : DbContext
+        {
+            public BugContext20097(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Entity20097> Entities { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+            }
+        }
+
+        private class Entity20097
+        {
+            public long Id { get; set; }
+        }
+
+        private interface IHaveId20097
+        {
+            long Id { get; }
+        }
+
+        private class MyModel20097 : IHaveId20097
+        {
+            public long Id { get; set; }
         }
 
         #endregion

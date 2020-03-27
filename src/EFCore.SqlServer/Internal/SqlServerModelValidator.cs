@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -122,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                         && ((IConventionProperty)p).GetValueGenerationStrategyConfigurationSource() != null
                         && !p.IsKey()
                         && p.ValueGenerated != ValueGenerated.Never
-                        && (!(p.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy) is ConventionAnnotation strategy)
+                        && (!(p.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy) is IConventionAnnotation strategy)
                             || !ConfigurationSource.Convention.Overrides(strategy.GetConfigurationSource()))))
             {
                 throw new InvalidOperationException(

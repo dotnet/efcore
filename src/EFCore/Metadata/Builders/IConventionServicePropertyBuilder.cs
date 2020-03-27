@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     public interface IConventionServicePropertyBuilder : IConventionAnnotatableBuilder
     {
         /// <summary>
-        ///     The service property being configured.
+        ///     Gets the service property being configured.
         /// </summary>
         new IConventionServiceProperty Metadata { get; }
 

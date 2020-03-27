@@ -8,7 +8,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -134,6 +133,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Builder.Property(
                         Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess(), ConfigurationSource.Explicit)
                     .Metadata);
+
+        /// <summary>
+        ///         Returns an object that can be used to configure an existing navigation property of the entity type.
+        ///         It is an error for the navigation property not to exist.
+        /// </summary>
+        /// <param name="navigationExpression">
+        ///     A lambda expression representing the navigation property to be configured (
+        ///     <c>blog => blog.Posts</c>).
+        /// </param>
+        /// <returns> An object that can be used to configure the navigation property. </returns>
+        public virtual NavigationBuilder Navigation<TNavigation>([NotNull] Expression<Func<TEntity, TNavigation>> navigationExpression)
+            => new NavigationBuilder(
+                Builder.Navigation(
+                        Check.NotNull(navigationExpression, nameof(navigationExpression)).GetPropertyAccess()));
 
         /// <summary>
         ///     Excludes the given property from the entity type. This method is typically used to remove properties
@@ -522,14 +535,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             where TRelatedEntity : class
         {
             var relatedEntityType = FindRelatedEntityType(typeof(TRelatedEntity), navigationName);
+            var foreignKey = HasOneBuilder(
+                MemberIdentity.Create(navigationName), relatedEntityType);
 
             return new ReferenceNavigationBuilder<TEntity, TRelatedEntity>(
                 Builder.Metadata,
                 relatedEntityType,
                 navigationName,
-                Builder.HasRelationship(
-                    relatedEntityType, navigationName, ConfigurationSource.Explicit,
-                    targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null).Metadata);
+                foreignKey);
         }
 
         /// <summary>
@@ -564,16 +577,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [CanBeNull] Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null)
             where TRelatedEntity : class
         {
-            var navigation = navigationExpression?.GetPropertyAccess();
-            var relatedEntityType = FindRelatedEntityType(typeof(TRelatedEntity), navigation?.GetSimpleMemberName());
+            var navigationMember = navigationExpression?.GetPropertyAccess();
+            var relatedEntityType = FindRelatedEntityType(typeof(TRelatedEntity), navigationMember?.GetSimpleMemberName());
+            var foreignKey = HasOneBuilder(
+                MemberIdentity.Create(navigationMember), relatedEntityType);
 
             return new ReferenceNavigationBuilder<TEntity, TRelatedEntity>(
                 Builder.Metadata,
                 relatedEntityType,
-                navigation,
-                Builder.HasRelationship(
-                    relatedEntityType, navigation, ConfigurationSource.Explicit,
-                    targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null).Metadata);
+                navigationMember,
+                foreignKey);
         }
 
         /// <summary>
@@ -763,7 +776,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(propertyExpression, nameof(propertyExpression));
 
             return new DiscriminatorBuilder<TDiscriminator>(
-                Builder.DiscriminatorBuilder(Property(propertyExpression).GetInfrastructure(), ConfigurationSource.Explicit));
+                Builder.HasDiscriminator(propertyExpression.GetPropertyAccess(), ConfigurationSource.Explicit));
         }
 
         /// <summary>

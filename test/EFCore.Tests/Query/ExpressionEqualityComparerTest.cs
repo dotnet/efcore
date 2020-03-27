@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Xunit;
 
 // ReSharper disable AssignNullToNotNullAttribute

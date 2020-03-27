@@ -19,13 +19,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.ProxiesStrings", typeof(ProxiesStrings).Assembly);
 
         /// <summary>
-        ///     UseChangeDetectionProxies and UseLazyLoadingProxies each require AddEntityFrameworkProxies to be called on the internal service provider used.
+        ///     UseChangeTrackingProxies and UseLazyLoadingProxies each require AddEntityFrameworkProxies to be called on the internal service provider used.
         /// </summary>
         public static string ProxyServicesMissing
             => GetString("ProxyServicesMissing");
 
         /// <summary>
-        ///     Entity type '{entityType}' is sealed. UseChangeDetectionProxies requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. UseLazyLoadingProxies requires only the navigation properties be virtual.
+        ///     Entity type '{entityType}' is sealed. UseChangeTrackingProxies requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. UseLazyLoadingProxies requires only the navigation properties be virtual.
         /// </summary>
         public static string ItsASeal([CanBeNull] object entityType)
             => string.Format(
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType);
 
         /// <summary>
-        ///     Property '{property}' on entity type '{entityType}' is not virtual. UseChangeDetectionProxies requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. UseLazyLoadingProxies requires only the navigation properties be virtual.
+        ///     Property '{property}' on entity type '{entityType}' is not virtual. UseChangeTrackingProxies requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. UseLazyLoadingProxies requires only the navigation properties be virtual.
         /// </summary>
         public static string NonVirtualProperty([CanBeNull] object property, [CanBeNull] object entityType)
             => string.Format(
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 property, entityType);
 
         /// <summary>
-        ///     Property '{property}' on entity type '{entityType}' is mapped without a CLR property. UseChangeDetectionProxies requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. UseLazyLoadingProxies requires only the navigation properties be virtual.
+        ///     Property '{property}' on entity type '{entityType}' is mapped without a CLR property. UseChangeTrackingProxies requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. UseLazyLoadingProxies requires only the navigation properties be virtual.
         /// </summary>
         public static string FieldProperty([CanBeNull] object property, [CanBeNull] object entityType)
             => string.Format(
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 property, entityType);
 
         /// <summary>
-        ///     Unable to create proxy for '{entityType}' because proxies are not enabled. Call 'DbContextOptionsBuilder.UseChangeDetectionProxies' or 'DbContextOptionsBuilder.UseLazyLoadingProxies' to enable proxies.
+        ///     Unable to create proxy for '{entityType}' because proxies are not enabled. Call 'DbContextOptionsBuilder.UseChangeTrackingProxies' or 'DbContextOptionsBuilder.UseLazyLoadingProxies' to enable proxies.
         /// </summary>
         public static string ProxiesNotEnabled([CanBeNull] object entityType)
             => string.Format(

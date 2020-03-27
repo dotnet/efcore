@@ -276,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 b => b.Entity<OneDee>().Ignore(e => e.One));
             Assert.Null(context.Model.FindEntityType(typeof(OneDee)).FindProperty("One"));
 
-            RunThrowDifferPipeline(context);
+            RunThroughDifferPipeline(context);
         }
 
         [ConditionalFact]
@@ -299,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 b => b.Entity<TwoDee>().Ignore(e => e.Two));
             Assert.Null(context.Model.FindEntityType(typeof(TwoDee)).FindProperty("Two"));
 
-            RunThrowDifferPipeline(context);
+            RunThroughDifferPipeline(context);
         }
 
         [ConditionalFact]
@@ -322,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 b => b.Entity<ThreeDee>().Ignore(e => e.Three));
             Assert.Null(context.Model.FindEntityType(typeof(ThreeDee)).FindProperty("Three"));
 
-            RunThrowDifferPipeline(context);
+            RunThroughDifferPipeline(context);
         }
 
         protected class CustomModelBuildingContext : DbContext
@@ -339,7 +339,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => _builder(modelBuilder);
         }
 
-        protected virtual void RunThrowDifferPipeline(DbContext context)
+        protected virtual void RunThroughDifferPipeline(DbContext context)
         {
         }
 

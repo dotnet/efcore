@@ -857,7 +857,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     singularizePluralizer: null,
                     uniquifier: NavigationUniquifier);
 
-            foreignKey.HasDependentToPrincipal(dependentEndNavigationPropertyName);
+            foreignKey.SetDependentToPrincipal(dependentEndNavigationPropertyName);
 
             if (foreignKey.DeclaringEntityType.IsKeyless)
             {
@@ -886,7 +886,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     singularizePluralizer: null,
                     uniquifier: NavigationUniquifier);
 
-            foreignKey.HasPrincipalToDependent(principalEndNavigationPropertyName);
+            foreignKey.SetPrincipalToDependent(principalEndNavigationPropertyName);
         }
 
         // Stores the names of the EntityType itself and its Properties, but does not include any Navigation Properties

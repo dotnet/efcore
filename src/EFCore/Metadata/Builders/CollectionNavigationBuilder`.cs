@@ -51,11 +51,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public new virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne([CanBeNull] string navigationName = null)
-            => new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
+        public new virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(
+            [CanBeNull] string navigationName = null)
+        {
+            return new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
                 DeclaringEntityType,
                 RelatedEntityType,
-                WithOneBuilder(Check.NullButNotEmpty(navigationName, nameof(navigationName))).Metadata);
+                WithOneBuilder(
+                    Check.NullButNotEmpty(navigationName, nameof(navigationName))).Metadata);
+        }
 
         /// <summary>
         ///     <para>

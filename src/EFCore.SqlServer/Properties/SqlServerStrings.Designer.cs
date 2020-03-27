@@ -162,14 +162,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 key1, entityType1, key2, entityType2, table, keyName);
 
         /// <summary>
-        ///     The '{methodName}' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.
-        /// </summary>
-        public static string FunctionOnClient([CanBeNull] object methodName)
-            => string.Format(
-                GetString("FunctionOnClient", nameof(methodName)),
-                methodName);
-
-        /// <summary>
         ///     Unknown operator type encountered in SqlUnaryExpression.
         /// </summary>
         public static string UnknownOperatorTypeInSqlUnaryExpression

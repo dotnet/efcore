@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Represents a relational database function in an <see cref="IMutableModel" /> in
     ///     the a form that can be mutated while the model is being built.
     /// </summary>
-    public interface IMutableDbFunction : IDbFunction
+    public interface IMutableDbFunction : IMutableAnnotatable, IDbFunction
     {
         /// <summary>
         ///     Gets or sets the name of the function in the database.
@@ -39,6 +39,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the <see cref="IMutableModel" /> in which this function is defined.
         /// </summary>
         new IMutableModel Model { get; }
+
+        /// <summary>
+        ///     Gets the parameters for this function
+        /// </summary>
+        new IReadOnlyList<IMutableDbFunctionParameter> Parameters { get; }
 
         /// <summary>
         ///     Gets or sets the translation callback for performing custom translation of the method call into a SQL expression fragment.

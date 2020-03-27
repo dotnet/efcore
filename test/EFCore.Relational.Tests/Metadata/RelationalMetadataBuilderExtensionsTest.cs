@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public void Can_access_check_constraint()
         {
             var typeBuilder = CreateBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
-            var entityType = typeBuilder.Metadata;
+            IEntityType entityType = typeBuilder.Metadata;
 
             Assert.NotNull(typeBuilder.HasCheckConstraint("Splew", "s > p"));
             Assert.Equal("Splew", entityType.GetCheckConstraints().Single().Name);

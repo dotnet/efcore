@@ -233,8 +233,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Delegate_setter_can_set_index_properties()
         {
             var entityType = CreateModel().AddEntityType(typeof(IndexedClass));
-            var propertyA = entityType.AddIndexedProperty("PropertyA", typeof(string));
-            var propertyB = entityType.AddIndexedProperty("PropertyB", typeof(int));
+            var propertyA = entityType.AddIndexerProperty("PropertyA", typeof(string));
+            var propertyB = entityType.AddIndexerProperty("PropertyB", typeof(int));
 
             var indexedClass = new IndexedClass { Id = 7 };
 

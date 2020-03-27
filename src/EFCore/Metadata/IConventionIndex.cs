@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this index.
         /// </summary>
-        IConventionIndexBuilder Builder { get; }
+        new IConventionIndexBuilder Builder { get; }
 
         /// <summary>
         ///     Gets the properties that this index is defined on.
@@ -45,7 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="unique"> A value indicating whether the values assigned to the index properties are unique. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetIsUnique(bool? unique, bool fromDataAnnotation = false);
+        /// <returns> The configured uniqueness. </returns>
+        bool? SetIsUnique(bool? unique, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IIndex.IsUnique" />.

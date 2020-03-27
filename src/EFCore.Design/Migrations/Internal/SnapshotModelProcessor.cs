@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
@@ -25,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
     {
         private readonly IOperationReporter _operationReporter;
         private readonly HashSet<string> _relationalNames;
+        private readonly IConventionSetBuilder _conventionSetBuilder;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,7 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SnapshotModelProcessor(
-            [NotNull] IOperationReporter operationReporter)
+            [NotNull] IOperationReporter operationReporter,
+            [NotNull] IConventionSetBuilder conventionSetBuilder)
         {
             _operationReporter = operationReporter;
             _relationalNames = new HashSet<string>(
@@ -41,6 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .GetRuntimeFields()
                     .Where(p => p.Name != nameof(RelationalAnnotationNames.Prefix))
                     .Select(p => ((string)p.GetValue(null)).Substring(RelationalAnnotationNames.Prefix.Length - 1)));
+            _conventionSetBuilder = conventionSetBuilder;
         }
 
         /// <summary>
@@ -80,7 +84,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             if (model is IConventionModel conventionModel)
             {
-                model = new RelationalModelConvention().ProcessModelFinalized(conventionModel);
+                var conventionSet = _conventionSetBuilder.CreateConventionSet();
+
+                var typeMappingConvention = conventionSet.ModelFinalizingConventions.OfType<TypeMappingConvention>().FirstOrDefault();
+                if (typeMappingConvention != null)
+                {
+                    typeMappingConvention.ProcessModelFinalizing(conventionModel.Builder, null);
+                }
+
+                var relationalModelConvention = conventionSet.ModelFinalizedConventions.OfType<RelationalModelConvention>().FirstOrDefault();
+                if (relationalModelConvention != null)
+                {
+                    model = relationalModelConvention.ProcessModelFinalized(conventionModel);
+                }
             }
 
             return model is IMutableModel mutableModel

@@ -24,26 +24,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
 
             GenerateMapping(modelBuilder.Entity<Animal>().Property(b => b.Id).HasColumnName("Name").Metadata);
-            GenerateMapping(modelBuilder.Entity<Animal>().Property(d => d.Name).HasColumnName("Name").Metadata);
+            GenerateMapping(modelBuilder.Entity<Animal>().Property(d => d.Name).IsRequired().HasColumnName("Name").Metadata);
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
                     nameof(Animal), nameof(Animal.Id),
                     nameof(Animal), nameof(Animal.Name), "Name", nameof(Animal), "int", "nvarchar(max)"),
-                modelBuilder.Model);
-        }
-
-        public override void Detects_duplicate_columns_in_derived_types_with_different_types()
-        {
-            var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Animal>();
-
-            GenerateMapping(modelBuilder.Entity<Cat>().Property(c => c.Type).HasColumnName("Type").Metadata);
-            GenerateMapping(modelBuilder.Entity<Dog>().Property(c => c.Type).HasColumnName("Type").Metadata);
-
-            VerifyError(
-                RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                    typeof(Cat).Name, "Type", typeof(Dog).Name, "Type", "Type", nameof(Animal), "nvarchar(max)", "int"),
                 modelBuilder.Model);
         }
 
@@ -60,34 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
                     nameof(A), nameof(A.P0), nameof(B), nameof(B.P0), nameof(B.P0), "Table", "someInt", "int"), modelBuilder.Model);
-        }
-
-        public override void Detects_duplicate_column_names_within_hierarchy_with_different_MaxLength()
-        {
-            var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Animal>();
-            GenerateMapping(modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").HasMaxLength(30).Metadata);
-            GenerateMapping(modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("Breed").HasMaxLength(15).Metadata);
-
-            VerifyError(
-                RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "nvarchar(30)",
-                    "nvarchar(15)"), modelBuilder.Model);
-        }
-
-        [ConditionalFact]
-        public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_unicode()
-        {
-            var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Animal>();
-
-            GenerateMapping(modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").IsUnicode(false).Metadata);
-            GenerateMapping(modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("Breed").IsUnicode().Metadata);
-
-            VerifyError(
-                RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "varchar(max)",
-                    "nvarchar(max)"), modelBuilder.Model);
         }
 
         [ConditionalFact]

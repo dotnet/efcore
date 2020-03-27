@@ -1099,6 +1099,12 @@ WHERE (c[""Discriminator""] = ""Customer"")
 ORDER BY c[""CustomerID""]");
         }
 
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task Projecting_multiple_collection_with_same_constant_works(bool async)
+        {
+            return base.Projecting_multiple_collection_with_same_constant_works(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

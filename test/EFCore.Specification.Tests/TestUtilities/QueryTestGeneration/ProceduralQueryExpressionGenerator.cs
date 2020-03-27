@@ -361,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                 {
                 }
                 else if (exception.Message.StartsWith(
-                    @"Error generated for warning 'Microsoft.EntityFrameworkCore.Query.IncludeIgnoredWarning"))
+                    @"Error generated for warning 'Microsoft.EntityFrameworkCore.Query.IncludeIgnoredWarning", StringComparison.Ordinal))
                 {
                 }
                 else if (exception.Message

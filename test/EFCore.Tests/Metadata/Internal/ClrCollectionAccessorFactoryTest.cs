@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
@@ -267,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 entityType.SetPrimaryKey(entityType.AddProperty("Id", typeof(int))),
                 entityType);
 
-            var navigation = foreignKey.HasPrincipalToDependent(
+            var navigation = foreignKey.SetPrincipalToDependent(
                 typeof(MyEntity).GetProperty(
                     nameof(MyEntity.AsICollectionWithCustomComparer),
                     BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
@@ -425,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 entityType.SetPrimaryKey(entityType.AddProperty("Id", typeof(int))),
                 entityType);
 
-            var navigation = foreignKey.HasPrincipalToDependent(
+            var navigation = foreignKey.SetPrincipalToDependent(
                 typeof(MyEntity).GetProperty(navigationName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
 
             RunConvention(navigation);
@@ -435,12 +436,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private void RunConvention(IMutableNavigation navigation)
         {
-            var foreignKey = navigation.ForeignKey;
-            var context = new ConventionContext<IConventionNavigation>(
-                ((ForeignKey)foreignKey).DeclaringEntityType.Model.ConventionDispatcher);
+            var context = new ConventionContext<IConventionNavigationBuilder>(
+                ((ForeignKey)navigation.ForeignKey).DeclaringEntityType.Model.ConventionDispatcher);
 
             new BackingFieldConvention(CreateDependencies())
-                .ProcessNavigationAdded(((ForeignKey)foreignKey).Builder, (Navigation)navigation, context);
+                .ProcessNavigationAdded(((IConventionNavigation)navigation).Builder, context);
         }
 
         private ProviderConventionSetBuilderDependencies CreateDependencies()

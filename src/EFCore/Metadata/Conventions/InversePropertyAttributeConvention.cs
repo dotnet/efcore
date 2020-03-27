@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             ConfigureInverseNavigation(entityTypeBuilder, navigationMemberInfo, targetEntityTypeBuilder, attribute);
         }
 
-        private IConventionRelationshipBuilder ConfigureInverseNavigation(
+        private IConventionForeignKeyBuilder ConfigureInverseNavigation(
             IConventionEntityTypeBuilder entityTypeBuilder,
             MemberInfo navigationMemberInfo,
             IConventionEntityTypeBuilder targetEntityTypeBuilder,
@@ -256,46 +256,39 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        /// <summary>
-        ///     Called after a navigation property that has an attribute is added to an entity type.
-        /// </summary>
-        /// <param name="relationshipBuilder"> The builder for the relationship. </param>
-        /// <param name="navigation"> The navigation. </param>
-        /// <param name="attribute"> The attribute. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc/>
         public override void ProcessNavigationAdded(
-            IConventionRelationshipBuilder relationshipBuilder,
-            IConventionNavigation navigation,
+            IConventionNavigationBuilder navigationBuilder,
             InversePropertyAttribute attribute,
-            IConventionContext<IConventionNavigation> context)
+            IConventionContext<IConventionNavigationBuilder> context)
         {
-            if (relationshipBuilder.Metadata.DeclaringEntityType.HasDefiningNavigation()
-                || relationshipBuilder.Metadata.DeclaringEntityType.IsOwned()
-                || relationshipBuilder.Metadata.PrincipalEntityType.HasDefiningNavigation()
-                || relationshipBuilder.Metadata.PrincipalEntityType.IsOwned())
+            var navigation = navigationBuilder.Metadata;
+            var foreignKey = navigation.ForeignKey;
+            if (foreignKey.DeclaringEntityType.HasDefiningNavigation()
+                || foreignKey.DeclaringEntityType.IsOwned()
+                || foreignKey.PrincipalEntityType.HasDefiningNavigation()
+                || foreignKey.PrincipalEntityType.IsOwned())
             {
                 return;
             }
 
-            var newRelationship = ConfigureInverseNavigation(
+            var newRelationshipBuilder = ConfigureInverseNavigation(
                 navigation.DeclaringEntityType.Builder,
                 navigation.GetIdentifyingMemberInfo(),
                 navigation.TargetEntityType.Builder,
                 attribute);
-            if (newRelationship != relationshipBuilder)
+
+            if (newRelationshipBuilder == null)
             {
-                if (newRelationship == null)
-                {
-                    context.StopProcessingIfChanged(null);
-                    return;
-                }
-
-                var newNavigation = navigation.IsOnDependent
-                    ? newRelationship.Metadata.DependentToPrincipal
-                    : newRelationship.Metadata.PrincipalToDependent;
-
-                context.StopProcessingIfChanged(newNavigation);
+                context.StopProcessing();
+                return;
             }
+
+            var newNavigation = navigation.IsOnDependent
+                ? newRelationshipBuilder.Metadata.DependentToPrincipal
+                : newRelationshipBuilder.Metadata.PrincipalToDependent;
+
+            context.StopProcessingIfChanged(newNavigation?.Builder);
         }
 
         /// <summary>

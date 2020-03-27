@@ -87,10 +87,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual FieldInfo FieldInfo
         {
-            [DebuggerStepThrough]
-            get => _fieldInfo;
-            [DebuggerStepThrough]
-            set => SetField(value, ConfigurationSource.Explicit);
+            [DebuggerStepThrough] get => _fieldInfo;
+            [DebuggerStepThrough] set => SetFieldInfo(value, ConfigurationSource.Explicit);
         }
 
         /// <summary>
@@ -109,7 +107,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
         {
-            var oldConfigurationSource = _configurationSource;
             _configurationSource = configurationSource.Max(_configurationSource);
         }
 
@@ -130,25 +127,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetField([CanBeNull] string fieldName, ConfigurationSource configurationSource)
+        public virtual FieldInfo SetFieldInfo([CanBeNull] string fieldName, ConfigurationSource configurationSource)
         {
             if (fieldName == null)
             {
-                SetField((FieldInfo)null, configurationSource);
-                return;
+                return SetFieldInfo((FieldInfo)null, configurationSource);
             }
 
             if (FieldInfo?.GetSimpleMemberName() == fieldName)
             {
-                SetField(FieldInfo, configurationSource);
-                return;
+                return SetFieldInfo(FieldInfo, configurationSource);
             }
 
             var fieldInfo = GetFieldInfo(fieldName, DeclaringType, Name, shouldThrow: true);
-            if (fieldInfo != null)
-            {
-                SetField(fieldInfo, configurationSource);
-            }
+            return SetFieldInfo(fieldInfo, configurationSource);
         }
 
         /// <summary>
@@ -178,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetField([CanBeNull] FieldInfo fieldInfo, ConfigurationSource configurationSource)
+        public virtual FieldInfo SetFieldInfo([CanBeNull] FieldInfo fieldInfo, ConfigurationSource configurationSource)
         {
             if (Equals(FieldInfo, fieldInfo))
             {
@@ -187,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     UpdateFieldInfoConfigurationSource(configurationSource);
                 }
 
-                return;
+                return fieldInfo;
             }
 
             if (fieldInfo != null)
@@ -217,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var oldFieldInfo = FieldInfo;
             _fieldInfo = fieldInfo;
 
-            OnFieldInfoSet(fieldInfo, oldFieldInfo);
+            return OnFieldInfoSet(fieldInfo, oldFieldInfo);
         }
 
         /// <summary>
@@ -226,8 +218,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetPropertyAccessMode(PropertyAccessMode? propertyAccessMode, ConfigurationSource configurationSource)
-            => this.SetOrRemoveAnnotation(CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, configurationSource);
+        public virtual PropertyAccessMode? SetPropertyAccessMode(
+            PropertyAccessMode? propertyAccessMode, ConfigurationSource configurationSource)
+        {
+            this.SetOrRemoveAnnotation(CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, configurationSource);
+
+            return propertyAccessMode;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -314,9 +311,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void OnFieldInfoSet([CanBeNull] FieldInfo newFieldInfo, [CanBeNull] FieldInfo oldFieldInfo)
-        {
-        }
+        protected virtual FieldInfo OnFieldInfoSet([CanBeNull] FieldInfo newFieldInfo, [CanBeNull] FieldInfo oldFieldInfo)
+            => newFieldInfo;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -392,7 +388,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        ITypeBase IPropertyBase.DeclaringType => DeclaringType;
+        ITypeBase IPropertyBase.DeclaringType
+        {
+            [DebuggerStepThrough] get => DeclaringType;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -400,7 +399,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IMutableTypeBase IMutablePropertyBase.DeclaringType => DeclaringType;
+        IMutableTypeBase IMutablePropertyBase.DeclaringType
+        {
+            [DebuggerStepThrough] get => DeclaringType;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -408,7 +410,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionTypeBase IConventionPropertyBase.DeclaringType => DeclaringType;
+        IConventionTypeBase IConventionPropertyBase.DeclaringType
+        {
+            [DebuggerStepThrough] get => DeclaringType;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -416,7 +421,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void IConventionPropertyBase.SetField(FieldInfo fieldInfo, bool fromDataAnnotation)
-            => SetField(fieldInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        [DebuggerStepThrough]
+        FieldInfo IConventionPropertyBase.SetFieldInfo(FieldInfo fieldInfo, bool fromDataAnnotation)
+            => SetFieldInfo(fieldInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

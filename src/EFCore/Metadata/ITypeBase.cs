@@ -36,6 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets whether this entity type can share its ClrType with other entities.
         /// </summary>
-        bool IsSharedType { get; }
+        bool HasSharedClrType { get; }
     }
 }

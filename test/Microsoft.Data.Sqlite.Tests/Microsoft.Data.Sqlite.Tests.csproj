@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
+    <DefineConstants>$(DefineConstants);E_SQLITE3</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

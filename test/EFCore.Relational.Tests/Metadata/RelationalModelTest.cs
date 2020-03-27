@@ -21,10 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var model = CreateTestModel(mapToTables: useExplicitMapping);
 
-            Assert.Equal(6, model.GetEntityTypes().Count());
-            Assert.Equal(2, model.GetTables().Count());
-            Assert.Empty(model.GetViews());
-            Assert.True(model.GetEntityTypes().All(et => !et.GetViewMappings().Any()));
+            Assert.Equal(6, model.Model.GetEntityTypes().Count());
+            Assert.Equal(2, model.Tables.Count());
+            Assert.Empty(model.Views);
+            Assert.True(model.Model.GetEntityTypes().All(et => !et.GetViewMappings().Any()));
 
             AssertTables(model);
         }
@@ -34,10 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var model = CreateTestModel(mapToTables: false, mapToViews: true);
 
-            Assert.Equal(6, model.GetEntityTypes().Count());
-            Assert.Equal(2, model.GetViews().Count());
-            Assert.Empty(model.GetTables());
-            Assert.True(model.GetEntityTypes().All(et => !et.GetTableMappings().Any()));
+            Assert.Equal(6, model.Model.GetEntityTypes().Count());
+            Assert.Equal(2, model.Views.Count());
+            Assert.Empty(model.Tables);
+            Assert.True(model.Model.GetEntityTypes().All(et => !et.GetTableMappings().Any()));
 
             AssertViews(model);
         }
@@ -47,17 +47,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var model = CreateTestModel(mapToTables: true, mapToViews: true);
 
-            Assert.Equal(6, model.GetEntityTypes().Count());
-            Assert.Equal(2, model.GetTables().Count());
-            Assert.Equal(2, model.GetViews().Count());
+            Assert.Equal(6, model.Model.GetEntityTypes().Count());
+            Assert.Equal(2, model.Tables.Count());
+            Assert.Equal(2, model.Views.Count());
 
             AssertTables(model);
             AssertViews(model);
         }
 
-        private static void AssertViews(IModel model)
+        private static void AssertViews(IRelationalModel model)
         {
-            var orderType = model.FindEntityType(typeof(Order));
+            var orderType = model.Model.FindEntityType(typeof(Order));
             var orderMapping = orderType.GetViewMappings().Single();
             Assert.Same(orderType.GetViewMappings(), orderType.GetViewOrTableMappings());
             Assert.True(orderMapping.IncludesDerivedTypes);
@@ -108,18 +108,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.False(orderDateColumn.IsNullable);
             Assert.Same(ordersView, orderDateColumn.Table);
 
-            var customerType = model.FindEntityType(typeof(Customer));
+            var customerType = model.Model.FindEntityType(typeof(Customer));
             var customerView = customerType.GetViewMappings().Single().Table;
             Assert.Equal("CustomerView", customerView.Name);
             Assert.Equal("viewSchema", customerView.Schema);
 
-            var specialCustomerType = model.FindEntityType(typeof(SpecialCustomer));
+            var specialCustomerType = model.Model.FindEntityType(typeof(SpecialCustomer));
             Assert.Same(customerView, specialCustomerType.GetViewMappings().Single().Table);
         }
 
-        private static void AssertTables(IModel model)
+        private static void AssertTables(IRelationalModel model)
         {
-            var orderType = model.FindEntityType(typeof(Order));
+            var orderType = model.Model.FindEntityType(typeof(Order));
             var orderMapping = orderType.GetTableMappings().Single();
             Assert.True(orderMapping.IncludesDerivedTypes);
             Assert.Equal(
@@ -163,6 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.True(orderPkConstraint.IsPrimaryKey);
             Assert.Contains(orderPk, orderPkConstraint.MappedKeys);
             Assert.Same(orderPkConstraint, ordersTable.UniqueConstraints.Single());
+            Assert.Same(orderPkConstraint, ordersTable.PrimaryKey);
 
             var orderIndex = orderType.GetIndexes().Single();
             var orderTableIndex = orderIndex.GetMappedTableIndexes().Single();
@@ -207,16 +208,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.False(orderDateColumn.IsNullable);
             Assert.Same(ordersTable, orderDateColumn.Table);
 
-            var customerType = model.FindEntityType(typeof(Customer));
+            var customerType = model.Model.FindEntityType(typeof(Customer));
             var customerTable = customerType.GetTableMappings().Single().Table;
             Assert.Equal("Customer", customerTable.Name);
             Assert.Empty(customerTable.ForeignKeyConstraints);
 
-            var specialCustomerType = model.FindEntityType(typeof(SpecialCustomer));
+            var specialCustomerType = model.Model.FindEntityType(typeof(SpecialCustomer));
             Assert.Same(customerTable, specialCustomerType.GetTableMappings().Single().Table);
         }
 
-        private IModel CreateTestModel(bool mapToTables = false, bool mapToViews = false)
+        private IRelationalModel CreateTestModel(bool mapToTables = false, bool mapToViews = false)
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -257,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 }
             });
 
-            return modelBuilder.FinalizeModel();
+            return modelBuilder.FinalizeModel().GetRelationalModel();
         }
 
         protected virtual ModelBuilder CreateConventionModelBuilder() => RelationalTestHelpers.Instance.CreateConventionBuilder();

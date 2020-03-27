@@ -25,6 +25,24 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         [ConditionalFact]
+        public void CreateContext_uses_exact_factory_method()
+        {
+            var assembly = MockAssembly.Create(typeof(BaseContext), typeof(DerivedContext), typeof(HierarchyContextFactory));
+            var operations = new TestDbContextOperations(
+                new TestOperationReporter(),
+                assembly,
+                assembly,
+                args: Array.Empty<string>(),
+                new TestAppServiceProviderFactory(assembly));
+
+            var baseContext = Assert.IsType<BaseContext>(operations.CreateContext(nameof(BaseContext)));
+            Assert.Equal(nameof(BaseContext), baseContext.FactoryUsed);
+
+            var derivedContext = Assert.IsType<DerivedContext>(operations.CreateContext(nameof(DerivedContext)));
+            Assert.Equal(nameof(DerivedContext), derivedContext.FactoryUsed);
+        }
+
+        [ConditionalFact]
         public void GetContextInfo_returns_correct_info()
         {
             var info = CreateOperations(typeof(TestProgramRelational)).GetContextInfo(nameof(TestContext));
@@ -107,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 assembly,
                 assembly,
                 /* args: */ Array.Empty<string>(),
-                new TestAppServiceProviderFactory(assembly, testProgramType));
+                new TestAppServiceProviderFactory(assembly));
         }
 
         private static TestWebHost CreateWebHost(Func<DbContextOptionsBuilder, DbContextOptionsBuilder> configureProvider)
@@ -129,6 +147,36 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 : base(options)
             {
             }
+        }
+
+        private class BaseContext : DbContext
+        {
+            public BaseContext(string factoryUsed)
+            {
+                FactoryUsed = factoryUsed;
+            }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder options)
+                => options.UseInMemoryDatabase(GetType().Name);
+
+            public string FactoryUsed { get; }
+        }
+
+        private class DerivedContext : BaseContext
+        {
+            public DerivedContext(string factoryUsed)
+                : base(factoryUsed)
+            {
+            }
+        }
+
+        private class HierarchyContextFactory : IDesignTimeDbContextFactory<BaseContext>, IDesignTimeDbContextFactory<DerivedContext>
+        {
+            BaseContext IDesignTimeDbContextFactory<BaseContext>.CreateDbContext(string[] args)
+                => new BaseContext(nameof(BaseContext));
+
+            DerivedContext IDesignTimeDbContextFactory<DerivedContext>.CreateDbContext(string[] args)
+                => new DerivedContext(nameof(DerivedContext));
         }
     }
 }

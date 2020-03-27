@@ -937,7 +937,6 @@ ORDER BY CASE
 END, [c].[CustomerID]");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task Skip(bool async)
         {
             await base.Skip(async);
@@ -951,7 +950,6 @@ ORDER BY [c].[CustomerID]
 OFFSET @__p_0 ROWS");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task Skip_no_orderby(bool async)
         {
             await base.Skip_no_orderby(async);
@@ -965,7 +963,6 @@ ORDER BY (SELECT 1)
 OFFSET @__p_0 ROWS");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task Skip_orderby_const(bool async)
         {
             await base.Skip_orderby_const(async);
@@ -979,7 +976,6 @@ ORDER BY (SELECT 1)
 OFFSET @__p_0 ROWS");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task Skip_Take(bool async)
         {
             await base.Skip_Take(async);
@@ -994,7 +990,6 @@ ORDER BY [c].[ContactName]
 OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task Join_Customers_Orders_Skip_Take(bool async)
         {
             await base.Join_Customers_Orders_Skip_Take(async);
@@ -1025,7 +1020,6 @@ ORDER BY [o].[OrderID]
 OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task Join_Customers_Orders_Projection_With_String_Concat_Skip_Take(bool async)
         {
             await base.Join_Customers_Orders_Projection_With_String_Concat_Skip_Take(async);
@@ -1041,7 +1035,6 @@ ORDER BY [o].[OrderID]
 OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task Join_Customers_Orders_Orders_Skip_Take_Same_Properties(bool async)
         {
             await base.Join_Customers_Orders_Orders_Skip_Take_Same_Properties(async);
@@ -1080,7 +1073,6 @@ FROM [Customers] AS [c]");
 FROM [Orders] AS [o]");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task Take_Skip(bool async)
         {
             await base.Take_Skip(async);
@@ -1099,7 +1091,6 @@ ORDER BY [t].[ContactName]
 OFFSET @__p_1 ROWS");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task Take_Skip_Distinct(bool async)
         {
             await base.Take_Skip_Distinct(async);
@@ -1121,7 +1112,6 @@ FROM (
 ) AS [t0]");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task Take_Skip_Distinct_Caching(bool async)
         {
             await base.Take_Skip_Distinct_Caching(async);
@@ -1926,7 +1916,6 @@ FROM (
 ORDER BY [t].[CustomerID], [t].[OrderID]");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task Distinct_Skip(bool async)
         {
             await base.Distinct_Skip(async);
@@ -1943,7 +1932,6 @@ ORDER BY [t].[CustomerID]
 OFFSET @__p_0 ROWS");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task Distinct_Skip_Take(bool async)
         {
             await base.Distinct_Skip_Take(async);
@@ -1961,7 +1949,6 @@ ORDER BY [t].[ContactName]
 OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task Skip_Distinct(bool async)
         {
             await base.Skip_Distinct(async);
@@ -1978,7 +1965,6 @@ FROM (
 ) AS [t]");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task Skip_Take_Distinct(bool async)
         {
             await base.Skip_Take_Distinct(async);
@@ -1996,7 +1982,6 @@ FROM (
 ) AS [t]");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task Skip_Take_Any(bool async)
         {
             await base.Skip_Take_Any(async);
@@ -2015,7 +2000,6 @@ SELECT CASE
 END");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task Skip_Take_All(bool async)
         {
             await base.Skip_Take_All(async);
@@ -2038,7 +2022,6 @@ SELECT CASE
 END");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task Take_All(bool async)
         {
             await base.Take_All(async);
@@ -2059,7 +2042,6 @@ SELECT CASE
 END");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task Skip_Take_Any_with_predicate(bool async)
         {
             await base.Skip_Take_Any_with_predicate(async);
@@ -2082,7 +2064,6 @@ SELECT CASE
 END");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task Take_Any_with_predicate(bool async)
         {
             await base.Take_Any_with_predicate(async);
@@ -2602,7 +2583,6 @@ FROM [Customers] AS [c]
 WHERE COALESCE([c].[CompanyName], [c].[ContactName]) = N'The Big Cheese'");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task Take_skip_null_coalesce_operator(bool async)
         {
             await base.Take_skip_null_coalesce_operator(async);
@@ -2637,7 +2617,6 @@ FROM (
 //ORDER BY [Region]");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task Select_take_skip_null_coalesce_operator(bool async)
         {
             await base.Select_take_skip_null_coalesce_operator(async);
@@ -2656,7 +2635,6 @@ ORDER BY [t].[c]
 OFFSET @__p_1 ROWS");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task Select_take_skip_null_coalesce_operator2(bool async)
         {
             await base.Select_take_skip_null_coalesce_operator2(async);
@@ -2675,7 +2653,6 @@ ORDER BY [t].[c]
 OFFSET @__p_1 ROWS");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task Select_take_skip_null_coalesce_operator3(bool async)
         {
             await base.Select_take_skip_null_coalesce_operator3(async);
@@ -3354,7 +3331,6 @@ WHERE ([c].[City] = N'Seattle') AND ([t0].[OrderID] IS NOT NULL AND [o0].[OrderI
 ORDER BY [t0].[OrderID], [o0].[OrderDate]");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task OrderBy_skip_take(bool async)
         {
             await base.OrderBy_skip_take(async);
@@ -3369,7 +3345,6 @@ ORDER BY [c].[ContactTitle], [c].[ContactName]
 OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task OrderBy_skip_skip_take(bool async)
         {
             await base.OrderBy_skip_skip_take(async);
@@ -3390,7 +3365,6 @@ ORDER BY [t].[ContactTitle], [t].[ContactName]
 OFFSET @__p_1 ROWS FETCH NEXT @__p_2 ROWS ONLY");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task OrderBy_skip_take_take(bool async)
         {
             await base.OrderBy_skip_take_take(async);
@@ -3410,7 +3384,6 @@ FROM (
 ORDER BY [t].[ContactTitle], [t].[ContactName]");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task OrderBy_skip_take_take_take_take(bool async)
         {
             await base.OrderBy_skip_take_take_take_take(async);
@@ -3439,7 +3412,6 @@ FROM (
 ORDER BY [t1].[ContactTitle], [t1].[ContactName]");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task OrderBy_skip_take_skip_take_skip(bool async)
         {
             await base.OrderBy_skip_take_skip_take_skip(async);
@@ -3466,7 +3438,6 @@ ORDER BY [t0].[ContactTitle], [t0].[ContactName]
 OFFSET @__p_0 ROWS");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task OrderBy_skip_take_distinct(bool async)
         {
             await base.OrderBy_skip_take_distinct(async);
@@ -3484,7 +3455,6 @@ FROM (
 ) AS [t]");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task OrderBy_coalesce_take_distinct(bool async)
         {
             await base.OrderBy_coalesce_take_distinct(async);
@@ -3500,7 +3470,6 @@ FROM (
 ) AS [t]");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task OrderBy_coalesce_skip_take_distinct(bool async)
         {
             await base.OrderBy_coalesce_skip_take_distinct(async);
@@ -3518,7 +3487,6 @@ FROM (
 ) AS [t]");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task OrderBy_coalesce_skip_take_distinct_take(bool async)
         {
             await base.OrderBy_coalesce_skip_take_distinct_take(async);
@@ -3536,7 +3504,6 @@ FROM (
 ) AS [t]");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task OrderBy_skip_take_distinct_orderby_take(bool async)
         {
             await base.OrderBy_skip_take_distinct_orderby_take(async);

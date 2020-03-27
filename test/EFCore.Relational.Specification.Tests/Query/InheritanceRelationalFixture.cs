@@ -16,7 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             modelBuilder.Entity<Plant>().HasDiscriminator(p => p.Genus)
                 .HasValue<Rose>(PlantGenus.Rose)
-                .HasValue<Daisy>(PlantGenus.Daisy);
+                .HasValue<Daisy>(PlantGenus.Daisy)
+                .IsComplete(IsDiscriminatorMappingComplete);
 
             modelBuilder.Entity<Country>().Property(e => e.Id).ValueGeneratedNever();
             modelBuilder.Entity<Eagle>().HasMany(e => e.Prey).WithOne().HasForeignKey(e => e.EagleId).IsRequired(false);

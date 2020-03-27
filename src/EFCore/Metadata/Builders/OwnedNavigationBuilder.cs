@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         If no property with the given name exists, then a new property will be added.
         ///     </para>
         ///     <para>
-        ///         Indexed properties are stored in the entity using
+        ///         Indexer properties are stored in the entity using
         ///         <see href="https://docs.microsoft.com/dotnet/csharp/programming-guide/indexers/">an indexer</see>
         ///         supplying the provided property name.
         ///     </para>
@@ -208,9 +208,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <typeparam name="TProperty"> The type of the property to be configured. </typeparam>
         /// <param name="propertyName"> The name of the property to be configured. </param>
         /// <returns> An object that can be used to configure the property. </returns>
-        public virtual PropertyBuilder<TProperty> IndexedProperty<TProperty>([NotNull] string propertyName)
+        public virtual PropertyBuilder<TProperty> IndexerProperty<TProperty>([NotNull] string propertyName)
             => new PropertyBuilder<TProperty>(
-                DependentEntityType.Builder.IndexedProperty(
+                DependentEntityType.Builder.IndexerProperty(
                     typeof(TProperty),
                     Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit).Metadata);
 
@@ -220,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         If no property with the given name exists, then a new property will be added.
         ///     </para>
         ///     <para>
-        ///         Indexed properties are stored in the entity using
+        ///         Indexer properties are stored in the entity using
         ///         <see href="https://docs.microsoft.com/dotnet/csharp/programming-guide/indexers/">an indexer</see>
         ///         supplying the provided property name.
         ///     </para>
@@ -228,11 +228,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyType"> The type of the property to be configured. </param>
         /// <param name="propertyName"> The name of the property to be configured. </param>
         /// <returns> An object that can be used to configure the property. </returns>
-        public virtual PropertyBuilder IndexedProperty([NotNull] Type propertyType, [NotNull] string propertyName)
+        public virtual PropertyBuilder IndexerProperty([NotNull] Type propertyType, [NotNull] string propertyName)
             => new PropertyBuilder(
-                DependentEntityType.Builder.IndexedProperty(
+                DependentEntityType.Builder.IndexerProperty(
                     Check.NotNull(propertyType, nameof(propertyType)),
                     Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit).Metadata);
+
+        /// <summary>
+        ///     <para>
+        ///         Returns an object that can be used to configure an existing navigation property
+        ///         from the owned type to its owner. It is an error for the navigation property
+        ///         not to exist.
+        ///     </para>
+        /// </summary>
+        /// <param name="navigationName"> The name of the navigation property to be configured. </param>
+        /// <returns> An object that can be used to configure the navigation property. </returns>
+        public virtual NavigationBuilder Navigation([NotNull] string navigationName)
+            => new NavigationBuilder(
+                DependentEntityType.Builder.Navigation(
+                    Check.NotEmpty(navigationName, nameof(navigationName))));
 
         /// <summary>
         ///     Excludes the given property from the entity type. This method is typically used to remove properties

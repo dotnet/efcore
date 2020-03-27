@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     <para>
     ///         Metadata about the shape of entities, the relationships between them, and how they map to
     ///         the database. A model is typically created by overriding the
-    ///         <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> method on a derived
+    ///         <see cref="DbContext.OnModelCreating(ModelBuilder)" /> method on a derived
     ///         <see cref="DbContext" />.
     ///     </para>
     ///     <para>
@@ -98,7 +98,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Removes an entity type from the model.
         /// </summary>
         /// <param name="entityType"> The entity type to be removed. </param>
-        void RemoveEntityType([NotNull] IMutableEntityType entityType);
+        /// <returns> The removed entity type. </returns>
+        IMutableEntityType RemoveEntityType([NotNull] IMutableEntityType entityType);
 
         /// <summary>
         ///     Gets all entity types defined in the model.
@@ -110,13 +111,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Marks the given entity type name as ignored, preventing conventions from adding a matching entity type to the model.
         /// </summary>
         /// <param name="typeName"> The name of the entity type to be ignored. </param>
-        void AddIgnored([NotNull] string typeName);
+        /// <returns> The name of the ignored type. </returns>
+        string AddIgnored([NotNull] string typeName);
 
         /// <summary>
         ///     Removes the ignored entity type name.
         /// </summary>
         /// <param name="typeName"> The name of the ignored entity type to be removed. </param>
-        void RemoveIgnored([NotNull] string typeName);
+        /// <returns> The removed ignored type name. </returns>
+        string RemoveIgnored([NotNull] string typeName);
 
         /// <summary>
         ///     Indicates whether the given entity type name is ignored.

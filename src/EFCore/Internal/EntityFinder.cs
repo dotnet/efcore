@@ -325,7 +325,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 ? BuildQueryRoot(definingEntityType, entityType, entityType.DefiningNavigationName)
                 : entityType.FindOwnership() is IForeignKey ownership
                     ? BuildQueryRoot(ownership.PrincipalEntityType, entityType, ownership.PrincipalToDependent.Name)
-                    : entityType.IsSharedType
+                    : entityType.HasSharedClrType
                         ? (IQueryable)_setCache.GetOrAddSet(_setSource, entityType.Name, entityType.ClrType)
                         : (IQueryable)_setCache.GetOrAddSet(_setSource, entityType.ClrType);
         }

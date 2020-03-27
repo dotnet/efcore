@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="foreignKey">
         ///     The foreign key. Passing <c>null</c> will result in there being no foreign key associated.
         /// </param>
-        IMutableForeignKey SetForeignKey([CanBeNull] IMutableForeignKey foreignKey);
+        void SetForeignKey([CanBeNull] IMutableForeignKey foreignKey);
 
         /// <summary>
         ///     Gets the inverse skip navigation.

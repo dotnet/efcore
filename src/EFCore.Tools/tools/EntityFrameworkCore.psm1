@@ -33,6 +33,9 @@ Register-TabExpansion Add-Migration @{
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
+.PARAMETER Namespace
+    Specify to override the namespace for the migration.
+
 .LINK
     Remove-Migration
     Update-Database
@@ -47,7 +50,8 @@ function Add-Migration
         [string] $OutputDir,
         [string] $Context,
         [string] $Project,
-        [string] $StartupProject)
+        [string] $StartupProject,
+        [string] $Namespace)
 
     WarnIfEF6 'Add-Migration'
 
@@ -59,6 +63,11 @@ function Add-Migration
     if ($OutputDir)
     {
         $params += '--output-dir', $OutputDir
+    }
+
+    if ($Namespace)
+    {
+        $params += '--namespace', $Namespace
     }
 
     $params += GetParams $Context
@@ -305,6 +314,12 @@ Register-TabExpansion Scaffold-DbContext @{
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
+.PARAMETER Namespace
+    Specify to override the namespace for the generated entity types.
+
+.PARAMETER ContextNamespace
+    Specify to override the namespace for the DbContext class.
+
 .LINK
     about_EntityFrameworkCore
 #>
@@ -325,7 +340,9 @@ function Scaffold-DbContext
         [switch] $UseDatabaseNames,
         [switch] $Force,
         [string] $Project,
-        [string] $StartupProject)
+        [string] $StartupProject,
+        [string] $Namespace,
+        [string] $ContextNamespace)
 
     $dteProject = GetProject $Project
     $dteStartupProject = GetStartupProject $StartupProject $dteProject
@@ -345,6 +362,16 @@ function Scaffold-DbContext
     if ($Context)
     {
         $params += '--context', $Context
+    }
+
+    if ($Namespace)
+    {
+        $params += '--namespace', $Namespace
+    }
+
+    if ($ContextNamespace)
+    {
+        $params += '--context-namespace', $ContextNamespace
     }
 
     $params += $Schemas | %{ '--schema', $_ }
@@ -570,6 +597,9 @@ Register-TabExpansion Update-Database @{
 .PARAMETER Migration
     The target migration. If '0', all migrations will be reverted. Defaults to the last migration.
 
+.PARAMETER Connection
+    The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
+
 .PARAMETER Context
     The DbContext to use.
 
@@ -589,6 +619,7 @@ function Update-Database
     param(
         [Parameter(Position = 0)]
         [string] $Migration,
+        [string] $Connection,
         [string] $Context,
         [string] $Project,
         [string] $StartupProject)
@@ -603,6 +634,11 @@ function Update-Database
     if ($Migration)
     {
         $params += $Migration
+    }
+
+    if ($Connection)
+    {
+        $params += '--connection', $Connection
     }
 
     $params += GetParams $Context

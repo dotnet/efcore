@@ -129,6 +129,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="cyclic"> If <c>true</c>, then the sequence with restart when the maximum is reached. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the given cyclicity can be set for the sequence. </returns>
-        bool CanSetCyclic(bool? cyclic, bool fromDataAnnotation = false);
+        bool CanSetIsCyclic(bool? cyclic, bool fromDataAnnotation = false);
     }
 }

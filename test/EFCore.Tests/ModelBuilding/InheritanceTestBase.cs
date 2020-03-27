@@ -855,9 +855,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var baseTypeBuilder = mb.Entity<PBase>();
                 var derivedTypeBuilder = mb.Entity<Q>();
 
-                Assert.False(baseTypeBuilder.Metadata.GetIsDiscriminatorMappingComplete());
-
-                baseTypeBuilder.HasDiscriminator<string>("Discriminator").IsComplete(true);
                 Assert.True(baseTypeBuilder.Metadata.GetIsDiscriminatorMappingComplete());
 
                 baseTypeBuilder.HasDiscriminator<string>("Discriminator").IsComplete(false);

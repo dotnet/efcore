@@ -8,7 +8,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -60,11 +59,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 ChangeDetector.SkipDetectChangesAnnotation,
                 CoreAnnotationNames.ChangeTrackingStrategy,
                 CoreAnnotationNames.OwnedTypes,
+                RelationalAnnotationNames.RelationalModel,
                 RelationalAnnotationNames.CheckConstraints,
                 RelationalAnnotationNames.Sequences,
-                RelationalAnnotationNames.DbFunctions,
-                RelationalAnnotationNames.Tables,
-                RelationalAnnotationNames.Views);
+                RelationalAnnotationNames.DbFunctions);
 
             if (annotations.Count > 0)
             {

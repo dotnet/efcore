@@ -187,10 +187,8 @@ ORDER BY [t].[CustomerID]");
         {
             await base.Skip_Select_Navigation(async);
 
-            if (TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true)
-            {
-                AssertSql(
-                    @"@__p_0='20'
+            AssertSql(
+                @"@__p_0='20'
 
 SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
 FROM (
@@ -208,7 +206,6 @@ LEFT JOIN (
     WHERE [t0].[row] <= 1
 ) AS [t1] ON [t].[CustomerID] = [t1].[CustomerID]
 ORDER BY [t].[CustomerID]");
-            }
         }
 
         public override async Task Select_Where_Navigation_Included(bool async)

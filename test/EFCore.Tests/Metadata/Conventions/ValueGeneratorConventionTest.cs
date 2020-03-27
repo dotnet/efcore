@@ -458,7 +458,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             new ValueGenerationConvention(CreateDependencies())
                 .ProcessForeignKeyAdded(
                     foreignKeyBuilder,
-                    new ConventionContext<IConventionRelationshipBuilder>(
+                    new ConventionContext<IConventionForeignKeyBuilder>(
                         foreignKeyBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher));
         }
 

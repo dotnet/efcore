@@ -12,6 +12,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     public partial class EntityTypeTest
     {
         [ConditionalFact]
+        public void Can_configure_base_type()
+        {
+            var model = (IConventionModel)CreateModel();
+
+            var a = model.AddEntityType(typeof(A).Name);
+            var b = model.AddEntityType(typeof(B).Name);
+
+            Assert.Same(a, b.SetBaseType(a));
+
+            var finalModel = model.FinalizeModel();
+            Assert.Same(finalModel.FindEntityType(typeof(A).Name), finalModel.FindEntityType(typeof(B).Name).BaseType);
+        }
+
+        [ConditionalFact]
         public void Circular_inheritance_should_throw()
         {
             var model = CreateModel();
@@ -505,7 +519,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var foreignKeyProperty = orderType.AddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.AddForeignKey(foreignKeyProperty, customerKey, customerType);
 
-            customerForeignKey.HasPrincipalToDependent(Customer.OrdersProperty);
+            customerForeignKey.SetPrincipalToDependent(Customer.OrdersProperty);
 
             var specialCustomerType = model.AddEntityType(typeof(SpecialCustomer));
 
@@ -519,7 +533,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var derivedForeignKeyProperty = orderType.AddProperty(Order.IdProperty);
             var specialCustomerForeignKey = orderType.AddForeignKey(derivedForeignKeyProperty, customerKey, specialCustomerType);
-            specialCustomerForeignKey.HasPrincipalToDependent(SpecialCustomer.DerivedOrdersProperty);
+            specialCustomerForeignKey.SetPrincipalToDependent(SpecialCustomer.DerivedOrdersProperty);
             Assert.Equal(new[] { "Orders" }, customerType.GetNavigations().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "Orders", "DerivedOrders" }, specialCustomerType.GetNavigations().Select(p => p.Name).ToArray());
             Assert.Equal(
@@ -542,14 +556,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var specialCustomerType = model.AddEntityType(typeof(SpecialCustomer));
             specialCustomerType.BaseType = customerType;
 
-            customerForeignKey.HasPrincipalToDependent(Customer.OrdersProperty);
+            customerForeignKey.SetPrincipalToDependent(Customer.OrdersProperty);
 
             Assert.Equal(new[] { "Orders" }, customerType.GetNavigations().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "Orders" }, specialCustomerType.GetNavigations().Select(p => p.Name).ToArray());
 
             var derivedForeignKeyProperty = orderType.AddProperty(Order.IdProperty);
             var specialCustomerForeignKey = orderType.AddForeignKey(derivedForeignKeyProperty, customerKey, specialCustomerType);
-            specialCustomerForeignKey.HasPrincipalToDependent(SpecialCustomer.DerivedOrdersProperty);
+            specialCustomerForeignKey.SetPrincipalToDependent(SpecialCustomer.DerivedOrdersProperty);
 
             Assert.Equal(new[] { "Orders" }, customerType.GetNavigations().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "Orders", "DerivedOrders" }, specialCustomerType.GetNavigations().Select(p => p.Name).ToArray());
@@ -567,14 +581,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var foreignKeyProperty = orderType.AddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.AddForeignKey(foreignKeyProperty, customerKey, customerType);
 
-            customerForeignKey.HasPrincipalToDependent(Customer.OrdersProperty);
+            customerForeignKey.SetPrincipalToDependent(Customer.OrdersProperty);
 
             var specialCustomerType = model.AddEntityType(typeof(SpecialCustomer));
             specialCustomerType.BaseType = customerType;
 
             var derivedForeignKeyProperty = orderType.AddProperty(Order.IdProperty);
             var specialCustomerForeignKey = orderType.AddForeignKey(derivedForeignKeyProperty, customerKey, specialCustomerType);
-            specialCustomerForeignKey.HasPrincipalToDependent(SpecialCustomer.DerivedOrdersProperty);
+            specialCustomerForeignKey.SetPrincipalToDependent(SpecialCustomer.DerivedOrdersProperty);
 
             specialCustomerType.BaseType = null;
 
@@ -594,7 +608,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var orderType = model.AddEntityType(typeof(SpecialOrder));
             var foreignKeyProperty = orderType.AddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.AddForeignKey(foreignKeyProperty, customerKey, customerType);
-            customerForeignKey.HasPrincipalToDependent(Customer.OrdersProperty);
+            customerForeignKey.SetPrincipalToDependent(Customer.OrdersProperty);
 
             var specialCustomerType = model.AddEntityType(typeof(SpecialCustomer));
             specialCustomerType.BaseType = customerType;
@@ -606,7 +620,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 CoreStrings.NavigationForWrongForeignKey(nameof(Customer.Orders), typeof(Customer).Name, "{'Id'}", "{'CustomerId'}"),
                 Assert.Throws<InvalidOperationException>(
                     () =>
-                        specialCustomerForeignKey.HasPrincipalToDependent(Customer.OrdersProperty)).Message);
+                        specialCustomerForeignKey.SetPrincipalToDependent(Customer.OrdersProperty)).Message);
         }
 
         [ConditionalFact]
@@ -620,7 +634,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var orderType = model.AddEntityType(typeof(SpecialOrder));
             var foreignKeyProperty = orderType.AddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.AddForeignKey(foreignKeyProperty, customerKey, customerType);
-            customerForeignKey.HasPrincipalToDependent(Customer.OrdersProperty);
+            customerForeignKey.SetPrincipalToDependent(Customer.OrdersProperty);
 
             var specialCustomerType = model.AddEntityType(typeof(SpecialCustomer));
             specialCustomerType.BaseType = customerType;
@@ -634,7 +648,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(
                 CoreStrings.NavigationForWrongForeignKey("Orders", typeof(Customer).Name, "{'Id'}", "{'CustomerId'}"),
                 Assert.Throws<InvalidOperationException>(
-                    () => specialCustomerForeignKey.HasPrincipalToDependent("Orders")).Message);
+                    () => specialCustomerForeignKey.SetPrincipalToDependent("Orders")).Message);
 
             Assert.Equal("Orders", ((IEntityType)verySpecialCustomerType).GetNavigations().Single().Name);
         }
@@ -656,13 +670,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var derivedForeignKeyProperty = orderType.AddProperty(Order.IdProperty);
             var specialCustomerForeignKey = orderType.AddForeignKey(derivedForeignKeyProperty, customerKey, specialCustomerType);
-            specialCustomerForeignKey.HasPrincipalToDependent(Customer.OrdersProperty);
+            specialCustomerForeignKey.SetPrincipalToDependent(Customer.OrdersProperty);
 
             Assert.Equal(
                 CoreStrings.NavigationForWrongForeignKey("Orders", typeof(SpecialCustomer).Name, "{'CustomerId'}", "{'Id'}"),
                 Assert.Throws<InvalidOperationException>(
                     () =>
-                        customerForeignKey.HasPrincipalToDependent("Orders")).Message);
+                        customerForeignKey.SetPrincipalToDependent("Orders")).Message);
         }
 
         [ConditionalFact]
@@ -685,14 +699,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var derivedForeignKeyProperty = orderType.AddProperty(Order.IdProperty);
             var specialCustomerForeignKey = orderType.AddForeignKey(derivedForeignKeyProperty, customerKey, verySpecialCustomerType);
-            specialCustomerForeignKey.HasPrincipalToDependent(Customer.OrdersProperty);
+            specialCustomerForeignKey.SetPrincipalToDependent(Customer.OrdersProperty);
 
             Assert.Equal(
                 CoreStrings.NavigationForWrongForeignKey(
                     nameof(Customer.Orders), typeof(VerySpecialCustomer).Name, "{'CustomerId'}", "{'Id'}"),
                 Assert.Throws<InvalidOperationException>(
                     () =>
-                        customerForeignKey.HasPrincipalToDependent(Customer.OrdersProperty)).Message);
+                        customerForeignKey.SetPrincipalToDependent(Customer.OrdersProperty)).Message);
 
             Assert.Equal(nameof(Customer.Orders), ((IEntityType)verySpecialCustomerType).GetNavigations().Single().Name);
         }
@@ -708,7 +722,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var orderType = model.AddEntityType(typeof(Order));
             var foreignKeyProperty = orderType.AddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.AddForeignKey(foreignKeyProperty, customerKey, customerType);
-            customerForeignKey.HasDependentToPrincipal(Order.CustomerProperty);
+            customerForeignKey.SetDependentToPrincipal(Order.CustomerProperty);
 
             var specialOrderType = model.AddEntityType(typeof(SpecialOrder));
 
@@ -719,7 +733,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var specialCustomerKey = specialCustomerType.AddKey(property);
             var specialCustomerForeignKey = specialOrderType.AddForeignKey(
                 derivedForeignKeyProperty, specialCustomerKey, specialCustomerType);
-            specialCustomerForeignKey.HasDependentToPrincipal(Order.CustomerProperty);
+            specialCustomerForeignKey.SetDependentToPrincipal(Order.CustomerProperty);
 
             Assert.Equal(CoreStrings.DuplicatePropertiesOnBase(nameof(SpecialOrder), nameof(Order),
                 nameof(SpecialOrder), nameof(Order.Customer), nameof(Order), nameof(Order.Customer)),
@@ -737,7 +751,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var orderType = model.AddEntityType(typeof(Order));
             var foreignKeyProperty = orderType.AddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.AddForeignKey(foreignKeyProperty, customerKey, customerType);
-            customerForeignKey.HasDependentToPrincipal(Order.CustomerProperty);
+            customerForeignKey.SetDependentToPrincipal(Order.CustomerProperty);
 
             var specialOrderType = model.AddEntityType(typeof(SpecialOrder));
 
@@ -749,7 +763,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var specialCustomerKey = specialCustomerType.AddKey(property);
             var specialCustomerForeignKey = verySpecialOrderType.AddForeignKey(
                 derivedForeignKeyProperty, specialCustomerKey, specialCustomerType);
-            specialCustomerForeignKey.HasDependentToPrincipal(Order.CustomerProperty);
+            specialCustomerForeignKey.SetDependentToPrincipal(Order.CustomerProperty);
             verySpecialOrderType.BaseType = specialOrderType;
 
             Assert.Equal(CoreStrings.DuplicatePropertiesOnBase(nameof(SpecialOrder), nameof(Order),
@@ -768,7 +782,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var orderType = model.AddEntityType(typeof(Order));
             var foreignKeyProperty = orderType.AddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.AddForeignKey(foreignKeyProperty, customerKey, customerType);
-            customerForeignKey.HasDependentToPrincipal(Order.CustomerProperty);
+            customerForeignKey.SetDependentToPrincipal(Order.CustomerProperty);
 
             var specialOrderType = model.AddEntityType(typeof(SpecialOrder));
             specialOrderType.BaseType = orderType;
@@ -781,7 +795,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var specialCustomerKey = specialCustomerType.AddKey(property);
             var specialCustomerForeignKey = verySpecialOrderType.AddForeignKey(
                 derivedForeignKeyProperty, specialCustomerKey, specialCustomerType);
-            specialCustomerForeignKey.HasDependentToPrincipal(Order.CustomerProperty);
+            specialCustomerForeignKey.SetDependentToPrincipal(Order.CustomerProperty);
 
             Assert.Equal(
                 CoreStrings.DuplicatePropertiesOnBase(nameof(VerySpecialOrder), nameof(SpecialOrder),

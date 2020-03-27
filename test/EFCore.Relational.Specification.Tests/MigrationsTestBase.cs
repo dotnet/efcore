@@ -1348,7 +1348,7 @@ be found in the docs.";
             var serviceProvider = ((IInfrastructure<IServiceProvider>)context).Instance;
             var modelDiffer = serviceProvider.GetRequiredService<IMigrationsModelDiffer>();
 
-            var operations = modelDiffer.GetDifferences(sourceModel, targetModel);
+            var operations = modelDiffer.GetDifferences(sourceModel.GetRelationalModel(), targetModel.GetRelationalModel());
 
             return Test(sourceModel, targetModel, operations, asserter);
         }
@@ -1397,7 +1397,7 @@ be found in the docs.";
                 using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
                 {
                     await migrationsCommandExecutor.ExecuteNonQueryAsync(
-                        migrationsSqlGenerator.Generate(modelDiffer.GetDifferences(null, sourceModel), sourceModel),
+                        migrationsSqlGenerator.Generate(modelDiffer.GetDifferences(null, sourceModel.GetRelationalModel()), sourceModel),
                         connection);
                 }
 
@@ -1446,8 +1446,10 @@ be found in the docs.";
             var conventionSet = new ConventionSet();
 
             var dependencies = Fixture.TestHelpers.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
+            var relationalDependencies = Fixture.TestHelpers.CreateContextServices()
+                .GetRequiredService<RelationalConventionSetBuilderDependencies>();
             conventionSet.ModelFinalizingConventions.Add(new TypeMappingConvention(dependencies));
-            conventionSet.ModelFinalizedConventions.Add(new RelationalModelConvention());
+            conventionSet.ModelFinalizedConventions.Add(new RelationalModelConvention(dependencies, relationalDependencies));
 
             return new ModelBuilder(conventionSet);
         }

@@ -918,17 +918,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return true;
         }
 
-        /// <summary>
-        ///     Called after a navigation is added to the entity type.
-        /// </summary>
-        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
-        /// <param name="navigation"> The navigation. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
         public virtual void ProcessNavigationAdded(
-            IConventionRelationshipBuilder relationshipBuilder,
-            IConventionNavigation navigation,
-            IConventionContext<IConventionNavigation> context)
+            IConventionNavigationBuilder navigationBuilder,
+            IConventionContext<IConventionNavigationBuilder> context)
         {
+            var navigation = navigationBuilder.Metadata;
             foreach (var entityType in navigation.DeclaringEntityType.GetDerivedTypesInclusive())
             {
                 var targetEntityType = navigation.TargetEntityType;
@@ -947,7 +942,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
             }
 
-            if (relationshipBuilder.Metadata.Builder == null)
+            if (navigationBuilder.Metadata.Builder == null)
             {
                 context.StopProcessing();
             }
@@ -959,8 +954,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyOwnershipChanged(
-            IConventionRelationshipBuilder relationshipBuilder,
-            IConventionContext<IConventionRelationshipBuilder> context)
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IConventionContext<bool?> context)
             => DiscoverRelationships(relationshipBuilder.Metadata.DeclaringEntityType.Builder, context);
 
         private Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)

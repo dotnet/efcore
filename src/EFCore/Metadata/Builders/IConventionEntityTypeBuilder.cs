@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     public interface IConventionEntityTypeBuilder : IConventionAnnotatableBuilder
     {
         /// <summary>
-        ///     The entity type being configured.
+        ///     Gets the entity type being configured.
         /// </summary>
         new IConventionEntityType Metadata { get; }
 
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="properties"> The properties to remove. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        IConventionEntityTypeBuilder RemoveUnusedShadowProperties(
+        IConventionEntityTypeBuilder HasNoUnusedShadowProperties(
             [NotNull] IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -194,6 +194,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         IConventionEntityTypeBuilder HasNoKey([NotNull] IConventionKey key, bool fromDataAnnotation = false);
 
         /// <summary>
+        ///     Returns a value indicating whether the key can be removed from this entity type.
+        /// </summary>
+        /// <param name="key"> The key to be removed. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the key can be removed from this entity type. </returns>
+        bool CanRemoveKey([NotNull] IConventionKey key, bool fromDataAnnotation = false);
+
+        /// <summary>
         ///     Configures the entity type to have no keys. It will only be usable for queries.
         /// </summary>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -202,6 +210,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <c>null</c> otherwise.
         /// </returns>
         IConventionEntityTypeBuilder HasNoKey(bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns a value indicating whether the entity type can be marked as keyless.
+        /// </summary>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the entity type can be marked as keyless. </returns>
+        bool CanRemoveKey(bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Configures an index on the specified properties. If there is an existing index on the given
@@ -239,12 +254,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         IConventionEntityTypeBuilder HasNoIndex([NotNull] IConventionIndex index, bool fromDataAnnotation = false);
 
         /// <summary>
+        ///     Returns a value indicating whether the index can be removed from this entity type.
+        /// </summary>
+        /// <param name="index"> The index to remove. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the entity type can be marked as keyless. </returns>
+        bool CanRemoveIndex([NotNull] IConventionIndex index, bool fromDataAnnotation = false);
+
+        /// <summary>
         ///     Configures a relationship between this and the target entity type.
         /// </summary>
         /// <param name="targetEntityType"> The entity type that this relationship targets. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
-        IConventionRelationshipBuilder HasRelationship(
+        IConventionForeignKeyBuilder HasRelationship(
             [NotNull] IConventionEntityType targetEntityType, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -257,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <c>null</c> otherwise.
         /// </returns>
-        IConventionRelationshipBuilder HasRelationship(
+        IConventionForeignKeyBuilder HasRelationship(
             [NotNull] IConventionEntityType principalEntityType,
             [NotNull] IReadOnlyList<IConventionProperty> dependentProperties,
             bool fromDataAnnotation = false);
@@ -272,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <c>null</c> otherwise.
         /// </returns>
-        IConventionRelationshipBuilder HasRelationship(
+        IConventionForeignKeyBuilder HasRelationship(
             [NotNull] IConventionEntityType principalEntityType,
             [NotNull] IConventionKey principalKey,
             bool fromDataAnnotation = false);
@@ -288,7 +311,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <c>null</c> otherwise.
         /// </returns>
-        IConventionRelationshipBuilder HasRelationship(
+        IConventionForeignKeyBuilder HasRelationship(
             [NotNull] IConventionEntityType principalEntityType,
             [NotNull] IReadOnlyList<IConventionProperty> dependentProperties,
             [NotNull] IConventionKey principalKey,
@@ -307,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <c>null</c> otherwise.
         /// </returns>
-        IConventionRelationshipBuilder HasRelationship(
+        IConventionForeignKeyBuilder HasRelationship(
             [NotNull] IConventionEntityType targetEntityType,
             [NotNull] string navigationToTargetName,
             bool setTargetAsPrincipal = false,
@@ -324,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <c>null</c> otherwise.
         /// </returns>
-        IConventionRelationshipBuilder HasRelationship(
+        IConventionForeignKeyBuilder HasRelationship(
             [NotNull] IConventionEntityType targetEntityType,
             [NotNull] MemberInfo navigationToTarget,
             bool setTargetAsPrincipal = false,
@@ -345,7 +368,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <c>null</c> otherwise.
         /// </returns>
-        IConventionRelationshipBuilder HasRelationship(
+        IConventionForeignKeyBuilder HasRelationship(
             [NotNull] IConventionEntityType targetEntityType,
             [NotNull] string navigationToTargetName,
             [CanBeNull] string inverseNavigationName,
@@ -367,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <c>null</c> otherwise.
         /// </returns>
-        IConventionRelationshipBuilder HasRelationship(
+        IConventionForeignKeyBuilder HasRelationship(
             [NotNull] IConventionEntityType targetEntityType,
             [NotNull] MemberInfo navigationToTarget,
             [CanBeNull] MemberInfo inverseNavigation,
@@ -381,7 +404,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="navigationToTargetName"> The name of the navigation property on this entity type that is part of the relationship. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
-        IConventionRelationshipBuilder HasOwnership(
+        IConventionForeignKeyBuilder HasOwnership(
             [NotNull] Type targetEntityType,
             [NotNull] string navigationToTargetName,
             bool fromDataAnnotation = false);
@@ -396,7 +419,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <c>null</c> otherwise.
         /// </returns>
-        IConventionRelationshipBuilder HasOwnership(
+        IConventionForeignKeyBuilder HasOwnership(
             [NotNull] Type targetEntityType,
             [NotNull] MemberInfo navigationToTarget,
             bool fromDataAnnotation = false);
@@ -415,7 +438,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <c>null</c> otherwise.
         /// </returns>
-        IConventionRelationshipBuilder HasOwnership(
+        IConventionForeignKeyBuilder HasOwnership(
             [NotNull] Type targetEntityType,
             [NotNull] string navigationToTargetName,
             [CanBeNull] string inverseNavigationName,
@@ -435,7 +458,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <c>null</c> otherwise.
         /// </returns>
-        IConventionRelationshipBuilder HasOwnership(
+        IConventionForeignKeyBuilder HasOwnership(
             [NotNull] Type targetEntityType,
             [NotNull] MemberInfo navigationToTarget,
             [CanBeNull] MemberInfo inverseNavigation,
@@ -463,15 +486,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Removes a relationship from this entity type.
+        ///     Removes a foreign key from this entity type.
         /// </summary>
         /// <param name="foreignKey"> The foreign key to be removed. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
-        ///     The same builder instance if the relationship was removed,
+        ///     The same builder instance if the foreign key was removed,
         ///     <c>null</c> otherwise.
         /// </returns>
         IConventionEntityTypeBuilder HasNoRelationship([NotNull] IConventionForeignKey foreignKey, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns a value indicating whether the foreign key can be removed from this entity type.
+        /// </summary>
+        /// <param name="foreignKey"> The foreign key to be removed. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the foreign key can be removed from this entity type. </returns>
+        bool CanRemoveRelationship([NotNull] IConventionForeignKey foreignKey, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given navigation can be added to this entity type.
@@ -628,60 +659,48 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         bool CanSetPropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Configures the discriminator column used to identify which entity type each row in a table represents
+        ///     Configures the discriminator property used to identify which entity type each row in a table represents
         ///     when an inheritance hierarchy is mapped to a single table in a relational database.
         /// </summary>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> A builder that allows the discriminator column to be configured. </returns>
+        /// <returns> A builder that allows the discriminator property to be configured. </returns>
         IConventionDiscriminatorBuilder HasDiscriminator(bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Configures the discriminator column used to identify which entity type each row in a table represents
+        ///     Configures the discriminator property used to identify which entity type each row in a table represents
         ///     when an inheritance hierarchy is mapped to a single table in a relational database.
         /// </summary>
-        /// <param name="type"> The type of values stored in the discriminator column. </param>
+        /// <param name="type"> The type of values stored in the discriminator property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the discriminator was configured,
-        ///     <c>null</c> otherwise.
-        /// </returns>
+        /// <returns> A builder that allows the discriminator property to be configured. </returns>
         IConventionDiscriminatorBuilder HasDiscriminator([NotNull] Type type, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Configures the discriminator column used to identify which entity type each row in a table represents
+        ///     Configures the discriminator property used to identify which entity type each row in a table represents
         ///     when an inheritance hierarchy is mapped to a single table in a relational database.
         /// </summary>
-        /// <param name="name"> The name of the discriminator column. </param>
+        /// <param name="name"> The name of the discriminator property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the discriminator was configured,
-        ///     <c>null</c> otherwise.
-        /// </returns>
+        /// <returns> A builder that allows the discriminator property to be configured. </returns>
         IConventionDiscriminatorBuilder HasDiscriminator([NotNull] string name, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Configures the discriminator column used to identify which entity type each row in a table represents
+        ///     Configures the discriminator property used to identify which entity type each row in a table represents
         ///     when an inheritance hierarchy is mapped to a single table in a relational database.
         /// </summary>
-        /// <param name="name"> The name of the discriminator column. </param>
-        /// <param name="type"> The type of values stored in the discriminator column. </param>
+        /// <param name="name"> The name of the discriminator property. </param>
+        /// <param name="type"> The type of values stored in the discriminator property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the discriminator was configured,
-        ///     <c>null</c> otherwise.
-        /// </returns>
+        /// <returns> A builder that allows the discriminator property to be configured. </returns>
         IConventionDiscriminatorBuilder HasDiscriminator([NotNull] string name, [NotNull] Type type, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Configures the discriminator column used to identify which entity type each row in a table represents
+        ///     Configures the discriminator property used to identify which entity type each row in a table represents
         ///     when an inheritance hierarchy is mapped to a single table in a relational database.
         /// </summary>
-        /// <param name="memberInfo"> The property mapped to the discriminator column. </param>
+        /// <param name="memberInfo"> The property mapped to the discriminator property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the discriminator was configured,
-        ///     <c>null</c> otherwise.
-        /// </returns>
+        /// <returns> A builder that allows the discriminator property to be configured. </returns>
         IConventionDiscriminatorBuilder HasDiscriminator([NotNull] MemberInfo memberInfo, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -694,31 +713,46 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the discriminator was configured,
         ///     <c>null</c> otherwise.
         /// </returns>
-        IConventionEntityTypeBuilder HasNoDeclaredDiscriminator(bool fromDataAnnotation = false);
+        IConventionEntityTypeBuilder HasNoDiscriminator(bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns a value indicating whether the discriminator column can be configured.
+        ///     Returns a value indicating whether the discriminator property can be configured.
         /// </summary>
-        /// <param name="name"> The name of the discriminator column. </param>
+        /// <param name="name"> The name of the discriminator property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the configuration can be applied. </returns>
-        bool CanSetDiscriminator([CanBeNull] string name, bool fromDataAnnotation = false);
+        bool CanSetDiscriminator([NotNull] string name, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns a value indicating whether the discriminator column can be configured.
+        ///     Returns a value indicating whether the discriminator property can be configured.
         /// </summary>
-        /// <param name="type"> The type of values stored in the discriminator column. </param>
+        /// <param name="type"> The type of values stored in the discriminator property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the configuration can be applied. </returns>
-        bool CanSetDiscriminator([CanBeNull] Type type, bool fromDataAnnotation = false);
+        bool CanSetDiscriminator([NotNull] Type type, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns a value indicating whether the discriminator column can be configured.
+        ///     Returns a value indicating whether the discriminator property can be configured.
         /// </summary>
-        /// <param name="type"> The type of values stored in the discriminator column. </param>
-        /// <param name="name"> The name of the discriminator column. </param>
+        /// <param name="type"> The type of values stored in the discriminator property. </param>
+        /// <param name="name"> The name of the discriminator property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the configuration can be applied. </returns>
-        bool CanSetDiscriminator([NotNull] Type type, [NotNull] string name, bool fromDataAnnotation = false);
+        bool CanSetDiscriminator([NotNull] string name, [NotNull] Type type, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns a value indicating whether the discriminator property can be configured.
+        /// </summary>
+        /// <param name="memberInfo"> The property mapped to the discriminator property. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the configuration can be applied. </returns>
+        bool CanSetDiscriminator([NotNull] MemberInfo memberInfo, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns a value indicating whether the discriminator property can be removed.
+        /// </summary>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the discriminator property can be removed. </returns>
+        bool CanRemoveDiscriminator(bool fromDataAnnotation = false);
     }
 }

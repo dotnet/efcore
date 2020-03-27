@@ -23,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+        private readonly string _partitionKey;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -32,15 +33,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public CosmosShapedQueryCompilingExpressionVisitor(
             [NotNull] ShapedQueryCompilingExpressionVisitorDependencies dependencies,
-            [NotNull] QueryCompilationContext queryCompilationContext,
+            [NotNull] CosmosQueryCompilationContext cosmosQueryCompilationContext,
             [NotNull] ISqlExpressionFactory sqlExpressionFactory,
             [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory)
-            : base(dependencies, queryCompilationContext)
+            : base(dependencies, cosmosQueryCompilationContext)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
             _querySqlGeneratorFactory = querySqlGeneratorFactory;
-            _contextType = queryCompilationContext.ContextType;
-            _logger = queryCompilationContext.Logger;
+            _contextType = cosmosQueryCompilationContext.ContextType;
+            _logger = cosmosQueryCompilationContext.Logger;
+            _partitionKey = cosmosQueryCompilationContext.PartitionKey;
         }
 
         /// <summary>
@@ -77,6 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 Expression.Constant(selectExpression),
                 Expression.Constant(shaperLambda.Compile()),
                 Expression.Constant(_contextType),
+                Expression.Constant(_partitionKey, typeof(string)),
                 Expression.Constant(_logger));
         }
     }

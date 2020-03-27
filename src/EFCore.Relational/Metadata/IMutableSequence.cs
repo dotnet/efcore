@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Represents a database sequence in the <see cref="IMutableModel" /> in a form that
     ///     can be mutated while building the model.
     /// </summary>
-    public interface IMutableSequence : ISequence
+    public interface IMutableSequence : ISequence, IMutableAnnotatable
     {
         /// <summary>
         ///     Gets the <see cref="IMutableModel" /> in which this sequence is defined.

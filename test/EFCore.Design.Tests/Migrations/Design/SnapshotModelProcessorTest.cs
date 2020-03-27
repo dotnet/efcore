@@ -10,8 +10,10 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable ClassNeverInstantiated.Local
@@ -51,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            new SnapshotModelProcessor(reporter).Process(model);
+            new SnapshotModelProcessor(reporter, NullConventionSetBuilder.Instance).Process(model);
 
             AssertAnnotations(model);
             AssertAnnotations(entityType);
@@ -77,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            new SnapshotModelProcessor(reporter).Process(model);
+            new SnapshotModelProcessor(reporter, NullConventionSetBuilder.Instance).Process(model);
 
             Assert.Equal("warn: " + DesignStrings.MultipleAnnotationConflict("DefaultSchema"), reporter.Messages.Single());
             Assert.Equal(2, model.GetAnnotations().Count());
@@ -98,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            new SnapshotModelProcessor(reporter).Process(model);
+            new SnapshotModelProcessor(reporter, NullConventionSetBuilder.Instance).Process(model);
 
             Assert.Equal("warn: " + DesignStrings.MultipleAnnotationConflict("DefaultSchema"), reporter.Messages.Single());
             Assert.Equal(2, model.GetAnnotations().Count());
@@ -119,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            new SnapshotModelProcessor(reporter).Process(model);
+            new SnapshotModelProcessor(reporter, NullConventionSetBuilder.Instance).Process(model);
 
             Assert.Empty(reporter.Messages);
 
@@ -138,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            new SnapshotModelProcessor(reporter).Process(model);
+            new SnapshotModelProcessor(reporter, NullConventionSetBuilder.Instance).Process(model);
 
             Assert.Empty(reporter.Messages);
 
@@ -164,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
 
             var reporter = new TestOperationReporter();
-            new SnapshotModelProcessor(reporter).Process(model);
+            new SnapshotModelProcessor(reporter, NullConventionSetBuilder.Instance).Process(model);
 
             Assert.Empty(reporter.Messages);
             Assert.Equal(
@@ -184,9 +186,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var differ = context.GetService<IMigrationsModelDiffer>();
             var snapshot = (ModelSnapshot)Activator.CreateInstance(snapshotType);
             var reporter = new TestOperationReporter();
-            var processor = new SnapshotModelProcessor(reporter);
+            var setBuilder = SqlServerTestHelpers.Instance.CreateContextServices().GetRequiredService<IConventionSetBuilder>();
+            var processor = new SnapshotModelProcessor(reporter, setBuilder);
+            var model = processor.Process(snapshot.Model);
 
-            var differences = differ.GetDifferences(processor.Process(snapshot.Model), context.Model);
+            var differences = differ.GetDifferences(model.GetRelationalModel(), context.Model.GetRelationalModel());
 
             Assert.Empty(differences);
         }
@@ -201,9 +205,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var differ = context.GetService<IMigrationsModelDiffer>();
             var snapshot = (ModelSnapshot)Activator.CreateInstance(snapshotType);
             var reporter = new TestOperationReporter();
-            var processor = new SnapshotModelProcessor(reporter);
+            var setBuilder = SqlServerTestHelpers.Instance.CreateContextServices().GetRequiredService<IConventionSetBuilder>();
+            var processor = new SnapshotModelProcessor(reporter, setBuilder);
+            var model = processor.Process(snapshot.Model);
 
-            var differences = differ.GetDifferences(processor.Process(snapshot.Model), context.Model);
+            var differences = differ.GetDifferences(model.GetRelationalModel(), context.Model.GetRelationalModel());
 
             Assert.Empty(differences);
         }
@@ -225,10 +231,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             foreach (var annotationName in GetAnnotationNames()
                 .Where(a => a != RelationalAnnotationNames.MaxIdentifierLength
-                    && a != RelationalAnnotationNames.Tables
+                    && a != RelationalAnnotationNames.RelationalModel
                     && a != RelationalAnnotationNames.TableMappings
                     && a != RelationalAnnotationNames.TableColumnMappings
-                    && a != RelationalAnnotationNames.Views
                     && a != RelationalAnnotationNames.ViewMappings
                     && a != RelationalAnnotationNames.ViewColumnMappings
                     && a != RelationalAnnotationNames.ForeignKeyMappings
@@ -248,6 +253,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .GetRuntimeFields()
                 .Where(p => p.Name != nameof(RelationalAnnotationNames.Prefix))
                 .Select(p => (string)p.GetValue(null));
+
+
+        private class NullConventionSetBuilder : IConventionSetBuilder
+        {
+            private NullConventionSetBuilder()
+            {
+            }
+
+            public ConventionSet CreateConventionSet()
+            {
+                return new ConventionSet();
+            }
+
+            public static NullConventionSetBuilder Instance { get; } = new NullConventionSetBuilder();
+        }
 
         private class Blog
         {

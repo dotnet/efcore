@@ -41,8 +41,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="key"> The key. </param>
         /// <param name="clustered"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetIsClustered([NotNull] this IConventionKey key, bool? clustered, bool fromDataAnnotation = false)
-            => key.SetOrRemoveAnnotation(SqlServerAnnotationNames.Clustered, clustered, fromDataAnnotation);
+        /// <returns> The configured value. </returns>
+        public static bool? SetIsClustered([NotNull] this IConventionKey key, bool? clustered, bool fromDataAnnotation = false)
+        {
+            key.SetOrRemoveAnnotation(SqlServerAnnotationNames.Clustered, clustered, fromDataAnnotation);
+
+            return clustered;
+        }
 
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for whether the key is clustered.

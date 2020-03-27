@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public virtual DbCommand CreateDbCommand()
             => _relationalCommandCache
                 .GetRelationalCommand(_relationalQueryContext.ParameterValues)
-                .CreateCommand(
+                .CreateDbCommand(
                     new RelationalCommandParameterObject(
                         _relationalQueryContext.Connection,
                         _relationalQueryContext.ParameterValues,

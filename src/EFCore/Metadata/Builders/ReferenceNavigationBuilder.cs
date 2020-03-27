@@ -71,7 +71,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Builder = ((ForeignKey)foreignKey).Builder;
         }
 
-        private InternalRelationshipBuilder Builder { [DebuggerStepThrough] get; }
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        protected virtual InternalRelationshipBuilder Builder { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -130,10 +137,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceCollectionBuilder WithMany([CanBeNull] string collection = null)
-            => new ReferenceCollectionBuilder(
+        {
+            return new ReferenceCollectionBuilder(
                 RelatedEntityType,
                 DeclaringEntityType,
                 WithManyBuilder(Check.NullButNotEmpty(collection, nameof(collection))).Metadata);
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -201,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The name of the reference navigation property on the other end of this relationship.
         ///     If null or not specified, there is no navigation property on the other end of the relationship.
         /// </param>
-        /// <returns> An object to further configure the relationship. </returns>
+        /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual ReferenceReferenceBuilder WithOne([CanBeNull] string reference = null)
             => new ReferenceReferenceBuilder(
                 DeclaringEntityType,
@@ -225,7 +234,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] MemberInfo navigationMemberInfo)
+        protected virtual InternalRelationshipBuilder WithOneBuilder(
+            [CanBeNull] MemberInfo navigationMemberInfo)
             => WithOneBuilder(MemberIdentity.Create(navigationMemberInfo));
 
         private InternalRelationshipBuilder WithOneBuilder(MemberIdentity reference)

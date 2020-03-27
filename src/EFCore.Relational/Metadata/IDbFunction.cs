@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -12,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents a relational database function in an <see cref="IModel" />.
     /// </summary>
-    public interface IDbFunction
+    public interface IDbFunction : IAnnotatable
     {
         /// <summary>
         ///     Gets the name of the function in the database.

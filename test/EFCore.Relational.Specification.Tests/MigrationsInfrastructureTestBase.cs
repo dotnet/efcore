@@ -288,14 +288,17 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual void DiffSnapshot(ModelSnapshot snapshot, DbContext context)
         {
             var dependencies = context.GetService<ProviderConventionSetBuilderDependencies>();
+            var relationalDependencies = context.GetService<RelationalConventionSetBuilderDependencies>();
             var typeMappingConvention = new TypeMappingConvention(dependencies);
             typeMappingConvention.ProcessModelFinalizing(((IConventionModel)snapshot.Model).Builder, null);
 
-            var relationalModelConvention = new RelationalModelConvention();
+            var relationalModelConvention = new RelationalModelConvention(dependencies, relationalDependencies);
             var sourceModel = relationalModelConvention.ProcessModelFinalized(snapshot.Model);
 
             var modelDiffer = context.GetService<IMigrationsModelDiffer>();
-            var operations = modelDiffer.GetDifferences(((IMutableModel)sourceModel).FinalizeModel(), context.Model);
+            var operations = modelDiffer.GetDifferences(
+                ((IMutableModel)sourceModel).FinalizeModel().GetRelationalModel(),
+                context.Model.GetRelationalModel());
 
             Assert.Equal(0, operations.Count);
         }

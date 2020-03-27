@@ -76,11 +76,16 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="key"> The key. </param>
         /// <param name="name"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetName([NotNull] this IConventionKey key, [CanBeNull] string name, bool fromDataAnnotation = false)
-            => key.SetOrRemoveAnnotation(
+        /// <returns> The configured name. </returns>
+        public static string SetName([NotNull] this IConventionKey key, [CanBeNull] string name, bool fromDataAnnotation = false)
+        {
+            key.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.Name,
                 Check.NullButNotEmpty(name, nameof(name)),
                 fromDataAnnotation);
+
+            return name;
+        }
 
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the constraint name.

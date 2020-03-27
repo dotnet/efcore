@@ -9,12 +9,15 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
     internal partial class DatabaseUpdateCommand : ContextCommandBase
     {
         private CommandArgument _migration;
+        private CommandOption _connection;
 
         public override void Configure(CommandLineApplication command)
         {
             command.Description = Resources.DatabaseUpdateDescription;
 
             _migration = command.Argument("<MIGRATION>", Resources.MigrationDescription);
+
+            _connection = command.Option("--connection <CONNECTION>", Resources.DbContextConnectionDescription);
 
             base.Configure(command);
         }

@@ -315,8 +315,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             new[] { b.Property<int>("CategoryId").Metadata },
                             category.FindPrimaryKey(),
                             category);
-                        fk.HasDependentToPrincipal("Category");
-                        fk.HasPrincipalToDependent("Products");
+                        fk.SetDependentToPrincipal("Category");
+                        fk.SetPrincipalToDependent("Products");
                     });
 
                 var parent = modelBuilder.Entity<Parent>().Metadata;
@@ -329,8 +329,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             parent.FindPrimaryKey(),
                             parent);
                         fk.IsUnique = true;
-                        fk.HasDependentToPrincipal("Parent");
-                        fk.HasPrincipalToDependent("Child");
+                        fk.SetDependentToPrincipal("Parent");
+                        fk.SetPrincipalToDependent("Child");
                     });
             }
 

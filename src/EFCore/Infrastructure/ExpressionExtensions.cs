@@ -6,11 +6,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -225,5 +228,78 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             return propertyPaths;
         }
+
+        /// <summary>
+        ///     <para>
+        ///         Creates an <see cref="Expression" /> tree representing reading a value from a <see cref="ValueBuffer" />
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="valueBuffer"> The expression that exposes the <see cref="ValueBuffer" />. </param>
+        /// <param name="type"> The type to read. </param>
+        /// <param name="index"> The index in the buffer to read from. </param>
+        /// <param name="property"> The IPropertyBase being read if any. </param>
+        /// <returns> An expression to read the value. </returns>
+        public static Expression CreateValueBufferReadValueExpression(
+            [NotNull] this Expression valueBuffer,
+            [NotNull] Type type,
+            int index,
+            [CanBeNull] IPropertyBase property)
+            => Expression.Call(
+                ValueBufferTryReadValueMethod.MakeGenericMethod(type),
+                valueBuffer,
+                Expression.Constant(index),
+                Expression.Constant(property, typeof(IPropertyBase)));
+
+        /// <summary>
+        ///     <para>
+        ///         MethodInfo which is used to generate an <see cref="Expression" /> tree representing reading a value from a <see cref="ValueBuffer" />
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        public static readonly MethodInfo ValueBufferTryReadValueMethod
+            = typeof(ExpressionExtensions).GetTypeInfo()
+                .GetDeclaredMethod(nameof(ValueBufferTryReadValue));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static TValue ValueBufferTryReadValue<TValue>(
+#pragma warning disable IDE0060 // Remove unused parameter
+            in ValueBuffer valueBuffer, int index, IPropertyBase property)
+#pragma warning restore IDE0060 // Remove unused parameter
+            => valueBuffer[index] is TValue value ? value : default;
+
+        /// <summary>
+        ///     <para>
+        ///         Creates an <see cref="Expression" /> tree representing reading of a key values on given expression.
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="target"> The expression that will be root for generated read operation. </param>
+        /// <param name="properties"> The list of properties to use to generate key values. </param>
+        /// <param name="makeNullable"> A value indicating if the key values should be read nullable. </param>
+        /// <returns> An expression to read the key values. </returns>
+        public static Expression CreateKeyValueReadExpression(
+            [NotNull] this Expression target,
+            [NotNull] IReadOnlyList<IProperty> properties,
+            bool makeNullable = false)
+            => properties.Count == 1
+                ? target.CreateEFPropertyExpression(properties[0], makeNullable)
+                : Expression.New(
+                    AnonymousObject.AnonymousObjectCtor,
+                    Expression.NewArrayInit(
+                        typeof(object),
+                        properties
+                            .Select(p => Expression.Convert(target.CreateEFPropertyExpression(p, makeNullable), typeof(object)))
+                            .Cast<Expression>()
+                            .ToArray()));
     }
 }

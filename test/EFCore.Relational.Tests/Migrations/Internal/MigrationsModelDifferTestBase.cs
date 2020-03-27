@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -80,14 +81,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var modelDiffer = CreateModelDiffer(targetOptionsBuilder.Options);
 
-            var operationsUp = modelDiffer.GetDifferences(sourceModel, targetModel);
+            var operationsUp = modelDiffer.GetDifferences(sourceModel.GetRelationalModel(), targetModel.GetRelationalModel());
             assertActionUp(operationsUp);
 
             if (assertActionDown != null)
             {
                 modelDiffer = CreateModelDiffer(sourceOptionsBuilder.Options);
 
-                var operationsDown = modelDiffer.GetDifferences(targetModel, sourceModel);
+                var operationsDown = modelDiffer.GetDifferences(targetModel.GetRelationalModel(), sourceModel.GetRelationalModel());
                 assertActionDown(operationsDown);
             }
         }
@@ -147,8 +148,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             var conventions = new ConventionSet();
             var conventionSetDependencies = TestHelpers.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
+            var relationalConventionSetDependencies = new RelationalConventionSetBuilderDependencies(
+                new RelationalAnnotationProvider(
+                    new RelationalAnnotationProviderDependencies()));
             conventions.ModelFinalizingConventions.Add(new TypeMappingConvention(conventionSetDependencies));
-            conventions.ModelFinalizedConventions.Add(new RelationalModelConvention());
+            conventions.ModelFinalizedConventions.Add(new RelationalModelConvention(conventionSetDependencies, relationalConventionSetDependencies));
             return conventions;
         }
 

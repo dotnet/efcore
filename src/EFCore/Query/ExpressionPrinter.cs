@@ -269,6 +269,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     VisitTypeBinary((TypeBinaryExpression)expression);
                     break;
 
+                case ExpressionType.Switch:
+                    VisitSwitch((SwitchExpression)expression);
+                    break;
+
                 case ExpressionType.Extension:
                     VisitExtension(expression);
                     break;
@@ -926,6 +930,48 @@ namespace Microsoft.EntityFrameworkCore.Query
             _stringBuilder.Append(" is " + typeBinaryExpression.TypeOperand.ShortDisplayName() + ")");
 
             return typeBinaryExpression;
+        }
+
+        protected override Expression VisitSwitch(SwitchExpression switchExpression)
+        {
+            _stringBuilder.Append("switch (");
+            Visit(switchExpression.SwitchValue);
+            _stringBuilder.AppendLine(")");
+            _stringBuilder.AppendLine("{");
+            _stringBuilder.IncrementIndent();
+
+            foreach (var @case in switchExpression.Cases)
+            {
+                foreach (var testValue in @case.TestValues)
+                {
+                    _stringBuilder.Append("case ");
+                    Visit(testValue);
+                    _stringBuilder.AppendLine(": ");
+                }
+
+                using (var indent = _stringBuilder.Indent())
+                {
+                    Visit(@case.Body);
+                }
+
+                _stringBuilder.AppendLine();
+            }
+
+            if (switchExpression.DefaultBody != null)
+            {
+                _stringBuilder.AppendLine("default: ");
+                using (_stringBuilder.Indent())
+                {
+                    Visit(switchExpression.DefaultBody);
+                }
+
+                _stringBuilder.AppendLine();
+            }
+
+            _stringBuilder.DecrementIndent();
+            _stringBuilder.AppendLine("}");
+
+            return switchExpression;
         }
 
         protected override Expression VisitExtension(Expression extensionExpression)

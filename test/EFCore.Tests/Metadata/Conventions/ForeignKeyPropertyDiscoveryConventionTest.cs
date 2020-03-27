@@ -1102,7 +1102,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private InternalRelationshipBuilder RunConvention(InternalRelationshipBuilder relationshipBuilder)
         {
             var convention = CreateForeignKeyPropertyDiscoveryConvention();
-            var context = new ConventionContext<IConventionRelationshipBuilder>(
+            var context = new ConventionContext<IConventionForeignKeyBuilder>(
                 relationshipBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
             convention.ProcessForeignKeyAdded(relationshipBuilder, context);
             if (context.ShouldStopProcessing())

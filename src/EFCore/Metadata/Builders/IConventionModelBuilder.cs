@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     public interface IConventionModelBuilder : IConventionAnnotatableBuilder
     {
         /// <summary>
-        ///     The model being configured.
+        ///     Gets the model being configured.
         /// </summary>
         new IConventionModel Metadata { get; }
 

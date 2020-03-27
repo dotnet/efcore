@@ -1329,6 +1329,114 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(4, model.GetEntityTypes().Count());
             }
+
+            [ConditionalFact]
+            public virtual void Navigations_on_OwnsOne_Owned_types_can_set_access_mode_using_expressions()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<OneToOneNavPrincipalOwner>()
+                    .OwnsOne(
+                        e => e.OwnedDependent,
+                        a =>
+                        {
+                            a.WithOwner(owned => owned.OneToOneOwner);
+                            a.Navigation(owned => owned.OneToOneOwner)
+                                .UsePropertyAccessMode(PropertyAccessMode.Property);
+                        });
+
+                modelBuilder.Entity<OneToOneNavPrincipalOwner>()
+                    .Navigation(e => e.OwnedDependent)
+                    .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+                var principal = (IEntityType)model.FindEntityType(typeof(OneToOneNavPrincipalOwner));
+                var dependent = (IEntityType)model.FindEntityType(typeof(OwnedNavDependent));
+
+                Assert.Equal(PropertyAccessMode.Field, principal.FindNavigation("OwnedDependent").GetPropertyAccessMode());
+                Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToOneOwner").GetPropertyAccessMode());
+            }
+
+            [ConditionalFact]
+            public virtual void Navigations_on_OwnsOne_Owned_types_can_set_access_mode_using_navigation_names()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<OneToOneNavPrincipalOwner>()
+                    .OwnsOne<OwnedNavDependent>(
+                        "OwnedDependent",
+                        a =>
+                        {
+                            a.WithOwner("OneToOneOwner");
+                            a.Navigation<OneToOneNavPrincipalOwner>("OneToOneOwner")
+                                .UsePropertyAccessMode(PropertyAccessMode.Property);
+                        });
+
+                modelBuilder.Entity<OneToOneNavPrincipalOwner>()
+                    .Navigation("OwnedDependent")
+                    .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+                var principal = (IEntityType)model.FindEntityType(typeof(OneToOneNavPrincipalOwner));
+                var dependent = (IEntityType)model.FindEntityType(typeof(OwnedNavDependent));
+
+                Assert.Equal(PropertyAccessMode.Field, principal.FindNavigation("OwnedDependent").GetPropertyAccessMode());
+                Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToOneOwner").GetPropertyAccessMode());
+            }
+
+            [ConditionalFact]
+            public virtual void Navigations_on_OwnsMany_Owned_types_can_set_access_mode_using_expressions()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<OneToManyNavPrincipalOwner>()
+                    .OwnsMany(
+                        e => e.OwnedDependents,
+                        a =>
+                        {
+                            a.WithOwner(owned => owned.OneToManyOwner);
+                            a.Navigation(owned => owned.OneToManyOwner)
+                                .UsePropertyAccessMode(PropertyAccessMode.Property);
+                        });
+
+                modelBuilder.Entity<OneToManyNavPrincipalOwner>()
+                    .Navigation(e => e.OwnedDependents)
+                    .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+                var principal = (IEntityType)model.FindEntityType(typeof(OneToManyNavPrincipalOwner));
+                var dependent = (IEntityType)model.FindEntityType(typeof(OwnedOneToManyNavDependent));
+
+                Assert.Equal(PropertyAccessMode.Field, principal.FindNavigation("OwnedDependents").GetPropertyAccessMode());
+                Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToManyOwner").GetPropertyAccessMode());
+            }
+
+            [ConditionalFact]
+            public virtual void Navigations_on_OwnsMany_Owned_types_can_set_access_mode_using_navigation_names()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<OneToManyNavPrincipalOwner>()
+                    .OwnsMany<OwnedOneToManyNavDependent>(
+                    "OwnedDependents",
+                    a =>
+                    {
+                        a.WithOwner("OneToManyOwner");
+                        a.Navigation<OneToManyNavPrincipalOwner>("OneToManyOwner")
+                            .UsePropertyAccessMode(PropertyAccessMode.Property);
+                    });
+
+                modelBuilder.Entity<OneToManyNavPrincipalOwner>()
+                    .Navigation("OwnedDependents")
+                    .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+                var principal = (IEntityType)model.FindEntityType(typeof(OneToManyNavPrincipalOwner));
+                var dependent = (IEntityType)model.FindEntityType(typeof(OwnedOneToManyNavDependent));
+
+                Assert.Equal(PropertyAccessMode.Field, principal.FindNavigation("OwnedDependents").GetPropertyAccessMode());
+                Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToManyOwner").GetPropertyAccessMode());
+            }
         }
     }
 }

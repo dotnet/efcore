@@ -75,7 +75,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
 
-            if (innerExpression is MemberInitExpression memberInitExpression
+            var mayBeMemberInitExpression = innerExpression.UnwrapTypeConversion(out var convertedType);
+            if (mayBeMemberInitExpression is MemberInitExpression memberInitExpression
                 && memberInitExpression.Bindings.SingleOrDefault(
                     mb => mb.Member.IsSameAs(memberExpression.Member)) is MemberAssignment memberAssignment)
             {
@@ -101,7 +102,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 }
 
-                if (newEntityExpression is MemberInitExpression memberInitExpression
+                var mayBeMemberInitExpression = newEntityExpression.UnwrapTypeConversion(out var convertedType);
+                if (mayBeMemberInitExpression is MemberInitExpression memberInitExpression
                     && memberInitExpression.Bindings.SingleOrDefault(
                         mb => mb.Member.Name == propertyName) is MemberAssignment memberAssignment)
                 {

@@ -133,22 +133,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             if (createProducts)
             {
-                categoryFk.HasPrincipalToDependent(Category.ProductsProperty);
+                categoryFk.SetPrincipalToDependent(Category.ProductsProperty);
             }
 
             if (createCategory)
             {
-                categoryFk.HasDependentToPrincipal(Product.CategoryProperty);
+                categoryFk.SetDependentToPrincipal(Product.CategoryProperty);
             }
 
             if (createFeaturedProductCategory)
             {
-                featuredProductFk.HasPrincipalToDependent(Product.FeaturedProductCategoryProperty);
+                featuredProductFk.SetPrincipalToDependent(Product.FeaturedProductCategoryProperty);
             }
 
             if (createFeaturedProduct)
             {
-                featuredProductFk.HasDependentToPrincipal(Category.FeaturedProductProperty);
+                featuredProductFk.SetDependentToPrincipal(Category.FeaturedProductProperty);
             }
 
             return model;

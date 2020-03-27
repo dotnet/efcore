@@ -51,7 +51,6 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         [ConditionalFact]
         public void Insert_with_sequence_HiLo()
         {
@@ -99,7 +98,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Insert_with_default_value_from_sequence()
         {
             using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
@@ -177,7 +175,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Insert_with_default_string_value_from_sequence()
         {
             using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
@@ -231,7 +228,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Insert_with_key_default_value_from_sequence()
         {
             using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
@@ -872,7 +868,6 @@ END");
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Insert_explicit_value_throws_when_readonly_sequence_before_save()
         {
             using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);

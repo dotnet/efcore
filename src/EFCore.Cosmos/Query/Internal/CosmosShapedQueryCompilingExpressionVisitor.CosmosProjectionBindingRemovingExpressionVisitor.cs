@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                 var method = methodCallExpression.Method;
                 var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
-                if (genericMethod == EntityMaterializerSource.TryReadValueMethod)
+                if (genericMethod == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod)
                 {
                     var property = (IProperty)((ConstantExpression)methodCallExpression.Arguments[2]).Value;
                     Expression innerExpression;

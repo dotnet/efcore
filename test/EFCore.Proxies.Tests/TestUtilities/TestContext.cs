@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             if (_useChangeDetectionProxies)
             {
-                optionsBuilder.UseChangeDetectionProxies(checkEquality: _checkEquality);
+                optionsBuilder.UseChangeTrackingProxies(checkEquality: _checkEquality);
             }
 
             if (_internalServiceProvider != null)

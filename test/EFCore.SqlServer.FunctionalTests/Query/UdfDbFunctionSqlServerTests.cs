@@ -455,15 +455,6 @@ FROM [dbo].[GetTopTwoSellingProducts]() AS [t]
 ORDER BY [t].[ProductId]");
         }
 
-        public override void QF_Stand_Alone_With_Translation()
-        {
-            base.QF_Stand_Alone_With_Translation();
-
-            AssertSql(@"SELECT [t].[AmountSold], [t].[ProductId]
-FROM [dbo].[GetTopTwoSellingProducts]() AS [t]
-ORDER BY [t].[ProductId]");
-        }
-
         public override void QF_Stand_Alone_Parameter()
         {
             base.QF_Stand_Alone_Parameter();
@@ -705,14 +696,9 @@ ORDER BY [c].[Id], [o].[Year]");
             base.QF_OuterApply_Correlated_Select_Entity();
 
             AssertSql(
-                @"SELECT [c].[Id], [c].[FirstName], [c].[LastName], [t].[Id], [t].[CreditCard_CreditCardType], [t].[CreditCard_Number], [p].[CustomerId], [p].[Id], [p].[Number], [p].[PhoneType]
+                @"SELECT [c].[Id], [c].[FirstName], [c].[LastName], [c].[CreditCard_CreditCardType], [c].[CreditCard_Number], [p].[CustomerId], [p].[Id], [p].[Number], [p].[PhoneType]
 FROM [Customers] AS [c]
 OUTER APPLY [dbo].[GetCustomerOrderCountByYear]([c].[Id]) AS [o]
-LEFT JOIN (
-    SELECT [c0].[Id], [c0].[CreditCard_CreditCardType], [c0].[CreditCard_Number]
-    FROM [Customers] AS [c0]
-    WHERE [c0].[CreditCard_CreditCardType] IS NOT NULL
-) AS [t] ON [c].[Id] = [t].[Id]
 LEFT JOIN [PhoneInformation] AS [p] ON [c].[Id] = [p].[CustomerId]
 WHERE [o].[Year] = 2000
 ORDER BY [c].[Id], [o].[Year], [p].[CustomerId], [p].[Id]");
@@ -782,14 +768,9 @@ ORDER BY [p].[Number]");
             base.QF_Owned_Many_Tracked_Select_Owned();
 
             AssertSql(
-                @"SELECT [c].[Id], [c].[FirstName], [c].[LastName], [t].[Id], [t].[CreditCard_CreditCardType], [t].[CreditCard_Number], [p].[CustomerId], [p].[Id], [p0].[CustomerId], [p0].[Id], [p0].[Number], [p0].[PhoneType]
+                @"SELECT [c].[Id], [c].[FirstName], [c].[LastName], [c].[CreditCard_CreditCardType], [c].[CreditCard_Number], [p].[CustomerId], [p].[Id], [p0].[CustomerId], [p0].[Id], [p0].[Number], [p0].[PhoneType]
 FROM [Customers] AS [c]
 CROSS APPLY [dbo].[GetPhoneInformation]([c].[Id], N'234') AS [p]
-LEFT JOIN (
-    SELECT [c0].[Id], [c0].[CreditCard_CreditCardType], [c0].[CreditCard_Number]
-    FROM [Customers] AS [c0]
-    WHERE [c0].[CreditCard_CreditCardType] IS NOT NULL
-) AS [t] ON [c].[Id] = [t].[Id]
 LEFT JOIN [PhoneInformation] AS [p0] ON [c].[Id] = [p0].[CustomerId]
 ORDER BY [c].[Id], [p].[CustomerId], [p].[Id], [p0].[CustomerId], [p0].[Id]");
         }
@@ -814,18 +795,13 @@ ORDER BY [t].[CreditCard_Number]");
             base.QF_Owned_One_Tracked();
 
             AssertSql(
-                @"SELECT [c].[Id], [c].[FirstName], [c].[LastName], [t0].[Id], [t0].[CreditCard_CreditCardType], [t0].[CreditCard_Number], [t].[Id], [t].[CreditCard_CreditCardType], [t].[CreditCard_Number], [p].[CustomerId], [p].[Id], [p].[Number], [p].[PhoneType]
+                @"SELECT [c].[Id], [c].[FirstName], [c].[LastName], [c].[CreditCard_CreditCardType], [c].[CreditCard_Number], [t].[Id], [t].[CreditCard_CreditCardType], [t].[CreditCard_Number], [p].[CustomerId], [p].[Id], [p].[Number], [p].[PhoneType]
 FROM [Customers] AS [c]
 CROSS APPLY (
     SELECT [c0].[Id], [c0].[CreditCard_CreditCardType], [c0].[CreditCard_Number]
     FROM [dbo].[GetCreditCards]([c].[Id]) AS [c0]
     WHERE [c0].[CreditCard_CreditCardType] IS NOT NULL
 ) AS [t]
-LEFT JOIN (
-    SELECT [c1].[Id], [c1].[CreditCard_CreditCardType], [c1].[CreditCard_Number]
-    FROM [Customers] AS [c1]
-    WHERE [c1].[CreditCard_CreditCardType] IS NOT NULL
-) AS [t0] ON [c].[Id] = [t0].[Id]
 LEFT JOIN [PhoneInformation] AS [p] ON [c].[Id] = [p].[CustomerId]
 ORDER BY [t].[CreditCard_Number], [c].[Id], [t].[Id], [p].[CustomerId], [p].[Id]");
         }

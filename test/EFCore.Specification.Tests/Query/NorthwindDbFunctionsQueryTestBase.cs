@@ -1,7 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -9,38 +9,48 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class NorthwindDbFunctionsQueryTestBase<TFixture> : IClassFixture<TFixture>
+    public abstract class NorthwindDbFunctionsQueryTestBase<TFixture> : QueryTestBase<TFixture>
         where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
     {
-        protected NorthwindDbFunctionsQueryTestBase(TFixture fixture) => Fixture = fixture;
-
-        protected TFixture Fixture { get; }
-
-        [ConditionalFact]
-        public virtual void Like_literal()
+        protected NorthwindDbFunctionsQueryTestBase(TFixture fixture)
+            : base(fixture)
         {
-            using var context = CreateContext();
-            var count = context.Customers.Count(c => EF.Functions.Like(c.ContactName, "%M%"));
-
-            Assert.Equal(34, count);
         }
 
-        [ConditionalFact]
-        public virtual void Like_identity()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Like_literal(bool async)
         {
-            using var context = CreateContext();
-            var count = context.Customers.Count(c => EF.Functions.Like(c.ContactName, c.ContactName));
-
-            Assert.Equal(91, count);
+            return AssertCount(
+                async,
+                ss => ss.Set<Customer>(),
+                ss => ss.Set<Customer>(),
+                c => EF.Functions.Like(c.ContactName, "%M%"),
+                c => c.ContactName.Contains("M") || c.ContactName.Contains("m"));
         }
 
-        [ConditionalFact]
-        public virtual void Like_literal_with_escape()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Like_identity(bool async)
         {
-            using var context = CreateContext();
-            var count = context.Customers.Count(c => EF.Functions.Like(c.ContactName, "!%", "!"));
+            return AssertCount(
+                async,
+                ss => ss.Set<Customer>(),
+                ss => ss.Set<Customer>(),
+                c => EF.Functions.Like(c.ContactName, c.ContactName),
+                c => true);
+        }
 
-            Assert.Equal(0, count);
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Like_literal_with_escape(bool async)
+        {
+            return AssertCount(
+                async,
+                ss => ss.Set<Customer>(),
+                ss => ss.Set<Customer>(),
+                c => EF.Functions.Like(c.ContactName, "!%", "!"),
+                c => c.ContactName.Contains("%"));
         }
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();

@@ -22,10 +22,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public TableBase([NotNull] string name, [CanBeNull] string schema)
+        public TableBase([NotNull] string name, [CanBeNull] string schema, [NotNull] RelationalModel model)
         {
             Schema = schema;
             Name = name;
+            Model = model;
         }
 
         /// <inheritdoc/>
@@ -33,6 +34,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc/>
         public virtual string Name { get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual RelationalModel Model { get; }
 
         /// <inheritdoc/>
         public virtual bool IsSplit { get; set; }
@@ -58,6 +67,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc/>
         IEnumerable<IColumnBase> ITableBase.Columns => throw new NotImplementedException();
+
+        /// <inheritdoc/>
+        IRelationalModel ITableBase.Model => Model;
 
         /// <inheritdoc/>
         IColumnBase ITableBase.FindColumn(string name) => throw new NotImplementedException();

@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
             ExistingTestStore = Fixture.CreateTestStore(SqlServerTestStoreFactory.Instance, StoreName, Seed);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#18682")]
         public void Can_register_multiple_context_types()
         {
             var serviceProvider = new ServiceCollection()
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#18682")]
         public void Can_select_appropriate_provider_when_multiple_registered()
         {
             var serviceProvider
@@ -227,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore
                 ExistingTestStore = Fixture.CreateTestStore(SqlServerTestStoreFactory.Instance, StoreName, Seed);
             }
 
-            [ConditionalFact]
+            [ConditionalFact(Skip = "#18682")]
             public async Task Can_use_one_context_nested_inside_another_of_a_different_type()
             {
                 var inMemoryServiceProvider = InMemoryFixture.DefaultServiceProvider;

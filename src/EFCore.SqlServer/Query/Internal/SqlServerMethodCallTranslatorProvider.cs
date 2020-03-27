@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 {
                     new SqlServerByteArrayMethodTranslator(sqlExpressionFactory),
                     new SqlServerConvertTranslator(sqlExpressionFactory),
+                    new SqlServerDataLengthFunctionTranslator(sqlExpressionFactory),
                     new SqlServerDateDiffFunctionsTranslator(sqlExpressionFactory),
                     new SqlServerDateTimeMethodTranslator(sqlExpressionFactory),
                     new SqlServerFromPartsFunctionTranslator(sqlExpressionFactory, typeMappingSource),
@@ -26,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     new SqlServerMathTranslator(sqlExpressionFactory),
                     new SqlServerNewGuidTranslator(sqlExpressionFactory),
                     new SqlServerObjectToStringTranslator(sqlExpressionFactory),
-                    new SqlServerStringMethodTranslator(sqlExpressionFactory),
+                    new SqlServerStringMethodTranslator(sqlExpressionFactory)
                 });
         }
     }

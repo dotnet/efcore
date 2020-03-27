@@ -524,7 +524,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     if (!string.Equals(name, "IndexerVisible", StringComparison.Ordinal))
                     {
-                        throw new InvalidOperationException($"Indexed property with key {name} is not defined on {nameof(Blog)}.");
+                        throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(Blog)}.");
                     }
 
                     return _indexerVisible;
@@ -534,7 +534,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     if (!string.Equals(name, "IndexerVisible", StringComparison.Ordinal))
                     {
-                        throw new InvalidOperationException($"Indexed property with key {name} is not defined on {nameof(Blog)}.");
+                        throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(Blog)}.");
                     }
 
                     _indexerVisible = (bool)value;
@@ -1008,7 +1008,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         b.Property(e => e.Url).HasConversion(urlConverter);
                         b.Property(e => e.IsVisible).HasConversion(new BoolToStringConverter("N", "Y"));
-                        b.IndexedProperty(typeof(bool), "IndexerVisible").HasConversion(new BoolToStringConverter("Nay", "Aye"));
+                        b.IndexerProperty(typeof(bool), "IndexerVisible").HasConversion(new BoolToStringConverter("Nay", "Aye"));
 
                         b.HasData(
                             new

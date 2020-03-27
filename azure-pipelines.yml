@@ -53,10 +53,10 @@ stages:
             pool:
               ${{ if eq(variables['System.TeamProject'], 'public') }}:
                 name: NetCorePublic-Pool
-                queue: BuildPool.Windows.10.Amd64.VS2017.Open
+                queue: BuildPool.Server.Amd64.VS2017.Open
               ${{ if ne(variables['System.TeamProject'], 'public') }}:
                 name: NetCoreInternal-Pool
-                queue: BuildPool.Windows.10.Amd64.VS2017
+                queue: BuildPool.Server.Amd64.VS2017
             variables:
               - _InternalBuildArgs: ''
               - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
@@ -73,10 +73,10 @@ stages:
                   command: custom
                   arguments: 'locals all -clear'
               - script: "echo ##vso[build.addbuildtag]daily-build"
-                condition: and(ne(variables['Build.Reason'], 'PullRequest'), ne(variables['IsFinalBuild'], 'true'))
+                condition: and(notin(variables['Build.Reason'], 'PullRequest'), ne(variables['IsFinalBuild'], 'true'))
                 displayName: 'Set CI tags'
               - script: "echo ##vso[build.addbuildtag]release-candidate"
-                condition: and(ne(variables['Build.Reason'], 'PullRequest'), eq(variables['IsFinalBuild'], 'true'))
+                condition: and(notin(variables['Build.Reason'], 'PullRequest'), eq(variables['IsFinalBuild'], 'true'))
                 displayName: 'Set CI tags'
               - ${{ if ne(variables['System.TeamProject'], 'public') }}:
                 - task: PowerShell@2
@@ -99,19 +99,11 @@ stages:
                   artifactName: $(Agent.Os)_$(Agent.JobName) TestResults
                   artifactType: Container
                   parallel: true
-              - task: PublishBuildArtifacts@1
-                displayName: Upload artifacts
-                condition: and(succeeded(), eq(variables['system.pullrequest.isfork'], false))
-                inputs:
-                  pathtoPublish: 'artifacts/packages/'
-                  artifactName: packages
-                  artifactType: Container
-                  parallel: true
 
           - job: macOS
             enablePublishTestResults: true
             pool:
-              vmImage: macOS-10.13
+              vmImage: macOS-10.14
             steps:
               # HACK: Use an older version to work around #16667
               - bash: brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/835ae521c065524abdf66578e68032fa24bce514/Formula/libspatialite.rb
@@ -185,27 +177,25 @@ stages:
                   artifactType: Container
                   parallel: true
 
-          - job: Helix_Windows
+          - job: Helix
             pool:
               ${{ if eq(variables['System.TeamProject'], 'public') }}:
                 name: NetCorePublic-Pool
-                queue: BuildPool.Windows.10.Amd64.VS2017.Open
+                queue: BuildPool.Server.Amd64.VS2017.Open
               ${{ if ne(variables['System.TeamProject'], 'public') }}:
                 name: NetCoreInternal-Pool
-                queue: BuildPool.Windows.10.Amd64.VS2017
+                queue: BuildPool.Server.Amd64.VS2017
             variables:
               - name: _HelixBuildConfig
                 value: $(_BuildConfig)
               - ${{ if eq(variables['System.TeamProject'], 'public') }}:
                 - name: HelixTargetQueues
-                  value: Windows.10.Amd64.Open
-                - name: Creator
-                  value: efcore
+                  value: Windows.10.Amd64.Open;Ubuntu.1804.Amd64.Open;OSX.1014.Amd64.Open
                 - name: _HelixAccessToken
                   value: '' # Needed for public queues
               - ${{ if ne(variables['System.TeamProject'], 'public') }}:
                 - name: HelixTargetQueues
-                  value: Windows.10.Amd64
+                  value: Windows.10.Amd64;Ubuntu.1804.Amd64;OSX.1014.Amd64
                 - name: _HelixAccessToken
                   value: $(HelixApiAccessToken) # Needed for internal queues
             steps:
@@ -226,41 +216,6 @@ stages:
               - script: restore.cmd -ci /p:configuration=$(_BuildConfig)
                 displayName: Restore packages
               - script: .dotnet\dotnet msbuild eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog
-                displayName: Send job to helix
-                env:
-                  HelixAccessToken: $(_HelixAccessToken)
-                  SYSTEM_ACCESSTOKEN: $(System.AccessToken) # We need to set this env var to publish helix results to Azure Dev Ops
-
-          - job: Helix_Linux
-            pool:
-              vmImage: ubuntu-16.04
-            variables:
-              - name: _HelixBuildConfig
-                value: $(_BuildConfig)
-              - ${{ if eq(variables['System.TeamProject'], 'public') }}:
-                - name: HelixTargetQueues
-                  value: Ubuntu.1804.Amd64.Open;OSX.1014.Amd64.Open
-                - name: Creator
-                  value: efcore
-                - name: _HelixAccessToken
-                  value: '' # Needed for public queues
-              - ${{ if ne(variables['System.TeamProject'], 'public') }}:
-                - name: HelixTargetQueues
-                  value: Ubuntu.1804.Amd64;OSX.1014.Amd64
-                - name: _HelixAccessToken
-                  value: $(HelixApiAccessToken) # Needed for internal queues
-            steps:
-              - ${{ if ne(variables['System.TeamProject'], 'public') }}:
-                - task: Bash@3
-                  displayName: Setup Private Feeds Credentials
-                  inputs:
-                    filePath: $(Build.SourcesDirectory)/eng/common/SetupNugetSources.sh
-                    arguments: $(Build.SourcesDirectory)/NuGet.config $Token
-                  env:
-                    Token: $(dn-bot-dnceng-artifact-feeds-rw)
-              - script: ./restore.sh --restore -ci /p:configuration=$(_BuildConfig)
-                displayName: Restore packages
-              - script: .dotnet/dotnet msbuild eng/helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog
                 displayName: Send job to helix
                 env:
                   HelixAccessToken: $(_HelixAccessToken)

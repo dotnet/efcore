@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected TFixture Fixture { get; }
 
-        [ConditionalFact(Skip = "#15751")]
+        [ConditionalFact]
         public virtual void Bad_data_error_handling_invalid_cast_key()
         {
             using var context = CreateContext();
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .ToList()).Message);
         }
 
-        [ConditionalFact(Skip = "#15751")]
+        [ConditionalFact]
         public virtual void Bad_data_error_handling_invalid_cast()
         {
             using var context = CreateContext();
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .ToList()).Message);
         }
 
-        [ConditionalFact(Skip = "#15751")]
+        [ConditionalFact]
         public virtual void Bad_data_error_handling_invalid_cast_projection()
         {
             using var context = CreateContext();
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .ToList()).Message);
         }
 
-        [ConditionalFact(Skip = "#15751")]
+        [ConditionalFact]
         public virtual void Bad_data_error_handling_invalid_cast_no_tracking()
         {
             using var context = CreateContext();
@@ -94,15 +94,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .ToList()).Message);
         }
 
-        [ConditionalFact(Skip = "#15751")]
+        [ConditionalFact]
         public virtual void Bad_data_error_handling_null()
         {
             using var context = CreateContext();
-            context.Set<Product>().FromSqlRaw(
-                    NormalizeDelimitersInRawString(
-                        @"SELECT [ProductID], [ProductName], [SupplierID], [UnitPrice], [UnitsInStock], NULL AS [Discontinued]
-                               FROM [Products]"))
-                .ToList();
             Assert.Equal(
                 CoreStrings.ErrorMaterializingPropertyNullReference("Product", "Discontinued", typeof(bool)),
                 Assert.Throws<InvalidOperationException>(
@@ -114,12 +109,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .ToList()).Message);
         }
 
-        [ConditionalFact(Skip = "#15751")]
+        [ConditionalFact]
         public virtual void Bad_data_error_handling_null_projection()
         {
             using var context = CreateContext();
             Assert.Equal(
-                CoreStrings.ErrorMaterializingPropertyNullReference("Product", "Discontinued", typeof(bool)),
+                CoreStrings.ErrorMaterializingValueNullReference(typeof(bool)),
                 Assert.Throws<InvalidOperationException>(
                     () =>
                         context.Set<Product>().FromSqlRaw(
@@ -130,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .ToList()).Message);
         }
 
-        [ConditionalFact(Skip = "#15751")]
+        [ConditionalFact]
         public virtual void Bad_data_error_handling_null_no_tracking()
         {
             using var context = CreateContext();
@@ -184,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(91, context.ChangeTracker.Entries().Count());
         }
 
-        [ConditionalFact(Skip = "#15751")]
+        [ConditionalFact]
         public virtual void FromSqlRaw_queryable_simple_columns_out_of_order_and_not_enough_columns_throws()
         {
             using var context = CreateContext();
@@ -964,6 +959,19 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                 .ToArray();
 
             Assert.Equal(7, actual.Length);
+        }
+
+        [ConditionalFact]
+        public virtual void Keyless_entity_with_all_nulls()
+        {
+            using var context = CreateContext();
+
+            var actual = context.Set<OrderQuery>()
+                .FromSqlRaw(NormalizeDelimitersInRawString("SELECT NULL AS [CustomerID] FROM [Customers] WHERE [City] = 'Berlin'"))
+                .IgnoreQueryFilters()
+                .ToArray();
+
+            Assert.NotNull(Assert.Single(actual));
         }
 
         protected string NormalizeDelimitersInRawString(string sql)

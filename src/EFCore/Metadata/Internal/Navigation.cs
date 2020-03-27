@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -266,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Navigation SetInverse([CanBeNull] string inverseName, ConfigurationSource configurationSource)
             => IsOnDependent
                 ? ForeignKey.HasPrincipalToDependent(inverseName, configurationSource)
-                : ForeignKey.HasPrincipalToDependent(inverseName, configurationSource);
+                : ForeignKey.SetDependentToPrincipal(inverseName, configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -277,7 +278,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Navigation SetInverse([CanBeNull] MemberInfo inverse, ConfigurationSource configurationSource)
             => IsOnDependent
                 ? ForeignKey.HasPrincipalToDependent(inverse, configurationSource)
-                : ForeignKey.HasPrincipalToDependent(inverse, configurationSource);
+                : ForeignKey.SetDependentToPrincipal(inverse, configurationSource);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual ConfigurationSource? GetInverseConfigurationSource()
+            => IsOnDependent
+                ? ForeignKey.GetPrincipalToDependentConfigurationSource()
+                : ForeignKey.GetDependentToPrincipalConfigurationSource();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -346,5 +358,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [DebuggerStepThrough]
         IConventionNavigation IConventionNavigation.SetInverse([CanBeNull] MemberInfo inverse, bool fromDataAnnotation)
             => SetInverse(inverse, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        IConventionNavigationBuilder IConventionNavigation.Builder
+        {
+            [DebuggerStepThrough] get => Builder;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IConventionAnnotatableBuilder IConventionAnnotatable.Builder
+        {
+            [DebuggerStepThrough] get => Builder;
+        }
     }
 }

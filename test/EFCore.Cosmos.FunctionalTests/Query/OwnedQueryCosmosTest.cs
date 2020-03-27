@@ -469,20 +469,20 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
                 modelBuilder.Entity<OwnedPerson>(
                     eb =>
                     {
-                        eb.IndexedProperty<string>("Name");
+                        eb.IndexerProperty<string>("Name");
                         eb.HasData(
                             new { Id = 1, id = Guid.NewGuid().ToString(), Name = "Mona Cy" });
 
                         eb.OwnsOne(
                             p => p.PersonAddress, ab =>
                             {
-                                ab.IndexedProperty<string>("AddressLine");
-                                ab.IndexedProperty(typeof(int), "ZipCode");
+                                ab.IndexerProperty<string>("AddressLine");
+                                ab.IndexerProperty(typeof(int), "ZipCode");
                                 ab.HasData(
-                                    new { OwnedPersonId = 1, AddressLine = "804 S. Lakeshore Road", ZipCode = 38654 },
-                                    new { OwnedPersonId = 2, AddressLine = "7 Church Dr.", ZipCode = 28655 },
-                                    new { OwnedPersonId = 3, AddressLine = "72 Hickory Rd.", ZipCode = 07728 },
-                                    new { OwnedPersonId = 4, AddressLine = "28 Strawberry St.", ZipCode = 19053 });
+                                    new { OwnedPersonId = 1, PlaceType = "Land", AddressLine = "804 S. Lakeshore Road", ZipCode = 38654 },
+                                    new { OwnedPersonId = 2, PlaceType = "Land", AddressLine = "7 Church Dr.", ZipCode = 28655 },
+                                    new { OwnedPersonId = 3, PlaceType = "Land", AddressLine = "72 Hickory Rd.", ZipCode = 07728 },
+                                    new { OwnedPersonId = 4, PlaceType = "Land", AddressLine = "28 Strawberry St.", ZipCode = 19053 });
 
                                 ab.OwnsOne(
                                     a => a.Country, cb =>
@@ -522,7 +522,7 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
                             p => p.Orders, ob =>
                             {
                                 ob.HasKey(o => o.Id);
-                                ob.IndexedProperty<DateTime>("OrderDate");
+                                ob.IndexerProperty<DateTime>("OrderDate");
                                 ob.HasData(
                                     new { Id = -10, ClientId = 1, OrderDate = Convert.ToDateTime("2018-07-11 10:01:41") },
                                     new { Id = -11, ClientId = 1, OrderDate = Convert.ToDateTime("2015-03-03 04:37:59") },
@@ -542,8 +542,10 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
                         eb.OwnsOne(
                             p => p.BranchAddress, ab =>
                             {
+                                ab.IndexerProperty<string>("BranchName");
                                 ab.HasData(
-                                    new { BranchId = 2 }, new { BranchId = 3 });
+                                    new { BranchId = 2, PlaceType = "Land", BranchName = "BranchA" },
+                                    new { BranchId = 3, PlaceType = "Land", BranchName = "BranchB" });
 
                                 ab.OwnsOne(
                                     a => a.Country, cb =>
@@ -574,8 +576,9 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
                         eb.OwnsOne(
                             p => p.LeafAAddress, ab =>
                             {
+                                ab.IndexerProperty<int>("LeafType");
                                 ab.HasData(
-                                    new { LeafAId = 3 });
+                                    new { LeafAId = 3, PlaceType = "Land", LeafType = 1 });
 
                                 ab.OwnsOne(
                                     a => a.Country, cb =>
@@ -600,8 +603,9 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
                         eb.OwnsOne(
                             p => p.LeafBAddress, ab =>
                             {
+                                ab.IndexerProperty<string>("LeafBType");
                                 ab.HasData(
-                                    new { LeafBId = 4 });
+                                    new { LeafBId = 4, PlaceType = "Land", LeafBType = "Green" });
 
                                 ab.OwnsOne(
                                     a => a.Country, cb =>

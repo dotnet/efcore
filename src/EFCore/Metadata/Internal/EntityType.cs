@@ -199,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool IsKeyless
         {
             get => RootType()._isKeyless ?? false;
-            set => HasNoKey(value, ConfigurationSource.Explicit);
+            set => SetIsKeyless(value, ConfigurationSource.Explicit);
         }
 
         /// <summary>
@@ -224,12 +224,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void HasNoKey(bool? keyless, ConfigurationSource configurationSource)
+        public virtual bool? SetIsKeyless(bool? keyless, ConfigurationSource configurationSource)
         {
             if (_isKeyless == keyless)
             {
                 UpdateIsKeylessConfigurationSource(configurationSource);
-                return;
+                return keyless;
             }
 
             if (keyless == true)
@@ -256,6 +256,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 UpdateIsKeylessConfigurationSource(configurationSource);
             }
+
+            return keyless;
         }
 
         /// <summary>
@@ -281,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void HasBaseType([CanBeNull] EntityType newBaseType, ConfigurationSource configurationSource)
+        public virtual EntityType SetBaseType([CanBeNull] EntityType newBaseType, ConfigurationSource configurationSource)
         {
             Check.DebugAssert(Builder != null, "Builder is null");
 
@@ -289,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 UpdateBaseTypeConfigurationSource(configurationSource);
                 newBaseType?.UpdateConfigurationSource(configurationSource);
-                return;
+                return newBaseType;
             }
 
             if (this.HasDefiningNavigation())
@@ -371,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             UpdateBaseTypeConfigurationSource(configurationSource);
             newBaseType?.UpdateConfigurationSource(configurationSource);
 
-            Model.ConventionDispatcher.OnEntityTypeBaseTypeChanged(Builder, newBaseType, originalBaseType);
+            return (EntityType)Model.ConventionDispatcher.OnEntityTypeBaseTypeChanged(Builder, newBaseType, originalBaseType);
         }
 
         /// <summary>
@@ -1294,6 +1296,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (foreignKey.DependentToPrincipal != null)
             {
+                foreignKey.DependentToPrincipal.Builder = null;
                 Model.ConventionDispatcher.OnNavigationRemoved(
                     Builder,
                     foreignKey.PrincipalEntityType.Builder,
@@ -1303,6 +1306,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (foreignKey.PrincipalToDependent != null)
             {
+                foreignKey.PrincipalToDependent.Builder = null;
                 Model.ConventionDispatcher.OnNavigationRemoved(
                     foreignKey.PrincipalEntityType.Builder,
                     Builder,
@@ -2599,7 +2603,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override void OnTypeMemberIgnored(string name)
+        public override string OnTypeMemberIgnored(string name)
             => Model.ConventionDispatcher.OnEntityTypeMemberIgnored(Builder, name);
 
         #endregion
@@ -2752,7 +2756,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetChangeTrackingStrategy(
+        public virtual ChangeTrackingStrategy? SetChangeTrackingStrategy(
             ChangeTrackingStrategy? changeTrackingStrategy, ConfigurationSource configurationSource)
         {
             if (changeTrackingStrategy != null)
@@ -2765,6 +2769,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             this.SetOrRemoveAnnotation(CoreAnnotationNames.ChangeTrackingStrategy, changeTrackingStrategy, configurationSource);
+
+            return changeTrackingStrategy;
         }
 
         /// <summary>
@@ -2800,7 +2806,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetQueryFilter([CanBeNull] LambdaExpression queryFilter, ConfigurationSource configurationSource)
+        public virtual LambdaExpression SetQueryFilter([CanBeNull] LambdaExpression queryFilter, ConfigurationSource configurationSource)
         {
             var errorMessage = CheckQueryFilter(queryFilter);
             if (errorMessage != null)
@@ -2809,6 +2815,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             this.SetOrRemoveAnnotation(CoreAnnotationNames.QueryFilter, queryFilter, configurationSource);
+
+            return queryFilter;
         }
 
         /// <summary>
@@ -2836,9 +2844,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetDefiningQuery([CanBeNull] LambdaExpression definingQuery, ConfigurationSource configurationSource)
+        public virtual LambdaExpression SetDefiningQuery([CanBeNull] LambdaExpression definingQuery, ConfigurationSource configurationSource)
         {
             this.SetOrRemoveAnnotation(CoreAnnotationNames.DefiningQuery, definingQuery, configurationSource);
+
+            return definingQuery;
         }
 
         /// <summary>
@@ -2847,7 +2857,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetDiscriminatorProperty([CanBeNull] IProperty property, ConfigurationSource configurationSource)
+        public virtual Property SetDiscriminatorProperty([CanBeNull] Property property, ConfigurationSource configurationSource)
         {
             CheckDiscriminatorProperty(property);
 
@@ -2865,9 +2875,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             SetAnnotation(CoreAnnotationNames.DiscriminatorProperty, property?.Name, configurationSource);
+
+            return property;
         }
 
-        private void CheckDiscriminatorProperty(IProperty property)
+        private void CheckDiscriminatorProperty(Property property)
         {
             if (property != null)
             {
@@ -2914,6 +2926,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         IConventionEntityTypeBuilder IConventionEntityType.Builder
+        {
+            [DebuggerStepThrough]
+            get => Builder;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IConventionAnnotatableBuilder IConventionAnnotatable.Builder
         {
             [DebuggerStepThrough]
             get => Builder;
@@ -2988,7 +3012,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IMutableEntityType IMutableEntityType.BaseType
         {
             get => _baseType;
-            set => HasBaseType((EntityType)value, ConfigurationSource.Explicit);
+            set => SetBaseType((EntityType)value, ConfigurationSource.Explicit);
         }
 
         /// <summary>
@@ -3045,8 +3069,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void IConventionEntityType.HasBaseType(IConventionEntityType entityType, bool fromDataAnnotation)
-            => HasBaseType(
+        IConventionEntityType IConventionEntityType.SetBaseType(IConventionEntityType entityType, bool fromDataAnnotation)
+            => SetBaseType(
                 (EntityType)entityType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -3056,8 +3080,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        void IConventionEntityType.HasNoKey(bool? keyless, bool fromDataAnnotation)
-            => HasNoKey(keyless, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        bool? IConventionEntityType.SetIsKeyless(bool? keyless, bool fromDataAnnotation)
+            => SetIsKeyless(keyless, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3191,7 +3215,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        void IMutableEntityType.RemoveKey(IMutableKey key) => RemoveKey((Key)key);
+        IMutableKey IMutableEntityType.RemoveKey(IMutableKey key) => RemoveKey((Key)key);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3200,7 +3224,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        void IConventionEntityType.RemoveKey(IConventionKey key) => RemoveKey((Key)key);
+        IConventionKey IConventionEntityType.RemoveKey(IConventionKey key) => RemoveKey((Key)key);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3307,7 +3331,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        void IMutableEntityType.RemoveForeignKey(IMutableForeignKey foreignKey)
+        IMutableForeignKey IMutableEntityType.RemoveForeignKey(IMutableForeignKey foreignKey)
             => RemoveForeignKey((ForeignKey)foreignKey);
 
         /// <summary>
@@ -3317,7 +3341,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        void IConventionEntityType.RemoveForeignKey(IConventionForeignKey foreignKey)
+        IConventionForeignKey IConventionEntityType.RemoveForeignKey(IConventionForeignKey foreignKey)
             => RemoveForeignKey((ForeignKey)foreignKey);
 
         /// <summary>
@@ -3450,7 +3474,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        void IMutableEntityType.RemoveSkipNavigation([NotNull] IMutableSkipNavigation navigation)
+        IMutableSkipNavigation IMutableEntityType.RemoveSkipNavigation([NotNull] IMutableSkipNavigation navigation)
             => RemoveSkipNavigation((SkipNavigation)navigation);
 
         /// <summary>
@@ -3460,7 +3484,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        void IConventionEntityType.RemoveSkipNavigation([NotNull] IConventionSkipNavigation navigation)
+        IConventionSkipNavigation IConventionEntityType.RemoveSkipNavigation([NotNull] IConventionSkipNavigation navigation)
             => RemoveSkipNavigation((SkipNavigation)navigation);
 
         /// <summary>
@@ -3546,7 +3570,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        void IMutableEntityType.RemoveIndex(IMutableIndex index) => RemoveIndex((Index)index);
+        IMutableIndex IMutableEntityType.RemoveIndex(IMutableIndex index) => RemoveIndex((Index)index);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3555,7 +3579,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        void IConventionEntityType.RemoveIndex(IConventionIndex index) => RemoveIndex((Index)index);
+        IConventionIndex IConventionEntityType.RemoveIndex(IConventionIndex index) => RemoveIndex((Index)index);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3646,7 +3670,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        void IMutableEntityType.RemoveProperty(IMutableProperty property) => RemoveProperty((Property)property);
+        IMutableProperty IMutableEntityType.RemoveProperty(IMutableProperty property) => RemoveProperty((Property)property);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3655,7 +3679,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        void IConventionEntityType.RemoveProperty(IConventionProperty property) => RemoveProperty((Property)property);
+        IConventionProperty IConventionEntityType.RemoveProperty(IConventionProperty property) => RemoveProperty((Property)property);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

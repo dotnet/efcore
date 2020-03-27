@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class InternalPropertyBuilder : InternalModelItemBuilder<Property>, IConventionPropertyBuilder
+    public class InternalPropertyBuilder : InternalPropertyBaseBuilder<Property>, IConventionPropertyBuilder
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -152,18 +152,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalPropertyBuilder HasField([CanBeNull] string fieldName, ConfigurationSource configurationSource)
-        {
-            if (Metadata.FieldInfo?.GetSimpleMemberName() == fieldName
-                || configurationSource.Overrides(Metadata.GetFieldInfoConfigurationSource()))
-            {
-                Metadata.SetField(fieldName, configurationSource);
-
-                return this;
-            }
-
-            return null;
-        }
+        public virtual new InternalPropertyBuilder HasField([CanBeNull] string fieldName, ConfigurationSource configurationSource)
+            => (InternalPropertyBuilder)base.HasField(fieldName, configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -176,38 +166,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (configurationSource.Overrides(Metadata.GetFieldInfoConfigurationSource())
                 || Equals(Metadata.FieldInfo, fieldInfo))
             {
-                Metadata.SetField(fieldInfo, configurationSource);
+                Metadata.SetFieldInfo(fieldInfo, configurationSource);
                 return this;
             }
 
             return null;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual bool CanSetField([CanBeNull] string fieldName, ConfigurationSource? configurationSource)
-        {
-            if (configurationSource.Overrides(Metadata.GetFieldInfoConfigurationSource()))
-            {
-                if (fieldName == null)
-                {
-                    return true;
-                }
-
-                var fieldInfo = PropertyBase.GetFieldInfo(
-                    fieldName, Metadata.DeclaringType, Metadata.Name,
-                    shouldThrow: false);
-                return fieldInfo != null
-                    && PropertyBase.IsCompatible(
-                        fieldInfo, Metadata.ClrType, Metadata.DeclaringType.ClrType, Metadata.Name,
-                        shouldThrow: false);
-            }
-
-            return Metadata.FieldInfo?.GetSimpleMemberName() == fieldName;
         }
 
         /// <summary>
@@ -230,29 +193,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalPropertyBuilder UsePropertyAccessMode(
+        public virtual new InternalPropertyBuilder UsePropertyAccessMode(
             PropertyAccessMode? propertyAccessMode, ConfigurationSource configurationSource)
-        {
-            if (CanSetPropertyAccessMode(propertyAccessMode, configurationSource))
-            {
-                Metadata.SetPropertyAccessMode(propertyAccessMode, configurationSource);
-
-                return this;
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual bool CanSetPropertyAccessMode(
-            PropertyAccessMode? propertyAccessMode, ConfigurationSource? configurationSource)
-            => configurationSource.Overrides(Metadata.GetPropertyAccessModeConfigurationSource())
-                || ((IProperty)Metadata).GetPropertyAccessMode() == propertyAccessMode;
+            => (InternalPropertyBuilder)base.UsePropertyAccessMode(propertyAccessMode, configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -590,7 +533,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     ? entityTypeBuilder.Property(
                         Metadata.ClrType, Metadata.Name, Metadata.GetTypeConfigurationSource(), configurationSource)
                     : (identifyingMemberInfo as PropertyInfo)?.IsIndexerProperty() == true
-                        ? entityTypeBuilder.IndexedProperty(Metadata.ClrType, Metadata.Name, configurationSource)
+                        ? entityTypeBuilder.IndexerProperty(Metadata.ClrType, Metadata.Name, configurationSource)
                         : entityTypeBuilder.Property(identifyingMemberInfo, configurationSource);
             }
 

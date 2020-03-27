@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="oldAnnotation"> The old annotation.  </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         void ProcessNavigationAnnotationChanged(
-            [NotNull] IConventionRelationshipBuilder relationshipBuilder,
+            [NotNull] IConventionForeignKeyBuilder relationshipBuilder,
             [NotNull] IConventionNavigation navigation,
             [NotNull] string name,
             [CanBeNull] IConventionAnnotation annotation,

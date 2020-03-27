@@ -810,7 +810,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private InternalRelationshipBuilder RunConvention(InternalRelationshipBuilder relationshipBuilder)
         {
             var dependencies = CreateDependencies(CreateLogger());
-            var context = new ConventionContext<IConventionRelationshipBuilder>(
+            var context = new ConventionContext<IConventionForeignKeyBuilder>(
                 relationshipBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
 
             new ForeignKeyAttributeConvention(dependencies)
@@ -822,11 +822,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private void RunConvention(InternalRelationshipBuilder relationshipBuilder, Navigation navigation)
         {
             var dependencies = CreateDependencies(CreateLogger());
-            var context = new ConventionContext<IConventionNavigation>(
+            var context = new ConventionContext<IConventionNavigationBuilder>(
                 relationshipBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
 
             new RequiredNavigationAttributeConvention(dependencies)
-                .ProcessNavigationAdded(relationshipBuilder, navigation, context);
+                .ProcessNavigationAdded(navigation.Builder, context);
         }
 
         private void Validate(InternalEntityTypeBuilder entityTypeBuilder)

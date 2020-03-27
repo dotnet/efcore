@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
@@ -52,6 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         [EntityFrameworkInternal]
         public static readonly IDictionary<Type, ServiceCharacteristics> RelationalServices
+#pragma warning disable EF1001 // Internal EF Core API usage.
             = new Dictionary<Type, ServiceCharacteristics>
             {
                 { typeof(IKeyValueIndexFactorySource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
@@ -59,6 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IComparer<ModificationCommand>), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMigrationsIdGenerator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ISqlGenerationHelper), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IRelationalAnnotationProvider), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMigrationsAnnotationProvider), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMigrationCommandExecutor), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IRelationalTypeMappingSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
@@ -92,6 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IMemberTranslatorPlugin), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
                 { typeof(IRelationalParameterBasedQueryTranslationPostprocessorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) }
             };
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         /// <summary>
         ///     Used by relational database providers to create a new <see cref="EntityFrameworkRelationalServicesBuilder" /> for
@@ -114,7 +118,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             return RelationalServices.TryGetValue(serviceType, out var characteristics)
                 ? characteristics
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 : base.GetServiceCharacteristics(serviceType);
+#pragma warning restore EF1001 // Internal EF Core API usage.
         }
 
         /// <summary>
@@ -130,6 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IMigrationsIdGenerator, MigrationsIdGenerator>();
             TryAdd<IKeyValueIndexFactorySource, KeyValueIndexFactorySource>();
             TryAdd<IModelCustomizer, RelationalModelCustomizer>();
+            TryAdd<IRelationalAnnotationProvider, RelationalAnnotationProvider>();
             TryAdd<IMigrationsAnnotationProvider, MigrationsAnnotationProvider>();
             TryAdd<IModelValidator, RelationalModelValidator>();
             TryAdd<IMigrator, Migrator>();
@@ -170,11 +177,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IRelationalParameterBasedQueryTranslationPostprocessorFactory, RelationalParameterBasedQueryTranslationPostprocessorFactory>();
             TryAdd<IRelationalQueryStringFactory, RelationalQueryStringFactory>();
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
             ServiceCollectionMap.GetInfrastructure()
                 .AddDependencySingleton<RelationalSqlGenerationHelperDependencies>()
                 .AddDependencySingleton<RelationalTypeMappingSourceDependencies>()
                 .AddDependencySingleton<RelationalModelValidatorDependencies>()
                 .AddDependencySingleton<UpdateSqlGeneratorDependencies>()
+                .AddDependencySingleton<RelationalAnnotationProviderDependencies>()
                 .AddDependencySingleton<MigrationsAnnotationProviderDependencies>()
                 .AddDependencySingleton<ParameterNameGeneratorDependencies>()
                 .AddDependencySingleton<RelationalValueBufferFactoryDependencies>()
@@ -201,6 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencyScoped<RelationalConnectionDependencies>()
                 .AddDependencyScoped<RelationalDatabaseDependencies>()
                 .AddDependencyScoped<RelationalQueryContextDependencies>();
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
             return base.TryAddCoreServices();
         }
