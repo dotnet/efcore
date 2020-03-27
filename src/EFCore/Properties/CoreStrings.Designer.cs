@@ -2153,7 +2153,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, clrName);
 
         /// <summary>
-        ///     The indexed property '{property}' cannot be added to type '{entityType}' because the CLR class contains a member with the same name.
+        ///     The indexer property '{property}' cannot be added to type '{entityType}' because the CLR class contains a member with the same name.
         /// </summary>
         public static string PropertyClashingNonIndexer([CanBeNull] object property, [CanBeNull] object entityType)
             => string.Format(
@@ -2535,10 +2535,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("UnsupportedBinaryOperator");
 
         /// <summary>
-        ///     EF.Property called with wrong property name.
+        ///     Translation of '{expression}' failed. Either source is not an entity type or the specified property does not exist on the entity type.
         /// </summary>
-        public static string EFPropertyCalledWithWrongPropertyName
-            => GetString("EFPropertyCalledWithWrongPropertyName");
+        public static string QueryUnableToTranslateEFProperty([CanBeNull] object expression)
+            => string.Format(
+                GetString("QueryUnableToTranslateEFProperty", nameof(expression)),
+                expression);
 
         /// <summary>
         ///     Invalid {state} encountered.

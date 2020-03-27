@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
@@ -73,154 +74,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             }
 
             return null;
-        }
-
-        private sealed class SqlTypeMappingVerifyingExpressionVisitor : ExpressionVisitor
-        {
-            protected override Expression VisitExtension(Expression node)
-            {
-                Check.NotNull(node, nameof(node));
-
-                if (node is SqlExpression sqlExpression
-                    && sqlExpression.TypeMapping == null)
-                {
-                    throw new InvalidOperationException(CoreStrings.NullTypeMappingInSqlTree);
-                }
-
-                return base.VisitExtension(node);
-            }
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitMember(MemberExpression memberExpression)
-        {
-            Check.NotNull(memberExpression, nameof(memberExpression));
-
-            return TryBindMember(memberExpression.Expression, MemberIdentity.Create(memberExpression.Member), out var result)
-                ? result
-                : TranslationFailed(memberExpression.Expression, Visit(memberExpression.Expression), out var sqlInnerExpression)
-                    ? null
-                    : _memberTranslatorProvider.Translate(sqlInnerExpression, memberExpression.Member, memberExpression.Type);
-        }
-
-        private bool TryBindMember(Expression source, MemberIdentity member, out Expression expression)
-        {
-            source = source.UnwrapTypeConversion(out var convertedType);
-            Expression visitedExpression;
-            switch (source)
-            {
-                case EntityShaperExpression entityShaperExpression:
-                    visitedExpression = Visit(entityShaperExpression.ValueBufferExpression);
-                    break;
-
-                case MemberExpression memberExpression:
-                    TryBindMember(memberExpression.Expression, MemberIdentity.Create(memberExpression.Member), out visitedExpression);
-                    break;
-
-                case MethodCallExpression methodCallExpression
-                    when methodCallExpression.TryGetEFPropertyArguments(out var innerSource, out var innerPropertyName):
-                    TryBindMember(innerSource, MemberIdentity.Create(innerPropertyName), out visitedExpression);
-                    break;
-
-                case MethodCallExpression methodCallExpression
-                    when methodCallExpression.TryGetIndexerArguments(_model, out var innerSource, out var innerPropertyName):
-                    TryBindMember(innerSource, MemberIdentity.Create(innerPropertyName), out visitedExpression);
-                    break;
-
-                default:
-                    visitedExpression = null;
-                    break;
-            }
-
-            if (visitedExpression is EntityProjectionExpression entityProjectionExpression)
-            {
-                convertedType ??= entityProjectionExpression.Type;
-                expression = member.MemberInfo != null
-                    ? entityProjectionExpression.BindMember(member.MemberInfo, convertedType, clientEval: false, out _)
-                    : entityProjectionExpression.BindMember(member.Name, convertedType, clientEval: false, out _);
-
-                return expression != null;
-            }
-
-            expression = null;
-            return false;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
-        {
-            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
-
-            if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName))
-            {
-                return TryBindMember(source, MemberIdentity.Create(propertyName), out var result)
-                    ? result
-                    : null;
-            }
-
-            // EF Indexer property
-            if (methodCallExpression.TryGetIndexerArguments(_model, out source, out propertyName))
-            {
-                return TryBindMember(source, MemberIdentity.Create(propertyName), out var result) ? result : null;
-            }
-
-            if (TranslationFailed(methodCallExpression.Object, Visit(methodCallExpression.Object), out var sqlObject))
-            {
-                return null;
-            }
-
-            var arguments = new SqlExpression[methodCallExpression.Arguments.Count];
-            for (var i = 0; i < arguments.Length; i++)
-            {
-                var argument = methodCallExpression.Arguments[i];
-                if (TranslationFailed(argument, Visit(argument), out var sqlArgument))
-                {
-                    return null;
-                }
-
-                arguments[i] = sqlArgument;
-            }
-
-            return _methodCallTranslatorProvider.Translate(_model, sqlObject, methodCallExpression.Method, arguments);
-        }
-
-        private static Expression TryRemoveImplicitConvert(Expression expression)
-        {
-            if (expression is UnaryExpression unaryExpression
-                && (unaryExpression.NodeType == ExpressionType.Convert
-                    || unaryExpression.NodeType == ExpressionType.ConvertChecked))
-            {
-                var innerType = unaryExpression.Operand.Type.UnwrapNullableType();
-                if (innerType.IsEnum)
-                {
-                    innerType = Enum.GetUnderlyingType(innerType);
-                }
-
-                var convertedType = unaryExpression.Type.UnwrapNullableType();
-
-                if (innerType == convertedType
-                    || (convertedType == typeof(int)
-                        && (innerType == typeof(byte)
-                            || innerType == typeof(sbyte)
-                            || innerType == typeof(char)
-                            || innerType == typeof(short)
-                            || innerType == typeof(ushort))))
-                {
-                    return TryRemoveImplicitConvert(unaryExpression.Operand);
-                }
-            }
-
-            return expression;
         }
 
         /// <summary>
@@ -300,11 +153,187 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        protected override Expression VisitConstant(ConstantExpression constantExpression)
+            => new SqlConstantExpression(Check.NotNull(constantExpression, nameof(constantExpression)), null);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override Expression VisitExtension(Expression extensionExpression)
+        {
+            Check.NotNull(extensionExpression, nameof(extensionExpression));
+
+            switch (extensionExpression)
+            {
+                case EntityProjectionExpression _:
+                case SqlExpression _:
+                    return extensionExpression;
+
+                case EntityShaperExpression entityShaperExpression:
+                    var result = Visit(entityShaperExpression.ValueBufferExpression);
+
+                    if (result.NodeType == ExpressionType.Convert
+                        && result.Type == typeof(ValueBuffer)
+                        && result is UnaryExpression outerUnary
+                        && outerUnary.Operand.NodeType == ExpressionType.Convert
+                        && outerUnary.Operand.Type == typeof(object))
+                    {
+                        result = ((UnaryExpression)outerUnary.Operand).Operand;
+                    }
+
+                    if (result is EntityProjectionExpression entityProjectionExpression)
+                    {
+                        return new EntityReferenceExpression(entityProjectionExpression);
+                    }
+
+                    throw new InvalidOperationException("Randomization");
+
+                case ProjectionBindingExpression projectionBindingExpression:
+                    return projectionBindingExpression.ProjectionMember != null
+                        ? ((SelectExpression)projectionBindingExpression.QueryExpression)
+                            .GetMappedProjection(projectionBindingExpression.ProjectionMember)
+                        : null;
+
+                default:
+                    return null;
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override Expression VisitInvocation(InvocationExpression invocationExpression) => null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override Expression VisitLambda<T>(Expression<T> lambdaExpression) => null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override Expression VisitListInit(ListInitExpression listInitExpression) => null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override Expression VisitMember(MemberExpression memberExpression)
+        {
+            Check.NotNull(memberExpression, nameof(memberExpression));
+
+            var innerExpression = Visit(memberExpression.Expression);
+
+            return TryBindMember(innerExpression, MemberIdentity.Create(memberExpression.Member))
+                ?? (TranslationFailed(memberExpression.Expression, innerExpression, out var sqlInnerExpression)
+                    ? null
+                    : _memberTranslatorProvider.Translate(sqlInnerExpression, memberExpression.Member, memberExpression.Type));
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
+            => GetConstantOrNull(Check.NotNull(memberInitExpression, nameof(memberInitExpression)));
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
+            if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName)
+                || methodCallExpression.TryGetIndexerArguments(_model, out source, out propertyName))
+            {
+                return TryBindMember(Visit(source), MemberIdentity.Create(propertyName));
+            }
+
+            if (TranslationFailed(methodCallExpression.Object, Visit(methodCallExpression.Object), out var sqlObject))
+            {
+                return null;
+            }
+
+            var arguments = new SqlExpression[methodCallExpression.Arguments.Count];
+            for (var i = 0; i < arguments.Length; i++)
+            {
+                var argument = methodCallExpression.Arguments[i];
+                if (TranslationFailed(argument, Visit(argument), out var sqlArgument))
+                {
+                    return null;
+                }
+
+                arguments[i] = sqlArgument;
+            }
+
+            return _methodCallTranslatorProvider.Translate(_model, sqlObject, methodCallExpression.Method, arguments);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override Expression VisitNew(NewExpression newExpression)
+            => GetConstantOrNull(Check.NotNull(newExpression, nameof(newExpression)));
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override Expression VisitNewArray(NewArrayExpression newArrayExpression) => null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override Expression VisitParameter(ParameterExpression parameterExpression)
+            => new SqlParameterExpression(Check.NotNull(parameterExpression, nameof(parameterExpression)), null);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
             Check.NotNull(unaryExpression, nameof(unaryExpression));
 
             var operand = Visit(unaryExpression.Operand);
+
+            if (operand is EntityReferenceExpression entityReferenceExpression
+                && (unaryExpression.NodeType == ExpressionType.Convert
+                    || unaryExpression.NodeType == ExpressionType.ConvertChecked
+                    || unaryExpression.NodeType == ExpressionType.TypeAs))
+            {
+                return entityReferenceExpression.Convert(unaryExpression.Type);
+            }
 
             if (TranslationFailed(unaryExpression.Operand, operand, out var sqlOperand))
             {
@@ -334,6 +363,55 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             }
 
             return null;
+        }
+
+        private Expression TryBindMember(Expression source, MemberIdentity member)
+        {
+            if (!(source is EntityReferenceExpression entityReferenceExpression))
+            {
+                return null;
+            }
+
+            var result = member.MemberInfo != null
+                ? entityReferenceExpression.ParameterEntity.BindMember(member.MemberInfo, entityReferenceExpression.Type, clientEval: false, out _)
+                : entityReferenceExpression.ParameterEntity.BindMember(member.Name, entityReferenceExpression.Type, clientEval: false, out _);
+
+            return result switch
+            {
+                EntityProjectionExpression entityProjectionExpression => new EntityReferenceExpression(entityProjectionExpression),
+                ObjectArrayProjectionExpression objectArrayProjectionExpression
+                    => new EntityReferenceExpression(objectArrayProjectionExpression.InnerProjection),
+                _ => result
+            };
+        }
+
+        private static Expression TryRemoveImplicitConvert(Expression expression)
+        {
+            if (expression is UnaryExpression unaryExpression
+                && (unaryExpression.NodeType == ExpressionType.Convert
+                    || unaryExpression.NodeType == ExpressionType.ConvertChecked))
+            {
+                var innerType = unaryExpression.Operand.Type.UnwrapNullableType();
+                if (innerType.IsEnum)
+                {
+                    innerType = Enum.GetUnderlyingType(innerType);
+                }
+
+                var convertedType = unaryExpression.Type.UnwrapNullableType();
+
+                if (innerType == convertedType
+                    || (convertedType == typeof(int)
+                        && (innerType == typeof(byte)
+                            || innerType == typeof(sbyte)
+                            || innerType == typeof(char)
+                            || innerType == typeof(short)
+                            || innerType == typeof(ushort))))
+                {
+                    return TryRemoveImplicitConvert(unaryExpression.Operand);
+                }
+            }
+
+            return expression;
         }
 
         private SqlConstantExpression GetConstantOrNull(Expression expression)
@@ -369,140 +447,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             }
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitNew(NewExpression node)
-        {
-            Check.NotNull(node, nameof(node));
-
-            return GetConstantOrNull(node);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitMemberInit(MemberInitExpression node)
-        {
-            Check.NotNull(node, nameof(node));
-
-            return GetConstantOrNull(node);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitNewArray(NewArrayExpression node)
-        {
-            Check.NotNull(node, nameof(node));
-
-            return null;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitListInit(ListInitExpression node)
-        {
-            Check.NotNull(node, nameof(node));
-
-            return null;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitInvocation(InvocationExpression node)
-        {
-            Check.NotNull(node, nameof(node));
-
-            return null;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitLambda<T>(Expression<T> node)
-        {
-            Check.NotNull(node, nameof(node));
-
-            return null;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitConstant(ConstantExpression constantExpression)
-        {
-            Check.NotNull(constantExpression, nameof(constantExpression));
-
-            return new SqlConstantExpression(constantExpression, null);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitParameter(ParameterExpression parameterExpression)
-        {
-            Check.NotNull(parameterExpression, nameof(parameterExpression));
-
-            return new SqlParameterExpression(parameterExpression, null);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitExtension(Expression extensionExpression)
-        {
-            Check.NotNull(extensionExpression, nameof(extensionExpression));
-
-            switch (extensionExpression)
-            {
-                case EntityProjectionExpression _:
-                case SqlExpression _:
-                    return extensionExpression;
-
-                case EntityShaperExpression entityShaperExpression:
-                    return Visit(entityShaperExpression.ValueBufferExpression);
-
-                case ProjectionBindingExpression projectionBindingExpression:
-                    return projectionBindingExpression.ProjectionMember != null
-                        ? ((SelectExpression)projectionBindingExpression.QueryExpression)
-                            .GetMappedProjection(projectionBindingExpression.ProjectionMember)
-                        : null;
-
-                default:
-                    return null;
-            }
-        }
-
         [DebuggerStepThrough]
         private bool TranslationFailed(Expression original, Expression translation, out SqlExpression castTranslation)
         {
@@ -515,6 +459,56 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             castTranslation = translation as SqlExpression;
             return false;
+        }
+
+        private sealed class EntityReferenceExpression : Expression
+        {
+            public EntityReferenceExpression(EntityProjectionExpression parameter)
+            {
+                ParameterEntity = parameter;
+                EntityType = parameter.EntityType;
+                Type = EntityType.ClrType;
+            }
+
+            private EntityReferenceExpression(EntityProjectionExpression parameter, Type type)
+            {
+                ParameterEntity = parameter;
+                EntityType = parameter.EntityType;
+                Type = type;
+            }
+
+            public EntityProjectionExpression ParameterEntity { get; }
+            public IEntityType EntityType { get; }
+
+            public override Type Type { get; }
+            public override ExpressionType NodeType => ExpressionType.Extension;
+
+            public Expression Convert(Type type)
+            {
+                if (type == typeof(object) // Ignore object conversion
+                    || type.IsAssignableFrom(Type)) // Ignore casting to base type/interface
+                {
+                    return this;
+                }
+
+                return new EntityReferenceExpression(ParameterEntity, type);
+            }
+        }
+
+        private sealed class SqlTypeMappingVerifyingExpressionVisitor : ExpressionVisitor
+        {
+            protected override Expression VisitExtension(Expression extensionExpression)
+            {
+                Check.NotNull(extensionExpression, nameof(extensionExpression));
+
+                if (extensionExpression is SqlExpression sqlExpression
+                    && sqlExpression.TypeMapping == null)
+                {
+                    throw new InvalidOperationException(CoreStrings.NullTypeMappingInSqlTree);
+                }
+
+                return base.VisitExtension(extensionExpression);
+            }
         }
     }
 }
