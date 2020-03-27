@@ -45,12 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 return _sqlExpressionFactory.In(arguments[1], arguments[0], false);
             }
 
-            if (method.Name == nameof(IList.Contains)
-                && arguments.Count == 1
-                && method.DeclaringType.GetInterfaces().Append(method.DeclaringType).Any(
-                    t => t == typeof(IList)
-                        || (t.IsGenericType
-                            && t.GetGenericTypeDefinition() == typeof(ICollection<>)))
+            if (arguments.Count == 1
+                && method.IsContainsMethod()
                 && ValidateValues(instance))
             {
                 return _sqlExpressionFactory.In(arguments[0], instance, false);

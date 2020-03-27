@@ -2,9 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -23,6 +26,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     /// </summary>
     public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
     {
+        private const string _runtimeParameterPrefix = QueryCompilationContext.QueryParameterPrefix + "entity_equality_";
+
+        private static readonly MethodInfo _parameterValueExtractor =
+            typeof(CosmosSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterValueExtractor));
+        private static readonly MethodInfo _parameterListValueExtractor =
+            typeof(CosmosSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterListValueExtractor));
+
+        private readonly QueryCompilationContext _queryCompilationContext;
         private readonly IModel _model;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly IMemberTranslatorProvider _memberTranslatorProvider;
@@ -36,12 +47,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosSqlTranslatingExpressionVisitor(
-            [NotNull] IModel model,
+            [NotNull] QueryCompilationContext queryCompilationContext,
             [NotNull] ISqlExpressionFactory sqlExpressionFactory,
             [NotNull] IMemberTranslatorProvider memberTranslatorProvider,
             [NotNull] IMethodCallTranslatorProvider methodCallTranslatorProvider)
         {
-            _model = model;
+            _queryCompilationContext = queryCompilationContext;
+            _model = queryCompilationContext.Model;
             _sqlExpressionFactory = sqlExpressionFactory;
             _memberTranslatorProvider = memberTranslatorProvider;
             _methodCallTranslatorProvider = methodCallTranslatorProvider;
@@ -102,6 +114,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         ifFalse));
             }
 
+            var left = TryRemoveImplicitConvert(binaryExpression.Left);
+            var right = TryRemoveImplicitConvert(binaryExpression.Right);
+
+            var visitedLeft = Visit(left);
+            var visitedRight = Visit(right);
+
+            if ((binaryExpression.NodeType == ExpressionType.Equal
+                || binaryExpression.NodeType == ExpressionType.NotEqual)
+                // Visited expression could be null, We need to pass MemberInitExpression
+                && TryRewriteEntityEquality(binaryExpression.NodeType, visitedLeft ?? left, visitedRight ?? right, out var result))
+            {
+                return result;
+            }
+
             var uncheckedNodeTypeVariant = binaryExpression.NodeType switch
             {
                 ExpressionType.AddChecked => ExpressionType.Add,
@@ -110,14 +136,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 _ => binaryExpression.NodeType
             };
 
-            var left = TryRemoveImplicitConvert(binaryExpression.Left);
-            var right = TryRemoveImplicitConvert(binaryExpression.Right);
-
-            left = Visit(left);
-            right = Visit(right);
-
-            return TranslationFailed(binaryExpression.Left, left, out var sqlLeft)
-                || TranslationFailed(binaryExpression.Right, right, out var sqlRight)
+            return TranslationFailed(binaryExpression.Left, visitedLeft, out var sqlLeft)
+                || TranslationFailed(binaryExpression.Right, visitedRight, out var sqlRight)
                 ? null
                 : _sqlExpressionFactory.MakeBinary(
                     uncheckedNodeTypeVariant,
@@ -169,6 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             switch (extensionExpression)
             {
                 case EntityProjectionExpression _:
+                case EntityReferenceExpression _:
                 case SqlExpression _:
                     return extensionExpression;
 
@@ -189,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         return new EntityReferenceExpression(entityProjectionExpression);
                     }
 
-                    throw new InvalidOperationException("Randomization");
+                    return null;
 
                 case ProjectionBindingExpression projectionBindingExpression:
                     return projectionBindingExpression.ProjectionMember != null
@@ -269,21 +290,122 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 return TryBindMember(Visit(source), MemberIdentity.Create(propertyName));
             }
 
-            if (TranslationFailed(methodCallExpression.Object, Visit(methodCallExpression.Object), out var sqlObject))
-            {
-                return null;
-            }
+            SqlExpression sqlObject = null;
+            SqlExpression[] arguments;
+            var method = methodCallExpression.Method;
 
-            var arguments = new SqlExpression[methodCallExpression.Arguments.Count];
-            for (var i = 0; i < arguments.Length; i++)
+            if (method.Name == nameof(object.Equals)
+                && methodCallExpression.Object != null
+                && methodCallExpression.Arguments.Count == 1)
             {
-                var argument = methodCallExpression.Arguments[i];
-                if (TranslationFailed(argument, Visit(argument), out var sqlArgument))
+                var left = Visit(methodCallExpression.Object);
+                var right = Visit(methodCallExpression.Arguments[0]);
+
+                if (TryRewriteEntityEquality(ExpressionType.Equal,
+                        left ?? methodCallExpression.Object,
+                        right ?? methodCallExpression.Arguments[0],
+                        out var result))
+                {
+                    return result;
+                }
+
+                if (left is SqlExpression leftSql
+                    && right is SqlExpression rightSql)
+                {
+                    sqlObject = leftSql;
+                    arguments = new SqlExpression[1] { rightSql };
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else if (method.Name == nameof(object.Equals)
+                && methodCallExpression.Object == null
+                && methodCallExpression.Arguments.Count == 2)
+            {
+                var left = Visit(methodCallExpression.Arguments[0]);
+                var right = Visit(methodCallExpression.Arguments[1]);
+
+                if (TryRewriteEntityEquality(ExpressionType.Equal,
+                    left ?? methodCallExpression.Arguments[0],
+                    right ?? methodCallExpression.Arguments[1],
+                    out var result))
+                {
+                    return result;
+                }
+
+                if (left is SqlExpression leftSql
+                    && right is SqlExpression rightSql)
+                {
+                    arguments = new SqlExpression[2] { leftSql, rightSql };
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else if (method.IsGenericMethod
+                && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains))
+            {
+                var enumerable = Visit(methodCallExpression.Arguments[0]);
+                var item = Visit(methodCallExpression.Arguments[1]);
+
+                if (TryRewriteContainsEntity(enumerable, item ?? methodCallExpression.Arguments[1], out var result))
+                {
+                    return result;
+                }
+
+                if (enumerable is SqlExpression sqlEnumerable
+                    && item is SqlExpression sqlItem)
+                {
+                    arguments = new SqlExpression[2] { sqlEnumerable, sqlItem };
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else if (methodCallExpression.Arguments.Count == 1
+                && method.IsContainsMethod())
+            {
+                var enumerable = Visit(methodCallExpression.Object);
+                var item = Visit(methodCallExpression.Arguments[0]);
+
+                if (TryRewriteContainsEntity(enumerable, item ?? methodCallExpression.Arguments[0], out var result))
+                {
+                    return result;
+                }
+
+                if (enumerable is SqlExpression sqlEnumerable
+                    && item is SqlExpression sqlItem)
+                {
+                    sqlObject = sqlEnumerable;
+                    arguments = new SqlExpression[1] { sqlItem };
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                if (TranslationFailed(methodCallExpression.Object, Visit(methodCallExpression.Object), out sqlObject))
                 {
                     return null;
                 }
 
-                arguments[i] = sqlArgument;
+                arguments = new SqlExpression[methodCallExpression.Arguments.Count];
+                for (var i = 0; i < arguments.Length; i++)
+                {
+                    var argument = methodCallExpression.Arguments[i];
+                    if (TranslationFailed(argument, Visit(argument), out var sqlArgument))
+                    {
+                        return null;
+                    }
+
+                    arguments[i] = sqlArgument;
+                }
             }
 
             return _methodCallTranslatorProvider.Translate(_model, sqlObject, methodCallExpression.Method, arguments);
@@ -414,16 +536,198 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             return expression;
         }
 
-        private SqlConstantExpression GetConstantOrNull(Expression expression)
+        private bool TryRewriteContainsEntity(Expression source, Expression item, out Expression result)
         {
-            if (CanEvaluate(expression))
+            result = null;
+
+            if (!(item is EntityReferenceExpression itemEntityReference))
             {
-                var value = Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object))).Compile().Invoke();
-                return new SqlConstantExpression(Expression.Constant(value, expression.Type), null);
+                return false;
             }
 
-            return null;
+            var entityType = itemEntityReference.EntityType;
+            var primaryKeyProperties = entityType.FindPrimaryKey()?.Properties;
+            if (primaryKeyProperties == null)
+            {
+                throw new InvalidOperationException(CoreStrings.EntityEqualityOnKeylessEntityNotSupported(entityType.DisplayName()));
+            }
+
+            if (primaryKeyProperties.Count > 1)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.EntityEqualityContainsWithCompositeKeyNotSupported(entityType.DisplayName()));
+            }
+
+            var property = primaryKeyProperties[0];
+            Expression rewrittenSource;
+            switch (source)
+            {
+                case SqlConstantExpression sqlConstantExpression:
+                    var values = (IEnumerable)sqlConstantExpression.Value;
+                    var propertyValueList = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(property.ClrType.MakeNullable()));
+                    var propertyGetter = property.GetGetter();
+                    foreach (var value in values)
+                    {
+                        propertyValueList.Add(propertyGetter.GetClrValue(value));
+                    }
+
+                    rewrittenSource = Expression.Constant(propertyValueList);
+                    break;
+
+                case SqlParameterExpression sqlParameterExpression
+                when sqlParameterExpression.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal):
+                    var lambda = Expression.Lambda(
+                        Expression.Call(
+                            _parameterListValueExtractor.MakeGenericMethod(entityType.ClrType, property.ClrType.MakeNullable()),
+                            QueryCompilationContext.QueryContextParameter,
+                            Expression.Constant(sqlParameterExpression.Name, typeof(string)),
+                            Expression.Constant(property, typeof(IProperty))),
+                        QueryCompilationContext.QueryContextParameter
+                    );
+
+                    var newParameterName =
+                        $"{_runtimeParameterPrefix}" +
+                        $"{sqlParameterExpression.Name.Substring(QueryCompilationContext.QueryParameterPrefix.Length)}_{property.Name}";
+
+                    rewrittenSource = _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
+                    break;
+
+                default:
+                    return false;
+            }
+
+            result = Visit(Expression.Call(
+                EnumerableMethods.Contains.MakeGenericMethod(property.ClrType.MakeNullable()),
+                rewrittenSource,
+                CreatePropertyAccessExpression(item, property)));
+
+            return true;
         }
+
+        private bool TryRewriteEntityEquality(ExpressionType nodeType, Expression left, Expression right, out Expression result)
+        {
+            var leftEntityReference = left as EntityReferenceExpression;
+            var rightEntityReference = right as EntityReferenceExpression;
+
+            if (leftEntityReference == null
+                && rightEntityReference == null)
+            {
+                result = null;
+                return false;
+            }
+
+            if (IsNullSqlConstantExpression(left)
+                || IsNullSqlConstantExpression(right))
+            {
+                var nonNullEntityReference = IsNullSqlConstantExpression(left) ? rightEntityReference : leftEntityReference;
+                var entityType1 = nonNullEntityReference.EntityType;
+                var primaryKeyProperties1 = entityType1.FindPrimaryKey()?.Properties;
+                if (primaryKeyProperties1 == null)
+                {
+                    throw new InvalidOperationException(CoreStrings.EntityEqualityOnKeylessEntityNotSupported(entityType1.DisplayName()));
+                }
+
+                result = Visit(primaryKeyProperties1.Select(p =>
+                    Expression.MakeBinary(
+                        nodeType, CreatePropertyAccessExpression(nonNullEntityReference, p), Expression.Constant(null, p.ClrType.MakeNullable())))
+                    .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r)));
+
+                return true;
+            }
+
+            var leftEntityType = leftEntityReference?.EntityType;
+            var rightEntityType = rightEntityReference?.EntityType;
+            var entityType = leftEntityType ?? rightEntityType;
+
+            Debug.Assert(entityType != null, "At least either side should be entityReference so entityType should be non-null.");
+
+            if (leftEntityType != null
+                && rightEntityType != null
+                && leftEntityType.GetRootType() != rightEntityType.GetRootType())
+            {
+                result = _sqlExpressionFactory.Constant(false);
+                return true;
+            }
+
+            var primaryKeyProperties = entityType.FindPrimaryKey()?.Properties;
+            if (primaryKeyProperties == null)
+            {
+                throw new InvalidOperationException(CoreStrings.EntityEqualityOnKeylessEntityNotSupported(entityType.DisplayName()));
+            }
+
+            result = Visit(primaryKeyProperties.Select(p =>
+                    Expression.MakeBinary(
+                        nodeType,
+                        CreatePropertyAccessExpression(left, p),
+                        CreatePropertyAccessExpression(right, p)))
+                    .Aggregate((l, r) => Expression.AndAlso(l, r)));
+
+            return true;
+        }
+
+        private Expression CreatePropertyAccessExpression(Expression target, IProperty property)
+        {
+            switch (target)
+            {
+                case SqlConstantExpression sqlConstantExpression:
+                    return Expression.Constant(
+                        property.GetGetter().GetClrValue(sqlConstantExpression.Value), property.ClrType.MakeNullable());
+
+                case SqlParameterExpression sqlParameterExpression
+                when sqlParameterExpression.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal):
+                    var lambda = Expression.Lambda(
+                        Expression.Call(
+                            _parameterValueExtractor.MakeGenericMethod(property.ClrType.MakeNullable()),
+                            QueryCompilationContext.QueryContextParameter,
+                            Expression.Constant(sqlParameterExpression.Name, typeof(string)),
+                            Expression.Constant(property, typeof(IProperty))),
+                        QueryCompilationContext.QueryContextParameter);
+
+                    var newParameterName =
+                        $"{_runtimeParameterPrefix}" +
+                        $"{sqlParameterExpression.Name.Substring(QueryCompilationContext.QueryParameterPrefix.Length)}_{property.Name}";
+
+                    return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
+
+                case MemberInitExpression memberInitExpression
+                when memberInitExpression.Bindings.SingleOrDefault(
+                    mb => mb.Member.Name == property.Name) is MemberAssignment memberAssignment:
+                    return memberAssignment.Expression;
+
+                default:
+                    return target.CreateEFPropertyExpression(property);
+            }
+        }
+
+        private static T ParameterValueExtractor<T>(QueryContext context, string baseParameterName, IProperty property)
+        {
+            var baseParameter = context.ParameterValues[baseParameterName];
+            return baseParameter == null ? (T)(object)null : (T)property.GetGetter().GetClrValue(baseParameter);
+        }
+
+        private static List<TProperty> ParameterListValueExtractor<TEntity, TProperty>(
+            QueryContext context, string baseParameterName, IProperty property)
+        {
+            if (!(context.ParameterValues[baseParameterName] is IEnumerable<TEntity> baseListParameter))
+            {
+                return null;
+            }
+
+            var getter = property.GetGetter();
+            return baseListParameter.Select(e => e != null ? (TProperty)getter.GetClrValue(e) : (TProperty)(object)null).ToList();
+        }
+
+        private static bool IsNullSqlConstantExpression(Expression expression)
+            => expression is SqlConstantExpression sqlConstant && sqlConstant.Value == null;
+
+        private SqlConstantExpression GetConstantOrNull(Expression expression)
+            => CanEvaluate(expression)
+                ? new SqlConstantExpression(
+                    Expression.Constant(
+                        Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object))).Compile().Invoke(),
+                        expression.Type),
+                    null)
+                : null;
 
         private static bool CanEvaluate(Expression expression)
         {
@@ -485,13 +789,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             public Expression Convert(Type type)
             {
-                if (type == typeof(object) // Ignore object conversion
-                    || type.IsAssignableFrom(Type)) // Ignore casting to base type/interface
-                {
-                    return this;
-                }
-
-                return new EntityReferenceExpression(ParameterEntity, type);
+                return type == typeof(object) // Ignore object conversion
+                    || type.IsAssignableFrom(Type) // Ignore conversion to base/interface
+                    ? this
+                    : new EntityReferenceExpression(ParameterEntity, type);
             }
         }
 

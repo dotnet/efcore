@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             _model = queryCompilationContext.Model;
             _sqlExpressionFactory = sqlExpressionFactory;
             _sqlTranslator = new CosmosSqlTranslatingExpressionVisitor(
-                _model,
+                queryCompilationContext,
                 sqlExpressionFactory,
                 memberTranslatorProvider,
                 methodCallTranslatorProvider);

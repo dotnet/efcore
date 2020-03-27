@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             if (unaryExpression.NodeType == ExpressionType.ArrayLength
                 && unaryExpression.Operand.Type == typeof(byte[]))
             {
-                return base.Visit(unaryExpression.Operand) is SqlExpression sqlExpression
+                return Visit(unaryExpression.Operand) is SqlExpression sqlExpression
                     ? Dependencies.SqlExpressionFactory.Function(
                         "length",
                         new[] { sqlExpression },

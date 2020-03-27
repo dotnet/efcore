@@ -330,6 +330,35 @@ FROM [Order Details] AS [o]
 ORDER BY [o].[OrderID] DESC, [o].[ProductID] DESC");
         }
 
+        public override async Task Entity_equality_orderby_subquery(bool async)
+        {
+            await base.Entity_equality_orderby_subquery(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY (
+    SELECT TOP(1) [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID])");
+        }
+
+        public override async Task Entity_equality_orderby_descending_subquery_composite_key(bool async)
+        {
+            await base.Entity_equality_orderby_descending_subquery_composite_key(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY (
+    SELECT TOP(1) [o0].[OrderID]
+    FROM [Order Details] AS [o0]
+    WHERE [o].[OrderID] = [o0].[OrderID]) DESC, (
+    SELECT TOP(1) [o1].[ProductID]
+    FROM [Order Details] AS [o1]
+    WHERE [o].[OrderID] = [o1].[OrderID]) DESC");
+        }
+
         public override async Task Default_if_empty_top_level(bool async)
         {
             await base.Default_if_empty_top_level(async);
@@ -4994,6 +5023,28 @@ ORDER BY [o].[OrderID]");
             AssertSql(
                 @"SELECT MAX([o].[Quantity])
 FROM [Order Details] AS [o]");
+        }
+
+        public override async Task Entity_equality_with_null_coalesce_client_side(bool async)
+        {
+            await  base.Entity_equality_with_null_coalesce_client_side(async);
+
+            AssertSql(
+                @"@__entity_equality_p_0_CustomerID='ALFKI' (Size = 5) (DbType = StringFixedLength)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = @__entity_equality_p_0_CustomerID");
+        }
+
+        public override async Task Entity_equality_contains_with_list_of_null(bool async)
+        {
+            await base.Entity_equality_contains_with_list_of_null(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (N'ALFKI')");
         }
 
         private void AssertSql(params string[] expected)

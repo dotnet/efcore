@@ -301,5 +301,48 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             .Select(p => Expression.Convert(target.CreateEFPropertyExpression(p, makeNullable), typeof(object)))
                             .Cast<Expression>()
                             .ToArray()));
+
+        /// <summary>
+        ///     <para>
+        ///         Creates an <see cref="Expression" /> tree representing EF property access on given expression.
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="target"> The expression that will be root for generated read operation. </param>
+        /// <param name="property"> The property to access. </param>
+        /// <param name="makeNullable"> A value indicating if the value can be nullable. </param>
+        /// <returns> An expression to access EF property on given expression. </returns>
+        public static Expression CreateEFPropertyExpression(
+            [NotNull] this Expression target,
+            [NotNull] IPropertyBase property,
+            bool makeNullable = true)
+            => CreateEFPropertyExpression(target, property.DeclaringType.ClrType, property.ClrType, property.Name, makeNullable);
+
+        private static Expression CreateEFPropertyExpression(
+            Expression target,
+            Type propertyDeclaringType,
+            Type propertyType,
+            string propertyName,
+            bool makeNullable)
+        {
+            if (propertyDeclaringType != target.Type
+                && target.Type.IsAssignableFrom(propertyDeclaringType))
+            {
+                target = Expression.Convert(target, propertyDeclaringType);
+            }
+
+            if (makeNullable)
+            {
+                propertyType = propertyType.MakeNullable();
+            }
+
+            return Expression.Call(
+                EF.PropertyMethod.MakeGenericMethod(propertyType),
+                target,
+                Expression.Constant(propertyName));
+        }
     }
 }

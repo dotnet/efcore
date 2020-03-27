@@ -49,10 +49,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly QueryCompilationContext _queryCompilationContext;
         private readonly PendingSelectorExpandingExpressionVisitor _pendingSelectorExpandingExpressionVisitor;
         private readonly SubqueryMemberPushdownExpressionVisitor _subqueryMemberPushdownExpressionVisitor;
+        private readonly NullCheckRemovingExpressionVisitor _nullCheckRemovingExpressionVisitor;
         private readonly ReducingExpressionVisitor _reducingExpressionVisitor;
         private readonly EntityReferenceOptionalMarkingExpressionVisitor _entityReferenceOptionalMarkingExpressionVisitor;
+        private readonly RemoveRedundantNavigationComparisonExpressionVisitor _removeRedundantNavigationComparisonExpressionVisitor;
         private readonly ISet<string> _parameterNames = new HashSet<string>();
-        private readonly EntityEqualityRewritingExpressionVisitor _entityEqualityRewritingExpressionVisitor;
         private readonly ParameterExtractingExpressionVisitor _parameterExtractingExpressionVisitor;
 
         private readonly Dictionary<IEntityType, LambdaExpression> _parameterizedQueryFilterPredicateCache
@@ -71,9 +72,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _queryCompilationContext = queryCompilationContext;
             _pendingSelectorExpandingExpressionVisitor = new PendingSelectorExpandingExpressionVisitor(this);
             _subqueryMemberPushdownExpressionVisitor = new SubqueryMemberPushdownExpressionVisitor(queryCompilationContext.Model);
+            _nullCheckRemovingExpressionVisitor = new NullCheckRemovingExpressionVisitor();
             _reducingExpressionVisitor = new ReducingExpressionVisitor();
             _entityReferenceOptionalMarkingExpressionVisitor = new EntityReferenceOptionalMarkingExpressionVisitor();
-            _entityEqualityRewritingExpressionVisitor = new EntityEqualityRewritingExpressionVisitor(_queryCompilationContext);
+            _removeRedundantNavigationComparisonExpressionVisitor = new RemoveRedundantNavigationComparisonExpressionVisitor(
+                queryCompilationContext.Logger);
             _parameterExtractingExpressionVisitor = new ParameterExtractingExpressionVisitor(
                 evaluatableExpressionFilter,
                 _parameters,
@@ -133,6 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         var processedDefiningQueryBody = _parameterExtractingExpressionVisitor.ExtractParameters(definingQuery.Body);
                         processedDefiningQueryBody = _queryTranslationPreprocessor.NormalizeQueryableMethodCall(processedDefiningQueryBody);
+                        processedDefiningQueryBody = _nullCheckRemovingExpressionVisitor.Visit(processedDefiningQueryBody);
                         processedDefiningQueryBody =
                             new SelfReferenceEntityQueryableRewritingExpressionVisitor(this, entityType).Visit(processedDefiningQueryBody);
 
@@ -852,8 +856,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         filterExpression = Expression.Lambda(prm, prm);
                     }
 
-                    var arguments = new List<Expression>();
-                    arguments.Add(filterExpression.Body);
+                    var arguments = new List<Expression>
+                    {
+                        filterExpression.Body
+                    };
                     arguments.AddRange(methodCallExpression.Arguments.Skip(1));
                     filterExpression = Expression.Lambda(
                         methodCallExpression.Update(methodCallExpression.Object, arguments),
@@ -900,8 +906,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 ApplyPendingOrderings(innerSource);
             }
 
-            outerKeySelector = ProcessLambdaExpression(outerSource, outerKeySelector);
-            innerKeySelector = ProcessLambdaExpression(innerSource, innerKeySelector);
+            (outerKeySelector, innerKeySelector) = ProcessJoinConditions(outerSource, innerSource, outerKeySelector, innerKeySelector);
 
             var transparentIdentifierType = TransparentIdentifierFactory.Create(
                 outerSource.SourceElementType, innerSource.SourceElementType);
@@ -949,8 +954,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 ApplyPendingOrderings(innerSource);
             }
 
-            outerKeySelector = ProcessLambdaExpression(outerSource, outerKeySelector);
-            innerKeySelector = ProcessLambdaExpression(innerSource, innerKeySelector);
+            (outerKeySelector, innerKeySelector) = ProcessJoinConditions(outerSource, innerSource, outerKeySelector, innerKeySelector);
 
             var transparentIdentifierType = TransparentIdentifierFactory.Create(
                 outerSource.SourceElementType, innerSource.SourceElementType);
@@ -1203,6 +1207,63 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var lambdaBody = Visit(keySelector);
                     lambdaBody = _pendingSelectorExpandingExpressionVisitor.Visit(lambdaBody);
 
+                    if (lambdaBody is NavigationTreeExpression navigationTreeExpression
+                        && navigationTreeExpression.Value is EntityReference entityReference)
+                    {
+                        var primaryKeyProperties = entityReference.EntityType.FindPrimaryKey()?.Properties;
+                        if (primaryKeyProperties != null)
+                        {
+                            for (var i = 0; i < primaryKeyProperties.Count; i++)
+                            {
+                                var genericMethod = i > 0
+                                    ? GetThenByMethod(orderingMethod)
+                                    : orderingMethod;
+
+                                var keyPropertyLambda = GenerateLambda(
+                                    navigationTreeExpression.CreateEFPropertyExpression(primaryKeyProperties[i], entityReference.IsOptional),
+                                    source.CurrentParameter);
+
+                                source.UpdateSource(
+                                    Expression.Call(
+                                        genericMethod.MakeGenericMethod(source.SourceElementType, keyPropertyLambda.ReturnType),
+                                        source.Source,
+                                        keyPropertyLambda));
+                            }
+
+                            continue;
+                        }
+                    }
+
+                    if (lambdaBody is NavigationExpansionExpression navigationExpansionExpression
+                        && navigationExpansionExpression.CardinalityReducingGenericMethodInfo != null
+                        && navigationExpansionExpression.PendingSelector is NavigationTreeExpression subqueryNavigationTreeExpression
+                        && subqueryNavigationTreeExpression.Value is EntityReference subqueryEntityReference)
+                    {
+                        var primaryKeyProperties = subqueryEntityReference.EntityType.FindPrimaryKey()?.Properties;
+                        if (primaryKeyProperties != null)
+                        {
+                            for (var i = 0; i < primaryKeyProperties.Count; i++)
+                            {
+                                var genericMethod = i > 0
+                                    ? GetThenByMethod(orderingMethod)
+                                    : orderingMethod;
+
+                                var keyPropertyLambda = GenerateLambda(
+                                    navigationExpansionExpression.CreateEFPropertyExpression(
+                                        primaryKeyProperties[i], subqueryEntityReference.IsOptional),
+                                    source.CurrentParameter);
+
+                                source.UpdateSource(
+                                    Expression.Call(
+                                        genericMethod.MakeGenericMethod(source.SourceElementType, keyPropertyLambda.ReturnType),
+                                        source.Source,
+                                        keyPropertyLambda));
+                            }
+
+                            continue;
+                        }
+                    }
+
                     var keySelectorLambda = GenerateLambda(lambdaBody, source.CurrentParameter);
 
                     source.UpdateSource(
@@ -1213,6 +1274,47 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
 
                 source.ClearPendingOrderings();
+            }
+
+            static MethodInfo GetThenByMethod(MethodInfo currentGenericMethod)
+                => currentGenericMethod == QueryableMethods.OrderBy
+                    ? QueryableMethods.ThenBy
+                    : currentGenericMethod == QueryableMethods.OrderByDescending
+                        ? QueryableMethods.ThenByDescending
+                        : currentGenericMethod;
+        }
+
+        private (LambdaExpression, LambdaExpression) ProcessJoinConditions(
+            NavigationExpansionExpression outerSource,
+            NavigationExpansionExpression innerSource,
+            LambdaExpression outerKeySelector,
+            LambdaExpression innerKeySelector)
+        {
+            var outerKeyLambda = RemapLambdaExpression(outerSource, outerKeySelector);
+            var innerKeyLambda = RemapLambdaExpression(innerSource, innerKeySelector);
+
+            var keyComparison = (BinaryExpression)_removeRedundantNavigationComparisonExpressionVisitor
+                .Visit(Expression.Equal(outerKeyLambda, innerKeyLambda));
+
+            outerKeySelector = GenerateLambda(ExpandNavigationsForSource(outerSource, keyComparison.Left), outerSource.CurrentParameter);
+            innerKeySelector = GenerateLambda(ExpandNavigationsForSource(innerSource, keyComparison.Right), innerSource.CurrentParameter);
+
+            if (outerKeySelector.ReturnType != innerKeySelector.ReturnType)
+            {
+                var baseType = outerKeySelector.ReturnType.IsAssignableFrom(innerKeySelector.ReturnType)
+                    ? outerKeySelector.ReturnType
+                    : innerKeySelector.ReturnType;
+
+                outerKeySelector = ChangeReturnType(outerKeySelector, baseType);
+                innerKeySelector = ChangeReturnType(innerKeySelector, baseType);
+            }
+
+            return (outerKeySelector, innerKeySelector);
+
+            static LambdaExpression ChangeReturnType(LambdaExpression lambdaExpression, Type type)
+            {
+                var delegateType = typeof(Func<,>).MakeGenericType(lambdaExpression.Parameters[0].Type, type);
+                return Expression.Lambda(delegateType, lambdaExpression.Body, lambdaExpression.Parameters);
             }
         }
 
@@ -1238,8 +1340,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             QueryableMethods.Where.MakeGenericMethod(rootEntityType.ClrType),
                             new QueryRootExpression(rootEntityType),
                             filterPredicate);
-                        var rewrittenFilterWrapper = (MethodCallExpression)_entityEqualityRewritingExpressionVisitor.Rewrite(filterWrapper);
-                        filterPredicate = rewrittenFilterWrapper.Arguments[1].UnwrapLambdaFromQuote();
+                        filterPredicate = filterWrapper.Arguments[1].UnwrapLambdaFromQuote();
 
                         _parameterizedQueryFilterPredicateCache[rootEntityType] = filterPredicate;
                     }
@@ -1446,6 +1547,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private Expression ExpandNavigationsForSource(NavigationExpansionExpression source, Expression expression)
         {
+            expression = _removeRedundantNavigationComparisonExpressionVisitor.Visit(expression);
             expression = new ExpandingExpressionVisitor(this, source).Visit(expression);
             expression = _subqueryMemberPushdownExpressionVisitor.Visit(expression);
             expression = Visit(expression);
@@ -1606,6 +1708,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 default:
                     return Expression.Default(selector.Type);
+            }
+        }
+
+        private static EntityReference UnwrapEntityReference(Expression expression)
+        {
+            switch (expression)
+            {
+                case EntityReference entityReference:
+                    return entityReference;
+
+                case NavigationTreeExpression navigationTreeExpression:
+                    return UnwrapEntityReference(navigationTreeExpression.Value);
+
+                case NavigationExpansionExpression navigationExpansionExpression
+                    when navigationExpansionExpression.CardinalityReducingGenericMethodInfo != null:
+                    return UnwrapEntityReference(navigationExpansionExpression.PendingSelector);
+
+                case OwnedNavigationReference ownedNavigationReference:
+                    return ownedNavigationReference.EntityReference;
+
+                default:
+                    return null;
             }
         }
 

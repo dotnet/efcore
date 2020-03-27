@@ -1930,7 +1930,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expectedIncludes);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#15783")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_conditional_result(bool async)
         {
@@ -5026,31 +5026,24 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Join_with_complex_key_selector(bool async)
+        public virtual Task Join_with_complex_key_selector(bool async)
         {
-            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Squad>()
-                        .Join(
-                            ss.Set<CogTag>().Where(t => t.Note == "Marcus' Tag"), o => true, i => true, (o, i) => new { o, i })
-                        .GroupJoin(
-                            ss.Set<Gear>(),
-                            oo => oo.o.Members.FirstOrDefault(v => v.Tag == oo.i),
-                            ii => ii,
-                            (k, g) => new
-                            {
-                                k.o,
-                                k.i,
-                                value = g.OrderBy(gg => gg.FullName).FirstOrDefault()
-                            })
-                        .Select(
-                            r => new { r.o.Id, TagId = r.i.Id }),
-                    elementSorter: e => (e.Id, e.TagId)))).Message;
-
-            Assert.Equal(
-                "This query would cause multiple evaluation of a subquery because entity 'Gear' has a composite key. Rewrite your query avoiding the subquery.",
-                message);
+            return AssertTranslationFailed(() => AssertQuery(
+                async,
+                ss => ss.Set<Squad>()
+                    .Join(ss.Set<CogTag>().Where(t => t.Note == "Marcus' Tag"), o => true, i => true, (o, i) => new { o, i })
+                    .GroupJoin(
+                        ss.Set<Gear>(),
+                        oo => oo.o.Members.FirstOrDefault(v => v.Tag == oo.i),
+                        ii => ii,
+                        (k, g) => new
+                        {
+                            k.o,
+                            k.i,
+                            value = g.OrderBy(gg => gg.FullName).FirstOrDefault()
+                        })
+                    .Select(r => new { r.o.Id, TagId = r.i.Id }),
+                elementSorter: e => (e.Id, e.TagId)));
         }
 
         [ConditionalTheory(Skip = "Issue#16314")]

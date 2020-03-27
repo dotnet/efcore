@@ -256,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 || expression is MemberInitExpression
                 || expression is NewExpression
                 || expression is ParameterExpression parameter
-                    && parameter.Name.StartsWith(CompiledQueryCache.CompiledQueryParameterPrefix, StringComparison.Ordinal);
+                    && parameter.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal);
 
         private static bool CanConvertEnumerableToQueryable(Type enumerableType, Type queryableType)
         {
