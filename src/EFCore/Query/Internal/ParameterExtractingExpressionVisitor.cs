@@ -316,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             parameterName
-                = CompiledQueryCache.CompiledQueryParameterPrefix
+                = QueryCompilationContext.QueryParameterPrefix
                 + parameterName
                 + "_"
                 + _parameterValues.ParameterValues.Count;

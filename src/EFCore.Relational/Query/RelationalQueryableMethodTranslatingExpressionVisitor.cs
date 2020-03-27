@@ -22,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly RelationalSqlTranslatingExpressionVisitor _sqlTranslator;
         private readonly WeakEntityExpandingExpressionVisitor _weakEntityExpandingExpressionVisitor;
         private readonly RelationalProjectionBindingExpressionVisitor _projectionBindingExpressionVisitor;
+        private readonly QueryCompilationContext _queryCompilationContext;
         private readonly IModel _model;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly bool _subquery;
@@ -54,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             : base(parentVisitor.Dependencies, subquery: true)
         {
             RelationalDependencies = parentVisitor.RelationalDependencies;
-            _model = parentVisitor._model;
+            _queryCompilationContext = parentVisitor._queryCompilationContext;
             _sqlTranslator = parentVisitor._sqlTranslator;
             _weakEntityExpandingExpressionVisitor = parentVisitor._weakEntityExpandingExpressionVisitor;
             _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator);
@@ -116,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(elementType, nameof(elementType));
 
-            var entityType = _model.FindEntityType(elementType);
+            var entityType = _queryCompilationContext.Model.FindEntityType(elementType);
             var queryExpression = _sqlExpressionFactory.Select(entityType);
 
             return CreateShapedQueryExpression(entityType, queryExpression);

@@ -2119,7 +2119,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertCollection(e, a));
         }
 
-        [ConditionalTheory(Skip = "Issue#19431")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_Queryable_ToArray_Length_member(bool async)
         {
@@ -2234,7 +2234,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertCollection(e, a));
         }
 
-        [ConditionalTheory(Skip = "Issue#19431")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_collection_navigation_ToArray_Length_member(bool async)
         {

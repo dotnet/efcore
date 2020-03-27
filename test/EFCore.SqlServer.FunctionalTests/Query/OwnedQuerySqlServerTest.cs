@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 @"SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[Id], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId], [t].[Id], [o1].[ClientId], [o1].[Id], [o1].[OrderDate]
 FROM [OwnedPerson] AS [o]
 CROSS JOIN (
-    SELECT [o0].[Id], [o0].[Discriminator], [o0].[Name]
+    SELECT [o0].[Id], [o0].[Discriminator], [o0].[Name], [o0].[LeafBAddress_LeafBType], [o0].[LeafBAddress_PlaceType]
     FROM [OwnedPerson] AS [o0]
     WHERE [o0].[Discriminator] = N'LeafB'
 ) AS [t]
@@ -556,7 +556,15 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
         {
             await base.Where_collection_navigation_ToArray_Length_member(async);
 
-            AssertSql(" ");
+            AssertSql(
+                @"SELECT [o].[Id], [o0].[ClientId], [o0].[Id], [o0].[OrderDate]
+FROM [OwnedPerson] AS [o]
+LEFT JOIN [Order] AS [o0] ON ([o].[Id] = [o0].[ClientId]) AND ([o].[Id] = [o0].[ClientId])
+WHERE (
+    SELECT COUNT(*)
+    FROM [Order] AS [o1]
+    WHERE [o].[Id] = [o1].[ClientId]) = 0
+ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
         }
 
         public override async Task Can_query_on_indexer_properties(bool async)

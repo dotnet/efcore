@@ -1904,7 +1904,15 @@ ORDER BY [c].[CustomerID], [o].[OrderID]");
         {
             await base.Where_Queryable_ToArray_Length_member(async);
 
-            AssertSql(" ");
+            AssertSql(
+                @"SELECT [c].[CustomerID], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o0]
+    WHERE [o0].[CustomerID] = [c].[CustomerID]) = 0
+ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
         public override async Task Where_collection_navigation_ToList_Count(bool async)
@@ -2012,7 +2020,15 @@ ORDER BY [o].[OrderID], [o0].[OrderID], [o0].[ProductID]");
         {
             await base.Where_collection_navigation_ToArray_Length_member(async);
 
-            AssertSql(" ");
+            AssertSql(
+                @"SELECT [o].[OrderID], [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Orders] AS [o]
+LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+WHERE ([o].[OrderID] < 10300) AND ((
+    SELECT COUNT(*)
+    FROM [Order Details] AS [o1]
+    WHERE [o].[OrderID] = [o1].[OrderID]) = 0)
+ORDER BY [o].[OrderID], [o0].[OrderID], [o0].[ProductID]");
         }
 
         private void AssertSql(params string[] expected)

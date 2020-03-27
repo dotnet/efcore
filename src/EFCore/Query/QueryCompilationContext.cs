@@ -16,6 +16,26 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class QueryCompilationContext
     {
+        /// <summary>
+        ///     <para>
+        ///         Prefix for all the query parameters generated during parameter extraction in query pipeline.
+        ///     </para>
+        ///     <para>
+        ///         This property is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        public const string QueryParameterPrefix = "__";
+
+        /// <summary>
+        ///     <para>
+        ///         ParameterExpression representing <see cref="QueryContext"/> parameter in query expression.
+        ///     </para>
+        ///     <para>
+        ///         This property is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
         public static readonly ParameterExpression QueryContextParameter = Expression.Parameter(typeof(QueryContext), "queryContext");
 
         private readonly IQueryTranslationPreprocessorFactory _queryTranslationPreprocessorFactory;
@@ -23,11 +43,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly IQueryTranslationPostprocessorFactory _queryTranslationPostprocessorFactory;
         private readonly IShapedQueryCompilingExpressionVisitorFactory _shapedQueryCompilingExpressionVisitorFactory;
 
-        /// <summary>
-        ///     A dictionary mapping parameter names to lambdas that, given a QueryContext, can extract that parameter's value.
-        ///     This is needed for cases where we need to introduce a parameter during the compilation phase (e.g. entity equality rewrites
-        ///     a parameter to an ID property on that parameter).
-        /// </summary>
         private Dictionary<string, LambdaExpression> _runtimeParameters;
 
         public QueryCompilationContext(

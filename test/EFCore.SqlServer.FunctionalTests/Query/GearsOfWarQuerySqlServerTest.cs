@@ -948,7 +948,7 @@ CROSS JOIN [Gears] AS [g0]");
 
             AssertSql(
                 @"SELECT [g0].[Nickname], CASE
-    WHEN [g0].[Nickname] IS NOT NULL THEN CASE
+    WHEN [g0].[Nickname] IS NOT NULL AND [g0].[SquadId] IS NOT NULL THEN CASE
         WHEN [g0].[LeaderNickname] IS NOT NULL THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
@@ -965,7 +965,7 @@ ORDER BY [g0].[Nickname]");
 
             AssertSql(
                 @"SELECT CASE
-    WHEN [g0].[Nickname] IS NOT NULL THEN CAST(1 AS bit)
+    WHEN [g0].[Nickname] IS NOT NULL AND [g0].[SquadId] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END, [g0].[Nickname]
 FROM [Gears] AS [g]
@@ -979,7 +979,7 @@ ORDER BY [g0].[Nickname]");
 
             AssertSql(
                 @"SELECT CASE
-    WHEN [g0].[Nickname] IS NOT NULL THEN CAST(1 AS bit)
+    WHEN [g0].[Nickname] IS NOT NULL AND [g0].[SquadId] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END, [g0].[Nickname]
 FROM [Gears] AS [g]
@@ -1190,7 +1190,7 @@ WHERE (([g].[Nickname] = [g0].[Nickname]) OR ([g].[Nickname] IS NULL AND [g0].[N
                 @"SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note]
 FROM [Tags] AS [t]
 LEFT JOIN [Gears] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])
-WHERE [g].[Nickname] IS NULL");
+WHERE [g].[Nickname] IS NULL OR [g].[SquadId] IS NULL");
         }
 
         public override async Task Select_Where_Navigation_Null_Reverse(bool async)
@@ -1201,7 +1201,7 @@ WHERE [g].[Nickname] IS NULL");
                 @"SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note]
 FROM [Tags] AS [t]
 LEFT JOIN [Gears] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])
-WHERE [g].[Nickname] IS NULL");
+WHERE [g].[Nickname] IS NULL OR [g].[SquadId] IS NULL");
         }
 
         public override async Task Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected(bool async)
@@ -3476,7 +3476,7 @@ ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId], [t].[Id],
 
             AssertSql(
                 @"SELECT CASE
-    WHEN [g].[Nickname] IS NOT NULL THEN [g].[HasSoulPatch]
+    WHEN [g].[Nickname] IS NOT NULL AND [g].[SquadId] IS NOT NULL THEN [g].[HasSoulPatch]
     ELSE CAST(0 AS bit)
 END AS [Prop]
 FROM [Tags] AS [t]
@@ -5892,7 +5892,7 @@ LEFT JOIN [Gears] AS [g0] ON [g].[LeaderNickname] = [g0].[Nickname]");
 
             AssertSql(
                 @"SELECT CASE
-    WHEN [g0].[Nickname] IS NULL THEN CAST(1 AS bit)
+    WHEN [g0].[Nickname] IS NULL OR [g0].[SquadId] IS NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END, [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
 FROM [Gears] AS [g]
@@ -6123,7 +6123,7 @@ ORDER BY [t].[Note]");
 
             AssertSql(
                 @"SELECT CASE
-    WHEN [g].[Nickname] IS NOT NULL THEN CAST(1 AS bit)
+    WHEN [g].[Nickname] IS NOT NULL AND [g].[SquadId] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END, [t].[Id], [t0].[Nickname], [t0].[Id]
 FROM [Tags] AS [t]

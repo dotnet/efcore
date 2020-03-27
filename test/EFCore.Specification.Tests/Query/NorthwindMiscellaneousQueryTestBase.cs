@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -12,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 
 #pragma warning disable RCS1202 // Avoid NullReferenceException.
@@ -488,6 +490,29 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<OrderDetail>().OrderByDescending(o => o),
                 entryCount: 2155,
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Entity_equality_orderby_subquery(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().OrderBy(c => c.Orders.FirstOrDefault()),
+                ss => ss.Set<Customer>().OrderBy(c => c.Orders.FirstOrDefault() == null ? (int?)null : c.Orders.FirstOrDefault().OrderID),
+                entryCount: 91,
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Entity_equality_orderby_descending_subquery_composite_key(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().OrderByDescending(o => o.OrderDetails.FirstOrDefault()),
+                entryCount: 830,
                 assertOrder: true);
         }
 
@@ -5327,7 +5352,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected internal uint ClientEvalSelector(Order order) => order.EmployeeID % 10 ?? 0;
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#20445")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_navigation_equal_to_null_for_subquery(bool async)
         {
@@ -5349,7 +5374,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 2);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#20445")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_navigation_equality_rewrite_for_subquery(bool async)
         {
@@ -5762,6 +5787,31 @@ namespace Microsoft.EntityFrameworkCore.Query
                     detail => (short?)detail.Quantity
                 );
             }
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Entity_equality_with_null_coalesce_client_side(bool async)
+        {
+            var a = new Customer { CustomerID = "ALFKI" };
+            var b = a;
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c == (a ?? b)),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Entity_equality_contains_with_list_of_null(bool async)
+        {
+            var customers = new List<Customer> { null, new Customer { CustomerID = "ALFKI" } };
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => customers.Contains(c)),
+                entryCount: 1);
         }
     }
 }
