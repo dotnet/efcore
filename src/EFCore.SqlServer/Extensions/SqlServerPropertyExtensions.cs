@@ -235,10 +235,7 @@ namespace Microsoft.EntityFrameworkCore
             var sharedTablePrincipalPrimaryKeyProperty = property.FindSharedRootPrimaryKeyProperty();
             if (sharedTablePrincipalPrimaryKeyProperty != null)
             {
-                return sharedTablePrincipalPrimaryKeyProperty.GetValueGenerationStrategy()
-                    == SqlServerValueGenerationStrategy.IdentityColumn
-                        ? SqlServerValueGenerationStrategy.IdentityColumn
-                        : SqlServerValueGenerationStrategy.None;
+                return sharedTablePrincipalPrimaryKeyProperty.GetValueGenerationStrategy();
             }
 
             if (property.ValueGenerated != ValueGenerated.OnAdd
