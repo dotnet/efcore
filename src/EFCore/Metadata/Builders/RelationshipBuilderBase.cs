@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// <summary>
     ///     Base class used for configuring a relationship.
     /// </summary>
-    public abstract class RelationshipBuilderBase : IInfrastructure<InternalRelationshipBuilder>
+    public abstract class RelationshipBuilderBase : IInfrastructure<InternalForeignKeyBuilder>
     {
         private readonly IReadOnlyList<Property> _foreignKeyProperties;
         private readonly IReadOnlyList<Property> _principalKeyProperties;
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected RelationshipBuilderBase(
-            [NotNull] InternalRelationshipBuilder builder,
+            [NotNull] InternalForeignKeyBuilder builder,
             [CanBeNull] RelationshipBuilderBase oldBuilder,
             bool foreignKeySet = false,
             bool principalKeySet = false,
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalRelationshipBuilder Builder { get; [param: NotNull] set; }
+        protected virtual InternalForeignKeyBuilder Builder { get; [param: NotNull] set; }
 
         /// <summary>
         ///     The foreign key that represents this relationship.
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Gets the internal builder being used to configure this relationship.
         /// </summary>
-        InternalRelationshipBuilder IInfrastructure<InternalRelationshipBuilder>.Instance => Builder;
+        InternalForeignKeyBuilder IInfrastructure<InternalForeignKeyBuilder>.Instance => Builder;
 
         #region Hidden System.Object members
 

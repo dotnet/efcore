@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected ReferenceReferenceBuilder(
-            [NotNull] InternalRelationshipBuilder builder,
+            [NotNull] InternalForeignKeyBuilder builder,
             [CanBeNull] ReferenceReferenceBuilder oldBuilder,
             bool inverted = false,
             bool foreignKeySet = false,

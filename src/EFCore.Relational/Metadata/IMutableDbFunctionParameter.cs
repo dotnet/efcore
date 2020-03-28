@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a mutable database function parameter in an <see cref="IMutableDbFunction" />.
+    ///     Represents a <see cref="IMutableDbFunction" /> parameter.
     /// </summary>
     public interface IMutableDbFunctionParameter : IMutableAnnotatable, IDbFunctionParameter
     {
@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IMutableDbFunction Function { get; }
 
         /// <summary>
-        ///     Gets or sets the store (database) type of this parameter.
+        ///     Gets or sets the store type of this parameter.
         /// </summary>
         new string StoreType { get; [param: CanBeNull] set; }
 

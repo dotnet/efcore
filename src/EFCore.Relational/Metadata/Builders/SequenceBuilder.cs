@@ -1,10 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -40,9 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     The sequence.
         /// </summary>
-#pragma warning disable EF1001 // Internal EF Core API usage.
         public virtual IMutableSequence Metadata => Builder.Metadata;
-#pragma warning restore EF1001 // Internal EF Core API usage.
 
         /// <summary>
         ///     Sets the <see cref="ISequence" /> to increment by the given amount when generating each next value.

@@ -43,9 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     The function being configured.
         /// </summary>
-#pragma warning disable EF1001 // Internal EF Core API usage.
         public virtual IMutableDbFunction Metadata => Builder.Metadata;
-#pragma warning restore EF1001 // Internal EF Core API usage.
 
         /// <summary>
         ///     Sets the name of the database function.
@@ -110,9 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="name"> The parameter name. </param>
         /// <returns> The builder to use for further parameter configuration. </returns>
         public virtual DbFunctionParameterBuilder HasParameter([NotNull] string name)
-#pragma warning disable EF1001 // Internal EF Core API usage.
             => new DbFunctionParameterBuilder(Builder.HasParameter(name, ConfigurationSource.Explicit).Metadata);
-#pragma warning restore EF1001 // Internal EF Core API usage.
 
         #region Hidden System.Object members
 

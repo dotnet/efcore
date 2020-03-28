@@ -1099,7 +1099,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return modelBuilder;
         }
 
-        private InternalRelationshipBuilder RunConvention(InternalRelationshipBuilder relationshipBuilder)
+        private InternalForeignKeyBuilder RunConvention(InternalForeignKeyBuilder relationshipBuilder)
         {
             var convention = CreateForeignKeyPropertyDiscoveryConvention();
             var context = new ConventionContext<IConventionForeignKeyBuilder>(
@@ -1107,7 +1107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             convention.ProcessForeignKeyAdded(relationshipBuilder, context);
             if (context.ShouldStopProcessing())
             {
-                return (InternalRelationshipBuilder)context.Result;
+                return (InternalForeignKeyBuilder)context.Result;
             }
 
             return relationshipBuilder;

@@ -88,6 +88,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] IMutableModel model,
             ConfigurationSource configurationSource)
         {
+            Check.NotEmpty(name, nameof(name));
+
             if (returnType == null
                 || returnType == typeof(void))
             {
@@ -106,9 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ReturnType = returnType;
             Model = model;
             _configurationSource = configurationSource;
-#pragma warning disable EF1001 // Internal EF Core API usage.
-            Builder = new InternalDbFunctionBuilder(this, ((Model)model).Builder.ModelBuilder);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+            Builder = new InternalDbFunctionBuilder(this, ((IConventionModel)model).Builder);
             _parameters = parameters == null
                 ? new List<DbFunctionParameter>()
                 : parameters

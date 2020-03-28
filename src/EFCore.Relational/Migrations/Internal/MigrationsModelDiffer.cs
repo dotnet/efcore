@@ -912,9 +912,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 return entityType.DefiningNavigationName;
             }
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
-            var primaryKey = entityType.FindDeclaredPrimaryKey();
-#pragma warning restore EF1001 // Internal EF Core API usage.
+            var primaryKey = entityType.BaseType == null ? entityType.FindPrimaryKey() : null;
             if (primaryKey != null)
             {
                 var definingForeignKey = entityType
@@ -1842,9 +1840,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                             var sourceValue = sourceEntry.GetCurrentValue(sourceProperty);
                             var targetValue = entry.GetCurrentValue(targetProperty);
-                            var comparer = targetProperty.GetValueComparer(fallback: false)
-                                ?? sourceProperty.GetValueComparer(fallback: false)
-                                ?? targetProperty.FindTypeMapping()?.Comparer ?? sourceProperty.FindTypeMapping()?.Comparer;
+                            var comparer = targetProperty.GetValueComparer()
+                                ?? sourceProperty.GetValueComparer();
 
                             var modelValuesChanged
                                 = sourceProperty.ClrType.UnwrapNullableType() == targetProperty.ClrType.UnwrapNullableType()

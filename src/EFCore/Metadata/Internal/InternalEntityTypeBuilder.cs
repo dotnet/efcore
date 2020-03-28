@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class InternalEntityTypeBuilder : InternalModelItemBuilder<EntityType>, IConventionEntityTypeBuilder
+    public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, InternalModelBuilder>, IConventionEntityTypeBuilder
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2297,7 +2297,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalRelationshipBuilder HasRelationship(
+        public virtual InternalForeignKeyBuilder HasRelationship(
             [NotNull] string principalEntityTypeName,
             [NotNull] IReadOnlyList<string> propertyNames,
             ConfigurationSource configurationSource)
@@ -2323,7 +2323,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalRelationshipBuilder HasRelationship(
+        public virtual InternalForeignKeyBuilder HasRelationship(
             [NotNull] string principalEntityTypeName,
             [NotNull] IReadOnlyList<string> propertyNames,
             [NotNull] Key principalKey,
@@ -2348,7 +2348,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalRelationshipBuilder HasRelationship(
+        public virtual InternalForeignKeyBuilder HasRelationship(
             [NotNull] Type principalClrType,
             [NotNull] IReadOnlyList<MemberInfo> clrMembers,
             ConfigurationSource configurationSource)
@@ -2372,7 +2372,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalRelationshipBuilder HasRelationship(
+        public virtual InternalForeignKeyBuilder HasRelationship(
             [NotNull] Type principalClrType,
             [NotNull] IReadOnlyList<MemberInfo> clrMembers,
             [NotNull] Key principalKey,
@@ -2397,7 +2397,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalRelationshipBuilder HasRelationship(
+        public virtual InternalForeignKeyBuilder HasRelationship(
             [NotNull] EntityType principalEntityType,
             [NotNull] IReadOnlyList<Property> dependentProperties,
             ConfigurationSource configurationSource)
@@ -2413,7 +2413,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalRelationshipBuilder HasRelationship(
+        public virtual InternalForeignKeyBuilder HasRelationship(
             [NotNull] EntityType principalEntityType,
             [NotNull] IReadOnlyList<Property> dependentProperties,
             [CanBeNull] Key principalKey,
@@ -2424,7 +2424,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 principalKey,
                 configurationSource);
 
-        private InternalRelationshipBuilder HasForeignKey(
+        private InternalForeignKeyBuilder HasForeignKey(
             EntityType principalEntityType,
             IReadOnlyList<Property> dependentProperties,
             Key principalKey,
@@ -2455,7 +2455,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalRelationshipBuilder HasRelationship(
+        public virtual InternalForeignKeyBuilder HasRelationship(
             [NotNull] EntityType targetEntityType,
             [CanBeNull] string navigationName,
             ConfigurationSource configurationSource,
@@ -2473,7 +2473,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalRelationshipBuilder HasRelationship(
+        public virtual InternalForeignKeyBuilder HasRelationship(
             [NotNull] EntityType targetEntityType,
             [CanBeNull] MemberInfo navigationProperty,
             ConfigurationSource configurationSource,
@@ -2491,7 +2491,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalRelationshipBuilder HasRelationship(
+        public virtual InternalForeignKeyBuilder HasRelationship(
             [NotNull] EntityType targetEntityType,
             [CanBeNull] string navigationToTargetName,
             [CanBeNull] string inverseNavigationName,
@@ -2510,7 +2510,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalRelationshipBuilder HasRelationship(
+        public virtual InternalForeignKeyBuilder HasRelationship(
             [NotNull] EntityType targetEntityType,
             [CanBeNull] MemberInfo navigationToTarget,
             [CanBeNull] MemberInfo inverseNavigation,
@@ -2523,7 +2523,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 setTargetAsPrincipal ? true : (bool?)null,
                 configurationSource);
 
-        private InternalRelationshipBuilder HasRelationship(
+        private InternalForeignKeyBuilder HasRelationship(
             EntityType targetEntityType,
             MemberIdentity? navigationToTarget,
             MemberIdentity? inverseNavigation,
@@ -2550,7 +2550,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     Metadata, null, navigationToTarget, !targetIsPrincipal, configurationSource, required);
             }
 
-            var existingRelationship = InternalRelationshipBuilder.FindCurrentRelationshipBuilder(
+            var existingRelationship = InternalForeignKeyBuilder.FindCurrentForeignKeyBuilder(
                 targetEntityType,
                 Metadata,
                 navigationToTarget,
@@ -2629,7 +2629,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                existingRelationship = InternalRelationshipBuilder.FindCurrentRelationshipBuilder(
+                existingRelationship = InternalForeignKeyBuilder.FindCurrentForeignKeyBuilder(
                     Metadata,
                     targetEntityType,
                     inverseNavigation,
@@ -2673,8 +2673,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            InternalRelationshipBuilder relationship;
-            InternalRelationshipBuilder newRelationship = null;
+            InternalForeignKeyBuilder relationship;
+            InternalForeignKeyBuilder newRelationship = null;
             using (var batcher = Metadata.Model.ConventionDispatcher.DelayConventions())
             {
                 if (existingRelationship != null)
@@ -2795,7 +2795,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalRelationshipBuilder HasRelationship(
+        public virtual InternalForeignKeyBuilder HasRelationship(
             [NotNull] EntityType principalEntityType,
             ConfigurationSource configurationSource)
             => HasRelationshipInternal(principalEntityType, principalKey: null, configurationSource: configurationSource);
@@ -2806,19 +2806,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalRelationshipBuilder HasRelationship(
+        public virtual InternalForeignKeyBuilder HasRelationship(
             [NotNull] EntityType principalEntityType,
             [NotNull] Key principalKey,
             ConfigurationSource configurationSource)
             => HasRelationshipInternal(principalEntityType, principalKey, configurationSource);
 
-        private InternalRelationshipBuilder HasRelationshipInternal(
+        private InternalForeignKeyBuilder HasRelationshipInternal(
             EntityType targetEntityType,
             Key principalKey,
             ConfigurationSource configurationSource)
         {
-            InternalRelationshipBuilder relationship;
-            InternalRelationshipBuilder newRelationship;
+            InternalForeignKeyBuilder relationship;
+            InternalForeignKeyBuilder newRelationship;
             using (var batch = Metadata.Model.ConventionDispatcher.DelayConventions())
             {
                 relationship = CreateForeignKey(
@@ -2858,7 +2858,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalRelationshipBuilder HasOwnership(
+        public virtual InternalForeignKeyBuilder HasOwnership(
             [NotNull] string targetEntityTypeName,
             [NotNull] string navigationName,
             ConfigurationSource configurationSource)
@@ -2872,7 +2872,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalRelationshipBuilder HasOwnership(
+        public virtual InternalForeignKeyBuilder HasOwnership(
             [NotNull] Type targetEntityType,
             [NotNull] string navigationName,
             ConfigurationSource configurationSource)
@@ -2886,7 +2886,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalRelationshipBuilder HasOwnership(
+        public virtual InternalForeignKeyBuilder HasOwnership(
             [NotNull] Type targetEntityType,
             [NotNull] MemberInfo navigationProperty,
             ConfigurationSource configurationSource)
@@ -2900,7 +2900,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalRelationshipBuilder HasOwnership(
+        public virtual InternalForeignKeyBuilder HasOwnership(
             [NotNull] Type targetEntityType,
             [NotNull] string navigationPropertyName,
             [CanBeNull] string inversePropertyName,
@@ -2917,7 +2917,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalRelationshipBuilder HasOwnership(
+        public virtual InternalForeignKeyBuilder HasOwnership(
             [NotNull] Type targetEntityType,
             [NotNull] MemberInfo navigationProperty,
             [CanBeNull] MemberInfo inverseProperty,
@@ -2928,14 +2928,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 MemberIdentity.Create(inverseProperty),
                 configurationSource);
 
-        private InternalRelationshipBuilder HasOwnership(
+        private InternalForeignKeyBuilder HasOwnership(
             in TypeIdentity targetEntityType,
             MemberIdentity navigation,
             MemberIdentity? inverse,
             ConfigurationSource configurationSource)
         {
             InternalEntityTypeBuilder ownedEntityType;
-            InternalRelationshipBuilder relationship;
+            InternalForeignKeyBuilder relationship;
             using (var batch = Metadata.Model.ConventionDispatcher.DelayConventions())
             {
                 var existingNavigation = Metadata.FindNavigation(navigation.Name);
@@ -3241,7 +3241,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalRelationshipBuilder CreateForeignKey(
+        public virtual InternalForeignKeyBuilder CreateForeignKey(
             [NotNull] InternalEntityTypeBuilder principalEntityTypeBuilder,
             [CanBeNull] IReadOnlyList<Property> dependentProperties,
             [CanBeNull] Key principalKey,
@@ -3259,7 +3259,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 foreignKey.SetIsRequired(required.Value, configurationSource);
             }
 
-            return (InternalRelationshipBuilder)batch.Run(foreignKey)?.Builder;
+            return (InternalForeignKeyBuilder)batch.Run(foreignKey)?.Builder;
         }
 
         /// <summary>
@@ -3268,7 +3268,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalRelationshipBuilder UpdateForeignKey(
+        public virtual InternalForeignKeyBuilder UpdateForeignKey(
             [NotNull] ForeignKey foreignKey,
             [CanBeNull] IReadOnlyList<Property> dependentProperties,
             [CanBeNull] Key principalKey,
@@ -3281,7 +3281,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 foreignKey, foreignKey.PrincipalEntityType.Builder,
                 dependentProperties, principalKey, navigationToPrincipalName, isRequired, configurationSource);
 
-            return (InternalRelationshipBuilder)batch.Run(foreignKey)?.Builder;
+            return (InternalForeignKeyBuilder)batch.Run(foreignKey)?.Builder;
         }
 
         private ForeignKey SetOrAddForeignKey(

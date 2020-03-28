@@ -807,7 +807,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 .ProcessEntityTypeAdded(entityTypeBuilder, context);
         }
 
-        private InternalRelationshipBuilder RunConvention(InternalRelationshipBuilder relationshipBuilder)
+        private InternalForeignKeyBuilder RunConvention(InternalForeignKeyBuilder relationshipBuilder)
         {
             var dependencies = CreateDependencies(CreateLogger());
             var context = new ConventionContext<IConventionForeignKeyBuilder>(
@@ -816,10 +816,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             new ForeignKeyAttributeConvention(dependencies)
                 .ProcessForeignKeyAdded(relationshipBuilder, context);
 
-            return context.ShouldStopProcessing() ? (InternalRelationshipBuilder)context.Result : relationshipBuilder;
+            return context.ShouldStopProcessing() ? (InternalForeignKeyBuilder)context.Result : relationshipBuilder;
         }
 
-        private void RunConvention(InternalRelationshipBuilder relationshipBuilder, Navigation navigation)
+        private void RunConvention(InternalForeignKeyBuilder relationshipBuilder, Navigation navigation)
         {
             var dependencies = CreateDependencies(CreateLogger());
             var context = new ConventionContext<IConventionNavigationBuilder>(

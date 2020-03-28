@@ -6,7 +6,6 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
@@ -48,9 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     The function parameter metadata that is being built.
         /// </summary>
-#pragma warning disable EF1001 // Internal EF Core API usage.
         public virtual IMutableDbFunctionParameter Metadata => Builder.Metadata;
-#pragma warning restore EF1001 // Internal EF Core API usage.
 
         /// <summary>
         ///     Sets the store type of the function parameter in the database.

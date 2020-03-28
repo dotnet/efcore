@@ -43,9 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Name = name;
             Function = function;
             ClrType = clrType;
-#pragma warning disable EF1001 // Internal EF Core API usage.
             Builder = new InternalDbFunctionParameterBuilder(this, function.Builder.ModelBuilder);
-#pragma warning restore EF1001 // Internal EF Core API usage.
         }
 
         /// <summary>

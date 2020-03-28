@@ -25,12 +25,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     public abstract class ConventionAnnotatable : Annotatable, IConventionAnnotatable
     {
         /// <summary>
-        ///     Gets all convention annotations on the current object.
+        ///     Gets all annotations on the current object.
         /// </summary>
         public new virtual IEnumerable<ConventionAnnotation> GetAnnotations() => base.GetAnnotations().Cast<ConventionAnnotation>();
 
         /// <summary>
-        ///     Adds a convention annotation with given key and value to this object using given configuration source.
+        ///     Adds a annotation with given key and value to this object using given configuration source.
         ///     Throws if an annotation with the specified name already exists.
         /// </summary>
         /// <param name="name"> The key of the annotation to be added. </param>
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => (ConventionAnnotation)base.AddAnnotation(name, CreateAnnotation(name, value, configurationSource));
 
         /// <summary>
-        ///     Sets the convention annotation with given key and value to this object using given configuration source.
+        ///     Sets the annotation with given key and value on this object using given configuration source.
         ///     Overwrites the existing annotation if an annotation with the specified name already exists.
         /// </summary>
         /// <param name="name"> The key of the annotation to be added. </param>
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => (Annotation)OnAnnotationSet(name, (IConventionAnnotation)annotation, (IConventionAnnotation)oldAnnotation);
 
         /// <summary>
-        ///     Runs the corresponding conventions when an annotation was set or removed.
+        ///     Called when an annotation was set or removed.
         /// </summary>
         /// <param name="name"> The key of the set annotation. </param>
         /// <param name="annotation"> The annotation set. </param>

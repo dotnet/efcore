@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a database function parameter in an <see cref="IDbFunction" />.
+    ///     Represents a <see cref="IDbFunction" /> parameter.
     /// </summary>
     public interface IDbFunctionParameter : IAnnotatable
     {

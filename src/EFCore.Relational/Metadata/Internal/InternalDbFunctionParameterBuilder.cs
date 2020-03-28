@@ -18,9 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-#pragma warning disable EF1001 // Internal EF Core API usage.
-    public class InternalDbFunctionParameterBuilder : InternalModelItemBuilder<DbFunctionParameter>, IConventionDbFunctionParameterBuilder
-#pragma warning restore EF1001 // Internal EF Core API usage.
+    public class InternalDbFunctionParameterBuilder : AnnotatableBuilder<DbFunctionParameter, IConventionModelBuilder>, IConventionDbFunctionParameterBuilder
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -29,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public InternalDbFunctionParameterBuilder([NotNull] DbFunctionParameter parameter, [NotNull] InternalModelBuilder modelBuilder)
+        public InternalDbFunctionParameterBuilder([NotNull] DbFunctionParameter parameter, [NotNull] IConventionModelBuilder modelBuilder)
             : base(parameter, modelBuilder)
         {
         }

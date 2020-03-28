@@ -4,9 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -20,9 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-#pragma warning disable EF1001 // Internal EF Core API usage.
-    public class InternalDbFunctionBuilder : InternalModelItemBuilder<DbFunction>, IConventionDbFunctionBuilder
-#pragma warning restore EF1001 // Internal EF Core API usage.
+    public class InternalDbFunctionBuilder : AnnotatableBuilder<DbFunction, IConventionModelBuilder>, IConventionDbFunctionBuilder
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -30,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public InternalDbFunctionBuilder([NotNull] DbFunction function, [NotNull] InternalModelBuilder modelBuilder)
+        public InternalDbFunctionBuilder([NotNull] DbFunction function, [NotNull] IConventionModelBuilder modelBuilder)
             : base(function, modelBuilder)
         {
         }

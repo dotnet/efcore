@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual new InternalSkipNavigationBuilder HasField([CanBeNull] string fieldName, ConfigurationSource configurationSource)
+        public new virtual InternalSkipNavigationBuilder HasField([CanBeNull] string fieldName, ConfigurationSource configurationSource)
             => (InternalSkipNavigationBuilder)base.HasField(fieldName, configurationSource);
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual new InternalSkipNavigationBuilder UsePropertyAccessMode(
+        public new virtual InternalSkipNavigationBuilder UsePropertyAccessMode(
             PropertyAccessMode? propertyAccessMode, ConfigurationSource configurationSource)
             => (InternalSkipNavigationBuilder)base.UsePropertyAccessMode(propertyAccessMode, configurationSource);
 
@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var foreignKey = Metadata.ForeignKey;
                 if (foreignKey.Builder == null)
                 {
-                    foreignKey = InternalRelationshipBuilder.FindCurrentRelationshipBuilder(
+                    foreignKey = InternalForeignKeyBuilder.FindCurrentForeignKeyBuilder(
                         foreignKey.PrincipalEntityType,
                         foreignKey.DeclaringEntityType,
                         foreignKey.DependentToPrincipal?.CreateMemberIdentity(),

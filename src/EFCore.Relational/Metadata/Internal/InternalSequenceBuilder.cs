@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
@@ -15,9 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-#pragma warning disable EF1001 // Internal EF Core API usage.
-    public class InternalSequenceBuilder : InternalModelItemBuilder<Sequence>, IConventionSequenceBuilder
-#pragma warning restore EF1001 // Internal EF Core API usage.
+    public class InternalSequenceBuilder : AnnotatableBuilder<Sequence, IConventionModelBuilder>, IConventionSequenceBuilder
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -25,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public InternalSequenceBuilder([NotNull] Sequence sequence, [NotNull] InternalModelBuilder modelBuilder)
+        public InternalSequenceBuilder([NotNull] Sequence sequence, [NotNull] IConventionModelBuilder modelBuilder)
             : base(sequence, modelBuilder)
         {
         }

@@ -2,16 +2,18 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
-    public class InternalMetadataBuilderTest
+    public class AnnotatableBuilderTest
     {
         [ConditionalFact]
         public void Can_only_override_lower_source_annotation()
         {
-            var builder = CreateInternalMetadataBuilder();
+            var builder = CreateAnnotatableBuilder();
             var metadata = builder.Metadata;
 
             Assert.NotNull(builder.HasAnnotation("Foo", "1", ConfigurationSource.Convention));
@@ -26,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [ConditionalFact]
         public void Can_only_override_existing_annotation_explicitly()
         {
-            var builder = CreateInternalMetadataBuilder();
+            var builder = CreateAnnotatableBuilder();
             var metadata = builder.Metadata;
             metadata["Foo"] = "1";
 
@@ -42,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [ConditionalFact]
         public void Annotation_set_explicitly_can_not_be_removed_by_convention()
         {
-            var builder = CreateInternalMetadataBuilder();
+            var builder = CreateAnnotatableBuilder();
             var metadata = builder.Metadata;
             metadata["Foo"] = "1";
 
@@ -54,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(metadata.GetAnnotations().Single().Value);
         }
 
-        private InternalAnnotatableBuilder<Model> CreateInternalMetadataBuilder()
+        private AnnotatableBuilder<Model, InternalModelBuilder> CreateAnnotatableBuilder()
             => new InternalModelBuilder(new Model());
     }
 }
