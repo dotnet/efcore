@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                 }
 
                 var comparer = property.GetKeyValueComparer();
-                if (!comparer.HasDefaultBehavior)
+                if (!comparer.IsDefault())
                 {
                     if (_valueComparers == null)
                     {

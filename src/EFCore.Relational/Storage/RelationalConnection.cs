@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <returns> The connection string. </returns>
         /// <exception cref="InvalidOperationException"> when connection string cannot be obtained. </exception>
-        public virtual string GetCheckedConnectionString()
+        protected virtual string GetValidatedConnectionString()
         {
             var connectionString = ConnectionString;
             if (connectionString == null)
@@ -638,11 +638,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var current = Transaction.Current;
 
-            if (current == null) 
+            if (current == null)
             {
                 var rootTransaction = _ambientTransactions.Count > 0 && _ambientTransactions.TryPeek(out var transaction) ? transaction : null;
 
-                if (rootTransaction != null) 
+                if (rootTransaction != null)
                 {
                     throw new InvalidOperationException(RelationalStrings.PendingAmbientTransaction);
                 }
