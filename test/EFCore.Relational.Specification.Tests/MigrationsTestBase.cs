@@ -177,14 +177,8 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual Task Create_table_with_multiline_comments()
         {
-            var tableComment = @"This is a multi-line
-table comment.
-More information can
-be found in the docs.";
-            var columnComment = @"This is a multi-line
-column comment.
-More information can
-be found in the docs.";
+            var tableComment = "This is a multi-line\r\ntable comment.\r\nMore information can\r\nbe found in the docs.";
+            var columnComment = "This is a multi-line\ncolumn comment.\nMore information can\nbe found in the docs.";
 
             return Test(
                 builder => { },

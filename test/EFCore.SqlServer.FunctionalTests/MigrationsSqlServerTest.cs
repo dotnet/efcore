@@ -108,7 +108,7 @@ SET @defaultSchema = SCHEMA_NAME();
 DECLARE @description AS sql_variant;
 SET @description = CONCAT(N'This is a multi-line', CHAR(13), CHAR(10), N'table comment.', CHAR(13), CHAR(10), N'More information can', CHAR(13), CHAR(10), N'be found in the docs.');
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'People';
-SET @description = CONCAT(N'This is a multi-line', CHAR(13), CHAR(10), N'column comment.', CHAR(13), CHAR(10), N'More information can', CHAR(13), CHAR(10), N'be found in the docs.');
+SET @description = CONCAT(N'This is a multi-line', CHAR(10), N'column comment.', CHAR(10), N'More information can', CHAR(10), N'be found in the docs.');
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', N'Name';");
         }
 
