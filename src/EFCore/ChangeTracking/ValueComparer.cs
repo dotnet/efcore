@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -185,12 +184,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     If true, then expressions and delegates for comparisons, snapshots, and hash codes correspond to the default
-        ///     .NET behavior for the given type.
-        /// </summary>
-        public virtual bool HasDefaultBehavior => false;
-
-        /// <summary>
         ///     Creates a default <see cref="ValueComparer{T}" /> for the given type.
         /// </summary>
         /// <param name="type"> The type. </param>
@@ -219,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 new object[] { favorStructuralComparisons });
         }
 
-        private sealed class DefaultValueComparer<T> : ValueComparer<T>
+        internal sealed class DefaultValueComparer<T> : ValueComparer<T>
         {
             public DefaultValueComparer(bool favorStructuralComparisons)
                 : base(favorStructuralComparisons)
@@ -237,8 +230,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             public override T Snapshot(T instance)
                 => instance;
-
-            public override bool HasDefaultBehavior => true;
         }
     }
 }

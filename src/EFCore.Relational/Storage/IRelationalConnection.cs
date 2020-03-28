@@ -37,13 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Returns the configured connection string only if it has been set or a valid <see cref="DbConnection" /> exists.
-        /// </summary>
-        /// <returns> The connection string. </returns>
-        /// <exception cref="InvalidOperationException"> when connection string cannot be obtained. </exception>
-        string GetCheckedConnectionString() => ConnectionString;
-
-        /// <summary>
         ///     <para>
         ///         Gets or sets the underlying <see cref="System.Data.Common.DbConnection" /> used to connect to the database.
         ///     </para>
