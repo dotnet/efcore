@@ -8,12 +8,12 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
-    public class BinaryValueGeneratorTest
+    public class TemporaryBinaryValueGeneratorTest
     {
         [ConditionalFact]
         public void Creates_GUID_arrays()
         {
-            var generator = new BinaryValueGenerator();
+            var generator = new TemporaryBinaryValueGenerator();
 
             var values = new HashSet<Guid>();
             for (var i = 0; i < 100; i++)
@@ -27,9 +27,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         }
 
         [ConditionalFact]
-        public void Generates_non_temp_values()
+        public void Generates_temp_values()
         {
-            Assert.False(new BinaryValueGenerator().GeneratesTemporaryValues);
+            Assert.True(new TemporaryBinaryValueGenerator().GeneratesTemporaryValues);
         }
     }
 }
