@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore
             var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
             var generator = selector.Select(entityType.FindProperty("String"), entityType);
-            Assert.IsType<StringValueGenerator>(generator);
+            Assert.IsType<TemporaryStringValueGenerator>(generator);
             Assert.True(generator.GeneratesTemporaryValues);
         }
 
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore
             var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
             var generator = selector.Select(entityType.FindProperty("Binary"), entityType);
-            Assert.IsType<BinaryValueGenerator>(generator);
+            Assert.IsType<TemporaryBinaryValueGenerator>(generator);
             Assert.True(generator.GeneratesTemporaryValues);
         }
 

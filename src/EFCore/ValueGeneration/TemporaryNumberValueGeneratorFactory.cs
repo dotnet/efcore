@@ -4,23 +4,28 @@
 using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 
-namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
+namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     <para>
+    ///         Factory for creation of temporary integer value generators appropriate
+    ///         for the numeric type of the property.
+    ///     </para>
+    ///     <para>
+    ///         Types supported are: <see cref="int" />, <see cref="long" />, <see cref="short" />, <see cref="byte" />,
+    ///         <see cref="char" />, <see cref="ulong" />, <see cref="uint" />, <see cref="ushort" />, <see cref="sbyte" />,
+    ///         <see cref="decimal" />, <see cref="float" />, <see cref="double" />
+    ///     </para>
     /// </summary>
     public class TemporaryNumberValueGeneratorFactory : ValueGeneratorFactory
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new value generator.
         /// </summary>
+        /// <param name="property"> The property to create the value generator for. </param>
+        /// <returns> The newly created value generator. </returns>
         public override ValueGenerator Create(IProperty property)
         {
             var type = property.ClrType.UnwrapNullableType().UnwrapEnumType();
