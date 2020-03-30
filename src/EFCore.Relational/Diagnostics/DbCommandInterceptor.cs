@@ -372,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => Task.FromResult(result);
 
         /// <summary>
-        ///     Called when execution of a command has failed with an exception. />.
+        ///     Called when execution of a command has failed with an exception.
         /// </summary>
         /// <param name="command"> The command. </param>
         /// <param name="eventData"> Contextual information about the command and execution. </param>
@@ -383,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     Called when execution of a command has failed with an exception. />.
+        ///     Called when execution of a command has failed with an exception.
         /// </summary>
         /// <param name="command"> The command. </param>
         /// <param name="eventData"> Contextual information about the command and execution. </param>
@@ -396,7 +396,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => Task.CompletedTask;
 
         /// <summary>
-        ///     Called when execution of a <see cref="DbDataReader" /> is about to be disposed. />.
+        ///     Called when execution of a <see cref="DbDataReader" /> is about to be disposed.
         /// </summary>
         /// <param name="command"> The command. </param>
         /// <param name="eventData"> Contextual information about the command and reader. </param>
