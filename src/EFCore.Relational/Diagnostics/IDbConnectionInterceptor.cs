@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] ConnectionEndEventData eventData);
 
         /// <summary>
-        ///     Called when closing of a connection has failed with an exception. />.
+        ///     Called when closing of a connection has failed with an exception.
         /// </summary>
         /// <param name="connection"> The connection. </param>
         /// <param name="eventData"> Contextual information about the connection. </param>
@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] ConnectionErrorEventData eventData);
 
         /// <summary>
-        ///     Called when closing of a connection has failed with an exception. />.
+        ///     Called when closing of a connection has failed with an exception.
         /// </summary>
         /// <param name="connection"> The connection. </param>
         /// <param name="eventData"> Contextual information about the connection. </param>
