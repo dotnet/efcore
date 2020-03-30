@@ -164,6 +164,11 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);
         }
 
+        public override void Object_to_string_conversion()
+        {
+            // Return values are not string
+        }
+
         public class ConvertToProviderTypesSqlServerFixture : ConvertToProviderTypesFixtureBase
         {
             public override bool StrictEquality => true;

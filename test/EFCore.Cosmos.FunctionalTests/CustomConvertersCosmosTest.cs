@@ -171,6 +171,14 @@ FROM root c
 WHERE (c[""Discriminator""] IN (""Blog"", ""RssBlog"") AND NOT((c[""IndexerVisible""] = ""Aye"")))");
         }
 
+        [ConditionalFact(Skip = "Issue #20543")]
+        public override void Object_to_string_conversion()
+        {
+            base.Object_to_string_conversion();
+
+            AssertSql(@" ");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

@@ -255,6 +255,11 @@ FROM [Blog] AS [b]
 WHERE [b].[IndexerVisible] <> N'Aye'");
         }
 
+        public override void Object_to_string_conversion()
+        {
+            // Return values are not string
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
