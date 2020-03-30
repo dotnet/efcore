@@ -27,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore
     public static class RelationalDatabaseFacadeExtensions
     {
         /// <summary>
-        ///     <para>Migrates the database to either a specified target migration or up to the latest pending
-        ///         Migrates the database to either a specified target migration or up to the latest pending migration.
+        ///     <para>
+        ///         Migrates the database to either a specific target migration or up to the latest pending.
         ///         Will create the database if it does not already exist.
         ///     </para>
         ///     <para>
