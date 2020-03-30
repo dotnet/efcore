@@ -603,7 +603,6 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Throws<InvalidOperationException>(
                     () => context.Set<CollectionEnum>().Where(e => e.Roles.Contains(sameRole)).ToList())
                     .Message.Replace("\r", "").Replace("\n", ""));
-
         }
 
         protected class CollectionEnum
