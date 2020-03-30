@@ -40,7 +40,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="targetMigration">
         ///     The target migration to migrate the database to, or <c>null</c> to migrate to the latest.
         /// </param>
-        public static void Migrate([NotNull] this DatabaseFacade databaseFacade, [CanBeNull] string targetMigration = null)
+        public static void Migrate(
+            [NotNull] this DatabaseFacade databaseFacade,
+            [CanBeNull] string targetMigration = null)
             => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IMigrator>().Migrate(targetMigration);
 
         /// <summary>
