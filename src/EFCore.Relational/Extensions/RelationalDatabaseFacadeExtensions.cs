@@ -27,9 +27,9 @@ namespace Microsoft.EntityFrameworkCore
     public static class RelationalDatabaseFacadeExtensions
     {
         /// <summary>
-        ///     <para>
-        ///         Applies any pending migrations for the context to the database. Will create the database
-        ///         if it does not already exist.
+        ///     <para>Migrates the database to either a specified target migration or up to the latest pending
+        ///         Migrates the database to either a specified target migration or up to the latest pending migration.
+        ///         Will create the database if it does not already exist.
         ///     </para>
         ///     <para>
         ///         Note that this API is mutually exclusive with DbContext.Database.EnsureCreated(). EnsureCreated does not use migrations
@@ -37,8 +37,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
-        public static void Migrate([NotNull] this DatabaseFacade databaseFacade)
-            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IMigrator>().Migrate();
+        /// <param name="targetMigration">
+        ///     The target migration to migrate the database to, or <c>null</c> to migrate to the latest.
+        /// </param>
+        public static void Migrate([NotNull] this DatabaseFacade databaseFacade, [CanBeNull] string targetMigration = null)
+            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IMigrator>().Migrate(targetMigration);
 
         /// <summary>
         ///     Gets all the migrations that are defined in the configured migrations assembly.
