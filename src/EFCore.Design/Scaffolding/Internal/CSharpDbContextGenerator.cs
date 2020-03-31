@@ -7,7 +7,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -29,7 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     public class CSharpDbContextGenerator : ICSharpDbContextGenerator
     {
         private const string EntityLambdaIdentifier = "entity";
-        private const string Language = "CSharp";
 
         private readonly ICSharpHelper _code;
         private readonly IProviderConfigurationCodeGenerator _providerConfigurationCodeGenerator;

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -376,9 +377,42 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="fallback"> If true, then the key comparer is returned when the structural comparer is not set. </param>
         /// <returns> The comparer, or <c>null</c> if none has been set. </returns>
-        [Obsolete("Use GetKeyValueComparer. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
+        [Obsolete(
+            "Use GetKeyValueComparer. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
         public static ValueComparer GetStructuralValueComparer([NotNull] this IProperty property, bool fallback = true)
             => property.GetKeyValueComparer(fallback);
+
+        /// <summary>
+        ///     Creates an <see cref="IEqualityComparer{T}" /> for values of the given property type.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <typeparam name="TProperty"> The property type. </typeparam>
+        /// <returns> A new equality comparer. </returns>
+        public static IEqualityComparer<TProperty> CreateKeyEqualityComparer<TProperty>([NotNull] this IProperty property)
+        {
+            var comparer = property.GetKeyValueComparer();
+
+            return comparer is IEqualityComparer<TProperty> nullableComparer
+                ? nullableComparer
+                : new NullableComparer<TProperty>(comparer);
+        }
+
+        private sealed class NullableComparer<TNullableKey> : IEqualityComparer<TNullableKey>
+        {
+            private readonly IEqualityComparer _comparer;
+
+            public NullableComparer(IEqualityComparer comparer)
+            {
+                _comparer = comparer;
+            }
+
+            public bool Equals(TNullableKey x, TNullableKey y)
+                => (x == null && y == null)
+                    || (x != null && y != null && _comparer.Equals(x, y));
+
+            public int GetHashCode(TNullableKey obj)
+                => _comparer.GetHashCode(obj);
+        }
 
         /// <summary>
         ///     Creates a formatted string representation of the given properties such as is useful

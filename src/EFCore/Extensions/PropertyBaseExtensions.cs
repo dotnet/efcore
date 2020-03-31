@@ -2,11 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -46,6 +48,16 @@ namespace Microsoft.EntityFrameworkCore
 
             throw new InvalidOperationException(errorMessage);
         }
+
+        /// <summary>
+        ///     <para>
+        ///         Gets a <see cref="IComparer{T}" /> for comparing values in tracked <see cref="IUpdateEntry"/> entries.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyBase"> The property. </param>
+        /// <returns> The comparer. </returns>
+        public static IComparer<IUpdateEntry> GetCurrentValueComparer([NotNull] this IPropertyBase propertyBase)
+            => propertyBase.AsPropertyBase().CurrentValueComparer;
 
         /// <summary>
         ///     <para>

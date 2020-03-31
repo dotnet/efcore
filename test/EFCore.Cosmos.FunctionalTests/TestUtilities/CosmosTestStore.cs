@@ -264,6 +264,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             public void SetPropertyModified(IProperty property) => throw new NotImplementedException();
             public void SetStoreGeneratedValue(IProperty property, object value) => throw new NotImplementedException();
             public EntityEntry ToEntityEntry() => throw new NotImplementedException();
+            public object GetRelationshipSnapshotValue(IPropertyBase propertyBase) => throw new NotImplementedException();
+            public object GetPreStoreGeneratedCurrentValue(IPropertyBase propertyBase) => throw new NotImplementedException();
+            public bool IsConceptualNull(IProperty property) => throw new NotImplementedException();
         }
 
         public class FakeEntityType : IEntityType
