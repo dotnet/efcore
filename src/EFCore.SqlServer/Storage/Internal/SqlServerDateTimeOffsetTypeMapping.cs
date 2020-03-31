@@ -16,6 +16,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
     /// </summary>
     public class SqlServerDateTimeOffsetTypeMapping : DateTimeOffsetTypeMapping
     {
+        // Note: this array will be accessed using the precision as an index
+        // so the order of the entries in this array is important
         private readonly string[] _dateTimeOffsetFormats =
         {
             "'{0:yyyy-MM-ddTHH:mm:sszzz}'",

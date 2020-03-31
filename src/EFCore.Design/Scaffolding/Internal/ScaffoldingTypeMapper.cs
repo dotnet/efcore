@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     keyOrIndex,
                     unicode: mapping.IsUnicode,
                     size: mapping.Size,
-                    fixedLength: false,
+                    fixedLength: null,
                     precision: mapping.Precision,
                     scale: mapping.Scale);
 

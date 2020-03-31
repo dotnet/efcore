@@ -21,6 +21,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         private const string SmallDateTimeFormatConst = "'{0:yyyy-MM-ddTHH:mm:ss}'";
         private const string DateTimeFormatConst = "'{0:yyyy-MM-ddTHH:mm:ss.fff}'";
 
+        // Note: this array will be accessed using the precision as an index
+        // so the order of the entries in this array is important
         private readonly string[] _dateTime2Formats =
         {
             "'{0:yyyy-MM-ddTHH:mm:ss}'",

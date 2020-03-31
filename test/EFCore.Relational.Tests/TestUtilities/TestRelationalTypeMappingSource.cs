@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     : null;
         }
 
-        protected override ICollection<string> StoreTypeNameBasesUsingPrecision
-            => new List<string>() { "default_decimal_mapping" };
+        protected override bool StoreTypeNameBaseUsesPrecision(string storeTypeNameBase)
+            => "default_decimal_mapping" == storeTypeNameBase;
     }
 }

@@ -435,7 +435,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         else if (int.TryParse(
                             storeTypeName.Substring(openParen + 1, closeParen - openParen - 1).Trim(), out var parsedSize))
                         {
-                            if (StoreTypeNameBasesUsingPrecision.Contains(storeTypeNameBase))
+                            if (StoreTypeNameBaseUsesPrecision(storeTypeNameBase))
                             {
                                 precision = parsedSize;
                                 scale = 0;
@@ -455,10 +455,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        /// Returns the store type name bases which interpret
+        /// Returns whether the store type name base interprets
         /// nameBase(n) as a precision rather than a length
         /// </summary>
-        protected virtual ICollection<string> StoreTypeNameBasesUsingPrecision
-            => Array.Empty<string>();
+        /// <param name="storeTypeNameBase"> The name base of the store type </param>
+        /// <returns>
+        /// <c>true</c> if the store type name base interprets nameBase(n)
+        /// as a precision rather than a length, <c>false</c> otherwise.
+        /// </returns>
+        protected virtual bool StoreTypeNameBaseUsesPrecision([NotNull] string storeTypeNameBase)
+            => false;
     }
 }
