@@ -6807,10 +6807,10 @@ WHERE DATEPART(millisecond, [m].[Duration]) = 1");
             AssertSql(
                 @"SELECT [l].[Name], [l].[Discriminator], [l].[LocustHordeId], [l].[ThreatLevel], [l].[ThreatLevelByte], [l].[ThreatLevelNullableByte], [l].[DefeatedByNickname], [l].[DefeatedBySquadId], [l].[HighCommandId]
 FROM [LocustLeaders] AS [l]
-WHERE [l].[ThreatLevelByte] IN (
-    SELECT [l0].[ThreatLevelByte]
+WHERE EXISTS (
+    SELECT 1
     FROM [LocustLeaders] AS [l0]
-)");
+    WHERE [l0].[ThreatLevelByte] = [l].[ThreatLevelByte])");
         }
 
         public override async Task Contains_on_collection_of_nullable_byte_subquery(bool async)
@@ -6873,10 +6873,10 @@ FROM [LocustLeaders] AS [l]
 CROSS APPLY (
     SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
     FROM [Gears] AS [g]
-    WHERE [l].[ThreatLevelByte] IN (
-        SELECT [l0].[ThreatLevelByte]
+    WHERE EXISTS (
+        SELECT 1
         FROM [LocustLeaders] AS [l0]
-    )
+        WHERE [l0].[ThreatLevelByte] = [l].[ThreatLevelByte])
 ) AS [t]");
         }
 
@@ -6890,10 +6890,10 @@ FROM [LocustLeaders] AS [l]
 CROSS APPLY (
     SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
     FROM [Gears] AS [g]
-    WHERE [l].[ThreatLevelByte] NOT IN (
-        SELECT [l0].[ThreatLevelByte]
+    WHERE NOT (EXISTS (
+        SELECT 1
         FROM [LocustLeaders] AS [l0]
-    )
+        WHERE [l0].[ThreatLevelByte] = [l].[ThreatLevelByte]))
 ) AS [t]");
         }
 

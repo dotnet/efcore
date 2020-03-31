@@ -1572,14 +1572,14 @@ FROM [Order Details] AS [o]
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT TOP(1) [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+        SELECT TOP(1) [p].[ProductID]
         FROM [Products] AS [p]
         ORDER BY [p].[ProductID]
     ) AS [t]
     WHERE [t].[ProductID] = [o].[ProductID]) OR EXISTS (
     SELECT 1
     FROM (
-        SELECT TOP(1) [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+        SELECT TOP(1) [o0].[OrderID]
         FROM [Orders] AS [o0]
         ORDER BY [o0].[OrderID]
     ) AS [t0]
@@ -1596,14 +1596,14 @@ FROM [Order Details] AS [o]
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT TOP(20) [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+        SELECT TOP(20) [p].[ProductID]
         FROM [Products] AS [p]
         ORDER BY [p].[ProductID]
     ) AS [t]
     WHERE [t].[ProductID] = [o].[ProductID]) AND EXISTS (
     SELECT 1
     FROM (
-        SELECT TOP(10) [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+        SELECT TOP(10) [o0].[OrderID]
         FROM [Orders] AS [o0]
         ORDER BY [o0].[OrderID]
     ) AS [t0]
@@ -1966,7 +1966,17 @@ ORDER BY [o].[OrderID], [o0].[OrderID], [o0].[ProductID]");
         {
             await base.Where_collection_navigation_ToArray_Contains(async);
 
-            AssertSql(" ");
+            AssertSql(
+                @"@__entity_equality_order_0_OrderID='10248' (Nullable = true)
+
+SELECT [c].[CustomerID], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o0]
+    WHERE ([c].[CustomerID] = [o0].[CustomerID]) AND ([o0].[OrderID] = @__entity_equality_order_0_OrderID))
+ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
         public override async Task Where_collection_navigation_AsEnumerable_Count(bool async)

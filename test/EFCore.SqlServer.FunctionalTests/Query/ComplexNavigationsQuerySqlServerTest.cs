@@ -2190,9 +2190,13 @@ INNER JOIN [LevelTwo] AS [l0] ON [l].[Id] = (
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 WHERE EXISTS (
-    SELECT DISTINCT 1
-    FROM [LevelThree] AS [l1]
-    WHERE ([l0].[Id] IS NOT NULL AND ([l0].[Id] = [l1].[OneToMany_Optional_Inverse3Id])) AND ([l1].[Id] = 1))");
+    SELECT 1
+    FROM (
+        SELECT DISTINCT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Optional_Self_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToMany_Required_Self_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id], [l1].[OneToOne_Optional_Self3Id]
+        FROM [LevelThree] AS [l1]
+        WHERE [l0].[Id] IS NOT NULL AND ([l0].[Id] = [l1].[OneToMany_Optional_Inverse3Id])
+    ) AS [t]
+    WHERE [t].[Id] = 1)");
         }
 
         public override async Task Contains_with_subquery_optional_navigation_scalar_distinct_and_constant_item(bool async)

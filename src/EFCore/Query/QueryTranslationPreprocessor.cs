@@ -30,16 +30,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(query, nameof(query));
 
             query = new InvocationExpressionRemovingExpressionVisitor().Visit(query);
-
             query = NormalizeQueryableMethodCall(query);
-
-            query = new VBToCSharpConvertingExpressionVisitor().Visit(query);
-            query = new AllAnyContainsRewritingExpressionVisitor().Visit(query);
             query = new NullCheckRemovingExpressionVisitor().Visit(query);
             query = new SubqueryMemberPushdownExpressionVisitor(QueryCompilationContext.Model).Visit(query);
             query = new NavigationExpandingExpressionVisitor(this, QueryCompilationContext, Dependencies.EvaluatableExpressionFilter)
                 .Expand(query);
-            query = new FunctionPreprocessingExpressionVisitor().Visit(query);
+            query = new QueryOptimizingExpressionVisitor().Visit(query);
 
             return query;
         }

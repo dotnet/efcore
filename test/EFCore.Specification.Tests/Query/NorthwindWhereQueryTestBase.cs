@@ -2176,7 +2176,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertCollection(e, a));
         }
 
-        [ConditionalTheory(Skip = "Issue#19433")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_collection_navigation_ToArray_Contains(bool async)
         {
@@ -2185,7 +2185,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<Customer>()
-                    .Select(c => c.Orders.ToArray())
+                    .Select(c => c.Orders.AsEnumerable().ToArray())
                     .Where(e => e.Contains(order)),
                 entryCount: 5);
         }

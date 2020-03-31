@@ -178,9 +178,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 if (innerQueryable.Type.TryGetElementType(typeof(IQueryable<>)) != null)
                 {
                     return Visit(
-                    Expression.Call(
-                        QueryableMethods.CountWithoutPredicate.MakeGenericMethod(innerQueryable.Type.TryGetSequenceType()),
-                        innerQueryable));
+                        Expression.Call(
+                            QueryableMethods.CountWithoutPredicate.MakeGenericMethod(innerQueryable.Type.TryGetSequenceType()),
+                            innerQueryable));
                 }
             }
 
@@ -528,13 +528,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && (method.GetGenericMethodDefinition() == EnumerableMethods.ToList
                     || method.GetGenericMethodDefinition() == EnumerableMethods.ToArray))
             {
-                var argument = Visit(methodCallExpression.Arguments[0]);
-                if (argument is MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression)
-                {
-                    argument = materializeCollectionNavigationExpression.Subquery;
-                }
-
-                return methodCallExpression.Update(null, new[] { argument });
+                return methodCallExpression.Update(
+                    null, new[] { UnwrapCollectionMaterialization(Visit(methodCallExpression.Arguments[0])) });
             }
 
             return ProcessUnknownMethod(methodCallExpression);
@@ -1584,16 +1579,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private Expression UnwrapCollectionMaterialization(Expression expression)
         {
-            if (expression is MethodCallExpression innerMethodCall
-                && innerMethodCall.Method.IsGenericMethod)
+            while (expression is MethodCallExpression innerMethodCall
+                && innerMethodCall.Method.IsGenericMethod
+                && innerMethodCall.Method.GetGenericMethodDefinition() is MethodInfo innerMethod
+                && (innerMethod == EnumerableMethods.AsEnumerable
+                    || innerMethod == EnumerableMethods.ToList
+                    || innerMethod == EnumerableMethods.ToArray))
             {
-                var innerGenericMethod = innerMethodCall.Method.GetGenericMethodDefinition();
-                if (innerGenericMethod == EnumerableMethods.AsEnumerable
-                    || innerGenericMethod == EnumerableMethods.ToList
-                    || innerGenericMethod == EnumerableMethods.ToArray)
-                {
-                    expression = innerMethodCall.Arguments[0];
-                }
+                expression = innerMethodCall.Arguments[0];
             }
 
             if (expression is MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression)
