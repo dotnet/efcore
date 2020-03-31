@@ -224,6 +224,34 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Gets the precision of data that is allowed in this property.
+        ///     For example, if the property is a <see cref="decimal" />
+        ///     then this is the maximum number of digits.
+        /// </summary>
+        /// <param name="property"> The property to get the precision of. </param>
+        /// <returns> The precision, or <c>null</c> if none if defined. </returns>
+        public static int? GetPrecision([NotNull] this IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            return (int?)property[CoreAnnotationNames.Precision];
+        }
+
+        /// <summary>
+        ///     Gets the scale of data that is allowed in this property.
+        ///     For example, if the property is a <see cref="decimal" />
+        ///     then this is the maximum number of decimal places.
+        /// </summary>
+        /// <param name="property"> The property to get the scale of. </param>
+        /// <returns> The scale, or <c>null</c> if none if defined. </returns>
+        public static int? GetScale([NotNull] this IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            return (int?)property[CoreAnnotationNames.Scale];
+        }
+
+        /// <summary>
         ///     Gets a value indicating whether or not the property can persist Unicode characters.
         /// </summary>
         /// <param name="property"> The property to get the Unicode setting for. </param>

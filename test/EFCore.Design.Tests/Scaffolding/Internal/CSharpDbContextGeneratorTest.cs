@@ -264,6 +264,33 @@ namespace TestNamespace
                 });
         }
 
+        [ConditionalFact]
+        public void HasPrecision_works()
+        {
+            Test(
+                modelBuilder => modelBuilder.Entity(
+                    "Entity",
+                    x =>
+                    {
+                        x.Property<decimal>("HasPrecision").HasPrecision(12);
+                        x.Property<decimal>("HasPrecisionAndScale").HasPrecision(14, 7);
+                    }),
+                new ModelCodeGenerationOptions(),
+                code =>
+                {
+                    Assert.Contains("Property(e => e.HasPrecision).HasPrecision(12)", code.ContextFile.Code);
+                    Assert.Contains("Property(e => e.HasPrecisionAndScale).HasPrecision(14, 7)", code.ContextFile.Code);
+                },
+                model =>
+                {
+                    var entity = model.FindEntityType("TestNamespace.Entity");
+                    Assert.Equal(12, entity.GetProperty("HasPrecision").GetPrecision());
+                    Assert.Equal(0, entity.GetProperty("HasPrecision").GetScale());
+                    Assert.Equal(14, entity.GetProperty("HasPrecisionAndScale").GetPrecision());
+                    Assert.Equal(7, entity.GetProperty("HasPrecisionAndScale").GetScale());
+                });
+        }
+
         private class TestCodeGeneratorPlugin : ProviderCodeGeneratorPlugin
         {
             public override MethodCallCodeFragment GenerateProviderOptions()

@@ -676,15 +676,15 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p12='D' (Nullable = false) (Size = 1)
 @p13='G' (Nullable = false) (Size = 1) (DbType = AnsiString)
 @p14='A' (Nullable = false) (Size = 1) (DbType = AnsiString)
-@p15='2015-01-02T10:11:12' (DbType = Date)
-@p16='2019-01-02T14:11:12' (DbType = DateTime)
-@p17='2017-01-02T12:11:12'
-@p18='2018-01-02T13:11:12' (DbType = DateTime)
-@p19='2016-01-02T11:11:12.0000000+00:00'
-@p20='101.1'
-@p21='102.2'
+@p15='2015-01-02T10:11:12.0000000' (DbType = Date)
+@p16='2019-01-02T14:11:12.0000000' (DbType = DateTime)
+@p17='2017-01-02T12:11:12.1234567'
+@p18='2018-01-02T13:11:12.0000000' (DbType = DateTime)
+@p19='2016-01-02T11:11:12.1234567+00:00'
+@p20='101.1' (Precision = 18) (Scale = 2)
+@p21='102.2' (Precision = 18) (Scale = 2)
 @p22='81.1'
-@p23='103.3'
+@p23='103.3' (Precision = 18) (Scale = 2)
 @p24='82.2'
 @p25='85.5'
 @p26='83.3'
@@ -716,7 +716,7 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p48='4294967295'
 @p49='-1'
 @p50='-1'
-@p51='18446744073709551615'",
+@p51='18446744073709551615' (Precision = 20)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -747,8 +747,8 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             Assert.Equal(84.4f, entity.FloatAsReal);
             Assert.Equal(85.5, entity.DoubleAsDoublePrecision);
             Assert.Equal(new DateTime(2015, 1, 2), entity.DateTimeAsDate);
-            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset);
-            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12), entity.DateTimeAsDatetime2);
+            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12).AddTicks(1234567), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset);
+            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12).AddTicks(1234567), entity.DateTimeAsDatetime2);
             Assert.Equal(new DateTime(2018, 1, 2, 13, 11, 00), entity.DateTimeAsSmalldatetime);
             Assert.Equal(new DateTime(2019, 1, 2, 14, 11, 12), entity.DateTimeAsDatetime);
             Assert.Equal(new TimeSpan(11, 15, 12), entity.TimeSpanAsTime);
@@ -804,8 +804,8 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
                 FloatAsReal = 84.4f,
                 DoubleAsDoublePrecision = 85.5,
                 DateTimeAsDate = new DateTime(2015, 1, 2, 10, 11, 12),
-                DateTimeOffsetAsDatetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero),
-                DateTimeAsDatetime2 = new DateTime(2017, 1, 2, 12, 11, 12),
+                DateTimeOffsetAsDatetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12).AddTicks(1234567), TimeSpan.Zero),
+                DateTimeAsDatetime2 = new DateTime(2017, 1, 2, 12, 11, 12).AddTicks(1234567),
                 DateTimeAsSmalldatetime = new DateTime(2018, 1, 2, 13, 11, 12),
                 DateTimeAsDatetime = new DateTime(2019, 1, 2, 14, 11, 12),
                 TimeSpanAsTime = new TimeSpan(11, 15, 12),
@@ -870,15 +870,15 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p12='D' (Size = 1)
 @p13='G' (Size = 1) (DbType = AnsiString)
 @p14='A' (Size = 1) (DbType = AnsiString)
-@p15='2015-01-02T10:11:12' (Nullable = true) (DbType = Date)
-@p16='2019-01-02T14:11:12' (Nullable = true) (DbType = DateTime)
-@p17='2017-01-02T12:11:12' (Nullable = true)
-@p18='2018-01-02T13:11:12' (Nullable = true) (DbType = DateTime)
-@p19='2016-01-02T11:11:12.0000000+00:00' (Nullable = true)
-@p20='101.1' (Nullable = true)
-@p21='102.2' (Nullable = true)
+@p15='2015-01-02T10:11:12.0000000' (Nullable = true) (DbType = Date)
+@p16='2019-01-02T14:11:12.0000000' (Nullable = true) (DbType = DateTime)
+@p17='2017-01-02T12:11:12.9876543' (Nullable = true)
+@p18='2018-01-02T13:11:12.0000000' (Nullable = true) (DbType = DateTime)
+@p19='2016-01-02T11:11:12.9876543+00:00' (Nullable = true)
+@p20='101.1' (Nullable = true) (Precision = 18) (Scale = 2)
+@p21='102.2' (Nullable = true) (Precision = 18) (Scale = 2)
 @p22='81.1' (Nullable = true)
-@p23='103.3' (Nullable = true)
+@p23='103.3' (Nullable = true) (Precision = 18) (Scale = 2)
 @p24='82.2' (Nullable = true)
 @p25='85.5' (Nullable = true)
 @p26='83.3' (Nullable = true)
@@ -906,7 +906,7 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p48='4294967295' (Nullable = true)
 @p49='-1' (Nullable = true)
 @p50='-1' (Nullable = true)
-@p51='18446744073709551615' (Nullable = true)",
+@p51='18446744073709551615' (Nullable = true) (Precision = 20)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -933,8 +933,8 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             Assert.Equal(84.4f, entity.FloatAsReal);
             Assert.Equal(85.5, entity.DoubleAsDoublePrecision);
             Assert.Equal(new DateTime(2015, 1, 2), entity.DateTimeAsDate);
-            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset);
-            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12), entity.DateTimeAsDatetime2);
+            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12).AddTicks(9876543), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset);
+            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12).AddTicks(9876543), entity.DateTimeAsDatetime2);
             Assert.Equal(new DateTime(2018, 1, 2, 13, 11, 00), entity.DateTimeAsSmalldatetime);
             Assert.Equal(new DateTime(2019, 1, 2, 14, 11, 12), entity.DateTimeAsDatetime);
             Assert.Equal(new TimeSpan(11, 15, 12), entity.TimeSpanAsTime);
@@ -990,8 +990,8 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
                 FloatAsReal = 84.4f,
                 DoubleAsDoublePrecision = 85.5,
                 DateTimeAsDate = new DateTime(2015, 1, 2, 10, 11, 12),
-                DateTimeOffsetAsDatetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero),
-                DateTimeAsDatetime2 = new DateTime(2017, 1, 2, 12, 11, 12),
+                DateTimeOffsetAsDatetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12).AddTicks(9876543), TimeSpan.Zero),
+                DateTimeAsDatetime2 = new DateTime(2017, 1, 2, 12, 11, 12).AddTicks(9876543),
                 DateTimeAsSmalldatetime = new DateTime(2018, 1, 2, 13, 11, 12),
                 DateTimeAsDatetime = new DateTime(2019, 1, 2, 14, 11, 12),
                 TimeSpanAsTime = new TimeSpan(11, 15, 12),
@@ -1061,10 +1061,10 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p17=NULL (DbType = DateTime2)
 @p18=NULL (DbType = DateTime)
 @p19=NULL (DbType = DateTimeOffset)
-@p20=NULL
-@p21=NULL
+@p20=NULL (Precision = 18) (Scale = 2)
+@p21=NULL (Precision = 18) (Scale = 2)
 @p22=NULL
-@p23=NULL
+@p23=NULL (Precision = 18) (Scale = 2)
 @p24=NULL
 @p25=NULL
 @p26=NULL
@@ -1092,7 +1092,7 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p48=NULL (DbType = Int64)
 @p49=NULL (DbType = Int32)
 @p50=NULL (DbType = Int64)
-@p51=NULL",
+@p51=NULL (Precision = 20)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1326,11 +1326,11 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             var parameters = DumpParameters();
             Assert.Equal(
                 @"@p0='77'
-@p1='2017-01-02T12:11:12' (Size = 3)
-@p2='2016-01-02T11:11:12.0000000+00:00' (Size = 3)
-@p3='102.2' (Size = 3)
-@p4='101.1' (Size = 3)
-@p5='103.3' (Size = 3)
+@p1='2017-01-02T12:11:12.3210000' (Precision = 3)
+@p2='2016-01-02T11:11:12.7650000+00:00' (Precision = 3)
+@p3='102' (Precision = 3)
+@p4='101' (Precision = 3)
+@p5='103' (Precision = 3)
 @p6='85.55000305175781' (Size = 25)
 @p7='85.5' (Size = 3)
 @p8='83.33000183105469' (Size = 25)
@@ -1351,8 +1351,8 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             Assert.Equal(85.5f, entity.FloatAsDoublePrecision3);
             Assert.Equal(83.33f, entity.FloatAsFloat25);
             Assert.Equal(85.55f, entity.FloatAsDoublePrecision25);
-            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset3);
-            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12), entity.DateTimeAsDatetime23);
+            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12, 765), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset3);
+            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12, 321), entity.DateTimeAsDatetime23);
             Assert.Equal(101m, entity.DecimalAsDecimal3);
             Assert.Equal(102m, entity.DecimalAsDec3);
             Assert.Equal(103m, entity.DecimalAsNumeric3);
@@ -1366,11 +1366,11 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
                 FloatAsDoublePrecision3 = 85.5f,
                 FloatAsFloat25 = 83.33f,
                 FloatAsDoublePrecision25 = 85.55f,
-                DateTimeOffsetAsDatetimeoffset3 = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero),
-                DateTimeAsDatetime23 = new DateTime(2017, 1, 2, 12, 11, 12),
-                DecimalAsDecimal3 = 101.1m,
-                DecimalAsDec3 = 102.2m,
-                DecimalAsNumeric3 = 103.3m
+                DateTimeOffsetAsDatetimeoffset3 = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12, 765), TimeSpan.Zero),
+                DateTimeAsDatetime23 = new DateTime(2017, 1, 2, 12, 11, 12, 321),
+                DecimalAsDecimal3 = 101m,
+                DecimalAsDec3 = 102m,
+                DecimalAsNumeric3 = 103m
             };
 
         [ConditionalFact]
@@ -1386,9 +1386,9 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             var parameters = DumpParameters();
             Assert.Equal(
                 @"@p0='77'
-@p1='102.2'
-@p2='101.1'
-@p3='103.3'",
+@p1='102.2' (Precision = 5) (Scale = 2)
+@p2='101.1' (Precision = 5) (Scale = 2)
+@p3='103.3' (Precision = 5) (Scale = 2)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1441,15 +1441,15 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p11='D' (Nullable = false) (Size = 1)
 @p12='G' (Nullable = false) (Size = 1) (DbType = AnsiString)
 @p13='A' (Nullable = false) (Size = 1) (DbType = AnsiString)
-@p14='2015-01-02T10:11:12' (DbType = Date)
-@p15='2019-01-02T14:11:12' (DbType = DateTime)
-@p16='2017-01-02T12:11:12'
-@p17='2018-01-02T13:11:12' (DbType = DateTime)
-@p18='2016-01-02T11:11:12.0000000+00:00'
-@p19='101.1'
-@p20='102.2'
+@p14='2015-01-02T10:11:12.0000000' (DbType = Date)
+@p15='2019-01-02T14:11:12.0000000' (DbType = DateTime)
+@p16='2017-01-02T12:11:12.7654321'
+@p17='2018-01-02T13:11:12.0000000' (DbType = DateTime)
+@p18='2016-01-02T11:11:12.7654321+00:00'
+@p19='101.1' (Precision = 18) (Scale = 2)
+@p20='102.2' (Precision = 18) (Scale = 2)
 @p21='81.1'
-@p22='103.3'
+@p22='103.3' (Precision = 18) (Scale = 2)
 @p23='82.2'
 @p24='85.5'
 @p25='83.3'
@@ -1478,7 +1478,7 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p48='4294967295'
 @p49='-1'
 @p50='-1'
-@p51='18446744073709551615'",
+@p51='18446744073709551615' (Precision = 20)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1505,8 +1505,8 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             Assert.Equal(84.4f, entity.FloatAsReal);
             Assert.Equal(85.5, entity.DoubleAsDoublePrecision);
             Assert.Equal(new DateTime(2015, 1, 2), entity.DateTimeAsDate);
-            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset);
-            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12), entity.DateTimeAsDatetime2);
+            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12).AddTicks(7654321), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset);
+            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12).AddTicks(7654321), entity.DateTimeAsDatetime2);
             Assert.Equal(new DateTime(2018, 1, 2, 13, 11, 00), entity.DateTimeAsSmalldatetime);
             Assert.Equal(new DateTime(2019, 1, 2, 14, 11, 12), entity.DateTimeAsDatetime);
             Assert.Equal(new TimeSpan(11, 15, 12), entity.TimeSpanAsTime);
@@ -1562,8 +1562,8 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
                 FloatAsReal = 84.4f,
                 DoubleAsDoublePrecision = 85.5,
                 DateTimeAsDate = new DateTime(2015, 1, 2, 10, 11, 12),
-                DateTimeOffsetAsDatetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero),
-                DateTimeAsDatetime2 = new DateTime(2017, 1, 2, 12, 11, 12),
+                DateTimeOffsetAsDatetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12).AddTicks(7654321), TimeSpan.Zero),
+                DateTimeAsDatetime2 = new DateTime(2017, 1, 2, 12, 11, 12).AddTicks(7654321),
                 DateTimeAsSmalldatetime = new DateTime(2018, 1, 2, 13, 11, 12),
                 DateTimeAsDatetime = new DateTime(2019, 1, 2, 14, 11, 12),
                 TimeSpanAsTime = new TimeSpan(11, 15, 12),
@@ -1627,15 +1627,15 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p11='D' (Size = 1)
 @p12='G' (Size = 1) (DbType = AnsiString)
 @p13='A' (Size = 1) (DbType = AnsiString)
-@p14='2015-01-02T10:11:12' (Nullable = true) (DbType = Date)
-@p15='2019-01-02T14:11:12' (Nullable = true) (DbType = DateTime)
-@p16='2017-01-02T12:11:12' (Nullable = true)
-@p17='2018-01-02T13:11:12' (Nullable = true) (DbType = DateTime)
-@p18='2016-01-02T11:11:12.0000000+00:00' (Nullable = true)
-@p19='101.1' (Nullable = true)
-@p20='102.2' (Nullable = true)
+@p14='2015-01-02T10:11:12.0000000' (Nullable = true) (DbType = Date)
+@p15='2019-01-02T14:11:12.0000000' (Nullable = true) (DbType = DateTime)
+@p16='2017-01-02T12:11:12.2345678' (Nullable = true)
+@p17='2018-01-02T13:11:12.0000000' (Nullable = true) (DbType = DateTime)
+@p18='2016-01-02T11:11:12.2345678+00:00' (Nullable = true)
+@p19='101.1' (Nullable = true) (Precision = 18) (Scale = 2)
+@p20='102.2' (Nullable = true) (Precision = 18) (Scale = 2)
 @p21='81.1' (Nullable = true)
-@p22='103.3' (Nullable = true)
+@p22='103.3' (Nullable = true) (Precision = 18) (Scale = 2)
 @p23='82.2' (Nullable = true)
 @p24='85.5' (Nullable = true)
 @p25='83.3' (Nullable = true)
@@ -1663,7 +1663,7 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p47='4294967295' (Nullable = true)
 @p48='-1' (Nullable = true)
 @p49='-1' (Nullable = true)
-@p50='18446744073709551615' (Nullable = true)
+@p50='18446744073709551615' (Nullable = true) (Precision = 20)
 @p51='-1' (Nullable = true)",
                 parameters,
                 ignoreLineEndingDifferences: true);
@@ -1691,8 +1691,8 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             Assert.Equal(84.4f, entity.FloatAsReal);
             Assert.Equal(85.5, entity.DoubleAsDoublePrecision);
             Assert.Equal(new DateTime(2015, 1, 2), entity.DateTimeAsDate);
-            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset);
-            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12), entity.DateTimeAsDatetime2);
+            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12).AddTicks(2345678), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset);
+            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12).AddTicks(2345678), entity.DateTimeAsDatetime2);
             Assert.Equal(new DateTime(2018, 1, 2, 13, 11, 00), entity.DateTimeAsSmalldatetime);
             Assert.Equal(new DateTime(2019, 1, 2, 14, 11, 12), entity.DateTimeAsDatetime);
             Assert.Equal(new TimeSpan(11, 15, 12), entity.TimeSpanAsTime);
@@ -1748,8 +1748,8 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
                 FloatAsReal = 84.4f,
                 DoubleAsDoublePrecision = 85.5,
                 DateTimeAsDate = new DateTime(2015, 1, 2, 10, 11, 12),
-                DateTimeOffsetAsDatetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero),
-                DateTimeAsDatetime2 = new DateTime(2017, 1, 2, 12, 11, 12),
+                DateTimeOffsetAsDatetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12).AddTicks(2345678), TimeSpan.Zero),
+                DateTimeAsDatetime2 = new DateTime(2017, 1, 2, 12, 11, 12).AddTicks(2345678),
                 DateTimeAsSmalldatetime = new DateTime(2018, 1, 2, 13, 11, 12),
                 DateTimeAsDatetime = new DateTime(2019, 1, 2, 14, 11, 12),
                 TimeSpanAsTime = new TimeSpan(11, 15, 12),
@@ -1818,10 +1818,10 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p16=NULL (DbType = DateTime2)
 @p17=NULL (DbType = DateTime)
 @p18=NULL (DbType = DateTimeOffset)
-@p19=NULL
-@p20=NULL
+@p19=NULL (Precision = 18) (Scale = 2)
+@p20=NULL (Precision = 18) (Scale = 2)
 @p21=NULL
-@p22=NULL
+@p22=NULL (Precision = 18) (Scale = 2)
 @p23=NULL
 @p24=NULL
 @p25=NULL
@@ -1849,7 +1849,7 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p47=NULL (DbType = Int64)
 @p48=NULL (DbType = Int32)
 @p49=NULL (DbType = Int64)
-@p50=NULL
+@p50=NULL (Precision = 20)
 @p51=NULL (DbType = Int16)",
                 parameters,
                 ignoreLineEndingDifferences: true);
@@ -2085,11 +2085,11 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 
             var parameters = DumpParameters();
             Assert.Equal(
-                @"@p0='2017-01-02T12:11:12' (Size = 3)
-@p1='2016-01-02T11:11:12.0000000+00:00' (Size = 3)
-@p2='102.2' (Size = 3)
-@p3='101.1' (Size = 3)
-@p4='103.3' (Size = 3)
+                @"@p0='2017-01-02T12:11:12.1230000' (Precision = 3)
+@p1='2016-01-02T11:11:12.5670000+00:00' (Precision = 3)
+@p2='102' (Precision = 3)
+@p3='101' (Precision = 3)
+@p4='103' (Precision = 3)
 @p5='85.55000305175781' (Size = 25)
 @p6='85.5' (Size = 3)
 @p7='83.33000183105469' (Size = 25)
@@ -2111,8 +2111,8 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             Assert.Equal(85.5f, entity.FloatAsDoublePrecision3);
             Assert.Equal(83.33f, entity.FloatAsFloat25);
             Assert.Equal(85.55f, entity.FloatAsDoublePrecision25);
-            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset3);
-            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12), entity.DateTimeAsDatetime23);
+            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12, 567), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset3);
+            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12, 123), entity.DateTimeAsDatetime23);
             Assert.Equal(101m, entity.DecimalAsDecimal3);
             Assert.Equal(102m, entity.DecimalAsDec3);
             Assert.Equal(103m, entity.DecimalAsNumeric3);
@@ -2126,11 +2126,11 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
                 FloatAsDoublePrecision3 = 85.5f,
                 FloatAsFloat25 = 83.33f,
                 FloatAsDoublePrecision25 = 85.55f,
-                DateTimeOffsetAsDatetimeoffset3 = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero),
-                DateTimeAsDatetime23 = new DateTime(2017, 1, 2, 12, 11, 12),
-                DecimalAsDecimal3 = 101.1m,
-                DecimalAsDec3 = 102.2m,
-                DecimalAsNumeric3 = 103.3m
+                DateTimeOffsetAsDatetimeoffset3 = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12, 567), TimeSpan.Zero),
+                DateTimeAsDatetime23 = new DateTime(2017, 1, 2, 12, 11, 12, 123),
+                DecimalAsDecimal3 = 101m,
+                DecimalAsDec3 = 102m,
+                DecimalAsNumeric3 = 103m
             };
 
         [ConditionalFact]
@@ -2146,9 +2146,9 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 
             var parameters = DumpParameters();
             Assert.Equal(
-                @"@p0='102.2'
-@p1='101.1'
-@p2='103.3'
+                @"@p0='102.2' (Precision = 5) (Scale = 2)
+@p1='101.1' (Precision = 5) (Scale = 2)
+@p2='103.3' (Precision = 5) (Scale = 2)
 @p3='77'",
                 parameters,
                 ignoreLineEndingDifferences: true);

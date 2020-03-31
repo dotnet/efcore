@@ -148,6 +148,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append(Code.Literal(operation.MaxLength.Value));
                 }
 
+                if (operation.Precision.HasValue)
+                {
+                    builder.AppendLine(",")
+                        .Append("precision: ")
+                        .Append(Code.Literal(operation.Precision.Value));
+                }
+
+                if (operation.Scale.HasValue)
+                {
+                    builder.AppendLine(",")
+                        .Append("scale: ")
+                        .Append(Code.Literal(operation.Scale.Value));
+                }
+
                 if (operation.IsRowVersion)
                 {
                     builder
@@ -492,6 +506,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append(Code.Literal(operation.MaxLength.Value));
                 }
 
+                if (operation.Precision.HasValue)
+                {
+                    builder.AppendLine(",")
+                        .Append("precision: ")
+                        .Append(Code.Literal(operation.Precision.Value));
+                }
+
+                if (operation.Scale.HasValue)
+                {
+                    builder.AppendLine(",")
+                        .Append("scale: ")
+                        .Append(Code.Literal(operation.Scale.Value));
+                }
+
                 if (operation.IsRowVersion)
                 {
                     builder
@@ -567,6 +595,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     builder.AppendLine(",")
                         .Append("oldMaxLength: ")
                         .Append(Code.Literal(operation.OldColumn.MaxLength.Value));
+                }
+
+                if (operation.OldColumn.Precision.HasValue)
+                {
+                    builder.AppendLine(",")
+                        .Append("oldPrecision: ")
+                        .Append(Code.Literal(operation.OldColumn.Precision.Value));
+                }
+
+                if (operation.OldColumn.Scale.HasValue)
+                {
+                    builder.AppendLine(",")
+                        .Append("oldScale: ")
+                        .Append(Code.Literal(operation.OldColumn.Scale.Value));
                 }
 
                 if (operation.OldColumn.IsRowVersion)
@@ -1030,6 +1072,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             builder
                                 .Append("maxLength: ")
                                 .Append(Code.Literal(column.MaxLength.Value))
+                                .Append(", ");
+                        }
+
+                        if (column.Precision.HasValue)
+                        {
+                            builder
+                                .Append("precision: ")
+                                .Append(Code.Literal(column.Precision.Value))
+                                .Append(", ");
+                        }
+
+                        if (column.Scale.HasValue)
+                        {
+                            builder
+                                .Append("scale: ")
+                                .Append(Code.Literal(column.Scale.Value))
                                 .Append(", ");
                         }
 

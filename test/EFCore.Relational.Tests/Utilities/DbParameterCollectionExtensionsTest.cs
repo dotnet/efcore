@@ -514,7 +514,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Formats_DateTime_parameter()
         {
             Assert.Equal(
-                "@param='1973-09-03T00:00:00'",
+                "@param='1973-09-03T00:00:00.0000000'",
                 DbParameterCollectionExtensions.FormatParameter(
                     "@param", new DateTime(1973, 9, 3), true, ParameterDirection.Input, DbType.DateTime2, false, 0, 0, 0));
         }
@@ -523,7 +523,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Formats_DateTime_parameter_with_unusual_type()
         {
             Assert.Equal(
-                "@param='1973-09-03T00:00:00' (DbType = DateTime)",
+                "@param='1973-09-03T00:00:00.0000000' (DbType = DateTime)",
                 DbParameterCollectionExtensions.FormatParameter(
                     "@param", new DateTime(1973, 9, 3), true, ParameterDirection.Input, DbType.DateTime, false, 0, 0, 0));
         }

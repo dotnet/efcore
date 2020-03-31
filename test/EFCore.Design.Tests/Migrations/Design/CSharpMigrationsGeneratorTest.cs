@@ -43,6 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var notForEntityType = new HashSet<string>
             {
                 CoreAnnotationNames.MaxLength,
+                CoreAnnotationNames.Precision,
+                CoreAnnotationNames.Scale,
                 CoreAnnotationNames.Unicode,
                 CoreAnnotationNames.ProductVersion,
                 CoreAnnotationNames.ValueGeneratorFactory,
@@ -169,6 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var forProperty = new Dictionary<string, (object, string)>
             {
                 { CoreAnnotationNames.MaxLength, (256, $@"{columnMapping}{_nl}.{nameof(PropertyBuilder.HasMaxLength)}(256)") },
+                { CoreAnnotationNames.Precision, (4, $@"{columnMapping}{_nl}.{nameof(PropertyBuilder.HasPrecision)}(4)") },
                 { CoreAnnotationNames.Unicode, (false, $@"{columnMapping}{_nl}.{nameof(PropertyBuilder.IsUnicode)}(false)") },
                 {
                     CoreAnnotationNames.ValueConverter, (new ValueConverter<int, long>(v => v, v => (int)v),

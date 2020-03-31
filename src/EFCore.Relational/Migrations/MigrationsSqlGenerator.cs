@@ -1201,6 +1201,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 if (operation.IsUnicode == column.IsUnicode
                     && operation.MaxLength == column.MaxLength
+                    && operation.Precision == column.Precision
+                    && operation.Scale == column.Scale
                     && operation.IsFixedLength == column.IsFixedLength
                     && operation.IsRowVersion == column.IsRowVersion)
                 {
@@ -1219,7 +1221,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     operation.IsUnicode,
                     operation.MaxLength,
                     operation.IsRowVersion,
-                    operation.IsFixedLength)
+                    operation.IsFixedLength,
+                    operation.Precision,
+                    operation.Scale)
                 .StoreType;
         }
 

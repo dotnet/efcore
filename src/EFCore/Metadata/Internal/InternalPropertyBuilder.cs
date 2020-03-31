@@ -231,6 +231,62 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual InternalPropertyBuilder HasPrecision(int? precision, ConfigurationSource configurationSource)
+        {
+            if (CanSetPrecision(precision, configurationSource))
+            {
+                Metadata.SetPrecision(precision, configurationSource);
+
+                return this;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CanSetPrecision(int? precision, ConfigurationSource? configurationSource)
+            => configurationSource.Overrides(Metadata.GetPrecisionConfigurationSource())
+               || Metadata.GetPrecision() == precision;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InternalPropertyBuilder HasScale(int? scale, ConfigurationSource configurationSource)
+        {
+            if (CanSetScale(scale, configurationSource))
+            {
+                Metadata.SetScale(scale, configurationSource);
+
+                return this;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CanSetScale(int? scale, ConfigurationSource? configurationSource)
+            => configurationSource.Overrides(Metadata.GetScaleConfigurationSource())
+               || Metadata.GetScale() == scale;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual InternalPropertyBuilder IsUnicode(bool? unicode, ConfigurationSource configurationSource)
         {
             if (CanSetIsUnicode(unicode, configurationSource))

@@ -311,6 +311,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual int? SetPrecision(int? precision, ConfigurationSource configurationSource)
+        {
+            if (precision != null && precision < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(precision));
+            }
+
+            this.SetOrRemoveAnnotation(CoreAnnotationNames.Precision, precision, configurationSource);
+
+            return precision;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual int? SetScale(int? scale, ConfigurationSource configurationSource)
+        {
+            if (scale != null && scale < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(scale));
+            }
+
+            this.SetOrRemoveAnnotation(CoreAnnotationNames.Scale, scale, configurationSource);
+
+            return scale;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual PropertySaveBehavior? SetBeforeSaveBehavior(
             PropertySaveBehavior? beforeSaveBehavior, ConfigurationSource configurationSource)
         {

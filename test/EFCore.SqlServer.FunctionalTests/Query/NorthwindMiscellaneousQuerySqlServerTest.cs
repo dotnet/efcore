@@ -2696,7 +2696,7 @@ WHERE [o].[OrderDate] > '1998-01-01T12:00:00.000'");
             await base.DateTime_parse_is_parameterized_when_from_closure(async);
 
             AssertSql(
-                @"@__Parse_0='1998-01-01T12:00:00' (Nullable = true) (DbType = DateTime)
+                @"@__Parse_0='1998-01-01T12:00:00.0000000' (Nullable = true) (DbType = DateTime)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
@@ -2718,13 +2718,13 @@ WHERE [o].[OrderDate] > '1998-01-01T12:00:00.000'");
             await base.New_DateTime_is_parameterized_when_from_closure(async);
 
             AssertSql(
-                @"@__p_0='1998-01-01T12:00:00' (Nullable = true) (DbType = DateTime)
+                @"@__p_0='1998-01-01T12:00:00.0000000' (Nullable = true) (DbType = DateTime)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] > @__p_0",
                 //
-                @"@__p_0='1998-01-01T11:00:00' (Nullable = true) (DbType = DateTime)
+                @"@__p_0='1998-01-01T11:00:00.0000000' (Nullable = true) (DbType = DateTime)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]

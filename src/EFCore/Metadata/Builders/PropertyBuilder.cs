@@ -92,6 +92,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
+        ///     Configures the precision and scale of the property.
+        /// </summary>
+        /// <param name="precision"> The precision of the property. </param>
+        /// <param name="scale"> The scale of the property. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual PropertyBuilder HasPrecision(int precision, int scale)
+        {
+            Builder.HasPrecision(precision, ConfigurationSource.Explicit);
+            Builder.HasScale(scale, ConfigurationSource.Explicit);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Configures the precision of the property.
+        ///     </para>
+        ///     <para>
+        ///         Note: has the side-effect of setting the scale to 0.
+        ///     </para>
+        /// </summary>
+        /// <param name="precision"> The precision of the property. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual PropertyBuilder HasPrecision(int precision)
+        {
+            Builder.HasPrecision(precision, ConfigurationSource.Explicit);
+            Builder.HasScale(0, ConfigurationSource.Explicit);
+
+            return this;
+        }
+
+        /// <summary>
         ///     Configures whether the property as capable of persisting unicode characters.
         ///     Can only be set on <see cref="string" /> properties.
         /// </summary>

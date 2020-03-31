@@ -95,6 +95,31 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
 
         [ConditionalFact]
+        public virtual void AddColumnOperation_with_precision_and_scale_overridden()
+            => Generate(
+                modelBuilder => modelBuilder.Entity<Person>().Property<decimal>("Pi").HasPrecision(30, 17),
+                new AddColumnOperation
+                {
+                    Table = "Person",
+                    Name = "Pi",
+                    ClrType = typeof(decimal),
+                    Precision = 15,
+                    Scale = 10
+                });
+
+        [ConditionalFact]
+        public virtual void AddColumnOperation_with_precision_and_scale_no_model()
+            => Generate(
+                new AddColumnOperation
+                {
+                    Table = "Person",
+                    Name = "Pi",
+                    ClrType = typeof(decimal),
+                    Precision = 20,
+                    Scale = 7
+                });
+
+        [ConditionalFact]
         public virtual void AddForeignKeyOperation_without_principal_columns()
             => Generate(
                 new AddForeignKeyOperation
@@ -203,6 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             public int Id { get; set; }
             public string Name { get; set; }
+            public decimal Pi { get; set; }
         }
     }
 }
