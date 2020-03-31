@@ -1058,7 +1058,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 context.Add(customer);
 
                 Assert.StartsWith(
-                    "Response status code does not indicate success: 404 Substatus: 0",
+                    "Response status code does not indicate success: NotFound (404); Substatus: 0",
                     (await Assert.ThrowsAsync<CosmosException>(() => context.SaveChangesAsync())).Message);
             }
 
@@ -1067,7 +1067,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 context.Add(customer).State = EntityState.Modified;
 
                 Assert.StartsWith(
-                    "Response status code does not indicate success: 404 Substatus: 0",
+                    "Response status code does not indicate success: NotFound (404); Substatus: 0",
                     (await Assert.ThrowsAsync<CosmosException>(() => context.SaveChangesAsync())).Message);
             }
 
@@ -1076,14 +1076,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 context.Add(customer).State = EntityState.Deleted;
 
                 Assert.StartsWith(
-                    "Response status code does not indicate success: 404 Substatus: 0",
+                    "Response status code does not indicate success: NotFound (404); Substatus: 0",
                     (await Assert.ThrowsAsync<CosmosException>(() => context.SaveChangesAsync())).Message);
             }
 
             using (var context = new CustomerContext(options))
             {
                 Assert.StartsWith(
-                    "Response status code does not indicate success: 404 Substatus: 0",
+                    "Response status code does not indicate success: NotFound (404); Substatus: 0",
                     (await Assert.ThrowsAsync<CosmosException>(() => context.Set<Customer>().SingleAsync())).Message);
             }
         }
