@@ -318,8 +318,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IEnumerable<InternalEntityEntry> GetDependentsFromNavigation(
-            [NotNull] InternalEntityEntry principalEntry, [NotNull] IForeignKey foreignKey);
+        IEnumerable<IUpdateEntry> GetDependentsFromNavigation(
+            [NotNull] IUpdateEntry principalEntry, [NotNull] IForeignKey foreignKey);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -327,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IEnumerable<InternalEntityEntry> GetDependents([NotNull] InternalEntityEntry principalEntry, [NotNull] IForeignKey foreignKey);
+        IEnumerable<IUpdateEntry> GetDependents([NotNull] IUpdateEntry principalEntry, [NotNull] IForeignKey foreignKey);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -335,8 +335,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IEnumerable<InternalEntityEntry> GetDependentsUsingRelationshipSnapshot(
-            [NotNull] InternalEntityEntry principalEntry, [NotNull] IForeignKey foreignKey);
+        IEnumerable<IUpdateEntry> GetDependentsUsingRelationshipSnapshot(
+            [NotNull] IUpdateEntry principalEntry, [NotNull] IForeignKey foreignKey);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -18,9 +17,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class InMemoryTableFactory
-        // WARNING: The in-memory provider is using EF internal code here. This should not be copied by other providers. See #15096
-        : IdentityMapFactoryFactoryBase, IInMemoryTableFactory
+    public class InMemoryTableFactory : IInMemoryTableFactory
     {
         private readonly bool _sensitiveLoggingEnabled;
 
@@ -52,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         private Func<IInMemoryTable> CreateTable([NotNull] IEntityType entityType, IInMemoryTable baseTable)
             => (Func<IInMemoryTable>)typeof(InMemoryTableFactory).GetTypeInfo()
                 .GetDeclaredMethod(nameof(CreateFactory))
-                .MakeGenericMethod(GetKeyType(entityType.FindPrimaryKey()))
+                .MakeGenericMethod(entityType.FindPrimaryKey().GetKeyType())
                 .Invoke(null, new object[] { entityType, baseTable, _sensitiveLoggingEnabled });
 
         [UsedImplicitly]

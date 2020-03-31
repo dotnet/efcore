@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 // null out its FKs and navigation property. A.k.a. reference stealing.
                                 // However, if the FK has already been changed or the reference is already set to point
                                 // to something else, then don't change it.
-                                var victimDependentEntry = stateManager.GetDependents(newTargetEntry, foreignKey).FirstOrDefault();
+                                var victimDependentEntry = (InternalEntityEntry)stateManager.GetDependents(newTargetEntry, foreignKey).FirstOrDefault();
                                 if (victimDependentEntry != null
                                     && victimDependentEntry != entry)
                                 {
@@ -363,7 +363,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 // However, if the FK has already been changed or the reference is already set to point
                                 // to something else, then don't change it.
                                 var targetDependentEntry
-                                    = stateManager.GetDependentsUsingRelationshipSnapshot(newPrincipalEntry, foreignKey).FirstOrDefault();
+                                    = (InternalEntityEntry)stateManager.GetDependentsUsingRelationshipSnapshot(newPrincipalEntry, foreignKey).FirstOrDefault();
 
                                 if (targetDependentEntry != null
                                     && targetDependentEntry != entry)
@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     // Propagate principal key values into FKs
                     foreach (var foreignKey in key.GetReferencingForeignKeys())
                     {
-                        foreach (var dependentEntry in stateManager
+                        foreach (InternalEntityEntry dependentEntry in stateManager
                             .GetDependentsUsingRelationshipSnapshot(entry, foreignKey).ToList())
                         {
                             SetForeignKeyProperties(dependentEntry, entry, foreignKey, setModified: true, fromQuery: false);
@@ -426,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         }
 
                         // Fix up dependents that have been added by propagating through different foreign key
-                        foreach (var dependentEntry in stateManager.GetDependents(entry, foreignKey).ToList())
+                        foreach (InternalEntityEntry dependentEntry in stateManager.GetDependents(entry, foreignKey).ToList())
                         {
                             var principalToDependent = foreignKey.PrincipalToDependent;
                             if (principalToDependent != null)
@@ -554,7 +554,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
 
                 var dependentEntries = stateManager.GetDependents(entry, foreignKey);
-                foreach (var dependentEntry in dependentEntries.ToList())
+                foreach (InternalEntityEntry dependentEntry in dependentEntries.ToList())
                 {
                     if (foreignKey.IsOwnership)
                     {
@@ -606,7 +606,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var dependents = stateManager.GetDependents(entry, foreignKey);
                     if (foreignKey.IsUnique)
                     {
-                        var dependentEntry = dependents.FirstOrDefault();
+                        var dependentEntry = (InternalEntityEntry)dependents.FirstOrDefault();
                         if (dependentEntry != null)
                         {
                             if ((!foreignKey.IsOwnership
@@ -624,7 +624,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }
                     else
                     {
-                        foreach (var dependentEntry in dependents)
+                        foreach (InternalEntityEntry dependentEntry in dependents)
                         {
                             if (!foreignKey.IsOwnership
                                 || (dependentEntry.EntityState != EntityState.Deleted
@@ -795,7 +795,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var oldDependentEntry = oldDependent != null
                     && !ReferenceEquals(dependentEntry.Entity, oldDependent)
                         ? dependentEntry.StateManager.TryGetEntry(oldDependent, foreignKey.DeclaringEntityType)
-                        : dependentEntry.StateManager.GetDependentsUsingRelationshipSnapshot(principalEntry, foreignKey)
+                        : (InternalEntityEntry)dependentEntry.StateManager.GetDependentsUsingRelationshipSnapshot(principalEntry, foreignKey)
                             .FirstOrDefault();
 
                 if (oldDependentEntry != null

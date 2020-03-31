@@ -9,9 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -654,19 +652,13 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             }
                         }
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
                         var valueFactory = index.GetNullableValueFactory<object[]>();
-                        if (valueFactory.TryCreateFromOriginalValues(
-                            (InternalEntityEntry)entry, out var indexValue))
-#pragma warning restore EF1001 // Internal EF Core API usage.
+                        if (valueFactory.TryCreateFromOriginalValues(entry, out var indexValue))
                         {
                             predecessorsMap ??= new Dictionary<IIndex, Dictionary<object[], ModificationCommand>>();
                             if (!predecessorsMap.TryGetValue(index, out var predecessorCommands))
                             {
-                                predecessorCommands =
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                                    new Dictionary<object[], ModificationCommand>(valueFactory.EqualityComparer);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+                                predecessorCommands = new Dictionary<object[], ModificationCommand>(valueFactory.EqualityComparer);
                                 predecessorsMap.Add(index, predecessorCommands);
                             }
 
@@ -701,10 +693,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             if (command.EntityState == EntityState.Added
                                 || indexColumnModifications.Any())
                             {
-#pragma warning disable EF1001 // Internal EF Core API usage.
                                 var valueFactory = index.GetNullableValueFactory<object[]>();
-                                if (valueFactory.TryCreateFromCurrentValues((InternalEntityEntry)entry, out var indexValue)
-#pragma warning restore EF1001 // Internal EF Core API usage.
+                                if (valueFactory.TryCreateFromCurrentValues(entry, out var indexValue)
                                     && predecessorsMap.TryGetValue(index, out var predecessorCommands)
                                     && predecessorCommands.TryGetValue(indexValue, out var predecessor)
                                     && predecessor != command)

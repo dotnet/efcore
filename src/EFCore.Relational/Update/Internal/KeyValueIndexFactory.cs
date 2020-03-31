@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
@@ -36,10 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         public virtual IKeyValueIndex CreatePrincipalKeyValue(InternalEntityEntry entry, IForeignKey foreignKey)
             => new KeyValueIndex<TKey>(
                 foreignKey,
-#pragma warning disable EF1001 // Internal EF Core API usage.
                 _principalKeyValueFactory.CreateFromCurrentValues(entry),
                 _principalKeyValueFactory.EqualityComparer,
-#pragma warning restore EF1001 // Internal EF Core API usage.
                 fromOriginalValues: false);
 
         /// <summary>
@@ -51,10 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         public virtual IKeyValueIndex CreatePrincipalKeyValueFromOriginalValues(InternalEntityEntry entry, IForeignKey foreignKey)
             => new KeyValueIndex<TKey>(
                 foreignKey,
-#pragma warning disable EF1001 // Internal EF Core API usage.
                 _principalKeyValueFactory.CreateFromOriginalValues(entry),
                 _principalKeyValueFactory.EqualityComparer,
-#pragma warning restore EF1001 // Internal EF Core API usage.
                 fromOriginalValues: true);
 
         /// <summary>
@@ -64,10 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IKeyValueIndex CreateDependentKeyValue(InternalEntityEntry entry, IForeignKey foreignKey)
-#pragma warning disable EF1001 // Internal EF Core API usage.
             => foreignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromCurrentValues(entry, out var keyValue)
                 ? new KeyValueIndex<TKey>(foreignKey, keyValue, _principalKeyValueFactory.EqualityComparer, fromOriginalValues: false)
-#pragma warning restore EF1001 // Internal EF Core API usage.
                 : null;
 
         /// <summary>
@@ -77,10 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IKeyValueIndex CreateDependentKeyValueFromOriginalValues(InternalEntityEntry entry, IForeignKey foreignKey)
-#pragma warning disable EF1001 // Internal EF Core API usage.
             => foreignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromOriginalValues(entry, out var keyValue)
                 ? new KeyValueIndex<TKey>(foreignKey, keyValue, _principalKeyValueFactory.EqualityComparer, fromOriginalValues: true)
-#pragma warning restore EF1001 // Internal EF Core API usage.
                 : null;
     }
 }

@@ -818,13 +818,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<InternalEntityEntry> GetDependents(
-            InternalEntityEntry principalEntry, IForeignKey foreignKey)
+        public virtual IEnumerable<IUpdateEntry> GetDependents(
+            IUpdateEntry principalEntry, IForeignKey foreignKey)
         {
             var dependentIdentityMap = FindIdentityMap(foreignKey.DeclaringEntityType.FindPrimaryKey());
             return dependentIdentityMap != null
                 ? dependentIdentityMap.GetDependentsMap(foreignKey).GetDependents(principalEntry)
-                : Enumerable.Empty<InternalEntityEntry>();
+                : Enumerable.Empty<IUpdateEntry>();
         }
 
         /// <summary>
@@ -833,13 +833,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<InternalEntityEntry> GetDependentsUsingRelationshipSnapshot(
-            InternalEntityEntry principalEntry, IForeignKey foreignKey)
+        public virtual IEnumerable<IUpdateEntry> GetDependentsUsingRelationshipSnapshot(
+            IUpdateEntry principalEntry, IForeignKey foreignKey)
         {
             var dependentIdentityMap = FindIdentityMap(foreignKey.DeclaringEntityType.FindPrimaryKey());
             return dependentIdentityMap != null
                 ? dependentIdentityMap.GetDependentsMap(foreignKey).GetDependentsUsingRelationshipSnapshot(principalEntry)
-                : Enumerable.Empty<InternalEntityEntry>();
+                : Enumerable.Empty<IUpdateEntry>();
         }
 
         /// <summary>
@@ -848,8 +848,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<InternalEntityEntry> GetDependentsFromNavigation(
-            InternalEntityEntry principalEntry, IForeignKey foreignKey)
+        public virtual IEnumerable<IUpdateEntry> GetDependentsFromNavigation(
+            IUpdateEntry principalEntry, IForeignKey foreignKey)
         {
             var navigation = foreignKey.PrincipalToDependent;
             if (navigation == null
@@ -858,7 +858,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return null;
             }
 
-            var navigationValue = principalEntry[navigation];
+            var navigationValue = ((InternalEntityEntry)principalEntry)[navigation];
             if (navigationValue == null)
             {
                 return Enumerable.Empty<InternalEntityEntry>();
@@ -969,7 +969,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     continue;
                 }
 
-                foreach (var dependent in (GetDependentsFromNavigation(entry, fk)
+                foreach (InternalEntityEntry dependent in (GetDependentsFromNavigation(entry, fk)
                     ?? GetDependents(entry, fk)).ToList())
                 {
                     if (dependent.EntityState != EntityState.Deleted
