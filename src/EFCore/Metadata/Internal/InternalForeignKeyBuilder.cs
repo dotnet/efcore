@@ -1397,6 +1397,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
+            if (resetToDependent
+                && Metadata.PrincipalToDependent.GetConfigurationSource() == ConfigurationSource.Explicit)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.UnableToSetIsUnique(
+                        unique.Value,
+                        Metadata.PrincipalToDependent.PropertyInfo.Name,
+                        Metadata.PrincipalEntityType.DisplayName()));
+            }
+
             using var batch = Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions();
             var builder = this;
             if (resetToDependent)

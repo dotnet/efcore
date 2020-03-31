@@ -190,17 +190,21 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
 
-                modelBuilder.Entity<Customer>().OwnsOne(
-                    c => c.Details,
-                    r =>
-                    {
-                        r.HasOne(d => d.Customer)
-                            .WithMany();
-                    });
-
                 Assert.Equal(
-                    CoreStrings.NavigationNotAdded(nameof(Customer), nameof(Customer.Details), nameof(CustomerDetails)),
-                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                    CoreStrings.UnableToSetIsUnique(
+                        false,
+                        nameof(Customer.Details),
+                        nameof(Customer)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder
+                                .Entity<Customer>()
+                                .OwnsOne(
+                                    c => c.Details,
+                                    r =>
+                                    {
+                                        r.HasOne(d => d.Customer)
+                                            .WithMany();
+                                    })).Message);
             }
 
             [ConditionalFact]
@@ -1436,6 +1440,39 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(PropertyAccessMode.Field, principal.FindNavigation("OwnedDependents").GetPropertyAccessMode());
                 Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToManyOwner").GetPropertyAccessMode());
+            }
+
+            [ConditionalFact]
+            public virtual void Attempt_to_create_OwnsMany_on_a_reference_throws()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                Assert.Equal(
+                    CoreStrings.UnableToSetIsUnique(
+                        false,
+                        "OwnedDependent",
+                        typeof(OneToOneNavPrincipalOwner).Name),
+                    Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder
+                                .Entity<OneToOneNavPrincipalOwner>()
+                                .OwnsMany<OwnedNavDependent>("OwnedDependent")).Message
+                 );
+            }
+
+            [ConditionalFact]
+            public virtual void Attempt_to_create_OwnsOne_on_a_collection_throws()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                Assert.Equal(
+                    CoreStrings.UnableToSetIsUnique(
+                        true,
+                        "OwnedDependents",
+                        typeof(OneToManyNavPrincipalOwner).Name),
+                    Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder
+                                .Entity<OneToManyNavPrincipalOwner>()
+                                .OwnsOne<OwnedOneToManyNavDependent>("OwnedDependents")).Message);
             }
         }
     }
