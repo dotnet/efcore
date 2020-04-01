@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -320,5 +321,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .With(CreateValidationLogger(sensitiveDataLoggingEnabled));
 
         protected virtual TestHelpers TestHelpers => InMemoryTestHelpers.Instance;
+
+        protected virtual InternalModelBuilder CreateConventionlessInternalModelBuilder()
+            => (InternalModelBuilder)CreateConventionlessModelBuilder().GetInfrastructure();
     }
 }

@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [ConditionalFact]
         public void Throws_when_added_property_is_not_mapped_to_store()
         {
-            var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
+            var modelBuilder = CreateConventionlessInternalModelBuilder();
             var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveAsPropertyEntity), ConfigurationSource.Convention);
             entityTypeBuilder.Property(typeof(Tuple<long>), "LongProperty", ConfigurationSource.Explicit);
             entityTypeBuilder.Ignore(nameof(NonPrimitiveAsPropertyEntity.Property), ConfigurationSource.Explicit);
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [ConditionalFact]
         public void Throws_when_added_property_is_not_mapped_to_store_even_if_configured_to_use_column_type()
         {
-            var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
+            var modelBuilder = CreateConventionlessInternalModelBuilder();
             var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveNonNavigationAsPropertyEntity), ConfigurationSource.Convention);
             entityTypeBuilder.Property(typeof(Tuple<long>), "LongProperty", ConfigurationSource.Explicit)
                 .HasColumnType("some_int_mapping");
