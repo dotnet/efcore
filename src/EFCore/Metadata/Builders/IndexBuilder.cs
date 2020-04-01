@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class IndexBuilder : IInfrastructure<InternalIndexBuilder>
+    public class IndexBuilder : IInfrastructure<IConventionIndexBuilder>
     {
         private readonly InternalIndexBuilder _builder;
 
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     The internal builder being used to configure the index.
         /// </summary>
-        InternalIndexBuilder IInfrastructure<InternalIndexBuilder>.Instance => _builder;
+        IConventionIndexBuilder IInfrastructure<IConventionIndexBuilder>.Instance => _builder;
 
         /// <summary>
         ///     The index being configured.
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return this;
         }
 
-        private InternalIndexBuilder Builder => this.GetInfrastructure();
+        private InternalIndexBuilder Builder => (InternalIndexBuilder)this.GetInfrastructure();
 
         #region Hidden System.Object members
 

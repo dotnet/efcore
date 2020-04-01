@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class PropertyBuilder : IInfrastructure<InternalPropertyBuilder>
+    public class PropertyBuilder : IInfrastructure<IConventionPropertyBuilder>
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     The internal builder being used to configure the property.
         /// </summary>
-        InternalPropertyBuilder IInfrastructure<InternalPropertyBuilder>.Instance => Builder;
+        IConventionPropertyBuilder IInfrastructure<IConventionPropertyBuilder>.Instance => Builder;
 
         /// <summary>
         ///     The property being configured.

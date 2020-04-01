@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class KeyBuilder : IInfrastructure<InternalKeyBuilder>
+    public class KeyBuilder : IInfrastructure<IConventionKeyBuilder>
     {
         private readonly InternalKeyBuilder _builder;
 
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     The internal builder being used to configure the key.
         /// </summary>
-        InternalKeyBuilder IInfrastructure<InternalKeyBuilder>.Instance => _builder;
+        IConventionKeyBuilder IInfrastructure<IConventionKeyBuilder>.Instance => _builder;
 
         /// <summary>
         ///     The key being configured.
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return this;
         }
 
-        private InternalKeyBuilder Builder => this.GetInfrastructure();
+        private InternalKeyBuilder Builder => (InternalKeyBuilder)this.GetInfrastructure();
 
         #region Hidden System.Object members
 

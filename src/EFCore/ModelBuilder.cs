@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
     ///         model externally and set it on a <see cref="DbContextOptions" /> instance that is passed to the context constructor.
     ///     </para>
     /// </summary>
-    public class ModelBuilder : IInfrastructure<InternalModelBuilder>
+    public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     {
         private readonly InternalModelBuilder _builder;
 
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         application code.
         ///     </para>
         /// </summary>
-        InternalModelBuilder IInfrastructure<InternalModelBuilder>.Instance => _builder;
+        IConventionModelBuilder IInfrastructure<IConventionModelBuilder>.Instance => _builder;
 
         /// <summary>
         ///     Returns an object that can be used to configure a given entity type in the model.
@@ -373,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The finalized <see cref="IModel" />. </returns>
         public virtual IModel FinalizeModel() => Builder.Metadata.FinalizeModel();
 
-        private InternalModelBuilder Builder => this.GetInfrastructure();
+        private InternalModelBuilder Builder => (InternalModelBuilder)this.GetInfrastructure();
 
         #region Hidden System.Object members
 

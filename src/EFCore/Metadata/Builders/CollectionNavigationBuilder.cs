@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class CollectionNavigationBuilder : IInfrastructure<InternalForeignKeyBuilder>
+    public class CollectionNavigationBuilder : IInfrastructure<IConventionForeignKeyBuilder>
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         not directly exposed in the public API surface.
         ///     </para>
         /// </summary>
-        InternalForeignKeyBuilder IInfrastructure<InternalForeignKeyBuilder>.Instance => Builder;
+        IConventionForeignKeyBuilder IInfrastructure<IConventionForeignKeyBuilder>.Instance => Builder;
 
         /// <summary>
         ///     <para>

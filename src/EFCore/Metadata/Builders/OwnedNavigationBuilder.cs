@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// <summary>
     ///     Provides a simple API for configuring a navigation to an owned entity type.
     /// </summary>
-    public class OwnedNavigationBuilder : IInfrastructure<InternalEntityTypeBuilder>
+    public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     {
         private InternalForeignKeyBuilder _builder;
 
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Gets the internal builder being used to configure the owned entity type.
         /// </summary>
-        InternalEntityTypeBuilder IInfrastructure<InternalEntityTypeBuilder>.Instance => DependentEntityType.Builder;
+        IConventionEntityTypeBuilder IInfrastructure<IConventionEntityTypeBuilder>.Instance => DependentEntityType.Builder;
 
         /// <summary>
         ///     The foreign key that represents this ownership.

@@ -786,6 +786,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public new virtual EntityTypeBuilder<TEntity> HasNoDiscriminator()
             => (EntityTypeBuilder<TEntity>)base.HasNoDiscriminator();
 
-        private InternalEntityTypeBuilder Builder => this.GetInfrastructure();
+        private InternalEntityTypeBuilder Builder => (InternalEntityTypeBuilder)this.GetInfrastructure();
     }
 }
