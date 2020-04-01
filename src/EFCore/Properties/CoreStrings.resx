@@ -1369,4 +1369,7 @@
   <data name="QueryEntityMaterializationConditionWrongShape" xml:space="preserve">
     <value>Materialization condition passed for entity shaper of entity type '{entityType}' is not of correct shape. Materialization condition must be LambdaExpression of 'Func&lt;ValueBuffer, IEntityType&gt;'</value>
   </data>
+  <data name="UnableToSetIsUnique" xml:space="preserve">
+    <value>Unable to set IsUnique to '{isUnique}' on the relationship underlying the navigation property '{navigationName}' on the entity type '{entityType}' because the navigation property has the opposite multiplicity.'</value>
+  </data>
 </root>

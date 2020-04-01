@@ -2596,6 +2596,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("QueryEntityMaterializationConditionWrongShape", nameof(entityType)),
                 entityType);
 
+        /// <summary>
+        ///     Unable to set IsUnique to '{isUnique}' on the relationship underlying the navigation property '{navigationName}' on the entity type '{entityType}' because the navigation property has the opposite multiplicity.'
+        /// </summary>
+        public static string UnableToSetIsUnique([CanBeNull] object isUnique, [CanBeNull] object navigationName, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("UnableToSetIsUnique", nameof(isUnique), nameof(navigationName), nameof(entityType)),
+                isUnique, navigationName, entityType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
