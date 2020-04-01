@@ -91,7 +91,7 @@ stages:
                 env:
                   ACCEPT_EULA: Y
                   SA_PASSWORD: <YourStrong@Passw0rd\>
-                  MSSQL_PID=developer
+                  MSSQL_PID: developer
                   HelixAccessToken: $(_HelixAccessToken)
                   SYSTEM_ACCESSTOKEN: $(System.AccessToken) # We need to set this env var to publish helix results to Azure Dev Ops
 
