@@ -190,6 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.NavigationAddedConventions.Add(inversePropertyAttributeConvention);
             conventionSet.NavigationAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.NavigationAddedConventions.Add(relationshipDiscoveryConvention);
+            conventionSet.NavigationAddedConventions.Add(foreignKeyAttributeConvention);
 
             conventionSet.NavigationRemovedConventions.Add(relationshipDiscoveryConvention);
 

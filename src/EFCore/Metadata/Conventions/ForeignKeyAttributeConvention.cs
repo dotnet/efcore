@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///         For one-to-one relationships the attribute has to be specified on the navigation property pointing to the principal.
     ///     </para>
     /// </summary>
-    public class ForeignKeyAttributeConvention : IForeignKeyAddedConvention, IModelFinalizingConvention
+    public class ForeignKeyAttributeConvention : IForeignKeyAddedConvention, INavigationAddedConvention, IModelFinalizingConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="ForeignKeyAttributeConvention" />.
@@ -50,6 +50,39 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
 
+            var newRelationshipBuilder = UpdateRelationshipBuilder(relationshipBuilder, context);
+            if (newRelationshipBuilder != null)
+            {
+                context.StopProcessingIfChanged(newRelationshipBuilder);
+            }
+        }
+
+        /// <summary>
+        ///     Called after a navigation is added to the entity type.
+        /// </summary>
+        /// <param name="navigationBuilder"> The builder for the navigation. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessNavigationAdded(
+            IConventionNavigationBuilder navigationBuilder, IConventionContext<IConventionNavigationBuilder> context)
+        {
+            Check.NotNull(navigationBuilder, nameof(navigationBuilder));
+
+            var onDependent = navigationBuilder.Metadata.IsOnDependent;
+            var newRelationshipBuilder =
+                UpdateRelationshipBuilder(navigationBuilder.Metadata.ForeignKey.Builder, context);
+            if (newRelationshipBuilder != null)
+            {
+                var newNavigationBuilder = onDependent
+                    ? newRelationshipBuilder.Metadata.DependentToPrincipal.Builder
+                    : newRelationshipBuilder.Metadata.PrincipalToDependent.Builder;
+                context.StopProcessingIfChanged(newNavigationBuilder);
+            }
+        }
+
+        private IConventionForeignKeyBuilder UpdateRelationshipBuilder<TBuilder>(
+            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<TBuilder> context)
+            where TBuilder : IConventionAnnotatableBuilder
+        {
             var foreignKey = relationshipBuilder.Metadata;
 
             var fkPropertyOnPrincipal
@@ -71,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 if (relationshipBuilder == null)
                 {
                     context.StopProcessing();
-                    return;
+                    return null;
                 }
 
                 fkPropertyOnPrincipal = null;
@@ -93,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 if (relationshipBuilder == null)
                 {
                     context.StopProcessing();
-                    return;
+                    return null;
                 }
 
                 fkPropertiesOnPrincipalToDependent = null;
@@ -111,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 if (fkPropertyOnDependent == null
                     && fkPropertyOnPrincipal == null)
                 {
-                    return;
+                    return null;
                 }
 
                 if (fkPropertyOnDependent != null)
@@ -124,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     if (foreignKey.PrincipalToDependent.IsCollection)
                     {
                         context.StopProcessing();
-                        return;
+                        return null;
                     }
 
                     shouldInvert = true;
@@ -161,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         if (relationshipBuilder == null)
                         {
                             context.StopProcessing();
-                            return;
+                            return null;
                         }
 
                         upgradePrincipalToDependentNavigationSource = false;
@@ -223,10 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             newRelationshipBuilder = newRelationshipBuilder?.HasForeignKey(fkPropertiesToSet, fromDataAnnotation: true);
 
-            if (newRelationshipBuilder != null)
-            {
-                context.StopProcessingIfChanged(newRelationshipBuilder);
-            }
+            return newRelationshipBuilder;
         }
 
         private static IConventionForeignKeyBuilder SplitNavigationsToSeparateRelationships(
