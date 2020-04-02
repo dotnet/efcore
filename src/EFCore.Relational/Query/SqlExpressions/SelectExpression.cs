@@ -230,7 +230,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Check.NotNull(expression, nameof(expression));
 
             if (expression is SqlConstantExpression sqlConstant
-                && (bool)sqlConstant.Value)
+                && sqlConstant.Value is bool boolValue
+                && boolValue)
             {
                 return;
             }
