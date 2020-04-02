@@ -564,7 +564,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override Expression VisitNewArray(NewArrayExpression newArrayExpression) => null;
 
         protected override Expression VisitParameter(ParameterExpression parameterExpression)
-            => new SqlParameterExpression(Check.NotNull(parameterExpression, nameof(parameterExpression)), null);
+            => parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true
+                ? new SqlParameterExpression(Check.NotNull(parameterExpression, nameof(parameterExpression)), null)
+                : null;
 
         protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
         {
