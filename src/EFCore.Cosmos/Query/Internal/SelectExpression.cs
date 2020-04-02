@@ -252,7 +252,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         public virtual void ApplyPredicate([NotNull] SqlExpression expression)
         {
             if (expression is SqlConstantExpression sqlConstant
-                && (bool)sqlConstant.Value)
+                && sqlConstant.Value is bool boolValue
+                && boolValue)
             {
                 return;
             }
