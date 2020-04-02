@@ -601,7 +601,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             Check.NotNull(parameterExpression, nameof(parameterExpression));
 
-            if (parameterExpression.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal))
+            if (parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true)
             {
                 return Expression.Call(
                     _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),

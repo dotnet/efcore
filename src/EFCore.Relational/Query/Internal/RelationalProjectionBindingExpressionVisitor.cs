@@ -93,10 +93,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             return expression;
 
                         case ParameterExpression parameterExpression:
-                            return Expression.Call(
-                                _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
-                                QueryCompilationContext.QueryContextParameter,
-                                Expression.Constant(parameterExpression.Name));
+                            if (parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true)
+                            {
+                                return Expression.Call(
+                                    _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
+                                    QueryCompilationContext.QueryContextParameter,
+                                    Expression.Constant(parameterExpression.Name));
+                            }
+
+                            throw new InvalidOperationException(CoreStrings.TranslationFailed(parameterExpression.Print()));
 
                         case MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression:
                             return _selectExpression.AddCollectionProjection(

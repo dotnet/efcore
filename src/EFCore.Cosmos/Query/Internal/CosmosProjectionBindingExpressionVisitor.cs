@@ -127,10 +127,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             return parameterExpression;
                         }
 
-                        return Expression.Call(
-                            _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
-                            QueryCompilationContext.QueryContextParameter,
-                            Expression.Constant(parameterExpression.Name));
+                        if (parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true)
+                        {
+                            return Expression.Call(
+                                _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
+                                QueryCompilationContext.QueryContextParameter,
+                                Expression.Constant(parameterExpression.Name));
+                        }
+
+                        throw new InvalidOperationException(CoreStrings.TranslationFailed(parameterExpression.Print()));
 
                     case MaterializeCollectionNavigationExpression _:
                         return base.Visit(expression);
@@ -163,9 +168,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             = typeof(CosmosProjectionBindingExpressionVisitor)
                 .GetTypeInfo().GetDeclaredMethod(nameof(GetParameterValue));
 
-#pragma warning disable IDE0052 // Remove unread private members
+        [UsedImplicitly]
         private static T GetParameterValue<T>(QueryContext queryContext, string parameterName)
-#pragma warning restore IDE0052 // Remove unread private members
             => (T)queryContext.ParameterValues[parameterName];
 
         /// <summary>
