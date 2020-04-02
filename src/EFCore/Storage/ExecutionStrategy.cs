@@ -159,6 +159,44 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return ExecuteImplementation(operation, verifySucceeded, state);
         }
 
+        private ExecutionResult<TResult> VerifySucceeded<TState, TResult>(
+            Func<DbContext, TState, ExecutionResult<TResult>> verifySucceeded,
+            TState state)
+        {
+            while (true)
+            {
+                TimeSpan? delay;
+                try
+                {
+                    Suspended = true;
+                    var result = verifySucceeded(Dependencies.CurrentContext.Context, state);
+                    Suspended = false;
+                    return result;
+                }
+                catch (Exception ex)
+                {
+                    Suspended = false;
+                    if (!CallOnWrappedException(ex, ShouldRetryOn))
+                    {
+                        throw;
+                    }
+                    ExceptionsEncountered.Add(ex);
+                    delay = GetNextDelay(ex);
+                    if (delay == null)
+                    {
+                        throw new RetryLimitExceededException(CoreStrings.RetryLimitExceeded(MaxRetryCount, GetType().Name), ex);
+                    }
+
+                    Dependencies.Logger.ExecutionStrategyRetrying(ExceptionsEncountered, delay.Value, async: true);
+
+                    OnRetry();
+                }
+
+                using var waitEvent = new ManualResetEventSlim(false);
+                waitEvent.WaitHandle.WaitOne(delay.Value);
+            }
+        }
+
         private TResult ExecuteImplementation<TState, TResult>(
             Func<DbContext, TState, TResult> operation,
             Func<DbContext, TState, ExecutionResult<TResult>> verifySucceeded,
@@ -180,7 +218,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     if (verifySucceeded != null
                         && CallOnWrappedException(ex, ShouldVerifySuccessOn))
                     {
-                        var result = ExecuteImplementation(verifySucceeded, null, state);
+                        // avoid infinite recursive generics
+                        // do not call ExecuteImplementation again with TResult = ExecutionResult<TResult>
+                        var result = VerifySucceeded(verifySucceeded, state);
                         if (result.IsSuccessful)
                         {
                             return result.Result;
@@ -249,6 +289,49 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return ExecuteImplementationAsync(operation, verifySucceeded, state, cancellationToken);
         }
 
+
+        private async Task<ExecutionResult<TResult>> VerifySucceededAsync<TState, TResult>(
+            Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceededAsync,
+            TState state,
+            CancellationToken cancellationToken)
+        {
+            while (true)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                TimeSpan? delay;
+                try
+                {
+                    Suspended = true;
+                    var result = await verifySucceededAsync(Dependencies.CurrentContext.Context, state, cancellationToken);
+                    Suspended = false;
+                    return result;
+                }
+                catch (Exception ex)
+                {
+                    Suspended = false;
+                    if (!CallOnWrappedException(ex, ShouldRetryOn))
+                    {
+                        throw;
+                    }
+
+                    ExceptionsEncountered.Add(ex);
+
+                    delay = GetNextDelay(ex);
+                    if (delay == null)
+                    {
+                        throw new RetryLimitExceededException(CoreStrings.RetryLimitExceeded(MaxRetryCount, GetType().Name), ex);
+                    }
+
+                    Dependencies.Logger.ExecutionStrategyRetrying(ExceptionsEncountered, delay.Value, async: true);
+
+                    OnRetry();
+                }
+
+                await Task.Delay(delay.Value, cancellationToken);
+            }
+        }
+
         private async Task<TResult> ExecuteImplementationAsync<TState, TResult>(
             Func<DbContext, TState, CancellationToken, Task<TResult>> operation,
             Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded,
@@ -273,7 +356,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     if (verifySucceeded != null
                         && CallOnWrappedException(ex, ShouldVerifySuccessOn))
                     {
-                        var result = await ExecuteImplementationAsync(verifySucceeded, null, state, cancellationToken);
+                        // avoid infinite recursive generics
+                        // do not call ExecuteImplementationAsync again with TResult = ExecutionResult<TResult>
+                        var result = await VerifySucceededAsync(verifySucceeded, state, cancellationToken);
                         if (result.IsSuccessful)
                         {
                             return result.Result;
