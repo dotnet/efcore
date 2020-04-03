@@ -34,6 +34,16 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="keyBuilder"> The builder for the key being configured. </param>
         /// <param name="clustered"> A value indicating whether the key is clustered. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static KeyBuilder<TEntity> IsClustered<TEntity>(
+            [NotNull] this KeyBuilder<TEntity> keyBuilder, bool clustered = true)
+            => (KeyBuilder<TEntity>)IsClustered((KeyBuilder)keyBuilder, clustered);
+
+        /// <summary>
+        ///     Configures whether the key is clustered when targeting SQL Server.
+        /// </summary>
+        /// <param name="keyBuilder"> The builder for the key being configured. </param>
+        /// <param name="clustered"> A value indicating whether the key is clustered. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
