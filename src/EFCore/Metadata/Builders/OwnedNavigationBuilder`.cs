@@ -59,10 +59,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         /// </param>
         /// <returns> An object that can be used to configure the primary key. </returns>
-        public virtual KeyBuilder HasKey([NotNull] Expression<Func<TDependentEntity, object>> keyExpression)
-            => new KeyBuilder(
+        public virtual KeyBuilder<TDependentEntity> HasKey([NotNull] Expression<Func<TDependentEntity, object>> keyExpression)
+            => new KeyBuilder<TDependentEntity>(
                 DependentEntityType.Builder.PrimaryKey(
                     Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit).Metadata);
+
+        /// <summary>
+        ///     Sets the properties that make up the primary key for this owned entity type.
+        /// </summary>
+        /// <param name="propertyNames"> The names of the properties that make up the primary key. </param>
+        /// <returns> An object that can be used to configure the primary key. </returns>
+        public new virtual KeyBuilder<TDependentEntity> HasKey([NotNull] params string[] propertyNames)
+            => new KeyBuilder<TDependentEntity>(
+                DependentEntityType.Builder.PrimaryKey(
+                    Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     <para>
