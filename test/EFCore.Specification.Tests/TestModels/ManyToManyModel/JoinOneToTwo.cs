@@ -3,11 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 {
-    public class TwoSelfFullySpecified
+    public class JoinOneToTwo
     {
-        public int LeftId { get; set; }
-        public int RightId { get; set; }
-        public EntityTwo Left { get; set; }
-        public EntityTwo Right { get; set; }
+        public int OneId { get; set; }
+        public int TwoId { get; set; }
     }
 }

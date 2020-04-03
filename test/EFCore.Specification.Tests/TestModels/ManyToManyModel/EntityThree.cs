@@ -16,11 +16,15 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
         public int? CollectionInverseId { get; set; }
         public EntityTwo CollectionInverse { get; set; }
 
-        public List<EntityOne> OneFullySpecifiedWithPayload { get; set; }
-        public List<EntityTwo> TwoFullySpecified { get; set; }
+        public List<EntityOne> OneSkipPayloadFull { get; set; }
+        public List<JoinOneToThreePayloadFull> JoinOnePayloadFull { get; set; }
+        public List<EntityTwo> TwoSkipFull { get; set; }
+        public List<JoinTwoToThree> JoinTwoFull { get; set; }
 
-        public List<EntityOne> OneSharedType { get; set; }
-        public List<EntityCompositeKey> CompositeFullySpecified { get; set; }
-        public List<EntityRoot> RootSharedType { get; set; }
+        public List<EntityOne> OneSkipPayloadFullShared { get; set; }
+        public List<JoinOneToThreePayloadFullShared> JoinOnePayloadFullShared { get; set; }
+        public List<EntityCompositeKey> CompositeKeySkipFull { get; set; }
+        public List<JoinThreeToCompositeKeyFull> JoinCompositeKeyFull { get; set; }
+        public List<EntityRoot> RootSkipShared { get; set; }
     }
 }

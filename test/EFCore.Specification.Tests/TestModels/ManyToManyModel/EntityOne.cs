@@ -12,14 +12,22 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 
         public EntityTwo Reference { get; set; }
         public List<EntityTwo> Collection { get; set; }
-        public List<EntityTwo> TwoFullySpecified { get; set; }
-        public List<EntityThree> ThreeFullySpecifiedWithPayload { get; set; }
 
-        public List<EntityTwo> TwoSharedType { get; set; }
-        public List<EntityThree> ThreeSharedType { get; set; }
-        public List<EntityOne> SelfSharedTypeLeftWithPayload { get; set; }
-        public List<EntityOne> SelfSharedTypeRightWithPayload { get; set; }
+        public List<EntityTwo> TwoSkip { get; set; }
 
-        public List<EntityBranch> BranchFullySpecified { get; set; }
+        public List<EntityThree> ThreeSkipPayloadFull { get; set; }
+        public List<JoinOneToThreePayloadFull> JoinThreePayloadFull { get; set; }
+
+        public List<EntityTwo> TwoSkipShared { get; set; }
+
+        public List<EntityThree> ThreeSkipPayloadFullShared { get; set; }
+        public List<JoinOneToThreePayloadFullShared> JoinThreePayloadFullShared { get; set; }
+
+        public List<EntityOne> SelfSkipPayloadLeft { get; set; }
+        public List<JoinOneSelfPayload> JoinSelfPayloadLeft { get; set; }
+        public List<EntityOne> SelfSkipPayloadRight { get; set; }
+        public List<JoinOneSelfPayload> JoinSelfPayloadRight { get; set; }
+
+        public List<EntityBranch> BranchSkip { get; set; }
     }
 }

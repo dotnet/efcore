@@ -20,23 +20,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
         public DbSet<EntityCompositeKey> EntityCompositeKeys { get; set; }
         public DbSet<EntityRoot> EntityRoots { get; set; }
 
-        public static void Seed(ManyToManyContext context)
-        {
-            var ones = ManyToManyData.CreateOnes();
-            var twos = ManyToManyData.CreateTwos();
-            var threes = ManyToManyData.CreateThrees();
-            var compositeKeys = ManyToManyData.CreateCompositeKeys();
-            var roots = ManyToManyData.CreateRoots();
-
-            context.EntityOnes.AddRange(ones);
-            context.EntityTwos.AddRange(twos);
-            context.EntityThrees.AddRange(threes);
-            context.EntityCompositeKeys.AddRange(compositeKeys);
-            context.EntityRoots.AddRange(roots);
-
-            ManyToManyData.WireUp(ones, twos, threes, compositeKeys, roots);
-
-            context.SaveChanges();
-        }
+        public static void Seed(ManyToManyContext context) => ManyToManyData.Seed(context);
     }
 }

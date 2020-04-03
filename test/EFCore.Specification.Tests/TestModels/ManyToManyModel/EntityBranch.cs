@@ -8,6 +8,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
     public class EntityBranch : EntityRoot
     {
         public long Number { get; set; }
-        public List<EntityOne> OneFullySpecified { get; set; }
+        public List<EntityOne> OneSkip { get; set; }
     }
 }
