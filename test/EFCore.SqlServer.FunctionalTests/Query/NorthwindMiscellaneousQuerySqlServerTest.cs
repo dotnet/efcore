@@ -2778,7 +2778,7 @@ WHERE (@__NewLine_0 = N'') OR (CHARINDEX(@__NewLine_0, [c].[CustomerID]) > 0)");
             await base.Concat_string_int(async);
 
             AssertSql(
-                @"SELECT CAST([o].[OrderID] AS nchar(5)) + [o].[CustomerID]
+                @"SELECT CAST([o].[OrderID] AS nchar(5)) + COALESCE([o].[CustomerID], N'')
 FROM [Orders] AS [o]");
         }
 
