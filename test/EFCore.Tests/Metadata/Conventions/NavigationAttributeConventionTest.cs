@@ -962,6 +962,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 .ProcessNavigationAdded(navigation.Builder, context);
         }
 
+        private void RunNavigationBackingFieldAttributeConvention(InternalForeignKeyBuilder relationshipBuilder, InternalNavigationBuilder navigationBuilder)
+        {
+            var dependencies = CreateDependencies(CreateLogger());
+            var context = new ConventionContext<IConventionNavigationBuilder>(
+                relationshipBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
+
+            new NavigationBackingFieldAttributeConvention(dependencies)
+                .ProcessNavigationAdded(navigationBuilder, context);
+        }
+
         private void Validate(InternalEntityTypeBuilder entityTypeBuilder)
         {
             var dependencies = CreateDependencies(CreateLogger());
@@ -976,6 +986,52 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             new ForeignKeyAttributeConvention(dependencies)
                 .ProcessModelFinalizing(entityTypeBuilder.ModelBuilder, context);
+        }
+
+        #endregion
+
+        #region BackingFieldAttribute
+
+        [ConditionalFact]
+        public void BackingFieldAttribute_overrides_configuration_from_convention_source()
+        {
+            var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<DependentForNavWithBackingField>();
+            var principalEntityTypeBuilder =
+                dependentEntityTypeBuilder.ModelBuilder.Entity(
+                    typeof(PrincipalForNavWithBackingField), ConfigurationSource.Convention);
+
+            var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
+                    principalEntityTypeBuilder.Metadata,
+                    "PrincipalForNavWithBackingField",
+                    "DependentForNavWithBackingField",
+                    ConfigurationSource.Convention);
+
+            var navigationBuilder = relationshipBuilder.Metadata.DependentToPrincipal.Builder;
+            RunNavigationBackingFieldAttributeConvention(relationshipBuilder, navigationBuilder);
+
+            Assert.Equal("_backingFieldFromAttribute", navigationBuilder.Metadata.GetFieldName());
+        }
+
+        [ConditionalFact]
+        public void BackingFieldAttribute_does_not_override_configuration_from_explicit_source()
+        {
+            var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<DependentForNavWithBackingField>();
+            var principalEntityTypeBuilder =
+                dependentEntityTypeBuilder.ModelBuilder.Entity(
+                    typeof(PrincipalForNavWithBackingField), ConfigurationSource.Convention);
+
+            var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
+                    principalEntityTypeBuilder.Metadata,
+                    "PrincipalForNavWithBackingField",
+                    "DependentForNavWithBackingField",
+                    ConfigurationSource.Convention);
+
+            var navigationBuilder = relationshipBuilder.Metadata.DependentToPrincipal.Builder;
+            navigationBuilder.HasField("_backingFieldFromFluentApi", ConfigurationSource.Explicit);
+
+            RunNavigationBackingFieldAttributeConvention(relationshipBuilder, navigationBuilder);
+
+            Assert.Equal("_backingFieldFromFluentApi", navigationBuilder.Metadata.GetFieldName());
         }
 
         #endregion
@@ -1244,6 +1300,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             public int DependentId { get; set; }
 
             public ICollection<Dependent> Dependents { get; set; }
+        }
+
+        private class PrincipalForNavWithBackingField
+        {
+            public int Id { get; set; }
+
+            public DependentForNavWithBackingField DependentForNavWithBackingField { get; set; }
+        }
+
+        private class DependentForNavWithBackingField
+        {
+            public int Id { get; set; }
+
+#pragma warning disable IDE0044 // Add readonly modifier
+#pragma warning disable CS0169 // Field never used
+            private PrincipalForNavWithBackingField _backingFieldFromAttribute;
+            private PrincipalForNavWithBackingField _backingFieldFromFluentApi;
+#pragma warning restore CS0169 // Field never used
+#pragma warning restore IDE0044 // Add readonly modifier
+
+            [BackingField(nameof(_backingFieldFromAttribute))]
+            public PrincipalForNavWithBackingField PrincipalForNavWithBackingField { get; set; }
         }
     }
 }
