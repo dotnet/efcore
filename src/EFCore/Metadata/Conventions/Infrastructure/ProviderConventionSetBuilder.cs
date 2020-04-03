@@ -185,6 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.ModelFinalizedConventions.Add(new ValidatingConvention(Dependencies));
 
             conventionSet.NavigationAddedConventions.Add(backingFieldConvention);
+            conventionSet.NavigationAddedConventions.Add(new NavigationBackingFieldAttributeConvention(Dependencies));
             conventionSet.NavigationAddedConventions.Add(new RequiredNavigationAttributeConvention(Dependencies));
             conventionSet.NavigationAddedConventions.Add(nonNullableNavigationConvention);
             conventionSet.NavigationAddedConventions.Add(inversePropertyAttributeConvention);

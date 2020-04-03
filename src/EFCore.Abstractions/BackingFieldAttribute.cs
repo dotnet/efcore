@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Names the backing field associated with this property.
+    ///     Names the backing field associated with this property or navigation property.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class BackingFieldAttribute : Attribute
