@@ -5813,5 +5813,34 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Customer>().Where(c => customers.Contains(c)),
                 entryCount: 1);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task MemberInitExpression_NewExpression_is_funcletized_even_when_bindings_are_not_evaluatable(bool async)
+        {
+            var randomString = "random";
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c => new Dto(randomString)
+                    {
+                        CustomerID = c.CustomerID,
+                        NestedDto = new Dto(randomString)
+                    }),
+                elementSorter: e => e.CustomerID,
+                elementAsserter: (e, a) => Assert.Equal(e.CustomerID, a.CustomerID));
+        }
+
+        private class Dto
+        {
+            public Dto(string value)
+            {
+                Value = value;
+            }
+
+            public string Value { get; }
+            public string CustomerID { get; set; }
+            public Dto NestedDto { get; set; }
+        }
     }
 }
