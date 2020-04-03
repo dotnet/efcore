@@ -1341,7 +1341,7 @@ WHERE (((CAST(@__p_0 AS nchar(5)) + [c].[CustomerID]) + CAST(@__j_1 AS nchar(5))
             AssertSql(
                 @"SELECT [o].[CustomerID]
 FROM [Orders] AS [o]
-WHERE ((CAST([o].[OrderID] AS nchar(5)) + [o].[CustomerID]) = [o].[CustomerID]) OR [o].[CustomerID] IS NULL");
+WHERE (CAST([o].[OrderID] AS nchar(5)) + COALESCE([o].[CustomerID], N'')) = [o].[CustomerID]");
         }
 
         public override async Task Where_concat_string_string_comparison(bool async)

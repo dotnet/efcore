@@ -106,6 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             SqlUnaryExpression sqlUnaryExpression, CoreTypeMapping typeMapping)
         {
             SqlExpression operand;
+            Type resultType;
             CoreTypeMapping resultTypeMapping;
             switch (sqlUnaryExpression.OperatorType)
             {
@@ -115,18 +116,23 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     when sqlUnaryExpression.IsLogicalNot():
                 {
                     resultTypeMapping = _boolTypeMapping;
+                    resultType = typeof(bool);
                     operand = ApplyDefaultTypeMapping(sqlUnaryExpression.Operand);
                     break;
                 }
 
                 case ExpressionType.Convert:
                     resultTypeMapping = typeMapping;
+                    // Since we are applying convert, resultTypeMapping decides the clrType
+                    resultType = resultTypeMapping?.ClrType ?? sqlUnaryExpression.Type;
                     operand = ApplyDefaultTypeMapping(sqlUnaryExpression.Operand);
                     break;
 
                 case ExpressionType.Not:
                 case ExpressionType.Negate:
                     resultTypeMapping = typeMapping;
+                    // While Not is logical, negate is numeric hence we use clrType from TypeMapping
+                    resultType = resultTypeMapping?.ClrType ?? sqlUnaryExpression.Type;
                     operand = ApplyTypeMapping(sqlUnaryExpression.Operand, typeMapping);
                     break;
 
@@ -134,11 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     throw new InvalidOperationException(CoreStrings.TranslationFailed(sqlUnaryExpression.Print()));
             }
 
-            return new SqlUnaryExpression(
-                sqlUnaryExpression.OperatorType,
-                operand,
-                sqlUnaryExpression.Type,
-                resultTypeMapping);
+            return new SqlUnaryExpression(sqlUnaryExpression.OperatorType, operand, resultType, resultTypeMapping);
         }
 
         private SqlExpression ApplyTypeMappingOnSqlBinary(
@@ -160,11 +162,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 case ExpressionType.NotEqual:
                 {
                     inferredTypeMapping = ExpressionExtensions.InferTypeMapping(left, right)
-                                          ?? _typeMappingSource.FindMapping(left.Type);
+                        // We avoid object here since the result does not get typeMapping from outside.
+                        ?? (left.Type != typeof(object)
+                            ? _typeMappingSource.FindMapping(left.Type)
+                            : _typeMappingSource.FindMapping(right.Type));
                     resultType = typeof(bool);
                     resultTypeMapping = _boolTypeMapping;
                 }
-                    break;
+                break;
 
                 case ExpressionType.AndAlso:
                 case ExpressionType.OrElse:
@@ -173,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     resultType = typeof(bool);
                     resultTypeMapping = _boolTypeMapping;
                 }
-                    break;
+                break;
 
                 case ExpressionType.Add:
                 case ExpressionType.Subtract:
@@ -186,10 +191,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 case ExpressionType.Or:
                 {
                     inferredTypeMapping = typeMapping ?? ExpressionExtensions.InferTypeMapping(left, right);
-                    resultType = left.Type;
+                    resultType = inferredTypeMapping?.ClrType ?? left.Type;
                     resultTypeMapping = inferredTypeMapping;
                 }
-                    break;
+                break;
 
                 default:
                     throw new InvalidOperationException(CoreStrings.IncorrectOperatorType);
