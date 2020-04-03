@@ -8,6 +8,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
     public class EntityLeaf : EntityBranch
     {
         public bool? IsGreen { get; set; }
-        public List<EntityCompositeKey> CompositeKeyFullySpecified { get; set; }
+        public List<EntityCompositeKey> CompositeKeySkipFull { get; set; }
+        public List<JoinCompositeKeyToLeaf> JoinCompositeKeyFull { get; set; }
     }
 }

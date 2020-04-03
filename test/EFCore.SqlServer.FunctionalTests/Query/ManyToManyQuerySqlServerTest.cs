@@ -15,14 +15,17 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        public override async Task Dummy_test_remove_later(bool async)
+        public override async Task Can_use_skip_navigation_in_predicate(bool async)
         {
-            await base.Dummy_test_remove_later(async);
+            await base.Can_use_skip_navigation_in_predicate(async);
 
             AssertSql(
                 @"SELECT [e].[Id], [e].[Name]
 FROM [EntityOnes] AS [e]
-WHERE [e].[Id] > 1");
+WHERE (
+    SELECT COUNT(*)
+    FROM [JoinOneToThreePayloadFull] AS [j]
+    WHERE [e].[Id] = [j].[OneId]) > 1");
         }
 
         private void AssertSql(params string[] expected)

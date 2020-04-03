@@ -18,12 +18,13 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 
         public EntityThree Reference { get; set; }
         public List<EntityThree> Collection { get; set; }
-        public List<EntityOne> OneFullySpecified { get; set; }
-        public List<EntityThree> ThreeFullySpecified { get; set; }
-        public List<EntityTwo> SelfFullySpecifiedLeft { get; set; }
-        public List<EntityTwo> SelfFullySpecifiedRight { get; set; }
+        public List<EntityOne> OneSkip { get; set; }
+        public List<EntityThree> ThreeSkipFull { get; set; }
+        public List<JoinTwoToThree> JoinThreeFull { get; set; }
+        public List<EntityTwo> SelfSkipSharedLeft { get; set; }
+        public List<EntityTwo> SelfSkipSharedRight { get; set; }
 
-        public List<EntityOne> OneSharedType { get; set; }
-        public List<EntityCompositeKey> CompositeSharedType { get; set; }
+        public List<EntityOne> OneSkipShared { get; set; }
+        public List<EntityCompositeKey> CompositeKeySkipShared { get; set; }
     }
 }

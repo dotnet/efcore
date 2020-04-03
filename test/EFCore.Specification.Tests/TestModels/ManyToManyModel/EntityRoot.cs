@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public List<EntityThree> ThreesSharedType { get; set; }
-        public List<EntityCompositeKey> CompositeKeySharedType { get; set; }
+        public List<EntityThree> ThreeSkipShared { get; set; }
+        public List<EntityCompositeKey> CompositeKeySkipShared { get; set; }
     }
 }

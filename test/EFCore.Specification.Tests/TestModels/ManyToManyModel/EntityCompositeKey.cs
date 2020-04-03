@@ -14,9 +14,14 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 
         public string Name { get; set; }
 
-        public List<EntityTwo> TwoSharedType { get; set; }
-        public List<EntityThree> ThreeFullySpecified { get; set; }
-        public List<EntityRoot> RootSharedType { get; set; }
-        public List<EntityLeaf> LeafFullySpecified { get; set; }
+        public List<EntityTwo> TwoSkipShared { get; set; }
+
+        public List<EntityThree> ThreeSkipFull { get; set; }
+        public List<JoinThreeToCompositeKeyFull> JoinThreeFull { get; set; }
+
+        public List<EntityRoot> RootSkipShared { get; set; }
+
+        public List<EntityLeaf> LeafSkipFull { get; set; }
+        public List<JoinCompositeKeyToLeaf> JoinLeafFull { get; set; }
     }
 }

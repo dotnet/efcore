@@ -18,11 +18,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Dummy_test_remove_later(bool async)
+        public virtual Task Can_use_skip_navigation_in_predicate(bool async)
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<EntityOne>().Where(e => e.Id > 1));
+                ss => ss.Set<EntityOne>().Where(e => e.JoinThreePayloadFull.Select(e => e.Three).Count() > 1));
         }
 
         protected ManyToManyContext CreateContext() => Fixture.CreateContext();

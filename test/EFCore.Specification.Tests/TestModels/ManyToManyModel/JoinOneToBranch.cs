@@ -3,13 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 {
-    public class OneToThreeFullySpecifiedWithPayload
+    public class JoinOneToBranch
     {
         public int OneId { get; set; }
-        public int ThreeId { get; set; }
-        public EntityOne One { get; set; }
-        public EntityThree Three { get; set; }
-
-        public string Payload { get; set; }
+        public int BranchId { get; set; }
     }
 }

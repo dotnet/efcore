@@ -6,63 +6,44 @@ using System;
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 {
     // TODO: remove and use shared type instead
-    public class OneToTwoSharedType
+    public class JoinOneToTwoShared
     {
         public int OneId { get; set; }
         public int TwoId { get; set; }
-
-        public EntityOne One { get; set; }
-        public EntityTwo Two { get; set; }
     }
 
-    public class OneToThreeSharedType
+    public class JoinOneToThreePayloadFullShared
     {
         public int OneId { get; set; }
         public int ThreeId { get; set; }
-
-        public EntityOne One { get; set; }
-        public EntityThree Three { get; set; }
+        public string Payload { get; set; }
     }
 
-    public class OneSelfSharedTypeWithPayload
+    public class JoinTwoSelfShared
     {
         public int LeftId { get; set; }
         public int RightId { get; set; }
-
-        public EntityOne Left { get; set; }
-        public EntityOne Right { get; set; }
-
-        public DateTime Payload { get; set; }
     }
 
-    public class TwoToCompositeSharedType
+    public class JoinTwoToCompositeKeyShared
     {
         public int TwoId { get; set; }
         public int CompositeId1 { get; set; }
         public string CompositeId2 { get; set; }
         public DateTime CompositeId3 { get; set; }
-
-        public EntityTwo Two { get; set; }
-        public EntityCompositeKey Composite { get; set; }
     }
 
-    public class ThreeToRootSharedType
+    public class JoinThreeToRootShared
     {
         public int ThreeId { get; set; }
         public int RootId { get; set; }
-
-        public EntityThree Three { get; set; }
-        public EntityRoot Root { get; set; }
     }
 
-    public class CompositeToRootSharedType
+    public class JoinCompositeKeyToRootShared
     {
         public int CompositeId1 { get; set; }
         public string CompositeId2 { get; set; }
         public DateTime CompositeId3 { get; set; }
         public int RootId { get; set; }
-
-        public EntityCompositeKey Composite { get; set; }
-        public EntityRoot Root { get; set; }
     }
 }

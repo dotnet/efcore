@@ -10,64 +10,345 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 {
     public class ManyToManyData : ISetSource
     {
-        public IReadOnlyList<EntityOne> Ones { get; }
-        public IReadOnlyList<EntityTwo> Twos { get; }
-        public IReadOnlyList<EntityThree> Threes { get; }
-        public IReadOnlyList<EntityCompositeKey> CompositeKeys { get; }
-        public IReadOnlyList<EntityRoot> Roots { get; }
+        private readonly EntityOne[] _ones;
+        private readonly EntityTwo[] _twos;
+        private readonly EntityThree[] _threes;
+        private readonly EntityCompositeKey[] _compositeKeys;
+        private readonly EntityRoot[] _roots;
+
+        private readonly JoinCompositeKeyToLeaf[] _joinCompositeKeyToLeaves;
+        private readonly JoinOneSelfPayload[] _joinOneSelfPayloads;
+        private readonly JoinOneToBranch[] _joinOneToBranches;
+        private readonly JoinOneToThreePayloadFull[] _joinOneToThreePayloadFulls;
+        private readonly JoinOneToTwo[] _joinOneToTwos;
+        private readonly JoinThreeToCompositeKeyFull[] _joinThreeToCompositeKeyFulls;
+        private readonly JoinTwoToThree[] _joinTwoToThrees;
+
+        private readonly JoinOneToTwoShared[] _joinOneToTwoShareds;
+        private readonly JoinOneToThreePayloadFullShared[] _joinOneToThreePayloadFullShareds;
+        private readonly JoinTwoSelfShared[] _joinTwoSelfShareds;
+        private readonly JoinTwoToCompositeKeyShared[] _joinTwoToCompositeKeyShareds;
+        private readonly JoinThreeToRootShared[] _joinThreeToRootShareds;
+        private readonly JoinCompositeKeyToRootShared[] _joinCompositeKeyToRootShareds;
 
         public ManyToManyData()
         {
-            Ones = CreateOnes();
-            Twos = CreateTwos();
-            Threes = CreateThrees();
-            CompositeKeys = CreateCompositeKeys();
-            Roots = CreateRoots();
+            _ones = CreateOnes();
+            _twos = CreateTwos();
+            _threes = CreateThrees();
+            _compositeKeys = CreateCompositeKeys();
+            _roots = CreateRoots();
+
+            _joinCompositeKeyToLeaves = CreateJoinCompositeKeyToLeaves();
+            _joinOneSelfPayloads = CreateJoinOneSelfPayloads();
+            _joinOneToBranches = CreateJoinOneToBranches();
+            _joinOneToThreePayloadFulls = CreateJoinOneToThreePayloadFulls();
+            _joinOneToTwos = CreateJoinOneToTwos();
+            _joinThreeToCompositeKeyFulls = CreateJoinThreeToCompositeKeyFulls();
+            _joinTwoToThrees = CreateJoinTwoToThrees();
+
+            _joinOneToTwoShareds = CreateJoinOneToTwoShareds();
+            _joinOneToThreePayloadFullShareds = CreateJoinOneToThreePayloadFullShareds();
+            _joinTwoSelfShareds = CreateJoinTwoSelfShareds();
+            _joinTwoToCompositeKeyShareds = CreateJoinTwoToCompositeKeyShareds();
+            _joinThreeToRootShareds = CreateJoinThreeToRootShareds();
+            _joinCompositeKeyToRootShareds = CreateJoinCompositeKeyToRootShareds();
+
+            foreach (var basicOne in _ones)
+            {
+                basicOne.Collection = new List<EntityTwo>();
+                basicOne.TwoSkip = new List<EntityTwo>();
+                basicOne.ThreeSkipPayloadFull = new List<EntityThree>();
+                basicOne.JoinThreePayloadFull = new List<JoinOneToThreePayloadFull>();
+                basicOne.TwoSkipShared = new List<EntityTwo>();
+                basicOne.ThreeSkipPayloadFullShared = new List<EntityThree>();
+                basicOne.JoinThreePayloadFullShared = new List<JoinOneToThreePayloadFullShared>();
+                basicOne.SelfSkipPayloadLeft = new List<EntityOne>();
+                basicOne.JoinSelfPayloadLeft = new List<JoinOneSelfPayload>();
+                basicOne.SelfSkipPayloadRight = new List<EntityOne>();
+                basicOne.JoinSelfPayloadRight = new List<JoinOneSelfPayload>();
+                basicOne.BranchSkip = new List<EntityBranch>();
+            }
+
+            foreach (var basicTwo in _twos)
+            {
+                basicTwo.Collection = new List<EntityThree>();
+                basicTwo.OneSkip = new List<EntityOne>();
+                basicTwo.ThreeSkipFull = new List<EntityThree>();
+                basicTwo.JoinThreeFull = new List<JoinTwoToThree>();
+                basicTwo.OneSkipShared = new List<EntityOne>();
+                basicTwo.SelfSkipSharedLeft = new List<EntityTwo>();
+                basicTwo.SelfSkipSharedRight = new List<EntityTwo>();
+                basicTwo.CompositeKeySkipShared = new List<EntityCompositeKey>();
+
+                var collectionOne = _ones.FirstOrDefault(o => o.Id == basicTwo.CollectionInverseId);
+                basicTwo.CollectionInverse = collectionOne;
+                collectionOne?.Collection.Add(basicTwo);
+
+                var referenceOne = _ones.FirstOrDefault(o => o.Id == basicTwo.ReferenceInverseId);
+                basicTwo.ReferenceInverse = referenceOne;
+                if (referenceOne != null)
+                {
+                    referenceOne.Reference = basicTwo;
+                }
+            }
+
+            foreach (var basicThree in _threes)
+            {
+                basicThree.OneSkipPayloadFull = new List<EntityOne>();
+                basicThree.JoinOnePayloadFull = new List<JoinOneToThreePayloadFull>();
+                basicThree.TwoSkipFull = new List<EntityTwo>();
+                basicThree.JoinTwoFull = new List<JoinTwoToThree>();
+                basicThree.OneSkipPayloadFullShared = new List<EntityOne>();
+                basicThree.JoinOnePayloadFullShared = new List<JoinOneToThreePayloadFullShared>();
+                basicThree.CompositeKeySkipFull = new List<EntityCompositeKey>();
+                basicThree.JoinCompositeKeyFull = new List<JoinThreeToCompositeKeyFull>();
+                basicThree.RootSkipShared = new List<EntityRoot>();
+
+                var collectionTwo = _twos.FirstOrDefault(o => o.Id == basicThree.CollectionInverseId);
+                basicThree.CollectionInverse = collectionTwo;
+                collectionTwo?.Collection.Add(basicThree);
+
+                var referenceTwo = _twos.FirstOrDefault(o => o.Id == basicThree.ReferenceInverseId);
+                basicThree.ReferenceInverse = referenceTwo;
+                if (referenceTwo != null)
+                {
+                    referenceTwo.Reference = basicThree;
+                }
+            }
+
+            foreach (var compositeKey in _compositeKeys)
+            {
+                compositeKey.TwoSkipShared = new List<EntityTwo>();
+                compositeKey.ThreeSkipFull = new List<EntityThree>();
+                compositeKey.JoinThreeFull = new List<JoinThreeToCompositeKeyFull>();
+                compositeKey.RootSkipShared = new List<EntityRoot>();
+                compositeKey.LeafSkipFull = new List<EntityLeaf>();
+                compositeKey.JoinLeafFull = new List<JoinCompositeKeyToLeaf>();
+            }
+
+            foreach (var root in _roots)
+            {
+                root.ThreeSkipShared = new List<EntityThree>();
+                root.CompositeKeySkipShared = new List<EntityCompositeKey>();
+
+                if (root is EntityBranch branch)
+                {
+                    branch.OneSkip = new List<EntityOne>();
+                }
+
+                if (root is EntityLeaf leaf)
+                {
+                    leaf.CompositeKeySkipFull = new List<EntityCompositeKey>();
+                    leaf.JoinCompositeKeyFull = new List<JoinCompositeKeyToLeaf>();
+                }
+            }
+
+            // Join entities
+            foreach (var joinEntity in _joinOneToTwos)
+            {
+                var one = _ones.First(o => o.Id == joinEntity.OneId);
+                var two = _twos.First(t => t.Id == joinEntity.TwoId);
+                one.TwoSkip.Add(two);
+                two.OneSkip.Add(one);
+            }
+
+            foreach (var joinEntity in _joinOneToThreePayloadFulls)
+            {
+                var one = _ones.First(o => o.Id == joinEntity.OneId);
+                var three = _threes.First(t => t.Id == joinEntity.ThreeId);
+                one.ThreeSkipPayloadFull.Add(three);
+                one.JoinThreePayloadFull.Add(joinEntity);
+                three.OneSkipPayloadFull.Add(one);
+                three.JoinOnePayloadFull.Add(joinEntity);
+                joinEntity.One = one;
+                joinEntity.Three = three;
+            }
+
+            foreach (var joinEntity in _joinOneSelfPayloads)
+            {
+                var left = _ones.First(o => o.Id == joinEntity.LeftId);
+                var right = _ones.First(t => t.Id == joinEntity.RightId);
+                left.SelfSkipPayloadRight.Add(right);
+                left.JoinSelfPayloadRight.Add(joinEntity);
+                right.SelfSkipPayloadLeft.Add(left);
+                right.JoinSelfPayloadLeft.Add(joinEntity);
+                joinEntity.Left = left;
+                joinEntity.Right = right;
+            }
+
+            foreach (var joinEntity in _joinOneToBranches)
+            {
+                var one = _ones.First(o => o.Id == joinEntity.OneId);
+                var branch = _roots.OfType<EntityBranch>().First(t => t.Id == joinEntity.BranchId);
+                one.BranchSkip.Add(branch);
+                branch.OneSkip.Add(one);
+            }
+
+            foreach (var joinEntity in _joinTwoToThrees)
+            {
+                var two = _twos.First(o => o.Id == joinEntity.TwoId);
+                var three = _threes.First(t => t.Id == joinEntity.ThreeId);
+                two.ThreeSkipFull.Add(three);
+                two.JoinThreeFull.Add(joinEntity);
+                three.TwoSkipFull.Add(two);
+                three.JoinTwoFull.Add(joinEntity);
+                joinEntity.Two = two;
+                joinEntity.Three = three;
+            }
+
+            foreach (var joinEntity in _joinThreeToCompositeKeyFulls)
+            {
+                var compositeKey = _compositeKeys.First(o => o.Key1 == joinEntity.CompositeId1
+                    && o.Key2 == joinEntity.CompositeId2
+                    && o.Key3 == joinEntity.CompositeId3);
+                var three = _threes.First(t => t.Id == joinEntity.ThreeId);
+                compositeKey.ThreeSkipFull.Add(three);
+                compositeKey.JoinThreeFull.Add(joinEntity);
+                three.CompositeKeySkipFull.Add(compositeKey);
+                three.JoinCompositeKeyFull.Add(joinEntity);
+                joinEntity.Composite = compositeKey;
+                joinEntity.Three = three;
+            }
+
+            foreach (var joinEntity in _joinCompositeKeyToLeaves)
+            {
+                var compositeKey = _compositeKeys.First(o => o.Key1 == joinEntity.CompositeId1
+                    && o.Key2 == joinEntity.CompositeId2
+                    && o.Key3 == joinEntity.CompositeId3);
+                var leaf = _roots.OfType<EntityLeaf>().First(t => t.Id == joinEntity.LeafId);
+                compositeKey.LeafSkipFull.Add(leaf);
+                compositeKey.JoinLeafFull.Add(joinEntity);
+                leaf.CompositeKeySkipFull.Add(compositeKey);
+                leaf.JoinCompositeKeyFull.Add(joinEntity);
+                joinEntity.Composite = compositeKey;
+                joinEntity.Leaf = leaf;
+            }
+
+            // Shared join entities
+            foreach (var joinEntity in _joinOneToTwoShareds)
+            {
+                var one = _ones.First(o => o.Id == joinEntity.OneId);
+                var two = _twos.First(t => t.Id == joinEntity.TwoId);
+                one.TwoSkipShared.Add(two);
+                two.OneSkipShared.Add(one);
+            }
+
+            foreach (var joinEntity in _joinOneToThreePayloadFullShareds)
+            {
+                var one = _ones.First(o => o.Id == joinEntity.OneId);
+                var three = _threes.First(t => t.Id == joinEntity.ThreeId);
+                one.ThreeSkipPayloadFullShared.Add(three);
+                one.JoinThreePayloadFullShared.Add(joinEntity);
+                three.OneSkipPayloadFullShared.Add(one);
+                three.JoinOnePayloadFullShared.Add(joinEntity);
+            }
+
+            foreach (var joinEntity in _joinTwoSelfShareds)
+            {
+                var left = _twos.First(o => o.Id == joinEntity.LeftId);
+                var right = _twos.First(t => t.Id == joinEntity.RightId);
+                left.SelfSkipSharedRight.Add(right);
+                right.SelfSkipSharedLeft.Add(left);
+            }
+
+            foreach (var joinEntity in _joinTwoToCompositeKeyShareds)
+            {
+                var compositeKey = _compositeKeys.First(o => o.Key1 == joinEntity.CompositeId1
+                    && o.Key2 == joinEntity.CompositeId2
+                    && o.Key3 == joinEntity.CompositeId3);
+                var two = _twos.First(t => t.Id == joinEntity.TwoId);
+                compositeKey.TwoSkipShared.Add(two);
+                two.CompositeKeySkipShared.Add(compositeKey);
+            }
+
+            foreach (var joinEntity in _joinThreeToRootShareds)
+            {
+                var three = _threes.First(o => o.Id == joinEntity.ThreeId);
+                var root = _roots.First(t => t.Id == joinEntity.RootId);
+                three.RootSkipShared.Add(root);
+                root.ThreeSkipShared.Add(three);
+            }
+
+            foreach (var joinEntity in _joinCompositeKeyToRootShareds)
+            {
+                var compositeKey = _compositeKeys.First(o => o.Key1 == joinEntity.CompositeId1
+                    && o.Key2 == joinEntity.CompositeId2
+                    && o.Key3 == joinEntity.CompositeId3);
+                var root = _roots.First(t => t.Id == joinEntity.RootId);
+                compositeKey.RootSkipShared.Add(root);
+                root.CompositeKeySkipShared.Add(compositeKey);
+            }
         }
 
         public IQueryable<TEntity> Set<TEntity>() where TEntity : class
         {
             if (typeof(TEntity) == typeof(EntityOne))
             {
-                return (IQueryable<TEntity>)Ones.AsQueryable();
+                return (IQueryable<TEntity>)_ones.AsQueryable();
             }
 
             if (typeof(TEntity) == typeof(EntityTwo))
             {
-                return (IQueryable<TEntity>)Twos.AsQueryable();
+                return (IQueryable<TEntity>)_twos.AsQueryable();
             }
 
             if (typeof(TEntity) == typeof(EntityThree))
             {
-                return (IQueryable<TEntity>)Threes.AsQueryable();
+                return (IQueryable<TEntity>)_threes.AsQueryable();
             }
 
             if (typeof(TEntity) == typeof(EntityCompositeKey))
             {
-                return (IQueryable<TEntity>)CompositeKeys.AsQueryable();
+                return (IQueryable<TEntity>)_compositeKeys.AsQueryable();
             }
 
             if (typeof(TEntity) == typeof(EntityRoot))
             {
-                return (IQueryable<TEntity>)Roots.AsQueryable();
+                return (IQueryable<TEntity>)_roots.AsQueryable();
             }
 
             if (typeof(TEntity) == typeof(EntityBranch))
             {
-                return (IQueryable<TEntity>)Roots.OfType<EntityBranch>().AsQueryable();
+                return (IQueryable<TEntity>)_roots.OfType<EntityBranch>().AsQueryable();
             }
 
             if (typeof(TEntity) == typeof(EntityLeaf))
             {
-                return (IQueryable<TEntity>)Roots.OfType<EntityLeaf>().AsQueryable();
+                return (IQueryable<TEntity>)_roots.OfType<EntityLeaf>().AsQueryable();
             }
 
             throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
         }
 
-        public static IReadOnlyList<EntityOne> CreateOnes()
+        public static void Seed(ManyToManyContext context)
         {
-            var result = new List<EntityOne>
+            context.Set<EntityOne>().AddRange(CreateOnes());
+            context.Set<EntityTwo>().AddRange(CreateTwos());
+            context.Set<EntityThree>().AddRange(CreateThrees());
+            context.Set<EntityCompositeKey>().AddRange(CreateCompositeKeys());
+            context.Set<EntityRoot>().AddRange(CreateRoots());
+
+            context.Set<JoinCompositeKeyToLeaf>().AddRange(CreateJoinCompositeKeyToLeaves());
+            context.Set<JoinOneSelfPayload>().AddRange(CreateJoinOneSelfPayloads());
+            context.Set<JoinOneToBranch>().AddRange(CreateJoinOneToBranches());
+            context.Set<JoinOneToThreePayloadFull>().AddRange(CreateJoinOneToThreePayloadFulls());
+            context.Set<JoinOneToTwo>().AddRange(CreateJoinOneToTwos());
+            context.Set<JoinThreeToCompositeKeyFull>().AddRange(CreateJoinThreeToCompositeKeyFulls());
+            context.Set<JoinTwoToThree>().AddRange(CreateJoinTwoToThrees());
+
+            context.Set<JoinOneToTwoShared>().AddRange(CreateJoinOneToTwoShareds());
+            context.Set<JoinOneToThreePayloadFullShared>().AddRange(CreateJoinOneToThreePayloadFullShareds());
+            context.Set<JoinTwoSelfShared>().AddRange(CreateJoinTwoSelfShareds());
+            context.Set<JoinTwoToCompositeKeyShared>().AddRange(CreateJoinTwoToCompositeKeyShareds());
+            context.Set<JoinThreeToRootShared>().AddRange(CreateJoinThreeToRootShareds());
+            context.Set<JoinCompositeKeyToRootShared>().AddRange(CreateJoinCompositeKeyToRootShareds());
+
+            context.SaveChanges();
+        }
+
+        private static EntityOne[] CreateOnes()
+            => new[]
             {
                 new EntityOne { Id = 1, Name = "EntityOne 1" },
                 new EntityOne { Id = 2, Name = "EntityOne 2" },
@@ -90,71 +371,56 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
                 new EntityOne { Id = 19, Name = "EntityOne 19" },
                 new EntityOne { Id = 20, Name = "EntityOne 20" },
             };
-
-            return result;
-        }
-
-        public static IReadOnlyList<EntityTwo> CreateTwos()
-        {
-            var result = new List<EntityTwo>
+        private static EntityTwo[] CreateTwos()
+            => new[]
             {
-                new EntityTwo { Id = 1, Name = "EntityTwo 1" },
-                new EntityTwo { Id = 2, Name = "EntityTwo 2" },
-                new EntityTwo { Id = 3, Name = "EntityTwo 3" },
-                new EntityTwo { Id = 4, Name = "EntityTwo 4" },
-                new EntityTwo { Id = 5, Name = "EntityTwo 5" },
-                new EntityTwo { Id = 6, Name = "EntityTwo 6" },
-                new EntityTwo { Id = 7, Name = "EntityTwo 7" },
-                new EntityTwo { Id = 8, Name = "EntityTwo 8" },
-                new EntityTwo { Id = 9, Name = "EntityTwo 9" },
-                new EntityTwo { Id = 10, Name = "EntityTwo 10" },
-                new EntityTwo { Id = 11, Name = "EntityTwo 11" },
-                new EntityTwo { Id = 12, Name = "EntityTwo 12" },
-                new EntityTwo { Id = 13, Name = "EntityTwo 13" },
-                new EntityTwo { Id = 14, Name = "EntityTwo 14" },
-                new EntityTwo { Id = 15, Name = "EntityTwo 15" },
-                new EntityTwo { Id = 16, Name = "EntityTwo 16" },
-                new EntityTwo { Id = 17, Name = "EntityTwo 17" },
-                new EntityTwo { Id = 18, Name = "EntityTwo 18" },
-                new EntityTwo { Id = 19, Name = "EntityTwo 19" },
-                new EntityTwo { Id = 20, Name = "EntityTwo 20" },
+                new EntityTwo { Id = 1, Name = "EntityTwo 1", ReferenceInverseId = null, CollectionInverseId = 1 },
+                new EntityTwo { Id = 2, Name = "EntityTwo 2", ReferenceInverseId = null, CollectionInverseId = 1 },
+                new EntityTwo { Id = 3, Name = "EntityTwo 3", ReferenceInverseId = null, CollectionInverseId = null },
+                new EntityTwo { Id = 4, Name = "EntityTwo 4", ReferenceInverseId = null, CollectionInverseId = 3 },
+                new EntityTwo { Id = 5, Name = "EntityTwo 5", ReferenceInverseId = null, CollectionInverseId = 3 },
+                new EntityTwo { Id = 6, Name = "EntityTwo 6", ReferenceInverseId = null, CollectionInverseId = 5 },
+                new EntityTwo { Id = 7, Name = "EntityTwo 7", ReferenceInverseId = null, CollectionInverseId = 5 },
+                new EntityTwo { Id = 8, Name = "EntityTwo 8", ReferenceInverseId = null, CollectionInverseId = 7 },
+                new EntityTwo { Id = 9, Name = "EntityTwo 9", ReferenceInverseId = null, CollectionInverseId = 7 },
+                new EntityTwo { Id = 10, Name = "EntityTwo 10", ReferenceInverseId = 20, CollectionInverseId = 9 },
+                new EntityTwo { Id = 11, Name = "EntityTwo 11", ReferenceInverseId = 18, CollectionInverseId = 9 },
+                new EntityTwo { Id = 12, Name = "EntityTwo 12", ReferenceInverseId = 16, CollectionInverseId = 11 },
+                new EntityTwo { Id = 13, Name = "EntityTwo 13", ReferenceInverseId = 14, CollectionInverseId = 11 },
+                new EntityTwo { Id = 14, Name = "EntityTwo 14", ReferenceInverseId = 12, CollectionInverseId = 13 },
+                new EntityTwo { Id = 15, Name = "EntityTwo 15", ReferenceInverseId = 11, CollectionInverseId = 13 },
+                new EntityTwo { Id = 16, Name = "EntityTwo 16", ReferenceInverseId = 9, CollectionInverseId = 15 },
+                new EntityTwo { Id = 17, Name = "EntityTwo 17", ReferenceInverseId = 7, CollectionInverseId = 15 },
+                new EntityTwo { Id = 18, Name = "EntityTwo 18", ReferenceInverseId = 5, CollectionInverseId = 16 },
+                new EntityTwo { Id = 19, Name = "EntityTwo 19", ReferenceInverseId = 3, CollectionInverseId = 16 },
+                new EntityTwo { Id = 20, Name = "EntityTwo 20", ReferenceInverseId = 1, CollectionInverseId = 17 },
             };
-
-            return result;
-        }
-
-        public static IReadOnlyList<EntityThree> CreateThrees()
-        {
-            var result = new List<EntityThree>
+        private static EntityThree[] CreateThrees()
+            => new[]
             {
-                new EntityThree { Id = 1, Name = "EntityThree 1" },
-                new EntityThree { Id = 2, Name = "EntityThree 2" },
-                new EntityThree { Id = 3, Name = "EntityThree 3" },
-                new EntityThree { Id = 4, Name = "EntityThree 4" },
-                new EntityThree { Id = 5, Name = "EntityThree 5" },
-                new EntityThree { Id = 6, Name = "EntityThree 6" },
-                new EntityThree { Id = 7, Name = "EntityThree 7" },
-                new EntityThree { Id = 8, Name = "EntityThree 8" },
-                new EntityThree { Id = 9, Name = "EntityThree 9" },
-                new EntityThree { Id = 10, Name = "EntityThree 10" },
-                new EntityThree { Id = 11, Name = "EntityThree 11" },
-                new EntityThree { Id = 12, Name = "EntityThree 12" },
-                new EntityThree { Id = 13, Name = "EntityThree 13" },
-                new EntityThree { Id = 14, Name = "EntityThree 14" },
-                new EntityThree { Id = 15, Name = "EntityThree 15" },
-                new EntityThree { Id = 16, Name = "EntityThree 16" },
-                new EntityThree { Id = 17, Name = "EntityThree 17" },
-                new EntityThree { Id = 18, Name = "EntityThree 18" },
-                new EntityThree { Id = 19, Name = "EntityThree 19" },
-                new EntityThree { Id = 20, Name = "EntityThree 20" },
+                new EntityThree { Id = 1, Name = "EntityThree 1", ReferenceInverseId = null, CollectionInverseId = null },
+                new EntityThree { Id = 2, Name = "EntityThree 2", ReferenceInverseId = 19, CollectionInverseId = 17 },
+                new EntityThree { Id = 3, Name = "EntityThree 3", ReferenceInverseId = 2, CollectionInverseId = 16 },
+                new EntityThree { Id = 4, Name = "EntityThree 4", ReferenceInverseId = 20, CollectionInverseId = 16 },
+                new EntityThree { Id = 5, Name = "EntityThree 5", ReferenceInverseId = 4, CollectionInverseId = 15 },
+                new EntityThree { Id = 6, Name = "EntityThree 6", ReferenceInverseId = null, CollectionInverseId = 15 },
+                new EntityThree { Id = 7, Name = "EntityThree 7", ReferenceInverseId = 6, CollectionInverseId = 13 },
+                new EntityThree { Id = 8, Name = "EntityThree 8", ReferenceInverseId = null, CollectionInverseId = 13 },
+                new EntityThree { Id = 9, Name = "EntityThree 9", ReferenceInverseId = 8, CollectionInverseId = 11 },
+                new EntityThree { Id = 10, Name = "EntityThree 10", ReferenceInverseId = null, CollectionInverseId = 11 },
+                new EntityThree { Id = 11, Name = "EntityThree 11", ReferenceInverseId = 10, CollectionInverseId = 9 },
+                new EntityThree { Id = 12, Name = "EntityThree 12", ReferenceInverseId = null, CollectionInverseId = 9 },
+                new EntityThree { Id = 13, Name = "EntityThree 13", ReferenceInverseId = 12, CollectionInverseId = 7 },
+                new EntityThree { Id = 14, Name = "EntityThree 14", ReferenceInverseId = null, CollectionInverseId = 7 },
+                new EntityThree { Id = 15, Name = "EntityThree 15", ReferenceInverseId = 14, CollectionInverseId = 5 },
+                new EntityThree { Id = 16, Name = "EntityThree 16", ReferenceInverseId = null, CollectionInverseId = 5 },
+                new EntityThree { Id = 17, Name = "EntityThree 17", ReferenceInverseId = 16, CollectionInverseId = 3 },
+                new EntityThree { Id = 18, Name = "EntityThree 18", ReferenceInverseId = null, CollectionInverseId = 3 },
+                new EntityThree { Id = 19, Name = "EntityThree 19", ReferenceInverseId = 18, CollectionInverseId = 1 },
+                new EntityThree { Id = 20, Name = "EntityThree 20", ReferenceInverseId = null, CollectionInverseId = 1 },
             };
-
-            return result;
-        }
-
-        public static IReadOnlyList<EntityCompositeKey> CreateCompositeKeys()
-        {
-            var result = new List<EntityCompositeKey>
+        private static EntityCompositeKey[] CreateCompositeKeys()
+            => new[]
             {
                 new EntityCompositeKey { Key1 = 1, Key2 = "1_1", Key3 = new DateTime(2001, 1, 1), Name = "Composite 1" },
                 new EntityCompositeKey { Key1 = 1, Key2 = "1_2", Key3 = new DateTime(2001, 2, 1), Name = "Composite 2" },
@@ -177,13 +443,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
                 new EntityCompositeKey { Key1 = 9, Key2 = "9_6", Key3 = new DateTime(2009, 6, 1), Name = "Composite 19" },
                 new EntityCompositeKey { Key1 = 9, Key2 = "9_7", Key3 = new DateTime(2009, 7, 1), Name = "Composite 20" },
             };
-
-            return result;
-        }
-
-        public static IReadOnlyList<EntityRoot> CreateRoots()
-        {
-            var result = new List<EntityRoot>
+        private static EntityRoot[] CreateRoots()
+            => new[]
             {
                 new EntityRoot { Id = 1, Name = "Root 1" },
                 new EntityRoot { Id = 2, Name = "Root 2" },
@@ -201,971 +462,718 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
                 new EntityBranch { Id = 14, Name = "Branch 4", Number = 7777 },
                 new EntityBranch { Id = 15, Name = "Branch 5", Number = 77777 },
                 new EntityBranch { Id = 16, Name = "Branch 6", Number = 777777 },
-                new EntityLeaf { Id = 17, Name = "Leaf 1", Number = 42, IsGreen = true },
-                new EntityLeaf { Id = 18, Name = "Leaf 2", Number = 421, IsGreen = true },
-                new EntityLeaf { Id = 19, Name = "Leaf 3", Number = 1337, IsGreen = false },
-                new EntityLeaf { Id = 20, Name = "Leaf 4", Number = 1729, IsGreen = false },
+                new EntityLeaf { Id = 21, Name = "Leaf 1", Number = 42, IsGreen = true },
+                new EntityLeaf { Id = 22, Name = "Leaf 2", Number = 421, IsGreen = true },
+                new EntityLeaf { Id = 23, Name = "Leaf 3", Number = 1337, IsGreen = false },
+                new EntityLeaf { Id = 24, Name = "Leaf 4", Number = 1729, IsGreen = false },
             };
 
-            return result;
-        }
-
-        private static void CreateRelationship_OneCollection(
-            EntityOne one,
-            EntityTwo two)
-        {
-            one.Collection.Add(two);
-            two.CollectionInverse = one;
-        }
-
-        private static void CreateRelationship_OneReference(
-            EntityOne one,
-            EntityTwo two)
-        {
-            one.Reference = two;
-            two.ReferenceInverse = one;
-        }
-
-        private static void CreateRelationship_OneToOneFullySpecified(
-            EntityOne left,
-            EntityTwo right)
-        {
-            left.TwoFullySpecified.Add(right);
-            right.OneFullySpecified.Add(left);
-        }
-
-        private static void CreateRelationship_OneToThreeFullySpecifiedWithPayload(
-            EntityOne left,
-            EntityThree right)
-        {
-            left.ThreeFullySpecifiedWithPayload.Add(right);
-            right.OneFullySpecifiedWithPayload.Add(left);
-        }
-
-        private static void CreateRelationship_OneToTwoSharedType(
-            EntityOne left,
-            EntityTwo right)
-        {
-            left.TwoSharedType.Add(right);
-            right.OneSharedType.Add(left);
-        }
-
-        private static void CreateRelationship_OneToThreeSharedType(
-            EntityOne left,
-            EntityThree right)
-        {
-            left.ThreeSharedType.Add(right);
-            right.OneSharedType.Add(left);
-        }
-
-        private static void CreateRelationship_OneSelfSharedTypeWithPayload(
-            EntityOne left,
-            EntityOne right)
-        {
-            left.SelfSharedTypeRightWithPayload.Add(right);
-            right.SelfSharedTypeLeftWithPayload.Add(left);
-        }
-
-        private static void CreateRelationship_OneToBranchFullySpecified(
-            EntityOne left,
-            EntityBranch branch)
-        {
-            left.BranchFullySpecified.Add(branch);
-            branch.OneFullySpecified.Add(left);
-        }
-
-        private static void CreateRelationship_TwoCollection(
-            EntityTwo two,
-            EntityThree three)
-        {
-            two.Collection.Add(three);
-            three.CollectionInverse = two;
-        }
-
-        private static void CreateRelationship_TwoReference(
-            EntityTwo two,
-            EntityThree three)
-        {
-            two.Reference = three;
-            three.ReferenceInverse = two;
-        }
-
-        private static void CreateRelationship_TwoToThreeFullySpecified(
-            EntityTwo left,
-            EntityThree right)
-        {
-            left.ThreeFullySpecified.Add(right);
-            right.TwoFullySpecified.Add(left);
-        }
-
-        private static void CreateRelationship_TwoSelfFullySpecified(
-            EntityTwo left,
-            EntityTwo right)
-        {
-            left.SelfFullySpecifiedRight.Add(right);
-            right.SelfFullySpecifiedLeft.Add(left);
-        }
-
-        private static void CreateRelationship_TwoToCompositeSharedType(
-            EntityTwo left,
-            EntityCompositeKey right)
-        {
-            left.CompositeSharedType.Add(right);
-            right.TwoSharedType.Add(left);
-        }
-
-        private static void CreateRelationship_ThreeToCompositeFullySpecified(
-            EntityThree left,
-            EntityCompositeKey right)
-        {
-            left.CompositeFullySpecified.Add(right);
-            right.ThreeFullySpecified.Add(left);
-        }
-
-        private static void CreateRelationship_ThreeToRootSharedType(
-            EntityThree left,
-            EntityRoot right)
-        {
-            left.RootSharedType.Add(right);
-            right.ThreesSharedType.Add(left);
-        }
-
-        private static void CreateRelationship_CompositeKeyToRootSharedType(
-            EntityCompositeKey left,
-            EntityRoot right)
-        {
-            left.RootSharedType.Add(right);
-            right.CompositeKeySharedType.Add(left);
-        }
-
-        private static void CreateRelationship_CompositeKeyToLeafSharedType(
-            EntityCompositeKey left,
-            EntityLeaf right)
-        {
-            left.RootSharedType.Add(right);
-            right.CompositeKeySharedType.Add(left);
-        }
-
-        public static void WireUp(
-            IReadOnlyList<EntityOne> ones,
-            IReadOnlyList<EntityTwo> twos,
-            IReadOnlyList<EntityThree> threes,
-            IReadOnlyList<EntityCompositeKey> compositeKeys,
-            IReadOnlyList<EntityRoot> roots)
-        {
-            foreach (var basicOne in ones)
+        private static JoinCompositeKeyToLeaf[] CreateJoinCompositeKeyToLeaves()
+            => new[]
             {
-                basicOne.Collection = new List<EntityTwo>();
-                basicOne.TwoFullySpecified = new List<EntityTwo>();
-                basicOne.ThreeFullySpecifiedWithPayload = new List<EntityThree>();
-                basicOne.TwoSharedType = new List<EntityTwo>();
-                basicOne.ThreeSharedType = new List<EntityThree>();
-                basicOne.SelfSharedTypeLeftWithPayload = new List<EntityOne>();
-                basicOne.SelfSharedTypeRightWithPayload = new List<EntityOne>();
-                basicOne.BranchFullySpecified = new List<EntityBranch>();
-            }
-
-            foreach (var basicTwo in twos)
+                new JoinCompositeKeyToLeaf { LeafId = 21, CompositeId1 = 1, CompositeId2 = "1_1", CompositeId3 = new DateTime(2001, 1, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 21, CompositeId1 = 1, CompositeId2 = "1_2", CompositeId3 = new DateTime(2001, 2, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 23, CompositeId1 = 1, CompositeId2 = "1_2", CompositeId3 = new DateTime(2001, 2, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 22, CompositeId1 = 3, CompositeId2 = "3_1", CompositeId3 = new DateTime(2003, 1, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 23, CompositeId1 = 3, CompositeId2 = "3_1", CompositeId3 = new DateTime(2003, 1, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 24, CompositeId1 = 3, CompositeId2 = "3_2", CompositeId3 = new DateTime(2003, 2, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 22, CompositeId1 = 3, CompositeId2 = "3_3", CompositeId3 = new DateTime(2003, 3, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 21, CompositeId1 = 6, CompositeId2 = "6_1", CompositeId3 = new DateTime(2006, 1, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 22, CompositeId1 = 7, CompositeId2 = "7_2", CompositeId3 = new DateTime(2007, 2, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 24, CompositeId1 = 7, CompositeId2 = "7_2", CompositeId3 = new DateTime(2007, 2, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 21, CompositeId1 = 8, CompositeId2 = "8_1", CompositeId3 = new DateTime(2008, 1, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 23, CompositeId1 = 8, CompositeId2 = "8_2", CompositeId3 = new DateTime(2008, 2, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 22, CompositeId1 = 8, CompositeId2 = "8_3", CompositeId3 = new DateTime(2008, 3, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 23, CompositeId1 = 8, CompositeId2 = "8_3", CompositeId3 = new DateTime(2008, 3, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 21, CompositeId1 = 8, CompositeId2 = "8_5", CompositeId3 = new DateTime(2008, 5, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 23, CompositeId1 = 8, CompositeId2 = "8_5", CompositeId3 = new DateTime(2008, 5, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 24, CompositeId1 = 8, CompositeId2 = "8_5", CompositeId3 = new DateTime(2008, 5, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 21, CompositeId1 = 9, CompositeId2 = "9_1", CompositeId3 = new DateTime(2009, 1, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 22, CompositeId1 = 9, CompositeId2 = "9_1", CompositeId3 = new DateTime(2009, 1, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 23, CompositeId1 = 9, CompositeId2 = "9_1", CompositeId3 = new DateTime(2009, 1, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 21, CompositeId1 = 9, CompositeId2 = "9_2", CompositeId3 = new DateTime(2009, 2, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 22, CompositeId1 = 9, CompositeId2 = "9_2", CompositeId3 = new DateTime(2009, 2, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 21, CompositeId1 = 9, CompositeId2 = "9_3", CompositeId3 = new DateTime(2009, 3, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 23, CompositeId1 = 9, CompositeId2 = "9_3", CompositeId3 = new DateTime(2009, 3, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 24, CompositeId1 = 9, CompositeId2 = "9_3", CompositeId3 = new DateTime(2009, 3, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 23, CompositeId1 = 9, CompositeId2 = "9_4", CompositeId3 = new DateTime(2009, 4, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 24, CompositeId1 = 9, CompositeId2 = "9_4", CompositeId3 = new DateTime(2009, 4, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 23, CompositeId1 = 9, CompositeId2 = "9_5", CompositeId3 = new DateTime(2009, 5, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 24, CompositeId1 = 9, CompositeId2 = "9_5", CompositeId3 = new DateTime(2009, 5, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 21, CompositeId1 = 9, CompositeId2 = "9_6", CompositeId3 = new DateTime(2009, 6, 1) },
+                new JoinCompositeKeyToLeaf { LeafId = 22, CompositeId1 = 9, CompositeId2 = "9_6", CompositeId3 = new DateTime(2009, 6, 1) }
+            };
+        private static JoinOneSelfPayload[] CreateJoinOneSelfPayloads()
+            => new[]
             {
-                basicTwo.Collection = new List<EntityThree>();
-                basicTwo.OneFullySpecified = new List<EntityOne>();
-                basicTwo.ThreeFullySpecified = new List<EntityThree>();
-                basicTwo.OneSharedType = new List<EntityOne>();
-                basicTwo.SelfFullySpecifiedLeft = new List<EntityTwo>();
-                basicTwo.SelfFullySpecifiedRight = new List<EntityTwo>();
-                basicTwo.CompositeSharedType = new List<EntityCompositeKey>();
-            }
-
-            foreach (var basicThree in threes)
+                new JoinOneSelfPayload { LeftId = 3, RightId = 4, Payload = DateTime.Parse("2020-01-11 19:26:36") },
+                new JoinOneSelfPayload { LeftId = 3, RightId = 6, Payload = DateTime.Parse("2005-10-03 12:57:54") },
+                new JoinOneSelfPayload { LeftId = 3, RightId = 8, Payload = DateTime.Parse("2015-12-20 01:09:24") },
+                new JoinOneSelfPayload { LeftId = 3, RightId = 18, Payload = DateTime.Parse("1999-12-26 02:51:57") },
+                new JoinOneSelfPayload { LeftId = 3, RightId = 20, Payload = DateTime.Parse("2011-06-15 19:08:00") },
+                new JoinOneSelfPayload { LeftId = 5, RightId = 3, Payload = DateTime.Parse("2019-12-08 05:40:16") },
+                new JoinOneSelfPayload { LeftId = 5, RightId = 4, Payload = DateTime.Parse("2014-03-09 12:58:26") },
+                new JoinOneSelfPayload { LeftId = 6, RightId = 5, Payload = DateTime.Parse("2014-05-15 16:34:38") },
+                new JoinOneSelfPayload { LeftId = 6, RightId = 7, Payload = DateTime.Parse("2014-03-08 18:59:49") },
+                new JoinOneSelfPayload { LeftId = 6, RightId = 13, Payload = DateTime.Parse("2013-12-10 07:01:53") },
+                new JoinOneSelfPayload { LeftId = 7, RightId = 13, Payload = DateTime.Parse("2005-05-31 02:21:16") },
+                new JoinOneSelfPayload { LeftId = 8, RightId = 9, Payload = DateTime.Parse("2011-12-31 19:37:25") },
+                new JoinOneSelfPayload { LeftId = 8, RightId = 11, Payload = DateTime.Parse("2012-08-02 16:33:07") },
+                new JoinOneSelfPayload { LeftId = 8, RightId = 12, Payload = DateTime.Parse("2018-07-19 09:10:12") },
+                new JoinOneSelfPayload { LeftId = 10, RightId = 7, Payload = DateTime.Parse("2018-12-28 01:21:23") },
+                new JoinOneSelfPayload { LeftId = 13, RightId = 2, Payload = DateTime.Parse("2014-03-22 02:20:06") },
+                new JoinOneSelfPayload { LeftId = 13, RightId = 18, Payload = DateTime.Parse("2005-03-21 14:45:37") },
+                new JoinOneSelfPayload { LeftId = 14, RightId = 9, Payload = DateTime.Parse("2016-06-26 08:03:32") },
+                new JoinOneSelfPayload { LeftId = 15, RightId = 13, Payload = DateTime.Parse("2018-09-18 12:51:22") },
+                new JoinOneSelfPayload { LeftId = 16, RightId = 5, Payload = DateTime.Parse("2016-12-17 14:20:25") },
+                new JoinOneSelfPayload { LeftId = 16, RightId = 6, Payload = DateTime.Parse("2008-07-30 03:43:17") },
+                new JoinOneSelfPayload { LeftId = 17, RightId = 14, Payload = DateTime.Parse("2019-08-01 16:26:31") },
+                new JoinOneSelfPayload { LeftId = 19, RightId = 1, Payload = DateTime.Parse("2010-02-19 13:24:07") },
+                new JoinOneSelfPayload { LeftId = 19, RightId = 8, Payload = DateTime.Parse("2004-07-28 09:06:02") },
+                new JoinOneSelfPayload { LeftId = 19, RightId = 12, Payload = DateTime.Parse("2004-08-21 11:07:20") },
+                new JoinOneSelfPayload { LeftId = 20, RightId = 1, Payload = DateTime.Parse("2014-11-21 18:13:02") },
+                new JoinOneSelfPayload { LeftId = 20, RightId = 7, Payload = DateTime.Parse("2009-08-24 21:44:46") },
+                new JoinOneSelfPayload { LeftId = 20, RightId = 14, Payload = DateTime.Parse("2013-02-18 02:19:19") },
+                new JoinOneSelfPayload { LeftId = 20, RightId = 16, Payload = DateTime.Parse("2016-02-05 14:18:12") }
+            };
+        private static JoinOneToBranch[] CreateJoinOneToBranches()
+            => new[]
             {
-                basicThree.OneFullySpecifiedWithPayload = new List<EntityOne>();
-                basicThree.TwoFullySpecified = new List<EntityTwo>();
-                basicThree.OneSharedType = new List<EntityOne>();
-                basicThree.CompositeFullySpecified = new List<EntityCompositeKey>();
-                basicThree.RootSharedType = new List<EntityRoot>();
-            }
-
-            foreach (var compositeKey in compositeKeys)
+                new JoinOneToBranch { OneId = 2, BranchId = 16 },
+                new JoinOneToBranch { OneId = 2, BranchId = 24 },
+                new JoinOneToBranch { OneId = 3, BranchId = 14 },
+                new JoinOneToBranch { OneId = 3, BranchId = 16 },
+                new JoinOneToBranch { OneId = 3, BranchId = 22 },
+                new JoinOneToBranch { OneId = 3, BranchId = 24 },
+                new JoinOneToBranch { OneId = 5, BranchId = 13 },
+                new JoinOneToBranch { OneId = 6, BranchId = 16 },
+                new JoinOneToBranch { OneId = 6, BranchId = 22 },
+                new JoinOneToBranch { OneId = 6, BranchId = 23 },
+                new JoinOneToBranch { OneId = 8, BranchId = 11 },
+                new JoinOneToBranch { OneId = 8, BranchId = 12 },
+                new JoinOneToBranch { OneId = 8, BranchId = 13 },
+                new JoinOneToBranch { OneId = 9, BranchId = 11 },
+                new JoinOneToBranch { OneId = 9, BranchId = 12 },
+                new JoinOneToBranch { OneId = 9, BranchId = 14 },
+                new JoinOneToBranch { OneId = 9, BranchId = 16 },
+                new JoinOneToBranch { OneId = 9, BranchId = 21 },
+                new JoinOneToBranch { OneId = 9, BranchId = 24 },
+                new JoinOneToBranch { OneId = 10, BranchId = 12 },
+                new JoinOneToBranch { OneId = 10, BranchId = 13 },
+                new JoinOneToBranch { OneId = 10, BranchId = 14 },
+                new JoinOneToBranch { OneId = 10, BranchId = 21 },
+                new JoinOneToBranch { OneId = 12, BranchId = 11 },
+                new JoinOneToBranch { OneId = 12, BranchId = 12 },
+                new JoinOneToBranch { OneId = 12, BranchId = 14 },
+                new JoinOneToBranch { OneId = 12, BranchId = 23 },
+                new JoinOneToBranch { OneId = 13, BranchId = 15 },
+                new JoinOneToBranch { OneId = 14, BranchId = 12 },
+                new JoinOneToBranch { OneId = 14, BranchId = 14 },
+                new JoinOneToBranch { OneId = 14, BranchId = 16 },
+                new JoinOneToBranch { OneId = 14, BranchId = 23 },
+                new JoinOneToBranch { OneId = 15, BranchId = 15 },
+                new JoinOneToBranch { OneId = 15, BranchId = 16 },
+                new JoinOneToBranch { OneId = 15, BranchId = 24 },
+                new JoinOneToBranch { OneId = 16, BranchId = 11 },
+                new JoinOneToBranch { OneId = 17, BranchId = 11 },
+                new JoinOneToBranch { OneId = 17, BranchId = 21 },
+                new JoinOneToBranch { OneId = 18, BranchId = 12 },
+                new JoinOneToBranch { OneId = 18, BranchId = 15 },
+                new JoinOneToBranch { OneId = 18, BranchId = 24 },
+                new JoinOneToBranch { OneId = 19, BranchId = 11 },
+                new JoinOneToBranch { OneId = 19, BranchId = 12 },
+                new JoinOneToBranch { OneId = 19, BranchId = 16 },
+                new JoinOneToBranch { OneId = 19, BranchId = 23 },
+                new JoinOneToBranch { OneId = 20, BranchId = 21 },
+                new JoinOneToBranch { OneId = 20, BranchId = 23 }
+            };
+        private static JoinOneToThreePayloadFull[] CreateJoinOneToThreePayloadFulls()
+            => new[]
             {
-                compositeKey.TwoSharedType = new List<EntityTwo>();
-                compositeKey.ThreeFullySpecified = new List<EntityThree>();
-                compositeKey.RootSharedType = new List<EntityRoot>();
-                compositeKey.LeafFullySpecified = new List<EntityLeaf>();
-            }
-
-            foreach (var root in roots)
+                new JoinOneToThreePayloadFull { OneId = 1, ThreeId = 2, Payload = "Ira Watts" },
+                new JoinOneToThreePayloadFull { OneId = 1, ThreeId = 6, Payload = "Harold May" },
+                new JoinOneToThreePayloadFull { OneId = 1, ThreeId = 9, Payload = "Freda Vaughn" },
+                new JoinOneToThreePayloadFull { OneId = 1, ThreeId = 13, Payload = "Pedro Mccarthy" },
+                new JoinOneToThreePayloadFull { OneId = 1, ThreeId = 17, Payload = "Elaine Simon" },
+                new JoinOneToThreePayloadFull { OneId = 2, ThreeId = 9, Payload = "Melvin Maldonado" },
+                new JoinOneToThreePayloadFull { OneId = 2, ThreeId = 11, Payload = "Lora George" },
+                new JoinOneToThreePayloadFull { OneId = 2, ThreeId = 13, Payload = "Joey Cohen" },
+                new JoinOneToThreePayloadFull { OneId = 2, ThreeId = 14, Payload = "Erik Carroll" },
+                new JoinOneToThreePayloadFull { OneId = 2, ThreeId = 16, Payload = "April Rodriguez" },
+                new JoinOneToThreePayloadFull { OneId = 3, ThreeId = 5, Payload = "Gerardo Colon" },
+                new JoinOneToThreePayloadFull { OneId = 3, ThreeId = 12, Payload = "Alexander Willis" },
+                new JoinOneToThreePayloadFull { OneId = 3, ThreeId = 16, Payload = "Laura Wheeler" },
+                new JoinOneToThreePayloadFull { OneId = 3, ThreeId = 19, Payload = "Lester Summers" },
+                new JoinOneToThreePayloadFull { OneId = 4, ThreeId = 2, Payload = "Raquel Curry" },
+                new JoinOneToThreePayloadFull { OneId = 4, ThreeId = 4, Payload = "Steven Fisher" },
+                new JoinOneToThreePayloadFull { OneId = 4, ThreeId = 11, Payload = "Casey Williams" },
+                new JoinOneToThreePayloadFull { OneId = 4, ThreeId = 13, Payload = "Lauren Clayton" },
+                new JoinOneToThreePayloadFull { OneId = 4, ThreeId = 19, Payload = "Maureen Weber" },
+                new JoinOneToThreePayloadFull { OneId = 5, ThreeId = 4, Payload = "Joyce Ford" },
+                new JoinOneToThreePayloadFull { OneId = 5, ThreeId = 6, Payload = "Willie Mccormick" },
+                new JoinOneToThreePayloadFull { OneId = 5, ThreeId = 9, Payload = "Geraldine Jackson" },
+                new JoinOneToThreePayloadFull { OneId = 7, ThreeId = 1, Payload = "Victor Aguilar" },
+                new JoinOneToThreePayloadFull { OneId = 7, ThreeId = 4, Payload = "Cathy Allen" },
+                new JoinOneToThreePayloadFull { OneId = 7, ThreeId = 9, Payload = "Edwin Burke" },
+                new JoinOneToThreePayloadFull { OneId = 7, ThreeId = 10, Payload = "Eugene Flores" },
+                new JoinOneToThreePayloadFull { OneId = 7, ThreeId = 11, Payload = "Ginger Patton" },
+                new JoinOneToThreePayloadFull { OneId = 7, ThreeId = 12, Payload = "Israel Mitchell" },
+                new JoinOneToThreePayloadFull { OneId = 7, ThreeId = 18, Payload = "Joy Francis" },
+                new JoinOneToThreePayloadFull { OneId = 8, ThreeId = 1, Payload = "Orville Parker" },
+                new JoinOneToThreePayloadFull { OneId = 8, ThreeId = 3, Payload = "Alyssa Mann" },
+                new JoinOneToThreePayloadFull { OneId = 8, ThreeId = 4, Payload = "Hugh Daniel" },
+                new JoinOneToThreePayloadFull { OneId = 8, ThreeId = 13, Payload = "Kim Craig" },
+                new JoinOneToThreePayloadFull { OneId = 8, ThreeId = 14, Payload = "Lucille Moreno" },
+                new JoinOneToThreePayloadFull { OneId = 8, ThreeId = 17, Payload = "Virgil Drake" },
+                new JoinOneToThreePayloadFull { OneId = 8, ThreeId = 18, Payload = "Josephine Dawson" },
+                new JoinOneToThreePayloadFull { OneId = 8, ThreeId = 20, Payload = "Milton Huff" },
+                new JoinOneToThreePayloadFull { OneId = 9, ThreeId = 2, Payload = "Jody Clarke" },
+                new JoinOneToThreePayloadFull { OneId = 9, ThreeId = 9, Payload = "Elisa Cooper" },
+                new JoinOneToThreePayloadFull { OneId = 9, ThreeId = 11, Payload = "Grace Owen" },
+                new JoinOneToThreePayloadFull { OneId = 9, ThreeId = 12, Payload = "Donald Welch" },
+                new JoinOneToThreePayloadFull { OneId = 9, ThreeId = 15, Payload = "Marian Day" },
+                new JoinOneToThreePayloadFull { OneId = 9, ThreeId = 17, Payload = "Cory Cortez" },
+                new JoinOneToThreePayloadFull { OneId = 10, ThreeId = 2, Payload = "Chad Rowe" },
+                new JoinOneToThreePayloadFull { OneId = 10, ThreeId = 3, Payload = "Simon Reyes" },
+                new JoinOneToThreePayloadFull { OneId = 10, ThreeId = 4, Payload = "Shari Jensen" },
+                new JoinOneToThreePayloadFull { OneId = 10, ThreeId = 8, Payload = "Ricky Bradley" },
+                new JoinOneToThreePayloadFull { OneId = 10, ThreeId = 10, Payload = "Debra Gibbs" },
+                new JoinOneToThreePayloadFull { OneId = 10, ThreeId = 11, Payload = "Everett Mckenzie" },
+                new JoinOneToThreePayloadFull { OneId = 10, ThreeId = 14, Payload = "Kirk Graham" },
+                new JoinOneToThreePayloadFull { OneId = 10, ThreeId = 16, Payload = "Paulette Adkins" },
+                new JoinOneToThreePayloadFull { OneId = 10, ThreeId = 18, Payload = "Raul Holloway" },
+                new JoinOneToThreePayloadFull { OneId = 10, ThreeId = 19, Payload = "Danielle Ross" },
+                new JoinOneToThreePayloadFull { OneId = 11, ThreeId = 1, Payload = "Frank Garner" },
+                new JoinOneToThreePayloadFull { OneId = 11, ThreeId = 6, Payload = "Stella Thompson" },
+                new JoinOneToThreePayloadFull { OneId = 11, ThreeId = 8, Payload = "Peggy Wagner" },
+                new JoinOneToThreePayloadFull { OneId = 11, ThreeId = 9, Payload = "Geneva Holmes" },
+                new JoinOneToThreePayloadFull { OneId = 11, ThreeId = 10, Payload = "Ignacio Black" },
+                new JoinOneToThreePayloadFull { OneId = 11, ThreeId = 13, Payload = "Phillip Wells" },
+                new JoinOneToThreePayloadFull { OneId = 11, ThreeId = 14, Payload = "Hubert Lambert" },
+                new JoinOneToThreePayloadFull { OneId = 11, ThreeId = 19, Payload = "Courtney Gregory" },
+                new JoinOneToThreePayloadFull { OneId = 12, ThreeId = 2, Payload = "Esther Carter" },
+                new JoinOneToThreePayloadFull { OneId = 13, ThreeId = 6, Payload = "Thomas Benson" },
+                new JoinOneToThreePayloadFull { OneId = 13, ThreeId = 9, Payload = "Kara Baldwin" },
+                new JoinOneToThreePayloadFull { OneId = 13, ThreeId = 10, Payload = "Yvonne Sparks" },
+                new JoinOneToThreePayloadFull { OneId = 13, ThreeId = 11, Payload = "Darin Mathis" },
+                new JoinOneToThreePayloadFull { OneId = 13, ThreeId = 12, Payload = "Glenda Castillo" },
+                new JoinOneToThreePayloadFull { OneId = 13, ThreeId = 13, Payload = "Larry Walters" },
+                new JoinOneToThreePayloadFull { OneId = 13, ThreeId = 15, Payload = "Meredith Yates" },
+                new JoinOneToThreePayloadFull { OneId = 13, ThreeId = 16, Payload = "Rosemarie Henry" },
+                new JoinOneToThreePayloadFull { OneId = 13, ThreeId = 18, Payload = "Nora Leonard" },
+                new JoinOneToThreePayloadFull { OneId = 14, ThreeId = 17, Payload = "Corey Delgado" },
+                new JoinOneToThreePayloadFull { OneId = 14, ThreeId = 18, Payload = "Kari Strickland" },
+                new JoinOneToThreePayloadFull { OneId = 15, ThreeId = 8, Payload = "Joann Stanley" },
+                new JoinOneToThreePayloadFull { OneId = 15, ThreeId = 11, Payload = "Camille Gordon" },
+                new JoinOneToThreePayloadFull { OneId = 15, ThreeId = 14, Payload = "Flora Anderson" },
+                new JoinOneToThreePayloadFull { OneId = 15, ThreeId = 15, Payload = "Wilbur Soto" },
+                new JoinOneToThreePayloadFull { OneId = 15, ThreeId = 18, Payload = "Shirley Andrews" },
+                new JoinOneToThreePayloadFull { OneId = 15, ThreeId = 20, Payload = "Marcus Mcguire" },
+                new JoinOneToThreePayloadFull { OneId = 16, ThreeId = 1, Payload = "Saul Dixon" },
+                new JoinOneToThreePayloadFull { OneId = 16, ThreeId = 6, Payload = "Cynthia Hart" },
+                new JoinOneToThreePayloadFull { OneId = 16, ThreeId = 10, Payload = "Elbert Spencer" },
+                new JoinOneToThreePayloadFull { OneId = 16, ThreeId = 13, Payload = "Darrell Norris" },
+                new JoinOneToThreePayloadFull { OneId = 16, ThreeId = 14, Payload = "Jamie Kelley" },
+                new JoinOneToThreePayloadFull { OneId = 16, ThreeId = 15, Payload = "Francis Briggs" },
+                new JoinOneToThreePayloadFull { OneId = 16, ThreeId = 16, Payload = "Lindsey Morris" },
+                new JoinOneToThreePayloadFull { OneId = 17, ThreeId = 2, Payload = "James Castro" },
+                new JoinOneToThreePayloadFull { OneId = 17, ThreeId = 5, Payload = "Carlos Chavez" },
+                new JoinOneToThreePayloadFull { OneId = 17, ThreeId = 7, Payload = "Janis Valdez" },
+                new JoinOneToThreePayloadFull { OneId = 17, ThreeId = 13, Payload = "Alfredo Bowen" },
+                new JoinOneToThreePayloadFull { OneId = 17, ThreeId = 14, Payload = "Viola Torres" },
+                new JoinOneToThreePayloadFull { OneId = 17, ThreeId = 15, Payload = "Dianna Lowe" },
+                new JoinOneToThreePayloadFull { OneId = 18, ThreeId = 3, Payload = "Craig Howell" },
+                new JoinOneToThreePayloadFull { OneId = 18, ThreeId = 7, Payload = "Sandy Curtis" },
+                new JoinOneToThreePayloadFull { OneId = 18, ThreeId = 12, Payload = "Alonzo Pierce" },
+                new JoinOneToThreePayloadFull { OneId = 18, ThreeId = 18, Payload = "Albert Harper" },
+                new JoinOneToThreePayloadFull { OneId = 19, ThreeId = 2, Payload = "Frankie Baker" },
+                new JoinOneToThreePayloadFull { OneId = 19, ThreeId = 5, Payload = "Candace Tucker" },
+                new JoinOneToThreePayloadFull { OneId = 19, ThreeId = 6, Payload = "Willis Christensen" },
+                new JoinOneToThreePayloadFull { OneId = 19, ThreeId = 7, Payload = "Juan Joseph" },
+                new JoinOneToThreePayloadFull { OneId = 19, ThreeId = 10, Payload = "Thelma Sanders" },
+                new JoinOneToThreePayloadFull { OneId = 19, ThreeId = 11, Payload = "Kerry West" },
+                new JoinOneToThreePayloadFull { OneId = 19, ThreeId = 15, Payload = "Sheri Castro" },
+                new JoinOneToThreePayloadFull { OneId = 19, ThreeId = 16, Payload = "Mark Schultz" },
+                new JoinOneToThreePayloadFull { OneId = 19, ThreeId = 17, Payload = "Priscilla Summers" },
+                new JoinOneToThreePayloadFull { OneId = 19, ThreeId = 20, Payload = "Allan Valdez" },
+                new JoinOneToThreePayloadFull { OneId = 20, ThreeId = 3, Payload = "Bill Peters" },
+                new JoinOneToThreePayloadFull { OneId = 20, ThreeId = 5, Payload = "Cora Stone" },
+                new JoinOneToThreePayloadFull { OneId = 20, ThreeId = 6, Payload = "Frankie Pope" },
+                new JoinOneToThreePayloadFull { OneId = 20, ThreeId = 10, Payload = "Christian Young" },
+                new JoinOneToThreePayloadFull { OneId = 20, ThreeId = 11, Payload = "Shari Brewer" },
+                new JoinOneToThreePayloadFull { OneId = 20, ThreeId = 12, Payload = "Antonia Wolfe" },
+                new JoinOneToThreePayloadFull { OneId = 20, ThreeId = 14, Payload = "Lawrence Matthews" },
+                new JoinOneToThreePayloadFull { OneId = 20, ThreeId = 18, Payload = "Van Hubbard" },
+                new JoinOneToThreePayloadFull { OneId = 20, ThreeId = 20, Payload = "Lindsay Pena" }
+            };
+        private static JoinOneToTwo[] CreateJoinOneToTwos()
+            => new[]
             {
-                root.ThreesSharedType = new List<EntityThree>();
-                root.CompositeKeySharedType = new List<EntityCompositeKey>();
-            }
-
-            var branches = roots.OfType<EntityBranch>().ToList();
-            foreach (var branch in branches)
+                new JoinOneToTwo { OneId = 1, TwoId = 1},
+                new JoinOneToTwo { OneId = 1, TwoId = 2},
+                new JoinOneToTwo { OneId = 1, TwoId = 3},
+                new JoinOneToTwo { OneId = 1, TwoId = 4},
+                new JoinOneToTwo { OneId = 1, TwoId = 5},
+                new JoinOneToTwo { OneId = 1, TwoId = 6},
+                new JoinOneToTwo { OneId = 1, TwoId = 7},
+                new JoinOneToTwo { OneId = 1, TwoId = 8},
+                new JoinOneToTwo { OneId = 1, TwoId = 9},
+                new JoinOneToTwo { OneId = 1, TwoId = 10},
+                new JoinOneToTwo { OneId = 1, TwoId = 11},
+                new JoinOneToTwo { OneId = 1, TwoId = 12},
+                new JoinOneToTwo { OneId = 1, TwoId = 13},
+                new JoinOneToTwo { OneId = 1, TwoId = 14},
+                new JoinOneToTwo { OneId = 1, TwoId = 15},
+                new JoinOneToTwo { OneId = 1, TwoId = 16},
+                new JoinOneToTwo { OneId = 1, TwoId = 17},
+                new JoinOneToTwo { OneId = 1, TwoId = 18},
+                new JoinOneToTwo { OneId = 1, TwoId = 19},
+                new JoinOneToTwo { OneId = 1, TwoId = 20},
+                new JoinOneToTwo { OneId = 2, TwoId = 1},
+                new JoinOneToTwo { OneId = 2, TwoId = 3},
+                new JoinOneToTwo { OneId = 2, TwoId = 5},
+                new JoinOneToTwo { OneId = 2, TwoId = 7},
+                new JoinOneToTwo { OneId = 2, TwoId = 9},
+                new JoinOneToTwo { OneId = 2, TwoId = 11},
+                new JoinOneToTwo { OneId = 2, TwoId = 13},
+                new JoinOneToTwo { OneId = 2, TwoId = 15},
+                new JoinOneToTwo { OneId = 2, TwoId = 17},
+                new JoinOneToTwo { OneId = 2, TwoId = 19},
+                new JoinOneToTwo { OneId = 3, TwoId = 1},
+                new JoinOneToTwo { OneId = 3, TwoId = 4},
+                new JoinOneToTwo { OneId = 3, TwoId = 7},
+                new JoinOneToTwo { OneId = 3, TwoId = 10},
+                new JoinOneToTwo { OneId = 3, TwoId = 13},
+                new JoinOneToTwo { OneId = 3, TwoId = 16},
+                new JoinOneToTwo { OneId = 3, TwoId = 19},
+                new JoinOneToTwo { OneId = 4, TwoId = 1},
+                new JoinOneToTwo { OneId = 4, TwoId = 5},
+                new JoinOneToTwo { OneId = 4, TwoId = 9},
+                new JoinOneToTwo { OneId = 4, TwoId = 13},
+                new JoinOneToTwo { OneId = 4, TwoId = 17},
+                new JoinOneToTwo { OneId = 5, TwoId = 1},
+                new JoinOneToTwo { OneId = 5, TwoId = 6},
+                new JoinOneToTwo { OneId = 5, TwoId = 11},
+                new JoinOneToTwo { OneId = 5, TwoId = 16},
+                new JoinOneToTwo { OneId = 6, TwoId = 1},
+                new JoinOneToTwo { OneId = 6, TwoId = 7},
+                new JoinOneToTwo { OneId = 6, TwoId = 13},
+                new JoinOneToTwo { OneId = 6, TwoId = 19},
+                new JoinOneToTwo { OneId = 7, TwoId = 1},
+                new JoinOneToTwo { OneId = 7, TwoId = 8},
+                new JoinOneToTwo { OneId = 7, TwoId = 15},
+                new JoinOneToTwo { OneId = 8, TwoId = 1},
+                new JoinOneToTwo { OneId = 8, TwoId = 9},
+                new JoinOneToTwo { OneId = 8, TwoId = 17},
+                new JoinOneToTwo { OneId = 9, TwoId = 1},
+                new JoinOneToTwo { OneId = 9, TwoId = 10},
+                new JoinOneToTwo { OneId = 9, TwoId = 19},
+                new JoinOneToTwo { OneId = 10, TwoId = 1},
+                new JoinOneToTwo { OneId = 10, TwoId = 11},
+                new JoinOneToTwo { OneId = 11, TwoId = 20},
+                new JoinOneToTwo { OneId = 11, TwoId = 19},
+                new JoinOneToTwo { OneId = 11, TwoId = 18},
+                new JoinOneToTwo { OneId = 11, TwoId = 17},
+                new JoinOneToTwo { OneId = 11, TwoId = 16},
+                new JoinOneToTwo { OneId = 11, TwoId = 15},
+                new JoinOneToTwo { OneId = 11, TwoId = 14},
+                new JoinOneToTwo { OneId = 11, TwoId = 13},
+                new JoinOneToTwo { OneId = 11, TwoId = 12},
+                new JoinOneToTwo { OneId = 11, TwoId = 11},
+                new JoinOneToTwo { OneId = 11, TwoId = 10},
+                new JoinOneToTwo { OneId = 11, TwoId = 9},
+                new JoinOneToTwo { OneId = 11, TwoId = 8},
+                new JoinOneToTwo { OneId = 11, TwoId = 7},
+                new JoinOneToTwo { OneId = 11, TwoId = 6},
+                new JoinOneToTwo { OneId = 11, TwoId = 5},
+                new JoinOneToTwo { OneId = 11, TwoId = 4},
+                new JoinOneToTwo { OneId = 11, TwoId = 3},
+                new JoinOneToTwo { OneId = 11, TwoId = 2},
+                new JoinOneToTwo { OneId = 11, TwoId = 1},
+                new JoinOneToTwo { OneId = 12, TwoId = 20},
+                new JoinOneToTwo { OneId = 12, TwoId = 17},
+                new JoinOneToTwo { OneId = 12, TwoId = 14},
+                new JoinOneToTwo { OneId = 12, TwoId = 11},
+                new JoinOneToTwo { OneId = 12, TwoId = 8},
+                new JoinOneToTwo { OneId = 12, TwoId = 5},
+                new JoinOneToTwo { OneId = 12, TwoId = 2},
+                new JoinOneToTwo { OneId = 13, TwoId = 20},
+                new JoinOneToTwo { OneId = 13, TwoId = 16},
+                new JoinOneToTwo { OneId = 13, TwoId = 12},
+                new JoinOneToTwo { OneId = 13, TwoId = 8},
+                new JoinOneToTwo { OneId = 13, TwoId = 4},
+                new JoinOneToTwo { OneId = 14, TwoId = 20},
+                new JoinOneToTwo { OneId = 14, TwoId = 15},
+                new JoinOneToTwo { OneId = 14, TwoId = 10},
+                new JoinOneToTwo { OneId = 14, TwoId = 5},
+                new JoinOneToTwo { OneId = 15, TwoId = 20},
+                new JoinOneToTwo { OneId = 15, TwoId = 14},
+                new JoinOneToTwo { OneId = 15, TwoId = 8},
+                new JoinOneToTwo { OneId = 15, TwoId = 2},
+                new JoinOneToTwo { OneId = 16, TwoId = 20},
+                new JoinOneToTwo { OneId = 16, TwoId = 13},
+                new JoinOneToTwo { OneId = 16, TwoId = 6},
+                new JoinOneToTwo { OneId = 17, TwoId = 20},
+                new JoinOneToTwo { OneId = 17, TwoId = 12},
+                new JoinOneToTwo { OneId = 17, TwoId = 4},
+                new JoinOneToTwo { OneId = 18, TwoId = 20},
+                new JoinOneToTwo { OneId = 18, TwoId = 11},
+                new JoinOneToTwo { OneId = 18, TwoId = 2},
+                new JoinOneToTwo { OneId = 19, TwoId = 20},
+                new JoinOneToTwo { OneId = 19, TwoId = 10}
+            };
+        private static JoinThreeToCompositeKeyFull[] CreateJoinThreeToCompositeKeyFulls()
+            => new[]
             {
-                branch.OneFullySpecified = new List<EntityOne>();
-            }
-
-            var leaves = branches.OfType<EntityLeaf>().ToList();
-            foreach (var leaf in leaves)
+                new JoinThreeToCompositeKeyFull { ThreeId = 1, CompositeId1 = 6, CompositeId2 = "6_1", CompositeId3 = new DateTime(2006, 1, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 2, CompositeId1 = 1, CompositeId2 = "1_1", CompositeId3 = new DateTime(2001, 1, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 2, CompositeId1 = 9, CompositeId2 = "9_2", CompositeId3 = new DateTime(2009, 2, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 2, CompositeId1 = 9, CompositeId2 = "9_7", CompositeId3 = new DateTime(2009, 7, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 3, CompositeId1 = 6, CompositeId2 = "6_1", CompositeId3 = new DateTime(2006, 1, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 3, CompositeId1 = 9, CompositeId2 = "9_2", CompositeId3 = new DateTime(2009, 2, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 3, CompositeId1 = 9, CompositeId2 = "9_7", CompositeId3 = new DateTime(2009, 7, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 5, CompositeId1 = 8, CompositeId2 = "8_4", CompositeId3 = new DateTime(2008, 4, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 5, CompositeId1 = 8, CompositeId2 = "8_5", CompositeId3 = new DateTime(2008, 5, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 5, CompositeId1 = 9, CompositeId2 = "9_5", CompositeId3 = new DateTime(2009, 5, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 6, CompositeId1 = 6, CompositeId2 = "6_1", CompositeId3 = new DateTime(2006, 1, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 7, CompositeId1 = 3, CompositeId2 = "3_2", CompositeId3 = new DateTime(2003, 2, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 7, CompositeId1 = 8, CompositeId2 = "8_1", CompositeId3 = new DateTime(2008, 1, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 8, CompositeId1 = 8, CompositeId2 = "8_3", CompositeId3 = new DateTime(2008, 3, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 8, CompositeId1 = 9, CompositeId2 = "9_6", CompositeId3 = new DateTime(2009, 6, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 9, CompositeId1 = 8, CompositeId2 = "8_1", CompositeId3 = new DateTime(2008, 1, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 9, CompositeId1 = 9, CompositeId2 = "9_3", CompositeId3 = new DateTime(2009, 3, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 10, CompositeId1 = 9, CompositeId2 = "9_3", CompositeId3 = new DateTime(2009, 3, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 11, CompositeId1 = 7, CompositeId2 = "7_1", CompositeId3 = new DateTime(2007, 1, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 11, CompositeId1 = 9, CompositeId2 = "9_2", CompositeId3 = new DateTime(2009, 2, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 12, CompositeId1 = 7, CompositeId2 = "7_2", CompositeId3 = new DateTime(2007, 2, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 12, CompositeId1 = 8, CompositeId2 = "8_3", CompositeId3 = new DateTime(2008, 3, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 12, CompositeId1 = 8, CompositeId2 = "8_5", CompositeId3 = new DateTime(2008, 5, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 13, CompositeId1 = 6, CompositeId2 = "6_1", CompositeId3 = new DateTime(2006, 1, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 13, CompositeId1 = 7, CompositeId2 = "7_2", CompositeId3 = new DateTime(2007, 2, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 13, CompositeId1 = 9, CompositeId2 = "9_1", CompositeId3 = new DateTime(2009, 1, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 13, CompositeId1 = 9, CompositeId2 = "9_2", CompositeId3 = new DateTime(2009, 2, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 14, CompositeId1 = 8, CompositeId2 = "8_2", CompositeId3 = new DateTime(2008, 2, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 14, CompositeId1 = 8, CompositeId2 = "8_5", CompositeId3 = new DateTime(2008, 5, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 14, CompositeId1 = 9, CompositeId2 = "9_3", CompositeId3 = new DateTime(2009, 3, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 15, CompositeId1 = 8, CompositeId2 = "8_2", CompositeId3 = new DateTime(2008, 2, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 15, CompositeId1 = 9, CompositeId2 = "9_1", CompositeId3 = new DateTime(2009, 1, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 15, CompositeId1 = 9, CompositeId2 = "9_6", CompositeId3 = new DateTime(2009, 6, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 16, CompositeId1 = 3, CompositeId2 = "3_3", CompositeId3 = new DateTime(2003, 3, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 16, CompositeId1 = 7, CompositeId2 = "7_1", CompositeId3 = new DateTime(2007, 1, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 16, CompositeId1 = 9, CompositeId2 = "9_6", CompositeId3 = new DateTime(2009, 6, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 17, CompositeId1 = 1, CompositeId2 = "1_2", CompositeId3 = new DateTime(2001, 2, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 17, CompositeId1 = 8, CompositeId2 = "8_2", CompositeId3 = new DateTime(2008, 2, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 18, CompositeId1 = 3, CompositeId2 = "3_2", CompositeId3 = new DateTime(2003, 2, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 19, CompositeId1 = 1, CompositeId2 = "1_2", CompositeId3 = new DateTime(2001, 2, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 19, CompositeId1 = 8, CompositeId2 = "8_5", CompositeId3 = new DateTime(2008, 5, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 19, CompositeId1 = 9, CompositeId2 = "9_2", CompositeId3 = new DateTime(2009, 2, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 19, CompositeId1 = 9, CompositeId2 = "9_7", CompositeId3 = new DateTime(2009, 7, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 20, CompositeId1 = 3, CompositeId2 = "3_2", CompositeId3 = new DateTime(2003, 2, 1) },
+                new JoinThreeToCompositeKeyFull { ThreeId = 20, CompositeId1 = 7, CompositeId2 = "7_1", CompositeId3 = new DateTime(2007, 1, 1) }
+            };
+        private static JoinTwoToThree[] CreateJoinTwoToThrees()
+            => new[]
             {
-                leaf.CompositeKeyFullySpecified = new List<EntityCompositeKey>();
-            }
+                new JoinTwoToThree { TwoId = 1, ThreeId = 2 },
+                new JoinTwoToThree { TwoId = 1, ThreeId = 3 },
+                new JoinTwoToThree { TwoId = 1, ThreeId = 13 },
+                new JoinTwoToThree { TwoId = 1, ThreeId = 18 },
+                new JoinTwoToThree { TwoId = 2, ThreeId = 1 },
+                new JoinTwoToThree { TwoId = 2, ThreeId = 9 },
+                new JoinTwoToThree { TwoId = 2, ThreeId = 15 },
+                new JoinTwoToThree { TwoId = 3, ThreeId = 11 },
+                new JoinTwoToThree { TwoId = 3, ThreeId = 17 },
+                new JoinTwoToThree { TwoId = 4, ThreeId = 2 },
+                new JoinTwoToThree { TwoId = 4, ThreeId = 5 },
+                new JoinTwoToThree { TwoId = 4, ThreeId = 11 },
+                new JoinTwoToThree { TwoId = 5, ThreeId = 4 },
+                new JoinTwoToThree { TwoId = 5, ThreeId = 5 },
+                new JoinTwoToThree { TwoId = 6, ThreeId = 3 },
+                new JoinTwoToThree { TwoId = 6, ThreeId = 10 },
+                new JoinTwoToThree { TwoId = 6, ThreeId = 16 },
+                new JoinTwoToThree { TwoId = 6, ThreeId = 18 },
+                new JoinTwoToThree { TwoId = 7, ThreeId = 12 },
+                new JoinTwoToThree { TwoId = 7, ThreeId = 15 },
+                new JoinTwoToThree { TwoId = 7, ThreeId = 20 },
+                new JoinTwoToThree { TwoId = 8, ThreeId = 1 },
+                new JoinTwoToThree { TwoId = 8, ThreeId = 3 },
+                new JoinTwoToThree { TwoId = 8, ThreeId = 20 },
+                new JoinTwoToThree { TwoId = 9, ThreeId = 3 },
+                new JoinTwoToThree { TwoId = 9, ThreeId = 13 },
+                new JoinTwoToThree { TwoId = 9, ThreeId = 19 },
+                new JoinTwoToThree { TwoId = 10, ThreeId = 17 },
+                new JoinTwoToThree { TwoId = 11, ThreeId = 6 },
+                new JoinTwoToThree { TwoId = 11, ThreeId = 7 },
+                new JoinTwoToThree { TwoId = 11, ThreeId = 8 },
+                new JoinTwoToThree { TwoId = 11, ThreeId = 13 },
+                new JoinTwoToThree { TwoId = 12, ThreeId = 9 },
+                new JoinTwoToThree { TwoId = 13, ThreeId = 1 },
+                new JoinTwoToThree { TwoId = 13, ThreeId = 11 },
+                new JoinTwoToThree { TwoId = 13, ThreeId = 19 },
+                new JoinTwoToThree { TwoId = 14, ThreeId = 2 },
+                new JoinTwoToThree { TwoId = 15, ThreeId = 17 },
+                new JoinTwoToThree { TwoId = 16, ThreeId = 3 },
+                new JoinTwoToThree { TwoId = 16, ThreeId = 16 },
+                new JoinTwoToThree { TwoId = 18, ThreeId = 1 },
+                new JoinTwoToThree { TwoId = 18, ThreeId = 5 },
+                new JoinTwoToThree { TwoId = 18, ThreeId = 10 },
+                new JoinTwoToThree { TwoId = 19, ThreeId = 5 },
+                new JoinTwoToThree { TwoId = 19, ThreeId = 16 },
+                new JoinTwoToThree { TwoId = 19, ThreeId = 18 },
+                new JoinTwoToThree { TwoId = 20, ThreeId = 6 },
+                new JoinTwoToThree { TwoId = 20, ThreeId = 10 },
+                new JoinTwoToThree { TwoId = 20, ThreeId = 12 },
+                new JoinTwoToThree { TwoId = 20, ThreeId = 16 },
+                new JoinTwoToThree { TwoId = 20, ThreeId = 17 },
+                new JoinTwoToThree { TwoId = 20, ThreeId = 18 }
+            };
 
-            // ONE
-
-            // Collection
-            CreateRelationship_OneCollection(ones[0], twos[0]);
-            CreateRelationship_OneCollection(ones[0], twos[1]);
-            CreateRelationship_OneCollection(ones[2], twos[3]);
-            CreateRelationship_OneCollection(ones[2], twos[4]);
-            CreateRelationship_OneCollection(ones[4], twos[5]);
-            CreateRelationship_OneCollection(ones[4], twos[6]);
-            CreateRelationship_OneCollection(ones[6], twos[7]);
-            CreateRelationship_OneCollection(ones[6], twos[8]);
-            CreateRelationship_OneCollection(ones[8], twos[9]);
-            CreateRelationship_OneCollection(ones[8], twos[10]);
-            CreateRelationship_OneCollection(ones[10], twos[11]);
-            CreateRelationship_OneCollection(ones[10], twos[12]);
-            CreateRelationship_OneCollection(ones[12], twos[13]);
-            CreateRelationship_OneCollection(ones[12], twos[14]);
-            CreateRelationship_OneCollection(ones[14], twos[15]);
-            CreateRelationship_OneCollection(ones[14], twos[16]);
-            CreateRelationship_OneCollection(ones[15], twos[17]);
-            CreateRelationship_OneCollection(ones[15], twos[18]);
-            CreateRelationship_OneCollection(ones[16], twos[19]);
-
-            // Reference
-            CreateRelationship_OneReference(ones[0], twos[19]);
-            CreateRelationship_OneReference(ones[2], twos[18]);
-            CreateRelationship_OneReference(ones[4], twos[17]);
-            CreateRelationship_OneReference(ones[6], twos[16]);
-            CreateRelationship_OneReference(ones[8], twos[15]);
-            CreateRelationship_OneReference(ones[10], twos[14]);
-            CreateRelationship_OneReference(ones[11], twos[13]);
-            CreateRelationship_OneReference(ones[13], twos[12]);
-            CreateRelationship_OneReference(ones[15], twos[11]);
-            CreateRelationship_OneReference(ones[17], twos[10]);
-            CreateRelationship_OneReference(ones[19], twos[9]);
-
-            // ManyToMany two fully specified
-            CreateRelationship_OneToOneFullySpecified(ones[0], twos[0]);
-            CreateRelationship_OneToOneFullySpecified(ones[0], twos[1]);
-            CreateRelationship_OneToOneFullySpecified(ones[0], twos[2]);
-            CreateRelationship_OneToOneFullySpecified(ones[0], twos[3]);
-            CreateRelationship_OneToOneFullySpecified(ones[0], twos[4]);
-            CreateRelationship_OneToOneFullySpecified(ones[0], twos[5]);
-            CreateRelationship_OneToOneFullySpecified(ones[0], twos[6]);
-            CreateRelationship_OneToOneFullySpecified(ones[0], twos[7]);
-            CreateRelationship_OneToOneFullySpecified(ones[0], twos[8]);
-            CreateRelationship_OneToOneFullySpecified(ones[0], twos[9]);
-            CreateRelationship_OneToOneFullySpecified(ones[0], twos[10]);
-            CreateRelationship_OneToOneFullySpecified(ones[0], twos[11]);
-            CreateRelationship_OneToOneFullySpecified(ones[0], twos[12]);
-            CreateRelationship_OneToOneFullySpecified(ones[0], twos[13]);
-            CreateRelationship_OneToOneFullySpecified(ones[0], twos[14]);
-            CreateRelationship_OneToOneFullySpecified(ones[0], twos[15]);
-            CreateRelationship_OneToOneFullySpecified(ones[0], twos[16]);
-            CreateRelationship_OneToOneFullySpecified(ones[0], twos[17]);
-            CreateRelationship_OneToOneFullySpecified(ones[0], twos[18]);
-            CreateRelationship_OneToOneFullySpecified(ones[0], twos[19]);
-            CreateRelationship_OneToOneFullySpecified(ones[1], twos[0]);
-            CreateRelationship_OneToOneFullySpecified(ones[1], twos[2]);
-            CreateRelationship_OneToOneFullySpecified(ones[1], twos[4]);
-            CreateRelationship_OneToOneFullySpecified(ones[1], twos[6]);
-            CreateRelationship_OneToOneFullySpecified(ones[1], twos[8]);
-            CreateRelationship_OneToOneFullySpecified(ones[1], twos[10]);
-            CreateRelationship_OneToOneFullySpecified(ones[1], twos[12]);
-            CreateRelationship_OneToOneFullySpecified(ones[1], twos[14]);
-            CreateRelationship_OneToOneFullySpecified(ones[1], twos[16]);
-            CreateRelationship_OneToOneFullySpecified(ones[1], twos[18]);
-            CreateRelationship_OneToOneFullySpecified(ones[2], twos[0]);
-            CreateRelationship_OneToOneFullySpecified(ones[2], twos[3]);
-            CreateRelationship_OneToOneFullySpecified(ones[2], twos[6]);
-            CreateRelationship_OneToOneFullySpecified(ones[2], twos[9]);
-            CreateRelationship_OneToOneFullySpecified(ones[2], twos[12]);
-            CreateRelationship_OneToOneFullySpecified(ones[2], twos[15]);
-            CreateRelationship_OneToOneFullySpecified(ones[2], twos[18]);
-            CreateRelationship_OneToOneFullySpecified(ones[3], twos[0]);
-            CreateRelationship_OneToOneFullySpecified(ones[3], twos[4]);
-            CreateRelationship_OneToOneFullySpecified(ones[3], twos[8]);
-            CreateRelationship_OneToOneFullySpecified(ones[3], twos[12]);
-            CreateRelationship_OneToOneFullySpecified(ones[3], twos[16]);
-            CreateRelationship_OneToOneFullySpecified(ones[4], twos[0]);
-            CreateRelationship_OneToOneFullySpecified(ones[4], twos[5]);
-            CreateRelationship_OneToOneFullySpecified(ones[4], twos[10]);
-            CreateRelationship_OneToOneFullySpecified(ones[4], twos[15]);
-            CreateRelationship_OneToOneFullySpecified(ones[5], twos[0]);
-            CreateRelationship_OneToOneFullySpecified(ones[5], twos[6]);
-            CreateRelationship_OneToOneFullySpecified(ones[5], twos[12]);
-            CreateRelationship_OneToOneFullySpecified(ones[5], twos[18]);
-            CreateRelationship_OneToOneFullySpecified(ones[6], twos[0]);
-            CreateRelationship_OneToOneFullySpecified(ones[6], twos[7]);
-            CreateRelationship_OneToOneFullySpecified(ones[6], twos[14]);
-            CreateRelationship_OneToOneFullySpecified(ones[7], twos[0]);
-            CreateRelationship_OneToOneFullySpecified(ones[7], twos[8]);
-            CreateRelationship_OneToOneFullySpecified(ones[7], twos[16]);
-            CreateRelationship_OneToOneFullySpecified(ones[8], twos[0]);
-            CreateRelationship_OneToOneFullySpecified(ones[8], twos[9]);
-            CreateRelationship_OneToOneFullySpecified(ones[8], twos[18]);
-            CreateRelationship_OneToOneFullySpecified(ones[9], twos[0]);
-            CreateRelationship_OneToOneFullySpecified(ones[9], twos[10]);
-            CreateRelationship_OneToOneFullySpecified(ones[10], twos[19]);
-            CreateRelationship_OneToOneFullySpecified(ones[10], twos[18]);
-            CreateRelationship_OneToOneFullySpecified(ones[10], twos[17]);
-            CreateRelationship_OneToOneFullySpecified(ones[10], twos[16]);
-            CreateRelationship_OneToOneFullySpecified(ones[10], twos[15]);
-            CreateRelationship_OneToOneFullySpecified(ones[10], twos[14]);
-            CreateRelationship_OneToOneFullySpecified(ones[10], twos[13]);
-            CreateRelationship_OneToOneFullySpecified(ones[10], twos[12]);
-            CreateRelationship_OneToOneFullySpecified(ones[10], twos[11]);
-            CreateRelationship_OneToOneFullySpecified(ones[10], twos[10]);
-            CreateRelationship_OneToOneFullySpecified(ones[10], twos[9]);
-            CreateRelationship_OneToOneFullySpecified(ones[10], twos[8]);
-            CreateRelationship_OneToOneFullySpecified(ones[10], twos[7]);
-            CreateRelationship_OneToOneFullySpecified(ones[10], twos[6]);
-            CreateRelationship_OneToOneFullySpecified(ones[10], twos[5]);
-            CreateRelationship_OneToOneFullySpecified(ones[10], twos[4]);
-            CreateRelationship_OneToOneFullySpecified(ones[10], twos[3]);
-            CreateRelationship_OneToOneFullySpecified(ones[10], twos[2]);
-            CreateRelationship_OneToOneFullySpecified(ones[10], twos[1]);
-            CreateRelationship_OneToOneFullySpecified(ones[10], twos[0]);
-            CreateRelationship_OneToOneFullySpecified(ones[11], twos[19]);
-            CreateRelationship_OneToOneFullySpecified(ones[11], twos[16]);
-            CreateRelationship_OneToOneFullySpecified(ones[11], twos[13]);
-            CreateRelationship_OneToOneFullySpecified(ones[11], twos[10]);
-            CreateRelationship_OneToOneFullySpecified(ones[11], twos[7]);
-            CreateRelationship_OneToOneFullySpecified(ones[11], twos[4]);
-            CreateRelationship_OneToOneFullySpecified(ones[11], twos[1]);
-            CreateRelationship_OneToOneFullySpecified(ones[12], twos[19]);
-            CreateRelationship_OneToOneFullySpecified(ones[12], twos[15]);
-            CreateRelationship_OneToOneFullySpecified(ones[12], twos[11]);
-            CreateRelationship_OneToOneFullySpecified(ones[12], twos[7]);
-            CreateRelationship_OneToOneFullySpecified(ones[12], twos[3]);
-            CreateRelationship_OneToOneFullySpecified(ones[13], twos[19]);
-            CreateRelationship_OneToOneFullySpecified(ones[13], twos[14]);
-            CreateRelationship_OneToOneFullySpecified(ones[13], twos[9]);
-            CreateRelationship_OneToOneFullySpecified(ones[13], twos[4]);
-            CreateRelationship_OneToOneFullySpecified(ones[14], twos[19]);
-            CreateRelationship_OneToOneFullySpecified(ones[14], twos[13]);
-            CreateRelationship_OneToOneFullySpecified(ones[14], twos[7]);
-            CreateRelationship_OneToOneFullySpecified(ones[14], twos[1]);
-            CreateRelationship_OneToOneFullySpecified(ones[15], twos[19]);
-            CreateRelationship_OneToOneFullySpecified(ones[15], twos[12]);
-            CreateRelationship_OneToOneFullySpecified(ones[15], twos[5]);
-            CreateRelationship_OneToOneFullySpecified(ones[16], twos[19]);
-            CreateRelationship_OneToOneFullySpecified(ones[16], twos[11]);
-            CreateRelationship_OneToOneFullySpecified(ones[16], twos[3]);
-            CreateRelationship_OneToOneFullySpecified(ones[17], twos[19]);
-            CreateRelationship_OneToOneFullySpecified(ones[17], twos[10]);
-            CreateRelationship_OneToOneFullySpecified(ones[17], twos[1]);
-            CreateRelationship_OneToOneFullySpecified(ones[18], twos[19]);
-            CreateRelationship_OneToOneFullySpecified(ones[18], twos[9]);
-
-            // ManyToMany three fully specified with payload
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[0], threes[1]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[0], threes[5]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[0], threes[8]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[0], threes[12]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[0], threes[16]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[1], threes[8]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[1], threes[10]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[1], threes[12]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[1], threes[13]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[1], threes[15]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[2], threes[4]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[2], threes[11]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[2], threes[15]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[2], threes[18]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[3], threes[1]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[3], threes[3]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[3], threes[10]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[3], threes[12]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[3], threes[18]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[4], threes[3]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[4], threes[5]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[4], threes[8]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[6], threes[0]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[6], threes[3]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[6], threes[8]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[6], threes[9]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[6], threes[10]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[6], threes[11]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[6], threes[17]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[7], threes[0]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[7], threes[2]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[7], threes[3]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[7], threes[12]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[7], threes[13]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[7], threes[16]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[7], threes[17]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[7], threes[19]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[8], threes[1]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[8], threes[8]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[8], threes[10]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[8], threes[11]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[8], threes[14]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[8], threes[16]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[9], threes[1]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[9], threes[2]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[9], threes[3]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[9], threes[7]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[9], threes[9]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[9], threes[10]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[9], threes[13]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[9], threes[15]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[9], threes[17]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[9], threes[18]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[10], threes[0]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[10], threes[5]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[10], threes[7]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[10], threes[8]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[10], threes[9]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[10], threes[12]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[10], threes[13]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[10], threes[18]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[11], threes[1]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[12], threes[5]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[12], threes[8]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[12], threes[9]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[12], threes[10]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[12], threes[11]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[12], threes[12]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[12], threes[14]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[12], threes[15]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[12], threes[17]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[13], threes[16]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[13], threes[17]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[14], threes[7]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[14], threes[10]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[14], threes[13]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[14], threes[14]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[14], threes[17]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[14], threes[19]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[15], threes[0]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[15], threes[5]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[15], threes[9]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[15], threes[12]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[15], threes[13]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[15], threes[14]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[15], threes[15]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[16], threes[1]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[16], threes[4]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[16], threes[6]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[16], threes[12]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[16], threes[13]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[16], threes[14]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[17], threes[2]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[17], threes[6]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[17], threes[11]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[17], threes[17]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[18], threes[1]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[18], threes[4]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[18], threes[5]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[18], threes[6]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[18], threes[9]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[18], threes[10]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[18], threes[14]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[18], threes[15]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[18], threes[16]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[18], threes[19]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[19], threes[2]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[19], threes[4]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[19], threes[5]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[19], threes[9]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[19], threes[10]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[19], threes[11]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[19], threes[13]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[19], threes[17]);
-            CreateRelationship_OneToThreeFullySpecifiedWithPayload(ones[19], threes[19]);
-
-            // ManyToMany two shared type 
-            CreateRelationship_OneToTwoSharedType(ones[0], twos[2]);
-            CreateRelationship_OneToTwoSharedType(ones[0], twos[15]);
-            CreateRelationship_OneToTwoSharedType(ones[1], twos[2]);
-            CreateRelationship_OneToTwoSharedType(ones[1], twos[9]);
-            CreateRelationship_OneToTwoSharedType(ones[1], twos[17]);
-            CreateRelationship_OneToTwoSharedType(ones[2], twos[9]);
-            CreateRelationship_OneToTwoSharedType(ones[2], twos[10]);
-            CreateRelationship_OneToTwoSharedType(ones[2], twos[15]);
-            CreateRelationship_OneToTwoSharedType(ones[4], twos[1]);
-            CreateRelationship_OneToTwoSharedType(ones[4], twos[4]);
-            CreateRelationship_OneToTwoSharedType(ones[4], twos[6]);
-            CreateRelationship_OneToTwoSharedType(ones[4], twos[8]);
-            CreateRelationship_OneToTwoSharedType(ones[4], twos[13]);
-            CreateRelationship_OneToTwoSharedType(ones[5], twos[11]);
-            CreateRelationship_OneToTwoSharedType(ones[6], twos[2]);
-            CreateRelationship_OneToTwoSharedType(ones[6], twos[15]);
-            CreateRelationship_OneToTwoSharedType(ones[6], twos[16]);
-            CreateRelationship_OneToTwoSharedType(ones[7], twos[18]);
-            CreateRelationship_OneToTwoSharedType(ones[8], twos[8]);
-            CreateRelationship_OneToTwoSharedType(ones[8], twos[10]);
-            CreateRelationship_OneToTwoSharedType(ones[9], twos[5]);
-            CreateRelationship_OneToTwoSharedType(ones[9], twos[16]);
-            CreateRelationship_OneToTwoSharedType(ones[9], twos[19]);
-            CreateRelationship_OneToTwoSharedType(ones[10], twos[16]);
-            CreateRelationship_OneToTwoSharedType(ones[10], twos[17]);
-            CreateRelationship_OneToTwoSharedType(ones[11], twos[5]);
-            CreateRelationship_OneToTwoSharedType(ones[11], twos[18]);
-            CreateRelationship_OneToTwoSharedType(ones[12], twos[6]);
-            CreateRelationship_OneToTwoSharedType(ones[12], twos[7]);
-            CreateRelationship_OneToTwoSharedType(ones[12], twos[8]);
-            CreateRelationship_OneToTwoSharedType(ones[12], twos[12]);
-            CreateRelationship_OneToTwoSharedType(ones[13], twos[3]);
-            CreateRelationship_OneToTwoSharedType(ones[13], twos[8]);
-            CreateRelationship_OneToTwoSharedType(ones[13], twos[18]);
-            CreateRelationship_OneToTwoSharedType(ones[14], twos[9]);
-            CreateRelationship_OneToTwoSharedType(ones[15], twos[0]);
-            CreateRelationship_OneToTwoSharedType(ones[15], twos[6]);
-            CreateRelationship_OneToTwoSharedType(ones[15], twos[18]);
-            CreateRelationship_OneToTwoSharedType(ones[16], twos[7]);
-            CreateRelationship_OneToTwoSharedType(ones[16], twos[14]);
-            CreateRelationship_OneToTwoSharedType(ones[17], twos[3]);
-            CreateRelationship_OneToTwoSharedType(ones[17], twos[12]);
-            CreateRelationship_OneToTwoSharedType(ones[17], twos[13]);
-            CreateRelationship_OneToTwoSharedType(ones[18], twos[3]);
-            CreateRelationship_OneToTwoSharedType(ones[18], twos[13]);
-
-            // ManyToMany three shared type 
-            CreateRelationship_OneToThreeSharedType(ones[2], threes[0]);
-            CreateRelationship_OneToThreeSharedType(ones[2], threes[1]);
-            CreateRelationship_OneToThreeSharedType(ones[2], threes[3]);
-            CreateRelationship_OneToThreeSharedType(ones[2], threes[8]);
-            CreateRelationship_OneToThreeSharedType(ones[3], threes[4]);
-            CreateRelationship_OneToThreeSharedType(ones[3], threes[17]);
-            CreateRelationship_OneToThreeSharedType(ones[4], threes[0]);
-            CreateRelationship_OneToThreeSharedType(ones[4], threes[3]);
-            CreateRelationship_OneToThreeSharedType(ones[4], threes[8]);
-            CreateRelationship_OneToThreeSharedType(ones[4], threes[15]);
-            CreateRelationship_OneToThreeSharedType(ones[5], threes[10]);
-            CreateRelationship_OneToThreeSharedType(ones[5], threes[12]);
-            CreateRelationship_OneToThreeSharedType(ones[6], threes[3]);
-            CreateRelationship_OneToThreeSharedType(ones[7], threes[10]);
-            CreateRelationship_OneToThreeSharedType(ones[7], threes[17]);
-            CreateRelationship_OneToThreeSharedType(ones[7], threes[18]);
-            CreateRelationship_OneToThreeSharedType(ones[9], threes[0]);
-            CreateRelationship_OneToThreeSharedType(ones[9], threes[4]);
-            CreateRelationship_OneToThreeSharedType(ones[9], threes[19]);
-            CreateRelationship_OneToThreeSharedType(ones[10], threes[9]);
-            CreateRelationship_OneToThreeSharedType(ones[11], threes[10]);
-            CreateRelationship_OneToThreeSharedType(ones[11], threes[16]);
-            CreateRelationship_OneToThreeSharedType(ones[12], threes[2]);
-            CreateRelationship_OneToThreeSharedType(ones[12], threes[13]);
-            CreateRelationship_OneToThreeSharedType(ones[12], threes[15]);
-            CreateRelationship_OneToThreeSharedType(ones[13], threes[5]);
-            CreateRelationship_OneToThreeSharedType(ones[13], threes[10]);
-            CreateRelationship_OneToThreeSharedType(ones[13], threes[16]);
-            CreateRelationship_OneToThreeSharedType(ones[14], threes[9]);
-            CreateRelationship_OneToThreeSharedType(ones[14], threes[12]);
-            CreateRelationship_OneToThreeSharedType(ones[15], threes[6]);
-            CreateRelationship_OneToThreeSharedType(ones[15], threes[12]);
-            CreateRelationship_OneToThreeSharedType(ones[16], threes[8]);
-            CreateRelationship_OneToThreeSharedType(ones[16], threes[12]);
-            CreateRelationship_OneToThreeSharedType(ones[17], threes[7]);
-            CreateRelationship_OneToThreeSharedType(ones[17], threes[11]);
-            CreateRelationship_OneToThreeSharedType(ones[17], threes[12]);
-            CreateRelationship_OneToThreeSharedType(ones[19], threes[3]);
-            CreateRelationship_OneToThreeSharedType(ones[19], threes[4]);
-            CreateRelationship_OneToThreeSharedType(ones[19], threes[15]);
-
-            // ManyToMany self shared type with payload
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[2], ones[3]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[2], ones[5]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[2], ones[7]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[2], ones[17]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[2], ones[19]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[4], ones[2]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[4], ones[3]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[5], ones[4]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[5], ones[6]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[5], ones[12]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[6], ones[12]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[7], ones[8]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[7], ones[10]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[7], ones[11]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[9], ones[6]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[12], ones[1]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[12], ones[17]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[13], ones[8]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[14], ones[12]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[15], ones[4]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[15], ones[5]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[16], ones[13]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[18], ones[0]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[18], ones[7]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[18], ones[11]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[19], ones[0]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[19], ones[6]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[19], ones[13]);
-            CreateRelationship_OneSelfSharedTypeWithPayload(ones[19], ones[15]);
-
-            // ManyToMany branch fully specified
-            CreateRelationship_OneToBranchFullySpecified(ones[1], branches[5]);
-            CreateRelationship_OneToBranchFullySpecified(ones[1], branches[9]);
-            CreateRelationship_OneToBranchFullySpecified(ones[2], branches[3]);
-            CreateRelationship_OneToBranchFullySpecified(ones[2], branches[5]);
-            CreateRelationship_OneToBranchFullySpecified(ones[2], branches[7]);
-            CreateRelationship_OneToBranchFullySpecified(ones[2], branches[9]);
-            CreateRelationship_OneToBranchFullySpecified(ones[4], branches[2]);
-            CreateRelationship_OneToBranchFullySpecified(ones[5], branches[5]);
-            CreateRelationship_OneToBranchFullySpecified(ones[5], branches[7]);
-            CreateRelationship_OneToBranchFullySpecified(ones[5], branches[8]);
-            CreateRelationship_OneToBranchFullySpecified(ones[7], branches[0]);
-            CreateRelationship_OneToBranchFullySpecified(ones[7], branches[1]);
-            CreateRelationship_OneToBranchFullySpecified(ones[7], branches[2]);
-            CreateRelationship_OneToBranchFullySpecified(ones[8], branches[0]);
-            CreateRelationship_OneToBranchFullySpecified(ones[8], branches[1]);
-            CreateRelationship_OneToBranchFullySpecified(ones[8], branches[3]);
-            CreateRelationship_OneToBranchFullySpecified(ones[8], branches[5]);
-            CreateRelationship_OneToBranchFullySpecified(ones[8], branches[6]);
-            CreateRelationship_OneToBranchFullySpecified(ones[8], branches[9]);
-            CreateRelationship_OneToBranchFullySpecified(ones[9], branches[1]);
-            CreateRelationship_OneToBranchFullySpecified(ones[9], branches[2]);
-            CreateRelationship_OneToBranchFullySpecified(ones[9], branches[3]);
-            CreateRelationship_OneToBranchFullySpecified(ones[9], branches[6]);
-            CreateRelationship_OneToBranchFullySpecified(ones[11], branches[0]);
-            CreateRelationship_OneToBranchFullySpecified(ones[11], branches[1]);
-            CreateRelationship_OneToBranchFullySpecified(ones[11], branches[3]);
-            CreateRelationship_OneToBranchFullySpecified(ones[11], branches[8]);
-            CreateRelationship_OneToBranchFullySpecified(ones[12], branches[4]);
-            CreateRelationship_OneToBranchFullySpecified(ones[13], branches[1]);
-            CreateRelationship_OneToBranchFullySpecified(ones[13], branches[3]);
-            CreateRelationship_OneToBranchFullySpecified(ones[13], branches[5]);
-            CreateRelationship_OneToBranchFullySpecified(ones[13], branches[8]);
-            CreateRelationship_OneToBranchFullySpecified(ones[14], branches[4]);
-            CreateRelationship_OneToBranchFullySpecified(ones[14], branches[5]);
-            CreateRelationship_OneToBranchFullySpecified(ones[14], branches[9]);
-            CreateRelationship_OneToBranchFullySpecified(ones[15], branches[0]);
-            CreateRelationship_OneToBranchFullySpecified(ones[16], branches[0]);
-            CreateRelationship_OneToBranchFullySpecified(ones[16], branches[6]);
-            CreateRelationship_OneToBranchFullySpecified(ones[17], branches[1]);
-            CreateRelationship_OneToBranchFullySpecified(ones[17], branches[4]);
-            CreateRelationship_OneToBranchFullySpecified(ones[17], branches[9]);
-            CreateRelationship_OneToBranchFullySpecified(ones[18], branches[0]);
-            CreateRelationship_OneToBranchFullySpecified(ones[18], branches[1]);
-            CreateRelationship_OneToBranchFullySpecified(ones[18], branches[5]);
-            CreateRelationship_OneToBranchFullySpecified(ones[18], branches[8]);
-            CreateRelationship_OneToBranchFullySpecified(ones[19], branches[6]);
-            CreateRelationship_OneToBranchFullySpecified(ones[19], branches[8]);
-
-            // TWO
-
-            // Collection
-            CreateRelationship_TwoCollection(twos[0], threes[19]);
-            CreateRelationship_TwoCollection(twos[0], threes[18]);
-            CreateRelationship_TwoCollection(twos[2], threes[17]);
-            CreateRelationship_TwoCollection(twos[2], threes[16]);
-            CreateRelationship_TwoCollection(twos[4], threes[15]);
-            CreateRelationship_TwoCollection(twos[4], threes[14]);
-            CreateRelationship_TwoCollection(twos[6], threes[13]);
-            CreateRelationship_TwoCollection(twos[6], threes[12]);
-            CreateRelationship_TwoCollection(twos[8], threes[11]);
-            CreateRelationship_TwoCollection(twos[8], threes[10]);
-            CreateRelationship_TwoCollection(twos[10], threes[9]);
-            CreateRelationship_TwoCollection(twos[10], threes[8]);
-            CreateRelationship_TwoCollection(twos[12], threes[7]);
-            CreateRelationship_TwoCollection(twos[12], threes[6]);
-            CreateRelationship_TwoCollection(twos[14], threes[5]);
-            CreateRelationship_TwoCollection(twos[14], threes[4]);
-            CreateRelationship_TwoCollection(twos[15], threes[3]);
-            CreateRelationship_TwoCollection(twos[15], threes[2]);
-            CreateRelationship_TwoCollection(twos[16], threes[1]);
-
-            // Reference
-            CreateRelationship_TwoReference(twos[1], threes[2]);
-            CreateRelationship_TwoReference(twos[3], threes[4]);
-            CreateRelationship_TwoReference(twos[5], threes[6]);
-            CreateRelationship_TwoReference(twos[7], threes[8]);
-            CreateRelationship_TwoReference(twos[9], threes[10]);
-            CreateRelationship_TwoReference(twos[11], threes[12]);
-            CreateRelationship_TwoReference(twos[13], threes[14]);
-            CreateRelationship_TwoReference(twos[15], threes[16]);
-            CreateRelationship_TwoReference(twos[17], threes[18]);
-            CreateRelationship_TwoReference(twos[18], threes[1]);
-            CreateRelationship_TwoReference(twos[19], threes[3]);
-
-            // ManyToMany two fully specified
-            CreateRelationship_TwoToThreeFullySpecified(twos[0], threes[1]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[0], threes[2]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[0], threes[12]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[0], threes[17]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[1], threes[0]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[1], threes[8]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[1], threes[14]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[2], threes[10]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[2], threes[16]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[3], threes[1]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[3], threes[4]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[3], threes[10]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[4], threes[3]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[4], threes[4]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[5], threes[2]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[5], threes[9]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[5], threes[15]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[5], threes[17]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[6], threes[11]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[6], threes[14]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[6], threes[19]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[7], threes[0]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[7], threes[2]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[7], threes[19]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[8], threes[2]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[8], threes[12]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[8], threes[18]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[9], threes[16]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[10], threes[5]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[10], threes[6]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[10], threes[7]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[10], threes[12]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[11], threes[8]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[12], threes[0]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[12], threes[10]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[12], threes[18]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[13], threes[1]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[14], threes[16]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[15], threes[2]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[15], threes[15]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[17], threes[0]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[17], threes[4]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[17], threes[9]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[18], threes[4]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[18], threes[15]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[18], threes[17]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[19], threes[5]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[19], threes[9]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[19], threes[11]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[19], threes[15]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[19], threes[16]);
-            CreateRelationship_TwoToThreeFullySpecified(twos[19], threes[17]);
-
-            // ManyToMany self fully specified
-            CreateRelationship_TwoSelfFullySpecified(twos[0], twos[8]);
-            CreateRelationship_TwoSelfFullySpecified(twos[0], twos[9]);
-            CreateRelationship_TwoSelfFullySpecified(twos[0], twos[10]);
-            CreateRelationship_TwoSelfFullySpecified(twos[0], twos[17]);
-            CreateRelationship_TwoSelfFullySpecified(twos[2], twos[1]);
-            CreateRelationship_TwoSelfFullySpecified(twos[2], twos[4]);
-            CreateRelationship_TwoSelfFullySpecified(twos[2], twos[7]);
-            CreateRelationship_TwoSelfFullySpecified(twos[2], twos[17]);
-            CreateRelationship_TwoSelfFullySpecified(twos[2], twos[18]);
-            CreateRelationship_TwoSelfFullySpecified(twos[3], twos[10]);
-            CreateRelationship_TwoSelfFullySpecified(twos[4], twos[7]);
-            CreateRelationship_TwoSelfFullySpecified(twos[5], twos[17]);
-            CreateRelationship_TwoSelfFullySpecified(twos[7], twos[1]);
-            CreateRelationship_TwoSelfFullySpecified(twos[7], twos[13]);
-            CreateRelationship_TwoSelfFullySpecified(twos[7], twos[14]);
-            CreateRelationship_TwoSelfFullySpecified(twos[7], twos[19]);
-            CreateRelationship_TwoSelfFullySpecified(twos[8], twos[3]);
-            CreateRelationship_TwoSelfFullySpecified(twos[8], twos[13]);
-            CreateRelationship_TwoSelfFullySpecified(twos[9], twos[4]);
-            CreateRelationship_TwoSelfFullySpecified(twos[11], twos[12]);
-            CreateRelationship_TwoSelfFullySpecified(twos[11], twos[13]);
-            CreateRelationship_TwoSelfFullySpecified(twos[12], twos[13]);
-            CreateRelationship_TwoSelfFullySpecified(twos[12], twos[17]);
-            CreateRelationship_TwoSelfFullySpecified(twos[12], twos[18]);
-            CreateRelationship_TwoSelfFullySpecified(twos[15], twos[5]);
-            CreateRelationship_TwoSelfFullySpecified(twos[16], twos[8]);
-            CreateRelationship_TwoSelfFullySpecified(twos[16], twos[18]);
-            CreateRelationship_TwoSelfFullySpecified(twos[16], twos[19]);
-            CreateRelationship_TwoSelfFullySpecified(twos[17], twos[1]);
-            CreateRelationship_TwoSelfFullySpecified(twos[17], twos[4]);
-            CreateRelationship_TwoSelfFullySpecified(twos[17], twos[15]);
-            CreateRelationship_TwoSelfFullySpecified(twos[17], twos[16]);
-            CreateRelationship_TwoSelfFullySpecified(twos[18], twos[1]);
-            CreateRelationship_TwoSelfFullySpecified(twos[19], twos[3]);
-
-            // ManyToMany composite shared type
-            CreateRelationship_TwoToCompositeSharedType(twos[0], compositeKeys[0]);
-            CreateRelationship_TwoToCompositeSharedType(twos[0], compositeKeys[3]);
-            CreateRelationship_TwoToCompositeSharedType(twos[0], compositeKeys[4]);
-            CreateRelationship_TwoToCompositeSharedType(twos[1], compositeKeys[3]);
-            CreateRelationship_TwoToCompositeSharedType(twos[2], compositeKeys[5]);
-            CreateRelationship_TwoToCompositeSharedType(twos[3], compositeKeys[1]);
-            CreateRelationship_TwoToCompositeSharedType(twos[3], compositeKeys[18]);
-            CreateRelationship_TwoToCompositeSharedType(twos[5], compositeKeys[2]);
-            CreateRelationship_TwoToCompositeSharedType(twos[5], compositeKeys[12]);
-            CreateRelationship_TwoToCompositeSharedType(twos[6], compositeKeys[7]);
-            CreateRelationship_TwoToCompositeSharedType(twos[8], compositeKeys[2]);
-            CreateRelationship_TwoToCompositeSharedType(twos[8], compositeKeys[8]);
-            CreateRelationship_TwoToCompositeSharedType(twos[9], compositeKeys[0]);
-            CreateRelationship_TwoToCompositeSharedType(twos[9], compositeKeys[14]);
-            CreateRelationship_TwoToCompositeSharedType(twos[9], compositeKeys[17]);
-            CreateRelationship_TwoToCompositeSharedType(twos[10], compositeKeys[0]);
-            CreateRelationship_TwoToCompositeSharedType(twos[10], compositeKeys[14]);
-            CreateRelationship_TwoToCompositeSharedType(twos[11], compositeKeys[7]);
-            CreateRelationship_TwoToCompositeSharedType(twos[11], compositeKeys[12]);
-            CreateRelationship_TwoToCompositeSharedType(twos[11], compositeKeys[14]);
-            CreateRelationship_TwoToCompositeSharedType(twos[12], compositeKeys[0]);
-            CreateRelationship_TwoToCompositeSharedType(twos[12], compositeKeys[6]);
-            CreateRelationship_TwoToCompositeSharedType(twos[12], compositeKeys[16]);
-            CreateRelationship_TwoToCompositeSharedType(twos[14], compositeKeys[15]);
-            CreateRelationship_TwoToCompositeSharedType(twos[15], compositeKeys[0]);
-            CreateRelationship_TwoToCompositeSharedType(twos[15], compositeKeys[2]);
-            CreateRelationship_TwoToCompositeSharedType(twos[15], compositeKeys[18]);
-            CreateRelationship_TwoToCompositeSharedType(twos[16], compositeKeys[1]);
-            CreateRelationship_TwoToCompositeSharedType(twos[16], compositeKeys[7]);
-            CreateRelationship_TwoToCompositeSharedType(twos[16], compositeKeys[13]);
-            CreateRelationship_TwoToCompositeSharedType(twos[16], compositeKeys[14]);
-            CreateRelationship_TwoToCompositeSharedType(twos[18], compositeKeys[4]);
-            CreateRelationship_TwoToCompositeSharedType(twos[19], compositeKeys[2]);
-            CreateRelationship_TwoToCompositeSharedType(twos[19], compositeKeys[4]);
-            CreateRelationship_TwoToCompositeSharedType(twos[19], compositeKeys[5]);
-            CreateRelationship_TwoToCompositeSharedType(twos[19], compositeKeys[13]);
-
-            // THREE
-
-            // ManyToMany composite fully specified
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[0], compositeKeys[5]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[1], compositeKeys[0]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[1], compositeKeys[14]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[1], compositeKeys[19]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[2], compositeKeys[5]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[2], compositeKeys[14]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[2], compositeKeys[19]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[4], compositeKeys[11]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[4], compositeKeys[12]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[4], compositeKeys[17]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[5], compositeKeys[5]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[6], compositeKeys[3]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[6], compositeKeys[8]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[7], compositeKeys[10]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[7], compositeKeys[18]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[8], compositeKeys[8]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[8], compositeKeys[15]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[9], compositeKeys[15]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[10], compositeKeys[6]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[10], compositeKeys[14]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[11], compositeKeys[7]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[11], compositeKeys[10]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[11], compositeKeys[12]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[12], compositeKeys[5]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[12], compositeKeys[7]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[12], compositeKeys[13]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[12], compositeKeys[14]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[13], compositeKeys[9]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[13], compositeKeys[12]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[13], compositeKeys[15]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[14], compositeKeys[9]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[14], compositeKeys[13]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[14], compositeKeys[18]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[15], compositeKeys[4]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[15], compositeKeys[6]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[15], compositeKeys[18]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[16], compositeKeys[1]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[16], compositeKeys[9]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[17], compositeKeys[3]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[18], compositeKeys[1]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[18], compositeKeys[12]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[18], compositeKeys[14]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[18], compositeKeys[19]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[19], compositeKeys[3]);
-            CreateRelationship_ThreeToCompositeFullySpecified(threes[19], compositeKeys[6]);
-
-            // ManyToMany root shared type
-            CreateRelationship_ThreeToRootSharedType(threes[0], roots[6]);
-            CreateRelationship_ThreeToRootSharedType(threes[0], roots[7]);
-            CreateRelationship_ThreeToRootSharedType(threes[0], roots[14]);
-            CreateRelationship_ThreeToRootSharedType(threes[1], roots[3]);
-            CreateRelationship_ThreeToRootSharedType(threes[1], roots[15]);
-            CreateRelationship_ThreeToRootSharedType(threes[2], roots[11]);
-            CreateRelationship_ThreeToRootSharedType(threes[2], roots[13]);
-            CreateRelationship_ThreeToRootSharedType(threes[2], roots[19]);
-            CreateRelationship_ThreeToRootSharedType(threes[4], roots[13]);
-            CreateRelationship_ThreeToRootSharedType(threes[4], roots[14]);
-            CreateRelationship_ThreeToRootSharedType(threes[4], roots[15]);
-            CreateRelationship_ThreeToRootSharedType(threes[5], roots[16]);
-            CreateRelationship_ThreeToRootSharedType(threes[6], roots[0]);
-            CreateRelationship_ThreeToRootSharedType(threes[6], roots[5]);
-            CreateRelationship_ThreeToRootSharedType(threes[6], roots[12]);
-            CreateRelationship_ThreeToRootSharedType(threes[6], roots[19]);
-            CreateRelationship_ThreeToRootSharedType(threes[7], roots[9]);
-            CreateRelationship_ThreeToRootSharedType(threes[9], roots[2]);
-            CreateRelationship_ThreeToRootSharedType(threes[9], roots[7]);
-            CreateRelationship_ThreeToRootSharedType(threes[12], roots[4]);
-            CreateRelationship_ThreeToRootSharedType(threes[13], roots[0]);
-            CreateRelationship_ThreeToRootSharedType(threes[13], roots[13]);
-            CreateRelationship_ThreeToRootSharedType(threes[15], roots[4]);
-            CreateRelationship_ThreeToRootSharedType(threes[15], roots[6]);
-            CreateRelationship_ThreeToRootSharedType(threes[16], roots[13]);
-            CreateRelationship_ThreeToRootSharedType(threes[17], roots[5]);
-            CreateRelationship_ThreeToRootSharedType(threes[17], roots[18]);
-            CreateRelationship_ThreeToRootSharedType(threes[18], roots[10]);
-            CreateRelationship_ThreeToRootSharedType(threes[19], roots[13]);
-
-            // COMPOSITE KEY
-
-            // ManyToMany root shared type
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[0], roots[5]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[0], roots[8]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[0], roots[19]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[1], roots[0]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[1], roots[1]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[1], roots[3]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[1], roots[5]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[1], roots[10]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[1], roots[17]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[2], roots[3]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[2], roots[13]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[2], roots[15]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[3], roots[1]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[3], roots[2]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[3], roots[3]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[7], roots[1]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[7], roots[7]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[7], roots[15]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[7], roots[17]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[8], roots[6]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[8], roots[7]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[8], roots[18]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[9], roots[2]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[9], roots[11]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[9], roots[17]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[10], roots[1]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[10], roots[3]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[10], roots[4]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[11], roots[6]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[12], roots[2]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[12], roots[7]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[12], roots[13]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[14], roots[3]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[14], roots[10]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[15], roots[0]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[15], roots[6]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[15], roots[14]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[18], roots[0]);
-            CreateRelationship_CompositeKeyToRootSharedType(compositeKeys[19], roots[5]);
-
-            // ManyToMany leaves shared type
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[0], leaves[0]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[1], leaves[0]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[1], leaves[2]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[2], leaves[1]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[2], leaves[2]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[3], leaves[3]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[4], leaves[1]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[5], leaves[0]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[7], leaves[1]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[7], leaves[3]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[8], leaves[0]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[9], leaves[2]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[10], leaves[1]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[10], leaves[2]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[12], leaves[0]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[12], leaves[2]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[12], leaves[3]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[13], leaves[0]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[13], leaves[1]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[13], leaves[2]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[14], leaves[0]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[14], leaves[1]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[15], leaves[0]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[15], leaves[2]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[15], leaves[3]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[16], leaves[2]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[16], leaves[3]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[17], leaves[2]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[17], leaves[3]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[18], leaves[0]);
-            CreateRelationship_CompositeKeyToLeafSharedType(compositeKeys[18], leaves[1]);
-        }
+        private static JoinOneToTwoShared[] CreateJoinOneToTwoShareds()
+            => new[]
+            {
+                new JoinOneToTwoShared { OneId = 1, TwoId = 3 },
+                new JoinOneToTwoShared { OneId = 1, TwoId = 16 },
+                new JoinOneToTwoShared { OneId = 2, TwoId = 3 },
+                new JoinOneToTwoShared { OneId = 2, TwoId = 10 },
+                new JoinOneToTwoShared { OneId = 2, TwoId = 18 },
+                new JoinOneToTwoShared { OneId = 3, TwoId = 10 },
+                new JoinOneToTwoShared { OneId = 3, TwoId = 11 },
+                new JoinOneToTwoShared { OneId = 3, TwoId = 16 },
+                new JoinOneToTwoShared { OneId = 5, TwoId = 2 },
+                new JoinOneToTwoShared { OneId = 5, TwoId = 5 },
+                new JoinOneToTwoShared { OneId = 5, TwoId = 7 },
+                new JoinOneToTwoShared { OneId = 5, TwoId = 9 },
+                new JoinOneToTwoShared { OneId = 5, TwoId = 14 },
+                new JoinOneToTwoShared { OneId = 6, TwoId = 12 },
+                new JoinOneToTwoShared { OneId = 7, TwoId = 3 },
+                new JoinOneToTwoShared { OneId = 7, TwoId = 16 },
+                new JoinOneToTwoShared { OneId = 7, TwoId = 17 },
+                new JoinOneToTwoShared { OneId = 8, TwoId = 19 },
+                new JoinOneToTwoShared { OneId = 9, TwoId = 9 },
+                new JoinOneToTwoShared { OneId = 9, TwoId = 11 },
+                new JoinOneToTwoShared { OneId = 10, TwoId = 6 },
+                new JoinOneToTwoShared { OneId = 10, TwoId = 17 },
+                new JoinOneToTwoShared { OneId = 10, TwoId = 20 },
+                new JoinOneToTwoShared { OneId = 11, TwoId = 17 },
+                new JoinOneToTwoShared { OneId = 11, TwoId = 18 },
+                new JoinOneToTwoShared { OneId = 12, TwoId = 6 },
+                new JoinOneToTwoShared { OneId = 12, TwoId = 19 },
+                new JoinOneToTwoShared { OneId = 13, TwoId = 7 },
+                new JoinOneToTwoShared { OneId = 13, TwoId = 8 },
+                new JoinOneToTwoShared { OneId = 13, TwoId = 9 },
+                new JoinOneToTwoShared { OneId = 13, TwoId = 13 },
+                new JoinOneToTwoShared { OneId = 14, TwoId = 4 },
+                new JoinOneToTwoShared { OneId = 14, TwoId = 9 },
+                new JoinOneToTwoShared { OneId = 14, TwoId = 19 },
+                new JoinOneToTwoShared { OneId = 15, TwoId = 10 },
+                new JoinOneToTwoShared { OneId = 16, TwoId = 1 },
+                new JoinOneToTwoShared { OneId = 16, TwoId = 7 },
+                new JoinOneToTwoShared { OneId = 16, TwoId = 19 },
+                new JoinOneToTwoShared { OneId = 17, TwoId = 8 },
+                new JoinOneToTwoShared { OneId = 17, TwoId = 15 },
+                new JoinOneToTwoShared { OneId = 18, TwoId = 4 },
+                new JoinOneToTwoShared { OneId = 18, TwoId = 13 },
+                new JoinOneToTwoShared { OneId = 18, TwoId = 14 },
+                new JoinOneToTwoShared { OneId = 19, TwoId = 4 },
+                new JoinOneToTwoShared { OneId = 19, TwoId = 14 }
+            };
+        private static JoinOneToThreePayloadFullShared[] CreateJoinOneToThreePayloadFullShareds()
+            => new[]
+            {
+                new JoinOneToThreePayloadFullShared { OneId = 3, ThreeId = 1, Payload = "Capbrough" },
+                new JoinOneToThreePayloadFullShared { OneId = 3, ThreeId = 2, Payload = "East Eastdol" },
+                new JoinOneToThreePayloadFullShared { OneId = 3, ThreeId = 4, Payload = "Southingville" },
+                new JoinOneToThreePayloadFullShared { OneId = 3, ThreeId = 9, Payload = "Goldbrough" },
+                new JoinOneToThreePayloadFullShared { OneId = 4, ThreeId = 5, Payload = "Readingworth" },
+                new JoinOneToThreePayloadFullShared { OneId = 4, ThreeId = 18, Payload = "Skillpool" },
+                new JoinOneToThreePayloadFullShared { OneId = 5, ThreeId = 1, Payload = "Lawgrad" },
+                new JoinOneToThreePayloadFullShared { OneId = 5, ThreeId = 4, Payload = "Kettleham Park" },
+                new JoinOneToThreePayloadFullShared { OneId = 5, ThreeId = 9, Payload = "Sayford Park" },
+                new JoinOneToThreePayloadFullShared { OneId = 5, ThreeId = 16, Payload = "Hamstead" },
+                new JoinOneToThreePayloadFullShared { OneId = 6, ThreeId = 11, Payload = "North Starside" },
+                new JoinOneToThreePayloadFullShared { OneId = 6, ThreeId = 13, Payload = "Goldfolk" },
+                new JoinOneToThreePayloadFullShared { OneId = 7, ThreeId = 4, Payload = "Winstead" },
+                new JoinOneToThreePayloadFullShared { OneId = 8, ThreeId = 11, Payload = "Transworth" },
+                new JoinOneToThreePayloadFullShared { OneId = 8, ThreeId = 18, Payload = "Parkpool" },
+                new JoinOneToThreePayloadFullShared { OneId = 8, ThreeId = 19, Payload = "Fishham" },
+                new JoinOneToThreePayloadFullShared { OneId = 10, ThreeId = 1, Payload = "Passmouth" },
+                new JoinOneToThreePayloadFullShared { OneId = 10, ThreeId = 5, Payload = "Valenfield" },
+                new JoinOneToThreePayloadFullShared { OneId = 10, ThreeId = 20, Payload = "Passford Park" },
+                new JoinOneToThreePayloadFullShared { OneId = 11, ThreeId = 10, Payload = "Chatfield" },
+                new JoinOneToThreePayloadFullShared { OneId = 12, ThreeId = 11, Payload = "Hosview" },
+                new JoinOneToThreePayloadFullShared { OneId = 12, ThreeId = 17, Payload = "Dodgewich" },
+                new JoinOneToThreePayloadFullShared { OneId = 13, ThreeId = 3, Payload = "Skillhampton" },
+                new JoinOneToThreePayloadFullShared { OneId = 13, ThreeId = 14, Payload = "Hardcaster" },
+                new JoinOneToThreePayloadFullShared { OneId = 13, ThreeId = 16, Payload = "Hollowmouth" },
+                new JoinOneToThreePayloadFullShared { OneId = 14, ThreeId = 6, Payload = "Cruxcaster" },
+                new JoinOneToThreePayloadFullShared { OneId = 14, ThreeId = 11, Payload = "Elcaster" },
+                new JoinOneToThreePayloadFullShared { OneId = 14, ThreeId = 17, Payload = "Clambrough" },
+                new JoinOneToThreePayloadFullShared { OneId = 15, ThreeId = 10, Payload = "Millwich" },
+                new JoinOneToThreePayloadFullShared { OneId = 15, ThreeId = 13, Payload = "Hapcester" },
+                new JoinOneToThreePayloadFullShared { OneId = 16, ThreeId = 7, Payload = "Sanddol Beach" },
+                new JoinOneToThreePayloadFullShared { OneId = 16, ThreeId = 13, Payload = "Hamcaster" },
+                new JoinOneToThreePayloadFullShared { OneId = 17, ThreeId = 9, Payload = "New Foxbrough" },
+                new JoinOneToThreePayloadFullShared { OneId = 17, ThreeId = 13, Payload = "Chatpool" },
+                new JoinOneToThreePayloadFullShared { OneId = 18, ThreeId = 8, Payload = "Duckworth" },
+                new JoinOneToThreePayloadFullShared { OneId = 18, ThreeId = 12, Payload = "Snowham" },
+                new JoinOneToThreePayloadFullShared { OneId = 18, ThreeId = 13, Payload = "Bannview Island" },
+                new JoinOneToThreePayloadFullShared { OneId = 20, ThreeId = 4, Payload = "Rockbrough" },
+                new JoinOneToThreePayloadFullShared { OneId = 20, ThreeId = 5, Payload = "Sweetfield" },
+                new JoinOneToThreePayloadFullShared { OneId = 20, ThreeId = 16, Payload = "Bayburgh Hills" }
+            };
+        private static JoinTwoSelfShared[] CreateJoinTwoSelfShareds()
+            => new[]
+            {
+                new JoinTwoSelfShared { LeftId = 1, RightId = 9 },
+                new JoinTwoSelfShared { LeftId = 1, RightId = 10 },
+                new JoinTwoSelfShared { LeftId = 1, RightId = 11 },
+                new JoinTwoSelfShared { LeftId = 1, RightId = 18 },
+                new JoinTwoSelfShared { LeftId = 3, RightId = 2 },
+                new JoinTwoSelfShared { LeftId = 3, RightId = 5 },
+                new JoinTwoSelfShared { LeftId = 3, RightId = 8 },
+                new JoinTwoSelfShared { LeftId = 3, RightId = 18 },
+                new JoinTwoSelfShared { LeftId = 3, RightId = 19 },
+                new JoinTwoSelfShared { LeftId = 4, RightId = 11 },
+                new JoinTwoSelfShared { LeftId = 5, RightId = 8 },
+                new JoinTwoSelfShared { LeftId = 6, RightId = 18 },
+                new JoinTwoSelfShared { LeftId = 8, RightId = 2 },
+                new JoinTwoSelfShared { LeftId = 8, RightId = 14 },
+                new JoinTwoSelfShared { LeftId = 8, RightId = 15 },
+                new JoinTwoSelfShared { LeftId = 8, RightId = 20 },
+                new JoinTwoSelfShared { LeftId = 9, RightId = 4 },
+                new JoinTwoSelfShared { LeftId = 9, RightId = 14 },
+                new JoinTwoSelfShared { LeftId = 10, RightId = 5 },
+                new JoinTwoSelfShared { LeftId = 12, RightId = 13 },
+                new JoinTwoSelfShared { LeftId = 12, RightId = 14 },
+                new JoinTwoSelfShared { LeftId = 13, RightId = 14 },
+                new JoinTwoSelfShared { LeftId = 13, RightId = 18 },
+                new JoinTwoSelfShared { LeftId = 13, RightId = 19 },
+                new JoinTwoSelfShared { LeftId = 16, RightId = 6 },
+                new JoinTwoSelfShared { LeftId = 17, RightId = 9 },
+                new JoinTwoSelfShared { LeftId = 17, RightId = 19 },
+                new JoinTwoSelfShared { LeftId = 17, RightId = 20 },
+                new JoinTwoSelfShared { LeftId = 18, RightId = 2 },
+                new JoinTwoSelfShared { LeftId = 18, RightId = 5 },
+                new JoinTwoSelfShared { LeftId = 18, RightId = 16 },
+                new JoinTwoSelfShared { LeftId = 18, RightId = 17 },
+                new JoinTwoSelfShared { LeftId = 19, RightId = 2 },
+                new JoinTwoSelfShared { LeftId = 20, RightId = 4 }
+            };
+        private static JoinTwoToCompositeKeyShared[] CreateJoinTwoToCompositeKeyShareds()
+            => new[]
+            {
+                new JoinTwoToCompositeKeyShared { TwoId = 1, CompositeId1 = 1, CompositeId2 = "1_1", CompositeId3 = new DateTime(2001, 1, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 1, CompositeId1 = 3, CompositeId2 = "3_2", CompositeId3 = new DateTime(2003, 2, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 1, CompositeId1 = 3, CompositeId2 = "3_3", CompositeId3 = new DateTime(2003, 3, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 2, CompositeId1 = 3, CompositeId2 = "3_2", CompositeId3 = new DateTime(2003, 2, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 3, CompositeId1 = 6, CompositeId2 = "6_1", CompositeId3 = new DateTime(2006, 1, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 4, CompositeId1 = 1, CompositeId2 = "1_2", CompositeId3 = new DateTime(2001, 2, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 4, CompositeId1 = 9, CompositeId2 = "9_6", CompositeId3 = new DateTime(2009, 6, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 6, CompositeId1 = 3, CompositeId2 = "3_1", CompositeId3 = new DateTime(2003, 1, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 6, CompositeId1 = 8, CompositeId2 = "8_5", CompositeId3 = new DateTime(2008, 5, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 7, CompositeId1 = 7, CompositeId2 = "7_2", CompositeId3 = new DateTime(2007, 2, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 9, CompositeId1 = 3, CompositeId2 = "3_1", CompositeId3 = new DateTime(2003, 1, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 9, CompositeId1 = 8, CompositeId2 = "8_1", CompositeId3 = new DateTime(2008, 1, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 10, CompositeId1 = 1, CompositeId2 = "1_1", CompositeId3 = new DateTime(2001, 1, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 10, CompositeId1 = 9, CompositeId2 = "9_2", CompositeId3 = new DateTime(2009, 2, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 10, CompositeId1 = 9, CompositeId2 = "9_5", CompositeId3 = new DateTime(2009, 5, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 11, CompositeId1 = 1, CompositeId2 = "1_1", CompositeId3 = new DateTime(2001, 1, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 11, CompositeId1 = 9, CompositeId2 = "9_2", CompositeId3 = new DateTime(2009, 2, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 12, CompositeId1 = 7, CompositeId2 = "7_2", CompositeId3 = new DateTime(2007, 2, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 12, CompositeId1 = 8, CompositeId2 = "8_5", CompositeId3 = new DateTime(2008, 5, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 12, CompositeId1 = 9, CompositeId2 = "9_2", CompositeId3 = new DateTime(2009, 2, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 13, CompositeId1 = 1, CompositeId2 = "1_1", CompositeId3 = new DateTime(2001, 1, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 13, CompositeId1 = 7, CompositeId2 = "7_1", CompositeId3 = new DateTime(2007, 1, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 13, CompositeId1 = 9, CompositeId2 = "9_4", CompositeId3 = new DateTime(2009, 4, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 15, CompositeId1 = 9, CompositeId2 = "9_3", CompositeId3 = new DateTime(2009, 3, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 16, CompositeId1 = 1, CompositeId2 = "1_1", CompositeId3 = new DateTime(2001, 1, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 16, CompositeId1 = 3, CompositeId2 = "3_1", CompositeId3 = new DateTime(2003, 1, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 16, CompositeId1 = 9, CompositeId2 = "9_6", CompositeId3 = new DateTime(2009, 6, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 17, CompositeId1 = 1, CompositeId2 = "1_2", CompositeId3 = new DateTime(2001, 2, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 17, CompositeId1 = 7, CompositeId2 = "7_2", CompositeId3 = new DateTime(2007, 2, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 17, CompositeId1 = 9, CompositeId2 = "9_1", CompositeId3 = new DateTime(2009, 1, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 17, CompositeId1 = 9, CompositeId2 = "9_2", CompositeId3 = new DateTime(2009, 2, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 19, CompositeId1 = 3, CompositeId2 = "3_3", CompositeId3 = new DateTime(2003, 3, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 20, CompositeId1 = 3, CompositeId2 = "3_1", CompositeId3 = new DateTime(2003, 1, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 20, CompositeId1 = 3, CompositeId2 = "3_3", CompositeId3 = new DateTime(2003, 3, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 20, CompositeId1 = 6, CompositeId2 = "6_1", CompositeId3 = new DateTime(2006, 1, 1) },
+                new JoinTwoToCompositeKeyShared { TwoId = 20, CompositeId1 = 9, CompositeId2 = "9_1", CompositeId3 = new DateTime(2009, 1, 1) }
+            };
+        private static JoinThreeToRootShared[] CreateJoinThreeToRootShareds()
+            => new[]
+            {
+                new JoinThreeToRootShared { ThreeId = 1, RootId = 7 },
+                new JoinThreeToRootShared { ThreeId = 1, RootId = 8 },
+                new JoinThreeToRootShared { ThreeId = 1, RootId = 15 },
+                new JoinThreeToRootShared { ThreeId = 2, RootId = 4 },
+                new JoinThreeToRootShared { ThreeId = 2, RootId = 16 },
+                new JoinThreeToRootShared { ThreeId = 3, RootId = 12 },
+                new JoinThreeToRootShared { ThreeId = 3, RootId = 14 },
+                new JoinThreeToRootShared { ThreeId = 3, RootId = 24 },
+                new JoinThreeToRootShared { ThreeId = 5, RootId = 14 },
+                new JoinThreeToRootShared { ThreeId = 5, RootId = 15 },
+                new JoinThreeToRootShared { ThreeId = 5, RootId = 16 },
+                new JoinThreeToRootShared { ThreeId = 6, RootId = 21 },
+                new JoinThreeToRootShared { ThreeId = 7, RootId = 1 },
+                new JoinThreeToRootShared { ThreeId = 7, RootId = 6 },
+                new JoinThreeToRootShared { ThreeId = 7, RootId = 13 },
+                new JoinThreeToRootShared { ThreeId = 7, RootId = 24 },
+                new JoinThreeToRootShared { ThreeId = 8, RootId = 10 },
+                new JoinThreeToRootShared { ThreeId = 10, RootId = 3 },
+                new JoinThreeToRootShared { ThreeId = 10, RootId = 8 },
+                new JoinThreeToRootShared { ThreeId = 13, RootId = 5 },
+                new JoinThreeToRootShared { ThreeId = 14, RootId = 1 },
+                new JoinThreeToRootShared { ThreeId = 14, RootId = 14 },
+                new JoinThreeToRootShared { ThreeId = 16, RootId = 5 },
+                new JoinThreeToRootShared { ThreeId = 16, RootId = 7 },
+                new JoinThreeToRootShared { ThreeId = 17, RootId = 14 },
+                new JoinThreeToRootShared { ThreeId = 18, RootId = 6 },
+                new JoinThreeToRootShared { ThreeId = 18, RootId = 23 },
+                new JoinThreeToRootShared { ThreeId = 19, RootId = 11 },
+                new JoinThreeToRootShared { ThreeId = 20, RootId = 14 }
+            };
+        private static JoinCompositeKeyToRootShared[] CreateJoinCompositeKeyToRootShareds()
+            => new[]
+            {
+                new JoinCompositeKeyToRootShared { RootId = 6, CompositeId1 = 1, CompositeId2 = "1_1", CompositeId3 = new DateTime(2001, 1, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 9, CompositeId1 = 1, CompositeId2 = "1_1", CompositeId3 = new DateTime(2001, 1, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 24, CompositeId1 = 1, CompositeId2 = "1_1", CompositeId3 = new DateTime(2001, 1, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 1, CompositeId1 = 1, CompositeId2 = "1_2", CompositeId3 = new DateTime(2001, 2, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 2, CompositeId1 = 1, CompositeId2 = "1_2", CompositeId3 = new DateTime(2001, 2, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 4, CompositeId1 = 1, CompositeId2 = "1_2", CompositeId3 = new DateTime(2001, 2, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 6, CompositeId1 = 1, CompositeId2 = "1_2", CompositeId3 = new DateTime(2001, 2, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 11, CompositeId1 = 1, CompositeId2 = "1_2", CompositeId3 = new DateTime(2001, 2, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 22, CompositeId1 = 1, CompositeId2 = "1_2", CompositeId3 = new DateTime(2001, 2, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 4, CompositeId1 = 3, CompositeId2 = "3_1", CompositeId3 = new DateTime(2003, 1, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 14, CompositeId1 = 3, CompositeId2 = "3_1", CompositeId3 = new DateTime(2003, 1, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 16, CompositeId1 = 3, CompositeId2 = "3_1", CompositeId3 = new DateTime(2003, 1, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 2, CompositeId1 = 3, CompositeId2 = "3_2", CompositeId3 = new DateTime(2003, 2, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 3, CompositeId1 = 3, CompositeId2 = "3_2", CompositeId3 = new DateTime(2003, 2, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 4, CompositeId1 = 3, CompositeId2 = "3_2", CompositeId3 = new DateTime(2003, 2, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 2, CompositeId1 = 7, CompositeId2 = "7_2", CompositeId3 = new DateTime(2007, 2, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 8, CompositeId1 = 7, CompositeId2 = "7_2", CompositeId3 = new DateTime(2007, 2, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 16, CompositeId1 = 7, CompositeId2 = "7_2", CompositeId3 = new DateTime(2007, 2, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 22, CompositeId1 = 7, CompositeId2 = "7_2", CompositeId3 = new DateTime(2007, 2, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 7, CompositeId1 = 8, CompositeId2 = "8_1", CompositeId3 = new DateTime(2008, 1, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 8, CompositeId1 = 8, CompositeId2 = "8_1", CompositeId3 = new DateTime(2008, 1, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 23, CompositeId1 = 8, CompositeId2 = "8_1", CompositeId3 = new DateTime(2008, 1, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 3, CompositeId1 = 8, CompositeId2 = "8_2", CompositeId3 = new DateTime(2008, 2, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 12, CompositeId1 = 8, CompositeId2 = "8_2", CompositeId3 = new DateTime(2008, 2, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 22, CompositeId1 = 8, CompositeId2 = "8_2", CompositeId3 = new DateTime(2008, 2, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 2, CompositeId1 = 8, CompositeId2 = "8_3", CompositeId3 = new DateTime(2008, 3, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 4, CompositeId1 = 8, CompositeId2 = "8_3", CompositeId3 = new DateTime(2008, 3, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 5, CompositeId1 = 8, CompositeId2 = "8_3", CompositeId3 = new DateTime(2008, 3, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 7, CompositeId1 = 8, CompositeId2 = "8_4", CompositeId3 = new DateTime(2008, 4, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 3, CompositeId1 = 8, CompositeId2 = "8_5", CompositeId3 = new DateTime(2008, 5, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 8, CompositeId1 = 8, CompositeId2 = "8_5", CompositeId3 = new DateTime(2008, 5, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 14, CompositeId1 = 8, CompositeId2 = "8_5", CompositeId3 = new DateTime(2008, 5, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 4, CompositeId1 = 9, CompositeId2 = "9_2", CompositeId3 = new DateTime(2009, 2, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 11, CompositeId1 = 9, CompositeId2 = "9_2", CompositeId3 = new DateTime(2009, 2, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 1, CompositeId1 = 9, CompositeId2 = "9_3", CompositeId3 = new DateTime(2009, 3, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 7, CompositeId1 = 9, CompositeId2 = "9_3", CompositeId3 = new DateTime(2009, 3, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 15, CompositeId1 = 9, CompositeId2 = "9_3", CompositeId3 = new DateTime(2009, 3, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 1, CompositeId1 = 9, CompositeId2 = "9_6", CompositeId3 = new DateTime(2009, 6, 1) },
+                new JoinCompositeKeyToRootShared { RootId = 6, CompositeId1 = 9, CompositeId2 = "9_7", CompositeId3 = new DateTime(2009, 7, 1) }
+            };
     }
 }
