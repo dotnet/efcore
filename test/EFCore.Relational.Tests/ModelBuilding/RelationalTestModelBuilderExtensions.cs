@@ -247,11 +247,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             return builder;
         }
 
-        public static ModelBuilderTest.TestKeyBuilder HasName(
-            this ModelBuilderTest.TestKeyBuilder builder, string name)
+        public static ModelBuilderTest.TestKeyBuilder<TEntity> HasName<TEntity>(
+            this ModelBuilderTest.TestKeyBuilder<TEntity> builder, string name)
         {
-            var keyBuilder = builder.GetInfrastructure();
-            keyBuilder.HasName(name);
+            switch (builder)
+            {
+                case IInfrastructure<KeyBuilder<TEntity>> genericBuilder:
+                    genericBuilder.Instance.HasName(name);
+                    break;
+                case IInfrastructure<KeyBuilder> nongenericBuilder:
+                    nongenericBuilder.Instance.HasName(name);
+                    break;
+            }
+
             return builder;
         }
     }

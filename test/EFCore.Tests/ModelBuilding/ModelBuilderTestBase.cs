@@ -182,10 +182,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 where TBaseEntity : class;
 
             public abstract TestEntityTypeBuilder<TEntity> HasBaseType(string baseEntityTypeName);
-            public abstract TestKeyBuilder HasKey(Expression<Func<TEntity, object>> keyExpression);
-            public abstract TestKeyBuilder HasKey(params string[] propertyNames);
-            public abstract TestKeyBuilder HasAlternateKey(Expression<Func<TEntity, object>> keyExpression);
-            public abstract TestKeyBuilder HasAlternateKey(params string[] propertyNames);
+            public abstract TestKeyBuilder<TEntity> HasKey(Expression<Func<TEntity, object>> keyExpression);
+            public abstract TestKeyBuilder<TEntity> HasKey(params string[] propertyNames);
+            public abstract TestKeyBuilder<TEntity> HasAlternateKey(Expression<Func<TEntity, object>> keyExpression);
+            public abstract TestKeyBuilder<TEntity> HasAlternateKey(params string[] propertyNames);
             public abstract TestEntityTypeBuilder<TEntity> HasNoKey();
 
             public abstract TestPropertyBuilder<TProperty> Property<TProperty>(
@@ -294,20 +294,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
         }
 
-        public class TestKeyBuilder : IInfrastructure<KeyBuilder>
+        public abstract class TestKeyBuilder<TEntity>
         {
-            public TestKeyBuilder(KeyBuilder keyBuilder)
-            {
-                KeyBuilder = keyBuilder;
-            }
+            public abstract IMutableKey Metadata { get; }
 
-            private KeyBuilder KeyBuilder { get; }
-            public IMutableKey Metadata => KeyBuilder.Metadata;
-
-            public virtual TestKeyBuilder HasAnnotation(string annotation, object value)
-                => new TestKeyBuilder(KeyBuilder.HasAnnotation(annotation, value));
-
-            KeyBuilder IInfrastructure<KeyBuilder>.Instance => KeyBuilder;
+            public abstract TestKeyBuilder<TEntity> HasAnnotation(string annotation, object value);
         }
 
         public class TestIndexBuilder : IInfrastructure<IndexBuilder>
@@ -508,8 +499,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestOwnedNavigationBuilder<TEntity, TDependentEntity> HasAnnotation(
                 string annotation, object value);
 
-            public abstract TestKeyBuilder HasKey(Expression<Func<TDependentEntity, object>> keyExpression);
-            public abstract TestKeyBuilder HasKey(params string[] propertyNames);
+            public abstract TestKeyBuilder<TDependentEntity> HasKey(Expression<Func<TDependentEntity, object>> keyExpression);
+            public abstract TestKeyBuilder<TDependentEntity> HasKey(params string[] propertyNames);
 
             public abstract TestPropertyBuilder<TProperty> Property<TProperty>(string propertyName);
             public abstract TestPropertyBuilder<TProperty> IndexerProperty<TProperty>(string propertyName);

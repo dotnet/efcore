@@ -85,11 +85,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         /// </param>
         /// <returns> An object that can be used to configure the primary key. </returns>
-        public virtual KeyBuilder HasKey([NotNull] Expression<Func<TEntity, object>> keyExpression)
-            => new KeyBuilder(
+        public virtual KeyBuilder<TEntity> HasKey([NotNull] Expression<Func<TEntity, object>> keyExpression)
+            => new KeyBuilder<TEntity>(
                 Builder.PrimaryKey(
                     Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(),
                     ConfigurationSource.Explicit).Metadata);
+
+        /// <summary>
+        ///     Sets the properties that make up the primary key for this entity type.
+        /// </summary>
+        /// <param name="propertyNames"> The names of the properties that make up the primary key. </param>
+        /// <returns> An object that can be used to configure the primary key. </returns>
+        public new virtual KeyBuilder<TEntity> HasKey([NotNull] params string[] propertyNames)
+            => new KeyBuilder<TEntity>(
+                Builder.PrimaryKey(
+                    Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     Creates an alternate key in the model for this entity type if one does not already exist over the specified
@@ -106,11 +116,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         /// </param>
         /// <returns> An object that can be used to configure the key. </returns>
-        public virtual KeyBuilder HasAlternateKey([NotNull] Expression<Func<TEntity, object>> keyExpression)
-            => new KeyBuilder(
+        public virtual KeyBuilder<TEntity> HasAlternateKey([NotNull] Expression<Func<TEntity, object>> keyExpression)
+            => new KeyBuilder<TEntity>(
                 Builder.HasKey(
                     Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(),
                     ConfigurationSource.Explicit).Metadata);
+
+        /// <summary>
+        ///     Creates an alternate key in the model for this entity type if one does not already exist over the specified
+        ///     properties. This will force the properties to be read-only. Use <see cref="HasIndex" /> to specify uniqueness
+        ///     in the model that does not force properties to be read-only.
+        /// </summary>
+        /// <param name="propertyNames"> The names of the properties that make up the key. </param>
+        /// <returns> An object that can be used to configure the key. </returns>
+        public new virtual KeyBuilder<TEntity> HasAlternateKey([NotNull] params string[] propertyNames)
+            => new KeyBuilder<TEntity>(
+                Builder.HasKey(
+                    Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     Configures the entity type to have no keys. It will only be usable for queries.
