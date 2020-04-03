@@ -609,12 +609,25 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         protected override Expression VisitParameter(ParameterExpression parameterExpression)
         {
-            if (parameterExpression.Name.StartsWith(CompiledQueryParameterPrefix, StringComparison.Ordinal))
+            if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue20485", out var enabled) && enabled)
             {
-                return Expression.Call(
-                    _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
-                    QueryCompilationContext.QueryContextParameter,
-                    Expression.Constant(parameterExpression.Name));
+                if (parameterExpression.Name.StartsWith(CompiledQueryParameterPrefix, StringComparison.Ordinal))
+                {
+                    return Expression.Call(
+                        _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
+                        QueryCompilationContext.QueryContextParameter,
+                        Expression.Constant(parameterExpression.Name));
+                }
+            }
+            else
+            {
+                if (parameterExpression.Name?.StartsWith(CompiledQueryParameterPrefix, StringComparison.Ordinal) == true)
+                {
+                    return Expression.Call(
+                        _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
+                        QueryCompilationContext.QueryContextParameter,
+                        Expression.Constant(parameterExpression.Name));
+                }
             }
 
             throw new InvalidOperationException(CoreStrings.TranslationFailed(parameterExpression.Print()));
