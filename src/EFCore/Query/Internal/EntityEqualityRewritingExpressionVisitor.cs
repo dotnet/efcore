@@ -429,8 +429,26 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 rewrittenSource = Expression.Constant(keyList, keyListType);
             }
+            else if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue20485", out var enabled) && enabled
+                && newSource is ParameterExpression listParam2
+                && listParam2.Name.StartsWith(CompiledQueryCache.CompiledQueryParameterPrefix, StringComparison.Ordinal))
+            {
+                // The source list is a parameter. Add a runtime parameter that will contain a list of the extracted keys for each execution.
+                var lambda = Expression.Lambda(
+                    Expression.Call(
+                        _parameterListValueExtractor.MakeGenericMethod(entityType.ClrType, keyProperty.ClrType.MakeNullable()),
+                        QueryCompilationContext.QueryContextParameter,
+                        Expression.Constant(listParam2.Name, typeof(string)),
+                        Expression.Constant(keyProperty, typeof(IProperty))),
+                    QueryCompilationContext.QueryContextParameter
+                );
+
+                var newParameterName =
+                    $"{RuntimeParameterPrefix}{listParam2.Name.Substring(CompiledQueryCache.CompiledQueryParameterPrefix.Length)}_{keyProperty.Name}";
+                rewrittenSource = _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
+            }
             else if (newSource is ParameterExpression listParam
-                && listParam.Name.StartsWith(CompiledQueryCache.CompiledQueryParameterPrefix, StringComparison.Ordinal))
+                && listParam.Name?.StartsWith(CompiledQueryCache.CompiledQueryParameterPrefix, StringComparison.Ordinal) == true)
             {
                 // The source list is a parameter. Add a runtime parameter that will contain a list of the extracted keys for each execution.
                 var lambda = Expression.Lambda(
@@ -935,24 +953,49 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return Expression.Constant(property.GetGetter().GetClrValue(value), property.ClrType.MakeNullable());
             }
 
-            // If the target is a query parameter, we can't simply add a property access over it, but must instead cause a new
-            // parameter to be added at runtime, with the value of the property on the base parameter.
-            if (target is ParameterExpression baseParameterExpression
-                && baseParameterExpression.Name.StartsWith(CompiledQueryCache.CompiledQueryParameterPrefix, StringComparison.Ordinal))
+            if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue20485", out var enabled) && enabled)
             {
-                // Generate an expression to get the base parameter from the query context's parameter list, and extract the
-                // property from that
-                var lambda = Expression.Lambda(
-                    Expression.Call(
-                        _parameterValueExtractor.MakeGenericMethod(property.ClrType.MakeNullable()),
-                        QueryCompilationContext.QueryContextParameter,
-                        Expression.Constant(baseParameterExpression.Name, typeof(string)),
-                        Expression.Constant(property, typeof(IProperty))),
-                    QueryCompilationContext.QueryContextParameter);
+                // If the target is a query parameter, we can't simply add a property access over it, but must instead cause a new
+                // parameter to be added at runtime, with the value of the property on the base parameter.
+                if (target is ParameterExpression baseParameterExpression
+                && baseParameterExpression.Name.StartsWith(CompiledQueryCache.CompiledQueryParameterPrefix, StringComparison.Ordinal))
+                {
+                    // Generate an expression to get the base parameter from the query context's parameter list, and extract the
+                    // property from that
+                    var lambda = Expression.Lambda(
+                        Expression.Call(
+                            _parameterValueExtractor.MakeGenericMethod(property.ClrType.MakeNullable()),
+                            QueryCompilationContext.QueryContextParameter,
+                            Expression.Constant(baseParameterExpression.Name, typeof(string)),
+                            Expression.Constant(property, typeof(IProperty))),
+                        QueryCompilationContext.QueryContextParameter);
 
-                var newParameterName =
-                    $"{RuntimeParameterPrefix}{baseParameterExpression.Name.Substring(CompiledQueryCache.CompiledQueryParameterPrefix.Length)}_{property.Name}";
-                return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
+                    var newParameterName =
+                        $"{RuntimeParameterPrefix}{baseParameterExpression.Name.Substring(CompiledQueryCache.CompiledQueryParameterPrefix.Length)}_{property.Name}";
+                    return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
+                }
+            }
+            else
+            {
+                // If the target is a query parameter, we can't simply add a property access over it, but must instead cause a new
+                // parameter to be added at runtime, with the value of the property on the base parameter.
+                if (target is ParameterExpression baseParameterExpression
+                && baseParameterExpression.Name?.StartsWith(CompiledQueryCache.CompiledQueryParameterPrefix, StringComparison.Ordinal) == true)
+                {
+                    // Generate an expression to get the base parameter from the query context's parameter list, and extract the
+                    // property from that
+                    var lambda = Expression.Lambda(
+                        Expression.Call(
+                            _parameterValueExtractor.MakeGenericMethod(property.ClrType.MakeNullable()),
+                            QueryCompilationContext.QueryContextParameter,
+                            Expression.Constant(baseParameterExpression.Name, typeof(string)),
+                            Expression.Constant(property, typeof(IProperty))),
+                        QueryCompilationContext.QueryContextParameter);
+
+                    var newParameterName =
+                        $"{RuntimeParameterPrefix}{baseParameterExpression.Name.Substring(CompiledQueryCache.CompiledQueryParameterPrefix.Length)}_{property.Name}";
+                    return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
+                }
             }
 
             return target.CreateEFPropertyExpression(property);
@@ -1036,7 +1079,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public static EntityOrDtoType FromEntityReferenceExpression(EntityReferenceExpression ere)
                 => new EntityOrDtoType
                 {
-                    EntityType = ere.IsEntityType ? ere.EntityType : null, DtoType = ere.IsDtoType ? ere.DtoType : null
+                    EntityType = ere.IsEntityType ? ere.EntityType : null,
+                    DtoType = ere.IsDtoType ? ere.DtoType : null
                 };
 
             public static EntityOrDtoType FromDtoType(Dictionary<string, EntityOrDtoType> dtoType)
