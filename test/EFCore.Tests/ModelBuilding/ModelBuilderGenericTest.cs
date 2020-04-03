@@ -217,11 +217,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestEntityTypeBuilder<TEntity> Ignore(string propertyName)
                 => Wrap(EntityTypeBuilder.Ignore(propertyName));
 
-            public override TestIndexBuilder HasIndex(Expression<Func<TEntity, object>> indexExpression)
-                => new TestIndexBuilder(EntityTypeBuilder.HasIndex(indexExpression));
+            public override TestIndexBuilder<TEntity> HasIndex(Expression<Func<TEntity, object>> indexExpression)
+                => new GenericTestIndexBuilder<TEntity>(EntityTypeBuilder.HasIndex(indexExpression));
 
-            public override TestIndexBuilder HasIndex(params string[] propertyNames)
-                => new TestIndexBuilder(EntityTypeBuilder.HasIndex(propertyNames));
+            public override TestIndexBuilder<TEntity> HasIndex(params string[] propertyNames)
+                => new GenericTestIndexBuilder<TEntity>(EntityTypeBuilder.HasIndex(propertyNames));
 
             public override TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(string navigationName)
                 => new GenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.OwnsOne<TRelatedEntity>(navigationName));
@@ -456,6 +456,25 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => new GenericTestKeyBuilder<TEntity>(KeyBuilder.HasAnnotation(annotation, value));
 
             KeyBuilder<TEntity> IInfrastructure<KeyBuilder<TEntity>>.Instance => KeyBuilder;
+        }
+
+        public class GenericTestIndexBuilder<TEntity> : TestIndexBuilder<TEntity>, IInfrastructure<IndexBuilder<TEntity>>
+        {
+            public GenericTestIndexBuilder(IndexBuilder<TEntity> indexBuilder)
+            {
+                IndexBuilder = indexBuilder;
+            }
+
+            private IndexBuilder<TEntity> IndexBuilder { get; }
+            public override IMutableIndex Metadata => IndexBuilder.Metadata;
+
+            public override TestIndexBuilder<TEntity> HasAnnotation(string annotation, object value)
+                => new GenericTestIndexBuilder<TEntity>(IndexBuilder.HasAnnotation(annotation, value));
+
+            public override TestIndexBuilder<TEntity> IsUnique(bool isUnique = true)
+                => new GenericTestIndexBuilder<TEntity>(IndexBuilder.IsUnique(isUnique));
+
+            IndexBuilder<TEntity> IInfrastructure<IndexBuilder<TEntity>>.Instance => IndexBuilder;
         }
 
         protected class GenericTestNavigationBuilder : TestNavigationBuilder
@@ -759,11 +778,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Expression<Func<TDependentEntity, object>> propertyExpression)
                 => Wrap(OwnedNavigationBuilder.Ignore(propertyExpression));
 
-            public override TestIndexBuilder HasIndex(params string[] propertyNames)
-                => new TestIndexBuilder(OwnedNavigationBuilder.HasIndex(propertyNames));
+            public override TestIndexBuilder<TEntity> HasIndex(params string[] propertyNames)
+                => new GenericTestIndexBuilder<TEntity>(OwnedNavigationBuilder.HasIndex(propertyNames));
 
-            public override TestIndexBuilder HasIndex(Expression<Func<TDependentEntity, object>> indexExpression)
-                => new TestIndexBuilder(OwnedNavigationBuilder.HasIndex(indexExpression));
+            public override TestIndexBuilder<TEntity> HasIndex(Expression<Func<TDependentEntity, object>> indexExpression)
+                => new GenericTestIndexBuilder<TEntity>(OwnedNavigationBuilder.HasIndex(indexExpression));
 
             public override TestOwnershipBuilder<TEntity, TDependentEntity> WithOwner(string ownerReference)
                 => new GenericTestOwnershipBuilder<TEntity, TDependentEntity>(
