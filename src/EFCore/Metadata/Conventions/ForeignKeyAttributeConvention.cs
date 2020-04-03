@@ -79,9 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        private IConventionForeignKeyBuilder UpdateRelationshipBuilder<TBuilder>(
-            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<TBuilder> context)
-            where TBuilder : IConventionAnnotatableBuilder
+        private IConventionForeignKeyBuilder UpdateRelationshipBuilder(
+            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext context)
         {
             var foreignKey = relationshipBuilder.Metadata;
 
