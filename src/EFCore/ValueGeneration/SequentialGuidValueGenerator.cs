@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Runtime.InteropServices;
 using System.Threading;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
@@ -15,8 +16,8 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     /// </summary>
     public class SequentialGuidValueGenerator : ValueGenerator<Guid>
     {
-        private long _counter = DateTime.UtcNow.Ticks;
-
+        private long _counterA = DateTime.UtcNow.Ticks;
+        private long _counterB = BitConverter.ToInt64(Guid.NewGuid().ToByteArray(), 8);
         /// <summary>
         ///     Gets a value to be assigned to a property.
         /// </summary>
@@ -24,24 +25,17 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <returns> The value to be assigned to a property. </returns>
         public override Guid Next(EntityEntry entry)
         {
-            var guidBytes = Guid.NewGuid().ToByteArray();
-            var counterBytes = BitConverter.GetBytes(Interlocked.Increment(ref _counter));
-
-            if (!BitConverter.IsLittleEndian)
+            Span<long> guidValue = stackalloc long[] { Interlocked.Increment(ref _counterA), _counterA switch { 0 => Interlocked.Increment(ref _counterB), _ => _counterB } };
+            if (BitConverter.IsLittleEndian)
             {
-                Array.Reverse(counterBytes);
+                Span<byte> bytes = MemoryMarshal.Cast<long, byte>(guidValue);
+                // Change the first byte containing the first int and the two consecutive shorts to litle endian byte order.
+                bytes.Slice(0, 4).Reverse();
+                bytes.Slice(4, 2).Reverse();
+                bytes.Slice(6, 2).Reverse();
             }
-
-            guidBytes[08] = counterBytes[1];
-            guidBytes[09] = counterBytes[0];
-            guidBytes[10] = counterBytes[7];
-            guidBytes[11] = counterBytes[6];
-            guidBytes[12] = counterBytes[5];
-            guidBytes[13] = counterBytes[4];
-            guidBytes[14] = counterBytes[3];
-            guidBytes[15] = counterBytes[2];
-
-            return new Guid(guidBytes);
+            return MemoryMarshal.Cast<long, Guid>(guidValue)[0];
+            //return new Guid(guidBytes);
         }
 
         /// <summary>
