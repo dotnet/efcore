@@ -1404,6 +1404,28 @@ WHERE [c].[CustomerID] = N'ALFKI'
 ORDER BY [c].[CustomerID], [o].[OrderID], [o0].[OrderID]");
         }
 
+        public override async Task Select_over_10_nested_ternary_condition(bool isAsync)
+        {
+            await base.Select_over_10_nested_ternary_condition(isAsync);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [c].[CustomerID] = N'1' THEN N'01'
+    WHEN [c].[CustomerID] = N'2' THEN N'02'
+    WHEN [c].[CustomerID] = N'3' THEN N'03'
+    WHEN [c].[CustomerID] = N'4' THEN N'04'
+    WHEN [c].[CustomerID] = N'5' THEN N'05'
+    WHEN [c].[CustomerID] = N'6' THEN N'06'
+    WHEN [c].[CustomerID] = N'7' THEN N'07'
+    WHEN [c].[CustomerID] = N'8' THEN N'08'
+    WHEN [c].[CustomerID] = N'9' THEN N'09'
+    WHEN [c].[CustomerID] = N'10' THEN N'10'
+    WHEN [c].[CustomerID] = N'11' THEN N'11'
+    ELSE NULL
+END
+FROM [Customers] AS [c]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

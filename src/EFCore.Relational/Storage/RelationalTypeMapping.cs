@@ -25,6 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public abstract class RelationalTypeMapping : CoreTypeMapping
     {
+        private readonly bool _quirk19128;
+
         /// <summary>
         ///     Parameter object for use in the <see cref="RelationalTypeMapping" /> hierarchy.
         /// </summary>
@@ -253,6 +255,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
 
             StoreType = storeType;
+
+            _quirk19128 = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue19825", out var enabled) && enabled;
         }
 
         /// <summary>
@@ -451,6 +455,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             parameter.ParameterName = name;
 
             value = ConvertUnderlyingEnumValueToEnum(value);
+            if (!_quirk19128)
+            {
+                value = ConvertUnderlyingEnumValueToEnum(value);
+            }
 
             if (Converter != null)
             {
