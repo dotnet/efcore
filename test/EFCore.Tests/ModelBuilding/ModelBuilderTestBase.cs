@@ -203,8 +203,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public abstract TestEntityTypeBuilder<TEntity> Ignore(string propertyName);
 
-            public abstract TestIndexBuilder HasIndex(Expression<Func<TEntity, object>> indexExpression);
-            public abstract TestIndexBuilder HasIndex(params string[] propertyNames);
+            public abstract TestIndexBuilder<TEntity> HasIndex(Expression<Func<TEntity, object>> indexExpression);
+            public abstract TestIndexBuilder<TEntity> HasIndex(params string[] propertyNames);
 
             public abstract TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(string navigationName)
                 where TRelatedEntity : class;
@@ -301,23 +301,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestKeyBuilder<TEntity> HasAnnotation(string annotation, object value);
         }
 
-        public class TestIndexBuilder : IInfrastructure<IndexBuilder>
+        public abstract class TestIndexBuilder<TEntity>
         {
-            public TestIndexBuilder(IndexBuilder indexBuilder)
-            {
-                IndexBuilder = indexBuilder;
-            }
+            public abstract IMutableIndex Metadata { get; }
 
-            private IndexBuilder IndexBuilder { get; }
-            public IMutableIndex Metadata => IndexBuilder.Metadata;
-
-            public virtual TestIndexBuilder HasAnnotation(string annotation, object value)
-                => new TestIndexBuilder(IndexBuilder.HasAnnotation(annotation, value));
-
-            public virtual TestIndexBuilder IsUnique(bool isUnique = true)
-                => new TestIndexBuilder(IndexBuilder.IsUnique(isUnique));
-
-            IndexBuilder IInfrastructure<IndexBuilder>.Instance => IndexBuilder;
+            public abstract TestIndexBuilder<TEntity> HasAnnotation(string annotation, object value);
+            public abstract TestIndexBuilder<TEntity> IsUnique(bool isUnique = true);
         }
 
         public abstract class TestPropertyBuilder<TProperty>
@@ -517,8 +506,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestOwnedNavigationBuilder<TEntity, TDependentEntity> Ignore(
                 Expression<Func<TDependentEntity, object>> propertyExpression);
 
-            public abstract TestIndexBuilder HasIndex(params string[] propertyNames);
-            public abstract TestIndexBuilder HasIndex(Expression<Func<TDependentEntity, object>> indexExpression);
+            public abstract TestIndexBuilder<TEntity> HasIndex(params string[] propertyNames);
+            public abstract TestIndexBuilder<TEntity> HasIndex(Expression<Func<TDependentEntity, object>> indexExpression);
 
             public abstract TestOwnershipBuilder<TEntity, TDependentEntity> WithOwner(string ownerReference);
             public abstract TestOwnershipBuilder<TEntity, TDependentEntity> WithOwner(
