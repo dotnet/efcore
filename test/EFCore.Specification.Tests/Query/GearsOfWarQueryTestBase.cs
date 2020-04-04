@@ -7595,6 +7595,54 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Mission>().Where(m => m.Timeline.Date >= dateTimeOffset.Date));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Enum_closure_typed_as_underlying_type_generates_correct_parameter_type(bool async)
+        {
+            var prm = (int)AmmunitionType.Cartridge;
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Weapon>().Where(w => prm == (int)w.AmmunitionType),
+                ss => ss.Set<Weapon>().Where(w => w.AmmunitionType != null && prm == (int)w.AmmunitionType));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Enum_flags_closure_typed_as_underlying_type_generates_correct_parameter_type(bool async)
+        {
+            var prm = (int)MilitaryRank.Private + (int)MilitaryRank.Sergeant + (int)MilitaryRank.General;
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>()
+                    .Where(g => (prm & (int)g.Rank) == (int)g.Rank));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Enum_flags_closure_typed_as_different_type_generates_correct_parameter_type(bool async)
+        {
+            var prm = (byte)MilitaryRank.Private + (byte)MilitaryRank.Sergeant;
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>()
+                    .Where(g => (prm & (short)g.Rank) == (short)g.Rank));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Constant_enum_with_same_underlying_value_as_previously_parameterized_int(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Gear>()
+                    .OrderBy(g => g.Nickname)
+                    .Take(1)
+                    .Select(g => g.Rank & MilitaryRank.Corporal));
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
