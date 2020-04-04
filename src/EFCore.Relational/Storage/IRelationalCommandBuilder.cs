@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="value"> The object to be written. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        IRelationalCommandBuilder Append([NotNull] object value);
+        IRelationalCommandBuilder Append([NotNull] string value);
 
         /// <summary>
         ///     Appends a blank line to the command text.

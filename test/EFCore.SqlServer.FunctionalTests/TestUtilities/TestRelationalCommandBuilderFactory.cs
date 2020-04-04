@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     Instance.ToString(),
                     Parameters);
 
-            public IRelationalCommandBuilder Append(object value)
+            public IRelationalCommandBuilder Append(string value)
             {
                 Instance.Append(value);
 

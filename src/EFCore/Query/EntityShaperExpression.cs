@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             expressionPrinter.AppendLine(nameof(EntityShaperExpression) + ": ");
             using (expressionPrinter.Indent())
             {
-                expressionPrinter.AppendLine(EntityType);
+                expressionPrinter.AppendLine(EntityType.ToString());
                 expressionPrinter.AppendLine(nameof(ValueBufferExpression) + ": ");
                 using (expressionPrinter.Indent())
                 {
@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
 
                 expressionPrinter.Append(nameof(IsNullable) + ": ");
-                expressionPrinter.AppendLine(IsNullable);
+                expressionPrinter.AppendLine(IsNullable.ToString());
             }
         }
     }

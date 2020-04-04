@@ -580,7 +580,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             if (valuesList.Count == 0)
             {
                 builder
-                    .Append(' ')
+                    .Append(" ")
                     .Append(Reference(type))
                     .Append("[0]");
             }
