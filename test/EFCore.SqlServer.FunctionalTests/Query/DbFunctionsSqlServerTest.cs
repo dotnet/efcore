@@ -151,7 +151,7 @@ WHERE FREETEXT([e].[Title], N'Representative President', LANGUAGE 1033)");
                 AssertSql(
                     @"SELECT TOP(1) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE FREETEXT([e].[City], N'London')) AND (FREETEXT([e].[Title], N'Manager', LANGUAGE 1033)");
+WHERE FREETEXT([e].[City], N'London') AND FREETEXT([e].[Title], N'Manager', LANGUAGE 1033)");
             }
         }
 
