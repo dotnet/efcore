@@ -5958,5 +5958,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                         () => l1.OneToOne_Required_FK1.OneToOne_Required_FK2.Name)),
                 assertOrder: true);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_with_outside_reference_to_joined_table_correctly_translated_to_apply(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from l1 in ss.Set<Level1>()
+                      join l2 in ss.Set<Level2>() on l1.Id equals l2.Level1_Required_Id
+                      join l3 in ss.Set<Level3>() on l2.Id equals l3.Level2_Required_Id
+                      join l4 in ss.Set<Level4>() on l3.Id equals l4.Level3_Required_Id
+                      from other in ss.Set<Level1>().Where(x => x.Id <= l2.Id && x.Name == l4.Name).DefaultIfEmpty()
+                      select l1);
+        }
     }
 }
