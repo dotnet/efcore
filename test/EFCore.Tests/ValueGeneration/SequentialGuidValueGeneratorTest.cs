@@ -27,6 +27,30 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         }
 
         [ConditionalFact]
+        public void Can_generates_sequential_values()
+        {
+            int[] orderMap = new int[] { 3, 2, 1, 0, 5, 4, 7, 6, 9, 8, 15, 14, 13, 12, 11, 10 };
+            var sequentialGuidIdentityGenerator = new SequentialGuidValueGenerator();
+            byte[] initialGuid = sequentialGuidIdentityGenerator.Next(null).ToByteArray();
+            for (var i = 1; i < 11; i++)
+            {
+                byte[] expectedBytes = new byte[initialGuid.Length];
+                Array.Copy(initialGuid, 0, expectedBytes, 0, expectedBytes.Length);
+                int overflow = i;
+                // Slow and steady, increment in order as long as the overflow is greater than one.
+                for (int idx = 0; idx < initialGuid.Length && overflow > 0; idx++)
+                {
+                    overflow += expectedBytes[orderMap[idx]];
+                    expectedBytes[orderMap[idx]] = (byte)overflow;
+                    overflow >>= 8;
+                }
+                var expected = new Guid(expectedBytes);
+                var actual = sequentialGuidIdentityGenerator.Next(null);
+                Assert.Equal(expected, actual);
+            }
+        }
+
+        [ConditionalFact]
         public void Does_not_generate_temp_values()
         {
             Assert.False(new SequentialGuidValueGenerator().GeneratesTemporaryValues);
