@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
             else
             {
-                expressionPrinter.Append(OperatorType);
+                expressionPrinter.Append(OperatorType.ToString());
                 expressionPrinter.Append("(");
                 expressionPrinter.Visit(Operand);
                 expressionPrinter.Append(")");

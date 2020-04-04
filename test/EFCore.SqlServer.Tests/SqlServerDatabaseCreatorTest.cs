@@ -221,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public IRelationalCommand Build() => new FakeRelationalCommand();
 
-            public IRelationalCommandBuilder Append(object value)
+            public IRelationalCommandBuilder Append(string value)
             {
                 Instance.Append(value);
 

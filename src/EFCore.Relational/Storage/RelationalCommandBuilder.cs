@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="value"> The object to be written. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual IRelationalCommandBuilder Append(object value)
+        public virtual IRelationalCommandBuilder Append(string value)
         {
             Check.NotNull(value, nameof(value));
 
