@@ -1236,12 +1236,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
             private readonly SelectExpression _outerSelectExpression;
             private bool _containsOuterReference;
-            private readonly bool _quirkMode19825;
 
             public SelectExpressionCorrelationFindingExpressionVisitor(SelectExpression outerSelectExpression)
             {
                 _outerSelectExpression = outerSelectExpression;
-                _quirkMode19825 = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue19825", out var enabled) && enabled;
             }
 
             public bool ContainsOuterReference(SelectExpression selectExpression)
@@ -1260,25 +1258,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     return expression;
                 }
 
-                if (_quirkMode19825)
+                if (expression is ColumnExpression columnExpression
+                    && _outerSelectExpression.ContainsTableReference(columnExpression.Table))
                 {
-                    if (expression is ColumnExpression columnExpression
-                        && _outerSelectExpression.Tables.Contains(columnExpression.Table))
-                    {
-                        _containsOuterReference = true;
+                    _containsOuterReference = true;
 
-                        return expression;
-                    }
-                }
-                else
-                {
-                    if (expression is ColumnExpression columnExpression
-                        && _outerSelectExpression.ContainsTableReference(columnExpression.Table))
-                    {
-                        _containsOuterReference = true;
-
-                        return expression;
-                    }
+                    return expression;
                 }
 
                 return base.Visit(expression);

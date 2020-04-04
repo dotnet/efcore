@@ -18,19 +18,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
-        protected override Expression VisitExtension(Expression node)
+        protected override Expression VisitExtension(Expression extensionExpression)
         {
-            // Only applies to 'CASE WHEN condition...' not 'CASE operand WHEN...'
-            if (node is CaseExpression caseExpression && caseExpression.Operand == null)
+            Check.NotNull(extensionExpression, nameof(extensionExpression));
+
+            if (extensionExpression is ShapedQueryExpression shapedQueryExpression)
             {
-                if (caseExpression.ElseResult is CaseExpression nestedCaseExpression && nestedCaseExpression.Operand == null)
-                {
-                    return VisitExtension(_sqlExpressionFactory.Case(
-                        caseExpression.WhenClauses.Union(nestedCaseExpression.WhenClauses).ToList(),
-                        nestedCaseExpression.ElseResult));
-                }
+                return shapedQueryExpression.Update(Visit(shapedQueryExpression.QueryExpression), shapedQueryExpression.ShaperExpression);
             }
-            return base.VisitExtension(node);
+
+            // Only applies to 'CASE WHEN condition...' not 'CASE operand WHEN...'
+            if (extensionExpression is CaseExpression caseExpression
+                && caseExpression.Operand == null
+                && caseExpression.ElseResult is CaseExpression nestedCaseExpression
+                && nestedCaseExpression.Operand == null)
+            {
+                return VisitExtension(_sqlExpressionFactory.Case(
+                    caseExpression.WhenClauses.Union(nestedCaseExpression.WhenClauses).ToList(),
+                    nestedCaseExpression.ElseResult));
+            }
+
+            return base.VisitExtension(extensionExpression);
         }
     }
 }

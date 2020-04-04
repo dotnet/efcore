@@ -38,18 +38,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             query = new SelectExpressionProjectionApplyingExpressionVisitor().Visit(query);
             query = new CollectionJoinApplyingExpressionVisitor().Visit(query);
             query = new TableAliasUniquifyingExpressionVisitor().Visit(query);
+            query = new CaseWhenFlatteningExpressionVisitor(SqlExpressionFactory).Visit(query);
 
-            if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue12729", out var enabled) && enabled))
-            {
-                query = new CaseWhenFlatteningExpressionVisitor(SqlExpressionFactory).Visit(query);
-            }
-
-            if (!UseRelationalNulls)
-            {
-                query = new NullSemanticsRewritingExpressionVisitor(SqlExpressionFactory).Visit(query);
-            }
-
+#pragma warning disable 618
             query = OptimizeSqlExpression(query);
+#pragma warning restore 618
 
             return query;
         }
