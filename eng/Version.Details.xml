@@ -23,47 +23,47 @@
     </Dependency>
     <Dependency Name="Microsoft.DotNet.PlatformAbstractions" Version="3.1.4" CoherentParentDependency="Microsoft.Extensions.Logging">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-core-setup</Uri>
-      <Sha>79276881e846228e37d5ad5d20b616ab6c783014</Sha>
+      <Sha>b1c942ab68fb5ef319ccd72ef04774ac4ff3be3a</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="3.1.4">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-extensions</Uri>
-      <Sha>0945de13dcb01425592c51cee1e7a59c91cd5102</Sha>
+      <Sha>2a4806da88bf6df183f8217c47284358c3914e5f</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.1.4">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-extensions</Uri>
-      <Sha>0945de13dcb01425592c51cee1e7a59c91cd5102</Sha>
+      <Sha>2a4806da88bf6df183f8217c47284358c3914e5f</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.Configuration.Json" Version="3.1.4">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-extensions</Uri>
-      <Sha>0945de13dcb01425592c51cee1e7a59c91cd5102</Sha>
+      <Sha>2a4806da88bf6df183f8217c47284358c3914e5f</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.Configuration" Version="3.1.4">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-extensions</Uri>
-      <Sha>0945de13dcb01425592c51cee1e7a59c91cd5102</Sha>
+      <Sha>2a4806da88bf6df183f8217c47284358c3914e5f</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.DependencyInjection" Version="3.1.4">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-extensions</Uri>
-      <Sha>0945de13dcb01425592c51cee1e7a59c91cd5102</Sha>
+      <Sha>2a4806da88bf6df183f8217c47284358c3914e5f</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.DependencyModel" Version="3.1.4" CoherentParentDependency="Microsoft.Extensions.Logging">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-core-setup</Uri>
-      <Sha>79276881e846228e37d5ad5d20b616ab6c783014</Sha>
+      <Sha>b1c942ab68fb5ef319ccd72ef04774ac4ff3be3a</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="3.1.4-servicing.20203.6">
+    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="3.1.4-servicing.20204.3">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-extensions</Uri>
-      <Sha>0945de13dcb01425592c51cee1e7a59c91cd5102</Sha>
+      <Sha>2a4806da88bf6df183f8217c47284358c3914e5f</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.Logging" Version="3.1.4">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-extensions</Uri>
-      <Sha>0945de13dcb01425592c51cee1e7a59c91cd5102</Sha>
+      <Sha>2a4806da88bf6df183f8217c47284358c3914e5f</Sha>
     </Dependency>
     <Dependency Name="Microsoft.NETCore.App.Runtime.win-x64" Version="3.1.4" CoherentParentDependency="Microsoft.Extensions.Logging">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-core-setup</Uri>
-      <Sha>79276881e846228e37d5ad5d20b616ab6c783014</Sha>
+      <Sha>b1c942ab68fb5ef319ccd72ef04774ac4ff3be3a</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.NETCore.App.Internal" Version="3.1.4-servicing.20202.5" CoherentParentDependency="Microsoft.Extensions.Logging">
+    <Dependency Name="Microsoft.NETCore.App.Internal" Version="3.1.4-servicing.20203.2" CoherentParentDependency="Microsoft.Extensions.Logging">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-core-setup</Uri>
-      <Sha>79276881e846228e37d5ad5d20b616ab6c783014</Sha>
+      <Sha>b1c942ab68fb5ef319ccd72ef04774ac4ff3be3a</Sha>
     </Dependency>
     <Dependency Name="System.Collections.Immutable" Version="1.7.0" CoherentParentDependency="Microsoft.NETCore.App.Runtime.win-x64">
       <Uri>https://github.com/dotnet/corefx</Uri>
