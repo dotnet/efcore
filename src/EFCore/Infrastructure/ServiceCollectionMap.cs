@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         been completed.
     ///     </para>
     /// </summary>
-    public class ServiceCollectionMap : IInfrastructure<InternalServiceCollectionMap>
+    public class ServiceCollectionMap : IInfrastructure<IInternalServiceCollectionMap>
     {
         private readonly InternalServiceCollectionMap _map;
 
@@ -508,6 +508,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 // Generic arg on Func may be object, but this is the best we can do and matches logic in D.I. container
                 ?? descriptor.ImplementationFactory?.GetType().GenericTypeArguments[1];
 
-        InternalServiceCollectionMap IInfrastructure<InternalServiceCollectionMap>.Instance => _map;
+        IInternalServiceCollectionMap IInfrastructure<IInternalServiceCollectionMap>.Instance => _map;
     }
 }
