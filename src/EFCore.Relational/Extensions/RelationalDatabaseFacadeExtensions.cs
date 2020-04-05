@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -203,10 +202,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(parameters, nameof(parameters));
 
             var facadeDependencies = GetFacadeDependencies(databaseFacade);
-#pragma warning disable EF1001 // Internal EF Core API usage.
             var concurrencyDetector = facadeDependencies.ConcurrencyDetector;
             var logger = facadeDependencies.CommandLogger;
-#pragma warning restore EF1001 // Internal EF Core API usage.
 
             using (concurrencyDetector.EnterCriticalSection())
             {
@@ -220,9 +217,7 @@ namespace Microsoft.EntityFrameworkCore
                             facadeDependencies.RelationalConnection,
                             rawSqlCommand.ParameterValues,
                             null,
-#pragma warning disable EF1001 // Internal EF Core API usage.
                             ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context,
-#pragma warning restore EF1001 // Internal EF Core API usage.
                             logger));
             }
         }
@@ -360,10 +355,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(parameters, nameof(parameters));
 
             var facadeDependencies = GetFacadeDependencies(databaseFacade);
-#pragma warning disable EF1001 // Internal EF Core API usage.
             var concurrencyDetector = facadeDependencies.ConcurrencyDetector;
             var logger = facadeDependencies.CommandLogger;
-#pragma warning restore EF1001 // Internal EF Core API usage.
 
             using (concurrencyDetector.EnterCriticalSection())
             {
@@ -377,9 +370,7 @@ namespace Microsoft.EntityFrameworkCore
                             facadeDependencies.RelationalConnection,
                             rawSqlCommand.ParameterValues,
                             null,
-#pragma warning disable EF1001 // Internal EF Core API usage.
                             ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context,
-#pragma warning restore EF1001 // Internal EF Core API usage.
                             logger),
                         cancellationToken);
             }
@@ -620,15 +611,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseFacade"> The facade from <see cref="DbContext.Database" />. </param>
         /// <returns> True if a relational database provider is being used; false otherwise. </returns>
         public static bool IsRelational([NotNull] this DatabaseFacade databaseFacade)
-#pragma warning disable EF1001 // Internal EF Core API usage.
             => ((IDatabaseFacadeDependenciesAccessor)Check.NotNull(databaseFacade, nameof(databaseFacade))).Dependencies is IRelationalDatabaseFacadeDependencies;
-#pragma warning restore EF1001 // Internal EF Core API usage.
 
         private static IRelationalDatabaseFacadeDependencies GetFacadeDependencies(DatabaseFacade databaseFacade)
         {
-#pragma warning disable EF1001 // Internal EF Core API usage.
             var dependencies = ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies;
-#pragma warning restore EF1001 // Internal EF Core API usage.
 
             if (dependencies is IRelationalDatabaseFacadeDependencies relationalDependencies)
             {
@@ -652,8 +639,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static IDbContextTransactionManager GetTransactionManager([NotNull] this DatabaseFacade databaseFacade)
-#pragma warning disable EF1001 // Internal EF Core API usage.
             => ((IDatabaseFacadeDependenciesAccessor)Check.NotNull(databaseFacade, nameof(databaseFacade))).Dependencies.TransactionManager;
-#pragma warning restore EF1001 // Internal EF Core API usage.
     }
 }
