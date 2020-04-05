@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class StructuralCurrentProviderValueComparer : StructuralCurrentValueComparer
+    public class EntryCurrentProviderValueComparer : EntryCurrentValueComparer
     {
         private readonly ValueConverter _converter;
 
@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public StructuralCurrentProviderValueComparer(
+        public EntryCurrentProviderValueComparer(
             [NotNull] IPropertyBase property,
             [NotNull] ValueConverter converter)
             : base(property)
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override object GetCurrentValue(IUpdateEntry entry)
-            => _converter.ConvertToProvider(base.GetCurrentValue(entry));
+        protected override object GetPropertyValue(IUpdateEntry entry)
+            => _converter.ConvertToProvider(base.GetPropertyValue(entry));
     }
 }

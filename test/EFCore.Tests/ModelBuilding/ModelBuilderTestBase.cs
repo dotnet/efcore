@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -61,13 +60,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             protected void AssertEqual(
                 IEnumerable<IKey> expectedKeys,
                 IEnumerable<IKey> actualKeys,
-                KeyComparer keyComparer = null)
+                TestKeyComparer testKeyComparer = null)
             {
-                keyComparer ??= new KeyComparer(compareAnnotations: false);
+                testKeyComparer ??= new TestKeyComparer(compareAnnotations: false);
                 Assert.Equal(
-                    new SortedSet<IKey>(expectedKeys, keyComparer),
-                    new SortedSet<IKey>(actualKeys, keyComparer),
-                    keyComparer);
+                    new SortedSet<IKey>(expectedKeys, testKeyComparer),
+                    new SortedSet<IKey>(actualKeys, testKeyComparer),
+                    testKeyComparer);
             }
 
             protected void AssertEqual(
@@ -85,13 +84,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             protected void AssertEqual(
                 IEnumerable<IIndex> expectedIndexes,
                 IEnumerable<IIndex> actualIndexes,
-                IndexComparer indexComparer = null)
+                TestIndexComparer testIndexComparer = null)
             {
-                indexComparer ??= new IndexComparer(compareAnnotations: false);
+                testIndexComparer ??= new TestIndexComparer(compareAnnotations: false);
                 Assert.Equal(
-                    new SortedSet<IIndex>(expectedIndexes, indexComparer),
-                    new SortedSet<IIndex>(actualIndexes, indexComparer),
-                    indexComparer);
+                    new SortedSet<IIndex>(expectedIndexes, testIndexComparer),
+                    new SortedSet<IIndex>(actualIndexes, testIndexComparer),
+                    testIndexComparer);
             }
 
             protected virtual TestModelBuilder CreateModelBuilder()
