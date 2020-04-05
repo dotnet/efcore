@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.EntityFrameworkCore.Metadata
+namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
     ///     Options to print debug string differently for metadata objects.

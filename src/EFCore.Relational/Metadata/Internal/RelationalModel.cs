@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -566,9 +565,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual DebugView DebugView
-#pragma warning disable EF1001 // Internal EF Core API usage.
             => new DebugView(
-#pragma warning restore EF1001 // Internal EF Core API usage.
                 () => this.ToDebugString(MetadataDebugStringOptions.ShortDefault),
                 () => this.ToDebugString(MetadataDebugStringOptions.LongDefault));
 
