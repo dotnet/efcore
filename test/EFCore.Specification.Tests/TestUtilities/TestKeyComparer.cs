@@ -8,18 +8,18 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
-    public class IndexComparer : IEqualityComparer<IIndex>, IComparer<IIndex>
+    public class TestKeyComparer : IEqualityComparer<IKey>, IComparer<IKey>
     {
         private readonly bool _compareAnnotations;
 
-        public IndexComparer(bool compareAnnotations = true)
+        public TestKeyComparer(bool compareAnnotations = true)
         {
             _compareAnnotations = compareAnnotations;
         }
 
-        public int Compare(IIndex x, IIndex y) => PropertyListComparer.Instance.Compare(x.Properties, y.Properties);
+        public int Compare(IKey x, IKey y) => PropertyListComparer.Instance.Compare(x.Properties, y.Properties);
 
-        public bool Equals(IIndex x, IIndex y)
+        public bool Equals(IKey x, IKey y)
         {
             if (x == null)
             {
@@ -29,10 +29,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return y == null
                 ? false
                 : PropertyListComparer.Instance.Equals(x.Properties, y.Properties)
-                && x.IsUnique == y.IsUnique
                 && (!_compareAnnotations || x.GetAnnotations().SequenceEqual(y.GetAnnotations(), AnnotationComparer.Instance));
         }
 
-        public int GetHashCode(IIndex obj) => PropertyListComparer.Instance.GetHashCode(obj.Properties);
+        public int GetHashCode(IKey obj) => PropertyListComparer.Instance.GetHashCode(obj.Properties);
     }
 }

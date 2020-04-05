@@ -485,26 +485,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         if (internalForeignKeys == null)
                         {
-#pragma warning disable EF1001 // Internal EF Core API usage.
                             internalForeignKeys = new SortedSet<IForeignKey>(ForeignKeyComparer.Instance);
-#pragma warning restore EF1001 // Internal EF Core API usage.
                         }
                         internalForeignKeys.Add(foreignKey);
 
                         if (referencingInternalForeignKeyMap == null)
                         {
                             referencingInternalForeignKeyMap =
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                                new SortedDictionary<IEntityType, IEnumerable<IForeignKey>>(EntityTypePathComparer.Instance);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+                                new SortedDictionary<IEntityType, IEnumerable<IForeignKey>>(EntityTypeFullNameComparer.Instance);
                         }
 
                         var principalEntityType = foreignKey.PrincipalEntityType;
                         if (!referencingInternalForeignKeyMap.TryGetValue(principalEntityType, out var internalReferencingForeignKeys))
                         {
-#pragma warning disable EF1001 // Internal EF Core API usage.
                             internalReferencingForeignKeys = new SortedSet<IForeignKey>(ForeignKeyComparer.Instance);
-#pragma warning restore EF1001 // Internal EF Core API usage.
                             referencingInternalForeignKeyMap[principalEntityType] = internalReferencingForeignKeys;
                         }
                         ((SortedSet<IForeignKey>)internalReferencingForeignKeys).Add(foreignKey);
@@ -516,9 +510,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     if (internalForeignKeyMap == null)
                     {
                         internalForeignKeyMap =
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                            new SortedDictionary<IEntityType, IEnumerable<IForeignKey>>(EntityTypePathComparer.Instance);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+                            new SortedDictionary<IEntityType, IEnumerable<IForeignKey>>(EntityTypeFullNameComparer.Instance);
                         table.InternalForeignKeys = internalForeignKeyMap;
                     }
 

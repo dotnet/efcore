@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (!_entityTypesWithDefiningNavigation.TryGetValue(entityTypeName, out var entityTypesWithSameType))
                 {
-                    entityTypesWithSameType = new SortedSet<EntityType>(EntityTypePathComparer.Instance);
+                    entityTypesWithSameType = new SortedSet<EntityType>(EntityTypeFullNameComparer.Instance);
                     _entityTypesWithDefiningNavigation[entityTypeName] = entityTypesWithSameType;
                 }
 
@@ -474,7 +474,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (_entityTypesWithDefiningNavigation.TryGetValue(entityType.Name, out var entityTypesWithSameType))
             {
-                if (entityTypesWithSameType.Any(e => EntityTypePathComparer.Instance.Compare(e, entityType) != 0))
+                if (entityTypesWithSameType.Any(e => EntityTypeFullNameComparer.Instance.Compare(e, entityType) != 0))
                 {
                     return true;
                 }

@@ -34,18 +34,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (IsGenericComparable(modelType, nonNullableModelType))
             {
                 return (IComparer<IUpdateEntry>)Activator.CreateInstance(
-                    typeof(CurrentValueComparer<>).MakeGenericType(modelType),
+                    typeof(EntryCurrentValueComparer<>).MakeGenericType(modelType),
                     propertyBase);
             }
 
             if (typeof(IStructuralComparable).IsAssignableFrom(nonNullableModelType))
             {
-                return new StructuralCurrentValueComparer(propertyBase);
+                return new StructuralEntryCurrentValueComparer(propertyBase);
             }
 
             if (typeof(IComparable).IsAssignableFrom(nonNullableModelType))
             {
-                return new CurrentValueComparer(propertyBase);
+                return new EntryCurrentValueComparer(propertyBase);
             }
 
             if (propertyBase is IProperty property)
@@ -71,12 +71,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                     if (typeof(IStructuralComparable).IsAssignableFrom(nonNullableProviderType))
                     {
-                        return new StructuralCurrentProviderValueComparer(propertyBase, converter);
+                        return new StructuralEntryCurrentProviderValueComparer(propertyBase, converter);
                     }
 
                     if (typeof(IComparable).IsAssignableFrom(nonNullableProviderType))
                     {
-                        return new CurrentProviderValueComparer(propertyBase, converter);
+                        return new EntryCurrentProviderValueComparer(propertyBase, converter);
                     }
 
                     throw new InvalidOperationException(
