@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
@@ -81,7 +82,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string ComputedColumnSql { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     Comment for this column.
+        ///     Whether the value of the computed column this property is mapped to is stored in the database, or calculated when
+        ///     it is read.
+        /// </summary>
+        public virtual bool? ComputedColumnIsStored { get; set; }
+
+        /// <summary>
+        ///     Comment for this column
         /// </summary>
         public virtual string Comment { get; [param: CanBeNull] set; }
 

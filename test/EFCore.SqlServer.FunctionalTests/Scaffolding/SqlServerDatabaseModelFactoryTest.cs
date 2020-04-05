@@ -1334,7 +1334,8 @@ CREATE TABLE DefaultComputedValues (
     ComputedValue AS GETDATE(),
     A int NOT NULL,
     B int NOT NULL,
-    SumOfAAndB AS A + B PERSISTED,
+    SumOfAAndB AS A + B,
+    SumOfAAndBPersisted AS A + B PERSISTED,
 );",
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
@@ -1342,14 +1343,23 @@ CREATE TABLE DefaultComputedValues (
                 {
                     var columns = dbModel.Tables.Single().Columns;
 
-                    Assert.Equal("('October 20, 2015 11am')", columns.Single(c => c.Name == "FixedDefaultValue").DefaultValueSql);
-                    Assert.Null(columns.Single(c => c.Name == "FixedDefaultValue").ComputedColumnSql);
+                    var fixedDefaultValue = columns.Single(c => c.Name == "FixedDefaultValue");
+                    Assert.Equal("('October 20, 2015 11am')", fixedDefaultValue.DefaultValueSql);
+                    Assert.Null(fixedDefaultValue.ComputedColumnSql);
 
-                    Assert.Null(columns.Single(c => c.Name == "ComputedValue").DefaultValueSql);
-                    Assert.Equal("(getdate())", columns.Single(c => c.Name == "ComputedValue").ComputedColumnSql);
+                    var computedValue = columns.Single(c => c.Name == "ComputedValue");
+                    Assert.Null(computedValue.DefaultValueSql);
+                    Assert.Equal("(getdate())", computedValue.ComputedColumnSql);
 
-                    Assert.Null(columns.Single(c => c.Name == "SumOfAAndB").DefaultValueSql);
-                    Assert.Equal("([A]+[B])", columns.Single(c => c.Name == "SumOfAAndB").ComputedColumnSql);
+                    var sumOfAAndB = columns.Single(c => c.Name == "SumOfAAndB");
+                    Assert.Null(sumOfAAndB.DefaultValueSql);
+                    Assert.Equal("([A]+[B])", sumOfAAndB.ComputedColumnSql);
+                    Assert.False(sumOfAAndB.ComputedColumnIsStored);
+
+                    var sumOfAAndBPersisted = columns.Single(c => c.Name == "SumOfAAndBPersisted");
+                    Assert.Null(sumOfAAndBPersisted.DefaultValueSql);
+                    Assert.Equal("([A]+[B])", sumOfAAndBPersisted.ComputedColumnSql);
+                    Assert.True(sumOfAAndBPersisted.ComputedColumnIsStored);
                 },
                 "DROP TABLE DefaultComputedValues;");
         }

@@ -328,12 +328,14 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [TestTableSchema].[TestTa
                 @"ALTER TABLE [People] ADD [Sum] int NOT NULL DEFAULT (1 + 2);");
         }
 
-        public override async Task Add_column_with_computedSql()
+        public override async Task Add_column_with_computedSql(bool? computedColumnStored)
         {
-            await base.Add_column_with_computedSql();
+            await base.Add_column_with_computedSql(computedColumnStored);
+
+            var computedColumnTypeSql = computedColumnStored == true ? " PERSISTED" : "";
 
             AssertSql(
-                @"ALTER TABLE [People] ADD [Sum] AS [X] + [Y];");
+                @$"ALTER TABLE [People] ADD [Sum] AS [X] + [Y]{computedColumnTypeSql};");
         }
 
         public override async Task Add_column_with_required()
@@ -513,20 +515,21 @@ ALTER TABLE [People] ALTER COLUMN [FirstName] nvarchar(450) NOT NULL;
 CREATE INDEX [IX_People_FirstName_LastName] ON [People] ([FirstName], [LastName]);");
         }
 
-        [ConditionalFact]
-        public override async Task Alter_column_make_computed()
+        public override async Task Alter_column_make_computed(bool? computedColumnStored)
         {
-            await base.Alter_column_make_computed();
+            await base.Alter_column_make_computed(computedColumnStored);
+
+            var computedColumnTypeSql = computedColumnStored == true ? " PERSISTED" : "";
 
             AssertSql(
-                @"DECLARE @var0 sysname;
+                $@"DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Sum');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [People] DROP COLUMN [Sum];
-ALTER TABLE [People] ADD [Sum] AS [X] + [Y];");
+ALTER TABLE [People] ADD [Sum] AS [X] + [Y]{computedColumnTypeSql};");
         }
 
         public override async Task Alter_column_change_computed()
@@ -542,6 +545,21 @@ WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Sum');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [People] DROP COLUMN [Sum];
 ALTER TABLE [People] ADD [Sum] AS [X] - [Y];");
+        }
+
+        public override async Task Alter_column_change_computed_type()
+        {
+            await base.Alter_column_change_computed_type();
+
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Sum');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [People] DROP COLUMN [Sum];
+ALTER TABLE [People] ADD [Sum] AS [X] + [Y] PERSISTED;");
         }
 
         [ConditionalFact]
