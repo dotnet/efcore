@@ -629,6 +629,7 @@ ORDER BY [od].[ProductID]");
         ORDER BY [o1].[OrderID]) = [o].[OrderID])
     ORDER BY [o].[ProductID])
 FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY [c].[CustomerID]");
         }
 

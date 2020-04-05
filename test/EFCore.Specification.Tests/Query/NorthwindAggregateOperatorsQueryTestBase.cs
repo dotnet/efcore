@@ -929,7 +929,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Select(
                     c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()
                         .Maybe(x => x.OrderDetails)
-                        .Maybe(xx => xx.OrderBy(od => od.ProductID).FirstOrDefault()))); 
+                        .Maybe(xx => xx.OrderBy(od => od.ProductID).FirstOrDefault())));
         }
 
         [ConditionalTheory]
@@ -938,10 +938,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQueryScalar(
                 async,
-                ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Select(
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A")).OrderBy(c => c.CustomerID).Select(
                     c => (int?)c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails.OrderBy(od => od.ProductID).FirstOrDefault()
                         .ProductID),
-                ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Select(
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A")).OrderBy(c => c.CustomerID).Select(
                     c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()
                         .Maybe(x => x.OrderDetails)
                         .MaybeScalar(x => x.OrderBy(od => od.ProductID).FirstOrDefault().ProductID)));
