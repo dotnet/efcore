@@ -119,9 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     The list of <see cref="ColumnModification" />s needed to perform the insert, update, or delete.
         /// </summary>
         public virtual IReadOnlyList<ColumnModification> ColumnModifications
-#pragma warning disable EF1001 // Internal EF Core API usage.
             => NonCapturingLazyInitializer.EnsureInitialized(
-#pragma warning restore EF1001 // Internal EF Core API usage.
                 ref _columnModifications, this, command => command.GenerateColumnModifications());
 
         /// <summary>
