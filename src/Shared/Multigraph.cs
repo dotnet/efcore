@@ -6,13 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Utilities
 {
-#pragma warning disable EF1001 // Internal EF Core API usage.
     internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
-#pragma warning restore EF1001 // Internal EF Core API usage.
     {
         private readonly HashSet<TVertex> _vertices = new HashSet<TVertex>();
 
