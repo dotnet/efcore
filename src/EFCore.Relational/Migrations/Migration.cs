@@ -33,14 +33,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 IModel Create()
                 {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                    var model = new Model();
-                    var modelBuilder = new ModelBuilder(model);
+                    var modelBuilder = new ModelBuilder();
                     BuildTargetModel(modelBuilder);
 
-                    model = (Model)RelationalModel.Add(model, null);
+                    var model = (IMutableModel)RelationalModel.Add((IConventionModel)modelBuilder.Model, null);
                     return model.FinalizeModel();
-#pragma warning restore EF1001 // Internal EF Core API usage.
                 }
 
                 return _targetModel ??= Create();

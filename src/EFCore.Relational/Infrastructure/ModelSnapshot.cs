@@ -16,14 +16,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private IModel CreateModel()
         {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-            var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new ModelBuilder();
 
             BuildModel(modelBuilder);
 
-            return model;
-#pragma warning restore EF1001 // Internal EF Core API usage.
+            return modelBuilder.Model;
         }
 
         /// <summary>

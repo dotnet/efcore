@@ -2072,8 +2072,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         [ConditionalFact]
         public virtual void Property_without_column_type()
         {
-            var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new ModelBuilder();
+            var model = modelBuilder.Model;
 
             modelBuilder
                 .HasAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, SqlServerValueGenerationStrategy.IdentityColumn);
