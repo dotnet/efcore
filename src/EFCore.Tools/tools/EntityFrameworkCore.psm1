@@ -711,7 +711,21 @@ function GetProject($projectName)
         return Get-Project
     }
 
-    return Get-Project $projectName
+    $project = Get-Project $projectName -ErrorAction:SilentlyContinue -ErrorVariable getProjectResult
+    if ($project -eq $null -and $getProjectResult[0].CategoryInfo.Category -eq [System.Management.Automation.ErrorCategory]::ObjectNotFound)
+    {
+        $project = $DTE.Solution |
+            % { $_.ProjectItems } |
+            % { $_.SubProject } |
+            ? { $_.UniqueName -like '*.shproj' } |
+            ? { $_.Name -eq $projectName } |
+            Select-Object -First 1
+        if ($project -eq $null)
+        {
+            throw $getProjectResult[0]
+        }
+    }
+    return $project
 }
 
 function GetStartupProject($name, $fallbackProject)
@@ -945,7 +959,14 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
     }
 
     $projectDir = GetProperty $project.Properties 'FullPath'
-    $targetFileName = GetProperty $project.Properties 'OutputFileName'
+    if ($project.UniqueName -like '*.shproj')
+    {
+        $targetFileName = GetProperty $startupProject.Properties 'OutputFileName'
+    }
+    else
+    {
+        $targetFileName = GetProperty $project.Properties 'OutputFileName'
+    }
     $targetPath = Join-Path $targetDir $targetFileName
     $rootNamespace = GetProperty $project.Properties 'RootNamespace'
     $language = GetLanguage $project
@@ -1180,7 +1201,7 @@ function GetProjectItem($project, $path)
     {
         $directories = $itemDirectory.Split('\')
         $directories | %{
-            if ($projectItems)
+            if ($projectItems -and -not [String]::IsNullOrWhitespace($_))
             {
                 $projectItems = $projectItems.Item($_).ProjectItems
             }
