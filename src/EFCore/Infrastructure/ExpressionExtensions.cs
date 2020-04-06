@@ -299,8 +299,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         typeof(object),
                         properties
                             .Select(p => Expression.Convert(target.CreateEFPropertyExpression(p, makeNullable), typeof(object)))
-                            .Cast<Expression>()
-                            .ToArray()));
+                            .Cast<Expression>()));
 
         /// <summary>
         ///     <para>

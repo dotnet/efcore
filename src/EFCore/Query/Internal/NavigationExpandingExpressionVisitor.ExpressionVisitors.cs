@@ -212,17 +212,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (navigation.IsCollection)
                 {
-                    var outerKeyFirstProperty = outerKey is NewExpression newExpression
-                        ? ((UnaryExpression)((NewArrayExpression)newExpression.Arguments[0]).Expressions[0]).Operand
-                        : outerKey;
-
                     // This is intentionally deferred to be applied to innerSource.Source
                     // Since outerKey's reference could change if a reference navigation is expanded afterwards
-                    var predicateBody = outerKeyFirstProperty.Type.IsNullableType()
-                        ? Expression.AndAlso(
-                            Expression.NotEqual(outerKeyFirstProperty, Expression.Constant(null, outerKeyFirstProperty.Type)),
-                            Expression.Equal(outerKey, innerKey))
-                        : Expression.Equal(outerKey, innerKey);
+                    var predicateBody = Expression.AndAlso(
+                        outerKey is NewExpression newExpression
+                        && newExpression.Arguments[0] is NewArrayExpression newArrayExpression
+                            ? newArrayExpression.Expressions
+                                .Select(e =>
+                                {
+                                    var left = (e as UnaryExpression)?.Operand ?? e;
+
+                                    return Expression.NotEqual(left, Expression.Constant(null, left.Type));
+                                })
+                                .Aggregate((l, r) => Expression.AndAlso(l, r))
+                            : Expression.NotEqual(outerKey, Expression.Constant(null, outerKey.Type)),
+                        Expression.Equal(outerKey, innerKey));
 
                     var subquery = Expression.Call(
                         QueryableMethods.Where.MakeGenericMethod(innerSourceSequenceType),
