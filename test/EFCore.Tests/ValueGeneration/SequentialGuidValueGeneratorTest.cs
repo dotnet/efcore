@@ -41,6 +41,20 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
                 for (int idx = 0; idx < initialGuid.Length && overflow > 0; idx++)
                 {
                     overflow += expectedBytes[orderMap[idx]];
+                    if (idx == 6) // Special handling of version bits.
+                    {
+                        short high = (short)(overflow & 0xf0);
+                        short low = (short)(overflow & 0x0f);
+                        high <<= 4;
+                        overflow = (short)(high | low | 0xe0); // 0xe0 is the value as observed in SQL server2019.
+                    }
+                    if (idx == 8) // Special handling of variant bits
+                    {
+                        short high = (short)(overflow & 0xc0);
+                        short low = (short)(overflow & 0x3f);
+                        high <<= 2;
+                        overflow = (short)(high | low | 0x80);
+                    }
                     expectedBytes[orderMap[idx]] = (byte)overflow;
                     overflow >>= 8;
                 }
