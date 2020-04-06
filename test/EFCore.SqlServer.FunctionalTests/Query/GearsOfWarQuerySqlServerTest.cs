@@ -3185,7 +3185,7 @@ LEFT JOIN [Gears] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[Gear
 WHERE ([g].[Discriminator] = N'Officer') AND ((
     SELECT COUNT(*)
     FROM [Gears] AS [g0]
-    WHERE ([g].[Nickname] IS NOT NULL AND (([g].[Nickname] = [g0].[LeaderNickname]) AND ([g].[SquadId] = [g0].[LeaderSquadId]))) AND ([g0].[Nickname] = N'Dom')) > 0)");
+    WHERE (([g].[Nickname] IS NOT NULL AND [g].[SquadId] IS NOT NULL) AND (([g].[Nickname] = [g0].[LeaderNickname]) AND ([g].[SquadId] = [g0].[LeaderSquadId]))) AND ([g0].[Nickname] = N'Dom')) > 0)");
         }
 
         public override async Task Select_null_conditional_with_inheritance(bool async)
@@ -5910,7 +5910,7 @@ LEFT JOIN [Gears] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[Gear
 OUTER APPLY (
     SELECT TOP(50) [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
     FROM [Gears] AS [g0]
-    WHERE [g].[Nickname] IS NOT NULL AND (([g].[Nickname] = [g0].[LeaderNickname]) AND ([g].[SquadId] = [g0].[LeaderSquadId]))
+    WHERE ([g].[Nickname] IS NOT NULL AND [g].[SquadId] IS NOT NULL) AND (([g].[Nickname] = [g0].[LeaderNickname]) AND ([g].[SquadId] = [g0].[LeaderSquadId]))
 ) AS [t0]
 WHERE [g].[Discriminator] = N'Officer'
 ORDER BY [t].[Id], [t0].[Nickname], [t0].[SquadId]");
