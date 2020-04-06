@@ -370,6 +370,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Does_not_warn_if_default_decimal_mapping_has_value_converter()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>()
+                .Property<decimal>("Price")
+                .HasConversion(new TestDecimalToLongConverter());
+
+            VerifyLogDoesNotContain(
+                SqlServerResources.LogDefaultDecimalTypeColumn(new TestLogger<SqlServerLoggingDefinitions>())
+                    .GenerateMessage("Price", nameof(Animal)), modelBuilder.Model);
+        }
+
+        [ConditionalFact]
         public void Detects_byte_identity_column()
         {
             var modelBuilder = CreateConventionalModelBuilder();
