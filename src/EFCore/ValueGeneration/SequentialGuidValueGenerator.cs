@@ -3,7 +3,6 @@
 
 using System;
 using System.Runtime.InteropServices;
-using System.Threading;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration
@@ -16,8 +15,24 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     /// </summary>
     public class SequentialGuidValueGenerator : ValueGenerator<Guid>
     {
-        private long _counterA = DateTime.UtcNow.Ticks;
-        private long _counterB = BitConverter.ToInt64(Guid.NewGuid().ToByteArray(), 8);
+        private static long _counter;
+        private static readonly long _nodeId;
+        /// <summary>
+        /// Initializes the class <see cref="SequentialGuidValueGenerator"/>.
+        /// </summary>
+        static SequentialGuidValueGenerator()
+        {
+            // Assembly name and machine name is assumed to be be constant enough for this use.
+            //  In adition, this means that multiple assemblies will hopefully generate GUIDs with different Node ID's.
+            var assemblyName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
+            var machineName = Environment.MachineName;
+            Random rng = new Random(string.Join('.', assemblyName, machineName).GetHashCode());
+            byte[] nodeId = new byte[8];
+            rng.NextBytes(nodeId);
+            _nodeId = BitConverter.ToInt64(nodeId, 0);
+            _counter = ((DateTime.UtcNow.Ticks & 0x0000FFFFFFFFFFFF) | ~0x15EEFFFFFFFFFFFF);
+        }
+
         /// <summary>
         ///     Gets a value to be assigned to a property.
         /// </summary>
@@ -25,14 +40,16 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <returns> The value to be assigned to a property. </returns>
         public override Guid Next(EntityEntry entry)
         {
-            Span<long> guidValue = stackalloc long[] { Interlocked.Increment(ref _counterA), _counterA switch { 0 => Interlocked.Increment(ref _counterB), _ => _counterB } };
+            var currentCount = _counter = ((++_counter & 0x0000FFFFFFFFFFFF) | ~0x15EEFFFFFFFFFFFF);
+            Span<long> guidValue = stackalloc long[] { currentCount, _nodeId };
+
             if (BitConverter.IsLittleEndian)
             {
                 Span<byte> bytes = MemoryMarshal.Cast<long, byte>(guidValue);
                 // Change the first byte containing the first int and the two consecutive shorts to litle endian byte order.
                 bytes.Slice(0, 4).Reverse();
                 bytes.Slice(4, 2).Reverse();
-                bytes.Slice(6, 2).Reverse();
+                //bytes.Slice(6, 2).Reverse();
             }
             return MemoryMarshal.Cast<long, Guid>(guidValue)[0];
             //return new Guid(guidBytes);
