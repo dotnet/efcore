@@ -2597,12 +2597,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     Unable to set IsUnique to '{isUnique}' on the relationship underlying the navigation property '{navigationName}' on the entity type '{entityType}' because the navigation property has the opposite multiplicity.'
+        ///     Unable to set IsUnique to '{isUnique}' on the relationship underlying the navigation property '{navigationName}' on the entity type '{entityType}' because the navigation property has the opposite multiplicity.
         /// </summary>
         public static string UnableToSetIsUnique([CanBeNull] object isUnique, [CanBeNull] object navigationName, [CanBeNull] object entityType)
             => string.Format(
                 GetString("UnableToSetIsUnique", nameof(isUnique), nameof(navigationName), nameof(entityType)),
                 isUnique, navigationName, entityType);
+
+        /// <summary>
+        ///     Unable to set up a many-to-many relationship between the entities '{principalEntityType}' and '{declaringEntityType}' because no inverse navigation was specified. Please provide a navigation property in both the HasMany() and WithMany() calls.
+        /// </summary>
+        public static string MissingInverseNavigation([CanBeNull] object principalEntityType, [CanBeNull] object declaringEntityType)
+            => string.Format(
+                GetString("MissingInverseNavigation", nameof(principalEntityType), nameof(declaringEntityType)),
+                principalEntityType, declaringEntityType);
 
         private static string GetString(string name, params string[] formatterNames)
         {

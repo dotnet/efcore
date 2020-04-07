@@ -161,6 +161,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            public virtual void Throws_for_many_to_many_with_only_one_navigation_configured()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                Assert.Equal(
+                    CoreStrings.MissingInverseNavigation(
+                        nameof(ManyToManyNavPrincipal),
+                        nameof(NavDependent)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<ManyToManyNavPrincipal>()
+                                .HasMany<NavDependent>(/* leaving empty causes the exception */)
+                                .WithMany(d => d.ManyToManyPrincipals)).Message);
+            }
+
+            [ConditionalFact]
             public virtual void Navigation_properties_can_set_access_mode_using_expressions()
             {
                 var modelBuilder = CreateModelBuilder();
