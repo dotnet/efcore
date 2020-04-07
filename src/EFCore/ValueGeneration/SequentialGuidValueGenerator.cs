@@ -29,8 +29,8 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             Random rng = new Random(string.Join('.', assemblyName, machineName).GetHashCode());
             byte[] nodeId = new byte[8];
             rng.NextBytes(nodeId);
-            _nodeId = BitConverter.ToInt64(nodeId, 0);
-            _counter = ((DateTime.UtcNow.Ticks & 0x0000FFFFFFFFFFFF) | ~0x15EEFFFFFFFFFFFF);
+            _nodeId = (BitConverter.ToInt64(nodeId, 0) & ~0xe0) | (0x80);
+            _counter = ((DateTime.UtcNow.Ticks & 0x0000FFFFFFFFFFFF) | (0xEA110000L << 32));
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <returns> The value to be assigned to a property. </returns>
         public override Guid Next(EntityEntry entry)
         {
-            var currentCount = _counter = ((++_counter & 0x0000FFFFFFFFFFFF) | ~0x15EEFFFFFFFFFFFF);
+            var currentCount = _counter = ((++_counter & 0x0000FFFFFFFFFFFF) | (0xEA110000L << 32));
             Span<long> guidValue = stackalloc long[] { currentCount, _nodeId };
 
             if (BitConverter.IsLittleEndian)
