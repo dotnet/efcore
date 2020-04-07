@@ -275,6 +275,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Equal(expectedMessage, message);
         }
 
+        protected virtual void VerifyLogDoesNotContain(string expectedMessage, IMutableModel model)
+        {
+            Validate(model);
+
+            var logEntries = LoggerFactory.Log.Where(l => l.Message.Contains(expectedMessage));
+
+            Assert.Empty(logEntries);
+        }
+
         protected virtual IModel Validate(IMutableModel model) => model.FinalizeModel();
 
         protected DiagnosticsLogger<DbLoggerCategory.Model.Validation> CreateValidationLogger(bool sensitiveDataLoggingEnabled = false)

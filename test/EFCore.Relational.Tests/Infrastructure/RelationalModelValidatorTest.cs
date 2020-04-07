@@ -4,6 +4,7 @@
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
@@ -11,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -1145,6 +1147,28 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         protected class Employee : Person
         {
+        }
+
+        public class TestDecimalToLongConverter : ValueConverter<decimal, long>
+        {
+            private static readonly Expression<Func<decimal, long>> convertToProviderExpression = d => (long)(d*100);
+            private static readonly Expression<Func<long, decimal>> convertFromProviderExpression = l => l / 100m;
+
+            public TestDecimalToLongConverter()
+                : base(convertToProviderExpression, convertFromProviderExpression)
+            {
+            }
+        }
+
+        public class TestDecimalToDecimalConverter : ValueConverter<decimal, decimal>
+        {
+            private static readonly Expression<Func<decimal, decimal>> convertToProviderExpression = d => d * 100m;
+            private static readonly Expression<Func<decimal, decimal>> convertFromProviderExpression = l => l / 100m;
+
+            public TestDecimalToDecimalConverter()
+                : base(convertToProviderExpression, convertFromProviderExpression)
+            {
+            }
         }
 
         protected override TestHelpers TestHelpers => RelationalTestHelpers.Instance;
