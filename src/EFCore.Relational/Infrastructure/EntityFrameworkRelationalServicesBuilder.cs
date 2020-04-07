@@ -106,10 +106,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     Gets the <see cref="EntityFrameworkServicesBuilder.ServiceCharacteristics" /> for the given service type.
+        ///     Gets the <see cref="ServiceCharacteristics" /> for the given service type.
         /// </summary>
         /// <param name="serviceType"> The type that defines the service API. </param>
-        /// <returns> The <see cref="EntityFrameworkServicesBuilder.ServiceCharacteristics" /> for the type. </returns>
+        /// <returns> The <see cref="ServiceCharacteristics" /> for the type. </returns>
         /// <exception cref="InvalidOperationException"> when the type is not an EF service. </exception>
         protected override ServiceCharacteristics GetServiceCharacteristics(Type serviceType)
             => RelationalServices.TryGetValue(serviceType, out var characteristics)

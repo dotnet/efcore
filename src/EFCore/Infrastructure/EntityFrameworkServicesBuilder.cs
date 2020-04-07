@@ -451,32 +451,5 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             return this;
         }
-
-        /// <summary>
-        ///     Characteristics of a given EF service.
-        /// </summary>
-        public readonly struct ServiceCharacteristics
-        {
-            /// <summary>
-            ///     Creates a new <see cref="ServiceCharacteristics" /> struct.
-            /// </summary>
-            /// <param name="lifetime"> The service lifetime. </param>
-            /// <param name="multipleRegistrations"> True if multiple registrations of the service is allowed; false otherwise. </param>
-            public ServiceCharacteristics(ServiceLifetime lifetime, bool multipleRegistrations = false)
-            {
-                Lifetime = lifetime;
-                MultipleRegistrations = multipleRegistrations;
-            }
-
-            /// <summary>
-            ///     The service lifetime.
-            /// </summary>
-            public ServiceLifetime Lifetime { get; }
-
-            /// <summary>
-            ///     True if multiple registrations of the service is allowed; false otherwise.
-            /// </summary>
-            public bool MultipleRegistrations { get; }
-        }
     }
 }
