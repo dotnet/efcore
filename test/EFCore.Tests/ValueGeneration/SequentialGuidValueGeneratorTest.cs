@@ -64,6 +64,19 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             }
         }
 
+        [ConditionalFact]
+        public void Fourth_group_contains_MSB_variant_bits()
+        {
+            const int expected = 0x04;
+            for (int i = 0; i < 100; i++)
+            {
+                var sequentialGuidIdentityGenerator = new SequentialGuidValueGenerator();
+                var guidString = sequentialGuidIdentityGenerator.Next(null).ToString();
+                var actual = int.Parse(guidString.Split('-')[3], System.Globalization.NumberStyles.HexNumber) >> 13;
+                Assert.Equal(expected, actual);
+            }
+        }
+
         // TODO: Create a test that can validate that the Node ID is always the same, this will be machine dependent, so not sure how to proceed with making the test.
 
         [ConditionalFact]
