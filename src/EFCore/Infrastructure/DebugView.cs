@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
     ///     A placeholder for lazily-generated debug strings that can be expanded in the debugger to
-    ///     cause generation of and access to these debug strings.
+    ///     to generate and display them.
     /// </summary>
     public class DebugView
     {
