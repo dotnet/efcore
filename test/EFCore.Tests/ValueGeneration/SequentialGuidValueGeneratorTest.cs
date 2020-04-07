@@ -29,7 +29,8 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         [ConditionalFact]
         public void Can_generates_sequential_values()
         {
-            int[] orderMap = new int[] { 3, 2, 1, 0, 5, 4, 7, 6, 9, 8, 15, 14, 13, 12, 11, 10 };
+            // After some look at SQL server 2019, it seems only the first 6 bytes are incremental, the rest seems constant.
+            int[] orderMap = new int[] { 3, 2, 1, 0, 5, 4 };
             var sequentialGuidIdentityGenerator = new SequentialGuidValueGenerator();
             byte[] initialGuid = sequentialGuidIdentityGenerator.Next(null).ToByteArray();
             for (var i = 1; i < 11; i++)
@@ -37,29 +38,55 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
                 byte[] expectedBytes = new byte[initialGuid.Length];
                 Array.Copy(initialGuid, 0, expectedBytes, 0, expectedBytes.Length);
                 int overflow = i;
-                // Slow and steady, increment in order as long as the overflow is greater than one.
-                for (int idx = 0; idx < initialGuid.Length && overflow > 0; idx++)
+
+                for (int idx = 0; idx < orderMap.Length; idx++)
                 {
                     overflow += expectedBytes[orderMap[idx]];
-                    if (idx == 6) // Special handling of version bits.
-                    {
-                        short high = (short)(overflow & 0xf0);
-                        short low = (short)(overflow & 0x0f);
-                        high <<= 4;
-                        overflow = (short)(high | low | 0xe0); // 0xe0 is the value as observed in SQL server2019.
-                    }
-                    if (idx == 8) // Special handling of variant bits
-                    {
-                        short high = (short)(overflow & 0xc0);
-                        short low = (short)(overflow & 0x3f);
-                        high <<= 2;
-                        overflow = (short)(high | low | 0x80);
-                    }
                     expectedBytes[orderMap[idx]] = (byte)overflow;
                     overflow >>= 8;
                 }
                 var expected = new Guid(expectedBytes);
                 var actual = sequentialGuidIdentityGenerator.Next(null);
+                Assert.Equal(expected, actual);
+            }
+        }
+
+        [ConditionalFact]
+        public void Third_group_always_contains_constant_ea11()
+        {
+            const string expected = "ea11";
+            for (int i = 0; i < 100; i++)
+            {
+                var sequentialGuidIdentityGenerator = new SequentialGuidValueGenerator();
+                var guidString = sequentialGuidIdentityGenerator.Next(null).ToString();
+                var actual = guidString.Split('-')[2];
+                Assert.Equal(expected, actual);
+            }
+        }
+
+        // TODO: Create a test that can validate that the Node ID is always the same, this will be machine dependent, so not sure how to proceed with making the test.
+
+        [ConditionalFact]
+        public void Multiple_instances_uses_the_same_state()
+        {
+            int[] orderMap = new int[] { 3, 2, 1, 0, 5, 4 };
+            var generatorA = new SequentialGuidValueGenerator();
+            byte[] initialGuid = generatorA.Next(null).ToByteArray();
+
+            for (var i = 1; i < 11; i++)
+            {
+                byte[] expectedBytes = new byte[initialGuid.Length];
+                Array.Copy(initialGuid, 0, expectedBytes, 0, expectedBytes.Length);
+                int overflow = i;
+
+                for (int idx = 0; idx < orderMap.Length; idx++)
+                {
+                    overflow += expectedBytes[orderMap[idx]];
+                    expectedBytes[orderMap[idx]] = (byte)overflow;
+                    overflow >>= 8;
+                }
+                var expected = new Guid(expectedBytes);
+                var actual = new SequentialGuidValueGenerator().Next(null);
                 Assert.Equal(expected, actual);
             }
         }
