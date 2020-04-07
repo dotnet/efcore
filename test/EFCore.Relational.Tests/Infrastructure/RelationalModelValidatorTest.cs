@@ -1160,6 +1160,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
         }
 
+        public class TestDecimalToDecimalConverter : ValueConverter<decimal, decimal>
+        {
+            private static readonly Expression<Func<decimal, decimal>> convertToProviderExpression = d => d * 100m;
+            private static readonly Expression<Func<decimal, decimal>> convertFromProviderExpression = l => l / 100m;
+
+            public TestDecimalToDecimalConverter()
+                : base(convertToProviderExpression, convertFromProviderExpression)
+            {
+            }
+        }
+
         protected override TestHelpers TestHelpers => RelationalTestHelpers.Instance;
     }
 }
