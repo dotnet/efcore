@@ -112,8 +112,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 }
                 else if (fk.IsUnique)
                 {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                    // #16707
                     var dependentEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(embeddedValue, fk.DeclaringEntityType);
                     document[embeddedPropertyName] = _database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 }
                 else
                 {
@@ -121,8 +124,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                     var array = new JArray();
                     foreach (var dependent in (IEnumerable)embeddedValue)
                     {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                        // #16707
                         var dependentEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(dependent, fk.DeclaringEntityType);
                         array.Add(_database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry, embeddedOrdinal));
+#pragma warning restore EF1001 // Internal EF Core API usage.
                         embeddedOrdinal++;
                     }
 
@@ -141,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         /// </summary>
         public virtual JObject UpdateDocument([NotNull] JObject document, [NotNull] IUpdateEntry entry)
             => UpdateDocument(document, entry, null);
-        
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -151,7 +157,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         public virtual JObject UpdateDocument([NotNull] JObject document, [NotNull] IUpdateEntry entry, int? ordinal)
         {
             var anyPropertyUpdated = false;
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            // #16707
             var stateManager = ((InternalEntityEntry)entry).StateManager;
+#pragma warning restore EF1001 // Internal EF Core API usage.
             foreach (var property in entry.EntityType.GetProperties())
             {
                 if (entry.EntityState == EntityState.Added
@@ -196,7 +205,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 }
                 else if (fk.IsUnique)
                 {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                    // #16707
                     var embeddedEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(embeddedValue, fk.DeclaringEntityType);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                     if (embeddedEntry == null)
                     {
                         continue;
@@ -222,6 +234,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                         var shouldSetTemporaryKeys = false;
                         foreach (var dependent in (IEnumerable)embeddedValue)
                         {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                            // #16707
                             var embeddedEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType);
                             if (embeddedEntry == null)
                             {
@@ -233,6 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                                 shouldSetTemporaryKeys = true;
                                 break;
                             }
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
                             embeddedOrdinal++;
                         }
@@ -242,6 +257,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                             var temporaryOrdinal = -1;
                             foreach (var dependent in (IEnumerable)embeddedValue)
                             {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                                // #16707
                                 var embeddedEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType);
                                 if (embeddedEntry == null)
                                 {
@@ -249,6 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                                 }
 
                                 embeddedEntry.SetTemporaryValue(ordinalKeyProperty, temporaryOrdinal, setModified: false);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
                                 temporaryOrdinal--;
                             }
@@ -259,7 +277,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                     var array = new JArray();
                     foreach (var dependent in (IEnumerable)embeddedValue)
                     {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                        // #16707
                         var embeddedEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(dependent, fk.DeclaringEntityType);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                         if (embeddedEntry == null)
                         {
                             continue;

@@ -88,12 +88,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
                 if (!entityType.IsDocumentRoot())
                 {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                    // #16707
                     var root = GetRootDocument((InternalEntityEntry)entry);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                     if (!entriesSaved.Contains(root)
                         && rootEntriesToSave.Add(root)
                         && root.EntityState == EntityState.Unchanged)
                     {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                        // #16707
                         ((InternalEntityEntry)root).SetEntityState(EntityState.Modified);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                     }
 
                     continue;
@@ -154,7 +160,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                         && rootEntriesToSave.Add(root)
                         && root.EntityState == EntityState.Unchanged)
                     {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                        // #16707
                         ((InternalEntityEntry)root).SetEntityState(EntityState.Modified);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                     }
 
                     continue;
@@ -325,6 +334,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             return documentSource;
         }
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        // #16707
         private IUpdateEntry GetRootDocument(InternalEntityEntry entry)
         {
             var stateManager = entry.StateManager;
@@ -349,6 +360,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
             return principal.EntityType.IsDocumentRoot() ? principal : GetRootDocument(principal);
         }
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         private Exception ThrowUpdateException(CosmosException exception, IUpdateEntry entry)
         {

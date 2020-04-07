@@ -8,7 +8,6 @@ using Castle.DynamicProxy;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 {
@@ -70,7 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                 var property = _entityType.FindProperty(propertyName);
                 if (property != null)
                 {
-                    var comparer = property.IsKeyOrForeignKey()
+                    var comparer = property.IsKey()
+                        || property.IsForeignKey()
                         ? property.GetKeyValueComparer()
                         : property.GetValueComparer();
 

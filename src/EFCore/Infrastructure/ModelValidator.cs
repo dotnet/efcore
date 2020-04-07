@@ -890,7 +890,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         }
                     }
 
-                    if (property.IsKeyOrForeignKey()
+                    if (property.IsKey()
+                        || property.IsForeignKey()
                         || property.IsUniqueIndex())
                     {
                         var _ = property.GetCurrentValueComparer(); // Will throw if there is no way to compare

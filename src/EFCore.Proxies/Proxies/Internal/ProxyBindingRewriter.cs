@@ -73,14 +73,18 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                         var proxyType = _proxyFactory.CreateProxyType(_options, entityType);
 
                         // WARNING: This code is EF internal; it should not be copied. See #10789 #14554
+#pragma warning disable EF1001 // Internal EF Core API usage.
                         var binding = (InstantiationBinding)entityType[CoreAnnotationNames.ConstructorBinding];
+#pragma warning restore EF1001 // Internal EF Core API usage.
                         if (binding == null)
                         {
                             _directBindingConvention.ProcessModelFinalizing(modelBuilder, context);
                         }
 
                         // WARNING: This code is EF internal; it should not be copied. See #10789 #14554
+#pragma warning disable EF1001 // Internal EF Core API usage.
                         binding = (InstantiationBinding)entityType[CoreAnnotationNames.ConstructorBinding];
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
                         if (_options.UseLazyLoadingProxies)
                         {
@@ -106,7 +110,9 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 
                             entityType.SetAnnotation(
                                 // WARNING: This code is EF internal; it should not be copied. See #10789 #14554
+#pragma warning disable EF1001 // Internal EF Core API usage.
                                 CoreAnnotationNames.ConstructorBinding,
+#pragma warning restore EF1001 // Internal EF Core API usage.
                                 new FactoryMethodBinding(
                                     _proxyFactory,
                                     _createLazyLoadingProxyMethod,
@@ -123,7 +129,9 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                         {
                             entityType.SetAnnotation(
                                 // WARNING: This code is EF internal; it should not be copied. See #10789 #14554
+#pragma warning disable EF1001 // Internal EF Core API usage.
                                 CoreAnnotationNames.ConstructorBinding,
+#pragma warning restore EF1001 // Internal EF Core API usage.
                                 new FactoryMethodBinding(
                                     _proxyFactory,
                                     _createProxyMethod,
