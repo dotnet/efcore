@@ -40,7 +40,9 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             if (_options?.UseChangeTrackingProxies == true)
             {
                 modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 modelBuilder.HasAnnotation(CoreAnnotationNames.SkipChangeTrackingStrategyValidationAnnotation, "true");
+#pragma warning restore EF1001 // Internal EF Core API usage.
             }
         }
     }

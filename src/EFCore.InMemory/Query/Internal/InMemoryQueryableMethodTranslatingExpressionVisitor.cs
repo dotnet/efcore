@@ -459,7 +459,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             static Expression CreateAnonymousObject(List<Expression> expressions)
                 => Expression.New(
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                    // #20565
                     AnonymousObject.AnonymousObjectCtor,
+#pragma warning restore EF1001 // Internal EF Core API usage.
                     Expression.NewArrayInit(
                         typeof(object),
                         expressions.Select(e => Expression.Convert(e, typeof(object)))));
