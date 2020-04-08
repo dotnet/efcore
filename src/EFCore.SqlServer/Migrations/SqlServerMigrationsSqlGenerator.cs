@@ -1232,7 +1232,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var sqlBuilder = new StringBuilder();
             ((SqlServerUpdateSqlGenerator)Dependencies.UpdateSqlGenerator).AppendBulkInsertOperation(
                 sqlBuilder,
-                operation.GenerateModificationCommands(model).ToList(),
+                GenerateModificationCommands(operation, model).ToList(),
                 0);
 
             builder.Append(sqlBuilder.ToString());

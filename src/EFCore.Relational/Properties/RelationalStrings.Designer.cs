@@ -640,6 +640,150 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("DbFunctionInvalidIQueryableOwnedReturnType", nameof(function), nameof(type)),
                 function, type);
 
+        /// <summary>
+        ///     There is no property mapped to the column '{table}.{column}' used in a data operation. Either add a property mapped to this column or specify the column types in the data operation.
+        /// </summary>
+        public static string DataOperationNoProperty([CanBeNull] object table, [CanBeNull] object column)
+            => string.Format(
+                GetString("DataOperationNoProperty", nameof(table), nameof(column)),
+                table, column);
+
+        /// <summary>
+        ///     There is no entity type mapped to the table '{table}' used in a data operation. Either add the corresponding entity type to the model or specify the column types in the data operation.
+        /// </summary>
+        public static string DataOperationNoTable([CanBeNull] object table)
+            => string.Format(
+                GetString("DataOperationNoTable", nameof(table)),
+                table);
+
+        /// <summary>
+        ///     The data deletion operation on '{table}' is not associated with a model. Either add a model to the migration or specify the column types in all data operations.
+        /// </summary>
+        public static string DeleteDataOperationNoModel([CanBeNull] object table)
+            => string.Format(
+                GetString("DeleteDataOperationNoModel", nameof(table)),
+                table);
+
+        /// <summary>
+        ///     The number of key column types ({typesCount}) doesn't match the number of key columns ({columnsCount}) for the data deletion operation on '{table}'. Provide the same number of key column types and key columns.
+        /// </summary>
+        public static string DeleteDataOperationTypesCountMismatch([CanBeNull] object typesCount, [CanBeNull] object columnsCount, [CanBeNull] object table)
+            => string.Format(
+                GetString("DeleteDataOperationTypesCountMismatch", nameof(typesCount), nameof(columnsCount), nameof(table)),
+                typesCount, columnsCount, table);
+
+        /// <summary>
+        ///     The number of key values ({valuesCount}) doesn't match the number of key columns ({columnsCount}) for the data deletion operation on '{table}'. Provide the same number of key values and key columns.
+        /// </summary>
+        public static string DeleteDataOperationValuesCountMismatch([CanBeNull] object valuesCount, [CanBeNull] object columnsCount, [CanBeNull] object table)
+            => string.Format(
+                GetString("DeleteDataOperationValuesCountMismatch", nameof(valuesCount), nameof(columnsCount), nameof(table)),
+                valuesCount, columnsCount, table);
+
+        /// <summary>
+        ///     The data insertion operation on '{table}' is not associated with a model. Either add a model to the migration or specify the column types in all data operations.
+        /// </summary>
+        public static string InsertDataOperationNoModel([CanBeNull] object table)
+            => string.Format(
+                GetString("InsertDataOperationNoModel", nameof(table)),
+                table);
+
+        /// <summary>
+        ///     The number of column types ({typesCount}) doesn't match the number of columns ({columnsCount}) for the data insertion operation on '{table}'. Provide the same number of column types and columns.
+        /// </summary>
+        public static string InsertDataOperationTypesCountMismatch([CanBeNull] object typesCount, [CanBeNull] object columnsCount, [CanBeNull] object table)
+            => string.Format(
+                GetString("InsertDataOperationTypesCountMismatch", nameof(typesCount), nameof(columnsCount), nameof(table)),
+                typesCount, columnsCount, table);
+
+        /// <summary>
+        ///     The number of values ({valuesCount}) doesn't match the number of columns ({columnsCount}) for the data insertion operation on '{table}'. Provide the same number of values and columns.
+        /// </summary>
+        public static string InsertDataOperationValuesCountMismatch([CanBeNull] object valuesCount, [CanBeNull] object columnsCount, [CanBeNull] object table)
+            => string.Format(
+                GetString("InsertDataOperationValuesCountMismatch", nameof(valuesCount), nameof(columnsCount), nameof(table)),
+                valuesCount, columnsCount, table);
+
+        /// <summary>
+        ///     The operation for the column '{column}' targets the '{columnTable}' table, but is part of the create operation for table '{table}'. Make both operations use the same name.
+        /// </summary>
+        public static string MigrationColumnTableMismatch([CanBeNull] object column, [CanBeNull] object columnTable, [CanBeNull] object table)
+            => string.Format(
+                GetString("MigrationColumnTableMismatch", nameof(column), nameof(columnTable), nameof(table)),
+                column, columnTable, table);
+
+        /// <summary>
+        ///     The number of key column types ({typesCount}) doesn't match the number of key columns ({columnsCount}) for the data modification operation on '{table}'. Provide the same number of key column types and key columns.
+        /// </summary>
+        public static string UpdateDataOperationKeyTypesCountMismatch([CanBeNull] object typesCount, [CanBeNull] object columnsCount, [CanBeNull] object table)
+            => string.Format(
+                GetString("UpdateDataOperationKeyTypesCountMismatch", nameof(typesCount), nameof(columnsCount), nameof(table)),
+                typesCount, columnsCount, table);
+
+        /// <summary>
+        ///     The number of key values ({valuesCount}) doesn't match the number of key columns ({columnsCount}) for the data modification operation on '{table}'. Provide the same number of key values and key columns.
+        /// </summary>
+        public static string UpdateDataOperationKeyValuesCountMismatch([CanBeNull] object valuesCount, [CanBeNull] object columnsCount, [CanBeNull] object table)
+            => string.Format(
+                GetString("UpdateDataOperationKeyValuesCountMismatch", nameof(valuesCount), nameof(columnsCount), nameof(table)),
+                valuesCount, columnsCount, table);
+
+        /// <summary>
+        ///     The data modification operation on '{table}' is not associated with a model. Either add a model to the migration or specify the column types in all data operations.
+        /// </summary>
+        public static string UpdateDataOperationNoModel([CanBeNull] object table)
+            => string.Format(
+                GetString("UpdateDataOperationNoModel", nameof(table)),
+                table);
+
+        /// <summary>
+        ///     The number of value rows ({valuesCount}) doesn't match the number of key rows ({keyCount}) for the data modification operation on '{table}'. Provide the same number of value rows and key rows.
+        /// </summary>
+        public static string UpdateDataOperationRowCountMismatch([CanBeNull] object valuesCount, [CanBeNull] object keyCount, [CanBeNull] object table)
+            => string.Format(
+                GetString("UpdateDataOperationRowCountMismatch", nameof(valuesCount), nameof(keyCount), nameof(table)),
+                valuesCount, keyCount, table);
+
+        /// <summary>
+        ///     The number of column types ({typesCount}) doesn't match the number of columns ({columnsCount}) for the data modification operation on '{table}'. Provide the same number of column types and columns.
+        /// </summary>
+        public static string UpdateDataOperationTypesCountMismatch([CanBeNull] object typesCount, [CanBeNull] object columnsCount, [CanBeNull] object table)
+            => string.Format(
+                GetString("UpdateDataOperationTypesCountMismatch", nameof(typesCount), nameof(columnsCount), nameof(table)),
+                typesCount, columnsCount, table);
+
+        /// <summary>
+        ///     The number of values ({valuesCount}) doesn't match the number of columns ({columnsCount}) for the data modification operation on '{table}'. Provide the same number of values and columns.
+        /// </summary>
+        public static string UpdateDataOperationValuesCountMismatch([CanBeNull] object valuesCount, [CanBeNull] object columnsCount, [CanBeNull] object table)
+            => string.Format(
+                GetString("UpdateDataOperationValuesCountMismatch", nameof(valuesCount), nameof(columnsCount), nameof(table)),
+                valuesCount, columnsCount, table);
+
+        /// <summary>
+        ///     The store type '{type}' is not supported by the current provider.
+        /// </summary>
+        public static string UnsupportedStoreType([CanBeNull] object type)
+            => string.Format(
+                GetString("UnsupportedStoreType", nameof(type)),
+                type);
+
+        /// <summary>
+        ///     The entity type '{entityType}' is not mapped to a table, therefore the entities cannot be persisted to the database. Use ToTable to map it.
+        /// </summary>
+        public static string ReadonlyEntitySaved([CanBeNull] object entityType)
+            => string.Format(
+                GetString("ReadonlyEntitySaved", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     The store type '{type}' used for the column '{column}' in a migration data operation is not supported by the current provider.
+        /// </summary>
+        public static string UnsupportedDataOperationStoreType([CanBeNull] object type, [CanBeNull] object column)
+            => string.Format(
+                GetString("UnsupportedDataOperationStoreType", nameof(type), nameof(column)),
+                type, column);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

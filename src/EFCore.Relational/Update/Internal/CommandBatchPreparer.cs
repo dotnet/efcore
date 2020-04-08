@@ -178,39 +178,48 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     continue;
                 }
 
-                var entityType = entry.EntityType;
-                var table = entityType.GetTableMappings().Single().Table;
-                var tableKey = (table.Name, table.Schema);
-
-                ModificationCommand command;
-                var isMainEntry = true;
-                if (_sharedTableEntryMapFactories.TryGetValue(tableKey, out var commandIdentityMapFactory))
+                var mappingFound = false;
+                foreach (var mapping in entry.EntityType.GetTableMappings())
                 {
-                    if (sharedTablesCommandsMap == null)
+                    mappingFound = true;
+                    var table = mapping.Table;
+                    var tableKey = (table.Name, table.Schema);
+
+                    ModificationCommand command;
+                    var isMainEntry = true;
+                    if (_sharedTableEntryMapFactories.TryGetValue(tableKey, out var commandIdentityMapFactory))
                     {
-                        sharedTablesCommandsMap =
-                            new Dictionary<(string, string), SharedTableEntryMap<ModificationCommand>>();
+                        if (sharedTablesCommandsMap == null)
+                        {
+                            sharedTablesCommandsMap =
+                                new Dictionary<(string, string), SharedTableEntryMap<ModificationCommand>>();
+                        }
+
+                        if (!sharedTablesCommandsMap.TryGetValue(tableKey, out var sharedCommandsMap))
+                        {
+                            sharedCommandsMap = commandIdentityMapFactory(
+                                (n, s, c) => new ModificationCommand(
+                                    n, s, generateParameterName, _sensitiveLoggingEnabled, c));
+                            sharedTablesCommandsMap.Add(tableKey, sharedCommandsMap);
+                        }
+
+                        command = sharedCommandsMap.GetOrAddValue(entry);
+                        isMainEntry = sharedCommandsMap.IsMainEntry(entry);
+                    }
+                    else
+                    {
+                        command = new ModificationCommand(
+                            table.Name, table.Schema, generateParameterName, _sensitiveLoggingEnabled, comparer: null);
                     }
 
-                    if (!sharedTablesCommandsMap.TryGetValue(tableKey, out var sharedCommandsMap))
-                    {
-                        sharedCommandsMap = commandIdentityMapFactory(
-                            (n, s, c) => new ModificationCommand(
-                                n, s, generateParameterName, _sensitiveLoggingEnabled, c));
-                        sharedTablesCommandsMap.Add(tableKey, sharedCommandsMap);
-                    }
-
-                    command = sharedCommandsMap.GetOrAddValue(entry);
-                    isMainEntry = sharedCommandsMap.IsMainEntityType(entry.EntityType.GetRootType());
+                    command.AddEntry(entry, isMainEntry);
+                    commands.Add(command);
                 }
-                else
+
+                if (!mappingFound)
                 {
-                    command = new ModificationCommand(
-                        table.Name, table.Schema, generateParameterName, _sensitiveLoggingEnabled, comparer: null);
+                    throw new InvalidOperationException(RelationalStrings.ReadonlyEntitySaved(entry.EntityType.DisplayName()));
                 }
-
-                command.AddEntry(entry, isMainEntry);
-                commands.Add(command);
             }
 
             if (sharedTablesCommandsMap != null)
@@ -245,8 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                         entry.EntityState = EntityState.Modified;
 
-                        var isMainEntry = sharedCommandsMap.IsMainEntityType(entry.EntityType.GetRootType());
-                        command.AddEntry(entry, isMainEntry);
+                        command.AddEntry(entry, sharedCommandsMap.IsMainEntry(entry));
                         entries.Add(entry);
                     }
                 }

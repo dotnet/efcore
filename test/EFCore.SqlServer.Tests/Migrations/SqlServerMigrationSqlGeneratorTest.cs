@@ -3,12 +3,14 @@
 
 using System;
 using System.IO;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
@@ -51,6 +53,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             AssertSql(
                 @"ALTER TABLE [Person] ADD [Name] varchar(max) NULL;
+");
+        }
+
+        public override void AddColumnOperation_with_fixed_length_no_model()
+        {
+            base.AddColumnOperation_with_fixed_length_no_model();
+
+            AssertSql(
+                @"ALTER TABLE [Person] ADD [Name] char(100) NULL;
+");
+        }
+
+        public override void AddColumnOperation_with_maxLength_no_model()
+        {
+            base.AddColumnOperation_with_maxLength_no_model();
+
+            AssertSql(
+                @"ALTER TABLE [Person] ADD [Name] nvarchar(30) NULL;
 ");
         }
 
@@ -139,6 +159,15 @@ INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'LuckyNumber');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [People] ALTER COLUMN [LuckyNumber] int NOT NULL;
+");
+        }
+
+        public override void AddForeignKeyOperation_without_principal_columns()
+        {
+            base.AddForeignKeyOperation_without_principal_columns();
+
+            AssertSql(
+                @"ALTER TABLE [People] ADD FOREIGN KEY ([SpouseId]) REFERENCES [People];
 ");
         }
 
@@ -502,6 +531,15 @@ DROP DATABASE [Northwind];
 ");
         }
 
+        public override void RenameTableOperation()
+        {
+            base.RenameTableOperation();
+
+            AssertSql(
+                @"EXEC sp_rename N'[dbo].[People]', N'Person';
+");
+        }
+
         [ConditionalFact]
         public virtual void SqlOperation_handles_backslash()
         {
@@ -563,6 +601,292 @@ GO
 ");
         }
 
+        public override void SqlOperation()
+        {
+            base.SqlOperation();
+
+            AssertSql(
+                @"-- I <3 DDL
+");
+        }
+
+        public override void InsertDataOperation_all_args_spatial()
+        {
+            base.InsertDataOperation_all_args_spatial();
+
+            AssertSql(
+                @"IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Full Name', N'Geometry') AND [object_id] = OBJECT_ID(N'[dbo].[People]'))
+    SET IDENTITY_INSERT [dbo].[People] ON;
+INSERT INTO [dbo].[People] ([Id], [Full Name], [Geometry])
+VALUES (0, NULL, NULL),
+(1, 'Daenerys Targaryen', NULL),
+(2, 'John Snow', NULL),
+(3, 'Arya Stark', NULL),
+(4, 'Harry Strickland', NULL),
+(5, 'The Imp', NULL),
+(6, 'The Kingslayer', NULL),
+(7, 'Aemon Targaryen', geography::Parse('GEOMETRYCOLLECTION (LINESTRING (1.1 2.2 NULL, 2.2 2.2 NULL, 2.2 1.1 NULL, 7.1 7.2 NULL), LINESTRING (7.1 7.2 NULL, 20.2 20.2 NULL, 20.2 1.1 NULL, 70.1 70.2 NULL), MULTIPOINT ((1.1 2.2 NULL), (2.2 2.2 NULL), (2.2 1.1 NULL)), POLYGON ((1.1 2.2 NULL, 2.2 2.2 NULL, 2.2 1.1 NULL, 1.1 2.2 NULL)), POLYGON ((10.1 20.2 NULL, 20.2 20.2 NULL, 20.2 10.1 NULL, 10.1 20.2 NULL)), POINT (1.1 2.2 3.3), MULTILINESTRING ((1.1 2.2 NULL, 2.2 2.2 NULL, 2.2 1.1 NULL, 7.1 7.2 NULL), (7.1 7.2 NULL, 20.2 20.2 NULL, 20.2 1.1 NULL, 70.1 70.2 NULL)), MULTIPOLYGON (((10.1 20.2 NULL, 20.2 20.2 NULL, 20.2 10.1 NULL, 10.1 20.2 NULL)), ((1.1 2.2 NULL, 2.2 2.2 NULL, 2.2 1.1 NULL, 1.1 2.2 NULL))))'));
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Full Name', N'Geometry') AND [object_id] = OBJECT_ID(N'[dbo].[People]'))
+    SET IDENTITY_INSERT [dbo].[People] OFF;
+");
+        }
+
+        // The test data we're using is geographic but is represented in NTS as a GeometryCollection
+        protected override string GetGeometryCollectionStoreType()
+            => "geography";
+
+        public override void InsertDataOperation_required_args()
+        {
+            base.InsertDataOperation_required_args();
+
+            AssertSql(
+                @"IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'First Name') AND [object_id] = OBJECT_ID(N'[People]'))
+    SET IDENTITY_INSERT [People] ON;
+INSERT INTO [People] ([First Name])
+VALUES (N'John');
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'First Name') AND [object_id] = OBJECT_ID(N'[People]'))
+    SET IDENTITY_INSERT [People] OFF;
+");
+        }
+
+        public override void InsertDataOperation_required_args_composite()
+        {
+            base.InsertDataOperation_required_args_composite();
+
+            AssertSql(
+                @"IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'First Name', N'Last Name') AND [object_id] = OBJECT_ID(N'[People]'))
+    SET IDENTITY_INSERT [People] ON;
+INSERT INTO [People] ([First Name], [Last Name])
+VALUES (N'John', N'Snow');
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'First Name', N'Last Name') AND [object_id] = OBJECT_ID(N'[People]'))
+    SET IDENTITY_INSERT [People] OFF;
+");
+        }
+
+        public override void InsertDataOperation_required_args_multiple_rows()
+        {
+            base.InsertDataOperation_required_args_multiple_rows();
+
+            AssertSql(
+                @"IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'First Name') AND [object_id] = OBJECT_ID(N'[People]'))
+    SET IDENTITY_INSERT [People] ON;
+INSERT INTO [People] ([First Name])
+VALUES (N'John'),
+(N'Daenerys');
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'First Name') AND [object_id] = OBJECT_ID(N'[People]'))
+    SET IDENTITY_INSERT [People] OFF;
+");
+        }
+
+        public override void InsertDataOperation_throws_for_unsupported_column_types()
+        {
+            base.InsertDataOperation_throws_for_unsupported_column_types();
+        }
+
+        public override void DeleteDataOperation_all_args()
+        {
+            base.DeleteDataOperation_all_args();
+
+            AssertSql(
+                @"DELETE FROM [People]
+WHERE [First Name] = N'Hodor';
+SELECT @@ROWCOUNT;
+
+DELETE FROM [People]
+WHERE [First Name] = N'Daenerys';
+SELECT @@ROWCOUNT;
+
+DELETE FROM [People]
+WHERE [First Name] = N'John';
+SELECT @@ROWCOUNT;
+
+DELETE FROM [People]
+WHERE [First Name] = N'Arya';
+SELECT @@ROWCOUNT;
+
+DELETE FROM [People]
+WHERE [First Name] = N'Harry';
+SELECT @@ROWCOUNT;
+
+");
+        }
+
+        public override void DeleteDataOperation_all_args_composite()
+        {
+            base.DeleteDataOperation_all_args_composite();
+
+            AssertSql(
+                @"DELETE FROM [People]
+WHERE [First Name] = N'Hodor' AND [Last Name] IS NULL;
+SELECT @@ROWCOUNT;
+
+DELETE FROM [People]
+WHERE [First Name] = N'Daenerys' AND [Last Name] = N'Targaryen';
+SELECT @@ROWCOUNT;
+
+DELETE FROM [People]
+WHERE [First Name] = N'John' AND [Last Name] = N'Snow';
+SELECT @@ROWCOUNT;
+
+DELETE FROM [People]
+WHERE [First Name] = N'Arya' AND [Last Name] = N'Stark';
+SELECT @@ROWCOUNT;
+
+DELETE FROM [People]
+WHERE [First Name] = N'Harry' AND [Last Name] = N'Strickland';
+SELECT @@ROWCOUNT;
+
+");
+        }
+
+        public override void DeleteDataOperation_required_args()
+        {
+            base.DeleteDataOperation_required_args();
+
+            AssertSql(
+                @"DELETE FROM [People]
+WHERE [Last Name] = N'Snow';
+SELECT @@ROWCOUNT;
+
+");
+        }
+
+        public override void DeleteDataOperation_required_args_composite()
+        {
+            base.DeleteDataOperation_required_args_composite();
+
+            AssertSql(
+                @"DELETE FROM [People]
+WHERE [First Name] = N'John' AND [Last Name] = N'Snow';
+SELECT @@ROWCOUNT;
+
+");
+        }
+
+        public override void UpdateDataOperation_all_args()
+        {
+            base.UpdateDataOperation_all_args();
+
+            AssertSql(
+                @"UPDATE [People] SET [Birthplace] = N'Winterfell', [House Allegiance] = N'Stark', [Culture] = N'Northmen'
+WHERE [First Name] = N'Hodor';
+SELECT @@ROWCOUNT;
+
+UPDATE [People] SET [Birthplace] = N'Dragonstone', [House Allegiance] = N'Targaryen', [Culture] = N'Valyrian'
+WHERE [First Name] = N'Daenerys';
+SELECT @@ROWCOUNT;
+
+");
+        }
+
+        public override void UpdateDataOperation_all_args_composite()
+        {
+            base.UpdateDataOperation_all_args_composite();
+
+            AssertSql(
+                @"UPDATE [People] SET [House Allegiance] = N'Stark'
+WHERE [First Name] = N'Hodor' AND [Last Name] IS NULL;
+SELECT @@ROWCOUNT;
+
+UPDATE [People] SET [House Allegiance] = N'Targaryen'
+WHERE [First Name] = N'Daenerys' AND [Last Name] = N'Targaryen';
+SELECT @@ROWCOUNT;
+
+");
+        }
+
+        public override void UpdateDataOperation_all_args_composite_multi()
+        {
+            base.UpdateDataOperation_all_args_composite_multi();
+
+            AssertSql(
+                @"UPDATE [People] SET [Birthplace] = N'Winterfell', [House Allegiance] = N'Stark', [Culture] = N'Northmen'
+WHERE [First Name] = N'Hodor' AND [Last Name] IS NULL;
+SELECT @@ROWCOUNT;
+
+UPDATE [People] SET [Birthplace] = N'Dragonstone', [House Allegiance] = N'Targaryen', [Culture] = N'Valyrian'
+WHERE [First Name] = N'Daenerys' AND [Last Name] = N'Targaryen';
+SELECT @@ROWCOUNT;
+
+");
+        }
+
+        public override void UpdateDataOperation_all_args_multi()
+        {
+            base.UpdateDataOperation_all_args_multi();
+
+            AssertSql(
+                @"UPDATE [People] SET [Birthplace] = N'Dragonstone', [House Allegiance] = N'Targaryen', [Culture] = N'Valyrian'
+WHERE [First Name] = N'Daenerys';
+SELECT @@ROWCOUNT;
+
+");
+        }
+
+        public override void UpdateDataOperation_required_args()
+        {
+            base.UpdateDataOperation_required_args();
+
+            AssertSql(
+                @"UPDATE [People] SET [House Allegiance] = N'Targaryen'
+WHERE [First Name] = N'Daenerys';
+SELECT @@ROWCOUNT;
+
+");
+        }
+
+        public override void UpdateDataOperation_required_args_composite()
+        {
+            base.UpdateDataOperation_required_args_composite();
+
+            AssertSql(
+                @"UPDATE [People] SET [House Allegiance] = N'Targaryen'
+WHERE [First Name] = N'Daenerys' AND [Last Name] = N'Targaryen';
+SELECT @@ROWCOUNT;
+
+");
+        }
+
+        public override void UpdateDataOperation_required_args_composite_multi()
+        {
+            base.UpdateDataOperation_required_args_composite_multi();
+
+            AssertSql(
+                @"UPDATE [People] SET [Birthplace] = N'Dragonstone', [House Allegiance] = N'Targaryen', [Culture] = N'Valyrian'
+WHERE [First Name] = N'Daenerys' AND [Last Name] = N'Targaryen';
+SELECT @@ROWCOUNT;
+
+");
+        }
+
+        public override void UpdateDataOperation_required_args_multi()
+        {
+            base.UpdateDataOperation_required_args_multi();
+
+            AssertSql(
+                @"UPDATE [People] SET [Birthplace] = N'Dragonstone', [House Allegiance] = N'Targaryen', [Culture] = N'Valyrian'
+WHERE [First Name] = N'Daenerys';
+SELECT @@ROWCOUNT;
+
+");
+        }
+
+        public override void UpdateDataOperation_required_args_multiple_rows()
+        {
+            base.UpdateDataOperation_required_args_multiple_rows();
+
+            AssertSql(
+                @"UPDATE [People] SET [House Allegiance] = N'Stark'
+WHERE [First Name] = N'Hodor';
+SELECT @@ROWCOUNT;
+
+UPDATE [People] SET [House Allegiance] = N'Targaryen'
+WHERE [First Name] = N'Daenerys';
+SELECT @@ROWCOUNT;
+
+");
+        }
+
         public override void DefaultValue_with_line_breaks(bool isUnicode)
         {
             base.DefaultValue_with_line_breaks(isUnicode);
@@ -577,7 +901,12 @@ GO
         }
 
         public SqlServerMigrationSqlGeneratorTest()
-            : base(SqlServerTestHelpers.Instance)
+            : base(SqlServerTestHelpers.Instance,
+                  new ServiceCollection().AddEntityFrameworkSqlServerNetTopologySuite(),
+                  SqlServerTestHelpers.Instance.AddProviderOptions(
+                  ((IRelationalDbContextOptionsBuilderInfrastructure)
+                    new SqlServerDbContextOptionsBuilder(new DbContextOptionsBuilder()).UseNetTopologySuite())
+                  .OptionsBuilder).Options)
         {
         }
     }

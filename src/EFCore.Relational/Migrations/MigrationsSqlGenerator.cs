@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
@@ -82,12 +83,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(dependencies, nameof(dependencies));
 
             Dependencies = dependencies;
+
+            if (dependencies.LoggingOptions.IsSensitiveDataLoggingEnabled)
+            {
+                SensitiveLoggingEnabled = true;
+            }
         }
 
         /// <summary>
         ///     Parameter object containing dependencies for this service.
         /// </summary>
         protected virtual MigrationsSqlGeneratorDependencies Dependencies { get; }
+
+        private bool SensitiveLoggingEnabled { get; }
 
         /// <summary>
         ///     The <see cref="IUpdateSqlGenerator" />.
@@ -912,7 +920,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(builder, nameof(builder));
 
             var sqlBuilder = new StringBuilder();
-            foreach (var modificationCommand in operation.GenerateModificationCommands(model))
+            foreach (var modificationCommand in GenerateModificationCommands(operation, model))
             {
                 SqlGenerator.AppendInsertOperation(
                     sqlBuilder,
@@ -925,6 +933,55 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             if (terminate)
             {
                 EndStatement(builder);
+            }
+        }
+
+        /// <summary>
+        ///     Generates the commands that correspond to the given operation.
+        /// </summary>
+        /// <param name="operation"> The data operation to generate commands for. </param>
+        /// <param name="model"> The model. </param>
+        /// <returns> The commands that correspond to the given operation. </returns>
+        protected virtual IEnumerable<ModificationCommand> GenerateModificationCommands(
+            [NotNull] InsertDataOperation operation,
+            [CanBeNull] IModel model)
+        {
+            if (operation.Columns.Length != operation.Values.GetLength(1))
+            {
+                throw new InvalidOperationException(RelationalStrings.InsertDataOperationValuesCountMismatch(
+                    operation.Values.GetLength(1), operation.Columns.Length, FormatTable(operation.Table, operation.Schema)));
+            }
+
+            if (operation.ColumnTypes != null
+                && operation.Columns.Length != operation.ColumnTypes.Length)
+            {
+                throw new InvalidOperationException(RelationalStrings.InsertDataOperationTypesCountMismatch(
+                    operation.ColumnTypes.Length, operation.Columns.Length, FormatTable(operation.Table, operation.Schema)));
+            }
+
+            if (operation.ColumnTypes == null
+                && model == null)
+            {
+                throw new InvalidOperationException(RelationalStrings.InsertDataOperationNoModel(
+                    FormatTable(operation.Table, operation.Schema)));
+            }
+
+            var properties = operation.ColumnTypes == null
+                ? GetMappedProperties(operation.Columns, operation.Table, operation.Schema, model)
+                : null;
+
+            for (var i = 0; i < operation.Values.GetLength(0); i++)
+            {
+                var modifications = new ColumnModification[operation.Columns.Length];
+                for (var j = 0; j < operation.Columns.Length; j++)
+                {
+                    modifications[j] = new ColumnModification(
+                        operation.Columns[j], originalValue: null, value: operation.Values[i, j], property: properties?[j],
+                        columnType: operation.ColumnTypes?[j], isRead: false, isWrite: true, isKey: true, isCondition: false,
+                        sensitiveLoggingEnabled: SensitiveLoggingEnabled);
+                }
+
+                yield return new ModificationCommand(operation.Table, operation.Schema, modifications, sensitiveLoggingEnabled: SensitiveLoggingEnabled);
             }
         }
 
@@ -944,7 +1001,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(builder, nameof(builder));
 
             var sqlBuilder = new StringBuilder();
-            foreach (var modificationCommand in operation.GenerateModificationCommands(model))
+            foreach (var modificationCommand in GenerateModificationCommands(operation, model))
             {
                 SqlGenerator.AppendDeleteOperation(
                     sqlBuilder,
@@ -954,6 +1011,55 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             builder.Append(sqlBuilder.ToString());
             EndStatement(builder);
+        }
+
+        /// <summary>
+        ///     Generates the commands that correspond to the given operation.
+        /// </summary>
+        /// <param name="operation"> The data operation to generate commands for. </param>
+        /// <param name="model"> The model. </param>
+        /// <returns> The commands that correspond to the given operation. </returns>
+        protected virtual IEnumerable<ModificationCommand> GenerateModificationCommands(
+            [NotNull] DeleteDataOperation operation,
+            [CanBeNull] IModel model)
+        {
+            if (operation.KeyColumns.Length != operation.KeyValues.GetLength(1))
+            {
+                throw new InvalidOperationException(RelationalStrings.DeleteDataOperationValuesCountMismatch(
+                    operation.KeyValues.GetLength(1), operation.KeyColumns.Length, FormatTable(operation.Table, operation.Schema)));
+            }
+
+            if (operation.KeyColumnTypes != null
+                && operation.KeyColumns.Length != operation.KeyColumnTypes.Length)
+            {
+                throw new InvalidOperationException(RelationalStrings.DeleteDataOperationTypesCountMismatch(
+                    operation.KeyColumnTypes.Length, operation.KeyColumns.Length, FormatTable(operation.Table, operation.Schema)));
+            }
+
+            if (operation.KeyColumnTypes == null
+                && model == null)
+            {
+                throw new InvalidOperationException(RelationalStrings.DeleteDataOperationNoModel(
+                    FormatTable(operation.Table, operation.Schema)));
+            }
+
+            var properties = operation.KeyColumnTypes == null
+                ? GetMappedProperties(operation.KeyColumns, operation.Table, operation.Schema, model)
+                : null;
+
+            for (var i = 0; i < operation.KeyValues.GetLength(0); i++)
+            {
+                var modifications = new ColumnModification[operation.KeyColumns.Length];
+                for (var j = 0; j < operation.KeyColumns.Length; j++)
+                {
+                    modifications[j] = new ColumnModification(
+                        operation.KeyColumns[j], originalValue: null, value: operation.KeyValues[i, j], property: properties?[j],
+                        columnType: operation.KeyColumnTypes?[j], isRead: false, isWrite: true, isKey: true, isCondition: true,
+                        sensitiveLoggingEnabled: SensitiveLoggingEnabled);
+                }
+
+                yield return new ModificationCommand(operation.Table, operation.Schema, modifications, sensitiveLoggingEnabled: SensitiveLoggingEnabled);
+            }
         }
 
         /// <summary>
@@ -972,7 +1078,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(builder, nameof(builder));
 
             var sqlBuilder = new StringBuilder();
-            foreach (var modificationCommand in operation.GenerateModificationCommands(model))
+            foreach (var modificationCommand in GenerateModificationCommands(operation, model))
             {
                 SqlGenerator.AppendUpdateOperation(
                     sqlBuilder,
@@ -982,6 +1088,115 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             builder.Append(sqlBuilder.ToString());
             EndStatement(builder);
+        }
+
+        /// <summary>
+        ///     Generates the commands that correspond to the given operation.
+        /// </summary>
+        /// <param name="operation"> The data operation to generate commands for. </param>
+        /// <param name="model"> The model. </param>
+        /// <returns> The commands that correspond to the given operation. </returns>
+        protected virtual IEnumerable<ModificationCommand> GenerateModificationCommands(
+            [NotNull] UpdateDataOperation operation, [CanBeNull] IModel model)
+        {
+            if (operation.KeyColumns.Length != operation.KeyValues.GetLength(1))
+            {
+                throw new InvalidOperationException(RelationalStrings.UpdateDataOperationKeyValuesCountMismatch(
+                    operation.KeyValues.GetLength(1), operation.KeyColumns.Length, FormatTable(operation.Table, operation.Schema)));
+            }
+
+            if (operation.Columns.Length != operation.Values.GetLength(1))
+            {
+                throw new InvalidOperationException(RelationalStrings.UpdateDataOperationValuesCountMismatch(
+                    operation.Values.GetLength(1), operation.Columns.Length, FormatTable(operation.Table, operation.Schema)));
+            }
+
+            if (operation.KeyValues.GetLength(0) != operation.Values.GetLength(0))
+            {
+                throw new InvalidOperationException(RelationalStrings.UpdateDataOperationRowCountMismatch(
+                    operation.Values.GetLength(0), operation.KeyValues.GetLength(0), FormatTable(operation.Table, operation.Schema)));
+            }
+
+            if (operation.KeyColumnTypes != null
+                && operation.KeyColumns.Length != operation.KeyColumnTypes.Length)
+            {
+                throw new InvalidOperationException(RelationalStrings.UpdateDataOperationKeyTypesCountMismatch(
+                    operation.KeyColumnTypes.Length, operation.KeyColumns.Length, FormatTable(operation.Table, operation.Schema)));
+            }
+
+            if (operation.ColumnTypes != null
+                && operation.Columns.Length != operation.ColumnTypes.Length)
+            {
+                throw new InvalidOperationException(RelationalStrings.UpdateDataOperationTypesCountMismatch(
+                    operation.ColumnTypes.Length, operation.Columns.Length, FormatTable(operation.Table, operation.Schema)));
+            }
+
+            if (operation.KeyColumnTypes == null
+                && model == null)
+            {
+                throw new InvalidOperationException(RelationalStrings.UpdateDataOperationNoModel(
+                    FormatTable(operation.Table, operation.Schema)));
+            }
+
+            var keyProperties = operation.KeyColumnTypes == null
+                ? GetMappedProperties(operation.KeyColumns, operation.Table, operation.Schema, model)
+                : null;
+            var properties = operation.ColumnTypes == null
+                ? GetMappedProperties(operation.Columns, operation.Table, operation.Schema, model)
+                : null;
+
+            for (var i = 0; i < operation.KeyValues.GetLength(0); i++)
+            {
+                var keys = new ColumnModification[operation.KeyColumns.Length];
+                for (var j = 0; j < operation.KeyColumns.Length; j++)
+                {
+                    keys[j] = new ColumnModification(
+                        operation.KeyColumns[j], originalValue: null, value: operation.KeyValues[i, j], property: keyProperties?[j],
+                        columnType: operation.KeyColumnTypes?[j], isRead: false, isWrite: false, isKey: true, isCondition: true,
+                        sensitiveLoggingEnabled: SensitiveLoggingEnabled);
+                }
+
+                var modifications = new ColumnModification[operation.Columns.Length];
+                for (var j = 0; j < operation.Columns.Length; j++)
+                {
+                    modifications[j] = new ColumnModification(
+                        operation.Columns[j], originalValue: null, value: operation.Values[i, j], property: properties?[j],
+                        columnType: operation.ColumnTypes?[j], isRead: false, isWrite: true, isKey: true, isCondition: false,
+                        sensitiveLoggingEnabled: SensitiveLoggingEnabled);
+                }
+
+                yield return new ModificationCommand(operation.Table, operation.Schema, keys.Concat(modifications).ToArray(), sensitiveLoggingEnabled: SensitiveLoggingEnabled);
+            }
+        }
+
+        private static string FormatTable(string table, string schema)
+            => schema == null ? table : schema + "." + table;
+
+        private static IProperty[] GetMappedProperties(
+            [NotNull] string[] names, [NotNull] string tableName, [CanBeNull] string schema, [NotNull] IModel model)
+        {
+            var table = model.GetRelationalModel().FindTable(tableName, schema);
+            if (table == null)
+            {
+                throw new InvalidOperationException(RelationalStrings.DataOperationNoTable(
+                    FormatTable(tableName, schema)));
+            }
+
+            var properties = new IProperty[names.Length];
+            for (var i = 0; i < names.Length; i++)
+            {
+                var name = names[i];
+                var column = table.FindColumn(name);
+                if (column == null)
+                {
+                    throw new InvalidOperationException(RelationalStrings.DataOperationNoProperty(
+                        FormatTable(tableName, schema), name));
+                }
+
+                properties[i] = column.PropertyMappings.First().Property;
+            }
+
+            return properties;
         }
 
         /// <summary>
@@ -1086,6 +1301,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             for (var i = 0; i < operation.Columns.Count; i++)
             {
                 var column = operation.Columns[i];
+                if (column.Table != operation.Name
+                    || column.Schema != operation.Schema)
+                {
+                    throw new InvalidOperationException(RelationalStrings.MigrationColumnTableMismatch(
+                        column.Name, FormatTable(column.Table, column.Schema), FormatTable(operation.Name, operation.Schema)));
+                }
+
                 ColumnDefinition(column, model, builder);
 
                 if (i != operation.Columns.Count - 1)

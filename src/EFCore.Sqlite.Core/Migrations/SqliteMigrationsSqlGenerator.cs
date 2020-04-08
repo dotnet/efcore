@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected override void Generate(RenameIndexOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
-            var index = model.GetRelationalModel().FindTable(operation.Table, operation.Schema)
+            var index = model?.GetRelationalModel().FindTable(operation.Table, operation.Schema)
                 ?.Indexes.FirstOrDefault(i => i.Name == operation.NewName);
             if (index == null)
             {

@@ -59,6 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 originalValue: null,
                 value: null,
                 property: property,
+                null,
                 isRead: isRead,
                 isWrite: isWrite,
                 isKey: isKey,
@@ -82,6 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="originalValue"> The original value of the property mapped to this column. </param>
         /// <param name="value"> Gets or sets the current value of the property mapped to this column. </param>
         /// <param name="property"> The property that maps to the column. </param>
+        /// <param name="columnType"> The database type of the column. </param>
         /// <param name="isRead"> Indicates whether or not a value must be read from the database for the column. </param>
         /// <param name="isWrite"> Indicates whether or not a value must be written to the database for the column. </param>
         /// <param name="isKey"> Indicates whether or not the column part of a primary or alternate key.</param>
@@ -92,6 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             [CanBeNull] object originalValue,
             [CanBeNull] object value,
             [CanBeNull] IProperty property,
+            [CanBeNull] string columnType,
             bool isRead,
             bool isWrite,
             bool isKey,
@@ -104,6 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             _originalValue = originalValue;
             _value = value;
             Property = property;
+            ColumnType = columnType;
             IsRead = isRead;
             IsWrite = isWrite;
             IsKey = isKey;
@@ -172,6 +176,11 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     The name of the column.
         /// </summary>
         public virtual string ColumnName { get; }
+
+        /// <summary>
+        ///     The database type of the column.
+        /// </summary>
+        public virtual string ColumnType { get; }
 
         /// <summary>
         ///     The original value of the property mapped to this column.
