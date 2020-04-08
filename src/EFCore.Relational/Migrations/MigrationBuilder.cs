@@ -730,7 +730,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var columnsBuilder = new ColumnsBuilder(createTableOperation);
             var columnsObject = columns(columnsBuilder);
-            var columnMap = new Dictionary<PropertyInfo, AddColumnOperation>();
+            var columnMap = new Dictionary<MemberInfo, AddColumnOperation>();
             foreach (var property in typeof(TColumns).GetTypeInfo().DeclaredProperties)
             {
                 var addColumnOperation = ((IInfrastructure<AddColumnOperation>)property.GetMethod.Invoke(columnsObject, null)).Instance;

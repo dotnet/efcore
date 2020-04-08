@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual KeyBuilder<TEntity> HasKey([NotNull] Expression<Func<TEntity, object>> keyExpression)
             => new KeyBuilder<TEntity>(
                 Builder.PrimaryKey(
-                    Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(),
+                    Check.NotNull(keyExpression, nameof(keyExpression)).GetMemberAccessList(),
                     ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual KeyBuilder<TEntity> HasAlternateKey([NotNull] Expression<Func<TEntity, object>> keyExpression)
             => new KeyBuilder<TEntity>(
                 Builder.HasKey(
-                    Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(),
+                    Check.NotNull(keyExpression, nameof(keyExpression)).GetMemberAccessList(),
                     ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual PropertyBuilder<TProperty> Property<TProperty>([NotNull] Expression<Func<TEntity, TProperty>> propertyExpression)
             => new PropertyBuilder<TProperty>(
                 Builder.Property(
-                        Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess(), ConfigurationSource.Explicit)
+                        Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(), ConfigurationSource.Explicit)
                     .Metadata);
 
         /// <summary>
@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual NavigationBuilder Navigation<TNavigation>([NotNull] Expression<Func<TEntity, TNavigation>> navigationExpression)
             => new NavigationBuilder(
                 Builder.Navigation(
-                        Check.NotNull(navigationExpression, nameof(navigationExpression)).GetPropertyAccess()));
+                        Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
 
         /// <summary>
         ///     Excludes the given property from the entity type. This method is typically used to remove properties
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         public virtual EntityTypeBuilder<TEntity> Ignore([NotNull] Expression<Func<TEntity, object>> propertyExpression)
             => (EntityTypeBuilder<TEntity>)base.Ignore(
-                Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess().GetSimpleMemberName());
+                Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess().GetSimpleMemberName());
 
         /// <summary>
         ///     Excludes the given property from the entity type. This method is typically used to remove properties
@@ -233,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual IndexBuilder<TEntity> HasIndex([NotNull] Expression<Func<TEntity, object>> indexExpression)
             => new IndexBuilder<TEntity>(
                 Builder.HasIndex(
-                    Check.NotNull(indexExpression, nameof(indexExpression)).GetPropertyAccessList(),
+                    Check.NotNull(indexExpression, nameof(indexExpression)).GetMemberAccessList(),
                     ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
@@ -302,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] Expression<Func<TEntity, TRelatedEntity>> navigationExpression)
             where TRelatedEntity : class
             => OwnsOneBuilder<TRelatedEntity>(
-                new MemberIdentity(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetPropertyAccess()));
+                new MemberIdentity(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
 
         /// <summary>
         ///     <para>
@@ -371,7 +371,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(navigationExpression, nameof(navigationExpression));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction.Invoke(OwnsOneBuilder<TRelatedEntity>(new MemberIdentity(navigationExpression.GetPropertyAccess())));
+            buildAction.Invoke(OwnsOneBuilder<TRelatedEntity>(new MemberIdentity(navigationExpression.GetMemberAccess())));
             return this;
         }
 
@@ -383,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             {
                 relationship = navigation.MemberInfo == null
                     ? Builder.HasOwnership(typeof(TRelatedEntity), navigation.Name, ConfigurationSource.Explicit)
-                    : Builder.HasOwnership(typeof(TRelatedEntity), (PropertyInfo)navigation.MemberInfo, ConfigurationSource.Explicit);
+                    : Builder.HasOwnership(typeof(TRelatedEntity), navigation.MemberInfo, ConfigurationSource.Explicit);
                 relationship.IsUnique(true, ConfigurationSource.Explicit);
                 relationship = (InternalForeignKeyBuilder)batch.Run(relationship.Metadata).Builder;
             }
@@ -448,7 +448,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression)
             where TRelatedEntity : class
             => OwnsManyBuilder<TRelatedEntity>(
-                new MemberIdentity(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetPropertyAccess()));
+                new MemberIdentity(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
 
         /// <summary>
         ///     <para>
@@ -517,7 +517,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(navigationExpression, nameof(navigationExpression));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction.Invoke(OwnsManyBuilder<TRelatedEntity>(new MemberIdentity(navigationExpression.GetPropertyAccess())));
+            buildAction.Invoke(OwnsManyBuilder<TRelatedEntity>(new MemberIdentity(navigationExpression.GetMemberAccess())));
             return this;
         }
 
@@ -613,7 +613,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [CanBeNull] Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null)
             where TRelatedEntity : class
         {
-            var navigationMember = navigationExpression?.GetPropertyAccess();
+            var navigationMember = navigationExpression?.GetMemberAccess();
             var relatedEntityType = FindRelatedEntityType(typeof(TRelatedEntity), navigationMember?.GetSimpleMemberName());
             var foreignKey = HasOneBuilder(
                 MemberIdentity.Create(navigationMember), relatedEntityType);
@@ -704,7 +704,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [CanBeNull] Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression = null)
             where TRelatedEntity : class
         {
-            var navigationMember = navigationExpression?.GetPropertyAccess();
+            var navigationMember = navigationExpression?.GetMemberAccess();
             var relatedEntityType = FindRelatedEntityType(typeof(TRelatedEntity), navigationMember?.GetSimpleMemberName());
             var skipNavigation = navigationMember != null ? Builder.Metadata.FindSkipNavigation(navigationMember) : null;
 
@@ -812,7 +812,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(propertyExpression, nameof(propertyExpression));
 
             return new DiscriminatorBuilder<TDiscriminator>(
-                Builder.HasDiscriminator(propertyExpression.GetPropertyAccess(), ConfigurationSource.Explicit));
+                Builder.HasDiscriminator(propertyExpression.GetMemberAccess(), ConfigurationSource.Explicit));
         }
 
         /// <summary>

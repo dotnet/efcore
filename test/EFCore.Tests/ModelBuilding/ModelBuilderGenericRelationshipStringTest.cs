@@ -82,40 +82,40 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression)
                 => new GenericStringTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(
-                    EntityTypeBuilder.OwnsOne<TRelatedEntity>(navigationExpression?.GetPropertyAccess()?.GetSimpleMemberName()));
+                    EntityTypeBuilder.OwnsOne<TRelatedEntity>(navigationExpression?.GetMemberAccess()?.GetSimpleMemberName()));
 
             public override TestEntityTypeBuilder<TEntity> OwnsOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression,
                 Action<TestOwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
                 => Wrap(
                     EntityTypeBuilder.OwnsOne<TRelatedEntity>(
-                        navigationExpression?.GetPropertyAccess()?.GetSimpleMemberName(),
+                        navigationExpression?.GetMemberAccess()?.GetSimpleMemberName(),
                         r => buildAction(new GenericStringTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(r))));
 
             public override TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsMany<TRelatedEntity>(
                 Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression)
                 => new GenericStringTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(
-                    EntityTypeBuilder.OwnsMany<TRelatedEntity>(navigationExpression?.GetPropertyAccess()?.GetSimpleMemberName()));
+                    EntityTypeBuilder.OwnsMany<TRelatedEntity>(navigationExpression?.GetMemberAccess()?.GetSimpleMemberName()));
 
             public override TestEntityTypeBuilder<TEntity> OwnsMany<TRelatedEntity>(
                 Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression,
                 Action<TestOwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
                 => Wrap(
                     EntityTypeBuilder.OwnsMany<TRelatedEntity>(
-                        navigationExpression?.GetPropertyAccess()?.GetSimpleMemberName(),
+                        navigationExpression?.GetMemberAccess()?.GetSimpleMemberName(),
                         r => buildAction(new GenericStringTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(r))));
 
             public override TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null)
                 => new GenericStringTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(
                     EntityTypeBuilder.HasOne<TRelatedEntity>(
-                        navigationExpression?.GetPropertyAccess()?.GetSimpleMemberName()));
+                        navigationExpression?.GetMemberAccess()?.GetSimpleMemberName()));
 
             public override TestCollectionNavigationBuilder<TEntity, TRelatedEntity> HasMany<TRelatedEntity>(
                 Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression = null)
                 => new GenericStringTestCollectionNavigationBuilder<TEntity, TRelatedEntity>(
                     EntityTypeBuilder.HasMany<TRelatedEntity>(
-                        navigationExpression?.GetPropertyAccess()?.GetSimpleMemberName()));
+                        navigationExpression?.GetMemberAccess()?.GetSimpleMemberName()));
         }
 
         private class GenericStringTestReferenceNavigationBuilder<TEntity, TRelatedEntity> :
@@ -133,13 +133,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> navigationExpression = null)
                 => new GenericStringTestReferenceCollectionBuilder<TRelatedEntity, TEntity>(
                     ReferenceNavigationBuilder.WithMany(
-                        navigationExpression?.GetPropertyAccess().GetSimpleMemberName()));
+                        navigationExpression?.GetMemberAccess().GetSimpleMemberName()));
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne(
                 Expression<Func<TRelatedEntity, TEntity>> navigationExpression = null)
                 => new GenericStringTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(
                     ReferenceNavigationBuilder.WithOne(
-                        navigationExpression?.GetPropertyAccess().GetSimpleMemberName()));
+                        navigationExpression?.GetMemberAccess().GetSimpleMemberName()));
         }
 
         private class GenericStringTestCollectionNavigationBuilder<TEntity, TRelatedEntity>
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Expression<Func<TRelatedEntity, TEntity>> navigationExpression = null)
                 => new GenericStringTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(
                     CollectionNavigationBuilder.WithOne(
-                        navigationExpression?.GetPropertyAccess().GetSimpleMemberName()));
+                        navigationExpression?.GetMemberAccess().GetSimpleMemberName()));
         }
 
         private class GenericStringTestReferenceCollectionBuilder<TEntity, TRelatedEntity>
@@ -179,13 +179,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Expression<Func<TRelatedEntity, object>> foreignKeyExpression)
                 => Wrap(
                     ReferenceCollectionBuilder.HasForeignKey(
-                        foreignKeyExpression.GetPropertyAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
+                        foreignKeyExpression.GetMemberAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
 
             public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> HasPrincipalKey(
                 Expression<Func<TEntity, object>> keyExpression)
                 => Wrap(
                     ReferenceCollectionBuilder.HasPrincipalKey(
-                        keyExpression.GetPropertyAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
+                        keyExpression.GetMemberAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
         }
 
         private class GenericStringTestReferenceReferenceBuilder<TEntity, TRelatedEntity>
@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => Wrap(
                     ReferenceReferenceBuilder.HasForeignKey(
                         typeof(TDependentEntity).FullName,
-                        foreignKeyExpression.GetPropertyAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
+                        foreignKeyExpression.GetMemberAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
                 params string[] foreignKeyPropertyNames)
@@ -220,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => Wrap(
                     ReferenceReferenceBuilder.HasPrincipalKey(
                         typeof(TPrincipalEntity).FullName,
-                        keyExpression.GetPropertyAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
+                        keyExpression.GetMemberAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(
                 params string[] keyPropertyNames)
@@ -246,38 +246,38 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestOwnershipBuilder<TEntity, TDependentEntity> WithOwner(
                 Expression<Func<TDependentEntity, TEntity>> referenceExpression)
                 => new GenericTestOwnershipBuilder<TEntity, TDependentEntity>(
-                    OwnedNavigationBuilder.WithOwner(referenceExpression?.GetPropertyAccess().GetSimpleMemberName()));
+                    OwnedNavigationBuilder.WithOwner(referenceExpression?.GetMemberAccess().GetSimpleMemberName()));
 
             public override TestOwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsOne<TNewDependentEntity>(
                 Expression<Func<TDependentEntity, TNewDependentEntity>> navigationExpression)
                 => Wrap(
-                    OwnedNavigationBuilder.OwnsOne<TNewDependentEntity>(navigationExpression?.GetPropertyAccess().GetSimpleMemberName()));
+                    OwnedNavigationBuilder.OwnsOne<TNewDependentEntity>(navigationExpression?.GetMemberAccess().GetSimpleMemberName()));
 
             public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> OwnsOne<TNewDependentEntity>(
                 Expression<Func<TDependentEntity, TNewDependentEntity>> navigationExpression,
                 Action<TestOwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
                 => Wrap(
                     OwnedNavigationBuilder.OwnsOne<TNewDependentEntity>(
-                        navigationExpression?.GetPropertyAccess().GetSimpleMemberName(),
+                        navigationExpression?.GetMemberAccess().GetSimpleMemberName(),
                         r => buildAction(Wrap(r))));
 
             public override TestOwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsMany<TNewDependentEntity>(
                 Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>>> navigationExpression)
                 => Wrap(
-                    OwnedNavigationBuilder.OwnsMany<TNewDependentEntity>(navigationExpression?.GetPropertyAccess().GetSimpleMemberName()));
+                    OwnedNavigationBuilder.OwnsMany<TNewDependentEntity>(navigationExpression?.GetMemberAccess().GetSimpleMemberName()));
 
             public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> OwnsMany<TNewDependentEntity>(
                 Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>>> navigationExpression,
                 Action<TestOwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
                 => Wrap(
                     OwnedNavigationBuilder.OwnsMany<TNewDependentEntity>(
-                        navigationExpression?.GetPropertyAccess().GetSimpleMemberName(),
+                        navigationExpression?.GetMemberAccess().GetSimpleMemberName(),
                         r => buildAction(Wrap(r))));
 
             public override TestReferenceNavigationBuilder<TDependentEntity, TNewRelatedEntity> HasOne<TNewRelatedEntity>(
                 Expression<Func<TDependentEntity, TNewRelatedEntity>> navigationExpression = null)
                 => new GenericStringTestReferenceNavigationBuilder<TDependentEntity, TNewRelatedEntity>(
-                    OwnedNavigationBuilder.HasOne<TNewRelatedEntity>(navigationExpression?.GetPropertyAccess().GetSimpleMemberName()));
+                    OwnedNavigationBuilder.HasOne<TNewRelatedEntity>(navigationExpression?.GetMemberAccess().GetSimpleMemberName()));
         }
     }
 }

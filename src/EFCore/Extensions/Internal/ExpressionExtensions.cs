@@ -19,7 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [DebuggerStepThrough]
     public static class ExpressionExtensions
     {
         /// <summary>
@@ -38,28 +37,30 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IReadOnlyList<PropertyInfo> MatchPropertyAccessList(
-            [NotNull] this LambdaExpression lambdaExpression, [NotNull] Func<Expression, Expression, PropertyInfo> propertyMatcher)
+        public static IReadOnlyList<TMemberInfo> MatchMemberAccessList<TMemberInfo>(
+            [NotNull] this LambdaExpression lambdaExpression, [NotNull] Func<Expression, Expression, TMemberInfo> memberMatcher)
+            where TMemberInfo : MemberInfo
         {
             Check.DebugAssert(lambdaExpression.Body != null, "lambdaExpression.Body is null");
+            Check.DebugAssert(lambdaExpression.Parameters.Count == 1, "lambdaExpression.Parameters.Count is " + lambdaExpression.Parameters.Count + ". Should be 1.");
 
-            var parameterExpression = lambdaExpression.Parameters.Single();
+            var parameterExpression = lambdaExpression.Parameters[0];
 
             if (RemoveConvert(lambdaExpression.Body) is NewExpression newExpression)
             {
-                var propertyInfos
+                var memberInfos
                     = newExpression
                         .Arguments
-                        .Select(a => propertyMatcher(a, parameterExpression))
+                        .Select(a => memberMatcher(a, parameterExpression))
                         .Where(p => p != null)
                         .ToList();
 
-                return propertyInfos.Count != newExpression.Arguments.Count ? null : propertyInfos;
+                return memberInfos.Count != newExpression.Arguments.Count ? null : memberInfos;
             }
 
-            var propertyPath = propertyMatcher(lambdaExpression.Body, parameterExpression);
+            var memberPath = memberMatcher(lambdaExpression.Body, parameterExpression);
 
-            return propertyPath != null ? new[] { propertyPath } : null;
+            return memberPath != null ? new[] { memberPath } : null;
         }
 
         /// <summary>
@@ -68,37 +69,39 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static PropertyInfo MatchSimplePropertyAccess(
-            [NotNull] this Expression parameterExpression, [NotNull] Expression propertyAccessExpression)
+        public static TMemberInfo MatchSimpleMemberAccess<TMemberInfo>(
+            [NotNull] this Expression parameterExpression, [NotNull] Expression memberAccessExpression)
+            where TMemberInfo : MemberInfo
         {
-            var propertyInfos = MatchPropertyAccess(parameterExpression, propertyAccessExpression);
+            var memberInfos = MatchMemberAccess<TMemberInfo>(parameterExpression, memberAccessExpression);
 
-            return propertyInfos?.Count == 1 ? propertyInfos[0] : null;
+            return memberInfos?.Count == 1 ? memberInfos[0] as TMemberInfo : null;
         }
 
-        private static IReadOnlyList<PropertyInfo> MatchPropertyAccess(
-            this Expression parameterExpression, Expression propertyAccessExpression)
+        private static IReadOnlyList<TMemberInfo> MatchMemberAccess<TMemberInfo>(
+            this Expression parameterExpression, Expression memberAccessExpression)
+            where TMemberInfo : MemberInfo
         {
-            var propertyInfos = new List<PropertyInfo>();
+            var memberInfos = new List<TMemberInfo>();
 
             MemberExpression memberExpression;
 
             do
             {
-                memberExpression = RemoveTypeAs(RemoveConvert(propertyAccessExpression)) as MemberExpression;
+                memberExpression = RemoveTypeAs(RemoveConvert(memberAccessExpression)) as MemberExpression;
 
-                if (!(memberExpression?.Member is PropertyInfo propertyInfo))
+                if (!(memberExpression?.Member is TMemberInfo memberInfo))
                 {
                     return null;
                 }
 
-                propertyInfos.Insert(0, propertyInfo);
+                memberInfos.Insert(0, memberInfo);
 
-                propertyAccessExpression = memberExpression.Expression;
+                memberAccessExpression = memberExpression.Expression;
             }
             while (RemoveTypeAs(RemoveConvert(memberExpression.Expression)) != parameterExpression);
 
-            return propertyInfos;
+            return memberInfos;
         }
 
         /// <summary>

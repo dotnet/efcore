@@ -209,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(propertyExpression, nameof(propertyExpression));
 
-            entityTypeBuilder.Metadata.SetPartitionKeyPropertyName(propertyExpression.GetPropertyAccess().GetSimpleMemberName());
+            entityTypeBuilder.Metadata.SetPartitionKeyPropertyName(propertyExpression.GetMemberAccess().GetSimpleMemberName());
 
             return entityTypeBuilder;
         }
