@@ -57,6 +57,67 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            public virtual void Finds_existing_navigations_and_uses_associated_FK_with_fields()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<OneToOnePrincipalWithField>(e =>
+                {
+                    e.Property(p => p.Id);
+                    e.Property(p => p.Name);
+                    e.HasKey(p => p.Id);
+                });
+                modelBuilder.Entity<DependentWithField>(e =>
+                {
+                    e.Property(d => d.DependentWithFieldId);
+                    e.Property(d => d.OneToOnePrincipalId);
+                    e.Ignore(d => d.ManyToManyPrincipals);
+                    e.Ignore(d => d.OneToManyPrincipal);
+                    e.HasKey(d => d.DependentWithFieldId);
+                });
+
+                modelBuilder.Entity<DependentWithField>()
+                    .HasOne(d => d.OneToOnePrincipal)
+                    .WithOne(p => p.Dependent)
+                    .HasForeignKey<DependentWithField>(d => d.DependentWithFieldId);
+
+                var dependentType = model.FindEntityType(typeof(DependentWithField));
+                var principalType = model.FindEntityType(typeof(OneToOnePrincipalWithField));
+                var fk = dependentType.GetForeignKeys().Single();
+
+                var navToPrincipal = dependentType.FindNavigation("OneToOnePrincipal");
+                var navToDependent = principalType.FindNavigation("Dependent");
+
+                var principalKey = principalType.GetKeys().Single();
+                var dependentKey = dependentType.GetKeys().Single();
+
+                modelBuilder.Entity<DependentWithField>()
+                    .HasOne(d => d.OneToOnePrincipal)
+                    .WithOne(p => p.Dependent);
+
+                modelBuilder.FinalizeModel();
+
+                Assert.Single(dependentType.GetForeignKeys());
+                Assert.Same(navToPrincipal, dependentType.GetNavigations().Single());
+                Assert.Same(navToDependent, principalType.GetNavigations().Single());
+                Assert.Same(fk.PrincipalKey, principalType.GetNavigations().Single().ForeignKey.PrincipalKey);
+                AssertEqual(
+                    new[] { principalKey.Properties.Single().Name, "Name" },
+                    principalType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { dependentKey.Properties.Single().Name, "OneToOnePrincipalId" },
+                    dependentType.GetProperties().Select(p => p.Name));
+                Assert.Empty(principalType.GetForeignKeys());
+                Assert.Same(principalKey, principalType.GetKeys().Single());
+                Assert.Same(dependentKey, dependentType.GetKeys().Single());
+                Assert.Same(principalKey, principalType.FindPrimaryKey());
+                Assert.Same(dependentKey, dependentType.FindPrimaryKey());
+                Assert.Empty(dependentType.GetIndexes());
+                Assert.Empty(principalType.GetIndexes());
+            }
+
+            [ConditionalFact]
             public virtual void Can_create_two_FKs_using_the_same_property()
             {
                 var modelBuilder = CreateModelBuilder();

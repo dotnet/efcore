@@ -85,19 +85,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type);
 
         /// <summary>
-        ///     The properties expression '{expression}' is not valid. The expression should represent a simple property access: 't =&gt; t.MyProperty'. When specifying multiple properties use an anonymous type: 't =&gt; new {{ t.MyProperty1, t.MyProperty2 }}'.
+        ///     The expression '{expression}' is not a valid members access expression. The expression should represent a simple property or field access: 't =&gt; t.MyProperty'. When specifying multiple properties or fields use an anonymous type: 't =&gt; new {{ t.MyProperty, t.MyField }}'.
         /// </summary>
-        public static string InvalidPropertiesExpression([CanBeNull] object expression)
+        public static string InvalidMembersExpression([CanBeNull] object expression)
             => string.Format(
-                GetString("InvalidPropertiesExpression", nameof(expression)),
+                GetString("InvalidMembersExpression", nameof(expression)),
                 expression);
 
         /// <summary>
-        ///     The expression '{expression}' is not a valid property expression. The expression should represent a simple property access: 't =&gt; t.MyProperty'.
+        ///     The expression '{expression}' is not a valid member access expression. The expression should represent a simple property or field access: 't =&gt; t.MyProperty'.
         /// </summary>
-        public static string InvalidPropertyExpression([CanBeNull] object expression)
+        public static string InvalidMemberExpression([CanBeNull] object expression)
             => string.Format(
-                GetString("InvalidPropertyExpression", nameof(expression)),
+                GetString("InvalidMemberExpression", nameof(expression)),
                 expression);
 
         /// <summary>
