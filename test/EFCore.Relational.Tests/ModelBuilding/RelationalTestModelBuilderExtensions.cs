@@ -231,27 +231,51 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             return builder;
         }
 
-        public static ModelBuilderTest.TestIndexBuilder HasFilter(
-            this ModelBuilderTest.TestIndexBuilder builder, string filterExpression)
+        public static ModelBuilderTest.TestIndexBuilder<TEntity> HasFilter<TEntity>(
+            this ModelBuilderTest.TestIndexBuilder<TEntity> builder, string filterExpression)
         {
-            var indexBuilder = builder.GetInfrastructure();
-            indexBuilder.HasFilter(filterExpression);
+            switch (builder)
+            {
+                case IInfrastructure<IndexBuilder<TEntity>> genericBuilder:
+                    genericBuilder.Instance.HasFilter(filterExpression);
+                    break;
+                case IInfrastructure<IndexBuilder> nongenericBuilder:
+                    nongenericBuilder.Instance.HasFilter(filterExpression);
+                    break;
+            }
+
             return builder;
         }
 
-        public static ModelBuilderTest.TestIndexBuilder HasName(
-            this ModelBuilderTest.TestIndexBuilder builder, string name)
+        public static ModelBuilderTest.TestIndexBuilder<TEntity> HasName<TEntity>(
+            this ModelBuilderTest.TestIndexBuilder<TEntity> builder, string name)
         {
-            var indexBuilder = builder.GetInfrastructure();
-            indexBuilder.HasName(name);
+            switch (builder)
+            {
+                case IInfrastructure<KeyBuilder<TEntity>> genericBuilder:
+                    genericBuilder.Instance.HasName(name);
+                    break;
+                case IInfrastructure<KeyBuilder> nongenericBuilder:
+                    nongenericBuilder.Instance.HasName(name);
+                    break;
+            }
+
             return builder;
         }
 
-        public static ModelBuilderTest.TestKeyBuilder HasName(
-            this ModelBuilderTest.TestKeyBuilder builder, string name)
+        public static ModelBuilderTest.TestKeyBuilder<TEntity> HasName<TEntity>(
+            this ModelBuilderTest.TestKeyBuilder<TEntity> builder, string name)
         {
-            var keyBuilder = builder.GetInfrastructure();
-            keyBuilder.HasName(name);
+            switch (builder)
+            {
+                case IInfrastructure<KeyBuilder<TEntity>> genericBuilder:
+                    genericBuilder.Instance.HasName(name);
+                    break;
+                case IInfrastructure<KeyBuilder> nongenericBuilder:
+                    nongenericBuilder.Instance.HasName(name);
+                    break;
+            }
+
             return builder;
         }
     }

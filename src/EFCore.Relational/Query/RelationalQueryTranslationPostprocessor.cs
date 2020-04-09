@@ -3,26 +3,27 @@
 
 using System;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class RelationalQueryTranslationPostprocessor : QueryTranslationPostprocessor
     {
-        private readonly SqlExpressionOptimizingExpressionVisitor _sqlExpressionOptimizingExpressionVisitor;
-
         public RelationalQueryTranslationPostprocessor(
-            QueryTranslationPostprocessorDependencies dependencies,
-            RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
-            QueryCompilationContext queryCompilationContext)
+            [NotNull] QueryTranslationPostprocessorDependencies dependencies,
+            [NotNull] RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
+            [NotNull] QueryCompilationContext queryCompilationContext)
             : base(dependencies)
         {
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
+
             RelationalDependencies = relationalDependencies;
             UseRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
             SqlExpressionFactory = relationalDependencies.SqlExpressionFactory;
-            _sqlExpressionOptimizingExpressionVisitor
-                = new SqlExpressionOptimizingExpressionVisitor(SqlExpressionFactory, UseRelationalNulls);
         }
 
         protected virtual RelationalQueryTranslationPostprocessorDependencies RelationalDependencies { get; }
@@ -37,22 +38,17 @@ namespace Microsoft.EntityFrameworkCore.Query
             query = new SelectExpressionProjectionApplyingExpressionVisitor().Visit(query);
             query = new CollectionJoinApplyingExpressionVisitor().Visit(query);
             query = new TableAliasUniquifyingExpressionVisitor().Visit(query);
+            query = new CaseWhenFlatteningExpressionVisitor(SqlExpressionFactory).Visit(query);
 
-            if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue12729", out var enabled) && enabled))
-            {
-                query = new CaseWhenFlatteningExpressionVisitor(SqlExpressionFactory).Visit(query);
-            }
-
-            if (!UseRelationalNulls)
-            {
-                query = new NullSemanticsRewritingExpressionVisitor(SqlExpressionFactory).Visit(query);
-            }
-
+#pragma warning disable 618
             query = OptimizeSqlExpression(query);
+#pragma warning restore 618
 
             return query;
         }
 
-        protected virtual Expression OptimizeSqlExpression(Expression query) => _sqlExpressionOptimizingExpressionVisitor.Visit(query);
+        [Obsolete("Use 'Optimize' method on " + nameof(RelationalParameterBasedQueryTranslationPostprocessor) + " instead. If you have a case for optimizations to be performed here, please file an issue on github.com/dotnet/efcore.")]
+        protected virtual Expression OptimizeSqlExpression([NotNull] Expression query)
+            => query;
     }
 }

@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class PropertyBuilder : IInfrastructure<InternalPropertyBuilder>
+    public class PropertyBuilder : IInfrastructure<IConventionPropertyBuilder>
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     The internal builder being used to configure the property.
         /// </summary>
-        InternalPropertyBuilder IInfrastructure<InternalPropertyBuilder>.Instance => Builder;
+        IConventionPropertyBuilder IInfrastructure<IConventionPropertyBuilder>.Instance => Builder;
 
         /// <summary>
         ///     The property being configured.
@@ -87,6 +87,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual PropertyBuilder HasMaxLength(int maxLength)
         {
             Builder.HasMaxLength(maxLength, ConfigurationSource.Explicit);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Configures the precision and scale of the property.
+        /// </summary>
+        /// <param name="precision"> The precision of the property. </param>
+        /// <param name="scale"> The scale of the property. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual PropertyBuilder HasPrecision(int precision, int scale)
+        {
+            Builder.HasPrecision(precision, ConfigurationSource.Explicit);
+            Builder.HasScale(scale, ConfigurationSource.Explicit);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Configures the precision of the property.
+        ///     </para>
+        ///     <para>
+        ///         Note: has the side-effect of setting the scale to 0.
+        ///     </para>
+        /// </summary>
+        /// <param name="precision"> The precision of the property. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual PropertyBuilder HasPrecision(int precision)
+        {
+            Builder.HasPrecision(precision, ConfigurationSource.Explicit);
+            Builder.HasScale(0, ConfigurationSource.Explicit);
 
             return this;
         }

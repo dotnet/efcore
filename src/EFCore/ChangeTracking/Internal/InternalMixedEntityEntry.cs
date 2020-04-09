@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return base.AddToCollection(navigation, value, forMaterialization);
             }
 
-            if (navigation.GetTargetType().ClrType == null)
+            if (navigation.TargetEntityType.ClrType == null)
             {
                 return false;
             }

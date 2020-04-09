@@ -29,6 +29,15 @@ namespace Microsoft.EntityFrameworkCore
             => (IConventionProperty)((IProperty)property).FindFirstPrincipal();
 
         /// <summary>
+        ///     Finds the list of principal properties including the given property that the given property is constrained by
+        ///     if the given property is part of a foreign key.
+        /// </summary>
+        /// <param name="property"> The foreign key property. </param>
+        /// <returns> The list of all associated principal properties including the given property. </returns>
+        public static IReadOnlyList<IConventionProperty> FindPrincipals([NotNull] this IConventionProperty property)
+            => ((IProperty)property).FindPrincipals().Cast<IConventionProperty>().ToList();
+
+        /// <summary>
         ///     Gets all foreign keys that use this property (including composite foreign keys in which this property
         ///     is included).
         /// </summary>
@@ -87,7 +96,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to set the maximum length of. </param>
         /// <param name="maxLength"> The maximum length of data that is allowed in this property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetMaxLength([NotNull] this IConventionProperty property, int? maxLength, bool fromDataAnnotation = false)
+        /// <returns> The configured property. </returns>
+        public static int? SetMaxLength(
+            [NotNull] this IConventionProperty property, int? maxLength, bool fromDataAnnotation = false)
             => property.AsProperty().SetMaxLength(
                 maxLength, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -100,6 +111,46 @@ namespace Microsoft.EntityFrameworkCore
             => property.FindAnnotation(CoreAnnotationNames.MaxLength)?.GetConfigurationSource();
 
         /// <summary>
+        ///     Sets the precision of data that is allowed in this property.
+        ///     For example, if the property is a <see cref="decimal" />
+        ///     then this is the maximum number of digits.
+        /// </summary>
+        /// <param name="property"> The property to get the precision of. </param>
+        /// <param name="precision"> The maximum number of digits that is allowed in this property. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static int? SetPrecision([NotNull] this IConventionProperty property, int? precision, bool fromDataAnnotation = false)
+            => property.AsProperty().SetPrecision(
+                precision, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     Returns the configuration source for <see cref="PropertyExtensions.GetPrecision" />.
+        /// </summary>
+        /// <param name="property"> The property to find configuration source for. </param>
+        /// <returns> The configuration source for <see cref="PropertyExtensions.GetPrecision" />. </returns>
+        public static ConfigurationSource? GetPrecisionConfigurationSource([NotNull] this IConventionProperty property)
+            => property.FindAnnotation(CoreAnnotationNames.Precision)?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Sets the scale of data that is allowed in this property.
+        ///     For example, if the property is a <see cref="decimal" />
+        ///     then this is the maximum number of decimal places.
+        /// </summary>
+        /// <param name="property"> The property to get the precision of. </param>
+        /// <param name="scale"> The maximum number of decimal places that is allowed in this property. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static int? SetScale([NotNull] this IConventionProperty property, int? scale, bool fromDataAnnotation = false)
+            => property.AsProperty().SetScale(
+                scale, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     Returns the configuration source for <see cref="PropertyExtensions.GetScale" />.
+        /// </summary>
+        /// <param name="property"> The property to find configuration source for. </param>
+        /// <returns> The configuration source for <see cref="PropertyExtensions.GetScale" />. </returns>
+        public static ConfigurationSource? GetScaleConfigurationSource([NotNull] this IConventionProperty property)
+            => property.FindAnnotation(CoreAnnotationNames.Scale)?.GetConfigurationSource();
+
+        /// <summary>
         ///     Sets a value indicating whether this property can persist Unicode characters.
         /// </summary>
         /// <param name="property"> The property to set the value for. </param>
@@ -107,7 +158,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <c>true</c> if the property accepts Unicode characters, <c>false</c> if it does not, <c>null</c> to clear the setting.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetIsUnicode([NotNull] this IConventionProperty property, bool? unicode, bool fromDataAnnotation = false)
+        /// <returns> The configured value. </returns>
+        public static bool? SetIsUnicode(
+            [NotNull] this IConventionProperty property, bool? unicode, bool fromDataAnnotation = false)
             => property.AsProperty().SetIsUnicode(
                 unicode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -140,7 +193,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     saved to the database. <c>null</c> to reset to default.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetBeforeSaveBehavior(
+        /// <returns> The configured value. </returns>
+        public static PropertySaveBehavior? SetBeforeSaveBehavior(
             [NotNull] this IConventionProperty property, PropertySaveBehavior? beforeSaveBehavior, bool fromDataAnnotation = false)
             => property.AsProperty().SetBeforeSaveBehavior(
                 beforeSaveBehavior, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -173,7 +227,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     saved to the database. <c>null</c> to reset to default.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetAfterSaveBehavior(
+        /// <returns> The configured value. </returns>
+        public static PropertySaveBehavior? SetAfterSaveBehavior(
             [NotNull] this IConventionProperty property, PropertySaveBehavior? afterSaveBehavior, bool fromDataAnnotation = false)
             => property.AsProperty().SetAfterSaveBehavior(
                 afterSaveBehavior, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -201,7 +256,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     clear any previously set factory.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetValueGeneratorFactory(
+        /// <returns> The configured value. </returns>
+        public static Func<IProperty, IEntityType, ValueGenerator> SetValueGeneratorFactory(
             [NotNull] this IConventionProperty property,
             [NotNull] Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory,
             bool fromDataAnnotation = false)
@@ -222,7 +278,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="converter"> The converter, or <c>null</c> to remove any previously set converter. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetValueConverter(
+        /// <returns> The configured value. </returns>
+        public static ValueConverter SetValueConverter(
             [NotNull] this IConventionProperty property,
             [CanBeNull] ValueConverter converter,
             bool fromDataAnnotation = false)
@@ -243,7 +300,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="providerClrType"> The type to use, or <c>null</c> to remove any previously set type. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetProviderClrType(
+        /// <returns> The configured value. </returns>
+        public static Type SetProviderClrType(
             [NotNull] this IConventionProperty property,
             [CanBeNull] Type providerClrType,
             bool fromDataAnnotation = false)
@@ -264,7 +322,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="comparer"> The comparer, or <c>null</c> to remove any previously set comparer. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetValueComparer(
+        /// <returns> The configured value. </returns>
+        public static ValueComparer SetValueComparer(
             [NotNull] this IConventionProperty property,
             [CanBeNull] ValueComparer comparer,
             bool fromDataAnnotation = false)
@@ -285,7 +344,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="comparer"> The comparer, or <c>null</c> to remove any previously set comparer. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetKeyValueComparer(
+        /// <returns> The configured value. </returns>
+        public static ValueComparer SetKeyValueComparer(
             [NotNull] this IConventionProperty property,
             [CanBeNull] ValueComparer comparer,
             bool fromDataAnnotation = false)
@@ -306,19 +366,20 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="comparer"> The comparer, or <c>null</c> to remove any previously set comparer. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetStructuralValueComparer(
+        [Obsolete("Use SetKeyValueComparer. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
+        public static ValueComparer SetStructuralValueComparer(
             [NotNull] this IConventionProperty property,
             [CanBeNull] ValueComparer comparer,
             bool fromDataAnnotation = false)
-            => property.AsProperty().SetStructuralValueComparer(
-                comparer, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+            => property.SetKeyValueComparer(comparer, fromDataAnnotation);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="PropertyExtensions.GetStructuralValueComparer" />.
         /// </summary>
         /// <param name="property"> The property to find configuration source for. </param>
         /// <returns> The configuration source for <see cref="PropertyExtensions.GetStructuralValueComparer" />. </returns>
+        [Obsolete("Use GetKeyValueComparerConfigurationSource. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
         public static ConfigurationSource? GetStructuralValueComparerConfigurationSource([NotNull] this IConventionProperty property)
-            => property.FindAnnotation(CoreAnnotationNames.StructuralValueComparer)?.GetConfigurationSource();
+            => property.GetKeyValueComparerConfigurationSource();
     }
 }

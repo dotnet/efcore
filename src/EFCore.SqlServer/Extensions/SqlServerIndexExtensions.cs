@@ -38,12 +38,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="value"> The value to set. </param>
         /// <param name="index"> The index. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetIsClustered(
+        /// <returns> The configured value. </returns>
+        public static bool? SetIsClustered(
             [NotNull] this IConventionIndex index, bool? value, bool fromDataAnnotation = false)
-            => index.SetOrRemoveAnnotation(
+        {
+            index.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.Clustered,
                 value,
                 fromDataAnnotation);
+
+            return value;
+        }
 
         /// <summary>
         ///     Returns the <see cref="ConfigurationSource" /> for whether the index is clustered.
@@ -77,12 +82,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <param name="properties"> The value to set. </param>
-        public static void SetIncludeProperties(
+        /// <returns> The configured property names. </returns>
+        public static IReadOnlyList<string> SetIncludeProperties(
             [NotNull] this IConventionIndex index, [NotNull] IReadOnlyList<string> properties, bool fromDataAnnotation = false)
-            => index.SetOrRemoveAnnotation(
+        {
+            index.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.Include,
                 properties,
                 fromDataAnnotation);
+
+            return properties;
+        }
 
         /// <summary>
         ///     Returns the <see cref="ConfigurationSource" /> for the included property names.
@@ -116,12 +126,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <param name="createdOnline"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetIsCreatedOnline(
+        /// <returns> The configured value. </returns>
+        public static bool? SetIsCreatedOnline(
             [NotNull] this IConventionIndex index, bool? createdOnline, bool fromDataAnnotation = false)
-            => index.SetOrRemoveAnnotation(
+        {
+            index.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.CreatedOnline,
                 createdOnline,
                 fromDataAnnotation);
+
+            return createdOnline;
+        }
 
         /// <summary>
         ///     Returns the <see cref="ConfigurationSource" /> for whether the index is online.

@@ -141,14 +141,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int? CustomerId { get; set; }
             public Guid AnotherCustomerId { get; set; }
             public Customer Customer { get; set; }
-
             public OrderCombination OrderCombination { get; set; }
-
             public OrderDetails Details { get; set; }
             public ICollection<Product> Products { get; set; }
 
             public event PropertyChangedEventHandler PropertyChanged;
-
             protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
             {
                 if (PropertyChanged == null)
@@ -158,18 +155,45 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
         }
 
+        private class OrderProduct
+        {
+            public static readonly PropertyInfo OrderIdProperty = typeof(OrderProduct).GetProperty(nameof(OrderId));
+            public static readonly PropertyInfo ProductIdProperty = typeof(OrderProduct).GetProperty(nameof(ProductId));
+
+            public int OrderId { get; set; }
+            public int ProductId { get; set; }
+            public virtual Order Order { get; set; }
+            public virtual Product Product { get; set; }
+        }
+
         [NotMapped]
         protected class Product
         {
             public int Id { get; set; }
+
+            [NotMapped]
             public Order Order { get; set; }
+
+            [NotMapped]
+            public virtual ICollection<Order> Orders { get; set; }
+
+            public virtual ICollection<Category> Categories { get; set; }
         }
 
         protected class ProductCategory
         {
+            public int ProductId { get; set; }
+            public int CategoryId { get; set; }
+            public virtual Product Product { get; set; }
+            public virtual Category Category { get; set; }
+        }
+
+        protected class Category
+        {
             public int Id { get; set; }
             public string Name { get; set; }
-            public ICollection<Product> Products { get; set; }
+            public virtual ICollection<ProductCategory> ProductCategories { get; set; }
+            public virtual ICollection<Product> Products { get; set; }
         }
 
         [Owned]
@@ -596,6 +620,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class PrincipalTypeWithKeyAnnotation
         {
             public int Id { get; set; }
+
+            [NotMapped]
+            public BaseTypeWithKeyAnnotation Navigation { get; set; }
         }
 
         protected class CityViewModel
@@ -727,7 +754,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class PrincipalShadowFk
         {
             public Guid PrincipalShadowFkId { get; set; }
-            public List<DependentShadowFk> Dependends { get; set; }
+            public List<DependentShadowFk> Dependents { get; set; }
         }
 
         protected class BaseOwner
@@ -768,6 +795,125 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 get => Property;
                 set => Property = value;
             }
+        }
+
+        protected class IndexedClass
+        {
+            private int _required;
+            private string _optional;
+
+            public int Id { get; set; }
+            public object this[string name]
+            {
+                get
+                {
+                    if (string.Equals(name, "Required", StringComparison.Ordinal))
+                    {
+                        return _required;
+                    }
+
+                    if (string.Equals(name, "Optional", StringComparison.Ordinal))
+                    {
+                        return _optional;
+                    }
+
+                    throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(IndexedClass)}.");
+                }
+
+                set
+                {
+                    if (string.Equals(name, "Required", StringComparison.Ordinal))
+                    {
+                        _required = (int)value;
+                    }
+                    else if (string.Equals(name, "Optional", StringComparison.Ordinal))
+                    {
+                        _optional = (string)value;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(IndexedClass)}.");
+                    }
+                }
+            }
+        }
+
+        protected class IndexedClassByDictionary
+        {
+            private readonly Dictionary<string, object> _indexerData = new Dictionary<string, object>();
+
+            public int Id { get; set; }
+            public object this[string name]
+            {
+                get => _indexerData[name];
+                set => _indexerData[name] = value;
+            }
+        }
+
+        private class OneToManyNavPrincipal
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public List<NavDependent> Dependents { get; set; }
+        }
+
+        private class OneToOneNavPrincipal
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public NavDependent Dependent { get; set; }
+        }
+
+        private class ManyToManyNavPrincipal
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public List<NavDependent> Dependents { get; set; }
+        }
+
+        private class NavDependent
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public OneToManyNavPrincipal OneToManyPrincipal { get; set; }
+            public OneToOneNavPrincipal OneToOnePrincipal { get; set; }
+            public List<ManyToManyNavPrincipal> ManyToManyPrincipals { get; set; }
+        }
+
+        private class OneToManyNavPrincipalOwner
+        {
+            public int Id { get; set; }
+            public string Description { get; set; }
+
+            public List<OwnedOneToManyNavDependent> OwnedDependents { get; set; }
+        }
+
+        private class OneToOneNavPrincipalOwner
+        {
+            public int Id { get; set; }
+            public string Description { get; set; }
+
+            public OwnedNavDependent OwnedDependent { get; set; }
+        }
+
+        private class OwnedNavDependent
+        {
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+
+            public OneToOneNavPrincipalOwner OneToOneOwner { get; set; }
+        }
+
+        private class OwnedOneToManyNavDependent
+        {
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+
+            public OneToManyNavPrincipalOwner OneToManyOwner { get; set; }
         }
     }
 }

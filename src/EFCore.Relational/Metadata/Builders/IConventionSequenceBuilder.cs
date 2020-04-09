@@ -9,12 +9,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// <summary>
     ///     Provides a simple API for configuring a <see cref="IConventionSequence" />.
     /// </summary>
-    public interface IConventionSequenceBuilder
+    public interface IConventionSequenceBuilder : IConventionAnnotatableBuilder
     {
         /// <summary>
         ///     The sequence being configured.
         /// </summary>
-        IConventionSequence Metadata { get; }
+        new IConventionSequence Metadata { get; }
 
         /// <summary>
         ///     Sets the type of values returned by the sequence.
@@ -129,6 +129,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="cyclic"> If <c>true</c>, then the sequence with restart when the maximum is reached. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the given cyclicity can be set for the sequence. </returns>
-        bool CanSetCyclic(bool? cyclic, bool fromDataAnnotation = false);
+        bool CanSetIsCyclic(bool? cyclic, bool fromDataAnnotation = false);
     }
 }

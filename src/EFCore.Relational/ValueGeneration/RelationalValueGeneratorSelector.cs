@@ -84,12 +84,12 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
                     if (propertyType == typeof(string))
                     {
-                        return new StringValueGenerator(generateTemporaryValues: true);
+                        return new TemporaryStringValueGenerator();
                     }
 
                     if (propertyType == typeof(byte[]))
                     {
-                        return new BinaryValueGenerator(generateTemporaryValues: true);
+                        return new TemporaryBinaryValueGenerator();
                     }
                 }
             }

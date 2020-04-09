@@ -277,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
-            entityTypeBuilder.Metadata.SetTableName(name);
+            entityTypeBuilder.Metadata.SetViewName(name);
             entityTypeBuilder.Metadata.SetAnnotation(RelationalAnnotationNames.ViewDefinition, null);
 
             return entityTypeBuilder;
@@ -312,8 +312,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NullButNotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
-            entityTypeBuilder.Metadata.SetTableName(name);
-            entityTypeBuilder.Metadata.SetSchema(schema);
+            entityTypeBuilder.Metadata.SetViewName(name);
+            entityTypeBuilder.Metadata.SetViewSchema(schema);
             entityTypeBuilder.Metadata.SetAnnotation(RelationalAnnotationNames.ViewDefinition, null);
 
             return entityTypeBuilder;

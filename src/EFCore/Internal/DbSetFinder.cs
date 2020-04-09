@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -48,19 +49,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         && !p.GetIndexParameters().Any()
                         && p.DeclaringType != typeof(DbContext)
                         && p.PropertyType.GetTypeInfo().IsGenericType
-                        && (p.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>)
-#pragma warning disable CS0618 // Type or member is obsolete
-                            || p.PropertyType.GetGenericTypeDefinition() == typeof(DbQuery<>)))
-#pragma warning restore CS0618 // Type or member is obsolete
+                        && p.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>))
                 .OrderBy(p => p.Name)
                 .Select(
                     p => new DbSetProperty(
                         p.Name,
-                        p.PropertyType.GetTypeInfo().GenericTypeArguments.Single(),
-                        p.SetMethod == null ? null : factory.Create(p),
-#pragma warning disable CS0618 // Type or member is obsolete
-                        p.PropertyType.GetGenericTypeDefinition() == typeof(DbQuery<>)))
-#pragma warning restore CS0618 // Type or member is obsolete
+                        p.PropertyType.GenericTypeArguments.Single(),
+                        p.SetMethod == null ? null : factory.Create(p)))
                 .ToArray();
         }
     }

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -246,8 +247,7 @@ namespace TestNamespace
                 new ModelCodeGenerationOptions(),
                 code =>
                 {
-                    Assert.Contains(@"Property(e => e.ValueGeneratedOnAdd)
-                    .ValueGeneratedOnAdd()", code.ContextFile.Code);
+                    Assert.Contains(@$"Property(e => e.ValueGeneratedOnAdd){Environment.NewLine}                    .ValueGeneratedOnAdd()", code.ContextFile.Code);
                     Assert.Contains("Property(e => e.ValueGeneratedOnAddOrUpdate).ValueGeneratedOnAddOrUpdate()", code.ContextFile.Code);
                     Assert.Contains("Property(e => e.ConcurrencyToken).IsConcurrencyToken()", code.ContextFile.Code);
                     Assert.Contains("Property(e => e.ValueGeneratedOnUpdate).ValueGeneratedOnUpdate()", code.ContextFile.Code);
@@ -261,6 +261,33 @@ namespace TestNamespace
                     Assert.True(entity.GetProperty("ConcurrencyToken").IsConcurrencyToken);
                     Assert.Equal(ValueGenerated.OnUpdate, entity.GetProperty("ValueGeneratedOnUpdate").ValueGenerated);
                     Assert.Equal(ValueGenerated.Never, entity.GetProperty("ValueGeneratedNever").ValueGenerated);
+                });
+        }
+
+        [ConditionalFact]
+        public void HasPrecision_works()
+        {
+            Test(
+                modelBuilder => modelBuilder.Entity(
+                    "Entity",
+                    x =>
+                    {
+                        x.Property<decimal>("HasPrecision").HasPrecision(12);
+                        x.Property<decimal>("HasPrecisionAndScale").HasPrecision(14, 7);
+                    }),
+                new ModelCodeGenerationOptions(),
+                code =>
+                {
+                    Assert.Contains("Property(e => e.HasPrecision).HasPrecision(12)", code.ContextFile.Code);
+                    Assert.Contains("Property(e => e.HasPrecisionAndScale).HasPrecision(14, 7)", code.ContextFile.Code);
+                },
+                model =>
+                {
+                    var entity = model.FindEntityType("TestNamespace.Entity");
+                    Assert.Equal(12, entity.GetProperty("HasPrecision").GetPrecision());
+                    Assert.Equal(0, entity.GetProperty("HasPrecision").GetScale());
+                    Assert.Equal(14, entity.GetProperty("HasPrecisionAndScale").GetPrecision());
+                    Assert.Equal(7, entity.GetProperty("HasPrecisionAndScale").GetScale());
                 });
         }
 

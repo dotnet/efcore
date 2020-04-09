@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public SqlExpressionFactoryDependencies(IRelationalTypeMappingSource typeMappingSource)
+        public SqlExpressionFactoryDependencies([NotNull] IRelationalTypeMappingSource typeMappingSource)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 

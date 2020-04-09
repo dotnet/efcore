@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -18,23 +19,17 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Creates_SQL_Server_connection_string()
         {
-            using (var connection = new SqlServerConnection(CreateDependencies()))
-            {
-                Assert.IsType<SqlConnection>(connection.DbConnection);
-            }
+            using var connection = new SqlServerConnection(CreateDependencies());
+            Assert.IsType<SqlConnection>(connection.DbConnection);
         }
 
         [ConditionalFact]
         public void Can_create_master_connection()
         {
-            using (var connection = new SqlServerConnection(CreateDependencies()))
-            {
-                using (var master = connection.CreateMasterConnection())
-                {
-                    Assert.Equal(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master", master.ConnectionString);
-                    Assert.Equal(60, master.CommandTimeout);
-                }
-            }
+            using var connection = new SqlServerConnection(CreateDependencies());
+            using var master = connection.CreateMasterConnection();
+            Assert.Equal(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master", master.ConnectionString);
+            Assert.Equal(60, master.CommandTimeout);
         }
 
         [ConditionalFact]
@@ -46,13 +41,9 @@ namespace Microsoft.EntityFrameworkCore
                     b => b.CommandTimeout(55))
                 .Options;
 
-            using (var connection = new SqlServerConnection(CreateDependencies(options)))
-            {
-                using (var master = connection.CreateMasterConnection())
-                {
-                    Assert.Equal(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master", master.ConnectionString);
-                }
-            }
+            using var connection = new SqlServerConnection(CreateDependencies(options));
+            using var master = connection.CreateMasterConnection();
+            Assert.Equal(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master", master.ConnectionString);
         }
 
         [ConditionalFact]
@@ -64,13 +55,9 @@ namespace Microsoft.EntityFrameworkCore
                     b => b.CommandTimeout(55))
                 .Options;
 
-            using (var connection = new SqlServerConnection(CreateDependencies(options)))
-            {
-                using (var master = connection.CreateMasterConnection())
-                {
-                    Assert.Equal(55, master.CommandTimeout);
-                }
-            }
+            using var connection = new SqlServerConnection(CreateDependencies(options));
+            using var master = connection.CreateMasterConnection();
+            Assert.Equal(55, master.CommandTimeout);
         }
 
         public static RelationalConnectionDependencies CreateDependencies(DbContextOptions options = null)
@@ -85,12 +72,14 @@ namespace Microsoft.EntityFrameworkCore
                     new LoggerFactory(),
                     new LoggingOptions(),
                     new DiagnosticListener("FakeDiagnosticListener"),
-                    new SqlServerLoggingDefinitions()),
+                    new SqlServerLoggingDefinitions(),
+                    new NullDbContextLogger()),
                 new DiagnosticsLogger<DbLoggerCategory.Database.Connection>(
                     new LoggerFactory(),
                     new LoggingOptions(),
                     new DiagnosticListener("FakeDiagnosticListener"),
-                    new SqlServerLoggingDefinitions()),
+                    new SqlServerLoggingDefinitions(),
+                    new NullDbContextLogger()),
                 new NamedConnectionStringResolver(options),
                 new RelationalTransactionFactory(new RelationalTransactionFactoryDependencies()),
                 new CurrentDbContext(new FakeDbContext()));

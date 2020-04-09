@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -26,6 +27,15 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The first associated principal property, or <c>null</c> if none exists. </returns>
         public static IMutableProperty FindFirstPrincipal([NotNull] this IMutableProperty property)
             => (IMutableProperty)((IProperty)property).FindFirstPrincipal();
+
+        /// <summary>
+        ///     Finds the list of principal properties including the given property that the given property is constrained by
+        ///     if the given property is part of a foreign key.
+        /// </summary>
+        /// <param name="property"> The foreign key property. </param>
+        /// <returns> The list of all associated principal properties including the given property. </returns>
+        public static IReadOnlyList<IMutableProperty> FindPrincipals([NotNull] this IMutableProperty property)
+            => ((IProperty)property).FindPrincipals().Cast<IMutableProperty>().ToList();
 
         /// <summary>
         ///     Gets all foreign keys that use this property (including composite foreign keys in which this property
@@ -57,18 +67,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The primary that use this property, or <c>null</c> if it is not part of the primary key.
         /// </returns>
-        [Obsolete("Use FindContainingPrimaryKey()")]
-        public static IMutableKey GetContainingPrimaryKey([NotNull] this IMutableProperty property)
-            => property.FindContainingPrimaryKey();
-
-        /// <summary>
-        ///     Gets the primary key that uses this property (including a composite primary key in which this property
-        ///     is included).
-        /// </summary>
-        /// <param name="property"> The property to get primary key for. </param>
-        /// <returns>
-        ///     The primary that use this property, or <c>null</c> if it is not part of the primary key.
-        /// </returns>
         public static IMutableKey FindContainingPrimaryKey([NotNull] this IMutableProperty property)
             => (IMutableKey)((IProperty)property).FindContainingPrimaryKey();
 
@@ -91,6 +89,26 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="maxLength"> The maximum length of data that is allowed in this property. </param>
         public static void SetMaxLength([NotNull] this IMutableProperty property, int? maxLength)
             => property.AsProperty().SetMaxLength(maxLength, ConfigurationSource.Explicit);
+
+        /// <summary>
+        ///     Sets the precision of data that is allowed in this property.
+        ///     For example, if the property is a <see cref="decimal" />
+        ///     then this is the maximum number of digits.
+        /// </summary>
+        /// <param name="property"> The property to set the precision of. </param>
+        /// <param name="precision"> The maximum number of digits that is allowed in this property. </param>
+        public static void SetPrecision([NotNull] this IMutableProperty property, int? precision)
+            => property.AsProperty().SetPrecision(precision, ConfigurationSource.Explicit);
+
+        /// <summary>
+        ///     Sets the scale of data that is allowed in this property.
+        ///     For example, if the property is a <see cref="decimal" />
+        ///     then this is the maximum number of decimal places.
+        /// </summary>
+        /// <param name="property"> The property to set the scale of. </param>
+        /// <param name="scale"> The maximum number of decimal places that is allowed in this property. </param>
+        public static void SetScale([NotNull] this IMutableProperty property, int? scale)
+            => property.AsProperty().SetScale(scale, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     Sets a value indicating whether this property can persist Unicode characters.
@@ -201,7 +219,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="comparer"> The comparer, or <c>null</c> to remove any previously set comparer. </param>
+        [Obsolete("Use SetKeyValueComparer. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
         public static void SetStructuralValueComparer([NotNull] this IMutableProperty property, [CanBeNull] ValueComparer comparer)
-            => property.AsProperty().SetStructuralValueComparer(comparer, ConfigurationSource.Explicit);
+            => property.SetKeyValueComparer(comparer);
     }
 }

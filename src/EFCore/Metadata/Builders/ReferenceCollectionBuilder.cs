@@ -45,8 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected ReferenceCollectionBuilder(
-            InternalRelationshipBuilder builder,
-            ReferenceCollectionBuilder oldBuilder,
+            [NotNull] InternalForeignKeyBuilder builder,
+            [CanBeNull] ReferenceCollectionBuilder oldBuilder,
             bool foreignKeySet = false,
             bool principalKeySet = false,
             bool requiredSet = false)
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalRelationshipBuilder HasForeignKeyBuilder([NotNull] IReadOnlyList<string> foreignKeyPropertyNames)
+        protected virtual InternalForeignKeyBuilder HasForeignKeyBuilder([NotNull] IReadOnlyList<string> foreignKeyPropertyNames)
             => Builder.HasForeignKey(foreignKeyPropertyNames, (EntityType)DependentEntityType, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalRelationshipBuilder HasForeignKeyBuilder([NotNull] IReadOnlyList<MemberInfo> foreignKeyProperties)
+        protected virtual InternalForeignKeyBuilder HasForeignKeyBuilder([NotNull] IReadOnlyList<MemberInfo> foreignKeyProperties)
             => Builder.HasForeignKey(foreignKeyProperties, (EntityType)DependentEntityType, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalRelationshipBuilder HasPrincipalKeyBuilder([NotNull] IReadOnlyList<string> keyPropertyNames)
+        protected virtual InternalForeignKeyBuilder HasPrincipalKeyBuilder([NotNull] IReadOnlyList<string> keyPropertyNames)
             => Builder.HasPrincipalKey(keyPropertyNames, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalRelationshipBuilder HasPrincipalKeyBuilder([NotNull] IReadOnlyList<MemberInfo> keyProperties)
+        protected virtual InternalForeignKeyBuilder HasPrincipalKeyBuilder([NotNull] IReadOnlyList<MemberInfo> keyProperties)
             => Builder.HasPrincipalKey(keyProperties, ConfigurationSource.Explicit);
 
         /// <summary>

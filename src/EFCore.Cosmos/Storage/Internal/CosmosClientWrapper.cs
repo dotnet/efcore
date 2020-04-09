@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -106,8 +107,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CreateDatabaseIfNotExistsOnce(
-            DbContext context,
-            object state)
+            [NotNull] DbContext context,
+            [NotNull] object state)
             => CreateDatabaseIfNotExistsOnceAsync(context, state).GetAwaiter().GetResult();
 
         /// <summary>
@@ -128,8 +129,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual async Task<bool> CreateDatabaseIfNotExistsOnceAsync(
-            DbContext _,
-            object __,
+            [CanBeNull] DbContext _,
+            [CanBeNull] object __,
             CancellationToken cancellationToken = default)
         {
             var response = await Client.CreateDatabaseIfNotExistsAsync(_databaseId, cancellationToken: cancellationToken)
@@ -154,8 +155,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool DeleteDatabaseOnce(
-            DbContext context,
-            object state)
+            [CanBeNull] DbContext context,
+            [CanBeNull] object state)
             => DeleteDatabaseOnceAsync(context, state).GetAwaiter().GetResult();
 
         /// <summary>
@@ -176,21 +177,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual async Task<bool> DeleteDatabaseOnceAsync(
-            DbContext _,
-            object __,
+            [CanBeNull] DbContext _,
+            [CanBeNull] object __,
             CancellationToken cancellationToken = default)
         {
-            using (var response = await Client.GetDatabase(_databaseId).DeleteStreamAsync(cancellationToken: cancellationToken)
-                .ConfigureAwait(false))
+            using var response = await Client.GetDatabase(_databaseId).DeleteStreamAsync(cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+            if (response.StatusCode == HttpStatusCode.NotFound)
             {
-                if (response.StatusCode == HttpStatusCode.NotFound)
-                {
-                    return false;
-                }
-
-                response.EnsureSuccessStatusCode();
-                return response.StatusCode == HttpStatusCode.NoContent;
+                return false;
             }
+
+            response.EnsureSuccessStatusCode();
+            return response.StatusCode == HttpStatusCode.NoContent;
         }
 
         /// <summary>
@@ -200,8 +199,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CreateContainerIfNotExists(
-            string containerId,
-            string partitionKey)
+            [NotNull] string containerId,
+            [NotNull] string partitionKey)
             => _executionStrategyFactory.Create().Execute(
                 (containerId, partitionKey), CreateContainerIfNotExistsOnce, null);
 
@@ -217,8 +216,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Task<bool> CreateContainerIfNotExistsAsync(
-            string containerId,
-            string partitionKey,
+            [NotNull] string containerId,
+            [NotNull] string partitionKey,
             CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
                 (containerId, partitionKey), CreateContainerIfNotExistsOnceAsync, null, cancellationToken);
@@ -228,22 +227,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             (string ContainerId, string PartitionKey) parameters,
             CancellationToken cancellationToken = default)
         {
-            using (var response = await Client.GetDatabase(_databaseId).CreateContainerStreamAsync(
+            using var response = await Client.GetDatabase(_databaseId).CreateContainerStreamAsync(
                     new ContainerProperties(parameters.ContainerId, "/" + parameters.PartitionKey)
                     {
                         PartitionKeyDefinitionVersion = PartitionKeyDefinitionVersion.V2
                     },
                     cancellationToken: cancellationToken)
-                .ConfigureAwait(false))
+                .ConfigureAwait(false);
+            if (response.StatusCode == HttpStatusCode.Conflict)
             {
-                if (response.StatusCode == HttpStatusCode.Conflict)
-                {
-                    return false;
-                }
-
-                response.EnsureSuccessStatusCode();
-                return response.StatusCode == HttpStatusCode.Created;
+                return false;
             }
+
+            response.EnsureSuccessStatusCode();
+            return response.StatusCode == HttpStatusCode.Created;
         }
 
         /// <summary>
@@ -253,15 +250,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CreateItem(
-            string containerId,
-            JToken document,
-            string partitionKey)
+            [NotNull] string containerId,
+            [NotNull] JToken document,
+            [NotNull] IUpdateEntry entry)
             => _executionStrategyFactory.Create().Execute(
-                (containerId, document, partitionKey), CreateItemOnce, null);
+                (containerId, document, entry), CreateItemOnce, null);
 
         private bool CreateItemOnce(
             DbContext context,
-            (string ContainerId, JToken Document, string PartitionKey) parameters)
+            (string ContainerId, JToken Document, IUpdateEntry Entry) parameters)
             => CreateItemOnceAsync(context, parameters).GetAwaiter().GetResult();
 
         /// <summary>
@@ -271,47 +268,33 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Task<bool> CreateItemAsync(
-            string containerId,
-            JToken document,
-            string partitionKey,
+            [NotNull] string containerId,
+            [NotNull] JToken document,
+            [NotNull] IUpdateEntry updateEntry,
             CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
-                (containerId, document, partitionKey), CreateItemOnceAsync, null, cancellationToken);
+                (containerId, document, updateEntry), CreateItemOnceAsync, null, cancellationToken);
 
         private async Task<bool> CreateItemOnceAsync(
             DbContext _,
-            (string ContainerId, JToken Document, string PartitionKey) parameters,
+            (string ContainerId, JToken Document, IUpdateEntry Entry) parameters,
             CancellationToken cancellationToken = default)
         {
-            var stream = new MemoryStream();
-            try
-            {
-                var writer = new StreamWriter(stream, new UTF8Encoding(), bufferSize: 1024, leaveOpen: false);
-                try
-                {
-                    using (var jsonWriter = new JsonTextWriter(writer))
-                    {
-                        JsonSerializer.Create().Serialize(jsonWriter, parameters.Document);
-                        await jsonWriter.FlushAsync(cancellationToken);
+            await using var stream = new MemoryStream();
+            await using var writer = new StreamWriter(stream, new UTF8Encoding(), bufferSize: 1024, leaveOpen: false);
+            using var jsonWriter = new JsonTextWriter(writer);
+            JsonSerializer.Create().Serialize(jsonWriter, parameters.Document);
+            await jsonWriter.FlushAsync(cancellationToken);
 
-                        var container = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
-                        var partitionKey = CreatePartitionKey(parameters.PartitionKey);
-                        using (var response = await container.CreateItemStreamAsync(stream, partitionKey, null, cancellationToken))
-                        {
-                            response.EnsureSuccessStatusCode();
-                            return response.StatusCode == HttpStatusCode.Created;
-                        }
-                    }
-                }
-                finally
-                {
-                    await writer.DisposeAsyncIfAvailable();
-                }
-            }
-            finally
-            {
-                await stream.DisposeAsyncIfAvailable();
-            }
+            var entry = parameters.Entry;
+            var container = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
+            var itemRequestOptions = CreateItemRequestOptions(entry);
+            var partitionKey = CreatePartitionKey(entry);
+
+            using var response = await container.CreateItemStreamAsync(stream, partitionKey, itemRequestOptions, cancellationToken);
+            ProcessResponse(response, entry);
+
+            return response.StatusCode == HttpStatusCode.Created;
         }
 
         /// <summary>
@@ -321,16 +304,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool ReplaceItem(
-            string collectionId,
-            string documentId,
-            JObject document,
-            string partitionKey)
+            [NotNull] string collectionId,
+            [NotNull] string documentId,
+            [NotNull] JObject document,
+            [NotNull] IUpdateEntry entry)
             => _executionStrategyFactory.Create().Execute(
-                (collectionId, documentId, document, partitionKey), ReplaceItemOnce, null);
+                (collectionId, documentId, document, entry),
+                ReplaceItemOnce,
+                null);
 
         private bool ReplaceItemOnce(
             DbContext context,
-            (string ContainerId, string ItemId, JObject Document, string PartitionKey) parameters)
+            (string ContainerId, string ItemId, JObject Document, IUpdateEntry Entry) parameters)
             => ReplaceItemOnceAsync(context, parameters).GetAwaiter().GetResult();
 
         /// <summary>
@@ -340,35 +325,38 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Task<bool> ReplaceItemAsync(
-            string collectionId,
-            string documentId,
-            JObject document,
-            string partitionKey,
+            [NotNull] string collectionId,
+            [NotNull] string documentId,
+            [NotNull] JObject document,
+            [NotNull] IUpdateEntry updateEntry,
             CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
-                (collectionId, documentId, document, partitionKey), ReplaceItemOnceAsync, null, cancellationToken);
+                (collectionId, documentId, document, updateEntry),
+                ReplaceItemOnceAsync,
+                null,
+                cancellationToken);
 
         private async Task<bool> ReplaceItemOnceAsync(
             DbContext _,
-            (string ContainerId, string ItemId, JObject Document, string PartitionKey) parameters,
+            (string ContainerId, string ItemId, JObject Document, IUpdateEntry Entry) parameters,
             CancellationToken cancellationToken = default)
         {
             using var stream = new MemoryStream();
             using var writer = new StreamWriter(stream, new UTF8Encoding(), bufferSize: 1024, leaveOpen: false);
-            using (var jsonWriter = new JsonTextWriter(writer))
-            {
-                JsonSerializer.Create().Serialize(jsonWriter, parameters.Document);
-                await jsonWriter.FlushAsync(cancellationToken);
+            using var jsonWriter = new JsonTextWriter(writer);
+            JsonSerializer.Create().Serialize(jsonWriter, parameters.Document);
+            await jsonWriter.FlushAsync(cancellationToken);
 
-                var container = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
-                var partitionKey = CreatePartitionKey(parameters.PartitionKey);
-                using (var response = await container.ReplaceItemStreamAsync(
-                    stream, parameters.ItemId, partitionKey, null, cancellationToken))
-                {
-                    response.EnsureSuccessStatusCode();
-                    return response.StatusCode == HttpStatusCode.OK;
-                }
-            }
+            var entry = parameters.Entry;
+            var container = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
+            var itemRequestOptions = CreateItemRequestOptions(entry);
+            var partitionKey = CreatePartitionKey(entry);
+
+            using var response = await container.ReplaceItemStreamAsync(
+                stream, parameters.ItemId, partitionKey, itemRequestOptions, cancellationToken);
+            ProcessResponse(response, entry);
+
+            return response.StatusCode == HttpStatusCode.OK;
         }
 
         /// <summary>
@@ -378,11 +366,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool DeleteItem(
-            string containerId,
-            string documentId,
-            string partitionKey)
+            [NotNull] string containerId,
+            [NotNull] string documentId,
+            [NotNull] IUpdateEntry entry)
             => _executionStrategyFactory.Create().Execute(
-                (containerId, documentId, partitionKey), DeleteItemOnce, null);
+                (containerId, documentId, entry), DeleteItemOnce, null);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -391,8 +379,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool DeleteItemOnce(
-            DbContext context,
-            (string ContainerId, string DocumentId, string PartitionKey) parameters)
+            [NotNull] DbContext context,
+            (string ContainerId, string DocumentId, IUpdateEntry Entry) parameters)
             => DeleteItemOnceAsync(context, parameters).GetAwaiter().GetResult();
 
         /// <summary>
@@ -402,12 +390,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Task<bool> DeleteItemAsync(
-            string containerId,
-            string documentId,
-            string partitionKey,
+            [NotNull] string containerId,
+            [NotNull] string documentId,
+            [NotNull] IUpdateEntry entry,
             CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
-                (containerId, documentId, partitionKey), DeleteItemOnceAsync, null, cancellationToken);
+                (containerId, documentId, entry), DeleteItemOnceAsync, null, cancellationToken);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -416,24 +404,68 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual async Task<bool> DeleteItemOnceAsync(
-            DbContext _,
-            (string ContainerId, string DocumentId, string PartitionKey) parameters,
+            [CanBeNull] DbContext _,
+            (string ContainerId, string DocumentId, IUpdateEntry Entry) parameters,
             CancellationToken cancellationToken = default)
         {
+            var entry = parameters.Entry;
             var items = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
-            var partitionKey = CreatePartitionKey(parameters.PartitionKey);
-            using (var response = await items.DeleteItemStreamAsync(
-                parameters.DocumentId, partitionKey, cancellationToken: cancellationToken))
-            {
-                response.EnsureSuccessStatusCode();
-                return response.StatusCode == HttpStatusCode.NoContent;
-            }
+            var itemRequestOptions = CreateItemRequestOptions(entry);
+            var partitionKey = CreatePartitionKey(entry);
+
+            using var response = await items.DeleteItemStreamAsync(
+                parameters.DocumentId, partitionKey, itemRequestOptions, cancellationToken: cancellationToken);
+            ProcessResponse(response, entry);
+
+            return response.StatusCode == HttpStatusCode.NoContent;
         }
 
-        private PartitionKey CreatePartitionKey(string partitionKey)
-            => partitionKey == null
-                ? PartitionKey.None
-                : new PartitionKey(partitionKey);
+        private static ItemRequestOptions CreateItemRequestOptions(IUpdateEntry entry)
+        {
+            var etagProperty = entry.EntityType.GetETagProperty();
+            if (etagProperty == null)
+            {
+                return null;
+            }
+
+            var etag = entry.GetCurrentValue(etagProperty);
+            var converter = etagProperty.GetTypeMapping().Converter;
+            if (converter != null)
+            {
+                etag = converter.ConvertToProvider(etag);
+            }
+
+            return new ItemRequestOptions { IfMatchEtag = (string)etag };
+        }
+
+        private static PartitionKey CreatePartitionKey(IUpdateEntry entry)
+        {
+            object partitionKey = null;
+            var partitionKeyPropertyName = entry.EntityType.GetPartitionKeyPropertyName();
+            if (partitionKeyPropertyName != null)
+            {
+                var partitionKeyProperty = entry.EntityType.FindProperty(partitionKeyPropertyName);
+                partitionKey = entry.GetCurrentValue(partitionKeyProperty);
+
+                var converter = partitionKeyProperty.GetTypeMapping().Converter;
+                if (converter != null)
+                {
+                    partitionKey = converter.ConvertToProvider(partitionKey);
+                }
+            }
+
+            return partitionKey == null ? PartitionKey.None : new PartitionKey((string)partitionKey);
+        }
+
+        private static void ProcessResponse(ResponseMessage response, IUpdateEntry entry)
+        {
+            response.EnsureSuccessStatusCode();
+            var etagProperty = entry.EntityType.GetETagProperty();
+            if (etagProperty != null && entry.EntityState != EntityState.Deleted)
+            {
+                entry.SetStoreGeneratedValue(etagProperty, response.Headers.ETag);
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -442,12 +474,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<JObject> ExecuteSqlQuery(
-            string containerId,
+            [NotNull] string containerId,
+            [CanBeNull] string partitionKey,
             [NotNull] CosmosSqlQuery query)
         {
             _commandLogger.ExecutingSqlQuery(query);
 
-            return new DocumentEnumerable(this, containerId, query);
+            return new DocumentEnumerable(this, containerId, partitionKey, query);
         }
 
         /// <summary>
@@ -457,16 +490,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IAsyncEnumerable<JObject> ExecuteSqlQueryAsync(
-            string containerId,
+            [NotNull] string containerId,
+            [CanBeNull] string partitionKey,
             [NotNull] CosmosSqlQuery query)
         {
             _commandLogger.ExecutingSqlQuery(query);
 
-            return new DocumentAsyncEnumerable(this, containerId, query);
+            return new DocumentAsyncEnumerable(this, containerId, partitionKey, query);
         }
 
         private FeedIterator CreateQuery(
             string containerId,
+            string partitionKey,
             CosmosSqlQuery query)
         {
             var container = Client.GetDatabase(_databaseId).GetContainer(containerId);
@@ -476,22 +511,33 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 queryDefinition = queryDefinition.WithParameter(parameter.Name, parameter.Value);
             }
 
-            return container.GetItemQueryStreamIterator(queryDefinition);
+            if (string.IsNullOrEmpty(partitionKey))
+            {
+                return container.GetItemQueryStreamIterator(queryDefinition);
+            }
+
+            var queryRequestOptions = new QueryRequestOptions { PartitionKey = new PartitionKey(partitionKey) };
+
+            return container.GetItemQueryStreamIterator(queryDefinition, requestOptions: queryRequestOptions);
+
         }
 
-        private class DocumentEnumerable : IEnumerable<JObject>
+        private sealed class DocumentEnumerable : IEnumerable<JObject>
         {
             private readonly CosmosClientWrapper _cosmosClient;
             private readonly string _containerId;
+            private readonly string _partitionKey;
             private readonly CosmosSqlQuery _cosmosSqlQuery;
 
             public DocumentEnumerable(
                 CosmosClientWrapper cosmosClient,
                 string containerId,
+                string partitionKey,
                 CosmosSqlQuery cosmosSqlQuery)
             {
                 _cosmosClient = cosmosClient;
                 _containerId = containerId;
+                _partitionKey = partitionKey;
                 _cosmosSqlQuery = cosmosSqlQuery;
             }
 
@@ -499,7 +545,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-            private class Enumerator : IEnumerator<JObject>
+            private sealed class Enumerator : IEnumerator<JObject>
             {
                 private FeedIterator _query;
                 private ResponseMessage _responseMessage;
@@ -508,12 +554,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 private JsonTextReader _jsonReader;
                 private readonly CosmosClientWrapper _cosmosClient;
                 private readonly string _containerId;
+                private readonly string _partitionKey;
                 private readonly CosmosSqlQuery _cosmosSqlQuery;
-
+                
                 public Enumerator(DocumentEnumerable documentEnumerable)
                 {
                     _cosmosClient = documentEnumerable._cosmosClient;
                     _containerId = documentEnumerable._containerId;
+                    _partitionKey = documentEnumerable._partitionKey;
                     _cosmosSqlQuery = documentEnumerable._cosmosSqlQuery;
                 }
 
@@ -528,7 +576,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     {
                         if (_query == null)
                         {
-                            _query = _cosmosClient.CreateQuery(_containerId, _cosmosSqlQuery);
+                            _query = _cosmosClient.CreateQuery(_containerId, _partitionKey, _cosmosSqlQuery);
                         }
 
                         if (!_query.HasMoreResults)
@@ -597,26 +645,29 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             }
         }
 
-        private class DocumentAsyncEnumerable : IAsyncEnumerable<JObject>
+        private sealed class DocumentAsyncEnumerable : IAsyncEnumerable<JObject>
         {
             private readonly CosmosClientWrapper _cosmosClient;
             private readonly string _containerId;
+            private readonly string _patitionKey;
             private readonly CosmosSqlQuery _cosmosSqlQuery;
 
             public DocumentAsyncEnumerable(
                 CosmosClientWrapper cosmosClient,
                 string containerId,
+                string partitionKey,
                 CosmosSqlQuery cosmosSqlQuery)
             {
                 _cosmosClient = cosmosClient;
                 _containerId = containerId;
+                _patitionKey = partitionKey;
                 _cosmosSqlQuery = cosmosSqlQuery;
             }
 
             public IAsyncEnumerator<JObject> GetAsyncEnumerator(CancellationToken cancellationToken = default)
                 => new AsyncEnumerator(this, cancellationToken);
 
-            private class AsyncEnumerator : IAsyncEnumerator<JObject>
+            private sealed class AsyncEnumerator : IAsyncEnumerator<JObject>
             {
                 private FeedIterator _query;
                 private ResponseMessage _responseMessage;
@@ -625,6 +676,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 private JsonTextReader _jsonReader;
                 private readonly CosmosClientWrapper _cosmosClient;
                 private readonly string _containerId;
+                private readonly string _partitionKey;
                 private readonly CosmosSqlQuery _cosmosSqlQuery;
                 private readonly CancellationToken _cancellationToken;
 
@@ -632,6 +684,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 {
                     _cosmosClient = documentEnumerable._cosmosClient;
                     _containerId = documentEnumerable._containerId;
+                    _partitionKey = documentEnumerable._patitionKey;
                     _cosmosSqlQuery = documentEnumerable._cosmosSqlQuery;
                     _cancellationToken = cancellationToken;
                 }
@@ -647,7 +700,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     {
                         if (_query == null)
                         {
-                            _query = _cosmosClient.CreateQuery(_containerId, _cosmosSqlQuery);
+                            _query = _cosmosClient.CreateQuery(_containerId, _partitionKey, _cosmosSqlQuery);
                         }
 
                         if (!_query.HasMoreResults)
@@ -700,7 +753,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     _jsonReader = null;
                     await _reader.DisposeAsyncIfAvailable();
                     _reader = null;
-                    await _responseStream.DisposeAsyncIfAvailable();
+                    await _responseStream.DisposeAsync();
                     _responseStream = null;
                     await _responseMessage.DisposeAsyncIfAvailable();
                     _responseMessage = null;

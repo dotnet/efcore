@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var foreignKey = CreateForeignKey();
 
-            var navigation = foreignKey.HasDependentToPrincipal(E.DeceptionProperty);
+            var navigation = foreignKey.SetDependentToPrincipal(E.DeceptionProperty);
 
             Assert.Same(foreignKey, navigation.ForeignKey);
             Assert.Equal(nameof(E.Deception), navigation.Name);
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var fk = keylessType.AddForeignKey(fkProperty, key, entityType);
             Assert.Equal(
                 CoreStrings.NavigationToKeylessType(nameof(B.ManyAs), nameof(A)),
-                Assert.Throws<InvalidOperationException>(() => fk.HasPrincipalToDependent(nameof(B.ManyAs))).Message);
+                Assert.Throws<InvalidOperationException>(() => fk.SetPrincipalToDependent(nameof(B.ManyAs))).Message);
         }
 
         private IMutableForeignKey CreateForeignKey()

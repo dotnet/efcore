@@ -7,8 +7,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The type mapping, or <c>null</c> if none could be found. </returns>
         protected override CoreTypeMapping FindMapping(in TypeMappingInfo mappingInfo)
             => throw new InvalidOperationException(
-                "FindMapping on a 'RelationalTypeMappingSource' with a non-relational 'TypeMappingInfo'.");
+                RelationalStrings.NoneRelationalTypeMappingOnARelationalTypeMappingSource);
 
         private RelationalTypeMapping FindMappingWithConversion(
             in RelationalTypeMappingInfo mappingInfo,
@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
         public override CoreTypeMapping FindMapping(IProperty property)
         {
-            var mapping = property.FindRelationalMapping();
+            var mapping = property.FindRelationalTypeMapping();
             if (mapping != null)
             {
                 return mapping;
@@ -414,6 +414,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 var openParen = storeTypeName.IndexOf("(", StringComparison.Ordinal);
                 if (openParen > 0)
                 {
+                    string storeTypeNameBase = storeTypeName.Substring(0, openParen).Trim();
                     var closeParen = storeTypeName.IndexOf(")", openParen + 1, StringComparison.Ordinal);
                     if (closeParen > openParen)
                     {
@@ -434,16 +435,35 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         else if (int.TryParse(
                             storeTypeName.Substring(openParen + 1, closeParen - openParen - 1).Trim(), out var parsedSize))
                         {
-                            size = parsedSize;
-                            precision = parsedSize;
+                            if (StoreTypeNameBaseUsesPrecision(storeTypeNameBase))
+                            {
+                                precision = parsedSize;
+                                scale = 0;
+                            }
+                            else
+                            {
+                                size = parsedSize;
+                            }
                         }
 
-                        return storeTypeName.Substring(0, openParen).Trim();
+                        return storeTypeNameBase;
                     }
                 }
             }
 
             return storeTypeName;
         }
+
+        /// <summary>
+        /// Returns whether the store type name base interprets
+        /// nameBase(n) as a precision rather than a length
+        /// </summary>
+        /// <param name="storeTypeNameBase"> The name base of the store type </param>
+        /// <returns>
+        /// <c>true</c> if the store type name base interprets nameBase(n)
+        /// as a precision rather than a length, <c>false</c> otherwise.
+        /// </returns>
+        protected virtual bool StoreTypeNameBaseUsesPrecision([NotNull] string storeTypeNameBase)
+            => false;
     }
 }

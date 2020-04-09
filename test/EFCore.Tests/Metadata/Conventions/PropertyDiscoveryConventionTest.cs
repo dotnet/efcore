@@ -59,34 +59,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         [ConditionalFact]
         public void Properties_with_private_setters_on_unmapped_base_types_are_discovered()
         {
-            using (var context = new WithPrivatesContext())
-            {
-                var model = context.Model;
+            using var context = new WithPrivatesContext();
+            var model = context.Model;
 
-                Assert.Single(model.GetEntityTypes());
+            Assert.Single(model.GetEntityTypes());
 
-                var entityType = model.FindEntityType(typeof(DerivedWithoutPrivates));
+            var entityType = model.FindEntityType(typeof(DerivedWithoutPrivates));
 
-                Assert.Equal(3, entityType.PropertyCount());
+            Assert.Equal(3, entityType.PropertyCount());
 
-                var idProperty = entityType.FindProperty(nameof(BaseWithPrivates.Id));
-                Assert.NotNull(idProperty.PropertyInfo);
-                Assert.NotNull(idProperty.FieldInfo);
+            var idProperty = entityType.FindProperty(nameof(BaseWithPrivates.Id));
+            Assert.NotNull(idProperty.PropertyInfo);
+            Assert.NotNull(idProperty.FieldInfo);
 
-                var codeProperty = entityType.FindProperty(nameof(BaseWithPrivates.Code));
-                Assert.NotNull(codeProperty.PropertyInfo);
-                Assert.NotNull(codeProperty.FieldInfo);
+            var codeProperty = entityType.FindProperty(nameof(BaseWithPrivates.Code));
+            Assert.NotNull(codeProperty.PropertyInfo);
+            Assert.NotNull(codeProperty.FieldInfo);
 
-                var descriptionProperty = entityType.FindProperty(nameof(BaseWithPrivates.Description));
-                Assert.NotNull(descriptionProperty.PropertyInfo);
-                Assert.NotNull(descriptionProperty.FieldInfo);
+            var descriptionProperty = entityType.FindProperty(nameof(BaseWithPrivates.Description));
+            Assert.NotNull(descriptionProperty.PropertyInfo);
+            Assert.NotNull(descriptionProperty.FieldInfo);
 
-                var entity = new DerivedWithoutPrivates();
-                entity.SetInformation("Foo!", "Bar!");
-                context.Add(entity);
+            var entity = new DerivedWithoutPrivates();
+            entity.SetInformation("Foo!", "Bar!");
+            context.Add(entity);
 
-                context.SaveChanges();
-            }
+            context.SaveChanges();
         }
 
         [ConditionalFact]

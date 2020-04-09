@@ -250,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 valueExpression = Expression.TryCatch(valueExpression, catchBlock);
             }
 
-            if (box && valueExpression.Type.GetTypeInfo().IsValueType)
+            if (box && valueExpression.Type.IsValueType)
             {
                 valueExpression = Expression.Convert(valueExpression, typeof(object));
             }

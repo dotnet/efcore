@@ -16,12 +16,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public virtual ISetSource ExpectedData { get; set; }
 
         public abstract Task AssertSingleResultTyped<TResult>(
-            Func<ISetSource, TResult> actualSyncQuery,
-            Func<ISetSource, Task<TResult>> actualAsyncQuery,
-            Func<ISetSource, TResult> expectedQuery,
+            Expression<Func<ISetSource, TResult>> actualSyncQuery,
+            Expression<Func<ISetSource, Task<TResult>>> actualAsyncQuery,
+            Expression<Func<ISetSource, TResult>> expectedQuery,
             Action<TResult, TResult> asserter,
             int entryCount,
-            bool isAsync,
+            bool async,
             string testMethodName);
 
         public abstract Task AssertQuery<TResult>(
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Action<TResult, TResult> elementAsserter,
             bool assertOrder,
             int entryCount,
-            bool isAsync,
+            bool async,
             string testMethodName)
             where TResult : class;
 
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             bool assertOrder,
-            bool isAsync,
+            bool async,
             string testMethodName)
             where TResult : struct;
 
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult?>> actualQuery,
             Func<ISetSource, IQueryable<TResult?>> expectedQuery,
             bool assertOrder,
-            bool isAsync,
+            bool async,
             string testMethodName)
             where TResult : struct;
 
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             List<Func<TResult, object>> clientProjections,
             bool assertOrder,
             int entryCount,
-            bool isAsync,
+            bool async,
             string testMethodName);
 
         #region Assert termination operation methods
@@ -67,28 +67,28 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public abstract Task AssertAny<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertAny<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, bool>> actualPredicate,
             Expression<Func<TResult, bool>> expectedPredicate,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertAll<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, bool>> actualPredicate,
             Expression<Func<TResult, bool>> expectedPredicate,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertFirst<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertFirst<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -97,14 +97,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, bool>> expectedPredicate,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertFirstOrDefault<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertFirstOrDefault<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -113,14 +113,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, bool>> expectedPredicate,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertSingle<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertSingle<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -129,14 +129,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, bool>> expectedPredicate,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertSingleOrDefault<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertSingleOrDefault<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -145,14 +145,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, bool>> expectedPredicate,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertLast<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertLast<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -161,14 +161,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, bool>> expectedPredicate,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertLastOrDefault<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertLastOrDefault<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -177,38 +177,38 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, bool>> expectedPredicate,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertCount<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertCount<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, bool>> actualPredicate,
             Expression<Func<TResult, bool>> expectedPredicate,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertLongCount<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertLongCount<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, bool>> actualPredicate,
             Expression<Func<TResult, bool>> expectedPredicate,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertMin<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertMin<TResult, TSelector>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -217,14 +217,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, TSelector>> expectedSelector,
             Action<TSelector, TSelector> asserter = null,
             int entryCount = 0,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertMax<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertMax<TResult, TSelector>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -233,67 +233,67 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, TSelector>> expectedSelector,
             Action<TSelector, TSelector> asserter = null,
             int entryCount = 0,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertSum(
             Func<ISetSource, IQueryable<int>> actualQuery,
             Func<ISetSource, IQueryable<int>> expectedQuery,
             Action<int, int> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertSum(
             Func<ISetSource, IQueryable<int?>> actualQuery,
             Func<ISetSource, IQueryable<int?>> expectedQuery,
             Action<int?, int?> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertSum(
             Func<ISetSource, IQueryable<long>> actualQuery,
             Func<ISetSource, IQueryable<long>> expectedQuery,
             Action<long, long> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertSum(
             Func<ISetSource, IQueryable<long?>> actualQuery,
             Func<ISetSource, IQueryable<long?>> expectedQuery,
             Action<long?, long?> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertSum(
             Func<ISetSource, IQueryable<decimal>> actualQuery,
             Func<ISetSource, IQueryable<decimal>> expectedQuery,
             Action<decimal, decimal> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertSum(
             Func<ISetSource, IQueryable<decimal?>> actualQuery,
             Func<ISetSource, IQueryable<decimal?>> expectedQuery,
             Action<decimal?, decimal?> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertSum(
             Func<ISetSource, IQueryable<float>> actualQuery,
             Func<ISetSource, IQueryable<float>> expectedQuery,
             Action<float, float> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertSum(
             Func<ISetSource, IQueryable<float?>> actualQuery,
             Func<ISetSource, IQueryable<float?>> expectedQuery,
             Action<float?, float?> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertSum(
             Func<ISetSource, IQueryable<double>> actualQuery,
             Func<ISetSource, IQueryable<double>> expectedQuery,
             Action<double, double> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertSum(
             Func<ISetSource, IQueryable<double?>> actualQuery,
             Func<ISetSource, IQueryable<double?>> expectedQuery,
             Action<double?, double?> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertSum<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -301,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, int>> actualSelector,
             Expression<Func<TResult, int>> expectedSelector,
             Action<int, int> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertSum<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -309,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, int?>> actualSelector,
             Expression<Func<TResult, int?>> expectedSelector,
             Action<int?, int?> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertSum<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -317,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, long>> actualSelector,
             Expression<Func<TResult, long>> expectedSelector,
             Action<long, long> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertSum<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -325,7 +325,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, long?>> actualSelector,
             Expression<Func<TResult, long?>> expectedSelector,
             Action<long?, long?> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertSum<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -333,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, decimal>> actualSelector,
             Expression<Func<TResult, decimal>> expectedSelector,
             Action<decimal, decimal> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertSum<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -341,7 +341,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, decimal?>> actualSelector,
             Expression<Func<TResult, decimal?>> expectedSelector,
             Action<decimal?, decimal?> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertSum<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -349,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, float>> actualSelector,
             Expression<Func<TResult, float>> expectedSelector,
             Action<float, float> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertSum<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -357,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, float?>> actualSelector,
             Expression<Func<TResult, float?>> expectedSelector,
             Action<float?, float?> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertSum<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -365,7 +365,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, double>> actualSelector,
             Expression<Func<TResult, double>> expectedSelector,
             Action<double, double> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertSum<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -373,67 +373,67 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, double?>> actualSelector,
             Expression<Func<TResult, double?>> expectedSelector,
             Action<double?, double?> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertAverage(
             Func<ISetSource, IQueryable<int>> actualQuery,
             Func<ISetSource, IQueryable<int>> expectedQuery,
             Action<double, double> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertAverage(
             Func<ISetSource, IQueryable<int?>> actualQuery,
             Func<ISetSource, IQueryable<int?>> expectedQuery,
             Action<double?, double?> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertAverage(
             Func<ISetSource, IQueryable<long>> actualQuery,
             Func<ISetSource, IQueryable<long>> expectedQuery,
             Action<double, double> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertAverage(
             Func<ISetSource, IQueryable<long?>> actualQuery,
             Func<ISetSource, IQueryable<long?>> expectedQuery,
             Action<double?, double?> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertAverage(
             Func<ISetSource, IQueryable<decimal>> actualQuery,
             Func<ISetSource, IQueryable<decimal>> expectedQuery,
             Action<decimal, decimal> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertAverage(
             Func<ISetSource, IQueryable<decimal?>> actualQuery,
             Func<ISetSource, IQueryable<decimal?>> expectedQuery,
             Action<decimal?, decimal?> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertAverage(
             Func<ISetSource, IQueryable<float>> actualQuery,
             Func<ISetSource, IQueryable<float>> expectedQuery,
             Action<float, float> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertAverage(
             Func<ISetSource, IQueryable<float?>> actualQuery,
             Func<ISetSource, IQueryable<float?>> expectedQuery,
             Action<float?, float?> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertAverage(
             Func<ISetSource, IQueryable<double>> actualQuery,
             Func<ISetSource, IQueryable<double>> expectedQuery,
             Action<double, double> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertAverage(
             Func<ISetSource, IQueryable<double?>> actualQuery,
             Func<ISetSource, IQueryable<double?>> expectedQuery,
             Action<double?, double?> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertAverage<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -441,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, int>> actualSelector,
             Expression<Func<TResult, int>> expectedSelector,
             Action<double, double> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertAverage<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -449,7 +449,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, int?>> actualSelector,
             Expression<Func<TResult, int?>> expectedSelector,
             Action<double?, double?> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertAverage<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -457,7 +457,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, long>> actualSelector,
             Expression<Func<TResult, long>> expectedSelector,
             Action<double, double> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertAverage<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -465,7 +465,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, long?>> actualSelector,
             Expression<Func<TResult, long?>> expectedSelector,
             Action<double?, double?> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertAverage<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -473,7 +473,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, decimal>> actualSelector,
             Expression<Func<TResult, decimal>> expectedSelector,
             Action<decimal, decimal> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertAverage<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -481,7 +481,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, decimal?>> actualSelector,
             Expression<Func<TResult, decimal?>> expectedSelector,
             Action<decimal?, decimal?> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertAverage<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -489,7 +489,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, float>> actualSelector,
             Expression<Func<TResult, float>> expectedSelector,
             Action<float, float> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertAverage<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -497,7 +497,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, float?>> actualSelector,
             Expression<Func<TResult, float?>> expectedSelector,
             Action<float?, float?> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertAverage<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -505,7 +505,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, double>> actualSelector,
             Expression<Func<TResult, double>> expectedSelector,
             Action<double, double> asserter = null,
-            bool isAsync = false);
+            bool async = false);
 
         public abstract Task AssertAverage<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -513,7 +513,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, double?>> actualSelector,
             Expression<Func<TResult, double?>> expectedSelector,
             Action<double?, double?> asserter = null,
-            bool isAsync = false);
+            bool async = false);
+
+        public abstract Task AssertContains<TElement>(
+            Func<ISetSource, IQueryable<TElement>> actualQuery,
+            Func<ISetSource, IQueryable<TElement>> expectedQuery,
+            TElement actualElement,
+            TElement expectedElement,
+            Action<bool, bool> asserter = null,
+            bool async = false);
 
         #endregion
 

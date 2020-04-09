@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     <para>
     ///         Metadata about the shape of entities, the relationships between them, and how they map to
     ///         the database. A model is typically created by overriding the
-    ///         see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> method on a derived
+    ///         <see cref="DbContext.OnModelCreating(ModelBuilder)" /> method on a derived
     ///         <see cref="DbContext" />.
     ///     </para>
     ///     <para>

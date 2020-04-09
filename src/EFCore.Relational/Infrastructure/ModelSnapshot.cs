@@ -16,12 +16,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private IModel CreateModel()
         {
-            var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new ModelBuilder();
 
             BuildModel(modelBuilder);
 
-            return model;
+            return modelBuilder.Model;
         }
 
         /// <summary>

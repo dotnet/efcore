@@ -82,10 +82,16 @@ namespace Microsoft.EntityFrameworkCore.Tools
             return resultHandler.Result;
         }
 
-        public IDictionary AddMigration(string name, string outputDir, string contextType)
+        public IDictionary AddMigration(string name, string outputDir, string contextType, string @namespace)
             => InvokeOperation<IDictionary>(
                 "AddMigration",
-                new Dictionary<string, string> { ["name"] = name, ["outputDir"] = outputDir, ["contextType"] = contextType });
+                new Dictionary<string, string>
+                {
+                    ["name"] = name,
+                    ["outputDir"] = outputDir,
+                    ["contextType"] = contextType,
+                    ["namespace"] = @namespace
+                });
 
         public IDictionary RemoveMigration(string contextType, bool force)
             => InvokeOperation<IDictionary>(
@@ -107,10 +113,15 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 "GetContextInfo",
                 new Dictionary<string, object> { ["contextType"] = name });
 
-        public void UpdateDatabase(string migration, string contextType)
+        public void UpdateDatabase(string migration, string connectionString, string contextType)
             => InvokeOperation(
                 "UpdateDatabase",
-                new Dictionary<string, string> { ["targetMigration"] = migration, ["contextType"] = contextType });
+                new Dictionary<string, string>
+                {
+                    ["targetMigration"] = migration,
+                    ["connectionString"] = connectionString,
+                    ["contextType"] = contextType
+                });
 
         public IEnumerable<IDictionary> GetContextTypes()
             => InvokeOperation<IEnumerable<IDictionary>>("GetContextTypes");
@@ -125,7 +136,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
             IEnumerable<string> tableFilters,
             bool useDataAnnotations,
             bool overwriteFiles,
-            bool useDatabaseNames)
+            bool useDatabaseNames,
+            string modelNamespace,
+            string contextNamespace)
             => InvokeOperation<IDictionary>(
                 "ScaffoldContext",
                 new Dictionary<string, object>
@@ -139,7 +152,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     ["tableFilters"] = tableFilters,
                     ["useDataAnnotations"] = useDataAnnotations,
                     ["overwriteFiles"] = overwriteFiles,
-                    ["useDatabaseNames"] = useDatabaseNames
+                    ["useDatabaseNames"] = useDatabaseNames,
+                    ["modelNamespace"] = modelNamespace,
+                    ["contextNamespace"] = contextNamespace
                 });
 
         public string ScriptMigration(

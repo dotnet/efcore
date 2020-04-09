@@ -175,12 +175,10 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Throws<InvalidOperationException>(
                     () =>
                     {
-                        using (var context = new NoServicesAndNoConfigBlogContext())
-                        {
-                            context.Blogs.Add(
-                                new Blog { Name = "The Waffle Cart" });
-                            context.SaveChanges();
-                        }
+                        using var context = new NoServicesAndNoConfigBlogContext();
+                        context.Blogs.Add(
+                            new Blog { Name = "The Waffle Cart" });
+                        context.SaveChanges();
                     }).Message);
         }
 
@@ -204,12 +202,10 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Throws<InvalidOperationException>(
                     () =>
                     {
-                        using (var context = new ImplicitConfigButNoServicesBlogContext(serviceProvider))
-                        {
-                            context.Blogs.Add(
-                                new Blog { Name = "The Waffle Cart" });
-                            context.SaveChanges();
-                        }
+                        using var context = new ImplicitConfigButNoServicesBlogContext(serviceProvider);
+                        context.Blogs.Add(
+                            new Blog { Name = "The Waffle Cart" });
+                        context.SaveChanges();
                     }).Message);
         }
 

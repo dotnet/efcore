@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         public CustomConvertersCosmosTest(CustomConvertersCosmosFixture fixture)
             : base(fixture)
         {
+            Fixture.TestSqlLoggerFactory.Clear();
         }
 
         public override void Can_perform_query_with_max_length()
@@ -137,16 +138,53 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             base.Value_conversion_is_appropriately_used_for_left_join_condition();
         }
 
-        [ConditionalFact(Skip = "Issue #18147")]
+        [ConditionalFact(Skip = "Issue#18147")]
         public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used()
         {
             base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used();
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE (c[""Discriminator""] IN (""Blog"", ""RssBlog"") AND (c[""IsVisible""] = ""Y""))");
         }
+
+        [ConditionalFact(Skip = "Issue#18147")]
+        public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
+        {
+            base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty();
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE (c[""Discriminator""] IN (""Blog"", ""RssBlog"") AND (c[""IsVisible""] = ""Y""))");
+        }
+
+        [ConditionalFact(Skip = "Issue#18147")]
+        public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer()
+        {
+            base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer();
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE (c[""Discriminator""] IN (""Blog"", ""RssBlog"") AND NOT((c[""IndexerVisible""] = ""Aye"")))");
+        }
+
+        [ConditionalFact(Skip = "Issue #20543")]
+        public override void Object_to_string_conversion()
+        {
+            base.Object_to_string_conversion();
+
+            AssertSql(@" ");
+        }
+
+        private void AssertSql(params string[] expected)
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
         public class CustomConvertersCosmosFixture : CustomConvertersFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
-
             public override bool StrictEquality => true;
 
             public override int IntegerPrecision => 53;
@@ -162,6 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             public override bool SupportsDecimalComparisons => true;
 
             public override DateTime DefaultDateTime => new DateTime();
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {

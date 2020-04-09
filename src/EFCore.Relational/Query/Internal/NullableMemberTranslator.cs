@@ -3,7 +3,9 @@
 
 using System;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -11,13 +13,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public NullableMemberTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        public NullableMemberTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
         public virtual SqlExpression Translate(SqlExpression instance, MemberInfo member, Type returnType)
         {
+            Check.NotNull(member, nameof(member));
+            Check.NotNull(returnType, nameof(returnType));
+
             if (member.DeclaringType.IsNullableValueType())
             {
                 switch (member.Name)

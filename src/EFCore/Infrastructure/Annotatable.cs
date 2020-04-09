@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -197,18 +198,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         protected virtual Annotation CreateAnnotation([NotNull] string name, [CanBeNull] object value)
             => new Annotation(name, value);
 
-        /// <summary>
-        ///     Gets all annotations on the current object.
-        /// </summary>
+        /// <inheritdoc />
+        [DebuggerStepThrough]
         IEnumerable<IAnnotation> IAnnotatable.GetAnnotations() => GetAnnotations();
 
         /// <inheritdoc />
+        [DebuggerStepThrough]
         IAnnotation IAnnotatable.FindAnnotation(string name) => FindAnnotation(name);
 
         /// <inheritdoc />
+        [DebuggerStepThrough]
         IAnnotation IMutableAnnotatable.AddAnnotation(string name, object value) => AddAnnotation(name, value);
 
         /// <inheritdoc />
+        [DebuggerStepThrough]
         IAnnotation IMutableAnnotatable.RemoveAnnotation(string name) => RemoveAnnotation(name);
     }
 }

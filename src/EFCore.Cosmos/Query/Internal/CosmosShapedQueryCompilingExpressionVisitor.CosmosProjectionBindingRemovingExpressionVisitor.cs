@@ -7,7 +7,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -15,29 +17,30 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     public partial class CosmosShapedQueryCompilingExpressionVisitor
     {
-        private class CosmosProjectionBindingRemovingExpressionVisitor : ExpressionVisitor
+        private sealed class CosmosProjectionBindingRemovingExpressionVisitor : ExpressionVisitor
         {
             private static readonly MethodInfo _getItemMethodInfo
-                = typeof(JObject).GetTypeInfo().GetRuntimeProperties()
+                = typeof(JObject).GetRuntimeProperties()
                     .Single(pi => pi.Name == "Item" && pi.GetIndexParameters()[0].ParameterType == typeof(string))
                     .GetMethod;
 
             private static readonly PropertyInfo _jTokenTypePropertyInfo
-                = typeof(JToken).GetTypeInfo().GetRuntimeProperties()
+                = typeof(JToken).GetRuntimeProperties()
                     .Single(mi => mi.Name == nameof(JToken.Type));
 
             private static readonly MethodInfo _jTokenToObjectMethodInfo
-                = typeof(JToken).GetTypeInfo().GetRuntimeMethods()
+                = typeof(JToken).GetRuntimeMethods()
                     .Single(mi => mi.Name == nameof(JToken.ToObject) && mi.GetParameters().Length == 0);
 
             private static readonly MethodInfo _toObjectMethodInfo
-                = typeof(CosmosProjectionBindingRemovingExpressionVisitor).GetTypeInfo().GetRuntimeMethods()
+                = typeof(CosmosProjectionBindingRemovingExpressionVisitor).GetRuntimeMethods()
                     .Single(mi => mi.Name == nameof(SafeToObject));
 
             private static readonly MethodInfo _collectionAccessorAddMethodInfo
@@ -68,8 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 = new List<IncludeExpression>();
 
             public CosmosProjectionBindingRemovingExpressionVisitor(
-                SelectExpression selectExpression,
-                ParameterExpression jObjectParameter,
+                [NotNull] SelectExpression selectExpression,
+                [NotNull] ParameterExpression jObjectParameter,
                 bool trackQueryResults)
             {
                 _selectExpression = selectExpression;
@@ -79,6 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             protected override Expression VisitBinary(BinaryExpression binaryExpression)
             {
+                Check.NotNull(binaryExpression, nameof(binaryExpression));
+
                 if (binaryExpression.NodeType == ExpressionType.Assign)
                 {
                     if (binaryExpression.Left is ParameterExpression parameterExpression)
@@ -178,9 +183,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
+                Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
                 var method = methodCallExpression.Method;
                 var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
-                if (genericMethod == EntityMaterializerSource.TryReadValueMethod)
+                if (genericMethod == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod)
                 {
                     var property = (IProperty)((ConstantExpression)methodCallExpression.Arguments[2]).Value;
                     Expression innerExpression;
@@ -208,19 +215,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     var lambda = (LambdaExpression)methodCallExpression.Arguments[1];
                     if (lambda.Body is IncludeExpression includeExpression)
                     {
-                        if (includeExpression.Navigation.IsDependentToPrincipal()
+                        if (includeExpression.Navigation.IsOnDependent
                             || includeExpression.Navigation.ForeignKey.DeclaringEntityType.IsDocumentRoot())
                         {
-                            throw new InvalidOperationException(
-                                "Non-embedded IncludeExpression is not supported: " + includeExpression.Print());
+                            throw new InvalidOperationException(CosmosStrings.NonEmbeddedIncludeNotSupported(includeExpression.Print()));
                         }
 
                         _pendingIncludes.Add(includeExpression);
 
-                        if (!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue19159", out var isEnabled) || !isEnabled)
-                        {
-                            Visit(includeExpression.EntityExpression);
-                        }
+                        Visit(includeExpression.EntityExpression);
 
                         // Includes on collections are processed when visiting CollectionShaperExpression
                         return Visit(methodCallExpression.Arguments[0]);
@@ -232,6 +235,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             protected override Expression VisitExtension(Expression extensionExpression)
             {
+                Check.NotNull(extensionExpression, nameof(extensionExpression));
+
                 switch (extensionExpression)
                 {
                     case ProjectionBindingExpression projectionBindingExpression:
@@ -283,18 +288,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                         var navigation = collectionShaperExpression.Navigation;
                         return Expression.Call(
-                            _populateCollectionMethodInfo.MakeGenericMethod(navigation.GetTargetType().ClrType, navigation.ClrType),
+                            _populateCollectionMethodInfo.MakeGenericMethod(navigation.TargetEntityType.ClrType, navigation.ClrType),
                             Expression.Constant(navigation.GetCollectionAccessor()),
                             entities);
                     }
 
                     case IncludeExpression includeExpression:
                     {
-                        if (includeExpression.Navigation.IsDependentToPrincipal()
+                        if (includeExpression.Navigation.IsOnDependent
                             || includeExpression.Navigation.ForeignKey.DeclaringEntityType.IsDocumentRoot())
                         {
-                            throw new InvalidOperationException(
-                                "Non-embedded IncludeExpression is not supported: " + includeExpression.Print());
+                            throw new InvalidOperationException(CosmosStrings.NonEmbeddedIncludeNotSupported(includeExpression.Print()));
                         }
 
                         var isFirstInclude = _pendingIncludes.Count == 0;
@@ -307,7 +311,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             return jObjectBlock;
                         }
 
-                        Debug.Assert(jObjectBlock != null, "The first include must end up on a valid shaper block");
+                        Check.DebugAssert(jObjectBlock != null, "The first include must end up on a valid shaper block");
 
                         // These are the expressions added by JObjectInjectingExpressionVisitor
                         var jObjectCondition = (ConditionalExpression)jObjectBlock.Expressions[jObjectBlock.Expressions.Count - 1];
@@ -359,14 +363,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 Expression instanceVariable)
             {
                 var navigation = includeExpression.Navigation;
-                var includeMethod = navigation.IsCollection() ? _includeCollectionMethodInfo : _includeReferenceMethodInfo;
+                var includeMethod = navigation.IsCollection ? _includeCollectionMethodInfo : _includeReferenceMethodInfo;
                 var includingClrType = navigation.DeclaringEntityType.ClrType;
-                var relatedEntityClrType = navigation.GetTargetType().ClrType;
+                var relatedEntityClrType = navigation.TargetEntityType.ClrType;
                 var entityEntryVariable = _trackQueryResults
                     ? shaperBlock.Variables.Single(v => v.Type == typeof(InternalEntityEntry))
                     : (Expression)Expression.Constant(null, typeof(InternalEntityEntry));
                 var concreteEntityTypeVariable = shaperBlock.Variables.Single(v => v.Type == typeof(IEntityType));
-                var inverseNavigation = navigation.FindInverse();
+                var inverseNavigation = navigation.Inverse;
                 var fixup = GenerateFixup(
                     includingClrType, relatedEntityClrType, navigation, inverseNavigation);
                 var initialize = GenerateInitialize(includingClrType, navigation);
@@ -398,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 INavigation navigation,
                 INavigation inverseNavigation,
                 Action<TIncludingEntity, TIncludedEntity> fixup,
-                Action<TIncludingEntity> initialize)
+                Action<TIncludingEntity> _)
             {
                 if (entity == null
                     || !navigation.DeclaringEntityType.IsAssignableFrom(entityType))
@@ -414,7 +418,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     {
                         fixup(includingEntity, relatedEntity);
                         if (inverseNavigation != null
-                            && !inverseNavigation.IsCollection())
+                            && !inverseNavigation.IsCollection)
                         {
                             SetIsLoadedNoTracking(relatedEntity, inverseNavigation);
                         }
@@ -473,11 +477,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     entry.SetIsLoaded(navigation);
                     if (relatedEntities != null)
                     {
-                        using (var enumerator = relatedEntities.GetEnumerator())
+                        using var enumerator = relatedEntities.GetEnumerator();
+                        while (enumerator.MoveNext())
                         {
-                            while (enumerator.MoveNext())
-                            {
-                            }
                         }
                     }
                     else
@@ -505,7 +507,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 var relatedEntityParameter = Expression.Parameter(relatedEntityType);
                 var expressions = new List<Expression>
                 {
-                    navigation.IsCollection()
+                    navigation.IsCollection
                         ? AddToCollectionNavigation(entityParameter, relatedEntityParameter, navigation)
                         : AssignReferenceNavigation(entityParameter, relatedEntityParameter, navigation)
                 };
@@ -513,7 +515,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 if (inverseNavigation != null)
                 {
                     expressions.Add(
-                        inverseNavigation.IsCollection()
+                        inverseNavigation.IsCollection
                             ? AddToCollectionNavigation(relatedEntityParameter, entityParameter, inverseNavigation)
                             : AssignReferenceNavigation(relatedEntityParameter, entityParameter, inverseNavigation));
                 }
@@ -526,7 +528,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 Type entityType,
                 INavigation navigation)
             {
-                if (!navigation.IsCollection())
+                if (!navigation.IsCollection)
                 {
                     return null;
                 }
@@ -603,7 +605,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     return _projectionBindings[jObjectExpression];
                 }
 
-                var storeName = property.GetPropertyName();
+                var storeName = property.GetJsonPropertyName();
                 if (storeName.Length == 0)
                 {
                     var entityType = property.DeclaringEntityType;
@@ -628,7 +630,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             Expression ownerJObjectExpression = null;
                             if (_ownerMappings.TryGetValue(jObjectExpression, out var ownerInfo))
                             {
-                                Debug.Assert(principalProperty.DeclaringEntityType.IsAssignableFrom(ownerInfo.EntityType));
+                                Check.DebugAssert(
+                                    principalProperty.DeclaringEntityType.IsAssignableFrom(ownerInfo.EntityType),
+                                    $"{principalProperty.DeclaringEntityType} is not assignable from {ownerInfo.EntityType}");
 
                                 ownerJObjectExpression = ownerInfo.JObjectExpression;
                             }

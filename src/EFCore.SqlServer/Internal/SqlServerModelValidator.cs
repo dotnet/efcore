@@ -74,12 +74,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                     p => p.ClrType.UnwrapNullableType() == typeof(decimal)
                         && !p.IsForeignKey()))
             {
-                var typeConfigurationSource = (property as IConventionProperty)?.GetColumnTypeConfigurationSource();
+                var valueConverterConfigurationSource = (property as IConventionProperty)?.GetValueConverterConfigurationSource();
+                var valueConverterProviderType = property.GetValueConverter()?.ProviderClrType;
+                if (!ConfigurationSource.Convention.Overrides(valueConverterConfigurationSource)
+                    && typeof(decimal) != valueConverterProviderType)
+                {
+                    continue;
+                }
+
+                var columnTypeConfigurationSource = (property as IConventionProperty)?.GetColumnTypeConfigurationSource();
                 var typeMappingConfigurationSource = (property as IConventionProperty)?.GetTypeMappingConfigurationSource();
-                if ((typeConfigurationSource == null
+                if ((columnTypeConfigurationSource == null
                         && ConfigurationSource.Convention.Overrides(typeMappingConfigurationSource))
-                    || (typeConfigurationSource != null
-                        && ConfigurationSource.Convention.Overrides(typeConfigurationSource)))
+                    || (columnTypeConfigurationSource != null
+                        && ConfigurationSource.Convention.Overrides(columnTypeConfigurationSource)))
                 {
                     logger.DecimalTypeDefaultWarning(property);
                 }
@@ -121,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                         && ((IConventionProperty)p).GetValueGenerationStrategyConfigurationSource() != null
                         && !p.IsKey()
                         && p.ValueGenerated != ValueGenerated.Never
-                        && (!(p.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy) is ConventionAnnotation strategy)
+                        && (!(p.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy) is IConventionAnnotation strategy)
                             || !ConfigurationSource.Convention.Overrides(strategy.GetConfigurationSource()))))
             {
                 throw new InvalidOperationException(
@@ -214,22 +222,52 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         {
             base.ValidateSharedColumnsCompatibility(mappedTypes, tableName, logger);
 
-            var identityColumns = new List<IProperty>();
-            var propertyMappings = new Dictionary<string, IProperty>();
+            var identityColumns = new Dictionary<string, IProperty>();
 
             foreach (var property in mappedTypes.SelectMany(et => et.GetDeclaredProperties()))
             {
-                var columnName = property.GetColumnName();
-                if (propertyMappings.TryGetValue(columnName, out var duplicateProperty))
+                if (property.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn)
                 {
-                    var propertyStrategy = property.GetValueGenerationStrategy();
-                    var duplicatePropertyStrategy = duplicateProperty.GetValueGenerationStrategy();
-                    if (propertyStrategy != duplicatePropertyStrategy
-                        && (propertyStrategy == SqlServerValueGenerationStrategy.IdentityColumn
-                            || duplicatePropertyStrategy == SqlServerValueGenerationStrategy.IdentityColumn))
+                    identityColumns[property.GetColumnName()] = property;
+                }
+            }
+
+            if (identityColumns.Count > 1)
+            {
+                var sb = new StringBuilder()
+                    .AppendJoin(identityColumns.Values.Select(p => "'" + p.DeclaringEntityType.DisplayName() + "." + p.Name + "'"));
+                throw new InvalidOperationException(SqlServerStrings.MultipleIdentityColumns(sb, tableName));
+            }
+        }
+
+        /// <inheritdoc />
+        protected override void ValidateCompatible(IProperty property, IProperty duplicateProperty, string columnName, string tableName)
+        {
+            base.ValidateCompatible(property, duplicateProperty, columnName, tableName);
+
+            var propertyStrategy = property.GetValueGenerationStrategy();
+            var duplicatePropertyStrategy = duplicateProperty.GetValueGenerationStrategy();
+            if (propertyStrategy != duplicatePropertyStrategy)
+            {
+                throw new InvalidOperationException(
+                    SqlServerStrings.DuplicateColumnNameValueGenerationStrategyMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        tableName));
+            }
+
+            switch (propertyStrategy)
+            {
+                case SqlServerValueGenerationStrategy.IdentityColumn:
+                    var increment = property.GetIdentityIncrement();
+                    var duplicateIncrement = duplicateProperty.GetIdentityIncrement();
+                    if (increment != duplicateIncrement)
                     {
                         throw new InvalidOperationException(
-                            SqlServerStrings.DuplicateColumnNameValueGenerationStrategyMismatch(
+                            SqlServerStrings.DuplicateColumnIdentityIncrementMismatch(
                                 duplicateProperty.DeclaringEntityType.DisplayName(),
                                 duplicateProperty.Name,
                                 property.DeclaringEntityType.DisplayName(),
@@ -237,61 +275,65 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                                 columnName,
                                 tableName));
                     }
-                }
-                else
-                {
-                    propertyMappings[columnName] = property;
-                    if (property.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn)
-                    {
-                        identityColumns.Add(property);
-                    }
-                }
-            }
 
-            if (identityColumns.Count > 1)
-            {
-                var sb = new StringBuilder()
-                    .AppendJoin(identityColumns.Select(p => "'" + p.DeclaringEntityType.DisplayName() + "." + p.Name + "'"));
-                throw new InvalidOperationException(SqlServerStrings.MultipleIdentityColumns(sb, tableName));
+                    var seed = property.GetIdentitySeed();
+                    var duplicateSeed = duplicateProperty.GetIdentitySeed();
+                    if (seed != duplicateSeed)
+                    {
+                        throw new InvalidOperationException(
+                            SqlServerStrings.DuplicateColumnIdentitySeedMismatch(
+                                duplicateProperty.DeclaringEntityType.DisplayName(),
+                                duplicateProperty.Name,
+                                property.DeclaringEntityType.DisplayName(),
+                                property.Name,
+                                columnName,
+                                tableName));
+                    }
+
+                    break;
+                case SqlServerValueGenerationStrategy.SequenceHiLo:
+                    if (property.GetHiLoSequenceName() != duplicateProperty.GetHiLoSequenceName()
+                        || property.GetHiLoSequenceSchema() != duplicateProperty.GetHiLoSequenceSchema())
+                    {
+                        throw new InvalidOperationException(
+                            SqlServerStrings.DuplicateColumnSequenceMismatch(
+                                duplicateProperty.DeclaringEntityType.DisplayName(),
+                                duplicateProperty.Name,
+                                property.DeclaringEntityType.DisplayName(),
+                                property.Name,
+                                columnName,
+                                tableName));
+                    }
+
+                    break;
             }
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override void ValidateSharedKeysCompatibility(
-            IReadOnlyList<IEntityType> mappedTypes, string tableName, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        /// <inheritdoc />
+        protected override void ValidateCompatible(IKey key, IKey duplicateKey, string keyName, string tableName)
         {
-            base.ValidateSharedKeysCompatibility(mappedTypes, tableName, logger);
+            base.ValidateCompatible(key, duplicateKey, keyName, tableName);
 
-            var keyMappings = new Dictionary<string, IKey>();
-
-            foreach (var key in mappedTypes.SelectMany(et => et.GetDeclaredKeys()))
+            if (key.IsClustered()
+                != duplicateKey.IsClustered())
             {
-                var keyName = key.GetName();
-
-                if (!keyMappings.TryGetValue(keyName, out var duplicateKey))
-                {
-                    keyMappings[keyName] = key;
-                    continue;
-                }
-
-                if (key.IsClustered()
-                    != duplicateKey.IsClustered())
-                {
-                    throw new InvalidOperationException(
-                        SqlServerStrings.DuplicateKeyMismatchedClustering(
-                            key.Properties.Format(),
-                            key.DeclaringEntityType.DisplayName(),
-                            duplicateKey.Properties.Format(),
-                            duplicateKey.DeclaringEntityType.DisplayName(),
-                            tableName,
-                            keyName));
-                }
+                throw new InvalidOperationException(
+                    SqlServerStrings.DuplicateKeyMismatchedClustering(
+                        key.Properties.Format(),
+                        key.DeclaringEntityType.DisplayName(),
+                        duplicateKey.Properties.Format(),
+                        duplicateKey.DeclaringEntityType.DisplayName(),
+                        tableName,
+                        keyName));
             }
+        }
+
+        /// <inheritdoc />
+        protected override void ValidateCompatible(IIndex index, IIndex duplicateIndex, string indexName, string tableName)
+        {
+            base.ValidateCompatible(index, duplicateIndex, indexName, tableName);
+
+            index.AreCompatibleForSqlServer(duplicateIndex, shouldThrow: true);
         }
     }
 }

@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention(property);
 
-            property.SetField("m_onTheRun");
+            property.SetFieldInfo("m_onTheRun");
 
             Validate(property);
 
@@ -234,11 +234,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention((IMutableProperty)property);
 
-            property.SetField("m_onTheRun", fromDataAnnotation: true);
+            property.SetFieldInfo("m_onTheRun", fromDataAnnotation: true);
 
             Validate((IMutableProperty)property);
 
             Assert.Equal("m_onTheRun", property.GetFieldName());
+        }
+
+        [ConditionalFact]
+        public void Backing_field_is_not_discovered_for_indexer_property()
+        {
+            var entityType = CreateModel().AddEntityType(typeof(IndexedClass));
+            var property = entityType.AddIndexerProperty("Nation", typeof(string));
+
+            RunConvention(property);
+            Validate(property);
+
+            Assert.Null(property.GetFieldName());
+        }
+
+        [ConditionalFact]
+        public void Setting_field_on_indexer_property_throws()
+        {
+            var entityType = CreateModel().AddEntityType(typeof(IndexedClass));
+            var property = entityType.AddIndexerProperty("Nation", typeof(string));
+
+            Assert.Equal(
+                CoreStrings.BackingFieldOnIndexer("nation", entityType.DisplayName(), "Nation"),
+                Assert.Throws<InvalidOperationException>(() => property.SetFieldInfo("nation")).Message);
         }
 
         private void RunConvention(IMutableProperty property)
@@ -249,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private void Validate(IMutableProperty property)
             => new BackingFieldConvention(CreateDependencies())
-                .ProcessModelFinalized(
+                .ProcessModelFinalizing(
                     ((Property)property).DeclaringEntityType.Model.Builder,
                     new ConventionContext<IConventionModelBuilder>(((Model)property.DeclaringEntityType.Model).ConventionDispatcher));
 
@@ -457,6 +480,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 get { return m_onTheRun; }
                 set { m_onTheRun = (int)value; }
             }
+        }
+
+        private class IndexedClass
+        {
+            private string nation;
+            private string _nation;
+            private string _Nation;
+            private string m_nation;
+            private string m_Nation;
+
+            public object this[string name] => null;
         }
 
 #pragma warning disable RCS1222 // Merge preprocessor directives.

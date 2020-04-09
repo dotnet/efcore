@@ -1,9 +1,10 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -12,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     public class SqliteMigrationAnnotationProviderTest
     {
         private readonly ModelBuilder _modelBuilder;
-        private readonly SqliteMigrationsAnnotationProvider _provider;
+        private readonly SqliteAnnotationProvider _provider;
 
         private readonly Annotation _autoincrement = new Annotation(SqliteAnnotationNames.Autoincrement, true);
 
@@ -20,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             _modelBuilder = SqliteTestHelpers.Instance.CreateConventionBuilder();
 
-            _provider = new SqliteMigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies());
+            _provider = new SqliteAnnotationProvider(new RelationalAnnotationProviderDependencies());
         }
 
         [ConditionalFact]
@@ -29,7 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var property = _modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedOnAdd().Metadata;
             _modelBuilder.FinalizeModel();
 
-            Assert.Contains(_provider.For(property), a => a.Name == _autoincrement.Name && (bool)a.Value);
+            Assert.Contains(_provider.For(property.GetTableColumnMappings().Single().Column),
+                a => a.Name == _autoincrement.Name && (bool)a.Value);
         }
 
         [ConditionalFact]
@@ -38,7 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var property = _modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedOnAddOrUpdate().Metadata;
             _modelBuilder.FinalizeModel();
 
-            Assert.DoesNotContain(_provider.For(property), a => a.Name == _autoincrement.Name);
+            Assert.DoesNotContain(_provider.For(property.GetTableColumnMappings().Single().Column),
+                a => a.Name == _autoincrement.Name);
         }
 
         [ConditionalFact]
@@ -47,7 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var property = _modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedOnUpdate().Metadata;
             _modelBuilder.FinalizeModel();
 
-            Assert.DoesNotContain(_provider.For(property), a => a.Name == _autoincrement.Name);
+            Assert.DoesNotContain(_provider.For(property.GetTableColumnMappings().Single().Column),
+                a => a.Name == _autoincrement.Name);
         }
 
         [ConditionalFact]
@@ -56,7 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var property = _modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedNever().Metadata;
             _modelBuilder.FinalizeModel();
 
-            Assert.DoesNotContain(_provider.For(property), a => a.Name == _autoincrement.Name);
+            Assert.DoesNotContain(_provider.For(property.GetTableColumnMappings().Single().Column),
+                a => a.Name == _autoincrement.Name);
         }
 
         [ConditionalFact]
@@ -65,7 +70,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var property = _modelBuilder.Entity<Entity>().Property(e => e.IntProp).Metadata;
             _modelBuilder.FinalizeModel();
 
-            Assert.DoesNotContain(_provider.For(property), a => a.Name == _autoincrement.Name);
+            Assert.DoesNotContain(_provider.For(property.GetTableColumnMappings().Single().Column),
+                a => a.Name == _autoincrement.Name);
         }
 
         [ConditionalFact]
@@ -74,7 +80,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var property = _modelBuilder.Entity<Entity>().Property(e => e.StringProp).ValueGeneratedOnAdd().Metadata;
             _modelBuilder.FinalizeModel();
 
-            Assert.DoesNotContain(_provider.For(property), a => a.Name == _autoincrement.Name);
+            Assert.DoesNotContain(_provider.For(property.GetTableColumnMappings().Single().Column),
+                a => a.Name == _autoincrement.Name);
         }
 
         private class Entity

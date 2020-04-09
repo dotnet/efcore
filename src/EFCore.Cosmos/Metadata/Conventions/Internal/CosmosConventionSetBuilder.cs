@@ -39,6 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
 
             conventionSet.ModelInitializedConventions.Add(new ContextContainerConvention(Dependencies));
 
+            conventionSet.ModelFinalizingConventions.Add(new ETagPropertyConvention());
+
             var discriminatorConvention = new CosmosDiscriminatorConvention(Dependencies);
             var storeKeyConvention = new StoreKeyConvention(Dependencies);
             conventionSet.EntityTypeAddedConventions.Add(storeKeyConvention);

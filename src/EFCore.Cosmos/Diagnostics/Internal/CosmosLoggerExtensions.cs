@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
         /// </summary>
         public static void ExecutingSqlQuery(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnosticsLogger,
-            CosmosSqlQuery cosmosSqlQuery)
+            [NotNull] CosmosSqlQuery cosmosSqlQuery)
         {
             var definition = new EventDefinition<string, string, string>(
                 diagnosticsLogger.Options,
@@ -44,11 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
                     CoreEventId.ProviderBaseId,
                     "Executing Sql Query [Parameters=[{parameters}]]{newLine}{commandText}"));
 
-            var warningBehavior = definition.GetLogBehavior(diagnosticsLogger);
-
             definition.Log(
                 diagnosticsLogger,
-                warningBehavior,
                 FormatParameters(cosmosSqlQuery.Parameters),
                 Environment.NewLine,
                 cosmosSqlQuery.Query);
@@ -95,19 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
                     builder.Append(dateTimeOffsetValue.ToString("o"));
                     break;
                 case byte[] binaryValue:
-                    builder.Append("0x");
-
-                    for (var i = 0; i < binaryValue.Length; i++)
-                    {
-                        if (i > 31)
-                        {
-                            builder.Append("...");
-                            break;
-                        }
-
-                        builder.Append(binaryValue[i].ToString("X2", CultureInfo.InvariantCulture));
-                    }
-
+                    builder.AppendBytes(binaryValue);
                     break;
                 default:
                     builder.Append(Convert.ToString(parameterValue, CultureInfo.InvariantCulture));

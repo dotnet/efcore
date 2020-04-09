@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             if (AreDetailedErrorsEnabled != coreOptions.DetailedErrorsEnabled)
             {
-                Debug.Assert(coreOptions.InternalServiceProvider != null);
+                Check.DebugAssert(coreOptions.InternalServiceProvider != null, "InternalServiceProvider is null");
 
                 throw new InvalidOperationException(
                     CoreStrings.SingletonOptionChanged(

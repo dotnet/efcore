@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
@@ -242,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);"),
                 o =>
                 {
-                    Assert.Equal(6, o.GetAnnotations().Count());
+                    Assert.Equal(7, o.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", o["AnnotationName"]);
                 });
         }
@@ -265,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);"),
                 o =>
                 {
-                    Assert.Equal(4, o.GetAnnotations().Count());
+                    Assert.Equal(5, o.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", o["AnnotationName"]);
                     Assert.Equal("DefaultSchema", o[RelationalAnnotationNames.DefaultSchema]);
                 });
@@ -331,31 +332,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         [ConditionalFact]
-        public virtual void Sequence_is_stored_in_snapshot_as_annotations()
-        {
-            Test(
-                builder =>
-                {
-                    builder.HasSequence<int>("Foo", "Bar")
-                        .StartsAt(2)
-                        .HasMin(1)
-                        .HasMax(3)
-                        .IncrementsBy(2)
-                        .IsCyclic();
-                },
-                AddBoilerPlate(
-                    @"
-            modelBuilder
-                .HasAnnotation(""Relational:MaxIdentifierLength"", 128)
-                .HasAnnotation(""Relational:Sequence:Bar.Foo"", ""'Foo', 'Bar', '2', '2', '1', '3', 'Int32', 'True'"")
-                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);"),
-                o =>
-                {
-                    Assert.Equal(3, o.GetAnnotations().Count());
-                });
-        }
-
-        [ConditionalFact(Skip = "Issue #14103")]
         public virtual void Sequence_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -369,18 +345,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         .IsCyclic();
                 },
                 AddBoilerPlate(
-                    @"
-            modelBuilder
-                .HasAnnotation(""Relational:MaxIdentifierLength"", 128)
-                .HasSequence<int>(""Foo"", ""Bar"")
-                        .StartsAt(2)
-                        .HasMin(1)
-                        .HasMax(3)
-                        .IncrementsBy(2)
-                        .IsCyclic();"),
+                    GetHeading()
+                    + @"
+            modelBuilder.HasSequence<int>(""Foo"", ""Bar"")
+                .StartsAt(2L)
+                .IncrementsBy(2)
+                .HasMin(1L)
+                .HasMax(3L)
+                .IsCyclic();"),
                 o =>
                 {
-                    Assert.Equal(3, o.GetAnnotations().Count());
+                    Assert.Equal(4, o.GetAnnotations().Count());
                 });
         }
 
@@ -415,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });"),
                 o =>
                 {
-                    Assert.Equal(2, o.GetAnnotations().Count());
+                    Assert.Equal(3, o.GetAnnotations().Count());
                 });
         }
 
@@ -464,7 +439,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });"),
                 o =>
                 {
-                    Assert.Equal(2, o.GetAnnotations().Count());
+                    Assert.Equal(3, o.GetAnnotations().Count());
                 });
         }
 
@@ -499,7 +474,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });"),
                 o =>
                 {
-                    Assert.Equal(2, o.GetEntityTypes().First().GetAnnotations().Count());
+                    Assert.Equal(3, o.GetEntityTypes().First().GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", o.GetEntityTypes().First()["AnnotationName"]);
                 });
         }
@@ -576,6 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Entity<AnotherDerivedEntity>().HasBaseType<BaseEntity>();
                     builder.Entity<BaseEntity>()
                         .HasDiscriminator(e => e.Discriminator)
+                        .IsComplete()
                         .HasValue(typeof(BaseEntity), typeof(BaseEntity).Name)
                         .HasValue(typeof(DerivedEntity), typeof(DerivedEntity).Name)
                         .HasValue(typeof(AnotherDerivedEntity), typeof(AnotherDerivedEntity).Name);
@@ -598,7 +574,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     b.ToTable(""BaseEntity"");
 
-                    b.HasDiscriminator<string>(""Discriminator"").HasValue(""BaseEntity"");
+                    b.HasDiscriminator<string>(""Discriminator"").IsComplete(true).HasValue(""BaseEntity"");
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AnotherDerivedEntity"", b =>
@@ -1043,6 +1019,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.ToTable(""EntityWithEnumType"");
 
                     b.HasDiscriminator<long>(""Day"");
+
+                    b.HasCheckConstraint(""CK_EntityWithEnumType_Day_Enum_Constraint"", ""[Day] IN(CAST(0 AS bigint), CAST(1 AS bigint), CAST(2 AS bigint), CAST(3 AS bigint), CAST(4 AS bigint), CAST(5 AS bigint), CAST(6 AS bigint))"");
                 });"),
                 model => Assert.Equal(typeof(long), model.GetEntityTypes().First().GetDiscriminatorProperty().ClrType));
         }
@@ -1076,6 +1054,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.ToTable(""EntityWithEnumType"");
 
                     b.HasDiscriminator<string>(""Day"");
+
+                    b.HasCheckConstraint(""CK_EntityWithEnumType_Day_Enum_Constraint"", ""[Day] IN(N'Sun', N'Mon', N'Tue', N'Wed', N'Thu', N'Fri', N'Sat')"");
                 });"),
                 model =>
                 {
@@ -1269,7 +1249,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     var entityWithStringKey = o.FindEntityType(typeof(EntityWithStringKey));
                     Assert.Same(
                         entityWithStringKey,
-                        ownedType1.FindNavigation(nameof(EntityWithTwoProperties.EntityWithStringKey)).GetTargetType());
+                        ownedType1.FindNavigation(nameof(EntityWithTwoProperties.EntityWithStringKey)).TargetEntityType);
                     Assert.Equal(nameof(EntityWithStringKey), entityWithStringKey.GetTableName());
 
                     var ownership2 = entityWithStringKey.FindNavigation(nameof(EntityWithStringKey.Properties)).ForeignKey;
@@ -1290,7 +1270,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Null(owned2index2.GetFilter());
                     Assert.Equal(nameof(EntityWithStringProperty), ownedType2.GetTableName());
 
-                    Assert.Same(entityWithOneProperty, ownedType2.GetNavigations().Single().GetTargetType());
+                    Assert.Same(entityWithOneProperty, ownedType2.GetNavigations().Single().TargetEntityType);
                 });
         }
 
@@ -1427,23 +1407,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     var order = o.FindEntityType(typeof(Order).FullName);
                     Assert.Equal(1, order.PropertyCount());
 
-                    var orderInfo = order.FindNavigation(nameof(Order.OrderInfo)).GetTargetType();
+                    var orderInfo = order.FindNavigation(nameof(Order.OrderInfo)).TargetEntityType;
                     Assert.Equal(1, orderInfo.PropertyCount());
 
-                    var orderInfoAddress = orderInfo.FindNavigation(nameof(OrderInfo.StreetAddress)).GetTargetType();
+                    var orderInfoAddress = orderInfo.FindNavigation(nameof(OrderInfo.StreetAddress)).TargetEntityType;
                     Assert.Equal(2, orderInfoAddress.PropertyCount());
 
-                    var orderBillingDetails = order.FindNavigation(nameof(Order.OrderBillingDetails)).GetTargetType();
+                    var orderBillingDetails = order.FindNavigation(nameof(Order.OrderBillingDetails)).TargetEntityType;
                     Assert.Equal(1, orderBillingDetails.PropertyCount());
 
-                    var orderBillingDetailsAddress = orderBillingDetails.FindNavigation(nameof(OrderDetails.StreetAddress)).GetTargetType();
+                    var orderBillingDetailsAddress = orderBillingDetails.FindNavigation(nameof(OrderDetails.StreetAddress)).TargetEntityType;
                     Assert.Equal(2, orderBillingDetailsAddress.PropertyCount());
 
-                    var orderShippingDetails = order.FindNavigation(nameof(Order.OrderShippingDetails)).GetTargetType();
+                    var orderShippingDetails = order.FindNavigation(nameof(Order.OrderShippingDetails)).TargetEntityType;
                     Assert.Equal(1, orderShippingDetails.PropertyCount());
 
                     var orderShippingDetailsAddress =
-                        orderShippingDetails.FindNavigation(nameof(OrderDetails.StreetAddress)).GetTargetType();
+                        orderShippingDetails.FindNavigation(nameof(OrderDetails.StreetAddress)).TargetEntityType;
                     Assert.Equal(2, orderShippingDetailsAddress.PropertyCount());
                 });
         }
@@ -1647,7 +1627,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public virtual void Property_fixedlengthness_is_stored_in_snapshot()
         {
             Test(
-                builder => builder.Entity<EntityWithStringProperty>().Property<string>("Name").IsFixedLength(),
+                builder => builder.Entity<EntityWithStringProperty>().Property<string>("Name").IsFixedLength().HasMaxLength(100),
                 AddBoilerPlate(
                     GetHeading()
                     + @"
@@ -1659,8 +1639,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>(""Name"")
-                        .HasColumnType(""nvarchar(max)"")
-                        .IsFixedLength(true);
+                        .HasColumnType(""nchar(100)"")
+                        .IsFixedLength(true)
+                        .HasMaxLength(100);
 
                     b.HasKey(""Id"");
 
@@ -1915,6 +1896,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.HasKey(""Id"");
 
                     b.ToTable(""EntityWithEnumType"");
+
+                    b.HasCheckConstraint(""CK_EntityWithEnumType_Day_Enum_Constraint"", ""[Day] IN(CAST(0 AS bigint), CAST(1 AS bigint), CAST(2 AS bigint), CAST(3 AS bigint), CAST(4 AS bigint), CAST(5 AS bigint), CAST(6 AS bigint))"");
                 });"),
                 o => Assert.Equal(3L, o.GetEntityTypes().First().FindProperty("Day")["Relational:DefaultValue"]));
         }
@@ -1950,6 +1933,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.HasKey(""Id"");
 
                     b.ToTable(""EntityWithEnumType"");
+
+                    b.HasCheckConstraint(""CK_EntityWithEnumType_Day_Enum_Constraint"", ""[Day] IN(N'Sun', N'Mon', N'Tue', N'Wed', N'Thu', N'Fri', N'Sat')"");
 
                     b.HasData(
                         new
@@ -2014,6 +1999,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.HasKey(""Id"");
 
                     b.ToTable(""EntityWithEnumType"");
+
+                    b.HasCheckConstraint(""CK_EntityWithEnumType_Day_Enum_Constraint"", ""[Day] IN(CAST(0 AS bigint), CAST(1 AS bigint), CAST(2 AS bigint), CAST(3 AS bigint), CAST(4 AS bigint), CAST(5 AS bigint), CAST(6 AS bigint))"");
                 });", usingSystem: true),
                 o => Assert.False(o.GetEntityTypes().First().FindProperty("Day").IsNullable));
         }
@@ -2075,7 +2062,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o =>
                 {
                     var property = o.GetEntityTypes().First().FindProperty("AlternateId");
-                    Assert.Equal(3, property.GetAnnotations().Count());
+                    Assert.Equal(5, property.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", property["AnnotationName"]);
                     Assert.Equal("CName", property["Relational:ColumnName"]);
                     Assert.Equal("int", property["Relational:ColumnType"]);
@@ -2085,8 +2072,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         [ConditionalFact]
         public virtual void Property_without_column_type()
         {
-            var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new ModelBuilder();
+            var model = modelBuilder.Model;
 
             modelBuilder
                 .HasAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, SqlServerValueGenerationStrategy.IdentityColumn);
@@ -2233,7 +2220,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o =>
                 {
                     var key = o.GetEntityTypes().First().GetKeys().Where(k => !k.IsPrimaryKey()).First();
-                    Assert.Equal(2, key.GetAnnotations().Count());
+                    Assert.Equal(3, key.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", key["AnnotationName"]);
                     Assert.Equal("IndexName", key["Relational:Name"]);
                 });
@@ -2409,7 +2396,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o =>
                 {
                     var index = o.GetEntityTypes().First().GetIndexes().First();
-                    Assert.Equal(2, index.GetAnnotations().Count());
+                    Assert.Equal(3, index.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", index["AnnotationName"]);
                     Assert.Equal("IndexName", index["Relational:Name"]);
                 });
@@ -2920,7 +2907,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o =>
                 {
                     var fk = o.FindEntityType(typeof(EntityWithTwoProperties)).GetForeignKeys().First();
-                    Assert.Equal(2, fk.GetAnnotations().Count());
+                    Assert.Equal(3, fk.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", fk["AnnotationName"]);
                     Assert.Equal("Constraint", fk["Relational:Name"]);
                 });
@@ -3408,6 +3395,22 @@ namespace RootNamespace
 
                     b.ToTable(""EntityWithManyProperties"");
 
+                    b.HasCheckConstraint(""CK_EntityWithManyProperties_Enum16_Enum_Constraint"", ""[Enum16] IN(CAST(1 AS smallint))"");
+
+                    b.HasCheckConstraint(""CK_EntityWithManyProperties_Enum32_Enum_Constraint"", ""[Enum32] IN(1)"");
+
+                    b.HasCheckConstraint(""CK_EntityWithManyProperties_Enum64_Enum_Constraint"", ""[Enum64] IN(CAST(1 AS bigint))"");
+
+                    b.HasCheckConstraint(""CK_EntityWithManyProperties_Enum8_Enum_Constraint"", ""[Enum8] IN(CAST(1 AS tinyint))"");
+
+                    b.HasCheckConstraint(""CK_EntityWithManyProperties_EnumS8_Enum_Constraint"", ""[EnumS8] IN(CAST(-128 AS smallint))"");
+
+                    b.HasCheckConstraint(""CK_EntityWithManyProperties_EnumU16_Enum_Constraint"", ""[EnumU16] IN(65535)"");
+
+                    b.HasCheckConstraint(""CK_EntityWithManyProperties_EnumU32_Enum_Constraint"", ""[EnumU32] IN(CAST(4294967295 AS bigint))"");
+
+                    b.HasCheckConstraint(""CK_EntityWithManyProperties_EnumU64_Enum_Constraint"", ""[EnumU64] IN(1234567890123456789.0)"");
+
                     b.HasData(
                         new
                         {
@@ -3696,7 +3699,6 @@ namespace RootNamespace
                             codeHelper, sqlServerTypeMappingSource))));
 
             var code = generator.GenerateSnapshot("RootNamespace", typeof(DbContext), "Snapshot", model);
-
             Assert.Equal(expectedCode, code, ignoreLineEndingDifferences: true);
 
             var build = new BuildSource { Sources = { code } };
@@ -3709,7 +3711,7 @@ namespace RootNamespace
             var assembly = build.BuildInMemory();
             var factoryType = assembly.GetType("RootNamespace.Snapshot");
 
-            var buildModelMethod = factoryType.GetTypeInfo().GetMethod(
+            var buildModelMethod = factoryType.GetMethod(
                 "BuildModel",
                 BindingFlags.Instance | BindingFlags.NonPublic,
                 null,
@@ -3723,7 +3725,10 @@ namespace RootNamespace
                 Activator.CreateInstance(factoryType),
                 new object[] { builder });
 
-            var modelFromSnapshot = new SnapshotModelProcessor(new TestOperationReporter()).Process(builder.Model);
+            var services = RelationalTestHelpers.Instance.CreateContextServices();
+
+            var processor = new SnapshotModelProcessor(new TestOperationReporter(), services.GetService<IConventionSetBuilder>());
+            var modelFromSnapshot = processor.Process(builder.Model);
 
             assert(modelFromSnapshot, model);
         }
@@ -3739,13 +3744,9 @@ namespace RootNamespace
                             .UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            {
-                using (var context = serviceScope.ServiceProvider.GetService<DbContext>())
-                {
-                    return new ModelBuilder(ConventionSet.CreateConventionSet(context));
-                }
-            }
+            using var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
+            using var context = serviceScope.ServiceProvider.GetService<DbContext>();
+            return new ModelBuilder(ConventionSet.CreateConventionSet(context));
         }
     }
 }

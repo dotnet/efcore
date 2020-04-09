@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     A convention configure type mapping for <see cref="IDbFunction" /> instances.
     /// </summary>
-    public class DbFunctionTypeMappingConvention : IModelFinalizedConvention
+    public class DbFunctionTypeMappingConvention : IModelFinalizingConvention
     {
         private readonly IRelationalTypeMappingSource _relationalTypeMappingSource;
 
@@ -31,12 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             _relationalTypeMappingSource = (IRelationalTypeMappingSource)dependencies.TypeMappingSource;
         }
 
-        /// <summary>
-        ///     Called after a model is finalized.
-        /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessModelFinalized(
+        /// <inheritdoc />
+        public virtual void ProcessModelFinalizing(
             IConventionModelBuilder modelBuilder,
             IConventionContext<IConventionModelBuilder> context)
         {
@@ -45,20 +41,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             foreach (var dbFunction in modelBuilder.Metadata.GetDbFunctions())
             {
-                var typeMapping = !string.IsNullOrEmpty(dbFunction.StoreType)
-                    ? _relationalTypeMappingSource.FindMapping(dbFunction.StoreType)
-                    : _relationalTypeMappingSource.FindMapping(dbFunction.MethodInfo.ReturnType);
-
-                dbFunction.Builder.HasTypeMapping(typeMapping);
-
                 foreach (var parameter in dbFunction.Parameters)
                 {
-                    typeMapping = !string.IsNullOrEmpty(parameter.StoreType)
+                    parameter.Builder.HasTypeMapping(!string.IsNullOrEmpty(parameter.StoreType)
                         ? _relationalTypeMappingSource.FindMapping(parameter.StoreType)
-                        : _relationalTypeMappingSource.FindMapping(parameter.ClrType);
-
-                    parameter.Builder.HasTypeMapping(typeMapping);
+                        : _relationalTypeMappingSource.FindMapping(parameter.ClrType));
                 }
+
+                if (dbFunction.IsQueryable)
+                {
+                    continue;
+                }
+
+                dbFunction.Builder.HasTypeMapping(!string.IsNullOrEmpty(dbFunction.StoreType)
+                    ? _relationalTypeMappingSource.FindMapping(dbFunction.StoreType)
+                    : _relationalTypeMappingSource.FindMapping(dbFunction.ReturnType));
             }
         }
     }

@@ -19,7 +19,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public virtual string Alias { get; internal set; }
 
-        protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+        {
+            Check.NotNull(visitor, nameof(visitor));
+
+            return this;
+        }
 
         public override Type Type => typeof(object);
         public sealed override ExpressionType NodeType => ExpressionType.Extension;

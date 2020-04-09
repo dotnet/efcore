@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
 
@@ -27,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public static bool IsSqlite([NotNull] this MigrationBuilder migrationBuilder)
             => string.Equals(
                 migrationBuilder.ActiveProvider,
-                typeof(SqliteOptionsExtension).GetTypeInfo().Assembly.GetName().Name,
+                typeof(SqliteOptionsExtension).Assembly.GetName().Name,
                 StringComparison.Ordinal);
     }
 }

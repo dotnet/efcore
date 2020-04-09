@@ -4,8 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -24,16 +28,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ObjectArrayProjectionExpression(
-            INavigation navigation, Expression accessExpression, EntityProjectionExpression innerProjection = null)
+            [NotNull] INavigation navigation,
+            [NotNull] Expression accessExpression,
+            [CanBeNull] EntityProjectionExpression innerProjection = null)
         {
-            var targetType = navigation.GetTargetType();
+            var targetType = navigation.TargetEntityType;
             Type = typeof(IEnumerable<>).MakeGenericType(targetType.ClrType);
 
             Name = targetType.GetContainingPropertyName();
             if (Name == null)
             {
                 throw new InvalidOperationException(
-                    $"Navigation '{navigation.DeclaringEntityType.DisplayName()}.{navigation.Name}' doesn't point to an embedded entity.");
+                    CosmosStrings.NavigationPropertyIsNotAnEmbeddedEntity(
+                        navigation.DeclaringEntityType.DisplayName(), navigation.Name));
             }
 
             Navigation = navigation;
@@ -99,6 +106,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
+            Check.NotNull(visitor, nameof(visitor));
+
             var accessExpression = visitor.Visit(AccessExpression);
             var innerProjection = visitor.Visit(InnerProjection);
 
@@ -111,7 +120,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ObjectArrayProjectionExpression Update(Expression accessExpression, EntityProjectionExpression innerProjection)
+        public virtual ObjectArrayProjectionExpression Update(
+            [NotNull] Expression accessExpression, [NotNull] EntityProjectionExpression innerProjection)
             => accessExpression != AccessExpression || innerProjection != InnerProjection
                 ? new ObjectArrayProjectionExpression(Navigation, accessExpression, innerProjection)
                 : this;
@@ -123,7 +133,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void Print(ExpressionPrinter expressionPrinter)
-            => expressionPrinter.Append(ToString());
+        {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
+            expressionPrinter.Append(ToString());
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

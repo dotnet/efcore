@@ -319,12 +319,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                         size = isFixedLength ? maxSize : (int?)null;
                     }
 
-                    return size == null
-                        ? isAnsi ? _variableLengthMaxAnsiString : _variableLengthMaxUnicodeString
-                        : new SqlServerStringTypeMapping(
-                            unicode: !isAnsi,
-                            size: size,
-                            fixedLength: isFixedLength);
+                    if (size == null)
+                    {
+                        return isAnsi
+                            ? isFixedLength
+                                ? _fixedLengthAnsiString
+                                : _variableLengthMaxAnsiString
+                            : isFixedLength
+                                ? _fixedLengthUnicodeString
+                                : _variableLengthMaxUnicodeString;
+                    }
+
+                    return new SqlServerStringTypeMapping(
+                        unicode: !isAnsi,
+                        size: size,
+                        fixedLength: isFixedLength);
                 }
 
                 if (clrType == typeof(byte[]))
@@ -350,5 +359,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 
             return null;
         }
+
+        private static readonly List<string> _nameBasesUsingPrecision =
+            new List<string>() { "decimal", "dec", "numeric", "datetime2", "datetimeoffset" };
+        protected override bool StoreTypeNameBaseUsesPrecision(string storeTypeNameBase)
+            => _nameBasesUsingPrecision.Contains(storeTypeNameBase);
     }
 }

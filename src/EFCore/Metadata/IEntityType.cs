@@ -2,7 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -68,6 +71,58 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> The foreign keys defined on this entity type. </returns>
         IEnumerable<IForeignKey> GetForeignKeys();
+
+        /// <summary>
+        ///     Gets a skip navigation property on this entity type. Returns <c>null</c> if no navigation property is found.
+        /// </summary>
+        /// <param name="memberInfo"> The navigation property on the entity class. </param>
+        /// <returns> The navigation property, or <c>null</c> if none is found. </returns>
+        ISkipNavigation FindSkipNavigation([NotNull] MemberInfo memberInfo)
+            => FindSkipNavigation(Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName());
+
+        /// <summary>
+        ///     Gets a skip navigation property on this entity type. Returns <c>null</c> if no skip navigation property is found.
+        /// </summary>
+        /// <param name="name"> The name of the navigation property on the entity class. </param>
+        /// <returns> The navigation property, or <c>null</c> if none is found. </returns>
+        ISkipNavigation FindSkipNavigation([NotNull] string name);
+
+        /// <summary>
+        ///     <para>
+        ///         Gets a skip navigation property on this entity type.
+        ///     </para>
+        ///     <para>
+        ///         Does not return skip navigation properties defined on a base type.
+        ///         Returns <c>null</c> if no skip navigation property is found.
+        ///     </para>
+        /// </summary>
+        /// <param name="name"> The name of the navigation property on the entity class. </param>
+        /// <returns> The navigation property, or <c>null</c> if none is found. </returns>
+        ISkipNavigation FindDeclaredSkipNavigation([NotNull] string name)
+        {
+            var navigation = FindSkipNavigation(name);
+            return navigation?.DeclaringEntityType == this ? navigation : null;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all skip navigation properties declared on this entity type.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return skip navigation properties declared declared on base types.
+        ///         It is useful when iterating over all entity types to avoid processing the same foreign key more than once.
+        ///         Use <see cref="GetSkipNavigations" /> to also return skip navigation properties declared on base types.
+        ///     </para>
+        /// </summary>
+        /// <returns> Declared foreign keys. </returns>
+        IEnumerable<ISkipNavigation> GetDeclaredSkipNavigations()
+            => GetSkipNavigations().Where(n => n.DeclaringEntityType == this);
+
+        /// <summary>
+        ///     Gets the skip navigation properties on this entity type.
+        /// </summary>
+        /// <returns> All skip navigation properties on this entity type. </returns>
+        IEnumerable<ISkipNavigation> GetSkipNavigations();
 
         /// <summary>
         ///     Gets the index defined on the given properties. Returns <c>null</c> if no index is defined.

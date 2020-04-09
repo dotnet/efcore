@@ -1,7 +1,7 @@
 ---
 name: Bug in Microsoft.Data.Sqlite
 about: Create a report about something that isn't working
-labels: area-adonet-sqlite, type-bug
+labels: area-adonet-sqlite, customer-reported
 ---
 
 <!-- Describe what isn't working as expected -->

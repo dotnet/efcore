@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -484,101 +483,5 @@ namespace Microsoft.EntityFrameworkCore
 
             return modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.PerformanceLevelSql, performanceLevel, fromDataAnnotation);
         }
-
-        /// <summary>
-        ///     Configures the model to use a sequence-based hi-lo pattern to generate values for key properties
-        ///     marked as <see cref="ValueGenerated.OnAdd" />, when targeting SQL Server.
-        /// </summary>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="name"> The name of the sequence. </param>
-        /// <param name="schema">The schema of the sequence. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        [Obsolete("Use UseHiLo")]
-        public static ModelBuilder ForSqlServerUseSequenceHiLo(
-            [NotNull] this ModelBuilder modelBuilder,
-            [CanBeNull] string name = null,
-            [CanBeNull] string schema = null)
-            => modelBuilder.UseHiLo(name, schema);
-
-        /// <summary>
-        ///     Configures the database sequence used for the hi-lo pattern to generate values for key properties
-        ///     marked as <see cref="ValueGenerated.OnAdd" />, when targeting SQL Server.
-        /// </summary>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="name"> The name of the sequence. </param>
-        /// <param name="schema">The schema of the sequence. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> A builder to further configure the sequence. </returns>
-        [Obsolete("Use HasHiLoSequence")]
-        public static IConventionSequenceBuilder ForSqlServerHasHiLoSequence(
-            [NotNull] this IConventionModelBuilder modelBuilder,
-            [CanBeNull] string name,
-            [CanBeNull] string schema,
-            bool fromDataAnnotation = false)
-            => modelBuilder.HasHiLoSequence(name, schema, fromDataAnnotation);
-
-        /// <summary>
-        ///     Configures the model to use the SQL Server IDENTITY feature to generate values for key properties
-        ///     marked as <see cref="ValueGenerated.OnAdd" />, when targeting SQL Server. This is the default
-        ///     behavior when targeting SQL Server.
-        /// </summary>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
-        /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        [Obsolete("Use UseIdentityColumns")]
-        public static ModelBuilder ForSqlServerUseIdentityColumns(
-            [NotNull] this ModelBuilder modelBuilder,
-            int seed = 1,
-            int increment = 1)
-            => modelBuilder.UseIdentityColumns(seed, increment);
-
-        /// <summary>
-        ///     Configures the default seed for SQL Server IDENTITY.
-        /// </summary>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <c>null</c> otherwise.
-        /// </returns>
-        [Obsolete("Use HasIdentityColumnSeed")]
-        public static IConventionModelBuilder ForSqlServerHasIdentitySeed(
-            [NotNull] this IConventionModelBuilder modelBuilder, int? seed, bool fromDataAnnotation = false)
-            => modelBuilder.HasIdentityColumnSeed(seed, fromDataAnnotation);
-
-        /// <summary>
-        ///     Configures the default increment for SQL Server IDENTITY.
-        /// </summary>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <c>null</c> otherwise.
-        /// </returns>
-        [Obsolete("Use HasIdentityColumnIncrement")]
-        public static IConventionModelBuilder ForSqlServerHasIdentityIncrement(
-            [NotNull] this IConventionModelBuilder modelBuilder, int? increment, bool fromDataAnnotation = false)
-            => modelBuilder.HasIdentityColumnIncrement(increment, fromDataAnnotation);
-
-        /// <summary>
-        ///     Configures the default value generation strategy for key properties marked as <see cref="ValueGenerated.OnAdd" />,
-        ///     when targeting SQL Server.
-        /// </summary>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="valueGenerationStrategy"> The value generation strategy. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <c>null</c> otherwise.
-        /// </returns>
-        [Obsolete("Use HasValueGenerationStrategy")]
-        public static IConventionModelBuilder ForSqlServerHasValueGenerationStrategy(
-            [NotNull] this IConventionModelBuilder modelBuilder,
-            SqlServerValueGenerationStrategy? valueGenerationStrategy,
-            bool fromDataAnnotation = false)
-            => modelBuilder.HasValueGenerationStrategy(valueGenerationStrategy, fromDataAnnotation);
     }
 }

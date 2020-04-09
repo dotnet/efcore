@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that configures the default model <see cref="SqlServerValueGenerationStrategy" /> as
     ///     <see cref="SqlServerValueGenerationStrategy.IdentityColumn" />.
     /// </summary>
-    public class SqlServerValueGenerationStrategyConvention : IModelInitializedConvention, IModelFinalizedConvention
+    public class SqlServerValueGenerationStrategyConvention : IModelInitializedConvention, IModelFinalizingConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="SqlServerValueGenerationStrategyConvention" />.
@@ -42,12 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             modelBuilder.HasValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
         }
 
-        /// <summary>
-        ///     Called after a model is finalized.
-        /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessModelFinalized(
+        /// <inheritdoc />
+        public virtual void ProcessModelFinalizing(
             IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())

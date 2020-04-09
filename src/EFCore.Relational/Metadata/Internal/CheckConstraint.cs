@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -16,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class CheckConstraint : IConventionCheckConstraint
+    public class CheckConstraint : ConventionAnnotatable, IMutableCheckConstraint, IConventionCheckConstraint
     {
         private ConfigurationSource _configurationSource;
 
@@ -41,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Sql = sql;
             _configurationSource = configurationSource;
 
-            var dataDictionary = GetAnnotationsDictionary(EntityType);
+            var dataDictionary = GetConstraintsDictionary(EntityType);
             if (dataDictionary == null)
             {
                 dataDictionary = new Dictionary<string, CheckConstraint>();
@@ -66,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            return GetAnnotationsDictionary(entityType)?.Values ?? Enumerable.Empty<CheckConstraint>();
+            return GetConstraintsDictionary(entityType)?.Values ?? Enumerable.Empty<CheckConstraint>();
         }
 
         /// <summary>
@@ -78,14 +79,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static ICheckConstraint FindCheckConstraint(
             [NotNull] IEntityType entityType, [NotNull] string name)
         {
-            var dataDictionary = GetAnnotationsDictionary(entityType);
+            var dataDictionary = GetConstraintsDictionary(entityType);
 
-            if (dataDictionary == null)
-            {
-                return null;
-            }
-
-            return dataDictionary.TryGetValue(name, out var checkConstraint) ? checkConstraint : null;
+            return dataDictionary == null
+                ? null
+                : dataDictionary.TryGetValue(name, out var checkConstraint) ? checkConstraint : null;
         }
 
         /// <summary>
@@ -94,12 +92,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool RemoveCheckConstraint(
+        public static CheckConstraint RemoveCheckConstraint(
             [NotNull] IMutableEntityType entityType, [NotNull] string name)
         {
-            var dataDictionary = GetAnnotationsDictionary(entityType);
+            var dataDictionary = GetConstraintsDictionary(entityType);
 
-            return dataDictionary?.Remove(name) ?? false;
+            if (dataDictionary != null
+                && dataDictionary.TryGetValue(name, out var constraint))
+            {
+                dataDictionary.Remove(name);
+                return constraint;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -145,10 +150,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _configurationSource = configurationSource.Max(_configurationSource);
         }
 
-        private static Dictionary<string, CheckConstraint> GetAnnotationsDictionary(IEntityType entityType)
-        {
-            return (Dictionary<string, CheckConstraint>)entityType[RelationalAnnotationNames.CheckConstraints];
-        }
+        private static Dictionary<string, CheckConstraint> GetConstraintsDictionary(IEntityType entityType)
+            => (Dictionary<string, CheckConstraint>)entityType[RelationalAnnotationNames.CheckConstraints];
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -157,5 +168,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         IConventionEntityType IConventionCheckConstraint.EntityType => (IConventionEntityType)EntityType;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IMutableEntityType IMutableCheckConstraint.EntityType => (IMutableEntityType)EntityType;
     }
 }

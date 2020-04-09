@@ -96,8 +96,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return;
             }
 
-            var oldLink = pk.Properties.First().FindSharedTableLink(oldTable, oldSchema);
-            var newLink = pk.Properties.First().FindSharedTableLink();
+            var oldLink = pk.Properties.First().FindSharedObjectLink(oldTable, oldSchema);
+            var newLink = pk.Properties.First().FindSharedObjectLink();
 
             if (oldLink == null
                 && newLink == null)
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Returns the store value generation strategy to set for the given property.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The store value generation strategy to set for the given property. </returns>
+        /// <returns> The new store value generation strategy to set for the given property. </returns>
         public static new ValueGenerated? GetValueGenerated([NotNull] IProperty property)
         {
             var valueGenerated = ValueGenerationConvention.GetValueGenerated(property);

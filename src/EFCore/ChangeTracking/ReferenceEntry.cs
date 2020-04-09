@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         private void LocalDetectChanges()
         {
-            if (!Metadata.IsDependentToPrincipal())
+            if (!Metadata.IsOnDependent)
             {
                 var target = GetTargetEntry();
                 if (target != null)
@@ -87,6 +87,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         protected virtual InternalEntityEntry GetTargetEntry()
             => CurrentValue == null
                 ? null
-                : InternalEntry.StateManager.GetOrCreateEntry(CurrentValue, Metadata.GetTargetType());
+                : InternalEntry.StateManager.GetOrCreateEntry(CurrentValue, Metadata.TargetEntityType);
     }
 }

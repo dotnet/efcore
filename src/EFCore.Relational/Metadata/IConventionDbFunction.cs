@@ -14,22 +14,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Represents a relational database function in an <see cref="IConventionModel" /> in
     ///     the a form that can be mutated while the model is being built.
     /// </summary>
-    public interface IConventionDbFunction : IDbFunction
+    public interface IConventionDbFunction : IConventionAnnotatable, IDbFunction
     {
         /// <summary>
-        ///     The <see cref="IConventionModel" /> in which this function is defined.
+        ///     Gets the <see cref="IConventionModel" /> in which this function is defined.
         /// </summary>
         new IConventionModel Model { get; }
 
         /// <summary>
-        ///     The builder that can be used to configure this function.
+        ///     Gets the builder that can be used to configure this function.
         /// </summary>
-        IConventionDbFunctionBuilder Builder { get; }
+        new IConventionDbFunctionBuilder Builder { get; }
 
         /// <summary>
-        ///     Returns the configuration source for this <see cref="IConventionDbFunction" />.
+        ///     Gets the configuration source for this function.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IConventionDbFunction" />. </returns>
+        /// <returns> The configuration source for this function. </returns>
         ConfigurationSource GetConfigurationSource();
 
         /// <summary>
@@ -37,10 +37,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the function in the database. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetName([CanBeNull] string name, bool fromDataAnnotation = false);
+        /// <returns> The configured value. </returns>
+        string SetName([CanBeNull] string name, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IDbFunction.Name" />.
+        ///     Gets the configuration source for <see cref="IDbFunction.Name" />.
         /// </summary>
         /// <returns> The configuration source for <see cref="IDbFunction.Name" />. </returns>
         ConfigurationSource? GetNameConfigurationSource();
@@ -50,10 +51,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="schema"> The schema of the function in the database. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetSchema([CanBeNull] string schema, bool fromDataAnnotation = false);
+        /// <returns> The configured value. </returns>
+        string SetSchema([CanBeNull] string schema, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IDbFunction.Schema" />.
+        ///     Gets the configuration source for <see cref="IDbFunction.Schema" />.
         /// </summary>
         /// <returns> The configuration source for <see cref="IDbFunction.Schema" />. </returns>
         ConfigurationSource? GetSchemaConfigurationSource();
@@ -63,10 +65,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="storeType"> The store type of the function in the database. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetStoreType([CanBeNull] string storeType, bool fromDataAnnotation = false);
+        /// <returns> The configured value. </returns>
+        string SetStoreType([CanBeNull] string storeType, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IDbFunction.StoreType" />.
+        ///     Gets the configuration source for <see cref="IDbFunction.StoreType" />.
         /// </summary>
         /// <returns> The configuration source for <see cref="IDbFunction.StoreType" />. </returns>
         ConfigurationSource? GetStoreTypeConfigurationSource();
@@ -76,10 +79,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="typeMapping"> The type mapping of the function in the database. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetTypeMapping([CanBeNull] RelationalTypeMapping typeMapping, bool fromDataAnnotation = false);
+        /// <returns> The configured value. </returns>
+        RelationalTypeMapping SetTypeMapping([CanBeNull] RelationalTypeMapping typeMapping, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IDbFunction.TypeMapping" />.
+        ///     Gets the configuration source for <see cref="IDbFunction.TypeMapping" />.
         /// </summary>
         /// <returns> The configuration source for <see cref="IDbFunction.TypeMapping" />. </returns>
         ConfigurationSource? GetTypeMappingConfigurationSource();
@@ -91,17 +95,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The translation callback for performing custom translation of the method call into a SQL expression fragment.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetTranslation(
+        /// <returns> The configured value. </returns>
+        Func<IReadOnlyCollection<SqlExpression>, SqlExpression> SetTranslation(
             [CanBeNull] Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IDbFunction.Translation" />.
+        ///     Gets the configuration source for <see cref="IDbFunction.Translation" />.
         /// </summary>
         /// <returns> The configuration source for <see cref="IDbFunction.Translation" />. </returns>
         ConfigurationSource? GetTranslationConfigurationSource();
 
         /// <summary>
-        ///     The parameters for this function
+        ///     Gets the parameters for this function
         /// </summary>
         new IReadOnlyList<IConventionDbFunctionParameter> Parameters { get; }
     }

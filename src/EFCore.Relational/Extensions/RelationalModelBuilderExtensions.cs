@@ -30,13 +30,11 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
             [CanBeNull] string schema = null)
-        {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
-            Check.NotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, nameof(schema));
-
-            return new SequenceBuilder(GetOrAddSequence(modelBuilder, name, schema));
-        }
+            => new SequenceBuilder(HasSequence(
+                Check.NotNull(modelBuilder, nameof(modelBuilder)).Model,
+                name,
+                schema,
+                ConfigurationSource.Explicit));
 
         /// <summary>
         ///     Configures a database sequence when targeting a relational database.
@@ -65,9 +63,6 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string schema,
             [NotNull] Action<SequenceBuilder> builderAction)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
-            Check.NotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, nameof(schema));
             Check.NotNull(builderAction, nameof(builderAction));
 
             builderAction(HasSequence(modelBuilder, name, schema));
@@ -89,12 +84,10 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] string name,
             [CanBeNull] string schema = null)
         {
-            Check.NotNull(clrType, nameof(clrType));
             Check.NotNull(modelBuilder, nameof(modelBuilder));
-            Check.NotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, nameof(schema));
+            Check.NotNull(clrType, nameof(clrType));
 
-            var sequence = GetOrAddSequence(modelBuilder, name, schema);
+            var sequence = HasSequence(modelBuilder.Model, name, schema, ConfigurationSource.Explicit);
             sequence.ClrType = clrType;
 
             return new SequenceBuilder(sequence);
@@ -131,10 +124,6 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string schema,
             [NotNull] Action<SequenceBuilder> builderAction)
         {
-            Check.NotNull(clrType, nameof(clrType));
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
-            Check.NotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, nameof(schema));
             Check.NotNull(builderAction, nameof(builderAction));
 
             builderAction(HasSequence(modelBuilder, clrType, name, schema));
@@ -156,10 +145,8 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string schema = null)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
-            Check.NotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, nameof(schema));
 
-            var sequence = GetOrAddSequence(modelBuilder, name, schema);
+            var sequence = HasSequence(modelBuilder.Model, name, schema, ConfigurationSource.Explicit);
             sequence.ClrType = typeof(T);
 
             return new SequenceBuilder(sequence);
@@ -194,40 +181,11 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string schema,
             [NotNull] Action<SequenceBuilder> builderAction)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
-            Check.NotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, nameof(schema));
             Check.NotNull(builderAction, nameof(builderAction));
 
             builderAction(HasSequence<T>(modelBuilder, name, schema));
 
             return modelBuilder;
-        }
-
-        private static IMutableSequence GetOrAddSequence(ModelBuilder modelBuilder, string name, string schema)
-        {
-            var sequence = modelBuilder.Model.FindSequence(name, schema);
-            if (sequence != null)
-            {
-                ((Sequence)sequence).UpdateConfigurationSource(ConfigurationSource.Explicit);
-                return sequence;
-            }
-
-            return modelBuilder.Model.AddSequence(name, schema);
-        }
-
-        private static IConventionSequence GetOrAddSequence(
-            IConventionModelBuilder modelBuilder, string name, string schema, bool fromDataAnnotation)
-        {
-            var sequence = modelBuilder.Metadata.FindSequence(name, schema);
-            if (sequence != null)
-            {
-                ((Sequence)sequence).UpdateConfigurationSource(
-                    fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-                return sequence;
-            }
-
-            return modelBuilder.Metadata.AddSequence(name, schema);
         }
 
         /// <summary>
@@ -243,12 +201,26 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] string name,
             [CanBeNull] string schema = null,
             bool fromDataAnnotation = false)
+            => HasSequence(
+                (IMutableModel)Check.NotNull(modelBuilder, nameof(modelBuilder)).Metadata,
+                name,
+                schema,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention).Builder;
+
+        private static Sequence HasSequence(
+            IMutableModel model, string name, string schema, ConfigurationSource configurationSource)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
-            return new SequenceBuilder((IMutableSequence)GetOrAddSequence(modelBuilder, name, schema, fromDataAnnotation));
+            var sequence = Sequence.FindSequence(model, name, schema);
+            if (sequence != null)
+            {
+                sequence.UpdateConfigurationSource(configurationSource);
+                return sequence;
+            }
+
+            return Sequence.AddSequence(model, name, schema, configurationSource);
         }
 
         /// <summary>
@@ -312,8 +284,6 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] MethodInfo methodInfo,
             [NotNull] Action<DbFunctionBuilder> builderAction)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
-            Check.NotNull(methodInfo, nameof(methodInfo));
             Check.NotNull(builderAction, nameof(builderAction));
 
             builderAction(HasDbFunction(modelBuilder, methodInfo));
@@ -347,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore
                     fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
             }
 
-            return new DbFunctionBuilder((IMutableDbFunction)dbFunction);
+            return dbFunction.Builder;
         }
 
         /// <summary>

@@ -36,199 +36,197 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Sql_translation_uses_type_mapper_when_constant()
         {
-            using (var context = CreateContext())
-            {
-                var results
-                    = context.Set<MappedNullableDataTypes>()
-                        .Where(e => e.TimeSpanAsTime == new TimeSpan(0, 1, 2))
-                        .Select(e => e.Int)
-                        .ToList();
+            using var context = CreateContext();
+            var results
+                = context.Set<MappedNullableDataTypes>()
+                    .Where(e => e.TimeSpanAsTime == new TimeSpan(0, 1, 2))
+                    .Select(e => e.Int)
+                    .ToList();
 
-                Assert.Empty(results);
+            Assert.Empty(results);
 
-                AssertSql(
-                    @"SELECT [m].[Int]
+            AssertSql(
+                @"SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
 WHERE [m].[TimeSpanAsTime] = '00:01:02'");
-            }
-        }
-
-        [ConditionalFact(Skip = "Issue#13487")]
-        public void Translate_array_length()
-        {
-            using (var db = CreateContext())
-            {
-                db.Set<MappedDataTypesWithIdentity>()
-                    .Where(p => p.BytesAsImage.Length == 0)
-                    .Select(p => p.BytesAsImage.Length)
-                    .FirstOrDefault();
-
-                AssertSql(
-                    @"SELECT TOP(1) CAST(DATALENGTH([p].[BytesAsImage]) AS int)
-FROM [MappedDataTypesWithIdentity] AS [p]
-WHERE CAST(DATALENGTH([p].[BytesAsImage]) AS int) = 0");
-            }
         }
 
         [ConditionalFact]
         public void Sql_translation_uses_type_mapper_when_parameter()
         {
-            using (var context = CreateContext())
-            {
-                var timeSpan = new TimeSpan(2, 1, 0);
+            using var context = CreateContext();
+            var timeSpan = new TimeSpan(2, 1, 0);
 
-                var results
-                    = context.Set<MappedNullableDataTypes>()
-                        .Where(e => e.TimeSpanAsTime == timeSpan)
-                        .Select(e => e.Int)
-                        .ToList();
+            var results
+                = context.Set<MappedNullableDataTypes>()
+                    .Where(e => e.TimeSpanAsTime == timeSpan)
+                    .Select(e => e.Int)
+                    .ToList();
 
-                Assert.Empty(results);
-                AssertSql(
-                    @"@__timeSpan_0='02:01:00' (Nullable = true)
+            Assert.Empty(results);
+            AssertSql(
+                @"@__timeSpan_0='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
 WHERE [m].[TimeSpanAsTime] = @__timeSpan_0");
+        }
+
+        [ConditionalFact]
+        public void String_indexOf_over_varchar_max()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedNullableDataTypes>().Add(
+                    new MappedNullableDataTypes { Int = 81, StringAsVarcharMax = string.Concat(Enumerable.Repeat("C", 8001)) });
+
+                Assert.Equal(1, context.SaveChanges());
+            }
+
+            Fixture.TestSqlLoggerFactory.Clear();
+
+            using (var context = CreateContext())
+            {
+                var results = context.Set<MappedNullableDataTypes>()
+                    .Where(e => e.Int == 81)
+                    .Select(m => m.StringAsVarcharMax.IndexOf("a"))
+                    .ToList();
+
+                Assert.Equal(-1, Assert.Single(results));
+                AssertSql(
+                    @"SELECT CASE
+    WHEN 'a' = '' THEN 0
+    ELSE CAST(CHARINDEX('a', [m].[StringAsVarcharMax]) AS int) - 1
+END
+FROM [MappedNullableDataTypes] AS [m]
+WHERE [m].[Int] = 81");
             }
         }
 
         [ConditionalFact]
         public virtual void Can_query_using_DateDiffHour_using_TimeSpan()
         {
-            using (var context = CreateContext())
-            {
-                var timeSpan = new TimeSpan(2, 1, 0);
+            using var context = CreateContext();
+            var timeSpan = new TimeSpan(2, 1, 0);
 
-                var results
-                    = context.Set<MappedNullableDataTypes>()
-                        .Where(e => EF.Functions.DateDiffHour(e.TimeSpanAsTime, timeSpan) == 0)
-                        .Select(e => e.Int)
-                        .ToList();
+            var results
+                = context.Set<MappedNullableDataTypes>()
+                    .Where(e => EF.Functions.DateDiffHour(e.TimeSpanAsTime, timeSpan) == 0)
+                    .Select(e => e.Int)
+                    .ToList();
 
-                Assert.Empty(results);
-                AssertSql(
-                    @"@__timeSpan_1='02:01:00' (Nullable = true)
+            Assert.Empty(results);
+            AssertSql(
+                @"@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
 WHERE DATEDIFF(HOUR, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
-            }
         }
 
         [ConditionalFact]
         public virtual void Can_query_using_DateDiffMinute_using_TimeSpan()
         {
-            using (var context = CreateContext())
-            {
-                var timeSpan = new TimeSpan(2, 1, 0);
+            using var context = CreateContext();
+            var timeSpan = new TimeSpan(2, 1, 0);
 
-                var results
-                    = context.Set<MappedNullableDataTypes>()
-                        .Where(e => EF.Functions.DateDiffMinute(e.TimeSpanAsTime, timeSpan) == 0)
-                        .Select(e => e.Int)
-                        .ToList();
+            var results
+                = context.Set<MappedNullableDataTypes>()
+                    .Where(e => EF.Functions.DateDiffMinute(e.TimeSpanAsTime, timeSpan) == 0)
+                    .Select(e => e.Int)
+                    .ToList();
 
-                Assert.Empty(results);
-                AssertSql(
-                    @"@__timeSpan_1='02:01:00' (Nullable = true)
+            Assert.Empty(results);
+            AssertSql(
+                @"@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
 WHERE DATEDIFF(MINUTE, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
-            }
         }
 
         [ConditionalFact]
         public virtual void Can_query_using_DateDiffSecond_using_TimeSpan()
         {
-            using (var context = CreateContext())
-            {
-                var timeSpan = new TimeSpan(2, 1, 0);
+            using var context = CreateContext();
+            var timeSpan = new TimeSpan(2, 1, 0);
 
-                var results
-                    = context.Set<MappedNullableDataTypes>()
-                        .Where(e => EF.Functions.DateDiffSecond(e.TimeSpanAsTime, timeSpan) == 0)
-                        .Select(e => e.Int)
-                        .ToList();
+            var results
+                = context.Set<MappedNullableDataTypes>()
+                    .Where(e => EF.Functions.DateDiffSecond(e.TimeSpanAsTime, timeSpan) == 0)
+                    .Select(e => e.Int)
+                    .ToList();
 
-                Assert.Empty(results);
-                AssertSql(
-                    @"@__timeSpan_1='02:01:00' (Nullable = true)
+            Assert.Empty(results);
+            AssertSql(
+                @"@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
 WHERE DATEDIFF(SECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
-            }
         }
 
         [ConditionalFact]
         public virtual void Can_query_using_DateDiffMillisecond_using_TimeSpan()
         {
-            using (var context = CreateContext())
-            {
-                var timeSpan = new TimeSpan(2, 1, 0);
+            using var context = CreateContext();
+            var timeSpan = new TimeSpan(2, 1, 0);
 
-                var results
-                    = context.Set<MappedNullableDataTypes>()
-                        .Where(e => EF.Functions.DateDiffMillisecond(e.TimeSpanAsTime, timeSpan) == 0)
-                        .Select(e => e.Int)
-                        .ToList();
+            var results
+                = context.Set<MappedNullableDataTypes>()
+                    .Where(e => EF.Functions.DateDiffMillisecond(e.TimeSpanAsTime, timeSpan) == 0)
+                    .Select(e => e.Int)
+                    .ToList();
 
-                Assert.Empty(results);
-                AssertSql(
-                    @"@__timeSpan_1='02:01:00' (Nullable = true)
+            Assert.Empty(results);
+            AssertSql(
+                @"@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
 WHERE DATEDIFF(MILLISECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
-            }
         }
 
         [ConditionalFact]
         public virtual void Can_query_using_DateDiffMicrosecond_using_TimeSpan()
         {
-            using (var context = CreateContext())
-            {
-                var timeSpan = new TimeSpan(2, 1, 0);
+            using var context = CreateContext();
+            var timeSpan = new TimeSpan(2, 1, 0);
 
-                var results
-                    = context.Set<MappedNullableDataTypes>()
-                        .Where(e => EF.Functions.DateDiffMicrosecond(e.TimeSpanAsTime, timeSpan) == 0)
-                        .Select(e => e.Int)
-                        .ToList();
+            var results
+                = context.Set<MappedNullableDataTypes>()
+                    .Where(e => EF.Functions.DateDiffMicrosecond(e.TimeSpanAsTime, timeSpan) == 0)
+                    .Select(e => e.Int)
+                    .ToList();
 
-                Assert.Empty(results);
-                AssertSql(
-                    @"@__timeSpan_1='02:01:00' (Nullable = true)
+            Assert.Empty(results);
+            AssertSql(
+                @"@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
 WHERE DATEDIFF(MICROSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
-            }
         }
 
         [ConditionalFact]
         public virtual void Can_query_using_DateDiffNanosecond_using_TimeSpan()
         {
-            using (var context = CreateContext())
-            {
-                var timeSpan = new TimeSpan(2, 1, 0);
+            using var context = CreateContext();
+            var timeSpan = new TimeSpan(2, 1, 0);
 
-                var results
-                    = context.Set<MappedNullableDataTypes>()
-                        .Where(e => EF.Functions.DateDiffNanosecond(e.TimeSpanAsTime, timeSpan) == 0)
-                        .Select(e => e.Int)
-                        .ToList();
+            var results
+                = context.Set<MappedNullableDataTypes>()
+                    .Where(e => EF.Functions.DateDiffNanosecond(e.TimeSpanAsTime, timeSpan) == 0)
+                    .Select(e => e.Int)
+                    .ToList();
 
-                Assert.Empty(results);
-                AssertSql(
-                    @"@__timeSpan_1='02:01:00' (Nullable = true)
+            Assert.Empty(results);
+            AssertSql(
+                @"@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
 WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
-            }
         }
 
         [ConditionalFact]
@@ -678,15 +676,15 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p12='D' (Nullable = false) (Size = 1)
 @p13='G' (Nullable = false) (Size = 1) (DbType = AnsiString)
 @p14='A' (Nullable = false) (Size = 1) (DbType = AnsiString)
-@p15='2015-01-02T10:11:12' (DbType = Date)
-@p16='2019-01-02T14:11:12' (DbType = DateTime)
-@p17='2017-01-02T12:11:12'
-@p18='2018-01-02T13:11:12' (DbType = DateTime)
-@p19='2016-01-02T11:11:12.0000000+00:00'
-@p20='101.1'
-@p21='102.2'
+@p15='2015-01-02T10:11:12.0000000' (DbType = Date)
+@p16='2019-01-02T14:11:12.0000000' (DbType = DateTime)
+@p17='2017-01-02T12:11:12.1234567'
+@p18='2018-01-02T13:11:12.0000000' (DbType = DateTime)
+@p19='2016-01-02T11:11:12.1234567+00:00'
+@p20='101.1' (Precision = 18) (Scale = 2)
+@p21='102.2' (Precision = 18) (Scale = 2)
 @p22='81.1'
-@p23='103.3'
+@p23='103.3' (Precision = 18) (Scale = 2)
 @p24='82.2'
 @p25='85.5'
 @p26='83.3'
@@ -718,7 +716,7 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p48='4294967295'
 @p49='-1'
 @p50='-1'
-@p51='18446744073709551615'",
+@p51='18446744073709551615' (Precision = 20)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -749,8 +747,8 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             Assert.Equal(84.4f, entity.FloatAsReal);
             Assert.Equal(85.5, entity.DoubleAsDoublePrecision);
             Assert.Equal(new DateTime(2015, 1, 2), entity.DateTimeAsDate);
-            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset);
-            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12), entity.DateTimeAsDatetime2);
+            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12).AddTicks(1234567), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset);
+            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12).AddTicks(1234567), entity.DateTimeAsDatetime2);
             Assert.Equal(new DateTime(2018, 1, 2, 13, 11, 00), entity.DateTimeAsSmalldatetime);
             Assert.Equal(new DateTime(2019, 1, 2, 14, 11, 12), entity.DateTimeAsDatetime);
             Assert.Equal(new TimeSpan(11, 15, 12), entity.TimeSpanAsTime);
@@ -806,8 +804,8 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
                 FloatAsReal = 84.4f,
                 DoubleAsDoublePrecision = 85.5,
                 DateTimeAsDate = new DateTime(2015, 1, 2, 10, 11, 12),
-                DateTimeOffsetAsDatetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero),
-                DateTimeAsDatetime2 = new DateTime(2017, 1, 2, 12, 11, 12),
+                DateTimeOffsetAsDatetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12).AddTicks(1234567), TimeSpan.Zero),
+                DateTimeAsDatetime2 = new DateTime(2017, 1, 2, 12, 11, 12).AddTicks(1234567),
                 DateTimeAsSmalldatetime = new DateTime(2018, 1, 2, 13, 11, 12),
                 DateTimeAsDatetime = new DateTime(2019, 1, 2, 14, 11, 12),
                 TimeSpanAsTime = new TimeSpan(11, 15, 12),
@@ -872,15 +870,15 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p12='D' (Size = 1)
 @p13='G' (Size = 1) (DbType = AnsiString)
 @p14='A' (Size = 1) (DbType = AnsiString)
-@p15='2015-01-02T10:11:12' (Nullable = true) (DbType = Date)
-@p16='2019-01-02T14:11:12' (Nullable = true) (DbType = DateTime)
-@p17='2017-01-02T12:11:12' (Nullable = true)
-@p18='2018-01-02T13:11:12' (Nullable = true) (DbType = DateTime)
-@p19='2016-01-02T11:11:12.0000000+00:00' (Nullable = true)
-@p20='101.1' (Nullable = true)
-@p21='102.2' (Nullable = true)
+@p15='2015-01-02T10:11:12.0000000' (Nullable = true) (DbType = Date)
+@p16='2019-01-02T14:11:12.0000000' (Nullable = true) (DbType = DateTime)
+@p17='2017-01-02T12:11:12.9876543' (Nullable = true)
+@p18='2018-01-02T13:11:12.0000000' (Nullable = true) (DbType = DateTime)
+@p19='2016-01-02T11:11:12.9876543+00:00' (Nullable = true)
+@p20='101.1' (Nullable = true) (Precision = 18) (Scale = 2)
+@p21='102.2' (Nullable = true) (Precision = 18) (Scale = 2)
 @p22='81.1' (Nullable = true)
-@p23='103.3' (Nullable = true)
+@p23='103.3' (Nullable = true) (Precision = 18) (Scale = 2)
 @p24='82.2' (Nullable = true)
 @p25='85.5' (Nullable = true)
 @p26='83.3' (Nullable = true)
@@ -908,7 +906,7 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p48='4294967295' (Nullable = true)
 @p49='-1' (Nullable = true)
 @p50='-1' (Nullable = true)
-@p51='18446744073709551615' (Nullable = true)",
+@p51='18446744073709551615' (Nullable = true) (Precision = 20)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -935,8 +933,8 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             Assert.Equal(84.4f, entity.FloatAsReal);
             Assert.Equal(85.5, entity.DoubleAsDoublePrecision);
             Assert.Equal(new DateTime(2015, 1, 2), entity.DateTimeAsDate);
-            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset);
-            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12), entity.DateTimeAsDatetime2);
+            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12).AddTicks(9876543), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset);
+            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12).AddTicks(9876543), entity.DateTimeAsDatetime2);
             Assert.Equal(new DateTime(2018, 1, 2, 13, 11, 00), entity.DateTimeAsSmalldatetime);
             Assert.Equal(new DateTime(2019, 1, 2, 14, 11, 12), entity.DateTimeAsDatetime);
             Assert.Equal(new TimeSpan(11, 15, 12), entity.TimeSpanAsTime);
@@ -992,8 +990,8 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
                 FloatAsReal = 84.4f,
                 DoubleAsDoublePrecision = 85.5,
                 DateTimeAsDate = new DateTime(2015, 1, 2, 10, 11, 12),
-                DateTimeOffsetAsDatetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero),
-                DateTimeAsDatetime2 = new DateTime(2017, 1, 2, 12, 11, 12),
+                DateTimeOffsetAsDatetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12).AddTicks(9876543), TimeSpan.Zero),
+                DateTimeAsDatetime2 = new DateTime(2017, 1, 2, 12, 11, 12).AddTicks(9876543),
                 DateTimeAsSmalldatetime = new DateTime(2018, 1, 2, 13, 11, 12),
                 DateTimeAsDatetime = new DateTime(2019, 1, 2, 14, 11, 12),
                 TimeSpanAsTime = new TimeSpan(11, 15, 12),
@@ -1063,10 +1061,10 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p17=NULL (DbType = DateTime2)
 @p18=NULL (DbType = DateTime)
 @p19=NULL (DbType = DateTimeOffset)
-@p20=NULL
-@p21=NULL
+@p20=NULL (Precision = 18) (Scale = 2)
+@p21=NULL (Precision = 18) (Scale = 2)
 @p22=NULL
-@p23=NULL
+@p23=NULL (Precision = 18) (Scale = 2)
 @p24=NULL
 @p25=NULL
 @p26=NULL
@@ -1094,7 +1092,7 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p48=NULL (DbType = Int64)
 @p49=NULL (DbType = Int32)
 @p50=NULL (DbType = Int64)
-@p51=NULL",
+@p51=NULL (Precision = 20)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1182,14 +1180,14 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p7='F' (Size = 3)
 @p8='D' (Size = 3)
 @p9='A' (Size = 3) (DbType = AnsiString)
-@p10='Wor' (Size = 3) (DbType = AnsiString)
+@p10='Wor' (Size = 3) (DbType = AnsiStringFixedLength)
 @p11='Thr' (Size = 3) (DbType = AnsiString)
-@p12='Lon' (Size = 3) (DbType = AnsiString)
+@p12='Lon' (Size = 3) (DbType = AnsiStringFixedLength)
 @p13='Let' (Size = 3) (DbType = AnsiString)
 @p14='The' (Size = 3)
-@p15='Squ' (Size = 3)
+@p15='Squ' (Size = 3) (DbType = StringFixedLength)
 @p16='Col' (Size = 3)
-@p17='Won' (Size = 3)
+@p17='Won' (Size = 3) (DbType = StringFixedLength)
 @p18='Int' (Size = 3)
 @p19='Tha' (Size = 3) (DbType = AnsiString)",
                 parameters,
@@ -1272,14 +1270,14 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p7=NULL (Size = 3)
 @p8=NULL (Size = 3)
 @p9=NULL (Size = 3) (DbType = AnsiString)
-@p10=NULL (Size = 3) (DbType = AnsiString)
+@p10=NULL (Size = 3) (DbType = AnsiStringFixedLength)
 @p11=NULL (Size = 3) (DbType = AnsiString)
-@p12=NULL (Size = 3) (DbType = AnsiString)
+@p12=NULL (Size = 3) (DbType = AnsiStringFixedLength)
 @p13=NULL (Size = 3) (DbType = AnsiString)
 @p14=NULL (Size = 3)
-@p15=NULL (Size = 3)
+@p15=NULL (Size = 3) (DbType = StringFixedLength)
 @p16=NULL (Size = 3)
-@p17=NULL (Size = 3)
+@p17=NULL (Size = 3) (DbType = StringFixedLength)
 @p18=NULL (Size = 3)
 @p19=NULL (Size = 3) (DbType = AnsiString)",
                 parameters,
@@ -1328,11 +1326,11 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             var parameters = DumpParameters();
             Assert.Equal(
                 @"@p0='77'
-@p1='2017-01-02T12:11:12' (Size = 3)
-@p2='2016-01-02T11:11:12.0000000+00:00' (Size = 3)
-@p3='102.2' (Size = 3)
-@p4='101.1' (Size = 3)
-@p5='103.3' (Size = 3)
+@p1='2017-01-02T12:11:12.3210000' (Precision = 3)
+@p2='2016-01-02T11:11:12.7650000+00:00' (Precision = 3)
+@p3='102' (Precision = 3)
+@p4='101' (Precision = 3)
+@p5='103' (Precision = 3)
 @p6='85.55000305175781' (Size = 25)
 @p7='85.5' (Size = 3)
 @p8='83.33000183105469' (Size = 25)
@@ -1353,8 +1351,8 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             Assert.Equal(85.5f, entity.FloatAsDoublePrecision3);
             Assert.Equal(83.33f, entity.FloatAsFloat25);
             Assert.Equal(85.55f, entity.FloatAsDoublePrecision25);
-            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset3);
-            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12), entity.DateTimeAsDatetime23);
+            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12, 765), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset3);
+            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12, 321), entity.DateTimeAsDatetime23);
             Assert.Equal(101m, entity.DecimalAsDecimal3);
             Assert.Equal(102m, entity.DecimalAsDec3);
             Assert.Equal(103m, entity.DecimalAsNumeric3);
@@ -1368,11 +1366,11 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
                 FloatAsDoublePrecision3 = 85.5f,
                 FloatAsFloat25 = 83.33f,
                 FloatAsDoublePrecision25 = 85.55f,
-                DateTimeOffsetAsDatetimeoffset3 = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero),
-                DateTimeAsDatetime23 = new DateTime(2017, 1, 2, 12, 11, 12),
-                DecimalAsDecimal3 = 101.1m,
-                DecimalAsDec3 = 102.2m,
-                DecimalAsNumeric3 = 103.3m
+                DateTimeOffsetAsDatetimeoffset3 = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12, 765), TimeSpan.Zero),
+                DateTimeAsDatetime23 = new DateTime(2017, 1, 2, 12, 11, 12, 321),
+                DecimalAsDecimal3 = 101m,
+                DecimalAsDec3 = 102m,
+                DecimalAsNumeric3 = 103m
             };
 
         [ConditionalFact]
@@ -1388,9 +1386,9 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             var parameters = DumpParameters();
             Assert.Equal(
                 @"@p0='77'
-@p1='102.2'
-@p2='101.1'
-@p3='103.3'",
+@p1='102.2' (Precision = 5) (Scale = 2)
+@p2='101.1' (Precision = 5) (Scale = 2)
+@p3='103.3' (Precision = 5) (Scale = 2)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1443,15 +1441,15 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p11='D' (Nullable = false) (Size = 1)
 @p12='G' (Nullable = false) (Size = 1) (DbType = AnsiString)
 @p13='A' (Nullable = false) (Size = 1) (DbType = AnsiString)
-@p14='2015-01-02T10:11:12' (DbType = Date)
-@p15='2019-01-02T14:11:12' (DbType = DateTime)
-@p16='2017-01-02T12:11:12'
-@p17='2018-01-02T13:11:12' (DbType = DateTime)
-@p18='2016-01-02T11:11:12.0000000+00:00'
-@p19='101.1'
-@p20='102.2'
+@p14='2015-01-02T10:11:12.0000000' (DbType = Date)
+@p15='2019-01-02T14:11:12.0000000' (DbType = DateTime)
+@p16='2017-01-02T12:11:12.7654321'
+@p17='2018-01-02T13:11:12.0000000' (DbType = DateTime)
+@p18='2016-01-02T11:11:12.7654321+00:00'
+@p19='101.1' (Precision = 18) (Scale = 2)
+@p20='102.2' (Precision = 18) (Scale = 2)
 @p21='81.1'
-@p22='103.3'
+@p22='103.3' (Precision = 18) (Scale = 2)
 @p23='82.2'
 @p24='85.5'
 @p25='83.3'
@@ -1480,7 +1478,7 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p48='4294967295'
 @p49='-1'
 @p50='-1'
-@p51='18446744073709551615'",
+@p51='18446744073709551615' (Precision = 20)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1507,8 +1505,8 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             Assert.Equal(84.4f, entity.FloatAsReal);
             Assert.Equal(85.5, entity.DoubleAsDoublePrecision);
             Assert.Equal(new DateTime(2015, 1, 2), entity.DateTimeAsDate);
-            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset);
-            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12), entity.DateTimeAsDatetime2);
+            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12).AddTicks(7654321), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset);
+            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12).AddTicks(7654321), entity.DateTimeAsDatetime2);
             Assert.Equal(new DateTime(2018, 1, 2, 13, 11, 00), entity.DateTimeAsSmalldatetime);
             Assert.Equal(new DateTime(2019, 1, 2, 14, 11, 12), entity.DateTimeAsDatetime);
             Assert.Equal(new TimeSpan(11, 15, 12), entity.TimeSpanAsTime);
@@ -1564,8 +1562,8 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
                 FloatAsReal = 84.4f,
                 DoubleAsDoublePrecision = 85.5,
                 DateTimeAsDate = new DateTime(2015, 1, 2, 10, 11, 12),
-                DateTimeOffsetAsDatetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero),
-                DateTimeAsDatetime2 = new DateTime(2017, 1, 2, 12, 11, 12),
+                DateTimeOffsetAsDatetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12).AddTicks(7654321), TimeSpan.Zero),
+                DateTimeAsDatetime2 = new DateTime(2017, 1, 2, 12, 11, 12).AddTicks(7654321),
                 DateTimeAsSmalldatetime = new DateTime(2018, 1, 2, 13, 11, 12),
                 DateTimeAsDatetime = new DateTime(2019, 1, 2, 14, 11, 12),
                 TimeSpanAsTime = new TimeSpan(11, 15, 12),
@@ -1629,15 +1627,15 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p11='D' (Size = 1)
 @p12='G' (Size = 1) (DbType = AnsiString)
 @p13='A' (Size = 1) (DbType = AnsiString)
-@p14='2015-01-02T10:11:12' (Nullable = true) (DbType = Date)
-@p15='2019-01-02T14:11:12' (Nullable = true) (DbType = DateTime)
-@p16='2017-01-02T12:11:12' (Nullable = true)
-@p17='2018-01-02T13:11:12' (Nullable = true) (DbType = DateTime)
-@p18='2016-01-02T11:11:12.0000000+00:00' (Nullable = true)
-@p19='101.1' (Nullable = true)
-@p20='102.2' (Nullable = true)
+@p14='2015-01-02T10:11:12.0000000' (Nullable = true) (DbType = Date)
+@p15='2019-01-02T14:11:12.0000000' (Nullable = true) (DbType = DateTime)
+@p16='2017-01-02T12:11:12.2345678' (Nullable = true)
+@p17='2018-01-02T13:11:12.0000000' (Nullable = true) (DbType = DateTime)
+@p18='2016-01-02T11:11:12.2345678+00:00' (Nullable = true)
+@p19='101.1' (Nullable = true) (Precision = 18) (Scale = 2)
+@p20='102.2' (Nullable = true) (Precision = 18) (Scale = 2)
 @p21='81.1' (Nullable = true)
-@p22='103.3' (Nullable = true)
+@p22='103.3' (Nullable = true) (Precision = 18) (Scale = 2)
 @p23='82.2' (Nullable = true)
 @p24='85.5' (Nullable = true)
 @p25='83.3' (Nullable = true)
@@ -1665,7 +1663,7 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p47='4294967295' (Nullable = true)
 @p48='-1' (Nullable = true)
 @p49='-1' (Nullable = true)
-@p50='18446744073709551615' (Nullable = true)
+@p50='18446744073709551615' (Nullable = true) (Precision = 20)
 @p51='-1' (Nullable = true)",
                 parameters,
                 ignoreLineEndingDifferences: true);
@@ -1693,8 +1691,8 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             Assert.Equal(84.4f, entity.FloatAsReal);
             Assert.Equal(85.5, entity.DoubleAsDoublePrecision);
             Assert.Equal(new DateTime(2015, 1, 2), entity.DateTimeAsDate);
-            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset);
-            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12), entity.DateTimeAsDatetime2);
+            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12).AddTicks(2345678), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset);
+            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12).AddTicks(2345678), entity.DateTimeAsDatetime2);
             Assert.Equal(new DateTime(2018, 1, 2, 13, 11, 00), entity.DateTimeAsSmalldatetime);
             Assert.Equal(new DateTime(2019, 1, 2, 14, 11, 12), entity.DateTimeAsDatetime);
             Assert.Equal(new TimeSpan(11, 15, 12), entity.TimeSpanAsTime);
@@ -1750,8 +1748,8 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
                 FloatAsReal = 84.4f,
                 DoubleAsDoublePrecision = 85.5,
                 DateTimeAsDate = new DateTime(2015, 1, 2, 10, 11, 12),
-                DateTimeOffsetAsDatetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero),
-                DateTimeAsDatetime2 = new DateTime(2017, 1, 2, 12, 11, 12),
+                DateTimeOffsetAsDatetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12).AddTicks(2345678), TimeSpan.Zero),
+                DateTimeAsDatetime2 = new DateTime(2017, 1, 2, 12, 11, 12).AddTicks(2345678),
                 DateTimeAsSmalldatetime = new DateTime(2018, 1, 2, 13, 11, 12),
                 DateTimeAsDatetime = new DateTime(2019, 1, 2, 14, 11, 12),
                 TimeSpanAsTime = new TimeSpan(11, 15, 12),
@@ -1820,10 +1818,10 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p16=NULL (DbType = DateTime2)
 @p17=NULL (DbType = DateTime)
 @p18=NULL (DbType = DateTimeOffset)
-@p19=NULL
-@p20=NULL
+@p19=NULL (Precision = 18) (Scale = 2)
+@p20=NULL (Precision = 18) (Scale = 2)
 @p21=NULL
-@p22=NULL
+@p22=NULL (Precision = 18) (Scale = 2)
 @p23=NULL
 @p24=NULL
 @p25=NULL
@@ -1851,7 +1849,7 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p47=NULL (DbType = Int64)
 @p48=NULL (DbType = Int32)
 @p49=NULL (DbType = Int64)
-@p50=NULL
+@p50=NULL (Precision = 20)
 @p51=NULL (DbType = Int16)",
                 parameters,
                 ignoreLineEndingDifferences: true);
@@ -1942,14 +1940,14 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p7='D' (Size = 3)
 @p8='A' (Size = 3) (DbType = AnsiString)
 @p9='77'
-@p10='Wor' (Size = 3) (DbType = AnsiString)
+@p10='Wor' (Size = 3) (DbType = AnsiStringFixedLength)
 @p11='Thr' (Size = 3) (DbType = AnsiString)
-@p12='Lon' (Size = 3) (DbType = AnsiString)
+@p12='Lon' (Size = 3) (DbType = AnsiStringFixedLength)
 @p13='Let' (Size = 3) (DbType = AnsiString)
 @p14='The' (Size = 3)
-@p15='Squ' (Size = 3)
+@p15='Squ' (Size = 3) (DbType = StringFixedLength)
 @p16='Col' (Size = 3)
-@p17='Won' (Size = 3)
+@p17='Won' (Size = 3) (DbType = StringFixedLength)
 @p18='Int' (Size = 3)
 @p19='Tha' (Size = 3) (DbType = AnsiString)",
                 parameters,
@@ -2032,14 +2030,14 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p7=NULL (Size = 3)
 @p8=NULL (Size = 3) (DbType = AnsiString)
 @p9='78'
-@p10=NULL (Size = 3) (DbType = AnsiString)
+@p10=NULL (Size = 3) (DbType = AnsiStringFixedLength)
 @p11=NULL (Size = 3) (DbType = AnsiString)
-@p12=NULL (Size = 3) (DbType = AnsiString)
+@p12=NULL (Size = 3) (DbType = AnsiStringFixedLength)
 @p13=NULL (Size = 3) (DbType = AnsiString)
 @p14=NULL (Size = 3)
-@p15=NULL (Size = 3)
+@p15=NULL (Size = 3) (DbType = StringFixedLength)
 @p16=NULL (Size = 3)
-@p17=NULL (Size = 3)
+@p17=NULL (Size = 3) (DbType = StringFixedLength)
 @p18=NULL (Size = 3)
 @p19=NULL (Size = 3) (DbType = AnsiString)",
                 parameters,
@@ -2087,11 +2085,11 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 
             var parameters = DumpParameters();
             Assert.Equal(
-                @"@p0='2017-01-02T12:11:12' (Size = 3)
-@p1='2016-01-02T11:11:12.0000000+00:00' (Size = 3)
-@p2='102.2' (Size = 3)
-@p3='101.1' (Size = 3)
-@p4='103.3' (Size = 3)
+                @"@p0='2017-01-02T12:11:12.1230000' (Precision = 3)
+@p1='2016-01-02T11:11:12.5670000+00:00' (Precision = 3)
+@p2='102' (Precision = 3)
+@p3='101' (Precision = 3)
+@p4='103' (Precision = 3)
 @p5='85.55000305175781' (Size = 25)
 @p6='85.5' (Size = 3)
 @p7='83.33000183105469' (Size = 25)
@@ -2113,8 +2111,8 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             Assert.Equal(85.5f, entity.FloatAsDoublePrecision3);
             Assert.Equal(83.33f, entity.FloatAsFloat25);
             Assert.Equal(85.55f, entity.FloatAsDoublePrecision25);
-            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset3);
-            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12), entity.DateTimeAsDatetime23);
+            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12, 567), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset3);
+            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12, 123), entity.DateTimeAsDatetime23);
             Assert.Equal(101m, entity.DecimalAsDecimal3);
             Assert.Equal(102m, entity.DecimalAsDec3);
             Assert.Equal(103m, entity.DecimalAsNumeric3);
@@ -2128,11 +2126,11 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
                 FloatAsDoublePrecision3 = 85.5f,
                 FloatAsFloat25 = 83.33f,
                 FloatAsDoublePrecision25 = 85.55f,
-                DateTimeOffsetAsDatetimeoffset3 = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero),
-                DateTimeAsDatetime23 = new DateTime(2017, 1, 2, 12, 11, 12),
-                DecimalAsDecimal3 = 101.1m,
-                DecimalAsDec3 = 102.2m,
-                DecimalAsNumeric3 = 103.3m
+                DateTimeOffsetAsDatetimeoffset3 = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12, 567), TimeSpan.Zero),
+                DateTimeAsDatetime23 = new DateTime(2017, 1, 2, 12, 11, 12, 123),
+                DecimalAsDecimal3 = 101m,
+                DecimalAsDec3 = 102m,
+                DecimalAsNumeric3 = 103m
             };
 
         [ConditionalFact]
@@ -2148,9 +2146,9 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 
             var parameters = DumpParameters();
             Assert.Equal(
-                @"@p0='102.2'
-@p1='101.1'
-@p2='103.3'
+                @"@p0='102.2' (Precision = 5) (Scale = 2)
+@p1='101.1' (Precision = 5) (Scale = 2)
+@p2='103.3' (Precision = 5) (Scale = 2)
 @p3='77'",
                 parameters,
                 ignoreLineEndingDifferences: true);
@@ -2900,23 +2898,35 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
         [ConditionalFact]
         public void Can_get_column_types_from_built_model()
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            var typeMapper = context.GetService<IRelationalTypeMappingSource>();
+
+            foreach (var property in context.Model.GetEntityTypes().SelectMany(e => e.GetDeclaredProperties()))
             {
-                var typeMapper = context.GetService<IRelationalTypeMappingSource>();
+                var columnType = property.GetColumnType();
+                Assert.NotNull(columnType);
 
-                foreach (var property in context.Model.GetEntityTypes().SelectMany(e => e.GetDeclaredProperties()))
+                if (property[RelationalAnnotationNames.ColumnType] == null)
                 {
-                    var columnType = property.GetColumnType();
-                    Assert.NotNull(columnType);
-
-                    if (property[RelationalAnnotationNames.ColumnType] == null)
-                    {
-                        Assert.Equal(
-                            columnType.ToLowerInvariant(),
-                            typeMapper.FindMapping(property).StoreType.ToLowerInvariant());
-                    }
+                    Assert.Equal(
+                        columnType.ToLowerInvariant(),
+                        typeMapper.FindMapping(property).StoreType.ToLowerInvariant());
                 }
             }
+        }
+
+        public override void Object_to_string_conversion()
+        {
+            base.Object_to_string_conversion();
+
+            AssertSql(
+                @"SELECT [b].[Id], [b].[Enum16], [b].[Enum32], [b].[Enum64], [b].[Enum8], [b].[EnumS8], [b].[EnumU16], [b].[EnumU32], [b].[EnumU64], [b].[PartitionId], [b].[TestBoolean], [b].[TestByte], [b].[TestCharacter], [b].[TestDateTime], [b].[TestDateTimeOffset], [b].[TestDecimal], [b].[TestDouble], [b].[TestInt16], [b].[TestInt32], [b].[TestInt64], [b].[TestSignedByte], [b].[TestSingle], [b].[TestTimeSpan], [b].[TestUnsignedInt16], [b].[TestUnsignedInt32], [b].[TestUnsignedInt64]
+FROM [BuiltInDataTypes] AS [b]
+WHERE [b].[Id] = 13",
+                //
+                @"SELECT CONVERT(VARCHAR(4), [b].[TestSignedByte]) AS [Sbyte], CONVERT(VARCHAR(3), [b].[TestByte]) AS [Byte], CONVERT(VARCHAR(6), [b].[TestInt16]) AS [Short], CONVERT(VARCHAR(5), [b].[TestUnsignedInt16]) AS [Ushort], CONVERT(VARCHAR(11), [b].[TestInt32]) AS [Int], CONVERT(VARCHAR(10), [b].[TestUnsignedInt32]) AS [Uint], CONVERT(VARCHAR(20), [b].[TestInt64]) AS [Long], CONVERT(VARCHAR(20), [b].[TestUnsignedInt64]) AS [Ulong], CONVERT(VARCHAR(100), [b].[TestSingle]) AS [Float], CONVERT(VARCHAR(100), [b].[TestDouble]) AS [Double], CONVERT(VARCHAR(100), [b].[TestDecimal]) AS [Decimal], CONVERT(VARCHAR(1), [b].[TestCharacter]) AS [Char], CONVERT(VARCHAR(100), [b].[TestDateTime]) AS [DateTime], CONVERT(VARCHAR(100), [b].[TestDateTimeOffset]) AS [DateTimeOffset], CONVERT(VARCHAR(100), [b].[TestTimeSpan]) AS [TimeSpan]
+FROM [BuiltInDataTypes] AS [b]
+WHERE [b].[Id] = 13");
         }
 
         public static string QueryForColumnTypes(DbContext context, params string[] tablesToIgnore)
@@ -2942,26 +2952,24 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                 var command = connection.CreateCommand();
                 command.CommandText = query;
 
-                using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    while (reader.Read())
+                    var columnInfo = new ColumnInfo
                     {
-                        var columnInfo = new ColumnInfo
-                        {
-                            TableName = reader.GetString(0),
-                            ColumnName = reader.GetString(1),
-                            DataType = reader.GetString(2),
-                            IsNullable = reader.IsDBNull(3) ? null : (bool?)(reader.GetString(3) == "YES"),
-                            MaxLength = reader.IsDBNull(4) ? null : (int?)reader.GetInt32(4),
-                            NumericPrecision = reader.IsDBNull(5) ? null : (int?)reader.GetByte(5),
-                            NumericScale = reader.IsDBNull(6) ? null : (int?)reader.GetInt32(6),
-                            DateTimePrecision = reader.IsDBNull(7) ? null : (int?)reader.GetInt16(7)
-                        };
+                        TableName = reader.GetString(0),
+                        ColumnName = reader.GetString(1),
+                        DataType = reader.GetString(2),
+                        IsNullable = reader.IsDBNull(3) ? null : (bool?)(reader.GetString(3) == "YES"),
+                        MaxLength = reader.IsDBNull(4) ? null : (int?)reader.GetInt32(4),
+                        NumericPrecision = reader.IsDBNull(5) ? null : (int?)reader.GetByte(5),
+                        NumericScale = reader.IsDBNull(6) ? null : (int?)reader.GetInt32(6),
+                        DateTimePrecision = reader.IsDBNull(7) ? null : (int?)reader.GetInt16(7)
+                    };
 
-                        if (!tablesToIgnore.Contains(columnInfo.TableName))
-                        {
-                            columns.Add(columnInfo);
-                        }
+                    if (!tablesToIgnore.Contains(columnInfo.TableName))
+                    {
+                        columns.Add(columnInfo);
                     }
                 }
             }

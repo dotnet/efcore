@@ -31,13 +31,12 @@ namespace Microsoft.EntityFrameworkCore
 
             public override void Reseed()
             {
-                using (var context = CreateContext())
-                {
-                    context.Set<TransactionCustomer>().RemoveRange(context.Set<TransactionCustomer>());
-                    context.SaveChanges();
+                using var context = CreateContext();
+                context.Set<TransactionCustomer>().RemoveRange(context.Set<TransactionCustomer>());
+                context.Set<TransactionOrder>().RemoveRange(context.Set<TransactionOrder>());
+                context.SaveChanges();
 
-                    Seed(context);
-                }
+                Seed(context);
             }
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)

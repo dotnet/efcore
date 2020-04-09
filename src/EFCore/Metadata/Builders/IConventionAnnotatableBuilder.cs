@@ -17,12 +17,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     public interface IConventionAnnotatableBuilder
     {
         /// <summary>
-        ///     The annotatable item being configured.
+        ///     Gets the annotatable item being configured.
         /// </summary>
         IConventionAnnotatable Metadata { get; }
 
         /// <summary>
-        ///     The model builder.
+        ///     Gets the model builder.
         /// </summary>
         IConventionModelBuilder ModelBuilder { get; }
 
@@ -39,7 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         IConventionAnnotatableBuilder HasAnnotation([NotNull] string name, [CanBeNull] object value, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Sets or removes the annotation stored under the given name.
+        ///     Sets the annotation stored under the given name. Overwrites the existing annotation if an
+        ///     annotation with the specified name already exists with same or lower <see cref="ConfigurationSource" />.
+        ///     Removes the annotation if <c>null</c> value is specified.
         /// </summary>
         /// <param name="name"> The name of the annotation to be set. </param>
         /// <param name="value"> The value to be stored in the annotation. <c>null</c> to remove the annotations. </param>
@@ -48,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     An <see cref="IConventionAnnotatableBuilder" /> to continue configuration if the annotation was set or removed,
         ///     <c>null</c> otherwise.
         /// </returns>
-        IConventionAnnotatableBuilder SetOrRemoveAnnotation(
+        IConventionAnnotatableBuilder HasNonNullAnnotation(
             [NotNull] string name, [CanBeNull] object value, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -68,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     An <see cref="IConventionAnnotatableBuilder" /> to continue configuration if the annotation was set, <c>null</c> otherwise.
         /// </returns>
-        IConventionAnnotatableBuilder RemoveAnnotation([NotNull] string name, bool fromDataAnnotation = false);
+        IConventionAnnotatableBuilder HasNoAnnotation([NotNull] string name, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether an annotation with the given name can be removed using this configuration source.

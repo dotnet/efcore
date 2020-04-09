@@ -6,14 +6,36 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class QueryCompilationContext
     {
+        /// <summary>
+        ///     <para>
+        ///         Prefix for all the query parameters generated during parameter extraction in query pipeline.
+        ///     </para>
+        ///     <para>
+        ///         This property is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        public const string QueryParameterPrefix = "__";
+
+        /// <summary>
+        ///     <para>
+        ///         ParameterExpression representing <see cref="QueryContext"/> parameter in query expression.
+        ///     </para>
+        ///     <para>
+        ///         This property is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
         public static readonly ParameterExpression QueryContextParameter = Expression.Parameter(typeof(QueryContext), "queryContext");
 
         private readonly IQueryTranslationPreprocessorFactory _queryTranslationPreprocessorFactory;
@@ -21,25 +43,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly IQueryTranslationPostprocessorFactory _queryTranslationPostprocessorFactory;
         private readonly IShapedQueryCompilingExpressionVisitorFactory _shapedQueryCompilingExpressionVisitorFactory;
 
-        /// <summary>
-        ///     A dictionary mapping parameter names to lambdas that, given a QueryContext, can extract that parameter's value.
-        ///     This is needed for cases where we need to introduce a parameter during the compilation phase (e.g. entity equality rewrites
-        ///     a parameter to an ID property on that parameter).
-        /// </summary>
         private Dictionary<string, LambdaExpression> _runtimeParameters;
 
         public QueryCompilationContext(
-            QueryCompilationContextDependencies dependencies,
+            [NotNull] QueryCompilationContextDependencies dependencies,
             bool async)
         {
-            var context = dependencies.CurrentContext.Context;
+            Check.NotNull(dependencies, nameof(dependencies));
 
             IsAsync = async;
-            IsTracking = context.ChangeTracker.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
+            IsTracking = dependencies.IsTracking;
             IsBuffering = dependencies.IsRetryingExecutionStrategy;
             Model = dependencies.Model;
             ContextOptions = dependencies.ContextOptions;
-            ContextType = context.GetType();
+            ContextType = dependencies.ContextType;
             Logger = dependencies.Logger;
 
             _queryTranslationPreprocessorFactory = dependencies.QueryTranslationPreprocessorFactory;
@@ -58,16 +75,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual IDiagnosticsLogger<DbLoggerCategory.Query> Logger { get; }
         public virtual Type ContextType { get; }
 
-        public virtual void AddTag(string tag)
+        public virtual void AddTag([NotNull] string tag)
         {
+            Check.NotEmpty(tag, nameof(tag));
+
             Tags.Add(tag);
         }
 
-        public virtual Func<QueryContext, TResult> CreateQueryExecutor<TResult>(Expression query)
+        public virtual Func<QueryContext, TResult> CreateQueryExecutor<TResult>([NotNull] Expression query)
         {
+            Check.NotNull(query, nameof(query));
+
             query = _queryTranslationPreprocessorFactory.Create(this).Process(query);
             // Convert EntityQueryable to ShapedQueryExpression
-            query = _queryableMethodTranslatingExpressionVisitorFactory.Create(Model).Visit(query);
+            query = _queryableMethodTranslatingExpressionVisitorFactory.Create(this).Visit(query);
             query = _queryTranslationPostprocessorFactory.Create(this).Process(query);
 
             // Inject actual entity materializer
@@ -97,14 +118,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     A lambda must be provided, which will extract the parameter's value from the QueryContext every time
         ///     the query is executed.
         /// </summary>
-        public virtual ParameterExpression RegisterRuntimeParameter(string name, LambdaExpression valueExtractor)
+        public virtual ParameterExpression RegisterRuntimeParameter([NotNull] string name, [NotNull] LambdaExpression valueExtractor)
         {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(valueExtractor, nameof(valueExtractor));
+
             if (valueExtractor.Parameters.Count != 1
                 || valueExtractor.Parameters[0] != QueryContextParameter)
             {
-                throw new ArgumentException(
-                    "Runtime parameter extraction lambda must have one QueryContext parameter",
-                    nameof(valueExtractor));
+                throw new ArgumentException(CoreStrings.RuntimeParameterMissingParameter, nameof(valueExtractor));
             }
 
             if (_runtimeParameters == null)

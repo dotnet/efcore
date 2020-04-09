@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -13,25 +15,28 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private readonly List<CaseWhenClause> _whenClauses = new List<CaseWhenClause>();
 
         public CaseExpression(
-            SqlExpression operand,
-            IReadOnlyList<CaseWhenClause> whenClauses)
+            [NotNull] SqlExpression operand,
+            [NotNull] IReadOnlyList<CaseWhenClause> whenClauses)
             : this(operand, whenClauses, null)
         {
+            Check.NotNull(operand, nameof(operand));
         }
 
         public CaseExpression(
-            IReadOnlyList<CaseWhenClause> whenClauses,
-            SqlExpression elseResult)
+            [NotNull] IReadOnlyList<CaseWhenClause> whenClauses,
+            [CanBeNull] SqlExpression elseResult)
             : this(null, whenClauses, elseResult)
         {
         }
 
         public CaseExpression(
-            SqlExpression operand,
-            IReadOnlyList<CaseWhenClause> whenClauses,
-            SqlExpression elseResult)
+            [CanBeNull] SqlExpression operand,
+            [NotNull] IReadOnlyList<CaseWhenClause> whenClauses,
+            [CanBeNull] SqlExpression elseResult)
             : base(whenClauses[0].Result.Type, whenClauses[0].Result.TypeMapping)
         {
+            Check.NotNull(whenClauses, nameof(whenClauses));
+
             Operand = operand;
             _whenClauses.AddRange(whenClauses);
             ElseResult = elseResult;
@@ -43,6 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
+            Check.NotNull(visitor, nameof(visitor));
+
             var operand = (SqlExpression)visitor.Visit(Operand);
             var changed = operand != Operand;
             var whenClauses = new List<CaseWhenClause>();
@@ -72,15 +79,17 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         public virtual CaseExpression Update(
-            SqlExpression operand,
-            IReadOnlyList<CaseWhenClause> whenClauses,
-            SqlExpression elseResult)
+            [CanBeNull] SqlExpression operand,
+            [CanBeNull] IReadOnlyList<CaseWhenClause> whenClauses,
+            [CanBeNull] SqlExpression elseResult)
             => operand != Operand || !whenClauses.SequenceEqual(WhenClauses) || elseResult != ElseResult
                 ? new CaseExpression(operand, whenClauses, elseResult)
                 : this;
 
         public override void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.Append("CASE");
             if (Operand != null)
             {

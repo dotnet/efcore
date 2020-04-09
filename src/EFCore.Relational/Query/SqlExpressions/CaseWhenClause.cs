@@ -2,13 +2,18 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     public class CaseWhenClause
     {
-        public CaseWhenClause(SqlExpression test, SqlExpression result)
+        public CaseWhenClause([NotNull] SqlExpression test, [NotNull] SqlExpression result)
         {
+            Check.NotNull(test, nameof(test));
+            Check.NotNull(result, nameof(result));
+
             Test = test;
             Result = result;
         }

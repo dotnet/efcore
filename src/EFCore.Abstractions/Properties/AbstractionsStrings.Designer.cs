@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     public static class AbstractionsStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.AbstractionsStrings", typeof(AbstractionsStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.AbstractionsStrings", typeof(AbstractionsStrings).Assembly);
 
         /// <summary>
         ///     The string argument '{argumentName}' cannot be empty.

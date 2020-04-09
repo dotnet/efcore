@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="converter"> The converter to use when converting to and from database types. </param>
         protected RelationalGeometryTypeMapping(
             RelationalTypeMappingParameters parameters,
-            ValueConverter<TGeometry, TProvider> converter)
+            [CanBeNull] ValueConverter<TGeometry, TProvider> converter)
             : base(parameters)
         {
             SpatialConverter = converter;

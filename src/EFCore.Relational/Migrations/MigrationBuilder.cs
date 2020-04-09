@@ -61,6 +61,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="computedColumnSql"> The SQL expression to use to compute the column value. </param>
         /// <param name="fixedLength"> Indicates whether or not the column is constrained to fixed-length data. </param>
         /// <param name="comment"> A comment to associate with the column. </param>
+        /// <param name="precision">
+        ///     The maximum number of digits that is allowed in this column, or <c>null</c> if not specified or not applicable.
+        /// </param>
+        /// <param name="scale">
+        ///     The maximum number of decimal places that is allowed in this column, or <c>null</c> if not specified or not applicable.
+        /// </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<AddColumnOperation> AddColumn<T>(
             [NotNull] string name,
@@ -75,7 +81,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] string defaultValueSql = null,
             [CanBeNull] string computedColumnSql = null,
             bool? fixedLength = null,
-            [CanBeNull] string comment = null)
+            [CanBeNull] string comment = null,
+            int? precision = null,
+            int? scale = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotEmpty(table, nameof(table));
@@ -95,7 +103,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 DefaultValueSql = defaultValueSql,
                 ComputedColumnSql = computedColumnSql,
                 IsFixedLength = fixedLength,
-                Comment = comment
+                Comment = comment,
+                Precision = precision,
+                Scale = scale,
             };
             Operations.Add(operation);
 
@@ -346,6 +356,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="oldFixedLength"> Indicates whether or not the column was previously constrained to fixed-length data. </param>
         /// <param name="comment"> A comment to associate with the column. </param>
         /// <param name="oldComment"> The previous comment to associate with the column. </param>
+        /// <param name="precision">
+        ///     The maximum number of digits that is allowed in this column, or <c>null</c> if not specified or not applicable.
+        /// </param>
+        /// <param name="oldPrecision">
+        ///     The previous maximum number of digits that is allowed in this column, or <c>null</c> if not specified or not applicable.
+        /// </param>
+        /// <param name="scale">
+        ///     The maximum number of decimal places that is allowed in this column, or <c>null</c> if not specified or not applicable.
+        /// </param>
+        /// <param name="oldScale">
+        ///     The previous maximum number of decimal places that is allowed in this column, or <c>null</c> if not specified or not applicable.
+        /// </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual AlterOperationBuilder<AlterColumnOperation> AlterColumn<T>(
             [NotNull] string name,
@@ -371,7 +393,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             bool? fixedLength = null,
             bool? oldFixedLength = null,
             [CanBeNull] string comment = null,
-            [CanBeNull] string oldComment = null)
+            [CanBeNull] string oldComment = null,
+            int? precision = null,
+            int? oldPrecision = null,
+            int? scale = null,
+            int? oldScale = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotEmpty(table, nameof(table));
@@ -392,6 +418,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 ComputedColumnSql = computedColumnSql,
                 IsFixedLength = fixedLength,
                 Comment = comment,
+                Precision = precision,
+                Scale = scale,
                 OldColumn = new ColumnOperation
                 {
                     ClrType = oldClrType ?? typeof(T),
@@ -404,7 +432,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     DefaultValueSql = oldDefaultValueSql,
                     ComputedColumnSql = oldComputedColumnSql,
                     IsFixedLength = oldFixedLength,
-                    Comment = oldComment
+                    Comment = oldComment,
+                    Precision = oldPrecision,
+                    Scale = oldScale
                 }
             };
 
@@ -1171,7 +1201,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="DeleteDataOperation" /> to delete a single row of seed data.
         /// </summary>
-        /// <param name="table"> The table from which the data will deleted. </param>
+        /// <param name="table"> The table from which the data will be deleted. </param>
         /// <param name="keyColumn"> The name of the key column used to select the row to delete. </param>
         /// <param name="keyValue"> The key value of the row to delete. </param>
         /// <param name="schema"> The schema that contains the table, or <c>null</c> to use the default schema. </param>
@@ -1187,7 +1217,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds an <see cref="DeleteDataOperation" /> to delete a single row of seed data from
         ///     a table with a composite (multi-column) key.
         /// </summary>
-        /// <param name="table"> The table from which the data will deleted. </param>
+        /// <param name="table"> The table from which the data will be deleted. </param>
         /// <param name="keyColumns"> The names of the key columns used to select the row to delete. </param>
         /// <param name="keyValues"> The key values of the row to delete, one value for each column in 'keyColumns'. </param>
         /// <param name="schema"> The schema that contains the table, or <c>null</c> to use the default schema. </param>
@@ -1206,7 +1236,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="DeleteDataOperation" /> to delete multiple rows of seed data.
         /// </summary>
-        /// <param name="table"> The table from which the data will deleted. </param>
+        /// <param name="table"> The table from which the data will be deleted. </param>
         /// <param name="keyColumn"> The name of the key column used to select the row to delete. </param>
         /// <param name="keyValues"> The key values of the rows to delete, one value per row. </param>
         /// <param name="schema"> The schema that contains the table, or <c>null</c> to use the default schema. </param>
@@ -1226,7 +1256,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds an <see cref="DeleteDataOperation" /> to delete multiple rows of seed data from
         ///     a table with a composite (multi-column) key.
         /// </summary>
-        /// <param name="table"> The table from which the data will deleted. </param>
+        /// <param name="table"> The table from which the data will be deleted. </param>
         /// <param name="keyColumns"> The names of the key columns used to select the rows to delete. </param>
         /// <param name="keyValues">
         ///     The key values of the rows to delete, where each element of the outer array represents a row, and each inner array contains values for

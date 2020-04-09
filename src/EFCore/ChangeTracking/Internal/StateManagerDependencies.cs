@@ -167,6 +167,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         public IDbSetSource SetSource { get; }
 
         /// <summary>
@@ -175,6 +176,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         public IEntityFinderSource EntityFinderSource { get; }
 
         /// <summary>
@@ -406,6 +408,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         /// <param name="entityFinderSource"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
+        [EntityFrameworkInternal]
         public StateManagerDependencies With([NotNull] IEntityFinderSource entityFinderSource)
             => new StateManagerDependencies(
                 InternalEntityEntryFactory,
@@ -429,6 +432,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         /// <param name="setSource"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
+        [EntityFrameworkInternal]
         public StateManagerDependencies With([NotNull] IDbSetSource setSource)
             => new StateManagerDependencies(
                 InternalEntityEntryFactory,

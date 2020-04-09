@@ -14,7 +14,8 @@ namespace Microsoft.Data.Sqlite
     ///     Represents a parameter and its value in a <see cref="SqliteCommand" />.
     /// </summary>
     /// <remarks>Due to SQLite's dynamic type system, parameter values are not converted.</remarks>
-    /// <seealso href="http://sqlite.org/datatype3.html">Datatypes In SQLite Version 3</seealso>
+    /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
+    /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
     public class SqliteParameter : DbParameter
     {
         private object _value;
@@ -24,6 +25,7 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         ///     Initializes a new instance of the <see cref="SqliteParameter" /> class.
         /// </summary>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
         public SqliteParameter()
         {
         }
@@ -33,6 +35,8 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <param name="name">The name of the parameter.</param>
         /// <param name="value">The value of the parameter. Can be null.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
         public SqliteParameter(string name, object value)
         {
             ParameterName = name;
@@ -44,6 +48,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <param name="name">The name of the parameter.</param>
         /// <param name="type">The type of the parameter.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
         public SqliteParameter(string name, SqliteType type)
         {
             ParameterName = name;
@@ -56,6 +61,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="name">The name of the parameter.</param>
         /// <param name="type">The type of the parameter.</param>
         /// <param name="size">The maximum size, in bytes, of the parameter.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
         public SqliteParameter(string name, SqliteType type, int size)
             : this(name, type)
             => Size = size;
@@ -67,6 +73,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="type">The type of the parameter.</param>
         /// <param name="size">The maximum size, in bytes, of the parameter.</param>
         /// <param name="sourceColumn">The source column used for loading the value. Can be null.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
         public SqliteParameter(string name, SqliteType type, int size, string sourceColumn)
             : this(name, type, size)
             => SourceColumn = sourceColumn;
@@ -76,15 +83,13 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <value>The type of the parameter.</value>
         /// <remarks>Due to SQLite's dynamic type system, parameter values are not converted.</remarks>
-        /// <seealso href="http://sqlite.org/datatype3.html">Datatypes In SQLite Version 3</seealso>
         public override DbType DbType { get; set; } = DbType.String;
 
         /// <summary>
         ///     Gets or sets the SQLite type of the parameter.
         /// </summary>
         /// <value>The SQLite type of the parameter.</value>
-        /// <remarks>Due to SQLite's dynamic type system, parameter values are not converted.</remarks>
-        /// <seealso href="http://sqlite.org/datatype3.html">Datatypes In SQLite Version 3</seealso>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
         public virtual SqliteType SqliteType
         {
             get => _sqliteType ?? SqliteValueBinder.GetSqliteType(_value);
@@ -123,6 +128,7 @@ namespace Microsoft.Data.Sqlite
         ///     Gets or sets the maximum size, in bytes, of the parameter.
         /// </summary>
         /// <value>The maximum size, in bytes, of the parameter.</value>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
         public override int Size
         {
             get => _size
@@ -161,7 +167,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <value>The value of the parameter.</value>
         /// <remarks>Due to SQLite's dynamic type system, parameter values are not converted.</remarks>
-        /// <seealso href="http://sqlite.org/datatype3.html">Datatypes In SQLite Version 3</seealso>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
         public override object Value
         {
             get => _value;

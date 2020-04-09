@@ -83,6 +83,73 @@ namespace Microsoft.EntityFrameworkCore
             => propertyBuilder.CanSetAnnotation(RelationalAnnotationNames.ColumnName, name, fromDataAnnotation);
 
         /// <summary>
+        ///     Configures the column that the property maps to in a view in a relational database.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="name"> The name of the column. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static PropertyBuilder HasViewColumnName(
+            [NotNull] this PropertyBuilder propertyBuilder,
+            [CanBeNull] string name)
+        {
+            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
+            Check.NullButNotEmpty(name, nameof(name));
+
+            propertyBuilder.Metadata.SetViewColumnName(name);
+
+            return propertyBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the column that the property maps to in a view in a relational database.
+        /// </summary>
+        /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="name"> The name of the column. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static PropertyBuilder<TProperty> HasViewColumnName<TProperty>(
+            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
+            [CanBeNull] string name)
+            => (PropertyBuilder<TProperty>)HasViewColumnName((PropertyBuilder)propertyBuilder, name);
+
+        /// <summary>
+        ///     Configures the column that the property maps to in a view in a relational database.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="name"> The name of the column. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        public static IConventionPropertyBuilder HasViewColumnName(
+            [NotNull] this IConventionPropertyBuilder propertyBuilder,
+            [CanBeNull] string name,
+            bool fromDataAnnotation = false)
+        {
+            if (!propertyBuilder.CanSetViewColumnName(name, fromDataAnnotation))
+            {
+                return null;
+            }
+
+            propertyBuilder.Metadata.SetViewColumnName(name, fromDataAnnotation);
+            return propertyBuilder;
+        }
+
+        /// <summary>
+        ///     Returns a value indicating whether the given view column can be set for the property.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="name"> The name of the column. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the property can be mapped to the given column. </returns>
+        public static bool CanSetViewColumnName(
+            [NotNull] this IConventionPropertyBuilder propertyBuilder,
+            [CanBeNull] string name,
+            bool fromDataAnnotation = false)
+            => propertyBuilder.CanSetAnnotation(RelationalAnnotationNames.ViewColumnName, name, fromDataAnnotation);
+
+        /// <summary>
         ///     Configures the data type of the column that the property maps to when targeting a relational database.
         ///     This should be the complete type name, including precision, scale, length, etc.
         /// </summary>
@@ -505,7 +572,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <c>true</c> if the given value can be set as default for the column. </returns>
         public static bool CanSetComment(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
-            [CanBeNull] object comment,
+            [CanBeNull] string comment,
             bool fromDataAnnotation = false)
             => propertyBuilder.CanSetAnnotation(
                 RelationalAnnotationNames.Comment,

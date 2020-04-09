@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             index.DeclaringEntityType.DisplayName(),
                             duplicateIndex.Properties.Format(),
                             duplicateIndex.DeclaringEntityType.DisplayName(),
-                            Format(index.DeclaringEntityType),
+                            index.DeclaringEntityType.GetSchemaQualifiedTableName(),
                             index.GetName(),
                             index.Properties.FormatColumns(),
                             duplicateIndex.Properties.FormatColumns()));
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             index.DeclaringEntityType.DisplayName(),
                             duplicateIndex.Properties.Format(),
                             duplicateIndex.DeclaringEntityType.DisplayName(),
-                            Format(index.DeclaringEntityType),
+                            index.DeclaringEntityType.GetSchemaQualifiedTableName(),
                             index.GetName()));
                 }
 
@@ -64,8 +64,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return true;
         }
-
-        private static string Format(IEntityType entityType)
-            => (string.IsNullOrEmpty(entityType.GetSchema()) ? "" : entityType.GetSchema() + ".") + entityType.GetTableName();
     }
 }

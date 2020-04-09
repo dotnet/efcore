@@ -3,9 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -29,15 +32,14 @@ namespace Microsoft.EntityFrameworkCore
             => (IMutableEntityType)((IEntityType)entityType).GetRootType();
 
         /// <summary>
-        ///     Gets the root base type for a given entity type.
+        ///     Gets all types in the model which a given entity type derives from.
         /// </summary>
-        /// <param name="entityType"> The type to find the root of. </param>
+        /// <param name="entityType"> The type to find base types. </param>
         /// <returns>
-        ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
+        ///     The base types.
         /// </returns>
-        [Obsolete("Use GetRootType")]
-        public static IMutableEntityType RootType([NotNull] this IMutableEntityType entityType)
-            => (IMutableEntityType)((IEntityType)entityType).GetRootType();
+        public static IEnumerable<IMutableEntityType> GetAllBaseTypes([NotNull] this IMutableEntityType entityType)
+            => entityType.GetAllBaseTypesAscending().Reverse().Cast<IMutableEntityType>();
 
         /// <summary>
         ///     Gets all types in the model that derive from a given entity type.
@@ -62,6 +64,14 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The derived types. </returns>
         public static IEnumerable<IMutableEntityType> GetDirectlyDerivedTypes([NotNull] this IMutableEntityType entityType)
             => ((EntityType)entityType).GetDirectlyDerivedTypes();
+
+        /// <summary>
+        ///     Returns all types in hierarchy of the given <see cref="IMutableEntityType" />.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> All types in the hierarchy. </returns>
+        public static IEnumerable<IMutableEntityType> GetTypesInHierarchy([NotNull] this IMutableEntityType entityType)
+            => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive()).Cast<IMutableEntityType>();
 
         /// <summary>
         ///     <para>
@@ -146,20 +156,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The property that was removed. </returns>
         public static IMutableProperty RemoveProperty([NotNull] this IMutableEntityType entityType, [NotNull] string name)
             => ((EntityType)entityType).RemoveProperty(name);
-
-        /// <summary>
-        ///     Sets the primary key for this entity type.
-        /// </summary>
-        /// <param name="entityType"> The entity type to set the key on. </param>
-        /// <param name="property"> The primary key property. </param>
-        /// <returns> The newly created key. </returns>
-        public static IMutableKey SetPrimaryKey(
-            [NotNull] this IMutableEntityType entityType, [CanBeNull] IMutableProperty property)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            return entityType.SetPrimaryKey(property == null ? null : new[] { property });
-        }
 
         /// <summary>
         ///     Gets the primary or alternate key that is defined on the given property. Returns <c>null</c> if no key is defined
@@ -413,7 +409,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
-            return entityType.FindProperty(propertyInfo.GetSimpleMemberName());
+            return propertyInfo.IsIndexerProperty() ? null : entityType.FindProperty(propertyInfo.GetSimpleMemberName());
         }
 
         /// <summary>
@@ -473,6 +469,28 @@ namespace Microsoft.EntityFrameworkCore
         public static IMutableProperty AddProperty(
             [NotNull] this IMutableEntityType entityType, [NotNull] string name, [NotNull] Type propertyType)
             => entityType.AddProperty(name, propertyType, null);
+
+        /// <summary>
+        ///     Adds a property backed up by an indexer to this entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to add the property to. </param>
+        /// <param name="name"> The name of the property to add. </param>
+        /// <param name="propertyType"> The type of value the property will hold. </param>
+        /// <returns> The newly created property. </returns>
+        public static IMutableProperty AddIndexerProperty(
+            [NotNull] this IMutableEntityType entityType, [NotNull] string name, [NotNull] Type propertyType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            var indexerPropertyInfo = entityType.FindIndexerPropertyInfo();
+            if (indexerPropertyInfo == null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.NonIndexerEntityType(name, entityType.DisplayName(), typeof(string).ShortDisplayName()));
+            }
+
+            return entityType.AddProperty(name, propertyType, indexerPropertyInfo);
+        }
 
         /// <summary>
         ///     Gets the index defined on the given property. Returns null if no index is defined.
@@ -556,7 +574,19 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to set. </param>
         public static void SetDiscriminatorProperty([NotNull] this IMutableEntityType entityType, [CanBeNull] IProperty property)
             => Check.NotNull(entityType, nameof(entityType)).AsEntityType()
-                .SetDiscriminatorProperty(property, ConfigurationSource.Explicit);
+                .SetDiscriminatorProperty((Property)property, ConfigurationSource.Explicit);
+
+        /// <summary>
+        ///     Sets the value indicating whether the discriminator mapping is complete.
+        /// </summary>
+        /// <param name="entityType"> The entity type to set the discriminator mapping complete for. </param>
+        /// <param name="complete"> The value indicating whether the discriminator mapping is complete. </param>
+        public static void SetDiscriminatorMappingComplete([NotNull] this IMutableEntityType entityType, bool? complete)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            entityType.GetRootType().SetOrRemoveAnnotation(CoreAnnotationNames.DiscriminatorMappingComplete, complete);
+        }
 
         /// <summary>
         ///     Sets the discriminator value for this entity type.

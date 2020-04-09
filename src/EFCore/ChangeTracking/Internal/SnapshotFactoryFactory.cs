@@ -7,7 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
@@ -99,10 +99,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual Expression CreateSnapshotExpression(
-            Type entityType,
-            ParameterExpression parameter,
-            Type[] types,
-            IList<IPropertyBase> propertyBases)
+            [CanBeNull] Type entityType,
+            [NotNull] ParameterExpression parameter,
+            [NotNull] Type[] types,
+            [NotNull] IList<IPropertyBase> propertyBases)
         {
             var count = types.Length;
 
@@ -140,16 +140,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     continue;
                 }
 
-                var memberAccess = (Expression)Expression.MakeMemberAccess(
-                    entityVariable,
-                    propertyBase.GetMemberInfo(forMaterialization: false, forSet: false));
+                var memberInfo = propertyBase.GetMemberInfo(forMaterialization: false, forSet: false);
+                var memberAccess = propertyBase.IsIndexerProperty()
+                    ? Expression.MakeIndex(entityVariable, (PropertyInfo)memberInfo, new[] { Expression.Constant(propertyBase.Name) })
+                    : (Expression)Expression.MakeMemberAccess(entityVariable, memberInfo);
 
                 if (memberAccess.Type != propertyBase.ClrType)
                 {
                     memberAccess = Expression.Convert(memberAccess, propertyBase.ClrType);
                 }
 
-                arguments[i] = (propertyBase as INavigation)?.IsCollection() ?? false
+                arguments[i] = (propertyBase as INavigation)?.IsCollection ?? false
                     ? Expression.Call(
                         null,
                         _snapshotCollectionMethod,

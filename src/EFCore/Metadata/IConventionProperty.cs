@@ -19,18 +19,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this property.
         /// </summary>
-        IConventionPropertyBuilder Builder { get; }
+        new IConventionPropertyBuilder Builder { get; }
 
         /// <summary>
         ///     Gets the type that this property belongs to.
         /// </summary>
         new IConventionEntityType DeclaringEntityType { get; }
-
-        /// <summary>
-        ///     Returns the configuration source for this property.
-        /// </summary>
-        /// <returns> The configuration source. </returns>
-        ConfigurationSource GetConfigurationSource();
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IPropertyBase.ClrType" />.
@@ -46,7 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     <c>null</c> to reset to default.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetIsNullable(bool? nullable, bool fromDataAnnotation = false);
+        /// <returns> The configured value. </returns>
+        bool? SetIsNullable(bool? nullable, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IProperty.IsNullable" />.
@@ -66,7 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     <c>null</c> to reset to default.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetValueGenerated(ValueGenerated? valueGenerated, bool fromDataAnnotation = false);
+        /// <returns> The configured value. </returns>
+        ValueGenerated? SetValueGenerated(ValueGenerated? valueGenerated, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IProperty.ValueGenerated" />.
@@ -86,7 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     <c>null</c> to reset to default.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetIsConcurrencyToken(bool? concurrencyToken, bool fromDataAnnotation = false);
+        /// <returns> The configured value. </returns>
+        bool? SetIsConcurrencyToken(bool? concurrencyToken, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IProperty.IsConcurrencyToken" />.

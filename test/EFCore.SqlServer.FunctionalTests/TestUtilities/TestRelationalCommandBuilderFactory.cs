@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -53,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     Instance.ToString(),
                     Parameters);
 
-            public IRelationalCommandBuilder Append(object value)
+            public IRelationalCommandBuilder Append(string value)
             {
                 Instance.Append(value);
 

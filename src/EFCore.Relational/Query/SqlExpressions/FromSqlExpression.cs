@@ -4,25 +4,46 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
-    public class FromSqlExpression : TableExpressionBase
+    public sealed class FromSqlExpression : TableExpressionBase
     {
-        public FromSqlExpression([NotNull] string sql, Expression arguments, [NotNull] string alias)
+        public FromSqlExpression([NotNull] string sql, [NotNull] Expression arguments, [NotNull] string alias)
             : base(alias)
         {
+            Check.NotEmpty(sql, nameof(sql));
+            Check.NotNull(arguments, nameof(arguments));
+
             Sql = sql;
             Arguments = arguments;
         }
 
-        public virtual string Sql { get; }
-        public virtual Expression Arguments { get; }
+        public string Sql { get; }
+        public Expression Arguments { get; }
+        public FromSqlExpression Update([NotNull] Expression arguments)
+        {
+            Check.NotNull(arguments, nameof(arguments));
 
-        protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
+            return arguments != Arguments
+                ? new FromSqlExpression(Sql, arguments, Alias)
+                : this;
+        }
+
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+        {
+            Check.NotNull(visitor, nameof(visitor));
+
+            return this;
+        }
 
         public override void Print(ExpressionPrinter expressionPrinter)
-            => expressionPrinter.Append(Sql);
+        {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
+            expressionPrinter.Append(Sql);
+        }
 
         public override bool Equals(object obj)
             => obj != null

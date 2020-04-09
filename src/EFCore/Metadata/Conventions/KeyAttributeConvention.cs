@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     A convention that configures the entity type key based on the <see cref="KeyAttribute" /> specified on a property.
     /// </summary>
-    public class KeyAttributeConvention : PropertyAttributeConventionBase<KeyAttribute>, IModelFinalizedConvention
+    public class KeyAttributeConvention : PropertyAttributeConventionBase<KeyAttribute>, IModelFinalizingConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="KeyAttributeConvention" />.
@@ -42,8 +42,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionContext context)
         {
             var entityType = propertyBuilder.Metadata.DeclaringEntityType;
+            if (entityType.IsKeyless)
+            {
+                switch (entityType.GetIsKeylessConfigurationSource())
+                {
+                    case ConfigurationSource.DataAnnotation:
+                        Dependencies.Logger
+                            .ConflictingKeylessAndKeyAttributesWarning(propertyBuilder.Metadata);
+                        return;
+
+                    case ConfigurationSource.Explicit:
+                        // fluent API overrides the attribute - no warning
+                        return;
+                }
+            }
+
             if (entityType.BaseType != null)
             {
+                return;
+            }
+
+            if (entityType.IsKeyless
+                && entityType.GetIsKeylessConfigurationSource().Overrides(ConfigurationSource.DataAnnotation))
+            {
+                // TODO: Log a warning that KeyAttribute is being ignored. See issue#20014
+                // This code path will also be hit when entity is marked as Keyless explicitly
                 return;
             }
 
@@ -69,12 +92,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 entityTypeBuilder.GetOrCreateProperties(properties, fromDataAnnotation: true), fromDataAnnotation: true);
         }
 
-        /// <summary>
-        ///     Called after a model is finalized.
-        /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessModelFinalized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        /// <inheritdoc />
+        public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
         {
             var entityTypes = modelBuilder.Metadata.GetEntityTypes();
             foreach (var entityType in entityTypes)

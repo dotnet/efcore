@@ -12,12 +12,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// <summary>
     ///     Provides a simple API for configuring a <see cref="IConventionDbFunction" />.
     /// </summary>
-    public interface IConventionDbFunctionBuilder
+    public interface IConventionDbFunctionBuilder : IConventionAnnotatableBuilder
     {
         /// <summary>
         ///     The function being configured.
         /// </summary>
-        IConventionDbFunction Metadata { get; }
+        new IConventionDbFunction Metadata { get; }
 
         /// <summary>
         ///     Sets the name of the database function.
@@ -123,5 +123,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> <c>true</c> if the given translation can be set for the database function. </returns>
         bool CanSetTranslation(
             [CanBeNull] Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns an object that can be used to configure a parameter with the given name.
+        /// </summary>
+        /// <param name="name"> The parameter name. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The builder to use for further parameter configuration. </returns>
+        IConventionDbFunctionParameterBuilder HasParameter([NotNull] string name, bool fromDataAnnotation = false);
     }
 }

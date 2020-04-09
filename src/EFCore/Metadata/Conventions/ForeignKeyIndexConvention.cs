@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -26,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         IIndexAddedConvention,
         IIndexRemovedConvention,
         IIndexUniquenessChangedConvention,
-        IModelFinalizedConvention
+        IModelFinalizingConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="ForeignKeyIndexConvention" />.
@@ -48,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyAdded(
-            IConventionRelationshipBuilder relationshipBuilder, IConventionContext<IConventionRelationshipBuilder> context)
+            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<IConventionForeignKeyBuilder> context)
         {
             var foreignKey = relationshipBuilder.Metadata;
             CreateIndex(foreignKey.Properties, foreignKey.IsUnique, foreignKey.DeclaringEntityType.Builder);
@@ -75,10 +76,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="oldPrincipalKey"> The old principal key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyPropertiesChanged(
-            IConventionRelationshipBuilder relationshipBuilder,
+            IConventionForeignKeyBuilder relationshipBuilder,
             IReadOnlyList<IConventionProperty> oldDependentProperties,
             IConventionKey oldPrincipalKey,
-            IConventionContext<IConventionRelationshipBuilder> context)
+            IConventionContext<IReadOnlyList<IConventionProperty>> context)
         {
             var foreignKey = relationshipBuilder.Metadata;
             if (!foreignKey.Properties.SequenceEqual(oldDependentProperties))
@@ -238,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyUniquenessChanged(
-            IConventionRelationshipBuilder relationshipBuilder, IConventionContext<IConventionRelationshipBuilder> context)
+            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<bool?> context)
         {
             var foreignKey = relationshipBuilder.Metadata;
             var index = foreignKey.DeclaringEntityType.FindIndex(foreignKey.Properties);
@@ -280,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="indexBuilder"> The builder for the index. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessIndexUniquenessChanged(
-            IConventionIndexBuilder indexBuilder, IConventionContext<IConventionIndexBuilder> context)
+            IConventionIndexBuilder indexBuilder, IConventionContext<bool?> context)
         {
             var index = indexBuilder.Metadata;
             if (index.IsUnique)
@@ -357,15 +358,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private static void RemoveIndex(IConventionIndex index)
             => index.DeclaringEntityType.Builder.HasNoIndex(index);
 
-        /// <summary>
-        ///     Called after a model is finalized.
-        /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessModelFinalized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        /// <inheritdoc />
+        public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
         {
             var definition = CoreResources.LogRedundantIndexRemoved(Dependencies.Logger);
-            if (definition.GetLogBehavior(Dependencies.Logger) == WarningBehavior.Ignore
+            if (!Dependencies.Logger.ShouldLog(definition)
                 && !Dependencies.Logger.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 return;

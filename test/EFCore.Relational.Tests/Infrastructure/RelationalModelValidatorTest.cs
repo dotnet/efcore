@@ -4,6 +4,7 @@
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
@@ -11,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -353,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
 
             GenerateMapping(modelBuilder.Entity<Animal>().Property(b => b.Id).HasColumnName("Name").Metadata);
-            GenerateMapping(modelBuilder.Entity<Animal>().Property(d => d.Name).HasColumnName("Name").Metadata);
+            GenerateMapping(modelBuilder.Entity<Animal>().Property(d => d.Name).HasColumnName("Name").IsRequired().Metadata);
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
@@ -368,7 +370,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
 
-            GenerateMapping(modelBuilder.Entity<Cat>().Property(c => c.Type).HasColumnName("Type").Metadata);
+            GenerateMapping(modelBuilder.Entity<Cat>().Property(c => c.Type).HasColumnName("Type").IsRequired().Metadata);
             GenerateMapping(modelBuilder.Entity<Dog>().Property(d => d.Type).HasColumnName("Type").Metadata);
 
             VerifyError(
@@ -387,9 +389,51 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             GenerateMapping(modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("Breed").HasMaxLength(15).Metadata);
 
             VerifyError(
-                RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "just_string(30)",
-                    "just_string(15)"), modelBuilder.Model);
+                RelationalStrings.DuplicateColumnNameMaxLengthMismatch(
+                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "30",
+                    "15"), modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_IsUnicode()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>();
+
+            GenerateMapping(modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").IsUnicode().Metadata);
+            GenerateMapping(modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("Breed").Metadata);
+
+            VerifyError(
+                RelationalStrings.DuplicateColumnNameUnicodenessMismatch(
+                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal)), modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_IsFixedLength()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>();
+
+            GenerateMapping(modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").IsFixedLength().Metadata);
+            GenerateMapping(modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("Breed").Metadata);
+
+            VerifyError(
+                RelationalStrings.DuplicateColumnNameFixedLengthMismatch(
+                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal)), modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_IsConcurrencyToken()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>();
+
+            GenerateMapping(modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").IsConcurrencyToken().Metadata);
+            GenerateMapping(modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("Breed").Metadata);
+
+            VerifyError(
+                RelationalStrings.DuplicateColumnNameConcurrencyTokenMismatch(
+                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal)), modelBuilder.Model);
         }
 
         [ConditionalFact]
@@ -483,7 +527,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     eb.Property(c => c.Breed).HasMaxLength(25);
                     eb.Property(c => c.Breed).HasColumnName("BreedName");
                     eb.Property(c => c.Breed).HasDefaultValue("None");
-                    eb.Property<bool>("Selected").HasDefaultValue(false);
+                    eb.Property<string>("Selected").HasDefaultValue("false").HasConversion<bool>();
                 });
 
             Validate(modelBuilder.Model);
@@ -723,7 +767,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     et.Property(c => c.Breed).HasColumnName("Breed");
                     fk2 = et
-                        .HasOne(a => (Customer)a.FavoritePerson)
+                        .HasOne(a => (Employee)a.FavoritePerson)
                         .WithMany()
                         .HasForeignKey(
                             c => new { c.Name, c.Breed })
@@ -770,7 +814,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     et.Property(c => c.Breed).HasColumnName("Breed");
                     fk2 = et
-                        .HasOne<Customer>()
+                        .HasOne<Employee>()
                         .WithMany()
                         .HasForeignKey(
                             c => new { c.Name, c.Breed })
@@ -1013,7 +1057,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
-        public void Detects_function_with_invalid_return_type_throws()
+        public void Detects_function_with_invalid_return_type()
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
@@ -1027,6 +1071,26 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 RelationalStrings.DbFunctionInvalidReturnType(
                     methodInfo.DisplayName(),
                     typeof(DbFunctionMetadataTests.TestMethods).ShortDisplayName()),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public void Detects_function_with_invalid_parameter_type()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            var methodInfo
+                = typeof(DbFunctionMetadataTests.TestMethods)
+                    .GetRuntimeMethod(nameof(DbFunctionMetadataTests.TestMethods.MethodF),
+                        new[] { typeof(DbFunctionMetadataTests.MyBaseContext) });
+
+            modelBuilder.HasDbFunction(methodInfo);
+
+            VerifyError(
+                RelationalStrings.DbFunctionInvalidParameterType(
+                    "context",
+                    methodInfo.DisplayName(),
+                    typeof(DbFunctionMetadataTests.MyBaseContext).ShortDisplayName()),
                 modelBuilder.Model);
         }
 
@@ -1081,8 +1145,30 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public string FavoriteBreed { get; set; }
         }
 
-        protected class Customer : Person
+        protected class Employee : Person
         {
+        }
+
+        public class TestDecimalToLongConverter : ValueConverter<decimal, long>
+        {
+            private static readonly Expression<Func<decimal, long>> convertToProviderExpression = d => (long)(d*100);
+            private static readonly Expression<Func<long, decimal>> convertFromProviderExpression = l => l / 100m;
+
+            public TestDecimalToLongConverter()
+                : base(convertToProviderExpression, convertFromProviderExpression)
+            {
+            }
+        }
+
+        public class TestDecimalToDecimalConverter : ValueConverter<decimal, decimal>
+        {
+            private static readonly Expression<Func<decimal, decimal>> convertToProviderExpression = d => d * 100m;
+            private static readonly Expression<Func<decimal, decimal>> convertFromProviderExpression = l => l / 100m;
+
+            public TestDecimalToDecimalConverter()
+                : base(convertToProviderExpression, convertFromProviderExpression)
+            {
+            }
         }
 
         protected override TestHelpers TestHelpers => RelationalTestHelpers.Instance;

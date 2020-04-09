@@ -18,6 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         void ProcessPropertyNullabilityChanged(
             [NotNull] IConventionPropertyBuilder propertyBuilder,
-            [NotNull] IConventionContext<IConventionPropertyBuilder> context);
+            [NotNull] IConventionContext<bool?> context);
     }
 }

@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration
@@ -118,12 +117,12 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
             if (propertyType == typeof(string))
             {
-                return new StringValueGenerator(generateTemporaryValues: false);
+                return new StringValueGenerator();
             }
 
             if (propertyType == typeof(byte[]))
             {
-                return new BinaryValueGenerator(generateTemporaryValues: false);
+                return new BinaryValueGenerator();
             }
 
             throw new NotSupportedException(

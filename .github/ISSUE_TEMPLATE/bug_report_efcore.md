@@ -1,7 +1,7 @@
 ---
 name: Bug in Entity Framework Core
 about: Create a report about something that isn't working
-labels: type-bug
+labels: customer-reported
 ---
 
 <!-- Describe what isn't working as expected -->

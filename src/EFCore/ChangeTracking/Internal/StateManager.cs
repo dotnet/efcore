@@ -818,13 +818,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<InternalEntityEntry> GetDependents(
-            InternalEntityEntry principalEntry, IForeignKey foreignKey)
+        public virtual IEnumerable<IUpdateEntry> GetDependents(
+            IUpdateEntry principalEntry, IForeignKey foreignKey)
         {
             var dependentIdentityMap = FindIdentityMap(foreignKey.DeclaringEntityType.FindPrimaryKey());
             return dependentIdentityMap != null
                 ? dependentIdentityMap.GetDependentsMap(foreignKey).GetDependents(principalEntry)
-                : Enumerable.Empty<InternalEntityEntry>();
+                : Enumerable.Empty<IUpdateEntry>();
         }
 
         /// <summary>
@@ -833,13 +833,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<InternalEntityEntry> GetDependentsUsingRelationshipSnapshot(
-            InternalEntityEntry principalEntry, IForeignKey foreignKey)
+        public virtual IEnumerable<IUpdateEntry> GetDependentsUsingRelationshipSnapshot(
+            IUpdateEntry principalEntry, IForeignKey foreignKey)
         {
             var dependentIdentityMap = FindIdentityMap(foreignKey.DeclaringEntityType.FindPrimaryKey());
             return dependentIdentityMap != null
                 ? dependentIdentityMap.GetDependentsMap(foreignKey).GetDependentsUsingRelationshipSnapshot(principalEntry)
-                : Enumerable.Empty<InternalEntityEntry>();
+                : Enumerable.Empty<IUpdateEntry>();
         }
 
         /// <summary>
@@ -848,8 +848,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<InternalEntityEntry> GetDependentsFromNavigation(
-            InternalEntityEntry principalEntry, IForeignKey foreignKey)
+        public virtual IEnumerable<IUpdateEntry> GetDependentsFromNavigation(
+            IUpdateEntry principalEntry, IForeignKey foreignKey)
         {
             var navigation = foreignKey.PrincipalToDependent;
             if (navigation == null
@@ -858,7 +858,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return null;
             }
 
-            var navigationValue = principalEntry[navigation];
+            var navigationValue = ((InternalEntityEntry)principalEntry)[navigation];
             if (navigationValue == null)
             {
                 return Enumerable.Empty<InternalEntityEntry>();
@@ -960,7 +960,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var doCascadeDelete = force || CascadeDeleteTiming != CascadeTiming.Never;
             var principalIsDetached = entry.EntityState == EntityState.Detached;
-            var useNewBehavior = !AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue18982", out var isEnabled) || !isEnabled;
 
             foreignKeys ??= entry.EntityType.GetReferencingForeignKeys();
             foreach (var fk in foreignKeys)
@@ -970,7 +969,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     continue;
                 }
 
-                foreach (var dependent in (GetDependentsFromNavigation(entry, fk)
+                foreach (InternalEntityEntry dependent in (GetDependentsFromNavigation(entry, fk)
                     ?? GetDependents(entry, fk)).ToList())
                 {
                     if (dependent.EntityState != EntityState.Deleted
@@ -982,14 +981,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 || fk.DeleteBehavior == DeleteBehavior.ClientCascade)
                             && doCascadeDelete)
                         {
-                            var cascadeState = useNewBehavior
-                                ? (principalIsDetached
-                                    || dependent.EntityState == EntityState.Added
-                                        ? EntityState.Detached
-                                        : EntityState.Deleted)
-                                : (dependent.EntityState == EntityState.Added
+                            var cascadeState = principalIsDetached
+                                || dependent.EntityState == EntityState.Added
                                     ? EntityState.Detached
-                                    : EntityState.Deleted);
+                                    : EntityState.Deleted;
 
                             if (SensitiveLoggingEnabled)
                             {
@@ -1004,8 +999,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                             CascadeDelete(dependent, force);
                         }
-                        else if (!useNewBehavior
-                            || !principalIsDetached)
+                        else if (!principalIsDetached)
                         {
                             foreach (var dependentProperty in fk.Properties)
                             {
@@ -1043,11 +1037,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         private static bool KeyValuesEqual(IProperty property, object value, object currentValue)
-            => (property.GetKeyValueComparer()
-                    ?? property.FindTypeMapping()?.KeyComparer)
+            => (property.GetKeyValueComparer())
                 ?.Equals(currentValue, value)
                 ?? Equals(currentValue, value);
-
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1262,5 +1254,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             @event?.Invoke(Context.ChangeTracker, new EntityStateChangedEventArgs(internalEntityEntry, oldState, newState));
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual DebugView DebugView
+            => new DebugView(
+                () => this.ToDebugString(StateManagerDebugStringOptions.ShortDefault),
+                () => this.ToDebugString(StateManagerDebugStringOptions.LongDefault));
     }
 }

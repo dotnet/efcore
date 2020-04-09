@@ -3,16 +3,18 @@
 
 using System;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     public class SingleResultShaperExpression : Expression, IPrintableExpression
     {
         public SingleResultShaperExpression(
-            Expression projection,
-            Expression innerShaper,
-            Type type)
+            [NotNull] Expression projection,
+            [NotNull] Expression innerShaper,
+            [NotNull] Type type)
         {
             Projection = projection;
             InnerShaper = innerShaper;
@@ -21,13 +23,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
+            Check.NotNull(visitor, nameof(visitor));
+
             var projection = visitor.Visit(Projection);
             var innerShaper = visitor.Visit(InnerShaper);
 
             return Update(projection, innerShaper);
         }
 
-        public virtual SingleResultShaperExpression Update(Expression projection, Expression innerShaper)
+        public virtual SingleResultShaperExpression Update([NotNull] Expression projection, [NotNull] Expression innerShaper)
             => projection != Projection || innerShaper != InnerShaper
                 ? new SingleResultShaperExpression(projection, innerShaper, Type)
                 : this;
@@ -40,6 +44,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.AppendLine($"{nameof(SingleResultShaperExpression)}:");
             using (expressionPrinter.Indent())
             {

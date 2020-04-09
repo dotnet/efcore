@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -193,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             else
             {
                 builder.Append("new { ");
-                builder.Append(string.Join(", ", properties.Select(p => "x." + p)));
+                builder.AppendJoin(", ", properties.Select(p => "x." + p));
                 builder.Append(" }");
             }
 
@@ -245,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             if (type.IsNested)
             {
-                Debug.Assert(type.DeclaringType != null);
+                Check.DebugAssert(type.DeclaringType != null, "DeclaringType is null");
                 builder
                     .Append(Reference(type.DeclaringType))
                     .Append(".");
@@ -576,77 +575,87 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             builder.Append("new");
 
-            var byteArray = type == typeof(byte);
-            if (byteArray)
-            {
-                builder.Append(" byte");
-            }
-            else if (type == typeof(object))
-            {
-                builder.Append(" object");
-            }
+            var valuesList = values.OfType<object>().ToList();
 
-            builder.Append("[]");
-
-            if (vertical)
+            if (valuesList.Count == 0)
             {
-                builder.AppendLine();
+                builder
+                    .Append(" ")
+                    .Append(Reference(type))
+                    .Append("[0]");
             }
             else
             {
-                builder.Append(" ");
-            }
-
-            builder.Append("{");
-
-            if (vertical)
-            {
-                builder.AppendLine();
-                builder.IncrementIndent();
-            }
-            else
-            {
-                builder.Append(" ");
-            }
-
-            var first = true;
-            foreach (var value in values)
-            {
-                if (first)
+                var byteArray = type == typeof(byte);
+                if (byteArray)
                 {
-                    first = false;
+                    builder.Append(" byte");
+                }
+                else if (type == typeof(object))
+                {
+                    builder.Append(" object");
+                }
+
+                if (vertical)
+                {
+                    builder.AppendLine("[]");
                 }
                 else
                 {
-                    builder.Append(",");
+                    builder.Append("[] ");
+                }
 
-                    if (vertical)
+                builder.Append("{");
+
+                if (vertical)
+                {
+                    builder.AppendLine();
+                    builder.IncrementIndent();
+                }
+                else
+                {
+                    builder.Append(" ");
+                }
+
+                var first = true;
+                foreach (var value in valuesList)
+                {
+                    if (first)
                     {
-                        builder.AppendLine();
+                        first = false;
                     }
                     else
                     {
-                        builder.Append(" ");
+                        builder.Append(",");
+
+                        if (vertical)
+                        {
+                            builder.AppendLine();
+                        }
+                        else
+                        {
+                            builder.Append(" ");
+                        }
                     }
+
+                    builder.Append(
+                        byteArray
+                            ? Literal((int)(byte)value)
+                            : UnknownLiteral(value));
                 }
 
-                builder.Append(
-                    byteArray
-                        ? Literal((int)(byte)value)
-                        : UnknownLiteral(value));
-            }
+                if (vertical)
+                {
+                    builder.AppendLine();
+                    builder.DecrementIndent();
+                }
+                else
+                {
+                    builder.Append(" ");
+                }
 
-            if (vertical)
-            {
-                builder.AppendLine();
-                builder.DecrementIndent();
+                builder.Append("}");
             }
-            else
-            {
-                builder.Append(" ");
-            }
-
-            builder.Append("}");
 
             return builder.ToString();
         }
@@ -721,7 +730,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual string GetSimpleEnumValue(Type type, string name)
+        protected virtual string GetSimpleEnumValue([NotNull] Type type, [NotNull] string name)
             => Reference(type) + "." + name;
 
         /// <summary>
@@ -730,7 +739,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual string GetCompositeEnumValue(Type type, Enum flags)
+        protected virtual string GetCompositeEnumValue([NotNull] Type type, [NotNull] Enum flags)
         {
             var allValues = new HashSet<Enum>(GetFlags(flags));
             foreach (var currentValue in allValues.ToList())
@@ -906,6 +915,23 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     builder
                         .Append('.')
                         .Append(memberExpression.Member.Name);
+
+                    return true;
+                }
+                case ExpressionType.Add:
+                {
+                    var binaryExpression = (BinaryExpression)expression;
+                    if (!HandleExpression(binaryExpression.Left, builder))
+                    {
+                        return false;
+                    }
+
+                    builder.Append(" + ");
+
+                    if (!HandleExpression(binaryExpression.Right, builder))
+                    {
+                        return false;
+                    }
 
                     return true;
                 }

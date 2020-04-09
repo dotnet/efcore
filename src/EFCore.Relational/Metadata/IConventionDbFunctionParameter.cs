@@ -2,14 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a by-convention database function parameter in an <see cref="IConventionDbFunction" />.
+    ///     Represents a <see cref="IConventionDbFunction" /> parameter.
     /// </summary>
-    public interface IConventionDbFunctionParameter : IDbFunctionParameter
+    public interface IConventionDbFunctionParameter : IConventionAnnotatable, IDbFunctionParameter
     {
         /// <summary>
         ///     The <see cref="IConventionDbFunction" /> to which this parameter belongs.
@@ -17,16 +18,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionDbFunction Function { get; }
 
         /// <summary>
-        ///     The <see cref="IConventionDbFunctionParameterBuilder" /> for building a by-convention function parameter.
+        ///     The <see cref="IConventionDbFunctionParameterBuilder" /> for configuring this function parameter.
         /// </summary>
-        IConventionDbFunctionParameterBuilder Builder { get; }
+        new IConventionDbFunctionParameterBuilder Builder { get; }
 
         /// <summary>
-        ///     Sets the store type of the parameter in the database.
+        ///     Returns the configuration source for the parameter.
         /// </summary>
-        /// <param name="storeType"> The store type of the parameter in the database. </param>
+        /// <returns> The configuration source for the parameter. </returns>
+        ConfigurationSource GetConfigurationSource();
+
+        /// <summary>
+        ///     Sets the store type of the parameter.
+        /// </summary>
+        /// <param name="storeType"> The store type of the parameter. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetStoreType([CanBeNull] string storeType, bool fromDataAnnotation = false);
+        string SetStoreType([CanBeNull] string storeType, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IDbFunctionParameter.StoreType" />.
@@ -35,11 +42,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ConfigurationSource? GetStoreTypeConfigurationSource();
 
         /// <summary>
-        ///     Sets the type mapping of the parameter in the database.
+        ///     Sets the type mapping of the parameter.
         /// </summary>
         /// <param name="typeMapping"> The type mapping of the parameter in the database. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetTypeMapping([CanBeNull] RelationalTypeMapping typeMapping, bool fromDataAnnotation = false);
+        RelationalTypeMapping SetTypeMapping([CanBeNull] RelationalTypeMapping typeMapping, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IDbFunctionParameter.TypeMapping" />.

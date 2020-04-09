@@ -57,6 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             ValueConverter customConverter = null;
             int? size = null;
+            int? precision = null;
+            int? scale = null;
             bool? isUnicode = null;
             for (var i = 0; i < principals.Count; i++)
             {
@@ -79,6 +81,24 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     }
                 }
 
+                if (precision == null)
+                {
+                    var precisionFromProperty = principal.GetPrecision();
+                    if (precisionFromProperty != null)
+                    {
+                        precision = precisionFromProperty;
+                    }
+                }
+
+                if (scale == null)
+                {
+                    var scaleFromProperty = principal.GetScale();
+                    if (scaleFromProperty != null)
+                    {
+                        scale = scaleFromProperty;
+                    }
+                }
+
                 if (isUnicode == null)
                 {
                     var unicode = principal.IsUnicode();
@@ -97,8 +117,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             IsUnicode = isUnicode ?? mappingHints?.IsUnicode ?? fallbackUnicode;
             IsRowVersion = property.IsConcurrencyToken && property.ValueGenerated == ValueGenerated.OnAddOrUpdate;
             ClrType = (customConverter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
-            Scale = mappingHints?.Scale ?? fallbackScale;
-            Precision = mappingHints?.Precision ?? fallbackPrecision;
+            Scale = scale ?? mappingHints?.Scale ?? fallbackScale;
+            Precision = precision ?? mappingHints?.Precision ?? fallbackPrecision;
         }
 
         /// <summary>

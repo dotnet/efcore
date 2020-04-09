@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///         For one-to-one relationships the attribute has to be specified on the navigation property pointing to the principal.
     ///     </para>
     /// </summary>
-    public class ForeignKeyAttributeConvention : IForeignKeyAddedConvention, IModelFinalizedConvention
+    public class ForeignKeyAttributeConvention : IForeignKeyAddedConvention, INavigationAddedConvention, IModelFinalizingConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="ForeignKeyAttributeConvention" />.
@@ -46,10 +46,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyAdded(
-            IConventionRelationshipBuilder relationshipBuilder, IConventionContext<IConventionRelationshipBuilder> context)
+            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<IConventionForeignKeyBuilder> context)
         {
             Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
 
+            var newRelationshipBuilder = UpdateRelationshipBuilder(relationshipBuilder, context);
+            if (newRelationshipBuilder != null)
+            {
+                context.StopProcessingIfChanged(newRelationshipBuilder);
+            }
+        }
+
+        /// <summary>
+        ///     Called after a navigation is added to the entity type.
+        /// </summary>
+        /// <param name="navigationBuilder"> The builder for the navigation. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessNavigationAdded(
+            IConventionNavigationBuilder navigationBuilder, IConventionContext<IConventionNavigationBuilder> context)
+        {
+            Check.NotNull(navigationBuilder, nameof(navigationBuilder));
+
+            var onDependent = navigationBuilder.Metadata.IsOnDependent;
+            var newRelationshipBuilder =
+                UpdateRelationshipBuilder(navigationBuilder.Metadata.ForeignKey.Builder, context);
+            if (newRelationshipBuilder != null)
+            {
+                var newNavigationBuilder = onDependent
+                    ? newRelationshipBuilder.Metadata.DependentToPrincipal.Builder
+                    : newRelationshipBuilder.Metadata.PrincipalToDependent.Builder;
+                context.StopProcessingIfChanged(newNavigationBuilder);
+            }
+        }
+
+        private IConventionForeignKeyBuilder UpdateRelationshipBuilder(
+            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext context)
+        {
             var foreignKey = relationshipBuilder.Metadata;
 
             var fkPropertyOnPrincipal
@@ -71,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 if (relationshipBuilder == null)
                 {
                     context.StopProcessing();
-                    return;
+                    return null;
                 }
 
                 fkPropertyOnPrincipal = null;
@@ -93,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 if (relationshipBuilder == null)
                 {
                     context.StopProcessing();
-                    return;
+                    return null;
                 }
 
                 fkPropertiesOnPrincipalToDependent = null;
@@ -111,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 if (fkPropertyOnDependent == null
                     && fkPropertyOnPrincipal == null)
                 {
-                    return;
+                    return null;
                 }
 
                 if (fkPropertyOnDependent != null)
@@ -121,10 +153,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
                 else
                 {
-                    if (foreignKey.PrincipalToDependent.IsCollection())
+                    if (foreignKey.PrincipalToDependent.IsCollection)
                     {
                         context.StopProcessing();
-                        return;
+                        return null;
                     }
 
                     shouldInvert = true;
@@ -161,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         if (relationshipBuilder == null)
                         {
                             context.StopProcessing();
-                            return;
+                            return null;
                         }
 
                         upgradePrincipalToDependentNavigationSource = false;
@@ -223,14 +255,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             newRelationshipBuilder = newRelationshipBuilder?.HasForeignKey(fkPropertiesToSet, fromDataAnnotation: true);
 
-            if (newRelationshipBuilder != null)
-            {
-                context.StopProcessingIfChanged(newRelationshipBuilder);
-            }
+            return newRelationshipBuilder;
         }
 
-        private static IConventionRelationshipBuilder SplitNavigationsToSeparateRelationships(
-            IConventionRelationshipBuilder relationshipBuilder)
+        private static IConventionForeignKeyBuilder SplitNavigationsToSeparateRelationships(
+            IConventionForeignKeyBuilder relationshipBuilder)
         {
             var foreignKey = relationshipBuilder.Metadata;
             var dependentToPrincipalNavigationName = foreignKey.DependentToPrincipal.Name;
@@ -346,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             => Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(propertyInfo);
 
         private static IReadOnlyList<string> FindCandidateDependentPropertiesThroughNavigation(
-            IConventionRelationshipBuilder relationshipBuilder,
+            IConventionForeignKeyBuilder relationshipBuilder,
             bool pointsToPrincipal)
         {
             var navigation = pointsToPrincipal
@@ -390,18 +419,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return null;
         }
 
-        /// <summary>
-        ///     Called after a model is finalized.
-        /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessModelFinalized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        /// <inheritdoc />
+        public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
                 foreach (var declaredNavigation in entityType.GetDeclaredNavigations())
                 {
-                    if (declaredNavigation.IsCollection())
+                    if (declaredNavigation.IsCollection)
                     {
                         var foreignKey = declaredNavigation.ForeignKey;
                         var fkPropertyOnPrincipal

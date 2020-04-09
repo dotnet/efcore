@@ -246,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         private static object[] GetLoadValues(INavigation navigation, InternalEntityEntry entry)
         {
-            var properties = navigation.IsDependentToPrincipal()
+            var properties = navigation.IsOnDependent
                 ? navigation.ForeignKey.Properties
                 : navigation.ForeignKey.PrincipalKey.Properties;
 
@@ -267,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         private static IReadOnlyList<IProperty> GetLoadProperties(INavigation navigation)
-            => navigation.IsDependentToPrincipal()
+            => navigation.IsOnDependent
                 ? navigation.ForeignKey.PrincipalKey.Properties
                 : navigation.ForeignKey.Properties;
 
@@ -325,7 +325,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 ? BuildQueryRoot(definingEntityType, entityType, entityType.DefiningNavigationName)
                 : entityType.FindOwnership() is IForeignKey ownership
                     ? BuildQueryRoot(ownership.PrincipalEntityType, entityType, ownership.PrincipalToDependent.Name)
-                    : (IQueryable)_setCache.GetOrAddSet(_setSource, entityType.ClrType);
+                    : entityType.HasSharedClrType
+                        ? (IQueryable)_setCache.GetOrAddSet(_setSource, entityType.Name, entityType.ClrType)
+                        : (IQueryable)_setCache.GetOrAddSet(_setSource, entityType.ClrType);
         }
 
         private IQueryable BuildQueryRoot(IEntityType ownerOrDefiningEntityType, IEntityType entityType, string navigationName)

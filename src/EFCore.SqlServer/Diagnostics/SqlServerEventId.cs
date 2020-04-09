@@ -26,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             // Model validation events
             DecimalTypeDefaultWarning = CoreEventId.ProviderBaseId,
             ByteIdentityColumnWarning,
+            ConflictingValueGenerationStrategiesWarning,
 
             // Scaffolding events
             ColumnFound = CoreEventId.ProviderDesignBaseId,
@@ -88,6 +89,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId ByteIdentityColumnWarning = MakeValidationId(Id.ByteIdentityColumnWarning);
+
+        /// <summary>
+        ///     <para>
+        ///         There are conflicting value generation methods for a property.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="ConflictingValueGenerationStrategiesEventData" />
+        ///         payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ConflictingValueGenerationStrategiesWarning = MakeValidationId(Id.ConflictingValueGenerationStrategiesWarning);
 
         private static readonly string _scaffoldingPrefix = DbLoggerCategory.Scaffolding.Name + ".";
         private static EventId MakeScaffoldingId(Id id) => new EventId((int)id, _scaffoldingPrefix + id);

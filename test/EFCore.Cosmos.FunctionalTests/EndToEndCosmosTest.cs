@@ -274,6 +274,91 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
+        [ConditionalFact]
+        public async Task Can_add_update_delete_end_to_end_with_withpartitionkey_extension()
+        {
+            var options = Fixture.CreateOptions();
+            const int pk1 = 1;
+            const int pk2 = 2;
+
+            var customer = new Customer
+            {
+                Id = 42,
+                Name = "Theon",
+                PartitionKey = pk1
+            };
+
+            using (var context = new PartitionKeyContext(options))
+            {
+                await context.Database.EnsureCreatedAsync();
+
+                context.Add(customer);
+                context.Add(
+                    new Customer
+                    {
+                        Id = 42,
+                        Name = "Theon Twin",
+                        PartitionKey = pk2
+                    });
+
+                await context.SaveChangesAsync();
+            }
+
+            using (var context = new PartitionKeyContext(options))
+            {
+                var customerFromStore = await context.Set<Customer>()
+                    .WithPartitionKey(partitionKey:pk1.ToString())
+                    .FirstAsync();
+
+                Assert.Equal(42, customerFromStore.Id);
+                Assert.Equal("Theon", customerFromStore.Name);
+                Assert.Equal(pk1, customerFromStore.PartitionKey);
+
+                customerFromStore.Name = "Theon Greyjoy";
+
+                await context.SaveChangesAsync();
+            }
+
+            using (var context = new PartitionKeyContext(options))
+            {
+                var customerFromStore = await context.Set<Customer>()
+                    .WithPartitionKey(partitionKey:pk1.ToString())
+                    .FirstAsync();
+
+                customerFromStore.PartitionKey = pk2;
+
+                Assert.Equal(
+                    CoreStrings.KeyReadOnly(nameof(Customer.PartitionKey), nameof(Customer)),
+                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+            }
+
+            using (var context = new PartitionKeyContext(options))
+            {
+                var customerFromStore = await context.Set<Customer>()
+                    .WithPartitionKey(partitionKey: pk1.ToString())
+                    .FirstAsync();
+
+                Assert.Equal(42, customerFromStore.Id);
+                Assert.Equal("Theon Greyjoy", customerFromStore.Name);
+                Assert.Equal(pk1, customerFromStore.PartitionKey);
+
+                context.Remove(customerFromStore);
+
+                context.Remove(await context.Set<Customer>()
+                    .WithPartitionKey(pk2.ToString())
+                    .LastAsync());
+
+                await context.SaveChangesAsync();
+            }
+
+            using (var context = new PartitionKeyContext(options))
+            {
+                Assert.Empty(await context.Set<Customer>()
+                    .WithPartitionKey(partitionKey: pk2.ToString())
+                    .ToListAsync());
+            }
+        }
+
         private class PartitionKeyContext : DbContext
         {
             public PartitionKeyContext(DbContextOptions dbContextOptions)
@@ -506,18 +591,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         {
             var options = Fixture.CreateOptions();
 
-            using (var context = new ConflictingIncompatibleIdContext(options))
-            {
-                await Assert.ThrowsAnyAsync<Exception>(
-                    async () =>
-                    {
-                        await context.Database.EnsureCreatedAsync();
+            using var context = new ConflictingIncompatibleIdContext(options);
+            await Assert.ThrowsAnyAsync<Exception>(
+                async () =>
+                {
+                    await context.Database.EnsureCreatedAsync();
 
-                        context.Add(new ConflictingIncompatibleId { id = 42 });
+                    context.Add(new ConflictingIncompatibleId { id = 42 });
 
-                        await context.SaveChangesAsync();
-                    });
-            }
+                    await context.SaveChangesAsync();
+                });
         }
 
         private class ConflictingIncompatibleId
@@ -616,15 +699,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [ConditionalFact]
         public async Task Can_have_non_string_property_named_Discriminator()
         {
-            using (var context = new NonStringDiscriminatorContext(Fixture.CreateOptions()))
-            {
-                context.Database.EnsureCreated();
+            using var context = new NonStringDiscriminatorContext(Fixture.CreateOptions());
+            context.Database.EnsureCreated();
 
-                context.Add(new NonStringDiscriminator { Id = 1 });
-                await context.SaveChangesAsync();
+            context.Add(new NonStringDiscriminator { Id = 1 });
+            await context.SaveChangesAsync();
 
-                Assert.NotNull(await context.Set<NonStringDiscriminator>().FirstOrDefaultAsync());
-            }
+            Assert.NotNull(await context.Set<NonStringDiscriminator>().FirstOrDefaultAsync());
         }
 
         private class NonStringDiscriminator

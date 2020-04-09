@@ -12,13 +12,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             : base(dependencies)
         {
             var sqlExpressionFactory = dependencies.SqlExpressionFactory;
-
+            var typeMappingSource = dependencies.RelationalTypeMappingSource;
             AddTranslators(
                 new IMethodCallTranslator[]
                 {
+                    new SqlServerByteArrayMethodTranslator(sqlExpressionFactory),
                     new SqlServerConvertTranslator(sqlExpressionFactory),
-                    new SqlServerDateTimeMethodTranslator(sqlExpressionFactory),
+                    new SqlServerDataLengthFunctionTranslator(sqlExpressionFactory),
                     new SqlServerDateDiffFunctionsTranslator(sqlExpressionFactory),
+                    new SqlServerDateTimeMethodTranslator(sqlExpressionFactory),
+                    new SqlServerFromPartsFunctionTranslator(sqlExpressionFactory, typeMappingSource),
                     new SqlServerFullTextSearchFunctionsTranslator(sqlExpressionFactory),
                     new SqlServerIsDateFunctionTranslator(sqlExpressionFactory),
                     new SqlServerMathTranslator(sqlExpressionFactory),

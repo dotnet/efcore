@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -33,26 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public EntityMaterializerSource([NotNull] EntityMaterializerSourceDependencies dependencies)
         {
         }
-
-        public virtual Expression CreateReadValueExpression(
-            Expression valueBufferExpression,
-            Type type,
-            int index,
-            IPropertyBase property)
-            => Expression.Call(
-                TryReadValueMethod.MakeGenericMethod(type),
-                valueBufferExpression,
-                Expression.Constant(index),
-                Expression.Constant(property, typeof(IPropertyBase)));
-
-        public static readonly MethodInfo TryReadValueMethod
-            = typeof(EntityMaterializerSource).GetTypeInfo()
-                .GetDeclaredMethod(nameof(TryReadValue));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static TValue TryReadValue<TValue>(
-            in ValueBuffer valueBuffer, int index, IPropertyBase property)
-            => valueBuffer[index] is TValue value ? value : default;
 
         public virtual Expression CreateMaterializeExpression(
             IEntityType entityType,
@@ -127,23 +106,27 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var readValueExpression
                     = property is IServiceProperty serviceProperty
                         ? serviceProperty.GetParameterBinding().BindToParameter(bindingInfo)
-                        : CreateReadValueExpression(
-                            valueBufferExpression,
+                        : valueBufferExpression.CreateValueBufferReadValueExpression(
                             memberInfo.GetMemberType(),
                             property.GetIndex(),
                             property);
 
-                blockExpressions.Add(
-                    Expression.MakeMemberAccess(
-                        instanceVariable,
-                        memberInfo).Assign(
-                        readValueExpression));
+                blockExpressions.Add(CreateMemberAssignment(instanceVariable, memberInfo, property, readValueExpression));
             }
 
             blockExpressions.Add(instanceVariable);
 
-            return Expression.Block(
-                new[] { instanceVariable }, blockExpressions);
+            return Expression.Block(new[] { instanceVariable }, blockExpressions);
+
+            static Expression CreateMemberAssignment(Expression parameter, MemberInfo memberInfo, IPropertyBase property, Expression value)
+            {
+                return property.IsIndexerProperty()
+                    ? Expression.Assign(
+                        Expression.MakeIndex(
+                            parameter, (PropertyInfo)memberInfo, new List<Expression>() { Expression.Constant(property.Name) }),
+                        value)
+                    : Expression.MakeMemberAccess(parameter, memberInfo).Assign(value);
+            }
         }
 
         private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>> Materializers

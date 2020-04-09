@@ -40,6 +40,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual int? MaxLength { get; set; }
 
         /// <summary>
+        ///     The maximum number of digits that the column can store, or <c>null</c>
+        ///     if this is not specified or does not apply to this column type.
+        /// </summary>
+        public virtual int? Precision { get; set; }
+
+        /// <summary>
+        ///     The maximum number of decimal places that the column can store, or <c>null</c>
+        ///     if this is not specified or does not apply to this column type.
+        /// </summary>
+        public virtual int? Scale { get; set; }
+
+        /// <summary>
         ///     Indicates whether or not this column acts as an automatic concurrency token in the same vein
         ///     as 'rowversion'/'timestamp' columns on SQL Server.
         /// </summary>

@@ -1,12 +1,14 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -44,15 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static int GetRelationshipIndex([NotNull] this IPropertyBase propertyBase)
             => propertyBase.GetPropertyIndexes().RelationshipIndex;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static int GetIndex([NotNull] this IPropertyBase property)
-            => property.GetPropertyIndexes().Index;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -114,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var setterProperty = propertyInfo?.FindSetterProperty();
             var getterProperty = propertyInfo?.FindGetterProperty();
 
-            var isCollectionNav = (propertyBase as INavigation)?.IsCollection() == true;
+            var isCollectionNav = (propertyBase as INavigation)?.IsCollection == true;
             var hasField = fieldInfo != null;
             var hasSetter = setterProperty != null;
             var hasGetter = getterProperty != null;

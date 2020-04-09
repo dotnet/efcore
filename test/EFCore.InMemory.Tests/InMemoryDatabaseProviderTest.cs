@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Reflection;
 using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -16,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Returns_appropriate_name()
         {
             Assert.Equal(
-                typeof(InMemoryDatabase).GetTypeInfo().Assembly.GetName().Name,
+                typeof(InMemoryDatabase).Assembly.GetName().Name,
                 new DatabaseProvider<InMemoryOptionsExtension>(new DatabaseProviderDependencies()).Name);
         }
 

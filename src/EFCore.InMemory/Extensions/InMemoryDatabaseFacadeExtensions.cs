@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
@@ -30,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <c>true</c> if the in-memory database is being used. </returns>
         public static bool IsInMemory([NotNull] this DatabaseFacade database)
             => database.ProviderName.Equals(
-                typeof(InMemoryOptionsExtension).GetTypeInfo().Assembly.GetName().Name,
+                typeof(InMemoryOptionsExtension).Assembly.GetName().Name,
                 StringComparison.Ordinal);
     }
 }

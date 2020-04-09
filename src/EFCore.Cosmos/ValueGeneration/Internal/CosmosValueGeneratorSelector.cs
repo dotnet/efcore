@@ -2,15 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
-using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
 {
     public class CosmosValueGeneratorSelector : ValueGeneratorSelector
     {
-        public CosmosValueGeneratorSelector(ValueGeneratorSelectorDependencies dependencies)
+        public CosmosValueGeneratorSelector([NotNull] ValueGeneratorSelectorDependencies dependencies)
             : base(dependencies)
         {
         }
@@ -19,10 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
         {
             var type = property.ClrType.UnwrapNullableType().UnwrapEnumType();
 
-            if (property.GetPropertyName() == ""
+            if (property.GetJsonPropertyName() == ""
                 && type == typeof(int))
             {
-                return new TemporaryIntValueGenerator();
+                return new TemporaryNumberValueGeneratorFactory().Create(property);
             }
 
             return base.Create(property, entityType);

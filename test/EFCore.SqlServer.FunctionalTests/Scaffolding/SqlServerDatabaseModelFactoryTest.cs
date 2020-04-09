@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -36,7 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         #region Sequences
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Create_sequences_with_facets()
         {
             Test(
@@ -81,7 +81,6 @@ DROP SEQUENCE db2.CustomFacetsSequence");
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Sequence_min_max_start_values_are_null_if_default()
         {
             Test(
@@ -117,7 +116,6 @@ DROP SEQUENCE [BigIntSequence];");
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Sequence_min_max_start_values_are_not_null_if_decimal()
         {
             Test(
@@ -145,7 +143,6 @@ DROP SEQUENCE [NumericSequence];");
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Sequence_using_type_alias()
         {
             Fixture.TestStore.ExecuteNonQuery(
@@ -176,7 +173,6 @@ DROP TYPE [dbo].[TestTypeAlias];");
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Sequence_using_type_with_facets()
         {
             Test(
@@ -199,7 +195,6 @@ DROP SEQUENCE [TypeFacetSequence];");
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Filter_sequences_based_on_schema()
         {
             Test(
@@ -2201,7 +2196,8 @@ DROP TABLE PrincipalTable;");
                         Fixture.ListLoggerFactory,
                         new LoggingOptions(),
                         new DiagnosticListener("Fake"),
-                        new SqlServerLoggingDefinitions()));
+                        new SqlServerLoggingDefinitions(),
+                        new NullDbContextLogger()));
 
                 var databaseModel = databaseModelFactory.Create(
                     Fixture.TestStore.ConnectionString,

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Reflection;
 
 using static SQLitePCL.raw;
@@ -30,8 +29,7 @@ namespace Microsoft.Data.Sqlite.Utilities
                     .Invoke(null, null);
             }
 
-            if ((!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue19754", out var isEnabled) || !isEnabled)
-                && ApplicationDataHelper.CurrentApplicationData != null)
+            if (ApplicationDataHelper.CurrentApplicationData != null)
             {
                 var rc = sqlite3_win32_set_directory(
                     SQLITE_WIN32_DATA_DIRECTORY_TYPE,

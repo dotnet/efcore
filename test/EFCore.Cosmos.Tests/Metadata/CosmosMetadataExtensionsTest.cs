@@ -61,6 +61,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(((IConventionEntityType)entityType).GetPartitionKeyPropertyNameConfigurationSource());
         }
 
+        [ConditionalFact]
+        public void Can_get_and_set_etag_name()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            var entityType = modelBuilder
+                .Entity<Customer>().Metadata;
+
+            Assert.Null(entityType.GetETagPropertyName());
+
+            ((IConventionEntityType)entityType).SetETagPropertyName("etag");
+            Assert.Equal("etag", entityType.GetETagPropertyName());
+            Assert.Equal(
+                ConfigurationSource.Convention, ((IConventionEntityType)entityType).GetETagPropertyNameConfigurationSource());
+
+            entityType.SetETagPropertyName("etag");
+            Assert.Equal("etag", entityType.GetETagPropertyName());
+            Assert.Equal(
+                ConfigurationSource.Explicit, ((IConventionEntityType)entityType).GetETagPropertyNameConfigurationSource());
+
+            entityType.SetETagPropertyName(null);
+            Assert.Null(entityType.GetETagPropertyName());
+            Assert.Null(((IConventionEntityType)entityType).GetETagPropertyNameConfigurationSource());
+        }
+
         private static ModelBuilder CreateModelBuilder() => new ModelBuilder(new ConventionSet());
 
         private class Customer

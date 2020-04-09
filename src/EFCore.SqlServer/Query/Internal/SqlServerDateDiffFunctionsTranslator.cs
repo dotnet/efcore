@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
@@ -301,19 +303,46 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         nameof(SqlServerDbFunctionsExtensions.DateDiffNanosecond),
                         new[] { typeof(DbFunctions), typeof(TimeSpan?), typeof(TimeSpan?) }),
                     "NANOSECOND"
+                },
+                {
+                    typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(SqlServerDbFunctionsExtensions.DateDiffWeek),
+                        new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
+                    "WEEK"
+                },
+                {
+                    typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(SqlServerDbFunctionsExtensions.DateDiffWeek),
+                        new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
+                    "WEEK"
+                },
+                {
+                    typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(SqlServerDbFunctionsExtensions.DateDiffWeek),
+                        new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
+                    "WEEK"
+                },
+                {
+                    typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(SqlServerDbFunctionsExtensions.DateDiffWeek),
+                        new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
+                    "WEEK"
                 }
             };
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         public SqlServerDateDiffFunctionsTranslator(
-            ISqlExpressionFactory sqlExpressionFactory)
+            [NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
         public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
+            Check.NotNull(method, nameof(method));
+            Check.NotNull(arguments, nameof(arguments));
+
             if (_methodInfoDateDiffMapping.TryGetValue(method, out var datePart))
             {
                 var startDate = arguments[1];
@@ -326,6 +355,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return _sqlExpressionFactory.Function(
                     "DATEDIFF",
                     new[] { _sqlExpressionFactory.Fragment(datePart), startDate, endDate },
+                    nullable: true,
+                    argumentsPropagateNullability: new[] { false, true, true },
                     typeof(int));
             }
 

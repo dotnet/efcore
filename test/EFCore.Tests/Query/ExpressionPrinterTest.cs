@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -174,7 +173,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Expression.Constant("Foobar"),
                         typeof(string).GetMethods().Single(m => m.Name == nameof(string.Substring) && m.GetParameters().Count() == 2),
                         Expression.Constant(0),
-                        Expression.Constant(4))));
+                        Expression.Constant(4))),
+                ignoreLineEndingDifferences: true);
         }
 
         [ConditionalFact]
@@ -194,7 +194,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     .Select(x => x.ToString())
     .AsEnumerable()
     .Where(x => x.Length > 1)",
-                _expressionPrinter.Print(expr.Body));
+                _expressionPrinter.Print(expr.Body),
+                ignoreLineEndingDifferences: true);
         }
     }
 }

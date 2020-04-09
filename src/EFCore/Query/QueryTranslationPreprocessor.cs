@@ -1,61 +1,47 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class QueryTranslationPreprocessor
     {
-        private readonly QueryCompilationContext _queryCompilationContext;
-
         public QueryTranslationPreprocessor(
-            QueryTranslationPreprocessorDependencies dependencies,
-            QueryCompilationContext queryCompilationContext)
+            [NotNull] QueryTranslationPreprocessorDependencies dependencies,
+            [NotNull] QueryCompilationContext queryCompilationContext)
         {
+            Check.NotNull(dependencies, nameof(dependencies));
+            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
+
             Dependencies = dependencies;
-            _queryCompilationContext = queryCompilationContext;
+            QueryCompilationContext = queryCompilationContext;
         }
 
         protected virtual QueryTranslationPreprocessorDependencies Dependencies { get; }
 
-        public virtual Expression Process(Expression query)
+        protected virtual QueryCompilationContext QueryCompilationContext { get; }
+
+        public virtual Expression Process([NotNull] Expression query)
         {
-            query = new EnumerableToQueryableMethodConvertingExpressionVisitor().Visit(query);
-            query = new QueryMetadataExtractingExpressionVisitor(_queryCompilationContext).Visit(query);
+            Check.NotNull(query, nameof(query));
+
             query = new InvocationExpressionRemovingExpressionVisitor().Visit(query);
-            query = new AllAnyToContainsRewritingExpressionVisitor().Visit(query);
-            query = new GroupJoinFlatteningExpressionVisitor().Visit(query);
+            query = NormalizeQueryableMethodCall(query);
             query = new NullCheckRemovingExpressionVisitor().Visit(query);
-            query = new EntityEqualityRewritingExpressionVisitor(_queryCompilationContext).Rewrite(query);
-            query = new SubqueryMemberPushdownExpressionVisitor().Visit(query);
-            query = new NavigationExpandingExpressionVisitor(_queryCompilationContext, Dependencies.EvaluatableExpressionFilter).Expand(
-                query);
-            query = new FunctionPreprocessingExpressionVisitor().Visit(query);
-            new EnumerableVerifyingExpressionVisitor().Visit(query);
+            query = new SubqueryMemberPushdownExpressionVisitor(QueryCompilationContext.Model).Visit(query);
+            query = new NavigationExpandingExpressionVisitor(this, QueryCompilationContext, Dependencies.EvaluatableExpressionFilter)
+                .Expand(query);
+            query = new QueryOptimizingExpressionVisitor().Visit(query);
 
             return query;
         }
 
-        // TODO: For debugging
-        private class EnumerableVerifyingExpressionVisitor : ExpressionVisitor
-        {
-            protected override Expression VisitMethodCall(MethodCallExpression node)
-            {
-                if (node.Method.DeclaringType == typeof(Enumerable)
-                    && node.Arguments[0].Type.IsGenericType
-                    && node.Arguments[0].Type.GetGenericTypeDefinition() == typeof(IQueryable<>)
-                    && !string.Equals(node.Method.Name, nameof(Enumerable.ToList))
-                    && !string.Equals(node.Method.Name, nameof(Enumerable.ToArray)))
-                {
-                    throw new InvalidFilterCriteriaException();
-                }
-
-                return base.VisitMethodCall(node);
-            }
-        }
+        public virtual Expression NormalizeQueryableMethodCall([NotNull] Expression expression)
+            => new QueryableMethodNormalizingExpressionVisitor(QueryCompilationContext)
+            .Visit(Check.NotNull(expression, nameof(expression)));
     }
 }

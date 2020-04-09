@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     Gets a value to be assigned to a property.
         /// </summary>
-        /// <para>The change tracking entry of the entity for which the value is being generated.</para>
+        /// <param name="entry"> The change tracking entry of the entity for which the value is being generated. </param>
         /// <returns> The value to be assigned to a property. </returns>
         public override Guid Next(EntityEntry entry)
         {

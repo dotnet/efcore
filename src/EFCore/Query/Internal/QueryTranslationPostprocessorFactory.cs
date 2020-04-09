@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
@@ -22,13 +24,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         private readonly QueryTranslationPostprocessorDependencies _dependencies;
 
-        public QueryTranslationPostprocessorFactory(QueryTranslationPostprocessorDependencies dependencies)
+        public QueryTranslationPostprocessorFactory([NotNull] QueryTranslationPostprocessorDependencies dependencies)
         {
             _dependencies = dependencies;
         }
 
         public virtual QueryTranslationPostprocessor Create(QueryCompilationContext queryCompilationContext)
         {
+            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
+
             return new QueryTranslationPostprocessor(_dependencies);
         }
     }

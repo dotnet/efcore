@@ -6,10 +6,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
+using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
@@ -19,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             = typeof(ValueBuffer).GetConstructors().Single(ci => ci.GetParameters().Length == 1);
 
         private static readonly PropertyInfo _valueBufferCountMemberInfo
-            = typeof(ValueBuffer).GetTypeInfo().GetProperty(nameof(ValueBuffer.Count));
+            = typeof(ValueBuffer).GetProperty(nameof(ValueBuffer.Count));
 
         private readonly List<Expression> _valueBufferSlots = new List<Expression>();
 
@@ -32,12 +36,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private ParameterExpression _groupingParameter;
 
         public virtual IReadOnlyList<Expression> Projection => _valueBufferSlots;
-        public virtual Expression ServerQueryExpression { get; set; }
+        public virtual Expression ServerQueryExpression { get; private set; }
         public virtual ParameterExpression CurrentParameter => _groupingParameter ?? _valueBufferParameter;
         public override Type Type => typeof(IEnumerable<ValueBuffer>);
         public sealed override ExpressionType NodeType => ExpressionType.Extension;
 
-        public InMemoryQueryExpression(IEntityType entityType)
+        public InMemoryQueryExpression([NotNull] IEntityType entityType)
         {
             _valueBufferParameter = Parameter(typeof(ValueBuffer), "valueBuffer");
             ServerQueryExpression = new InMemoryTableExpression(entityType);
@@ -101,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
         }
 
-        public virtual void ReplaceProjectionMapping(IDictionary<ProjectionMember, Expression> projectionMappings)
+        public virtual void ReplaceProjectionMapping([NotNull] IDictionary<ProjectionMember, Expression> projectionMappings)
         {
             _projectionMapping.Clear();
             foreach (var kvp in projectionMappings)
@@ -110,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
         }
 
-        public virtual IDictionary<IProperty, int> AddToProjection(EntityProjectionExpression entityProjectionExpression)
+        public virtual IDictionary<IProperty, int> AddToProjection([NotNull] EntityProjectionExpression entityProjectionExpression)
         {
             if (!_entityProjectionCache.TryGetValue(entityProjectionExpression, out var indexMap))
             {
@@ -126,14 +130,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return indexMap;
         }
 
-        public virtual int AddToProjection(Expression expression)
+        public virtual int AddToProjection([NotNull] Expression expression)
         {
             _valueBufferSlots.Add(expression);
 
             return _valueBufferSlots.Count - 1;
         }
 
-        public virtual int AddSubqueryProjection(ShapedQueryExpression shapedQueryExpression, out Expression innerShaper)
+        public virtual int AddSubqueryProjection([NotNull] ShapedQueryExpression shapedQueryExpression, [CanBeNull] out Expression innerShaper)
         {
             var subquery = (InMemoryQueryExpression)shapedQueryExpression.QueryExpression;
             subquery.ApplyProjection();
@@ -157,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return AddToProjection(serverQueryExpression);
         }
 
-        private class ShaperRemappingExpressionVisitor : ExpressionVisitor
+        private sealed class ShaperRemappingExpressionVisitor : ExpressionVisitor
         {
             private readonly IDictionary<ProjectionMember, Expression> _projectionMapping;
 
@@ -183,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             projectionBindingExpression.QueryExpression, index, projectionBindingExpression.Type);
                     }
 
-                    throw new InvalidOperationException("Invalid ProjectionMapping.");
+                    throw new InvalidOperationException(InMemoryStrings.InvalidStateEncountered("ProjectionMapping"));
                 }
 
                 return base.Visit(expression);
@@ -193,8 +197,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private IEnumerable<IProperty> GetAllPropertiesInHierarchy(IEntityType entityType)
             => entityType.GetTypesInHierarchy().SelectMany(EntityTypeExtensions.GetDeclaredProperties);
 
-        public virtual Expression GetMappedProjection(ProjectionMember member)
+        public virtual Expression GetMappedProjection([NotNull] ProjectionMember member)
             => _projectionMapping[member];
+
+        public virtual void UpdateServerQueryExpression([NotNull] Expression serverQueryExpression)
+            => ServerQueryExpression = serverQueryExpression;
 
         public virtual void PushdownIntoSubquery()
         {
@@ -262,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             if (_valueBufferSlots.Count != 0)
             {
-                throw new InvalidOperationException("Cannot apply DefaultIfEmpty after a client-evaluated projection.");
+                throw new InvalidOperationException(InMemoryStrings.DefaultIfEmptyAppliedAfterProjection);
             }
 
             var result = new Dictionary<ProjectionMember, Expression>();
@@ -315,16 +322,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         }
 
         private static IPropertyBase InferPropertyFromInner(Expression expression)
-        {
-            if (expression is MethodCallExpression methodCallExpression
+            => expression is MethodCallExpression methodCallExpression
                 && methodCallExpression.Method.IsGenericMethod
-                && methodCallExpression.Method.GetGenericMethodDefinition() == EntityMaterializerSource.TryReadValueMethod)
-            {
-                return (IPropertyBase)((ConstantExpression)methodCallExpression.Arguments[2]).Value;
-            }
-
-            return null;
-        }
+                && methodCallExpression.Method.GetGenericMethodDefinition() == ExpressionExtensions.ValueBufferTryReadValueMethod
+                ? (IPropertyBase)((ConstantExpression)methodCallExpression.Arguments[2]).Value
+                : null;
 
         public virtual void ApplyProjection()
         {
@@ -368,7 +370,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 selectorLambda);
         }
 
-        public virtual InMemoryGroupByShaperExpression ApplyGrouping(Expression groupingKey, Expression shaperExpression)
+        public virtual InMemoryGroupByShaperExpression ApplyGrouping([NotNull] Expression groupingKey, [NotNull] Expression shaperExpression)
         {
             PushdownIntoSubquery();
 
@@ -406,12 +408,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             switch (key)
             {
                 case NewExpression newExpression:
-                    // For .NET Framework only. If ctor is null that means the type is struct and has no ctor args.
-                    if (newExpression.Constructor == null)
-                    {
-                        return newExpression;
-                    }
-
                     var arguments = new Expression[newExpression.Arguments.Count];
                     for (var i = 0; i < arguments.Length; i++)
                     {
@@ -444,30 +440,21 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 default:
                     var index = groupingExpressions.Count;
                     groupingExpressions.Add(key);
-                    return CreateReadValueExpression(
-                        groupingKeyAccessExpression,
+                    return groupingKeyAccessExpression.CreateValueBufferReadValueExpression(
                         key.Type,
                         index,
                         InferPropertyFromInner(key));
             }
         }
 
-        private static Expression CreateReadValueExpression(
-            Expression valueBufferParameter, Type type, int index, IPropertyBase property)
-            => Call(
-                EntityMaterializerSource.TryReadValueMethod.MakeGenericMethod(type),
-                valueBufferParameter,
-                Constant(index),
-                Constant(property, typeof(IPropertyBase)));
-
         private Expression CreateReadValueExpression(Type type, int index, IPropertyBase property)
-            => CreateReadValueExpression(_valueBufferParameter, type, index, property);
+            => _valueBufferParameter.CreateValueBufferReadValueExpression(type, index, property);
 
         public virtual void AddInnerJoin(
-            InMemoryQueryExpression innerQueryExpression,
-            LambdaExpression outerKeySelector,
-            LambdaExpression innerKeySelector,
-            Type transparentIdentifierType)
+            [NotNull] InMemoryQueryExpression innerQueryExpression,
+            [NotNull] LambdaExpression outerKeySelector,
+            [NotNull] LambdaExpression innerKeySelector,
+            [CanBeNull] Type transparentIdentifierType)
         {
             var outerParameter = Parameter(typeof(ValueBuffer), "outer");
             var innerParameter = Parameter(typeof(ValueBuffer), "inner");
@@ -550,10 +537,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         }
 
         public virtual void AddLeftJoin(
-            InMemoryQueryExpression innerQueryExpression,
-            LambdaExpression outerKeySelector,
-            LambdaExpression innerKeySelector,
-            Type transparentIdentifierType)
+            [NotNull] InMemoryQueryExpression innerQueryExpression,
+            [NotNull] LambdaExpression outerKeySelector,
+            [NotNull] LambdaExpression innerKeySelector,
+            [CanBeNull] Type transparentIdentifierType)
         {
             // GroupJoin phase
             var groupTransparentIdentifierType = TransparentIdentifierFactory.Create(
@@ -677,7 +664,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             _projectionMapping = projectionMapping;
         }
 
-        public virtual void AddSelectMany(InMemoryQueryExpression innerQueryExpression, Type transparentIdentifierType, bool innerNullable)
+        public virtual void AddSelectMany(
+            [NotNull] InMemoryQueryExpression innerQueryExpression, [CanBeNull] Type transparentIdentifierType, bool innerNullable)
         {
             var outerParameter = Parameter(typeof(ValueBuffer), "outer");
             var innerParameter = Parameter(typeof(ValueBuffer), "inner");
@@ -770,11 +758,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         }
 
         public virtual EntityShaperExpression AddNavigationToWeakEntityType(
-            EntityProjectionExpression entityProjectionExpression,
-            INavigation navigation,
-            InMemoryQueryExpression innerQueryExpression,
-            LambdaExpression outerKeySelector,
-            LambdaExpression innerKeySelector)
+            [NotNull] EntityProjectionExpression entityProjectionExpression,
+            [NotNull] INavigation navigation,
+            [NotNull] InMemoryQueryExpression innerQueryExpression,
+            [NotNull] LambdaExpression outerKeySelector,
+            [NotNull] LambdaExpression innerKeySelector)
         {
             // GroupJoin phase
             var groupTransparentIdentifierType = TransparentIdentifierFactory.Create(
@@ -914,6 +902,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.AppendLine(nameof(InMemoryQueryExpression) + ": ");
             using (expressionPrinter.Indent())
             {
@@ -937,16 +927,18 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
         }
 
-        private class NullableReadValueExpressionVisitor : ExpressionVisitor
+        private sealed class NullableReadValueExpressionVisitor : ExpressionVisitor
         {
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
+                Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
                 if (methodCallExpression.Method.IsGenericMethod
-                    && methodCallExpression.Method.GetGenericMethodDefinition() == EntityMaterializerSource.TryReadValueMethod
+                    && methodCallExpression.Method.GetGenericMethodDefinition() == ExpressionExtensions.ValueBufferTryReadValueMethod
                     && !methodCallExpression.Type.IsNullableType())
                 {
                     return Call(
-                        EntityMaterializerSource.TryReadValueMethod.MakeGenericMethod(methodCallExpression.Type.MakeNullable()),
+                        ExpressionExtensions.ValueBufferTryReadValueMethod.MakeGenericMethod(methodCallExpression.Type.MakeNullable()),
                         methodCallExpression.Arguments);
                 }
 
@@ -955,6 +947,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
             {
+                Check.NotNull(conditionalExpression, nameof(conditionalExpression));
+
                 var test = Visit(conditionalExpression.Test);
                 var ifTrue = Visit(conditionalExpression.IfTrue);
                 var ifFalse = Visit(conditionalExpression.IfFalse);

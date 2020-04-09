@@ -4,13 +4,15 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Update;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -56,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             if (dataFilePath != null)
             {
                 _dataFilePath = Path.Combine(
-                    Path.GetDirectoryName(typeof(CosmosTestStore).GetTypeInfo().Assembly.Location),
+                    Path.GetDirectoryName(typeof(CosmosTestStore).Assembly.Location),
                     dataFilePath);
             }
         }
@@ -86,10 +88,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             }
             else
             {
-                using (var context = createContext())
-                {
-                    CreateFromFile(context).GetAwaiter().GetResult();
-                }
+                using var context = createContext();
+                CreateFromFile(context).GetAwaiter().GetResult();
             }
         }
 
@@ -99,50 +99,49 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             {
                 var cosmosClient = context.GetService<CosmosClientWrapper>();
                 var serializer = new JsonSerializer();
-                using (var fs = new FileStream(_dataFilePath, FileMode.Open, FileAccess.Read))
-                using (var sr = new StreamReader(fs))
-                using (var reader = new JsonTextReader(sr))
+                using var fs = new FileStream(_dataFilePath, FileMode.Open, FileAccess.Read);
+                using var sr = new StreamReader(fs);
+                using var reader = new JsonTextReader(sr);
+                while (reader.Read())
                 {
-                    while (reader.Read())
+                    if (reader.TokenType == JsonToken.StartArray)
                     {
-                        if (reader.TokenType == JsonToken.StartArray)
+                        NextEntityType:
+                        while (reader.Read())
                         {
-                            NextEntityType:
-                            while (reader.Read())
+                            if (reader.TokenType == JsonToken.StartObject)
                             {
-                                if (reader.TokenType == JsonToken.StartObject)
+                                string entityName = null;
+                                while (reader.Read())
                                 {
-                                    string entityName = null;
-                                    while (reader.Read())
+                                    if (reader.TokenType == JsonToken.PropertyName)
                                     {
-                                        if (reader.TokenType == JsonToken.PropertyName)
+                                        switch (reader.Value)
                                         {
-                                            switch (reader.Value)
-                                            {
-                                                case "Name":
-                                                    reader.Read();
-                                                    entityName = (string)reader.Value;
-                                                    break;
-                                                case "Data":
-                                                    while (reader.Read())
+                                            case "Name":
+                                                reader.Read();
+                                                entityName = (string)reader.Value;
+                                                break;
+                                            case "Data":
+                                                while (reader.Read())
+                                                {
+                                                    if (reader.TokenType == JsonToken.StartObject)
                                                     {
-                                                        if (reader.TokenType == JsonToken.StartObject)
-                                                        {
-                                                            var document = serializer.Deserialize<JObject>(reader);
+                                                        var document = serializer.Deserialize<JObject>(reader);
 
-                                                            document["id"] = $"{entityName}|{document["id"]}";
-                                                            document["Discriminator"] = entityName;
+                                                        document["id"] = $"{entityName}|{document["id"]}";
+                                                        document["Discriminator"] = entityName;
 
-                                                            await cosmosClient.CreateItemAsync("NorthwindContext", document, null);
-                                                        }
-                                                        else if (reader.TokenType == JsonToken.EndObject)
-                                                        {
-                                                            goto NextEntityType;
-                                                        }
+                                                        await cosmosClient.CreateItemAsync(
+                                                            "NorthwindContext", document, new FakeUpdateEntry());
                                                     }
+                                                    else if (reader.TokenType == JsonToken.EndObject)
+                                                    {
+                                                        goto NextEntityType;
+                                                    }
+                                                }
 
-                                                    break;
-                                            }
+                                                break;
                                         }
                                     }
                                 }
@@ -247,6 +246,54 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             {
                 optionsBuilder.UseCosmos(_testStore.ConnectionUri, _testStore.AuthToken, _testStore.Name, _testStore._configureCosmos);
             }
+        }
+
+        private class FakeUpdateEntry : IUpdateEntry
+        {
+            public IEntityType EntityType => new FakeEntityType();
+            public EntityState EntityState { get => EntityState.Added; set => throw new NotImplementedException(); }
+            public IUpdateEntry SharedIdentityEntry => throw new NotImplementedException();
+            public object GetCurrentValue(IPropertyBase propertyBase) => throw new NotImplementedException();
+            public TProperty GetCurrentValue<TProperty>(IPropertyBase propertyBase) => throw new NotImplementedException();
+            public object GetOriginalValue(IPropertyBase propertyBase) => throw new NotImplementedException();
+            public TProperty GetOriginalValue<TProperty>(IProperty property) => throw new NotImplementedException();
+            public bool HasTemporaryValue(IProperty property) => throw new NotImplementedException();
+            public bool IsModified(IProperty property) => throw new NotImplementedException();
+            public bool IsStoreGenerated(IProperty property) => throw new NotImplementedException();
+            public void SetOriginalValue(IProperty property, object value) => throw new NotImplementedException();
+            public void SetPropertyModified(IProperty property) => throw new NotImplementedException();
+            public void SetStoreGeneratedValue(IProperty property, object value) => throw new NotImplementedException();
+            public EntityEntry ToEntityEntry() => throw new NotImplementedException();
+            public object GetRelationshipSnapshotValue(IPropertyBase propertyBase) => throw new NotImplementedException();
+            public object GetPreStoreGeneratedCurrentValue(IPropertyBase propertyBase) => throw new NotImplementedException();
+            public bool IsConceptualNull(IProperty property) => throw new NotImplementedException();
+        }
+
+        public class FakeEntityType : IEntityType
+        {
+            public object this[string name] => null;
+            public IEntityType BaseType => throw new NotImplementedException();
+            public string DefiningNavigationName => throw new NotImplementedException();
+            public IEntityType DefiningEntityType => throw new NotImplementedException();
+            public IModel Model => throw new NotImplementedException();
+            public string Name => throw new NotImplementedException();
+            public Type ClrType => throw new NotImplementedException();
+            public bool HasSharedClrType => throw new NotImplementedException();
+            public IAnnotation FindAnnotation(string name) => throw new NotImplementedException();
+            public IForeignKey FindForeignKey(IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType) => throw new NotImplementedException();
+            public IIndex FindIndex(IReadOnlyList<IProperty> properties) => throw new NotImplementedException();
+            public IKey FindKey(IReadOnlyList<IProperty> properties) => throw new NotImplementedException();
+            public IKey FindPrimaryKey() => throw new NotImplementedException();
+            public IProperty FindProperty(string name) => throw new NotImplementedException();
+            public IServiceProperty FindServiceProperty(string name) => throw new NotImplementedException();
+            public ISkipNavigation FindSkipNavigation(string name) => throw new NotImplementedException();
+            public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();
+            public IEnumerable<IForeignKey> GetForeignKeys() => throw new NotImplementedException();
+            public IEnumerable<IIndex> GetIndexes() => throw new NotImplementedException();
+            public IEnumerable<IKey> GetKeys() => throw new NotImplementedException();
+            public IEnumerable<IProperty> GetProperties() => throw new NotImplementedException();
+            public IEnumerable<IServiceProperty> GetServiceProperties() => throw new NotImplementedException();
+            public IEnumerable<ISkipNavigation> GetSkipNavigations() => throw new NotImplementedException();
         }
     }
 }

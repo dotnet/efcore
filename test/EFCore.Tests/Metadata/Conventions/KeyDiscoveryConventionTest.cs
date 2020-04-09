@@ -169,7 +169,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 ListLoggerFactory,
                 options,
                 new DiagnosticListener("Fake"),
-                new TestLoggingDefinitions());
+                new TestLoggingDefinitions(),
+                new NullDbContextLogger());
             return modelLogger;
         }
 

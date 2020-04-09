@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var assemblyName = RelationalOptionsExtension.Extract(options)?.MigrationsAssembly;
             Assembly = assemblyName == null
-                ? _contextType.GetTypeInfo().Assembly
+                ? _contextType.Assembly
                 : Assembly.Load(new AssemblyName(assemblyName));
 
             _idGenerator = idGenerator;

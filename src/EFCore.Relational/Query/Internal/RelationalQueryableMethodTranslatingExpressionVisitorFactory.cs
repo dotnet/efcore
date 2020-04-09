@@ -1,7 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
@@ -22,17 +24,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly RelationalQueryableMethodTranslatingExpressionVisitorDependencies _relationalDependencies;
 
         public RelationalQueryableMethodTranslatingExpressionVisitorFactory(
-            QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
-            RelationalQueryableMethodTranslatingExpressionVisitorDependencies relationalDependencies)
+            [NotNull] QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
+            [NotNull] RelationalQueryableMethodTranslatingExpressionVisitorDependencies relationalDependencies)
         {
             _dependencies = dependencies;
             _relationalDependencies = relationalDependencies;
         }
 
-        public virtual QueryableMethodTranslatingExpressionVisitor Create(IModel model)
-            => new RelationalQueryableMethodTranslatingExpressionVisitor(
+        public virtual QueryableMethodTranslatingExpressionVisitor Create(QueryCompilationContext queryCompilationContext)
+        {
+            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
+
+            return new RelationalQueryableMethodTranslatingExpressionVisitor(
                 _dependencies,
                 _relationalDependencies,
-                model);
+                queryCompilationContext);
+        }
     }
 }

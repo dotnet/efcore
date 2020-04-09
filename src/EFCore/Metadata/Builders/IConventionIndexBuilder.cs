@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     public interface IConventionIndexBuilder : IConventionAnnotatableBuilder
     {
         /// <summary>
-        ///     The index being configured.
+        ///     Gets the index being configured.
         /// </summary>
         new IConventionIndex Metadata { get; }
 

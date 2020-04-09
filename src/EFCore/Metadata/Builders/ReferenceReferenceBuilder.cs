@@ -44,8 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected ReferenceReferenceBuilder(
-            InternalRelationshipBuilder builder,
-            ReferenceReferenceBuilder oldBuilder,
+            [NotNull] InternalForeignKeyBuilder builder,
+            [CanBeNull] ReferenceReferenceBuilder oldBuilder,
             bool inverted = false,
             bool foreignKeySet = false,
             bool principalKeySet = false,
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalRelationshipBuilder HasForeignKeyBuilder(
+        protected virtual InternalForeignKeyBuilder HasForeignKeyBuilder(
             [CanBeNull] EntityType dependentEntityType,
             [NotNull] string dependentEntityTypeName,
             [NotNull] IReadOnlyList<string> foreignKeyPropertyNames)
@@ -169,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalRelationshipBuilder HasForeignKeyBuilder(
+        protected virtual InternalForeignKeyBuilder HasForeignKeyBuilder(
             [NotNull] EntityType dependentEntityType,
             [NotNull] string dependentEntityTypeName,
             [NotNull] IReadOnlyList<MemberInfo> foreignKeyProperties)
@@ -177,10 +177,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 dependentEntityType, dependentEntityTypeName,
                 (b, d) => b.HasForeignKey(foreignKeyProperties, d, ConfigurationSource.Explicit));
 
-        private InternalRelationshipBuilder HasForeignKeyBuilder(
+        private InternalForeignKeyBuilder HasForeignKeyBuilder(
             EntityType dependentEntityType,
             string dependentEntityTypeName,
-            Func<InternalRelationshipBuilder, EntityType, InternalRelationshipBuilder> hasForeignKey)
+            Func<InternalForeignKeyBuilder, EntityType, InternalForeignKeyBuilder> hasForeignKey)
         {
             if (dependentEntityType == null)
             {
@@ -191,14 +191,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                         dependentEntityTypeName));
             }
 
-            using (var batch = dependentEntityType.Model.ConventionDispatcher.DelayConventions())
-            {
-                var builder = Builder.HasEntityTypes(
-                    GetOtherEntityType(dependentEntityType), dependentEntityType, ConfigurationSource.Explicit);
-                builder = hasForeignKey(builder, dependentEntityType);
+            using var batch = dependentEntityType.Model.ConventionDispatcher.DelayConventions();
+            var builder = Builder.HasEntityTypes(
+                GetOtherEntityType(dependentEntityType), dependentEntityType, ConfigurationSource.Explicit);
+            builder = hasForeignKey(builder, dependentEntityType);
 
-                return batch.Run(builder);
-            }
+            return batch.Run(builder);
         }
 
         /// <summary>
@@ -266,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalRelationshipBuilder HasPrincipalKeyBuilder(
+        protected virtual InternalForeignKeyBuilder HasPrincipalKeyBuilder(
             [CanBeNull] EntityType principalEntityType,
             [NotNull] string principalEntityTypeName,
             [NotNull] IReadOnlyList<string> foreignKeyPropertyNames)
@@ -281,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalRelationshipBuilder HasPrincipalKeyBuilder(
+        protected virtual InternalForeignKeyBuilder HasPrincipalKeyBuilder(
             [NotNull] EntityType principalEntityType,
             [NotNull] string principalEntityTypeName,
             [NotNull] IReadOnlyList<MemberInfo> foreignKeyProperties)
@@ -289,10 +287,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 principalEntityType, principalEntityTypeName,
                 b => b.HasPrincipalKey(foreignKeyProperties, ConfigurationSource.Explicit));
 
-        private InternalRelationshipBuilder HasPrincipalKeyBuilder(
+        private InternalForeignKeyBuilder HasPrincipalKeyBuilder(
             EntityType principalEntityType,
             string principalEntityTypeName,
-            Func<InternalRelationshipBuilder, InternalRelationshipBuilder> hasPrincipalKey)
+            Func<InternalForeignKeyBuilder, InternalForeignKeyBuilder> hasPrincipalKey)
         {
             if (principalEntityType == null)
             {
@@ -303,14 +301,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                         principalEntityTypeName));
             }
 
-            using (var batch = principalEntityType.Model.ConventionDispatcher.DelayConventions())
-            {
-                var builder = Builder.HasEntityTypes(
-                    principalEntityType, GetOtherEntityType(principalEntityType), ConfigurationSource.Explicit);
-                builder = hasPrincipalKey(builder);
+            using var batch = principalEntityType.Model.ConventionDispatcher.DelayConventions();
+            var builder = Builder.HasEntityTypes(
+                principalEntityType, GetOtherEntityType(principalEntityType), ConfigurationSource.Explicit);
+            builder = hasPrincipalKey(builder);
 
-                return batch.Run(builder);
-            }
+            return batch.Run(builder);
         }
 
         /// <summary>

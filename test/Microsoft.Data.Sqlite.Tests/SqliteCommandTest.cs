@@ -36,6 +36,14 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void CommandText_defaults_to_empty()
+        {
+            var command = new SqliteCommand();
+
+            Assert.Empty(command.CommandText);
+        }
+
+        [Fact]
         public void CommandText_throws_when_set_when_open_reader()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))

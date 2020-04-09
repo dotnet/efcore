@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore
                 => AddOptions(
                         TestStore
                             .AddProviderOptions(
-                                new DbContextOptionsBuilder()
+                                new DbContextOptionsBuilder<DbContext>()
                                     .AddInterceptors(appInterceptors)
                                     .UseInternalServiceProvider(
                                         InjectInterceptors(new ServiceCollection(), injectedInterceptors)

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -42,7 +43,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string ToDebugString([NotNull] this IModel model, [NotNull] string indent = "")
+        public static string ToDebugString(
+            [NotNull] this IModel model,
+            MetadataDebugStringOptions options,
+            [NotNull] string indent = "")
         {
             var builder = new StringBuilder();
 
@@ -60,10 +64,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             foreach (var entityType in model.GetEntityTypes())
             {
-                builder.AppendLine().Append(entityType.ToDebugString(false, indent + "  "));
+                builder.AppendLine().Append(entityType.ToDebugString(options, indent + "  "));
             }
 
-            builder.Append(model.AnnotationsToDebugString(indent));
+            if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            {
+                builder.Append(model.AnnotationsToDebugString(indent));
+            }
 
             return builder.ToString();
         }

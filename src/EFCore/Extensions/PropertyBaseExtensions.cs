@@ -2,11 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -49,6 +51,16 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
+        ///         Gets a <see cref="IComparer{T}" /> for comparing values in tracked <see cref="IUpdateEntry"/> entries.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyBase"> The property. </param>
+        /// <returns> The comparer. </returns>
+        public static IComparer<IUpdateEntry> GetCurrentValueComparer([NotNull] this IPropertyBase propertyBase)
+            => propertyBase.AsPropertyBase().CurrentValueComparer;
+
+        /// <summary>
+        ///     <para>
         ///         Gets a <see cref="IClrPropertyGetter" /> for reading the value of this property.
         ///     </para>
         ///     <para>
@@ -83,18 +95,23 @@ namespace Microsoft.EntityFrameworkCore
             => Check.NotNull(property, nameof(property)).GetIdentifyingMemberInfo() == null;
 
         /// <summary>
-        ///     <para>
-        ///         Gets the <see cref="PropertyAccessMode" /> being used for this property.
-        ///         <c>null</c> indicates that the default property access mode is being used.
-        ///     </para>
+        ///     Gets a value indicating whether this is an indexer property. An indexer property is one that is accessed through
+        ///     an indexer on the entity class.
         /// </summary>
-        /// <param name="propertyBase"> The property for which to get the access mode. </param>
-        /// <returns> The access mode being used, or <c>null</c> if the default access mode is being used. </returns>
-        public static PropertyAccessMode GetPropertyAccessMode(
-            [NotNull] this IPropertyBase propertyBase)
-            => (PropertyAccessMode)(Check.NotNull(propertyBase, nameof(propertyBase))[CoreAnnotationNames.PropertyAccessMode]
-                ?? (propertyBase is INavigation
-                    ? propertyBase.DeclaringType.GetNavigationAccessMode()
-                    : propertyBase.DeclaringType.GetPropertyAccessMode()));
+        /// <param name="property"> The property to check. </param>
+        /// <returns>
+        ///     <c>True</c> if the property is an indexer property, otherwise <c>false</c>.
+        /// </returns>
+        public static bool IsIndexerProperty([NotNull] this IPropertyBase property)
+            => Check.NotNull(property, nameof(property)).GetIdentifyingMemberInfo() is PropertyInfo propertyInfo
+                && propertyInfo == property.DeclaringType.FindIndexerPropertyInfo();
+
+        /// <summary>
+        ///     Gets the property index for this property.
+        /// </summary>
+        /// <param name="property"> The property for which the property index will be returned. </param>
+        /// <returns> The index of the property. </returns>
+        public static int GetIndex([NotNull] this IPropertyBase property)
+            => property.GetPropertyIndexes().Index;
     }
 }

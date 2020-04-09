@@ -16,9 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory(Skip = "issue #17386")]
-        public override Task Complex_query_with_optional_navigations_and_client_side_evaluation(bool isAsync)
+        public override Task Complex_query_with_optional_navigations_and_client_side_evaluation(bool async)
         {
-            return base.Complex_query_with_optional_navigations_and_client_side_evaluation(isAsync);
+            return base.Complex_query_with_optional_navigations_and_client_side_evaluation(async);
         }
 
         [ConditionalFact(Skip = "issue #18194")]
@@ -28,9 +28,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory(Skip = "issue #17620")]
-        public override Task Lift_projection_mapping_when_pushing_down_subquery(bool isAsync)
+        public override Task Lift_projection_mapping_when_pushing_down_subquery(bool async)
         {
-            return base.Lift_projection_mapping_when_pushing_down_subquery(isAsync);
+            return base.Lift_projection_mapping_when_pushing_down_subquery(async);
+        }
+
+        [ConditionalTheory(Skip = "issue #19344")]
+        public override Task Select_subquery_single_nested_subquery(bool async)
+        {
+            return base.Select_subquery_single_nested_subquery(async);
+        }
+
+        [ConditionalTheory(Skip = "issue #19344")]
+        public override Task Select_subquery_single_nested_subquery2(bool async)
+        {
+            return base.Select_subquery_single_nested_subquery2(async);
         }
     }
 }

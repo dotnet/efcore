@@ -112,5 +112,26 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <returns> An <see cref="EntityEntry" /> for this entity. </returns>
         EntityEntry ToEntityEntry();
+
+        /// <summary>
+        ///     Gets the last value assigned to the property that's part of a foreign key or principal key
+        /// </summary>
+        /// <param name="propertyBase"> The property to get the value for. </param>
+        /// <returns> The value for the property. </returns>
+        object GetRelationshipSnapshotValue([NotNull] IPropertyBase propertyBase);
+
+        /// <summary>
+        ///     Gets the value assigned to the property before any store-generated values have been applied.
+        /// </summary>
+        /// <param name="propertyBase"> The property to get the value for. </param>
+        /// <returns> The value for the property. </returns>
+        object GetPreStoreGeneratedCurrentValue([NotNull] IPropertyBase propertyBase);
+
+        /// <summary>
+        ///     Checks whether the property is conceptually set to null even if the property type is not nullable.
+        /// </summary>
+        /// <param name="property"> The property to check. </param>
+        /// <returns> True if the property is conceptually null; false otherwise. </returns>
+        bool IsConceptualNull([NotNull] IProperty property);
     }
 }

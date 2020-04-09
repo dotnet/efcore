@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public class EvaluatableExpressionFilter : IEvaluatableExpressionFilter
+    public class EvaluatableExpressionFilter : EvaluatableExpressionFilterBase
     {
         // This methods are non-deterministic and result varies based on time of running the query.
         // Hence we don't evaluate them. See issue#2069
@@ -54,11 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new[] { typeof(int), typeof(int) });
 
         /// <summary>
-        ///     Parameter object containing dependencies for this service.
-        /// </summary>
-        protected virtual EvaluatableExpressionFilterDependencies Dependencies { get; }
-
-        /// <summary>
         ///     <para>
         ///         Creates a new <see cref="EvaluatableExpressionFilter" /> instance.
         ///     </para>
@@ -70,10 +65,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="dependencies"> The dependencies to use. </param>
         public EvaluatableExpressionFilter(
             [NotNull] EvaluatableExpressionFilterDependencies dependencies)
+            : base(dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
-            Dependencies = dependencies;
         }
 
         /// <summary>
@@ -82,8 +75,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="expression"> The expression. </param>
         /// <param name="model"> The model. </param>
         /// <returns> True if the expression can be evaluated; false otherwise. </returns>
-        public virtual bool IsEvaluatableExpression(Expression expression, IModel model)
+        public override bool IsEvaluatableExpression(Expression expression, IModel model)
         {
+            Check.NotNull(expression, nameof(expression));
+            Check.NotNull(model, nameof(model));
+
             switch (expression)
             {
                 case MemberExpression memberExpression:
@@ -113,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     break;
             }
 
-            return true;
+            return base.IsEvaluatableExpression(expression, model);
         }
     }
 }

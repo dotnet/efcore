@@ -3,15 +3,18 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
@@ -78,14 +81,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var modelDiffer = CreateModelDiffer(targetOptionsBuilder.Options);
 
-            var operationsUp = modelDiffer.GetDifferences(sourceModel, targetModel);
+            var operationsUp = modelDiffer.GetDifferences(sourceModel.GetRelationalModel(), targetModel.GetRelationalModel());
             assertActionUp(operationsUp);
 
             if (assertActionDown != null)
             {
                 modelDiffer = CreateModelDiffer(sourceOptionsBuilder.Options);
 
-                var operationsDown = modelDiffer.GetDifferences(targetModel, sourceModel);
+                var operationsDown = modelDiffer.GetDifferences(targetModel.GetRelationalModel(), sourceModel.GetRelationalModel());
                 assertActionDown(operationsDown);
             }
         }
@@ -95,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         protected static T[] ToOnedimensionalArray<T>(T[,] values, bool firstDimension = false)
         {
-            Debug.Assert(
+            Check.DebugAssert(
                 values.GetLength(firstDimension ? 1 : 0) == 1,
                 $"Length of dimension {(firstDimension ? 1 : 0)} is not 1.");
 
@@ -138,8 +141,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         protected virtual ModelBuilder CreateModelBuilder(bool skipConventions)
             => skipConventions
-                ? new ModelBuilder(new ConventionSet())
+                ? new ModelBuilder(CreateEmptyConventionSet())
                 : TestHelpers.CreateConventionBuilder(skipValidation: true);
+
+        private ConventionSet CreateEmptyConventionSet()
+        {
+            var conventions = new ConventionSet();
+            var conventionSetDependencies = TestHelpers.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
+            var relationalConventionSetDependencies = new RelationalConventionSetBuilderDependencies(
+                new RelationalAnnotationProvider(
+                    new RelationalAnnotationProviderDependencies()));
+            conventions.ModelFinalizingConventions.Add(new TypeMappingConvention(conventionSetDependencies));
+            conventions.ModelFinalizedConventions.Add(new RelationalModelConvention(conventionSetDependencies, relationalConventionSetDependencies));
+            return conventions;
+        }
 
         protected virtual MigrationsModelDiffer CreateModelDiffer(DbContextOptions options)
         {

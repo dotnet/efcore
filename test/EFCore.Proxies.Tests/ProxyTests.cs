@@ -1,0 +1,454 @@
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
+using System.Linq;
+using Castle.DynamicProxy;
+using Castle.DynamicProxy.Generators;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.DependencyInjection;
+using Xunit;
+
+namespace Microsoft.EntityFrameworkCore
+{
+    public class ProxyTests
+    {
+        [ConditionalFact]
+        public void Materialization_uses_parameterless_constructor()
+        {
+            using (var context = new NeweyContext(nameof(Materialization_uses_parameterless_constructor)))
+            {
+                context.Add(new March82GGtp());
+                context.SaveChanges();
+            }
+
+            using (var context = new NeweyContext(nameof(Materialization_uses_parameterless_constructor)))
+            {
+                Assert.Same(typeof(March82GGtp), context.Set<March82GGtp>().Single().GetType().BaseType);
+            }
+        }
+
+        [ConditionalFact]
+        public void Materialization_uses_parameterized_constructor()
+        {
+            using (var context = new NeweyContext(nameof(Materialization_uses_parameterized_constructor)))
+            {
+                context.Add(new March881(77, "Leyton House"));
+                context.SaveChanges();
+            }
+
+            using (var context = new NeweyContext(nameof(Materialization_uses_parameterized_constructor)))
+            {
+                var proxy = context.Set<March881>().Single();
+
+                Assert.Same(typeof(March881), proxy.GetType().BaseType);
+                Assert.Equal(77, proxy.Id);
+                Assert.Equal("Leyton House", proxy.Sponsor);
+            }
+        }
+
+        [ConditionalFact]
+        public void Materialization_uses_parameterized_constructor_taking_context()
+        {
+            using (var context = new NeweyContext(nameof(Materialization_uses_parameterized_constructor_taking_context)))
+            {
+                context.Add(new WilliamsFw14(context, 6, "Canon"));
+                context.SaveChanges();
+            }
+
+            using (var context = new NeweyContext(nameof(Materialization_uses_parameterized_constructor_taking_context)))
+            {
+                var proxy = context.Set<WilliamsFw14>().Single();
+
+                Assert.Same(typeof(WilliamsFw14), proxy.GetType().BaseType);
+                Assert.Same(context, proxy.Context);
+                Assert.Equal(6, proxy.Id);
+                Assert.Equal("Canon", proxy.Sponsor);
+            }
+        }
+
+        [ConditionalFact]
+        public void CreateProxy_uses_parameterless_constructor()
+        {
+            using var context = new NeweyContext();
+            Assert.Same(typeof(March82GGtp), context.CreateProxy<March82GGtp>().GetType().BaseType);
+        }
+
+        [ConditionalFact]
+        public void CreateProxy_uses_parameterized_constructor()
+        {
+            using var context = new NeweyContext();
+            var proxy = context.CreateProxy<March881>(77, "Leyton House");
+
+            Assert.Same(typeof(March881), proxy.GetType().BaseType);
+            Assert.Equal(77, proxy.Id);
+            Assert.Equal("Leyton House", proxy.Sponsor);
+        }
+
+        [ConditionalFact]
+        public void CreateProxy_uses_parameterized_constructor_taking_context()
+        {
+            using var context = new NeweyContext();
+            var proxy = context.CreateProxy<WilliamsFw14>(context, 6, "Canon");
+
+            Assert.Same(typeof(WilliamsFw14), proxy.GetType().BaseType);
+            Assert.Same(context, proxy.Context);
+            Assert.Equal(6, proxy.Id);
+            Assert.Equal("Canon", proxy.Sponsor);
+        }
+
+        [ConditionalFact]
+        public void Proxies_only_created_if_Use_called()
+        {
+            using (var context = new NeweyContext(nameof(Proxies_only_created_if_Use_called), false, false))
+            {
+                context.Add(new March82GGtp());
+                context.SaveChanges();
+            }
+
+            using (var context = new NeweyContext(nameof(Proxies_only_created_if_Use_called), false, false))
+            {
+                Assert.Same(typeof(March82GGtp), context.Set<March82GGtp>().Single().GetType());
+            }
+
+            using (var context = new NeweyContext(nameof(Proxies_only_created_if_Use_called), true, false))
+            {
+                Assert.Same(typeof(March82GGtp), context.Set<March82GGtp>().Single().GetType().BaseType);
+            }
+
+            using (var context = new NeweyContext(nameof(Proxies_only_created_if_Use_called), false, true))
+            {
+                Assert.Same(typeof(March82GGtp), context.Set<March82GGtp>().Single().GetType().BaseType);
+            }
+
+            using (var context = new NeweyContext(nameof(Proxies_only_created_if_Use_called), true, true))
+            {
+                Assert.Same(typeof(March82GGtp), context.Set<March82GGtp>().Single().GetType().BaseType);
+            }
+        }
+
+        [ConditionalFact]
+        public void Proxy_services_must_be_available()
+        {
+            var withoutProxies = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .BuildServiceProvider();
+
+            using (var context = new NeweyContext(withoutProxies, nameof(Proxy_services_must_be_available), false))
+            {
+                context.Add(new March82GGtp());
+                context.SaveChanges();
+            }
+
+            using (var context = new NeweyContext(withoutProxies, nameof(Proxy_services_must_be_available), false))
+            {
+                Assert.Same(typeof(March82GGtp), context.Set<March82GGtp>().Single().GetType());
+            }
+
+            using (var context = new NeweyContext(nameof(Proxy_services_must_be_available)))
+            {
+                Assert.Same(typeof(March82GGtp), context.Set<March82GGtp>().Single().GetType().BaseType);
+            }
+
+            using (var context = new NeweyContext(withoutProxies, nameof(Proxy_services_must_be_available)))
+            {
+                Assert.Equal(
+                    ProxiesStrings.ProxyServicesMissing,
+                    Assert.Throws<InvalidOperationException>(
+                        () => context.Model).Message);
+            }
+        }
+
+        [ConditionalFact]
+        public void Throws_if_type_not_available_to_Castle()
+        {
+            using var context = new NeweyContextN4();
+            Assert.Throws<GeneratorException>(() => context.CreateProxy<McLarenMp421>());
+        }
+
+        [ConditionalFact]
+        public void Throws_if_constructor_not_available_to_Castle()
+        {
+            using var context = new NeweyContextN5();
+            Assert.Throws<InvalidProxyConstructorArgumentsException>(() => context.CreateProxy<RedBullRb3>());
+        }
+
+        [ConditionalFact]
+        public void CreateProxy_throws_if_constructor_args_do_not_match()
+        {
+            using var context = new NeweyContext();
+            Assert.Throws<InvalidProxyConstructorArgumentsException>(() => context.CreateProxy<March881>(77, 88));
+        }
+
+        [ConditionalFact]
+        public void CreateProxy_throws_if_wrong_number_of_constructor_args()
+        {
+            using var context = new NeweyContext();
+            Assert.Throws<InvalidProxyConstructorArgumentsException>(() => context.CreateProxy<March881>(77, 88, 99));
+        }
+
+        [ConditionalFact]
+        public void Throws_if_create_proxy_for_non_mapped_type()
+        {
+            using var context = new NeweyContextN();
+            Assert.Equal(
+                CoreStrings.EntityTypeNotFound(nameof(RedBullRb3)),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.CreateProxy<RedBullRb3>()).Message);
+        }
+
+        [ConditionalFact]
+        public void Throws_if_create_proxy_when_proxies_not_used()
+        {
+            using var context = new NeweyContextN6();
+            Assert.Equal(
+                ProxiesStrings.ProxiesNotEnabled(nameof(RedBullRb3)),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.CreateProxy<RedBullRb3>()).Message);
+        }
+
+        [ConditionalFact]
+        public void Throws_if_create_proxy_when_proxies_not_enabled()
+        {
+            using var context = new NeweyContextN7();
+            Assert.Equal(
+                ProxiesStrings.ProxiesNotEnabled(nameof(RedBullRb3)),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.CreateProxy<RedBullRb3>()).Message);
+        }
+
+        [ConditionalFact]
+        public void Throws_if_attempt_to_create_EntityType_based_on_proxy_class()
+        {
+            var model = new Model();
+            var generator = new ProxyGenerator();
+            var proxy = generator.CreateClassProxy<ClassToBeProxied>();
+
+            Assert.Equal(
+                CoreStrings.AttemptToCreateEntityTypeBasedOnProxyClass("Castle.Proxies.ClassToBeProxiedProxy"),
+                Assert.Throws<ArgumentException>(
+                    () => new EntityType(proxy.GetType(), model, ConfigurationSource.Explicit)).Message);
+        }
+
+        // tests scenario in https://github.com/dotnet/efcore/issues/15958
+        [ConditionalFact]
+        public void Throws_if_attempt_to_add_proxy_type_to_model_builder()
+        {
+            Assert.Equal(
+                CoreStrings.AttemptToCreateEntityTypeBasedOnProxyClass("Castle.Proxies.ClassToBeProxiedProxy"),
+                Assert.Throws<ArgumentException>(
+                    () =>
+                    {
+                        var context = new CannotAddProxyTypeToModel();
+                        context.Set<ClassToBeProxied>().Add( new ClassToBeProxied { Id = 0 } );
+                    }).Message);
+        }
+
+        public class March82GGtp
+        {
+            public virtual int Id { get; set; }
+        }
+
+        public class March881
+        {
+            public March881(int id, string sponsor)
+            {
+                Id = id;
+                Sponsor = sponsor;
+            }
+
+            public virtual int Id { get; set; }
+
+            public virtual string Sponsor { get; set; }
+        }
+
+        public class WilliamsFw14
+        {
+            public WilliamsFw14(DbContext context, int id, string sponsor)
+            {
+                Context = context;
+                Id = id;
+                Sponsor = sponsor;
+            }
+
+            public DbContext Context { get; set; }
+
+            public virtual int Id { get; set; }
+
+            public virtual string Sponsor { get; set; }
+        }
+
+        private class NeweyContext : DbContext
+        {
+            private readonly IServiceProvider _internalServiceProvider;
+            private static readonly InMemoryDatabaseRoot _dbRoot = new InMemoryDatabaseRoot();
+            private readonly bool _useLazyLoadingProxies;
+            private readonly bool _useChangeDetectionProxies;
+            private readonly string _dbName;
+
+            public NeweyContext(string dbName = null, bool useLazyLoading = true, bool useChangeDetection = false)
+            {
+                _internalServiceProvider
+                    = new ServiceCollection()
+                        .AddEntityFrameworkInMemoryDatabase()
+                        .AddEntityFrameworkProxies()
+                        .BuildServiceProvider();
+
+                _dbName = dbName;
+                _useLazyLoadingProxies = useLazyLoading;
+                _useChangeDetectionProxies = useChangeDetection;
+            }
+
+            public NeweyContext(IServiceProvider internalServiceProvider, string dbName = null, bool useLazyLoading = true, bool useChangeDetection = false)
+                : this(dbName, useLazyLoading, useChangeDetection)
+            {
+                _internalServiceProvider = internalServiceProvider;
+            }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                if (_useLazyLoadingProxies)
+                {
+                    optionsBuilder.UseLazyLoadingProxies();
+                }
+
+                if (_useChangeDetectionProxies)
+                {
+                    optionsBuilder.UseChangeTrackingProxies();
+                }
+
+                if (_internalServiceProvider != null)
+                {
+                    optionsBuilder.UseInternalServiceProvider(_internalServiceProvider);
+                }
+
+                optionsBuilder.UseInMemoryDatabase(_dbName ?? nameof(NeweyContext), _dbRoot);
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<March82GGtp>();
+
+                modelBuilder.Entity<March881>(
+                    b =>
+                    {
+                        b.Property(e => e.Id);
+                        b.Property(e => e.Sponsor);
+                    });
+
+                modelBuilder.Entity<WilliamsFw14>(
+                    b =>
+                    {
+                        b.Property(e => e.Id);
+                        b.Property(e => e.Sponsor);
+                    });
+            }
+        }
+
+        private class NeweyContextN : DbContext
+        {
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder
+                    .UseLazyLoadingProxies()
+                    .UseInternalServiceProvider(
+                        new ServiceCollection()
+                            .AddEntityFrameworkInMemoryDatabase()
+                            .AddEntityFrameworkProxies()
+                            .BuildServiceProvider())
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString());
+        }
+
+        internal class McLarenMp421
+        {
+            public virtual int Id { get; set; }
+        }
+
+        private class NeweyContextN4 : NeweyContextN
+        {
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<McLarenMp421>();
+        }
+
+        public class RedBullRb3
+        {
+            internal RedBullRb3()
+            {
+            }
+
+            public virtual int Id { get; set; }
+        }
+
+        private class NeweyContextN5 : NeweyContextN
+        {
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<RedBullRb3>();
+        }
+
+        private class NeweyContextN6 : DbContext
+        {
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder
+                    .UseInternalServiceProvider(
+                        new ServiceCollection()
+                            .AddEntityFrameworkInMemoryDatabase()
+                            .AddEntityFrameworkProxies()
+                            .BuildServiceProvider())
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString());
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<March82GGtp>();
+        }
+
+        private class NeweyContextN7 : DbContext
+        {
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder
+                    .UseLazyLoadingProxies(false)
+                    .UseInternalServiceProvider(
+                        new ServiceCollection()
+                            .AddEntityFrameworkInMemoryDatabase()
+                            .AddEntityFrameworkProxies()
+                            .BuildServiceProvider())
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString());
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<March82GGtp>();
+        }
+
+        public class ClassToBeProxied
+        {
+            public virtual int Id { get; set; }
+        }
+
+        private class CannotAddProxyTypeToModel : DbContext
+        {
+            public DbSet<ClassToBeProxied> _entityToBeProxied { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .UseLazyLoadingProxies()
+                    .UseInternalServiceProvider(
+                        new ServiceCollection()
+                            .AddEntityFrameworkInMemoryDatabase()
+                            .AddEntityFrameworkProxies()
+                            .BuildServiceProvider())
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                    ;
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                var generator = new ProxyGenerator();
+                var proxy = generator.CreateClassProxy<ClassToBeProxied>();
+
+                // below should throw
+                modelBuilder.Entity(proxy.GetType());
+            }
+        }
+    }
+}

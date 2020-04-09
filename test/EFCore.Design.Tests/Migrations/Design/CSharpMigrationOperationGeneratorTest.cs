@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -75,6 +76,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     ColumnType = "int",
                     IsUnicode = false,
                     MaxLength = 30,
+                    Precision = 10,
+                    Scale = 5,
                     IsRowVersion = true,
                     IsNullable = true,
                     DefaultValue = 1,
@@ -96,6 +99,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + "    fixedLength: true,"
                 + _eol
                 + "    maxLength: 30,"
+                + _eol
+                + "    precision: 10,"
+                + _eol
+                + "    scale: 5,"
                 + _eol
                 + "    rowVersion: true,"
                 + _eol
@@ -516,6 +523,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Null(o.IsUnicode);
                     Assert.Null(o.IsFixedLength);
                     Assert.Null(o.MaxLength);
+                    Assert.Null(o.Precision);
+                    Assert.Null(o.Scale);
                     Assert.False(o.IsRowVersion);
                     Assert.False(o.IsNullable);
                     Assert.Null(o.DefaultValue);
@@ -526,6 +535,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Null(o.OldColumn.IsUnicode);
                     Assert.Null(o.OldColumn.IsFixedLength);
                     Assert.Null(o.OldColumn.MaxLength);
+                    Assert.Null(o.OldColumn.Precision);
+                    Assert.Null(o.OldColumn.Scale);
                     Assert.False(o.OldColumn.IsRowVersion);
                     Assert.False(o.OldColumn.IsNullable);
                     Assert.Null(o.OldColumn.DefaultValue);
@@ -547,6 +558,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     ColumnType = "int",
                     IsUnicode = false,
                     MaxLength = 30,
+                    Precision = 10,
+                    Scale = 5,
                     IsRowVersion = true,
                     IsNullable = true,
                     DefaultValue = 1,
@@ -558,6 +571,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         ColumnType = "string",
                         IsUnicode = false,
                         MaxLength = 20,
+                        Precision = 5,
+                        Scale = 1,
                         IsRowVersion = true,
                         IsNullable = true,
                         DefaultValue = 0,
@@ -581,6 +596,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + _eol
                 + "    maxLength: 30,"
                 + _eol
+                + "    precision: 10,"
+                + _eol
+                + "    scale: 5,"
+                + _eol
                 + "    rowVersion: true,"
                 + _eol
                 + "    nullable: true,"
@@ -599,6 +618,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + _eol
                 + "    oldMaxLength: 20,"
                 + _eol
+                + "    oldPrecision: 5,"
+                + _eol
+                + "    oldScale: 1,"
+                + _eol
                 + "    oldRowVersion: true,"
                 + _eol
                 + "    oldNullable: true,"
@@ -616,6 +639,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.False(o.IsUnicode);
                     Assert.True(o.IsFixedLength);
                     Assert.Equal(30, o.MaxLength);
+                    Assert.Equal(10, o.Precision);
+                    Assert.Equal(5, o.Scale);
                     Assert.True(o.IsRowVersion);
                     Assert.True(o.IsNullable);
                     Assert.Equal(1, o.DefaultValue);
@@ -627,6 +652,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.False(o.OldColumn.IsUnicode);
                     Assert.True(o.OldColumn.IsFixedLength);
                     Assert.Equal(20, o.OldColumn.MaxLength);
+                    Assert.Equal(5, o.OldColumn.Precision);
+                    Assert.Equal(1, o.OldColumn.Scale);
                     Assert.True(o.OldColumn.IsRowVersion);
                     Assert.True(o.OldColumn.IsNullable);
                     Assert.Equal(0, o.OldColumn.DefaultValue);
@@ -722,6 +749,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Null(o.OldColumn.IsUnicode);
                     Assert.Null(o.OldColumn.IsFixedLength);
                     Assert.Null(o.OldColumn.MaxLength);
+                    Assert.Null(o.OldColumn.Precision);
+                    Assert.Null(o.OldColumn.Scale);
                     Assert.False(o.OldColumn.IsRowVersion);
                     Assert.False(o.OldColumn.IsNullable);
                     Assert.Null(o.OldColumn.DefaultValue);
@@ -1133,6 +1162,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             IsUnicode = false,
                             IsFixedLength = true,
                             MaxLength = 30,
+                            Precision = 20,
+                            Scale = 10,
                             IsRowVersion = true,
                             IsNullable = true,
                             DefaultValue = 1
@@ -1149,7 +1180,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + _eol
                 + "    {"
                 + _eol
-                + "        PostId = table.Column<int>(name: \"Post Id\", type: \"int\", unicode: false, fixedLength: true, maxLength: 30, rowVersion: true, nullable: true, defaultValue: 1)"
+                + "        PostId = table.Column<int>(name: \"Post Id\", type: \"int\", unicode: false, fixedLength: true, maxLength: 30, precision: 20, scale: 10, rowVersion: true, nullable: true, defaultValue: 1)"
                 + _eol
                 + "    },"
                 + _eol

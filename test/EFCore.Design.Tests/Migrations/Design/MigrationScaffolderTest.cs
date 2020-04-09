@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -46,6 +49,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Assert.Equal("GenericContextModelSnapshot", migration.SnapshotName);
         }
 
+        [ConditionalFact]
+        public void ScaffoldMigration_can_override_namespace()
+        {
+            var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
+
+            var migration = scaffolder.ScaffoldMigration("EmptyMigration", null, "OverrideNamespace.OverrideSubNamespace");
+
+            Assert.Contains("namespace OverrideNamespace.OverrideSubNamespace", migration.MigrationCode);
+            Assert.Equal("OverrideNamespace.OverrideSubNamespace", migration.MigrationSubNamespace);
+
+            Assert.Contains("namespace OverrideNamespace.OverrideSubNamespace", migration.SnapshotCode);
+            Assert.Equal("OverrideNamespace.OverrideSubNamespace", migration.SnapshotSubnamespace);
+        }
+
         private IMigrationsScaffolder CreateMigrationScaffolder<TContext>()
             where TContext : DbContext, new()
         {
@@ -54,8 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var sqlServerTypeMappingSource = new SqlServerTypeMappingSource(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
-            var code = new CSharpHelper(
-                sqlServerTypeMappingSource);
+            var code = new CSharpHelper(sqlServerTypeMappingSource);
             var reporter = new TestOperationReporter();
             var migrationAssembly
                 = new MigrationsAssembly(
@@ -66,17 +82,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var historyRepository = new MockHistoryRepository();
 
             var services = RelationalTestHelpers.Instance.CreateContextServices();
+            var model = new Model();
+            model[RelationalAnnotationNames.RelationalModel] = new RelationalModel(model);
 
             return new MigrationsScaffolder(
                 new MigrationsScaffolderDependencies(
                     currentContext,
-                    new Model(),
+                    model,
                     migrationAssembly,
                     new MigrationsModelDiffer(
                         new TestRelationalTypeMappingSource(
                             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                             TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                        new MigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()),
+                    new MigrationsAnnotationProvider(
+                        new MigrationsAnnotationProviderDependencies()),
                         services.GetRequiredService<IChangeDetector>(),
                         services.GetRequiredService<IUpdateAdapterFactory>(),
                         services.GetRequiredService<CommandBatchPreparerDependencies>()),
@@ -98,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     historyRepository,
                     reporter,
                     new MockProvider(),
-                    new SnapshotModelProcessor(reporter),
+                    new SnapshotModelProcessor(reporter, services.GetRequiredService<IConventionSetBuilder>()),
                     new Migrator(
                         migrationAssembly,
                         historyRepository,

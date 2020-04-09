@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -102,25 +103,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             if (property.GetValueGenerationStrategyConfigurationSource() != null
                 && property.GetValueGenerationStrategy() != SqlServerValueGenerationStrategy.None)
             {
+                var generationStrategy = property.GetValueGenerationStrategy();
+
                 if (property.GetDefaultValue() != null)
                 {
-                    throw new InvalidOperationException(
-                        RelationalStrings.ConflictingColumnServerGeneration(
-                            "SqlServerValueGenerationStrategy", property.Name, "DefaultValue"));
+                    Dependencies.ValidationLogger.ConflictingValueGenerationStrategiesWarning(
+                        generationStrategy, "DefaultValue", property);
                 }
 
                 if (property.GetDefaultValueSql() != null)
                 {
-                    throw new InvalidOperationException(
-                        RelationalStrings.ConflictingColumnServerGeneration(
-                            "SqlServerValueGenerationStrategy", property.Name, "DefaultValueSql"));
+                    Dependencies.ValidationLogger.ConflictingValueGenerationStrategiesWarning(
+                        generationStrategy, "DefaultValueSql", property);
                 }
 
                 if (property.GetComputedColumnSql() != null)
                 {
-                    throw new InvalidOperationException(
-                        RelationalStrings.ConflictingColumnServerGeneration(
-                            "SqlServerValueGenerationStrategy", property.Name, "ComputedColumnSql"));
+                    Dependencies.ValidationLogger.ConflictingValueGenerationStrategiesWarning(
+                        generationStrategy, "ComputedColumnSql", property);
                 }
             }
 

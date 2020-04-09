@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -150,5 +151,16 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to get the version for. </param>
         public static string GetProductVersion([NotNull] this IModel model)
             => model[CoreAnnotationNames.ProductVersion] as string;
+
+        /// <summary>
+        ///     Gets a value indicating whether the given MethodInfo reprensent an indexer access.
+        /// </summary>
+        /// <param name="model"> The model to use. </param>
+        /// <param name="methodInfo"> The MethodInfo to check for. </param>
+        public static bool IsIndexerMethod([NotNull] this IModel model, [NotNull] MethodInfo methodInfo)
+             => !methodInfo.IsStatic
+                && methodInfo.IsSpecialName
+                && model.AsModel().FindIndexerPropertyInfo(methodInfo.DeclaringType) is PropertyInfo indexerProperty
+                && (methodInfo == indexerProperty.GetMethod || methodInfo == indexerProperty.SetMethod);
     }
 }

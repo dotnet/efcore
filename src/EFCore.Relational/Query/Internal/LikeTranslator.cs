@@ -3,7 +3,9 @@
 
 using System.Collections.Generic;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -21,13 +23,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public LikeTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        public LikeTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
         public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
+            Check.NotNull(method, nameof(method));
+            Check.NotNull(arguments, nameof(arguments));
+
             if (Equals(method, _methodInfo))
             {
                 return _sqlExpressionFactory.Like(arguments[1], arguments[2]);

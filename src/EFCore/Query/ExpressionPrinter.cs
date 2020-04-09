@@ -12,6 +12,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -53,31 +54,31 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private int? CharacterLimit { get; set; }
+        private bool Verbose { get; set; }
 
-        private bool GenerateUniqueParameterIds { get; set; }
-
-        public virtual void VisitList<T>(
-            IReadOnlyList<T> items,
-            Action<ExpressionPrinter> joinAction = null)
+        public virtual void VisitCollection<T>(
+            [NotNull] IReadOnlyCollection<T> items,
+            [CanBeNull] Action<ExpressionPrinter> joinAction = null)
             where T : Expression
         {
+            Check.NotNull(items, nameof(items));
+
             joinAction ??= (p => p.Append(", "));
 
-            for (var i = 0; i < items.Count; i++)
+            var first = true;
+            foreach (var item in items)
             {
-                if (i > 0)
+                if (!first)
                 {
                     joinAction(this);
                 }
+                else
+                {
+                    first = false;
+                }
 
-                Visit(items[i]);
+                Visit(item);
             }
-        }
-
-        public virtual ExpressionPrinter Append([NotNull] object o)
-        {
-            _stringBuilder.Append(o);
-            return this;
         }
 
         public virtual ExpressionPrinter AppendLine()
@@ -86,50 +87,51 @@ namespace Microsoft.EntityFrameworkCore.Query
             return this;
         }
 
-        public virtual ExpressionVisitor AppendLine([NotNull] object o)
+        public virtual ExpressionVisitor AppendLine([NotNull] string value)
         {
-            _stringBuilder.AppendLine(o);
+            _stringBuilder.AppendLine(value);
             return this;
         }
 
-        public virtual ExpressionPrinter AppendLines([NotNull] object o, bool skipFinalNewline = false)
+        public virtual ExpressionPrinter AppendLines([NotNull] string value, bool skipFinalNewline = false)
         {
-            _stringBuilder.AppendLines(o, skipFinalNewline);
+            _stringBuilder.AppendLines(value, skipFinalNewline);
             return this;
         }
 
         public virtual IDisposable Indent() => _stringBuilder.Indent();
 
-        private void Append([NotNull] string message) => _stringBuilder.Append(message);
-
-        private void AppendLine([NotNull] string message)
+        public virtual ExpressionPrinter Append([NotNull] string message)
         {
-            _stringBuilder.AppendLine(message);
+            _stringBuilder.Append(message);
+            return this;
         }
 
         public virtual string Print(
-            Expression expression,
+            [NotNull] Expression expression,
             int? characterLimit = null)
-            => PrintCore(expression, characterLimit, generateUniqueParameterIds: false);
+            => PrintCore(expression, characterLimit, verbose: false);
 
         public virtual string PrintDebug(
-            Expression expression,
+            [NotNull] Expression expression,
             int? characterLimit = null,
-            bool generateUniqueParameterIds = true)
-            => PrintCore(expression, characterLimit, generateUniqueParameterIds);
+            bool verbose = true)
+            => PrintCore(expression, characterLimit, verbose);
 
         protected virtual string PrintCore(
-            Expression expression,
+            [NotNull] Expression expression,
             int? characterLimit,
-            bool generateUniqueParameterIds)
+            bool verbose)
         {
+            Check.NotNull(expression, nameof(expression));
+
             _stringBuilder.Clear();
             _parametersInScope.Clear();
             _namelessParameters.Clear();
             _encounteredParameters.Clear();
 
             CharacterLimit = characterLimit;
-            GenerateUniqueParameterIds = generateUniqueParameterIds;
+            Verbose = verbose;
 
             Visit(expression);
 
@@ -260,6 +262,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     VisitTypeBinary((TypeBinaryExpression)expression);
                     break;
 
+                case ExpressionType.Switch:
+                    VisitSwitch((SwitchExpression)expression);
+                    break;
+
                 case ExpressionType.Extension:
                     VisitExtension(expression);
                     break;
@@ -274,6 +280,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
+            Check.NotNull(binaryExpression, nameof(binaryExpression));
+
             Visit(binaryExpression.Left);
 
             if (binaryExpression.NodeType == ExpressionType.ArrayIndex)
@@ -303,6 +311,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitBlock(BlockExpression blockExpression)
         {
+            Check.NotNull(blockExpression, nameof(blockExpression));
+
             AppendLine();
             AppendLine("{");
 
@@ -345,6 +355,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
         {
+            Check.NotNull(conditionalExpression, nameof(conditionalExpression));
+
             Visit(conditionalExpression.Test);
 
             _stringBuilder.Append(" ? ");
@@ -360,13 +372,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
+            Check.NotNull(constantExpression, nameof(constantExpression));
+
             if (constantExpression.Value is IPrintableExpression printable)
             {
                 printable.Print(this);
-            }
-            else if (constantExpression.IsEntityQueryable())
-            {
-                _stringBuilder.Append($"DbSet<{constantExpression.Type.GetTypeInfo().GenericTypeArguments.First().ShortDisplayName()}>");
             }
             else
             {
@@ -409,6 +419,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitGoto(GotoExpression gotoExpression)
         {
+            Check.NotNull(gotoExpression, nameof(gotoExpression));
+
             AppendLine("return (" + gotoExpression.Target.Type.ShortDisplayName() + ")" + gotoExpression.Target + " {");
             using (_stringBuilder.Indent())
             {
@@ -422,6 +434,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitLabel(LabelExpression labelExpression)
         {
+            Check.NotNull(labelExpression, nameof(labelExpression));
+
             _stringBuilder.Append(labelExpression.Target.ToString());
 
             return labelExpression;
@@ -429,6 +443,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
         {
+            Check.NotNull(lambdaExpression, nameof(lambdaExpression));
+
             if (lambdaExpression.Parameters.Count != 1)
             {
                 _stringBuilder.Append("(");
@@ -471,6 +487,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
+            Check.NotNull(memberExpression, nameof(memberExpression));
+
             if (memberExpression.Expression != null)
             {
                 if (memberExpression.Expression.NodeType == ExpressionType.Convert
@@ -498,9 +516,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
         {
+            Check.NotNull(memberInitExpression, nameof(memberInitExpression));
+
             _stringBuilder.Append("new " + memberInitExpression.Type.ShortDisplayName());
 
-            var appendAction = memberInitExpression.Bindings.Count > 1 ? (Action<string>)AppendLine : Append;
+            var appendAction = memberInitExpression.Bindings.Count > 1 ? (Func<string, ExpressionVisitor>)AppendLine : Append;
             appendAction("{ ");
             using (_stringBuilder.Indent())
             {
@@ -533,6 +553,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
             if (methodCallExpression.Object != null)
             {
                 if (methodCallExpression.Object is BinaryExpression)
@@ -552,8 +574,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var methodArguments = methodCallExpression.Arguments.ToList();
             var method = methodCallExpression.Method;
 
-            // TODO: issue #18413
-            var extensionMethod = !GenerateUniqueParameterIds
+            var extensionMethod = !Verbose
                 && methodCallExpression.Arguments.Count > 0
                 && method.IsDefined(typeof(ExtensionAttribute), inherit: false);
 
@@ -564,6 +585,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _stringBuilder.AppendLine();
                 _stringBuilder.Append($".{method.Name}");
                 methodArguments = methodArguments.Skip(1).ToList();
+                if (method.Name == nameof(Enumerable.Cast)
+                    || method.Name == nameof(Enumerable.OfType))
+                {
+                    PrintGenericArguments(method, _stringBuilder);
+                }
             }
             else
             {
@@ -573,23 +599,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
 
                 _stringBuilder.Append(method.Name);
-                if (method.IsGenericMethod)
-                {
-                    _stringBuilder.Append("<");
-                    var first = true;
-                    foreach (var genericArgument in method.GetGenericArguments())
-                    {
-                        if (!first)
-                        {
-                            _stringBuilder.Append(", ");
-                        }
-
-                        _stringBuilder.Append(genericArgument.ShortDisplayName());
-                        first = false;
-                    }
-
-                    _stringBuilder.Append(">");
-                }
+                PrintGenericArguments(method, _stringBuilder);
             }
 
             _stringBuilder.Append("(");
@@ -598,7 +608,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 || methodArguments.Count < 2
                 || method.IsEFPropertyMethod();
 
-            var appendAction = isSimpleMethodOrProperty ? (Action<string>)Append : AppendLine;
+            var appendAction = isSimpleMethodOrProperty ? (Func<string, ExpressionVisitor>)Append : AppendLine;
 
             if (methodArguments.Count > 0)
             {
@@ -606,7 +616,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var argumentNames
                     = !isSimpleMethodOrProperty
-                        ? method.GetParameters().Select(p => p.Name).ToList()
+                        ? extensionMethod
+                            ? method.GetParameters().Skip(1).Select(p => p.Name).ToList()
+                            : method.GetParameters().Select(p => p.Name).ToList()
                         : new List<string>();
 
                 IDisposable indent = null;
@@ -647,14 +659,37 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             return methodCallExpression;
+
+            static void PrintGenericArguments(MethodInfo method, IndentedStringBuilder stringBuilder)
+            {
+                if (method.IsGenericMethod)
+                {
+                    stringBuilder.Append("<");
+                    var first = true;
+                    foreach (var genericArgument in method.GetGenericArguments())
+                    {
+                        if (!first)
+                        {
+                            stringBuilder.Append(", ");
+                        }
+
+                        stringBuilder.Append(genericArgument.ShortDisplayName());
+                        first = false;
+                    }
+
+                    stringBuilder.Append(">");
+                }
+            }
         }
 
         protected override Expression VisitNew(NewExpression newExpression)
         {
+            Check.NotNull(newExpression, nameof(newExpression));
+
             _stringBuilder.Append("new ");
 
             var isComplex = newExpression.Arguments.Count > 1;
-            var appendAction = isComplex ? (Action<string>)AppendLine : Append;
+            var appendAction = isComplex ? (Func<string, ExpressionVisitor>)AppendLine : Append;
 
             var isAnonymousType = newExpression.Type.IsAnonymousType();
             if (!isAnonymousType)
@@ -703,8 +738,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
         {
+            Check.NotNull(newArrayExpression, nameof(newArrayExpression));
+
             var isComplex = newArrayExpression.Expressions.Count > 1;
-            var appendAction = isComplex ? (Action<string>)AppendLine : Append;
+            var appendAction = isComplex ? (Func<string, ExpressionVisitor>)AppendLine : Append;
 
             appendAction("new " + newArrayExpression.Type.GetElementType().ShortDisplayName() + "[]");
             appendAction("{ ");
@@ -729,6 +766,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitParameter(ParameterExpression parameterExpression)
         {
+            Check.NotNull(parameterExpression, nameof(parameterExpression));
+
             if (_parametersInScope.ContainsKey(parameterExpression))
             {
                 var parameterName = _parametersInScope[parameterExpression];
@@ -740,7 +779,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
 
                     Append("namelessParameter{");
-                    Append(_namelessParameters.IndexOf(parameterExpression));
+                    Append(_namelessParameters.IndexOf(parameterExpression).ToString());
                     Append("}");
                 }
                 else if (parameterName.Contains("."))
@@ -756,8 +795,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
             else
             {
-                // TODO: issue #18413
-                if (GenerateUniqueParameterIds)
+                if (Verbose)
                 {
                     Append("(Unhandled parameter: ");
                     Append(parameterExpression.Name);
@@ -769,7 +807,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
 
-            if (GenerateUniqueParameterIds)
+            if (Verbose)
             {
                 var parameterIndex = _encounteredParameters.Count;
                 if (_encounteredParameters.Contains(parameterExpression))
@@ -789,6 +827,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
+            Check.NotNull(unaryExpression, nameof(unaryExpression));
+
             // ReSharper disable once SwitchStatementMissingSomeCases
             switch (unaryExpression.NodeType)
             {
@@ -839,6 +879,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitDefault(DefaultExpression defaultExpression)
         {
+            Check.NotNull(defaultExpression, nameof(defaultExpression));
+
             _stringBuilder.Append("default(" + defaultExpression.Type.ShortDisplayName() + ")");
 
             return defaultExpression;
@@ -846,6 +888,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitTry(TryExpression tryExpression)
         {
+            Check.NotNull(tryExpression, nameof(tryExpression));
+
             _stringBuilder.Append("try { ");
             Visit(tryExpression.Body);
             _stringBuilder.Append(" } ");
@@ -860,9 +904,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitIndex(IndexExpression indexExpression)
         {
+            Check.NotNull(indexExpression, nameof(indexExpression));
+
             Visit(indexExpression.Object);
             _stringBuilder.Append("[");
-            VisitArguments(indexExpression.Arguments, s => _stringBuilder.Append(s));
+            VisitArguments(indexExpression.Arguments, s =>
+            {
+                _stringBuilder.Append(s);
+                return null;
+            });
             _stringBuilder.Append("]");
 
             return indexExpression;
@@ -870,6 +920,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
         {
+            Check.NotNull(typeBinaryExpression, nameof(typeBinaryExpression));
+
             _stringBuilder.Append("(");
             Visit(typeBinaryExpression.Expression);
             _stringBuilder.Append(" is " + typeBinaryExpression.TypeOperand.ShortDisplayName() + ")");
@@ -877,13 +929,55 @@ namespace Microsoft.EntityFrameworkCore.Query
             return typeBinaryExpression;
         }
 
+        protected override Expression VisitSwitch(SwitchExpression switchExpression)
+        {
+            _stringBuilder.Append("switch (");
+            Visit(switchExpression.SwitchValue);
+            _stringBuilder.AppendLine(")");
+            _stringBuilder.AppendLine("{");
+            _stringBuilder.IncrementIndent();
+
+            foreach (var @case in switchExpression.Cases)
+            {
+                foreach (var testValue in @case.TestValues)
+                {
+                    _stringBuilder.Append("case ");
+                    Visit(testValue);
+                    _stringBuilder.AppendLine(": ");
+                }
+
+                using (var indent = _stringBuilder.Indent())
+                {
+                    Visit(@case.Body);
+                }
+
+                _stringBuilder.AppendLine();
+            }
+
+            if (switchExpression.DefaultBody != null)
+            {
+                _stringBuilder.AppendLine("default: ");
+                using (_stringBuilder.Indent())
+                {
+                    Visit(switchExpression.DefaultBody);
+                }
+
+                _stringBuilder.AppendLine();
+            }
+
+            _stringBuilder.DecrementIndent();
+            _stringBuilder.AppendLine("}");
+
+            return switchExpression;
+        }
+
         protected override Expression VisitExtension(Expression extensionExpression)
         {
+            Check.NotNull(extensionExpression, nameof(extensionExpression));
+
             if (extensionExpression is IPrintableExpression printable)
             {
-                _stringBuilder.Append("(");
                 printable.Print(this);
-                _stringBuilder.Append(")");
             }
             else
             {
@@ -895,7 +989,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private void VisitArguments(
             IReadOnlyList<Expression> arguments,
-            Action<string> appendAction,
+            Func<string, ExpressionVisitor> appendAction,
             string lastSeparator = "",
             bool areConnected = false)
         {

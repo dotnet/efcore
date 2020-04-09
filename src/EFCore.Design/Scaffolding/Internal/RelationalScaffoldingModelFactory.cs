@@ -36,7 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private readonly ICandidateNamingService _candidateNamingService;
         private Dictionary<DatabaseTable, CSharpUniqueNamer<DatabaseColumn>> _columnNamers;
         private bool _useDatabaseNames;
-        private readonly DatabaseTable _nullTable = new DatabaseTable();
         private CSharpUniqueNamer<DatabaseTable> _tableNamer;
         private CSharpUniqueNamer<DatabaseTable> _dbSetNamer;
         private readonly HashSet<DatabaseColumn> _unmappedColumns = new HashSet<DatabaseColumn>();
@@ -138,12 +137,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             Check.NotNull(column, nameof(column));
 
-            var table = column.Table ?? _nullTable;
-            var usedNames = new List<string>();
-            if (column.Table != null)
-            {
-                usedNames.Add(GetEntityTypeName(table));
-            }
+            var table = column.Table;
+            var usedNames = new List<string> { GetEntityTypeName(table) };
 
             if (!_columnNamers.ContainsKey(table))
             {
@@ -356,6 +351,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     return null;
                 }
             }
+            else
+            {
+                builder.HasNoKey();
+            }
 
             VisitUniqueConstraints(builder, table.UniqueConstraints);
             VisitIndexes(builder, table.Indexes);
@@ -443,6 +442,20 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (typeScaffoldingInfo.ScaffoldMaxLength.HasValue)
             {
                 property.HasMaxLength(typeScaffoldingInfo.ScaffoldMaxLength.Value);
+            }
+
+            if (typeScaffoldingInfo.ScaffoldPrecision.HasValue)
+            {
+                if (typeScaffoldingInfo.ScaffoldScale.HasValue)
+                {
+                    property.HasPrecision(
+                        typeScaffoldingInfo.ScaffoldPrecision.Value,
+                        typeScaffoldingInfo.ScaffoldScale.Value);
+                }
+                else
+                {
+                    property.HasPrecision(typeScaffoldingInfo.ScaffoldPrecision.Value);
+                }
             }
 
             if (column.ValueGenerated == ValueGenerated.OnAdd)
@@ -858,11 +871,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     singularizePluralizer: null,
                     uniquifier: NavigationUniquifier);
 
-            foreignKey.HasDependentToPrincipal(dependentEndNavigationPropertyName);
+            foreignKey.SetDependentToPrincipal(dependentEndNavigationPropertyName);
 
-            if ((!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue18633", out var isEnabled)
-                    || !isEnabled)
-                && foreignKey.DeclaringEntityType.FindPrimaryKey() == null)
+            if (foreignKey.DeclaringEntityType.IsKeyless)
             {
                 return;
             }
@@ -889,7 +900,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     singularizePluralizer: null,
                     uniquifier: NavigationUniquifier);
 
-            foreignKey.HasPrincipalToDependent(principalEndNavigationPropertyName);
+            foreignKey.SetPrincipalToDependent(principalEndNavigationPropertyName);
         }
 
         // Stores the names of the EntityType itself and its Properties, but does not include any Navigation Properties

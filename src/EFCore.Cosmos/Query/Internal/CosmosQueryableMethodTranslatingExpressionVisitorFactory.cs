@@ -4,6 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
@@ -36,9 +37,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public CosmosQueryableMethodTranslatingExpressionVisitorFactory(
             [NotNull] QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
-            ISqlExpressionFactory sqlExpressionFactory,
-            IMemberTranslatorProvider memberTranslatorProvider,
-            IMethodCallTranslatorProvider methodCallTranslatorProvider)
+            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
+            [NotNull] IMemberTranslatorProvider memberTranslatorProvider,
+            [NotNull] IMethodCallTranslatorProvider methodCallTranslatorProvider)
         {
             _dependencies = dependencies;
             _sqlExpressionFactory = sqlExpressionFactory;
@@ -52,11 +53,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual QueryableMethodTranslatingExpressionVisitor Create(IModel model)
+        public virtual QueryableMethodTranslatingExpressionVisitor Create(QueryCompilationContext queryCompilationContext)
         {
+            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
+
             return new CosmosQueryableMethodTranslatingExpressionVisitor(
                 _dependencies,
-                model,
+                queryCompilationContext,
                 _sqlExpressionFactory,
                 _memberTranslatorProvider,
                 _methodCallTranslatorProvider);

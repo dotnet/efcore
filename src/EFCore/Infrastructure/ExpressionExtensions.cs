@@ -3,15 +3,17 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.Versioning;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -49,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var memberDeclaringClrType = member.DeclaringType;
             if (expression != null
                 && memberDeclaringClrType != expression.Type
-                && expression.Type.GetTypeInfo().IsAssignableFrom(memberDeclaringClrType.GetTypeInfo()))
+                && expression.Type.IsAssignableFrom(memberDeclaringClrType))
             {
                 expression = Expression.Convert(expression, memberDeclaringClrType);
             }
@@ -70,19 +72,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             if (memberExpression.Member is FieldInfo fieldInfo
                 && fieldInfo.IsInitOnly)
             {
-                if (new FrameworkName(AppContext.TargetFrameworkName).Identifier == ".NETFramework")
-                {
-                    // On .NET Framework the compiler refuses to compile an expression tree with IsInitOnly access,
-                    // so use Reflection's SetValue instead.
-                    return Expression.Call(
-                        Expression.Constant(fieldInfo),
-                        _fieldInfoSetValueMethod,
-                        memberExpression.Expression,
-                        Expression.Convert(
-                            valueExpression,
-                            typeof(object)));
-                }
-
                 return (BinaryExpression)Activator.CreateInstance(
                     _assignBinaryExpressionType,
                     BindingFlags.NonPublic | BindingFlags.Instance,
@@ -96,12 +85,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private static readonly Type _assignBinaryExpressionType
             = typeof(Expression).Assembly.GetType("System.Linq.Expressions.AssignBinaryExpression");
-
-        private static readonly MethodInfo _fieldInfoSetValueMethod
-            = typeof(FieldInfo)
-                .GetTypeInfo()
-                .GetDeclaredMethods(nameof(FieldInfo.SetValue))
-                .Single(m => m.GetParameters().Length == 2);
 
         /// <summary>
         ///     If the given a method-call expression represents a call to <see cref="EF.Property{TProperty}" />, then this
@@ -129,6 +112,33 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
+        ///     If the given a method-call expression represents a call to indexer on the entity, then this
+        ///     method extracts the entity expression and property name.
+        /// </summary>
+        /// <param name="methodCallExpression"> The method-call expression for indexer. </param>
+        /// <param name="model"> The model to use. </param>
+        /// <param name="entityExpression"> The extracted entity access expression. </param>
+        /// <param name="propertyName"> The accessed property name. </param>
+        /// <returns> True if the method-call was for indexer; false otherwise. </returns>
+        public static bool TryGetIndexerArguments(
+            [NotNull] this MethodCallExpression methodCallExpression,
+            [NotNull] IModel model,
+            out Expression entityExpression,
+            out string propertyName)
+        {
+            if (model.IsIndexerMethod(methodCallExpression.Method)
+                && methodCallExpression.Arguments[0] is ConstantExpression propertyNameExpression)
+            {
+                entityExpression = methodCallExpression.Object;
+                propertyName = (string)propertyNameExpression.Value;
+                return true;
+            }
+
+            (entityExpression, propertyName) = (null, null);
+            return false;
+        }
+
+        /// <summary>
         ///     <para>
         ///         Gets the <see cref="PropertyInfo" /> represented by a simple property-access expression.
         ///     </para>
@@ -140,7 +150,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> The <see cref="PropertyInfo" />. </returns>
         public static PropertyInfo GetPropertyAccess([NotNull] this LambdaExpression propertyAccessExpression)
         {
-            Debug.Assert(propertyAccessExpression.Parameters.Count == 1);
+            Check.DebugAssert(
+                propertyAccessExpression.Parameters.Count == 1,
+                $"Parameters.Count is {propertyAccessExpression.Parameters.Count}");
 
             var parameterExpression = propertyAccessExpression.Parameters.Single();
             var propertyInfo = parameterExpression.MatchSimplePropertyAccess(propertyAccessExpression.Body);
@@ -157,8 +169,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             if (declaringType != null
                 && declaringType != parameterType
-                && declaringType.GetTypeInfo().IsInterface
-                && declaringType.GetTypeInfo().IsAssignableFrom(parameterType.GetTypeInfo()))
+                && declaringType.IsInterface
+                && declaringType.IsAssignableFrom(parameterType))
             {
                 var propertyGetter = propertyInfo.GetMethod;
                 var interfaceMapping = parameterType.GetTypeInfo().GetRuntimeInterfaceMap(declaringType);
@@ -219,28 +231,117 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     <para>
-        ///         Returns a new expression with any see <see cref="ExpressionType.Convert" /> or
-        ///         <see cref="ExpressionType.ConvertChecked" /> nodes removed from the head of the
-        ///         given expression tree/
+        ///         Creates an <see cref="Expression" /> tree representing reading a value from a <see cref="ValueBuffer" />
         ///     </para>
         ///     <para>
         ///         This method is typically used by database providers (and other extensions). It is generally
         ///         not used in application code.
         ///     </para>
         /// </summary>
-        /// <param name="expression"> The expression. </param>
-        /// <returns> A new expression with converts at the head removed. </returns>
-        [Obsolete("Unwrap each convert manually by evaluating how they are used.")]
-        public static Expression RemoveConvert([CanBeNull] this Expression expression)
+        /// <param name="valueBuffer"> The expression that exposes the <see cref="ValueBuffer" />. </param>
+        /// <param name="type"> The type to read. </param>
+        /// <param name="index"> The index in the buffer to read from. </param>
+        /// <param name="property"> The IPropertyBase being read if any. </param>
+        /// <returns> An expression to read the value. </returns>
+        public static Expression CreateValueBufferReadValueExpression(
+            [NotNull] this Expression valueBuffer,
+            [NotNull] Type type,
+            int index,
+            [CanBeNull] IPropertyBase property)
+            => Expression.Call(
+                ValueBufferTryReadValueMethod.MakeGenericMethod(type),
+                valueBuffer,
+                Expression.Constant(index),
+                Expression.Constant(property, typeof(IPropertyBase)));
+
+        /// <summary>
+        ///     <para>
+        ///         MethodInfo which is used to generate an <see cref="Expression" /> tree representing reading a value from a <see cref="ValueBuffer" />
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        public static readonly MethodInfo ValueBufferTryReadValueMethod
+            = typeof(ExpressionExtensions).GetTypeInfo()
+                .GetDeclaredMethod(nameof(ValueBufferTryReadValue));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static TValue ValueBufferTryReadValue<TValue>(
+#pragma warning disable IDE0060 // Remove unused parameter
+            in ValueBuffer valueBuffer, int index, IPropertyBase property)
+#pragma warning restore IDE0060 // Remove unused parameter
+            => valueBuffer[index] is TValue value ? value : default;
+
+        /// <summary>
+        ///     <para>
+        ///         Creates an <see cref="Expression" /> tree representing reading of a key values on given expression.
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="target"> The expression that will be root for generated read operation. </param>
+        /// <param name="properties"> The list of properties to use to generate key values. </param>
+        /// <param name="makeNullable"> A value indicating if the key values should be read nullable. </param>
+        /// <returns> An expression to read the key values. </returns>
+        public static Expression CreateKeyValueReadExpression(
+            [NotNull] this Expression target,
+            [NotNull] IReadOnlyList<IProperty> properties,
+            bool makeNullable = false)
+            => properties.Count == 1
+                ? target.CreateEFPropertyExpression(properties[0], makeNullable)
+                : Expression.New(
+                    AnonymousObject.AnonymousObjectCtor,
+                    Expression.NewArrayInit(
+                        typeof(object),
+                        properties
+                            .Select(p => Expression.Convert(target.CreateEFPropertyExpression(p, makeNullable), typeof(object)))
+                            .Cast<Expression>()));
+
+        /// <summary>
+        ///     <para>
+        ///         Creates an <see cref="Expression" /> tree representing EF property access on given expression.
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="target"> The expression that will be root for generated read operation. </param>
+        /// <param name="property"> The property to access. </param>
+        /// <param name="makeNullable"> A value indicating if the value can be nullable. </param>
+        /// <returns> An expression to access EF property on given expression. </returns>
+        public static Expression CreateEFPropertyExpression(
+            [NotNull] this Expression target,
+            [NotNull] IPropertyBase property,
+            bool makeNullable = true)
+            => CreateEFPropertyExpression(target, property.DeclaringType.ClrType, property.ClrType, property.Name, makeNullable);
+
+        private static Expression CreateEFPropertyExpression(
+            Expression target,
+            Type propertyDeclaringType,
+            Type propertyType,
+            string propertyName,
+            bool makeNullable)
         {
-            while (expression != null
-                && (expression.NodeType == ExpressionType.Convert
-                    || expression.NodeType == ExpressionType.ConvertChecked))
+            if (propertyDeclaringType != target.Type
+                && target.Type.IsAssignableFrom(propertyDeclaringType))
             {
-                expression = RemoveConvert(((UnaryExpression)expression).Operand);
+                target = Expression.Convert(target, propertyDeclaringType);
             }
 
-            return expression;
+            if (makeNullable)
+            {
+                propertyType = propertyType.MakeNullable();
+            }
+
+            return Expression.Call(
+                EF.PropertyMethod.MakeGenericMethod(propertyType),
+                target,
+                Expression.Constant(propertyName));
         }
     }
 }

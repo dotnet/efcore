@@ -35,7 +35,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The type to set the access mode for. </param>
         /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or <c>null</c> to clear the mode set.</param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetPropertyAccessMode(
+        /// <returns> The configured value. </returns>
+        public static PropertyAccessMode? SetPropertyAccessMode(
             [NotNull] this IConventionTypeBase entityType,
             PropertyAccessMode? propertyAccessMode,
             bool fromDataAnnotation = false)
@@ -64,7 +65,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The type for which to set the access mode. </param>
         /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or <c>null</c> to clear the mode set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetNavigationAccessMode(
+        /// <returns> The configured value. </returns>
+        public static PropertyAccessMode? SetNavigationAccessMode(
             [NotNull] this IConventionTypeBase entityType,
             PropertyAccessMode? propertyAccessMode,
             bool fromDataAnnotation = false)

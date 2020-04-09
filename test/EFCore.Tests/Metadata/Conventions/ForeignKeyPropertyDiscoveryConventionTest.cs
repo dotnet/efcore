@@ -1099,15 +1099,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return modelBuilder;
         }
 
-        private InternalRelationshipBuilder RunConvention(InternalRelationshipBuilder relationshipBuilder)
+        private InternalForeignKeyBuilder RunConvention(InternalForeignKeyBuilder relationshipBuilder)
         {
             var convention = CreateForeignKeyPropertyDiscoveryConvention();
-            var context = new ConventionContext<IConventionRelationshipBuilder>(
+            var context = new ConventionContext<IConventionForeignKeyBuilder>(
                 relationshipBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
             convention.ProcessForeignKeyAdded(relationshipBuilder, context);
             if (context.ShouldStopProcessing())
             {
-                return (InternalRelationshipBuilder)context.Result;
+                return (InternalForeignKeyBuilder)context.Result;
             }
 
             return relationshipBuilder;
@@ -1130,7 +1130,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private void ValidateModel()
         {
             var convention = CreateForeignKeyPropertyDiscoveryConvention();
-            convention.ProcessModelFinalized(_model, new ConventionContext<IConventionModelBuilder>(_model.Metadata.ConventionDispatcher));
+            convention.ProcessModelFinalizing(_model, new ConventionContext<IConventionModelBuilder>(_model.Metadata.ConventionDispatcher));
         }
 
         private ForeignKeyPropertyDiscoveryConvention CreateForeignKeyPropertyDiscoveryConvention()
@@ -1154,7 +1154,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 ListLoggerFactory,
                 options,
                 new DiagnosticListener("Fake"),
-                new TestLoggingDefinitions());
+                new TestLoggingDefinitions(),
+                new NullDbContextLogger());
             return modelLogger;
         }
 

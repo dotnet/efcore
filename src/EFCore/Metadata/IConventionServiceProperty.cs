@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this service property.
         /// </summary>
-        IConventionServicePropertyBuilder Builder { get; }
+        new IConventionServicePropertyBuilder Builder { get; }
 
         /// <summary>
         ///     Gets the type that this property belongs to.
@@ -29,17 +29,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionEntityType DeclaringEntityType { get; }
 
         /// <summary>
-        ///     Returns the configuration source for this property.
-        /// </summary>
-        /// <returns> The configuration source. </returns>
-        ConfigurationSource GetConfigurationSource();
-
-        /// <summary>
         ///     Sets the <see cref="ServiceParameterBinding" /> for this property.
         /// </summary>
         /// <param name="parameterBinding"> The parameter binding. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetParameterBinding([CanBeNull] ServiceParameterBinding parameterBinding, bool fromDataAnnotation = false);
+        /// <returns> The configured binding. </returns>
+        ServiceParameterBinding SetParameterBinding([CanBeNull] ServiceParameterBinding parameterBinding, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IServiceProperty.ParameterBinding" />.

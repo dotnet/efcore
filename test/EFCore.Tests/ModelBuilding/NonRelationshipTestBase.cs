@@ -1308,6 +1308,98 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Single(modelBuilder.Model.FindEntityType(typeof(Gamma)).GetProperties());
             }
+
+            [ConditionalFact]
+            public virtual void Can_add_seed_data_objects_indexed_property()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+                modelBuilder.Entity<IndexedClass>(
+                    b =>
+                    {
+                        b.IndexerProperty<int>("Required");
+                        b.IndexerProperty<string>("Optional");
+                        var d = new IndexedClass { Id = -1 };
+                        d["Required"] = 2;
+                        b.HasData(d);
+                    });
+
+                modelBuilder.FinalizeModel();
+
+                var entityType = model.FindEntityType(typeof(IndexedClass));
+                var data = Assert.Single(entityType.GetSeedData());
+                Assert.Equal(-1, data["Id"]);
+                Assert.Equal(2, data["Required"]);
+                Assert.Null(data["Optional"]);
+            }
+
+            [ConditionalFact]
+            public virtual void Can_add_seed_data_anonymous_objects_indexed_property()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+                modelBuilder.Entity<IndexedClass>(
+                    b =>
+                    {
+                        b.IndexerProperty<int>("Required");
+                        b.IndexerProperty<string>("Optional");
+                        b.HasData(new { Id = -1, Required = 2 });
+                    });
+
+                modelBuilder.FinalizeModel();
+
+                var entityType = model.FindEntityType(typeof(IndexedClass));
+                var data = Assert.Single(entityType.GetSeedData());
+                Assert.Equal(-1, data["Id"]);
+                Assert.Equal(2, data["Required"]);
+                Assert.False(data.ContainsKey("Optional"));
+            }
+
+            [ConditionalFact]
+            public virtual void Can_add_seed_data_objects_indexed_property_dictionary()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+                modelBuilder.Entity<IndexedClassByDictionary>(
+                    b =>
+                    {
+                        b.IndexerProperty<int>("Required");
+                        b.IndexerProperty<string>("Optional");
+                        var d = new IndexedClassByDictionary { Id = -1 };
+                        d["Required"] = 2;
+                        b.HasData(d);
+                    });
+
+                modelBuilder.FinalizeModel();
+
+                var entityType = model.FindEntityType(typeof(IndexedClassByDictionary));
+                var data = Assert.Single(entityType.GetSeedData());
+                Assert.Equal(-1, data["Id"]);
+                Assert.Equal(2, data["Required"]);
+                Assert.Null(data["Optional"]);
+            }
+
+            [ConditionalFact]
+            public virtual void Can_add_seed_data_anonymous_objects_indexed_property_dictionary()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+                modelBuilder.Entity<IndexedClassByDictionary>(
+                    b =>
+                    {
+                        b.IndexerProperty<int>("Required");
+                        b.IndexerProperty<string>("Optional");
+                        b.HasData(new { Id = -1, Required = 2 });
+                    });
+
+                modelBuilder.FinalizeModel();
+
+                var entityType = model.FindEntityType(typeof(IndexedClassByDictionary));
+                var data = Assert.Single(entityType.GetSeedData());
+                Assert.Equal(-1, data["Id"]);
+                Assert.Equal(2, data["Required"]);
+                Assert.False(data.ContainsKey("Optional"));
+            }
         }
     }
 }

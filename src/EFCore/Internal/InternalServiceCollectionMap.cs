@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -15,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class InternalServiceCollectionMap
+    public class InternalServiceCollectionMap : IInternalServiceCollectionMap
     {
         private readonly IDictionary<Type, IList<int>> _serviceMap = new Dictionary<Type, IList<int>>();
 
@@ -80,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalServiceCollectionMap AddDependencySingleton<TDependencies>()
+        public virtual IInternalServiceCollectionMap AddDependencySingleton<TDependencies>()
             => AddDependency(typeof(TDependencies), ServiceLifetime.Singleton);
 
         /// <summary>
@@ -89,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalServiceCollectionMap AddDependencyScoped<TDependencies>()
+        public virtual IInternalServiceCollectionMap AddDependencyScoped<TDependencies>()
             => AddDependency(typeof(TDependencies), ServiceLifetime.Scoped);
 
         /// <summary>
@@ -98,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalServiceCollectionMap AddDependency([NotNull] Type serviceType, ServiceLifetime lifetime)
+        public virtual IInternalServiceCollectionMap AddDependency([NotNull] Type serviceType, ServiceLifetime lifetime)
         {
             var indexes = GetOrCreateDescriptorIndexes(serviceType);
             if (!indexes.Any())
