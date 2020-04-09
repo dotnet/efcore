@@ -50,6 +50,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] IList<IUpdateEntry> entries,
             CancellationToken cancellationToken = default);
 
+        /// <summary>
+        ///     Compiles the given query to generate a <see cref="Func{QueryContext, TResult}"/>.
+        /// </summary>
+        /// <typeparam name="TResult"> The type of query result. </typeparam>
+        /// <param name="query"> The query to compile. </param>
+        /// <param name="async"> A value indicating whether this is an async query. </param>
+        /// <returns> A <see cref="Func{QueryContext, TResult}"/> which can be invoked to get results of the query. </returns>
         Func<QueryContext, TResult> CompileQuery<TResult>([NotNull] Expression query, bool async);
     }
 }

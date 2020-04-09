@@ -3,12 +3,30 @@
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <summary>
+    ///     <para>
+    ///         An enum that represents the cardinality of query result.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     public enum ResultCardinality
     {
-#pragma warning disable SA1602 // Enumeration items should be documented
+        /// <summary>
+        ///     Indicates that the query returns multiple results.
+        /// </summary>
         Enumerable,
+
+        /// <summary>
+        ///     Indicates that the query returns a single result. Throws if there is no result or more than one result.
+        /// </summary>
         Single,
+
+        /// <summary>
+        ///     Indicates that the query returns a single or default result. Throws if there is more than one result.
+        /// </summary>
         SingleOrDefault
-#pragma warning restore SA1602 // Enumeration items should be documented
     }
 }

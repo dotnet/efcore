@@ -11,11 +11,23 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <summary>
+    ///     <para>
+    ///         A class representing a chain of CLR members to bind. Usually generated from successive Select calls in the query.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     [DebuggerDisplay("{ToString(), nq}")]
-    public class ProjectionMember
+    public sealed class ProjectionMember
     {
         private readonly IList<MemberInfo> _memberChain;
 
+        /// <summary>
+        ///     Creates a new instance of the <see cref="ProjectionMember" /> class with empty MemberInfo chain.
+        /// </summary>
         public ProjectionMember()
         {
             _memberChain = new List<MemberInfo>();
@@ -28,7 +40,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             _memberChain = memberChain;
         }
 
-        public virtual ProjectionMember Append([NotNull] MemberInfo member)
+        /// <summary>
+        ///     Append given MemberInfo to existing chain at the end.
+        /// </summary>
+        /// <param name="member"> The MemberInfo to append. </param>
+        /// <returns> A new projection member with given member info appended to existing chain. </returns>
+        public ProjectionMember Append([NotNull] MemberInfo member)
         {
             Check.NotNull(member, nameof(member));
 
@@ -38,7 +55,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             return new ProjectionMember(existingChain);
         }
 
-        public virtual ProjectionMember Prepend([NotNull] MemberInfo member)
+        /// <summary>
+        ///     Prepend given MemberInfo to existing chain at the start.
+        /// </summary>
+        /// <param name="member"> The MemberInfo to prepend. </param>
+        /// <returns> A new projection member with given member info prepended to existing chain. </returns>
+        public ProjectionMember Prepend([NotNull] MemberInfo member)
         {
             Check.NotNull(member, nameof(member));
 
@@ -48,8 +70,17 @@ namespace Microsoft.EntityFrameworkCore.Query
             return new ProjectionMember(existingChain);
         }
 
-        public virtual MemberInfo Last => _memberChain.LastOrDefault();
+        /// <summary>
+        ///     <para>
+        ///         The last MemberInfo in the chain of MemberInfo represented by this projection member.
+        ///     </para>
+        ///     <para>
+        ///         This method is generally used to get last memberInfo to generate an alias for projection.
+        ///     </para>
+        /// </summary>
+        public MemberInfo Last => _memberChain.LastOrDefault();
 
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             var hash = new HashCode();
@@ -62,6 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return hash.ToHashCode();
         }
 
+        /// <inheritdoc />
         public override bool Equals(object obj)
             => obj != null
                 && (obj is ProjectionMember projectionMember
@@ -85,6 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return true;
         }
 
+        /// <inheritdoc />
         public override string ToString()
             => _memberChain.Any()
                 ? string.Join(".", _memberChain.Select(mi => mi.Name))

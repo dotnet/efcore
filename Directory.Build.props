@@ -30,6 +30,11 @@
     <PackageProjectUrl>https://docs.microsoft.com/ef/core/</PackageProjectUrl>
   </PropertyGroup>
 
+  <!-- HACK: Work around #15093 -->
+  <PropertyGroup>
+    <NoWarn>$(NoWarn.Replace(';1591', ''))</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <EmbeddedResource Include="**\*.rd.xml" />
   </ItemGroup>

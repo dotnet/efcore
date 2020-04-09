@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
             [NotNull] RelationalQueryableMethodTranslatingExpressionVisitorDependencies relationalDependencies,
             [NotNull] QueryCompilationContext queryCompilationContext)
-            : base(dependencies, subquery: false)
+            : base(dependencies, queryCompilationContext, subquery: false)
         {
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected RelationalQueryableMethodTranslatingExpressionVisitor(
             [NotNull] RelationalQueryableMethodTranslatingExpressionVisitor parentVisitor)
-            : base(parentVisitor.Dependencies, subquery: true)
+            : base(parentVisitor.Dependencies, parentVisitor.QueryCompilationContext, subquery: true)
         {
             RelationalDependencies = parentVisitor.RelationalDependencies;
             _queryCompilationContext = parentVisitor._queryCompilationContext;

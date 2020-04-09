@@ -388,7 +388,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         public virtual int? MaxPoolSize => _maxPoolSize;
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public virtual IEnumerable<IInterceptor> Interceptors => _interceptors;
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
         /// <summary>
         ///     Adds the services required to make the selected options work. This is used when there

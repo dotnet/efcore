@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// <summary>
     ///     A class that provides reflection metadata for translatable LINQ methods.
     /// </summary>
-    public static class QueryableMethods
+    internal static class QueryableMethods
     {
         public static MethodInfo AsQueryable { get; }
         public static MethodInfo Cast { get; }

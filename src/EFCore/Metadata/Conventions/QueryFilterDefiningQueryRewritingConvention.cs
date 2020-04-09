@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     Convention that converts accesses of DbSets inside query filters and defining queries into EntityQueryables.
+    ///     Convention that converts accesses of <see cref="DbSet{TEntity}"/> inside query filters and defining queries into <see cref="QueryRootExpression"/>.
     ///     This makes them consistent with how DbSet accesses in the actual queries are represented, which allows for easier processing in the
     ///     query pipeline.
     /// </summary>
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
         /// <summary>
-        ///     Visitor used to rewrite DbSets accesses encountered in query filters and defining queries to EntityQueryables.
+        ///     Visitor used to rewrite <see cref="DbSet{TEntity}"/> accesses encountered in query filters and defining queries to <see cref="QueryRootExpression"/>.
         /// </summary>
         protected virtual DbSetAccessRewritingExpressionVisitor DbSetAccessRewriter { get; [param: NotNull] set; }
 
@@ -59,16 +59,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
+        /// <summary>
+        ///     A visitor that rewrites DbSet accesses encountered in query filters and defining queries to <see cref="QueryRootExpression"/>.
+        /// </summary>
         protected class DbSetAccessRewritingExpressionVisitor : ExpressionVisitor
         {
             private readonly Type _contextType;
             private IModel _model;
 
+            /// <summary>
+            ///     Creates a new instance of <see cref="DbSetAccessRewritingExpressionVisitor" />.
+            /// </summary>
+            /// <param name="contextType"> The clr type of derived DbContext. </param>
             public DbSetAccessRewritingExpressionVisitor(Type contextType)
             {
                 _contextType = contextType;
             }
 
+            /// <summary>
+            ///     Rewrites DbSet accesses encountered in query filters and defining queries to <see cref="QueryRootExpression"/>.
+            /// </summary>
+            /// <param name="model"> The model to look for entity types. </param>
+            /// <param name="expression"> The query filter or defining query expression to rewrite. </param>
             public Expression Rewrite(IModel model, Expression expression)
             {
                 _model = model;
@@ -76,6 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return Visit(expression);
             }
 
+            /// <inheritdoc />
             protected override Expression VisitMember(MemberExpression memberExpression)
             {
                 Check.NotNull(memberExpression, nameof(memberExpression));
@@ -93,6 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return base.VisitMember(memberExpression);
             }
 
+            /// <inheritdoc />
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
                 Check.NotNull(methodCallExpression, nameof(methodCallExpression));

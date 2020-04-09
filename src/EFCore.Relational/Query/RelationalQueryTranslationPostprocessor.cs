@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] QueryTranslationPostprocessorDependencies dependencies,
             [NotNull] RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
             [NotNull] QueryCompilationContext queryCompilationContext)
-            : base(dependencies)
+            : base(dependencies, queryCompilationContext)
         {
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));

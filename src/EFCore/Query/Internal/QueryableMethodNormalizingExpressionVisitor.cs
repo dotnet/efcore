@@ -13,12 +13,24 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
     {
         private readonly QueryCompilationContext _queryCompilationContext;
         private readonly SelectManyVerifyingExpressionVisitor _selectManyVerifyingExpressionVisitor
             = new SelectManyVerifyingExpressionVisitor();
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public QueryableMethodNormalizingExpressionVisitor([NotNull] QueryCompilationContext queryCompilationContext)
         {
             Check.NotNull(queryCompilationContext, nameof(Query));
@@ -26,6 +38,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _queryCompilationContext = queryCompilationContext;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
@@ -359,27 +377,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         .VerifyCollectionSelector(
                             collectionSelectorBody, groupJoinResultSelector.Parameters[1]);
 
-                    if (correlatedCollectionSelector)
-                    {
-                        var outerParameter = outerKeySelector.Parameters[0];
-                        var innerParameter = innerKeySelector.Parameters[0];
-                        var correlationPredicate = Expression.Equal(
-                            outerKeySelector.Body,
-                            innerKeySelector.Body);
-
-                        inner = Expression.Call(
-                            QueryableMethods.Where.MakeGenericMethod(inner.Type.TryGetSequenceType()),
-                            inner,
-                            Expression.Quote(Expression.Lambda(correlationPredicate, innerParameter)));
-
-                        inner = ReplacingExpressionVisitor.Replace(
-                            groupJoinResultSelector.Parameters[1],
-                            inner,
-                            collectionSelectorBody);
-
-                        inner = Expression.Quote(Expression.Lambda(inner, outerParameter));
-                    }
-                    else
+                    if (!correlatedCollectionSelector)
                     {
                         inner = Visit(ReplacingExpressionVisitor.Replace(
                             groupJoinResultSelector.Parameters[1], inner, collectionSelectorBody));
@@ -393,20 +391,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             // It is fine to leave it in the tree since it is no-op
                             inner = innerMethodCall.Arguments[0];
                         }
-                    }
 
-                    var resultSelectorBody = ReplacingExpressionVisitor.Replace(
-                        selectManyResultSelector.Parameters[0],
-                        groupJoinResultSelector.Body,
-                        selectManyResultSelector.Body);
+                        var resultSelectorBody = ReplacingExpressionVisitor.Replace(
+                            selectManyResultSelector.Parameters[0],
+                            groupJoinResultSelector.Body,
+                            selectManyResultSelector.Body);
 
-                    var resultSelector = Expression.Lambda(
-                        resultSelectorBody,
-                        groupJoinResultSelector.Parameters[0],
-                        selectManyResultSelector.Parameters[1]);
+                        var resultSelector = Expression.Lambda(
+                            resultSelectorBody,
+                            groupJoinResultSelector.Parameters[0],
+                            selectManyResultSelector.Parameters[1]);
 
-                    if (!correlatedCollectionSelector)
-                    {
                         // join case
                         if (defaultIfEmpty)
                         {
@@ -437,6 +432,37 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             innerKeySelector,
                             resultSelector);
                     }
+                    // TODO: Convert correlated patterns to SelectMany
+                    //else
+                    //{
+                    //    var outerParameter = outerKeySelector.Parameters[0];
+                    //    var innerParameter = innerKeySelector.Parameters[0];
+                    //    var correlationPredicate = Expression.Equal(
+                    //        outerKeySelector.Body,
+                    //        innerKeySelector.Body);
+
+                    //    inner = Expression.Call(
+                    //        QueryableMethods.Where.MakeGenericMethod(inner.Type.TryGetSequenceType()),
+                    //        inner,
+                    //        Expression.Quote(Expression.Lambda(correlationPredicate, innerParameter)));
+
+                    //    inner = ReplacingExpressionVisitor.Replace(
+                    //        groupJoinResultSelector.Parameters[1],
+                    //        inner,
+                    //        collectionSelectorBody);
+
+                    //    inner = Expression.Quote(Expression.Lambda(inner, outerParameter));
+
+                    //    var resultSelectorBody = ReplacingExpressionVisitor.Replace(
+                    //        selectManyResultSelector.Parameters[0],
+                    //        groupJoinResultSelector.Body,
+                    //        selectManyResultSelector.Body);
+
+                    //    var resultSelector = Expression.Lambda(
+                    //        resultSelectorBody,
+                    //        groupJoinResultSelector.Parameters[0],
+                    //        selectManyResultSelector.Parameters[1]);
+                    //}
                 }
             }
             else if (genericMethod == QueryableMethods.SelectManyWithoutCollectionSelector)

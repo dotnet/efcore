@@ -14,6 +14,10 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <summary>
+    ///     A query compilation context. The primary data structure representing the state/components
+    ///     used during query compilation.
+    /// </summary>
     public class QueryCompilationContext
     {
         /// <summary>
@@ -45,6 +49,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private Dictionary<string, LambdaExpression> _runtimeParameters;
 
+        /// <summary>
+        ///     Creates a new instance of the <see cref="QueryableMethodTranslatingExpressionVisitor" /> class.
+        /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
+        /// <param name="async"> A bool value indicating whether it is for async query. </param>
         public QueryCompilationContext(
             [NotNull] QueryCompilationContextDependencies dependencies,
             bool async)
@@ -65,16 +74,49 @@ namespace Microsoft.EntityFrameworkCore.Query
             _shapedQueryCompilingExpressionVisitorFactory = dependencies.ShapedQueryCompilingExpressionVisitorFactory;
         }
 
+        /// <summary>
+        ///     A value indicating whether it is async query.
+        /// </summary>
         public virtual bool IsAsync { get; }
+
+        /// <summary>
+        ///     The model to use during query compilation.
+        /// </summary>
         public virtual IModel Model { get; }
+        /// <summary>
+        ///     The ContextOptions to use during query compilation.
+        /// </summary>
         public virtual IDbContextOptions ContextOptions { get; }
+
+        /// <summary>
+        ///     A value indicating whether it is tracking query.
+        /// </summary>
         public virtual bool IsTracking { get; internal set; }
+        /// <summary>
+        ///     A value indicating whether the underlying server query needs to pre-buffer all data.
+        /// </summary>
         public virtual bool IsBuffering { get; }
+        /// <summary>
+        ///     A value indicating whether query filters are ignored in this query.
+        /// </summary>
         public virtual bool IgnoreQueryFilters { get; internal set; }
+        /// <summary>
+        ///     The set of tags applied to this query.
+        /// </summary>
         public virtual ISet<string> Tags { get; } = new HashSet<string>();
+        /// <summary>
+        ///     The query logger to use during query compilation.
+        /// </summary>
         public virtual IDiagnosticsLogger<DbLoggerCategory.Query> Logger { get; }
+        /// <summary>
+        ///     The CLR type of derived DbContext to use during query compilation.
+        /// </summary>
         public virtual Type ContextType { get; }
 
+        /// <summary>
+        ///     Adds a tag to <see cref="Tags"/>.
+        /// </summary>
+        /// <param name="tag"> The tag to add. </param>
         public virtual void AddTag([NotNull] string tag)
         {
             Check.NotEmpty(tag, nameof(tag));
@@ -82,6 +124,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             Tags.Add(tag);
         }
 
+        /// <summary>
+        ///     Creates the query executor func which gives results for this query.
+        /// </summary>
+        /// <typeparam name="TResult"> The result type of this query. </typeparam>
+        /// <param name="query"> The query to generate executor for. </param>
+        /// <returns> Returns <see cref="Func{QueryContext, TResult}"/> which can be invoked to get results of this query. </returns>
         public virtual Func<QueryContext, TResult> CreateQueryExecutor<TResult>([NotNull] Expression query)
         {
             Check.NotNull(query, nameof(query));

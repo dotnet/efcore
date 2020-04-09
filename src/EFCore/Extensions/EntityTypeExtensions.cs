@@ -24,6 +24,11 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     public static class EntityTypeExtensions
     {
+        /// <summary>
+        ///     Returns all the derived types of the given <see cref="IEntityType" />, including the type itself, which are not <c>abstract</c>.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Non-abstract, derived types. </returns>
         public static IEnumerable<IEntityType> GetConcreteDerivedTypesInclusive([NotNull] this IEntityType entityType)
             => entityType.GetDerivedTypesInclusive().Where(et => !et.IsAbstract());
 

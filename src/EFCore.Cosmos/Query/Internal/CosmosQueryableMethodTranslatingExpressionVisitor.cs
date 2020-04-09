@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             [NotNull] ISqlExpressionFactory sqlExpressionFactory,
             [NotNull] IMemberTranslatorProvider memberTranslatorProvider,
             [NotNull] IMethodCallTranslatorProvider methodCallTranslatorProvider)
-            : base(dependencies, subquery: false)
+            : base(dependencies, queryCompilationContext, subquery: false)
         {
             _model = queryCompilationContext.Model;
             _sqlExpressionFactory = sqlExpressionFactory;
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected CosmosQueryableMethodTranslatingExpressionVisitor(
             [NotNull] CosmosQueryableMethodTranslatingExpressionVisitor parentVisitor)
-            : base(parentVisitor.Dependencies, subquery: true)
+            : base(parentVisitor.Dependencies, parentVisitor.QueryCompilationContext, subquery: true)
         {
             _model = parentVisitor._model;
             _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;

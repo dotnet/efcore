@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a printable string representation of the given expression.
         /// </summary>
         /// <param name="expression"> The expression. </param>
-        /// <param name="characterLimit"> An optional limit to the number of characters included. </param>
+        /// <param name="characterLimit"> An optional limit to the number of characters included. Additional output will be truncated. </param>
         /// <returns> The printable representation. </returns>
         public static string Print([NotNull] this Expression expression, int? characterLimit = null)
             => new ExpressionPrinter().Print(Check.NotNull(expression, nameof(expression)), characterLimit);
