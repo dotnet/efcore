@@ -53,6 +53,44 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 visitedExpression = TryConvertListContainsToQueryableContains(methodCallExpression);
             }
 
+            if (method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
+                && method.IsGenericMethod
+                && method.GetGenericMethodDefinition() is MethodInfo genericMethod
+                && (genericMethod == EntityFrameworkQueryableExtensions.IncludeMethodInfo
+                    || genericMethod == EntityFrameworkQueryableExtensions.ThenIncludeAfterEnumerableMethodInfo
+                    || genericMethod == EntityFrameworkQueryableExtensions.ThenIncludeAfterReferenceMethodInfo))
+            {
+                var includeLambda = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
+                if (includeLambda.ReturnType.IsGenericType
+                    && includeLambda.ReturnType.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>))
+                {
+                    var source = Visit(methodCallExpression.Arguments[0]);
+                    var body = Visit(includeLambda.Body);
+
+                    // we have to rewrite the lambda to accommodate for IOrderedEnumerable<> into IOrderedQueryable<> conversion
+                    var lambda = (Expression)Expression.Lambda(body, includeLambda.Parameters);
+                    if (methodCallExpression.Arguments[1].NodeType == ExpressionType.Quote)
+                    {
+                        lambda = Expression.Quote(lambda);
+                    }
+
+                    var genericArguments = methodCallExpression.Method.GetGenericArguments();
+                    var lastGenericArgument = genericArguments[^1];
+
+                    if (body.Type.IsGenericType
+                        && body.Type.GetGenericTypeDefinition() == typeof(IOrderedQueryable<>))
+                    {
+                        genericArguments[^1] = body.Type;
+                        var newIncludeMethod = methodCallExpression.Method.GetGenericMethodDefinition()
+                            .MakeGenericMethod(genericArguments);
+
+                        return Expression.Call(newIncludeMethod, source, lambda);
+                    }
+
+                    return methodCallExpression.Update(null, new[] { source, lambda });
+                }
+            }
+
             visitedExpression ??= base.VisitMethodCall(methodCallExpression);
 
             if (visitedExpression is MethodCallExpression visitedMethodcall
