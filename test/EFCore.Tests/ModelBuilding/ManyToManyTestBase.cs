@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var model = modelBuilder.Model;
 
                 Assert.Equal(
-                    CoreStrings.MissingInverseNavigation(
+                    CoreStrings.MissingInverseManyToManyNavigation(
                         nameof(ManyToManyNavPrincipal),
                         nameof(NavDependent)),
                     Assert.Throws<InvalidOperationException>(

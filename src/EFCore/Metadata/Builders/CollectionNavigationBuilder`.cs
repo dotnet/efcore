@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 && Builder.Metadata.PrincipalToDependent == null)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.MissingInverseNavigation(
+                    CoreStrings.MissingInverseManyToManyNavigation(
                         Builder.Metadata.PrincipalEntityType.DisplayName(),
                         Builder.Metadata.DeclaringEntityType.DisplayName()));
             }

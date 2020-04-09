@@ -2605,11 +2605,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 isUnique, navigationName, entityType);
 
         /// <summary>
-        ///     Unable to set up a many-to-many relationship between the entities '{principalEntityType}' and '{declaringEntityType}' because no inverse navigation was specified. Please provide a navigation property in both the HasMany() and WithMany() calls.
+        ///     Unable to set up a many-to-many relationship between the entity types '{principalEntityType}' and '{declaringEntityType}' because one of the navigations was not specified. Please provide a navigation property in the HasMany() call.
         /// </summary>
-        public static string MissingInverseNavigation([CanBeNull] object principalEntityType, [CanBeNull] object declaringEntityType)
+        public static string MissingInverseManyToManyNavigation([CanBeNull] object principalEntityType, [CanBeNull] object declaringEntityType)
             => string.Format(
-                GetString("MissingInverseNavigation", nameof(principalEntityType), nameof(declaringEntityType)),
+                GetString("MissingInverseManyToManyNavigation", nameof(principalEntityType), nameof(declaringEntityType)),
                 principalEntityType, declaringEntityType);
 
         private static string GetString(string name, params string[] formatterNames)

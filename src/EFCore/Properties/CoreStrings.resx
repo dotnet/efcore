@@ -1372,7 +1372,7 @@
   <data name="UnableToSetIsUnique" xml:space="preserve">
     <value>Unable to set IsUnique to '{isUnique}' on the relationship underlying the navigation property '{navigationName}' on the entity type '{entityType}' because the navigation property has the opposite multiplicity.</value>
   </data>
-  <data name="MissingInverseNavigation" xml:space="preserve">
-    <value>Unable to set up a many-to-many relationship between the entities '{principalEntityType}' and '{declaringEntityType}' because no inverse navigation was specified. Please provide a navigation property in both the HasMany() and WithMany() calls.</value>
+  <data name="MissingInverseManyToManyNavigation" xml:space="preserve">
+    <value>Unable to set up a many-to-many relationship between the entity types '{principalEntityType}' and '{declaringEntityType}' because one of the navigations was not specified. Please provide a navigation property in the HasMany() call.</value>
   </data>
 </root>
