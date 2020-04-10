@@ -58,6 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return sqlExpression switch
             {
                 CaseExpression e => ApplyTypeMappingOnCase(e, typeMapping),
+                CollateExpression e => ApplyTypeMappingOnCollate(e, typeMapping),
                 LikeExpression e => ApplyTypeMappingOnLike(e),
                 SqlBinaryExpression e => ApplyTypeMappingOnSqlBinary(e, typeMapping),
                 SqlUnaryExpression e => ApplyTypeMappingOnSqlUnary(e, typeMapping),
@@ -101,6 +102,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return caseExpression.Update(caseExpression.Operand, whenClauses, elseResult);
         }
+
+        private SqlExpression ApplyTypeMappingOnCollate(
+            CollateExpression collateExpression, RelationalTypeMapping typeMapping)
+            => new CollateExpression(
+                ApplyTypeMapping(collateExpression.Operand, typeMapping),
+                collateExpression.Collation);
 
         private SqlExpression ApplyTypeMappingOnSqlUnary(
             SqlUnaryExpression sqlUnaryExpression, RelationalTypeMapping typeMapping)

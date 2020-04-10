@@ -23,6 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case CaseExpression caseExpression:
                     return VisitCase(caseExpression);
 
+                case CollateExpression collateExpression:
+                    return VisitCollate(collateExpression);
+
                 case ColumnExpression columnExpression:
                     return VisitColumn(columnExpression);
 
@@ -106,6 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         protected abstract Expression VisitCase([NotNull] CaseExpression caseExpression);
+        protected abstract Expression VisitCollate([NotNull] CollateExpression collateExpression);
         protected abstract Expression VisitColumn([NotNull] ColumnExpression columnExpression);
         protected abstract Expression VisitCrossApply([NotNull] CrossApplyExpression crossApplyExpression);
         protected abstract Expression VisitCrossJoin([NotNull] CrossJoinExpression crossJoinExpression);

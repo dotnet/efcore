@@ -507,6 +507,19 @@ namespace Microsoft.EntityFrameworkCore.Query
             return likeExpression;
         }
 
+        protected override Expression VisitCollate(CollateExpression collateExpresion)
+        {
+            Check.NotNull(collateExpresion, nameof(collateExpresion));
+
+            Visit(collateExpresion.Operand);
+
+            _relationalCommandBuilder
+                .Append(" COLLATE ")
+                .Append(collateExpresion.Collation);
+
+            return collateExpresion;
+        }
+
         protected override Expression VisitCase(CaseExpression caseExpression)
         {
             Check.NotNull(caseExpression, nameof(caseExpression));
