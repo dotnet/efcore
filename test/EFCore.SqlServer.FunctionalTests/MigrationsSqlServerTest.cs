@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -53,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore
                 @"CREATE TABLE [dbo2].[People] (
     [CustomId] int NOT NULL,
     [EmployerId] int NOT NULL,
-    [SSN] nvarchar(11) NOT NULL,
+    [SSN] nvarchar(11) COLLATE German_PhoneBook_CI_AS NOT NULL,
     CONSTRAINT [PK_People] PRIMARY KEY ([CustomId]),
     CONSTRAINT [AK_People_SSN] UNIQUE ([SSN]),
     CONSTRAINT [CK_EmployerId] CHECK ([EmployerId] > 0),
@@ -388,6 +389,22 @@ SET @description = N'My comment';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', N'FullName';");
         }
 
+        public override async Task Add_column_with_collation()
+        {
+            await base.Add_column_with_collation();
+
+            AssertSql(
+                @"ALTER TABLE [People] ADD [Name] nvarchar(max) COLLATE German_PhoneBook_CI_AS NULL;");
+        }
+
+        public override async Task Add_column_computed_with_collation()
+        {
+            await base.Add_column_computed_with_collation();
+
+            AssertSql(
+                @"ALTER TABLE [People] ADD [Name] AS 'hello' COLLATE German_PhoneBook_CI_AS;");
+        }
+
         public override async Task Add_column_shared()
         {
             await base.Add_column_shared();
@@ -586,6 +603,36 @@ DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
 DECLARE @description AS sql_variant;
 EXEC sp_dropextendedproperty 'MS_Description', 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', N'Id';");
+        }
+
+        [ConditionalFact]
+        public override async Task Alter_column_set_collation()
+        {
+            await base.Alter_column_set_collation();
+
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(max) COLLATE German_PhoneBook_CI_AS NULL;");
+        }
+
+        [ConditionalFact]
+        public override async Task Alter_column_reset_collation()
+        {
+            await base.Alter_column_reset_collation();
+
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(max) NULL;");
         }
 
         [ConditionalFact]
@@ -1569,6 +1616,29 @@ SELECT @@ROWCOUNT;");
                 @"UPDATE [Person] SET [Age] = 21, [Name] = N'Another John Snow'
 WHERE [Id] = 2;
 SELECT @@ROWCOUNT;");
+        }
+
+        protected override string NonDefaultCollation
+            => _nonDefaultCollation ??= GetDatabaseCollation() == "German_PhoneBook_CI_AS"
+                ? "French_CI_AS"
+                : "German_PhoneBook_CI_AS";
+
+        private string? _nonDefaultCollation;
+
+        private string? GetDatabaseCollation()
+        {
+            using var ctx = CreateContext();
+            var connection = ctx.Database.GetDbConnection();
+            using var command = connection.CreateCommand();
+
+            command.CommandText = $@"
+SELECT collation_name
+FROM sys.databases
+WHERE name = '{connection.Database}';";
+
+            return command.ExecuteScalar() is string collation
+                ? collation
+                : null;
         }
 
         public class MigrationsSqlServerFixture : MigrationsFixtureBase

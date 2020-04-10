@@ -85,6 +85,7 @@ namespace Microsoft.EntityFrameworkCore
                             .HasComment("Employer ID comment");
                         e.Property<string>("SSN")
                             .HasColumnType(char11StoreType)
+                            .UseCollation(NonDefaultCollation)
                             .IsRequired(false);
 
                         e.HasKey("CustomId");
@@ -474,6 +475,38 @@ namespace Microsoft.EntityFrameworkCore
                 });
 
         [ConditionalFact]
+        public virtual Task Add_column_with_collation()
+            => Test(
+                builder => builder.Entity("People").Property<int>("Id"),
+                builder => { },
+                builder => builder.Entity("People").Property<string>("Name")
+                    .UseCollation(NonDefaultCollation),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    Assert.Equal(2, table.Columns.Count);
+                    var nameColumn = Assert.Single(table.Columns, c => c.Name == "Name");
+                    Assert.Equal(NonDefaultCollation, nameColumn.Collation);
+                });
+
+        [ConditionalFact]
+        public virtual Task Add_column_computed_with_collation()
+            => Test(
+                builder => builder.Entity("People").Property<int>("Id"),
+                builder => { },
+                builder => builder.Entity("People").Property<string>("Name")
+                    .HasComputedColumnSql("'hello'")
+                    .UseCollation(NonDefaultCollation),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    Assert.Equal(2, table.Columns.Count);
+                    var nameColumn = Assert.Single(table.Columns, c => c.Name == "Name");
+                    Assert.Contains("hello", nameColumn.ComputedColumnSql);
+                    Assert.Equal(NonDefaultCollation, nameColumn.Collation);
+                });
+
+        [ConditionalFact]
         public virtual Task Add_column_shared()
             => Test(
                 builder =>
@@ -645,6 +678,32 @@ namespace Microsoft.EntityFrameworkCore
                     var column = Assert.Single(table.Columns);
                     Assert.Null(column.Comment);
                 });
+
+        [Fact]
+        public virtual Task Alter_column_set_collation()
+            => Test(
+                builder => builder.Entity("People").Property<string>("Name"),
+                builder => { },
+                builder => builder.Entity("People").Property<string>("Name")
+                    .UseCollation(NonDefaultCollation),
+                model =>
+                    {
+                        var nameColumn = Assert.Single(Assert.Single(model.Tables).Columns);
+                        Assert.Equal(NonDefaultCollation, nameColumn.Collation);
+                    });
+
+        [Fact]
+        public virtual Task Alter_column_reset_collation()
+            => Test(
+                builder => builder.Entity("People").Property<string>("Name"),
+                builder => builder.Entity("People").Property<string>("Name")
+                    .UseCollation(NonDefaultCollation),
+                builder => { },
+                model =>
+                    {
+                        var nameColumn = Assert.Single(Assert.Single(model.Tables).Columns);
+                        Assert.Null(nameColumn.Collation);
+                    });
 
         [ConditionalFact]
         public virtual Task Drop_column()
@@ -1302,6 +1361,10 @@ namespace Microsoft.EntityFrameworkCore
             public string? Name { get; set; }
             public int Age { get; set; }
         }
+
+        protected virtual string NonDefaultCollation
+            => throw new NotSupportedException(
+                $"Providers must override the '{nameof(NonDefaultCollation)}' property with a valid, non-default collation name for your database.");
 
         protected virtual DbContext CreateContext() => Fixture.CreateContext();
 

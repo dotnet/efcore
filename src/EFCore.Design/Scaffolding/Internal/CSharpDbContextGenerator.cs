@@ -641,6 +641,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.DefaultValue);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.DefaultValueSql);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.Comment);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.Collation);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.ComputedColumnSql);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.IsFixedLength);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.TableColumnMappings);
@@ -737,6 +738,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     $"({_code.Literal(property.GetDefaultValueSql())})");
             }
 
+            if (property.GetComputedColumnSql() != null)
+            {
+                lines.Add(
+                    $".{nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql)}" +
+                    $"({_code.Literal(property.GetComputedColumnSql())})");
+            }
+
             if (property.GetComment() != null)
             {
                 lines.Add(
@@ -744,11 +752,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     $"({_code.Literal(property.GetComment())})");
             }
 
-            if (property.GetComputedColumnSql() != null)
+            if (property.GetCollation() != null)
             {
                 lines.Add(
-                    $".{nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql)}" +
-                    $"({_code.Literal(property.GetComputedColumnSql())})");
+                    $".{nameof(RelationalPropertyBuilderExtensions.UseCollation)}" +
+                    $"({_code.Literal(property.GetCollation())})");
             }
 
             var valueGenerated = property.ValueGenerated;

@@ -291,6 +291,20 @@ namespace TestNamespace
                 });
         }
 
+        [ConditionalFact]
+        public void Collation_works()
+        {
+            Test(
+                modelBuilder => modelBuilder.Entity("Entity").Property<string>("UseCollation").UseCollation("Some Collation"),
+                new ModelCodeGenerationOptions(),
+                code => Assert.Contains("Property(e => e.UseCollation).UseCollation(\"Some Collation\")", code.ContextFile.Code),
+                model =>
+                {
+                    var entity = model.FindEntityType("TestNamespace.Entity");
+                    Assert.Equal("Some Collation", entity.GetProperty("UseCollation").GetCollation());
+                });
+        }
+
         private class TestCodeGeneratorPlugin : ProviderCodeGeneratorPlugin
         {
             public override MethodCallCodeFragment GenerateProviderOptions()

@@ -372,8 +372,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             TrackData(source, target);
 
-            var schemaOperations = source != null && target != null
-                ? DiffAnnotations(source, target)
+            var operations = Enumerable.Empty<MigrationOperation>();
+            if (source != null && target != null)
+            {
+                var sourceMigrationsAnnotations = source.GetAnnotations();
+                var targetMigrationsAnnotations = target.GetAnnotations();
+
+                if (source.Collation != target.Collation
+                    || HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
+                {
+                    var alterDatabaseOperation = new AlterDatabaseOperation
+                    {
+                        Collation = target.Collation,
+                        OldDatabase = { Collation = source.Collation }
+                    };
+
+                    alterDatabaseOperation.AddAnnotations(targetMigrationsAnnotations);
+                    alterDatabaseOperation.OldDatabase.AddAnnotations(sourceMigrationsAnnotations);
+
+                    operations = new[] { alterDatabaseOperation };
+                }
+
+                operations = operations
                     .Concat(Diff(GetSchemas(source), GetSchemas(target), diffContext))
                     .Concat(Diff(source.Tables, target.Tables, diffContext))
                     .Concat(Diff(source.Sequences, target.Sequences, diffContext))
@@ -381,14 +401,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Diff(
                             source.Tables.SelectMany(s => s.ForeignKeyConstraints),
                             target.Tables.SelectMany(t => t.ForeignKeyConstraints),
-                            diffContext))
-                : target != null
+                            diffContext));
+            }
+            else
+            {
+                operations = target != null
                     ? Add(target, diffContext)
                     : source != null
                         ? Remove(source, diffContext)
                         : Enumerable.Empty<MigrationOperation>();
+            }
 
-            return schemaOperations.Concat(GetDataOperations(diffContext));
+            return operations.Concat(GetDataOperations(diffContext));
         }
 
         private IEnumerable<MigrationOperation> DiffAnnotations(
@@ -974,6 +998,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 || !Equals(GetDefaultValue(sourceProperty, GetValueConverter(sourceProperty, sourceTypeMapping)),
                     GetDefaultValue(targetProperty, GetValueConverter(sourceProperty, targetTypeMapping)))
                 || source.Comment != target.Comment
+                || source.Collation != target.Collation
                 || HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
             {
                 var isDestructiveChange = isNullableChanged && source.IsNullable
@@ -1083,6 +1108,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             columnOperation.DefaultValueSql = column.DefaultValueSql;
             columnOperation.ComputedColumnSql = column.ComputedColumnSql;
             columnOperation.Comment = column.Comment;
+            columnOperation.Collation = column.Collation;
             columnOperation.AddAnnotations(migrationsAnnotations);
         }
 

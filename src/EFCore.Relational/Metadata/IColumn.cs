@@ -87,5 +87,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Comment for this column
         /// </summary>
         public virtual string Comment => PropertyMappings.First().Property.GetComment();
+
+        /// <summary>
+        ///     Collation for this column
+        /// </summary>
+        public virtual string Collation => PropertyMappings.First().Property.GetCollation();
     }
 }

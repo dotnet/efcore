@@ -833,5 +833,59 @@ namespace Microsoft.EntityFrameworkCore
         public static ConfigurationSource? GetCommentConfigurationSource([NotNull] this IConventionProperty property)
             => property.FindAnnotation(RelationalAnnotationNames.Comment)
                 ?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Returns the collation to be used for the column.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The collation for the column this property is mapped to. </returns>
+        public static string GetCollation([NotNull] this IProperty property)
+        {
+            var value = (string)property[RelationalAnnotationNames.Collation];
+            if (value != null)
+            {
+                return value;
+            }
+
+            var sharedTablePrincipalPrimaryKeyProperty = property.FindSharedRootPrimaryKeyProperty();
+            if (sharedTablePrincipalPrimaryKeyProperty != null)
+            {
+                return GetCollation(sharedTablePrincipalPrimaryKeyProperty);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Configures a collation to be used for column this property is mapped to.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="collation"> The collation for the column. </param>
+        public static void SetCollation([NotNull] this IMutableProperty property, [CanBeNull] string collation)
+            => property.SetOrRemoveAnnotation(RelationalAnnotationNames.Collation, collation);
+
+        /// <summary>
+        ///     Configures a collation to be used for the column this property is mapped to.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="collation"> The collation for the column. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured value. </returns>
+        public static string SetCollation(
+            [NotNull] this IConventionProperty property,
+            [CanBeNull] string collation,
+            bool fromDataAnnotation = false)
+        {
+            property.SetOrRemoveAnnotation(RelationalAnnotationNames.Collation, collation, fromDataAnnotation);
+            return collation;
+        }
+
+        /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for the column collation.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for the column collation. </returns>
+        public static ConfigurationSource? GetCollationConfigurationSource([NotNull] this IConventionProperty property)
+            => property.FindAnnotation(RelationalAnnotationNames.Collation)?.GetConfigurationSource();
     }
 }

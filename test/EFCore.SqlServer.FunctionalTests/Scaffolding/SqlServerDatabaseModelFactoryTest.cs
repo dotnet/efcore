@@ -1491,6 +1491,28 @@ CREATE TABLE NullableColumns (
         }
 
         [ConditionalFact]
+        public void Column_collation_is_set()
+        {
+            Test(
+                @"
+CREATE TABLE ColumnsWithCollation (
+    Id int,
+    DefaultCollation nvarchar(max),
+    NonDefaultCollation nvarchar(max) COLLATE German_PhoneBook_CI_AS,
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                    {
+                        var columns = dbModel.Tables.Single().Columns;
+
+                        Assert.Null(columns.Single(c => c.Name == "DefaultCollation").Collation);
+                        Assert.Equal("German_PhoneBook_CI_AS", columns.Single(c => c.Name == "NonDefaultCollation").Collation);
+                    },
+                "DROP TABLE ColumnsWithCollation;");
+        }
+
+        [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsHiddenColumns)]
         public void Hidden_columns_are_not_created()
         {

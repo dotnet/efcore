@@ -203,6 +203,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append(Code.Literal(operation.Comment));
                 }
 
+                if (operation.Collation != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("collation: ")
+                        .Append(Code.Literal(operation.Collation));
+                }
+
                 builder.Append(")");
 
                 Annotations(operation.GetAnnotations(), builder);
@@ -561,6 +569,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append(Code.Literal(operation.Comment));
                 }
 
+                if (operation.Collation != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("collation: ")
+                        .Append(Code.Literal(operation.Collation));
+                }
+
                 if (operation.OldColumn.ClrType != null)
                 {
                     builder.AppendLine(",")
@@ -654,6 +670,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append(Code.Literal(operation.OldColumn.Comment));
                 }
 
+                if (operation.OldColumn.Collation != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("oldCollation: ")
+                        .Append(Code.Literal(operation.OldColumn.Collation));
+                }
+
                 builder.Append(")");
 
                 Annotations(operation.GetAnnotations(), builder);
@@ -671,10 +695,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            builder.Append(".AlterDatabase()");
+            builder.Append(".AlterDatabase(");
 
             using (builder.Indent())
             {
+                if (operation.Collation != null)
+                {
+                    builder
+                        .AppendLine()
+                        .Append("collation: ")
+                        .Append(Code.Literal(operation.Collation));
+                }
+
+                if (operation.OldDatabase.Collation != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("oldCollation: ")
+                        .Append(Code.Literal(operation.OldDatabase.Collation));
+                }
+
+                builder.Append(")");
+
                 Annotations(operation.GetAnnotations(), builder);
                 OldAnnotations(operation.OldDatabase.GetAnnotations(), builder);
             }
@@ -1123,6 +1165,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             builder
                                 .Append(", comment: ")
                                 .Append(Code.Literal(column.Comment));
+                        }
+
+                        if (column.Collation != null)
+                        {
+                            builder
+                                .Append(", collation: ")
+                                .Append(Code.Literal(column.Collation));
                         }
 
                         builder.Append(")");

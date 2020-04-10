@@ -1369,6 +1369,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(" ")
                 .Append(columnType);
 
+            if (operation.Collation != null)
+            {
+                builder
+                    .Append(" COLLATE ")
+                    .Append(operation.Collation);
+            }
+
             builder.Append(operation.IsNullable ? " NULL" : " NOT NULL");
 
             DefaultValue(operation.DefaultValue, operation.DefaultValueSql, columnType, builder);
