@@ -202,12 +202,12 @@ LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]");
             await base.Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection(async);
 
             AssertSql(
-                @"SELECT [o].[Id], [o0].[ClientId], [o0].[Id], [o0].[OrderDate]
+                @"SELECT [o].[Id], [p].[Id], [o0].[ClientId], [o0].[Id], [o0].[OrderDate]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
 WHERE ([p].[Id] <> 42) OR [p].[Id] IS NULL
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
+ORDER BY [o].[Id], [p].[Id], [o0].[ClientId], [o0].[Id]");
         }
 
         public override async Task Project_multiple_owned_navigations(bool async)
@@ -219,7 +219,7 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
+ORDER BY [o].[Id], [p].[Id], [o0].[ClientId], [o0].[Id]");
         }
 
         public override async Task Project_multiple_owned_navigations_with_expansion_on_owned_collections(bool async)
@@ -244,12 +244,12 @@ ORDER BY [o1].[Id]");
             await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter(async);
 
             AssertSql(
-                @"SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[Id], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId], [o0].[ClientId], [o0].[Id], [o0].[OrderDate]
+                @"SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[Id], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId], [p].[Id], [o0].[ClientId], [o0].[Id], [o0].[OrderDate]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
 WHERE ([p].[Id] <> 7) OR [p].[Id] IS NULL
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
+ORDER BY [o].[Id], [p].[Id], [o0].[ClientId], [o0].[Id]");
         }
 
         public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property(bool async)
@@ -267,11 +267,11 @@ LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]");
             await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection(async);
 
             AssertSql(
-                @"SELECT [o].[Id], [m].[Id], [m].[Diameter], [m].[PlanetId]
+                @"SELECT [o].[Id], [p].[Id], [m].[Id], [m].[Diameter], [m].[PlanetId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN [Moon] AS [m] ON [p].[Id] = [m].[PlanetId]
-ORDER BY [o].[Id], [m].[Id]");
+ORDER BY [o].[Id], [p].[Id], [m].[Id]");
         }
 
         public override async Task SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(bool async)
@@ -302,12 +302,12 @@ INNER JOIN [Element] AS [e] ON [s].[Id] = [e].[StarId]");
             await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference(async);
 
             AssertSql(
-                @"SELECT [s].[Id], [s].[Name], [o].[Id], [e].[Id], [e].[Name], [e].[StarId]
+                @"SELECT [s].[Id], [s].[Name], [o].[Id], [p].[Id], [e].[Id], [e].[Name], [e].[StarId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]
 LEFT JOIN [Element] AS [e] ON [s].[Id] = [e].[StarId]
-ORDER BY [o].[Id], [e].[Id]");
+ORDER BY [o].[Id], [p].[Id], [s].[Id], [e].[Id]");
         }
 
         public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar(
@@ -329,13 +329,13 @@ LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]");
                 async);
 
             AssertSql(
-                @"SELECT [s].[Id], [s].[Name], [o].[Id], [e].[Id], [e].[Name], [e].[StarId]
+                @"SELECT [s].[Id], [s].[Name], [o].[Id], [p].[Id], [e].[Id], [e].[Name], [e].[StarId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]
 LEFT JOIN [Element] AS [e] ON [s].[Id] = [e].[StarId]
 WHERE [s].[Name] = N'Sol'
-ORDER BY [o].[Id], [e].[Id]");
+ORDER BY [o].[Id], [p].[Id], [s].[Id], [e].[Id]");
         }
 
         public override async Task Query_with_OfType_eagerly_loads_correct_owned_navigations(bool async)
