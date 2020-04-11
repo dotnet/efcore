@@ -2747,9 +2747,9 @@ BEGIN
                 AssertSql(
                     @"@__p_0='2'
 
-SELECT [t].[Id], [t].[AddressId], [t].[CustomerDetailsId], [t].[Name], [t].[Id0], [o].[Id], [o].[CustomerId], [o].[Name]
+SELECT [t].[Id], [t].[AddressId], [t].[CustomerDetailsId], [t].[Name], [t].[Id0], [t].[Id1], [o].[Id], [o].[CustomerId], [o].[Name]
 FROM (
-    SELECT TOP(@__p_0) [c].[Id], [c].[AddressId], [c].[CustomerDetailsId], [c].[Name], [a].[Id] AS [Id0], CASE
+    SELECT TOP(@__p_0) [c].[Id], [c].[AddressId], [c].[CustomerDetailsId], [c].[Name], [a].[Id] AS [Id0], [c0].[Id] AS [Id1], CASE
         WHEN [a].[Id] > 0 THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c], CASE
@@ -2768,7 +2768,7 @@ FROM (
     END
 ) AS [t]
 LEFT JOIN [Order9735] AS [o] ON [t].[Id] = [o].[CustomerId]
-ORDER BY [t].[c], [t].[c0], [t].[Id], [t].[Id0], [o].[Id]");
+ORDER BY [t].[c], [t].[c0], [t].[Id], [t].[Id0], [t].[Id1], [o].[Id]");
             }
         }
 
@@ -5964,10 +5964,10 @@ ORDER BY [p].[Id] DESC");
                 Assert.Equal(new[] { 1, 2 }, result.ThingIds);
 
                 AssertSql(
-                    @"SELECT [e].[Id], [t0].[ThingId], [t0].[Id]
+                    @"SELECT [e].[Id], [t0].[ThingId], [t0].[Id], [t0].[Id0]
 FROM [Entities] AS [e]
 OUTER APPLY (
-    SELECT [s].[ThingId], [t].[Id]
+    SELECT [s].[ThingId], [t].[Id], [s].[Id] AS [Id0]
     FROM [Things] AS [t]
     LEFT JOIN [Subthings] AS [s] ON [t].[Id] = [s].[ThingId]
     WHERE (
@@ -5981,7 +5981,7 @@ OUTER APPLY (
         FROM [Values] AS [v0]
         WHERE [e].[Id] = [v0].[Entity11023Id]) IS NULL AND [t].[Value11023Id] IS NULL))
 ) AS [t0]
-ORDER BY [e].[Id], [t0].[Id]");
+ORDER BY [e].[Id], [t0].[Id], [t0].[Id0]");
             }
         }
 
@@ -6404,7 +6404,7 @@ LEFT JOIN (
     INNER JOIN [DbContract] AS [d1] ON [d0].[ContractId] = [d1].[Id]
     LEFT JOIN [DbSeason] AS [d2] ON [d1].[SeasonId] = [d2].[Id]
 ) AS [t1] ON [t0].[Id] = [t1].[DbTradeId]
-ORDER BY [t0].[Id], [t1].[Id], [t1].[Id0]");
+ORDER BY [t0].[Id], [t1].[Id], [t1].[Id0], [t1].[Id1]");
             }
         }
 

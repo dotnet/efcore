@@ -448,7 +448,7 @@ LEFT JOIN [BaseEntities] AS [b0] ON [b].[BaseParentId] = [b0].[Id]");
 FROM [BaseEntities] AS [b]
 LEFT JOIN [BaseReferencesOnBase] AS [b0] ON [b].[Id] = [b0].[BaseParentId]
 LEFT JOIN [NestedCollections] AS [n] ON [b0].[Id] = [n].[ParentReferenceId]
-ORDER BY [b].[Id], [n].[Id]");
+ORDER BY [b].[Id], [b0].[Id], [n].[Id]");
         }
 
         public override void Nested_include_with_inheritance_reference_collection3()
@@ -461,7 +461,7 @@ FROM [BaseEntities] AS [b]
 LEFT JOIN [BaseReferencesOnBase] AS [b0] ON [b].[Id] = [b0].[BaseParentId]
 LEFT JOIN [NestedCollections] AS [n] ON [b0].[Id] = [n].[ParentReferenceId]
 WHERE [b].[Discriminator] = N'DerivedInheritanceRelationshipEntity'
-ORDER BY [b].[Id], [n].[Id]");
+ORDER BY [b].[Id], [b0].[Id], [n].[Id]");
         }
 
         public override void Nested_include_with_inheritance_reference_collection_reverse()
@@ -487,7 +487,7 @@ LEFT JOIN (
     FROM [BaseCollectionsOnBase] AS [b0]
     LEFT JOIN [NestedReferences] AS [n] ON [b0].[Id] = [n].[ParentCollectionId]
 ) AS [t] ON [b].[Id] = [t].[BaseParentId]
-ORDER BY [b].[Id], [t].[Id]");
+ORDER BY [b].[Id], [t].[Id], [t].[Id0]");
         }
 
         public override void Nested_include_with_inheritance_collection_reference_reverse()
@@ -539,7 +539,7 @@ LEFT JOIN (
     FROM [PrincipalEntities] AS [p]
     LEFT JOIN [ReferencedEntities] AS [r0] ON [p].[ReferenceId] = [r0].[Id]
 ) AS [t] ON [r].[Id] = [t].[ReferencedEntityId]
-ORDER BY [r].[Id], [t].[Id]");
+ORDER BY [r].[Id], [t].[Id], [t].[Id0]");
         }
 
         private void AssertSql(params string[] expected)

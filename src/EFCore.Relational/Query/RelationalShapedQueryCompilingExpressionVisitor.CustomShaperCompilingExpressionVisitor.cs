@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
 
                 var innerKey = selfIdentifier(queryContext, dbDataReader);
-                if (innerKey.Any(e => e == null))
+                if (innerKey.Length > 0 && innerKey.All(e => e == null))
                 {
                     // No correlated element
                     return;
@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
 
                     var innerKey = selfIdentifier(queryContext, dbDataReader);
-                    if (innerKey.Any(e => e == null))
+                    if (innerKey.All(e => e == null))
                     {
                         // No correlated element
                         return;

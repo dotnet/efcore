@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             };
 
         private ColumnExpression(string name, TableExpressionBase table, Type type, RelationalTypeMapping typeMapping, bool nullable)
-            : base(type, typeMapping)
+            : base(nullable ? type.MakeNullable() : type, typeMapping)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(table, nameof(table));
