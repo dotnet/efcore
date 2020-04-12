@@ -25,8 +25,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        public override Task Query_expression_with_to_string_and_contains(bool async)
-            => AssertTranslationFailed(() => base.Query_expression_with_to_string_and_contains(async));
+        public override async Task Query_expression_with_to_string_and_contains(bool async)
+        {
+            await base.Query_expression_with_to_string_and_contains(async);
+
+            AssertSql(
+                @"SELECT ""o"".""CustomerID""
+FROM ""Orders"" AS ""o""
+WHERE ""o"".""OrderDate"" IS NOT NULL AND (('10' = '') OR (instr(CAST(""o"".""EmployeeID"" AS TEXT), '10') > 0))");
+        }
 
         public override async Task Take_Skip(bool async)
         {
