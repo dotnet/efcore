@@ -26,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             //  In adition, this means that multiple assemblies will hopefully generate GUIDs with different Node ID's.
             var assemblyName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
             var machineName = Environment.MachineName;
-            Random rng = new Random(string.Join('.', assemblyName, machineName).GetHashCode());
-            byte[] nodeId = new byte[8];
+            var rng = new Random(string.Join('.', assemblyName, machineName).GetHashCode());
+            var nodeId = new byte[8];
             rng.NextBytes(nodeId);
             _nodeId = (BitConverter.ToInt64(nodeId, 0) & ~0xe0) | (0x80);
             _counter = ((DateTime.UtcNow.Ticks & 0x0000FFFFFFFFFFFF) | (0xEA110000L << 32));

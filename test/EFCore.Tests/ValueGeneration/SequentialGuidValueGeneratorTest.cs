@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         public void Third_group_always_contains_constant_ea11()
         {
             const string expected = "ea11";
-            for (int i = 0; i < 100; i++)
+            for (var i = 0; i < 100; i++)
             {
                 var sequentialGuidIdentityGenerator = new SequentialGuidValueGenerator();
                 var guidString = sequentialGuidIdentityGenerator.Next(null).ToString();
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         public void Fourth_group_contains_MSB_variant_bits()
         {
             const int expected = 0x04;
-            for (int i = 0; i < 100; i++)
+            for (var i = 0; i < 100; i++)
             {
                 var sequentialGuidIdentityGenerator = new SequentialGuidValueGenerator();
                 var guidString = sequentialGuidIdentityGenerator.Next(null).ToString();
