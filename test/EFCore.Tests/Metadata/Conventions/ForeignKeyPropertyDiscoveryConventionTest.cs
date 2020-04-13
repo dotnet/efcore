@@ -507,6 +507,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.Equal(LogLevel.Debug, logEntry.Level);
             Assert.Equal(
                 CoreResources.LogIncompatibleMatchingForeignKeyProperties(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
+                    nameof(PrincipalEntity), nameof(DependentEntity),
                     "{'PrincipalEntityPeeKay' : string}", "{'PeeKay' : int}"), logEntry.Message);
 
             ValidateModel();

@@ -418,7 +418,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     p => !p.IsShadowProperty()
                         || p.GetConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)))
                 {
-                    Dependencies.Logger.IncompatibleMatchingForeignKeyProperties(foreignKeyProperties, propertiesToReference);
+                    Dependencies.Logger.IncompatibleMatchingForeignKeyProperties(
+                        principalEntityType, dependentEntityType, foreignKeyProperties, propertiesToReference);
                 }
 
                 // Stop searching if match found, but is incompatible

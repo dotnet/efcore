@@ -3671,27 +3671,27 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The foreign key properties haven't been configured by convention because the best match {foreignKey} are incompatible with the current principal key {principalKey}. This message can be disregarded if explicit configuration has been specified.
+        ///     For the relationship between principal entity type '{principalEntityType}' and dependent entity type '{dependentEntityType}', the foreign key properties haven't been configured by convention because the best match {foreignKey} are incompatible with the current principal key {principalKey}. This message can be disregarded if explicit configuration has been specified.
         /// </summary>
-        public static EventDefinition<string, string> LogIncompatibleMatchingForeignKeyProperties([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, string, string> LogIncompatibleMatchingForeignKeyProperties([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogIncompatibleMatchingForeignKeyProperties;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
                     ref ((LoggingDefinitions)logger.Definitions).LogIncompatibleMatchingForeignKeyProperties,
-                    () => new EventDefinition<string, string>(
+                    () => new EventDefinition<string, string, string, string>(
                         logger.Options,
                         CoreEventId.IncompatibleMatchingForeignKeyProperties,
                         LogLevel.Debug,
                         "CoreEventId.IncompatibleMatchingForeignKeyProperties",
-                        level => LoggerMessage.Define<string, string>(
+                        level => LoggerMessage.Define<string, string, string, string>(
                             level,
                             CoreEventId.IncompatibleMatchingForeignKeyProperties,
                             _resourceManager.GetString("LogIncompatibleMatchingForeignKeyProperties"))));
             }
 
-            return (EventDefinition<string, string>)definition;
+            return (EventDefinition<string, string, string, string>)definition;
         }
 
         /// <summary>

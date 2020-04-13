@@ -45,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(ExpressionPrinter), () => new ExpressionPrinter() },
                 { typeof(Expression), () => Expression.Constant("A") },
                 { typeof(IEntityType), () => entityType },
+                { typeof(IConventionEntityType), () => entityType },
                 { typeof(IKey), () => new Key(new[] { property }, ConfigurationSource.Convention) },
                 { typeof(IPropertyBase), () => property },
                 { typeof(IServiceProvider), () => new FakeServiceProvider() },

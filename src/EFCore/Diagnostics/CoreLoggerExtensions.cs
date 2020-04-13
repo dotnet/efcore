@@ -1081,10 +1081,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Logs for the <see cref="CoreEventId.IncompatibleMatchingForeignKeyProperties" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="principalEntityType"> The entity type on the principal end of the relationship. </param>
+        /// <param name="dependentEntityType"> The entity type on the dependent end of the relationship. </param>
         /// <param name="foreignKeyProperties"> The properties that make up the foreign key. </param>
         /// <param name="principalKeyProperties"> The corresponding keys on the principal side. </param>
         public static void IncompatibleMatchingForeignKeyProperties(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            [NotNull] IConventionEntityType principalEntityType,
+            [NotNull] IConventionEntityType dependentEntityType,
             [NotNull] IReadOnlyList<IPropertyBase> foreignKeyProperties,
             [NotNull] IReadOnlyList<IPropertyBase> principalKeyProperties)
         {
@@ -1094,15 +1098,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             {
                 definition.Log(
                     diagnostics,
+                    principalEntityType.DisplayName(),
+                    dependentEntityType.DisplayName(),
                     foreignKeyProperties.Format(includeTypes: true),
                     principalKeyProperties.Format(includeTypes: true));
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                var eventData = new TwoPropertyBaseCollectionsEventData(
+                var eventData = new IncompatibleMatchingForeignKeyEventData(
                     definition,
                     IncompatibleMatchingForeignKeyProperties,
+                    principalEntityType,
+                    dependentEntityType,
                     foreignKeyProperties,
                     principalKeyProperties);
 
@@ -1112,9 +1120,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static string IncompatibleMatchingForeignKeyProperties(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string, string>)definition;
-            var p = (TwoPropertyBaseCollectionsEventData)payload;
+            var d = (EventDefinition<string, string, string, string>)definition;
+            var p = (IncompatibleMatchingForeignKeyEventData)payload;
             return d.GenerateMessage(
+                p.PrincipalEntityType.DisplayName(),
+                p.DependentEntityType.DisplayName(),
                 p.FirstPropertyCollection.Format(includeTypes: true),
                 p.SecondPropertyCollection.Format(includeTypes: true));
         }
