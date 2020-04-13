@@ -30,16 +30,16 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         public void Can_generates_sequential_values()
         {
             // After some look at SQL server 2019, it seems only the first 6 bytes are incremental, the rest seems constant.
-            int[] orderMap = new int[] { 3, 2, 1, 0, 5, 4 };
+            var orderMap = new int[] { 3, 2, 1, 0, 5, 4 };
             var sequentialGuidIdentityGenerator = new SequentialGuidValueGenerator();
-            byte[] initialGuid = sequentialGuidIdentityGenerator.Next(null).ToByteArray();
+            var initialGuid = sequentialGuidIdentityGenerator.Next(null).ToByteArray();
             for (var i = 1; i < 11; i++)
             {
-                byte[] expectedBytes = new byte[initialGuid.Length];
+                var expectedBytes = new byte[initialGuid.Length];
                 Array.Copy(initialGuid, 0, expectedBytes, 0, expectedBytes.Length);
-                int overflow = i;
+                var overflow = i;
 
-                for (int idx = 0; idx < orderMap.Length; idx++)
+                for (var idx = 0; idx < orderMap.Length; idx++)
                 {
                     overflow += expectedBytes[orderMap[idx]];
                     expectedBytes[orderMap[idx]] = (byte)overflow;
@@ -82,17 +82,17 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         [ConditionalFact]
         public void Multiple_instances_uses_the_same_state()
         {
-            int[] orderMap = new int[] { 3, 2, 1, 0, 5, 4 };
+            var orderMap = new int[] { 3, 2, 1, 0, 5, 4 };
             var generatorA = new SequentialGuidValueGenerator();
-            byte[] initialGuid = generatorA.Next(null).ToByteArray();
+            var initialGuid = generatorA.Next(null).ToByteArray();
 
             for (var i = 1; i < 11; i++)
             {
-                byte[] expectedBytes = new byte[initialGuid.Length];
+                var expectedBytes = new byte[initialGuid.Length];
                 Array.Copy(initialGuid, 0, expectedBytes, 0, expectedBytes.Length);
-                int overflow = i;
+                var overflow = i;
 
-                for (int idx = 0; idx < orderMap.Length; idx++)
+                for (var idx = 0; idx < orderMap.Length; idx++)
                 {
                     overflow += expectedBytes[orderMap[idx]];
                     expectedBytes[orderMap[idx]] = (byte)overflow;

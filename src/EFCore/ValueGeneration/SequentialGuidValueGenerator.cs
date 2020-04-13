@@ -45,11 +45,10 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
             if (BitConverter.IsLittleEndian)
             {
-                Span<byte> bytes = MemoryMarshal.Cast<long, byte>(guidValue);
+                var bytes = MemoryMarshal.Cast<long, byte>(guidValue);
                 // Change the first byte containing the first int and the two consecutive shorts to litle endian byte order.
                 bytes.Slice(0, 4).Reverse();
                 bytes.Slice(4, 2).Reverse();
-                //bytes.Slice(6, 2).Reverse();
             }
             return MemoryMarshal.Cast<long, Guid>(guidValue)[0];
             //return new Guid(guidBytes);
