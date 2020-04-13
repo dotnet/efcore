@@ -44,7 +44,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <returns> The value to be assigned to a property. </returns>
         public override Guid Next(EntityEntry entry)
         {
+            Interlocked.MemoryBarrier();
             var currentCount = _counter = ((++_counter & 0x0FFFFFFFFFFFFFFF) | (0x1000000000000000));
+            Interlocked.MemoryBarrier();
             Span<long> guidValue = stackalloc long[] { currentCount, _nodeId };
 
             if (BitConverter.IsLittleEndian)
