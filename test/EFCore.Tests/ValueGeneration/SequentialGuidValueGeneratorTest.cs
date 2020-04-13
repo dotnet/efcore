@@ -52,14 +52,15 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         }
 
         [ConditionalFact]
-        public void Third_group_always_contains_constant_ea11()
+        public void Third_group_contains_uuid_version_1()
         {
-            const string expected = "ea11";
+            const string expected = "1";
             for (var i = 0; i < 100; i++)
             {
                 var sequentialGuidIdentityGenerator = new SequentialGuidValueGenerator();
                 var guidString = sequentialGuidIdentityGenerator.Next(null).ToString();
-                var actual = guidString.Split('-')[2];
+                // Version nibble stored in SQL server.
+                var actual = guidString.Split('-')[2].Substring(3, 1);
                 Assert.Equal(expected, actual);
             }
         }
