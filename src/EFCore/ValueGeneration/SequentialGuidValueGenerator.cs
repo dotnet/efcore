@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             var nodeId = new byte[8];
             rng.NextBytes(nodeId);
             _nodeId = (BitConverter.ToInt64(nodeId, 0) & ~0xe0) | (0x80);
-            var tickCount = DateTime.Now.Ticks - new DateTime(1582, 10, 15).Ticks;
+            var tickCount = DateTime.UtcNow.Ticks - new DateTime(1582, 10, 15).Ticks;
             tickCount &= 0x0FFFFFFFFFFFFFFF;
             tickCount |= 0x1000000000000000;
             _counter = tickCount;
