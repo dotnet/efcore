@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -29,13 +31,14 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotEmpty(name, nameof(name));
             Check.NullButNotEmpty(sql, nameof(sql));
 
-            var entityType = ownedNavigationBuilder.Metadata.DeclaringEntityType;
+            var entityType = ownedNavigationBuilder.OwnedEntityType;
 
             var constraint = entityType.FindCheckConstraint(name);
             if (constraint != null)
             {
                 if (constraint.Sql == sql)
                 {
+                    ((CheckConstraint)constraint).UpdateConfigurationSource(ConfigurationSource.Explicit);
                     return ownedNavigationBuilder;
                 }
 

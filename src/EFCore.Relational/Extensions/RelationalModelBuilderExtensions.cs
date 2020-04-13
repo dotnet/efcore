@@ -309,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore
             var dbFunction = modelBuilder.Metadata.FindDbFunction(methodInfo);
             if (dbFunction == null)
             {
-                dbFunction = modelBuilder.Metadata.AddDbFunction(methodInfo);
+                dbFunction = modelBuilder.Metadata.AddDbFunction(methodInfo, fromDataAnnotation);
             }
             else
             {
@@ -357,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (modelBuilder.CanSetDefaultSchema(schema, fromDataAnnotation))
             {
-                modelBuilder.Metadata.SetDefaultSchema(schema);
+                modelBuilder.Metadata.SetDefaultSchema(schema, fromDataAnnotation);
 
                 return modelBuilder;
             }
@@ -400,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (modelBuilder.CanSetMaxIdentifierLength(length, fromDataAnnotation))
             {
-                modelBuilder.Metadata.SetMaxIdentifierLength(length);
+                modelBuilder.Metadata.SetMaxIdentifierLength(length, fromDataAnnotation);
 
                 return modelBuilder;
             }

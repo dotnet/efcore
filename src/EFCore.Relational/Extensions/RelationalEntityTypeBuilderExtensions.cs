@@ -357,6 +357,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 if (constraint.Sql == sql)
                 {
+                    ((CheckConstraint)constraint).UpdateConfigurationSource(ConfigurationSource.Explicit);
                     return entityTypeBuilder;
                 }
 
