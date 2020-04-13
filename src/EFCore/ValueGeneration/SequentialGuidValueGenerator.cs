@@ -3,6 +3,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using System.Threading;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration
@@ -30,7 +31,10 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             var nodeId = new byte[8];
             rng.NextBytes(nodeId);
             _nodeId = (BitConverter.ToInt64(nodeId, 0) & ~0xe0) | (0x80);
-            _counter = ((DateTime.UtcNow.Ticks & 0x0000FFFFFFFFFFFF) | (0xEA110000L << 32));
+            var tickCount = DateTime.Now.Ticks - new DateTime(1582, 10, 15).Ticks;
+            tickCount &= 0x0FFFFFFFFFFFFFFF;
+            tickCount |= 0x1000000000000000;
+            _counter = tickCount;
         }
 
         /// <summary>
@@ -40,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <returns> The value to be assigned to a property. </returns>
         public override Guid Next(EntityEntry entry)
         {
-            var currentCount = _counter = ((++_counter & 0x0000FFFFFFFFFFFF) | (0xEA110000L << 32));
+            var currentCount = _counter = ((++_counter & 0x0FFFFFFFFFFFFFFF) | (0x1000000000000000));
             Span<long> guidValue = stackalloc long[] { currentCount, _nodeId };
 
             if (BitConverter.IsLittleEndian)
@@ -49,9 +53,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
                 // Change the first byte containing the first int and the two consecutive shorts to litle endian byte order.
                 bytes.Slice(0, 4).Reverse();
                 bytes.Slice(4, 2).Reverse();
+                bytes.Slice(6, 2).Reverse();
             }
             return MemoryMarshal.Cast<long, Guid>(guidValue)[0];
-            //return new Guid(guidBytes);
         }
 
         /// <summary>
