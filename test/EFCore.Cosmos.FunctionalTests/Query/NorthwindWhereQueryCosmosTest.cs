@@ -2059,6 +2059,26 @@ WHERE ((c[""Discriminator""] = ""Order"") AND @__p_0)");
             return base.Where_Queryable_AsEnumerable_Contains_negated(async);
         }
 
+        public override async Task Where_list_object_contains_over_value_type(bool async)
+        {
+            await base.Where_list_object_contains_over_value_type(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Order"") AND c[""OrderID""] IN (10248, 10249))");
+        }
+
+        public override async Task Where_array_of_object_contains_over_value_type(bool async)
+        {
+            await base.Where_array_of_object_contains_over_value_type(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Order"") AND c[""OrderID""] IN (10248, 10249))");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

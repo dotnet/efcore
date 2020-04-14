@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -27,14 +28,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains)
                 && ValidateValues(arguments[0]))
             {
-                return _sqlExpressionFactory.In(arguments[1], arguments[0], negated: false);
+                return _sqlExpressionFactory.In(RemoveObjectConvert(arguments[1]), arguments[0], negated: false);
             }
 
             if (arguments.Count == 1
                 && method.IsContainsMethod()
                 && ValidateValues(instance))
             {
-                return _sqlExpressionFactory.In(arguments[0], instance, negated: false);
+                return _sqlExpressionFactory.In(RemoveObjectConvert(arguments[0]), instance, negated: false);
             }
 
             return null;
@@ -42,5 +43,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private bool ValidateValues(SqlExpression values)
             => values is SqlConstantExpression || values is SqlParameterExpression;
+
+        private SqlExpression RemoveObjectConvert(SqlExpression expression)
+            => expression is SqlUnaryExpression sqlUnaryExpression
+                && sqlUnaryExpression.OperatorType == ExpressionType.Convert
+                && sqlUnaryExpression.Type == typeof(object)
+                ? sqlUnaryExpression.Operand
+                : expression;
     }
 }
