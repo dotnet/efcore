@@ -460,7 +460,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (modelBuilder.CanSetCollation(collation, fromDataAnnotation))
             {
-                modelBuilder.Metadata.SetCollation(collation);
+                modelBuilder.Metadata.SetCollation(collation, fromDataAnnotation);
 
                 return modelBuilder;
             }
