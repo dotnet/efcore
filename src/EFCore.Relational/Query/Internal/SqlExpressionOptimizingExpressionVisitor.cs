@@ -56,20 +56,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         Visit(shapedQueryExpression.QueryExpression), shapedQueryExpression.ShaperExpression);
 
                 case SqlUnaryExpression sqlUnaryExpression:
-                    return VisitSqlUnaryExpression(sqlUnaryExpression);
+                    return VisitSqlUnary(sqlUnaryExpression);
 
                 case SqlBinaryExpression sqlBinaryExpression:
-                    return VisitSqlBinaryExpression(sqlBinaryExpression);
+                    return VisitSqlBinary(sqlBinaryExpression);
 
                 case SelectExpression selectExpression:
-                    return VisitSelectExpression(selectExpression);
+                    return VisitSelect(selectExpression);
 
                 default:
                     return base.VisitExtension(extensionExpression);
             };
         }
 
-        private Expression VisitSelectExpression(SelectExpression selectExpression)
+        private Expression VisitSelect(SelectExpression selectExpression)
         {
             var newExpression = base.VisitExtension(selectExpression);
 
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return newExpression;
         }
 
-        protected virtual Expression VisitSqlUnaryExpression([NotNull] SqlUnaryExpression sqlUnaryExpression)
+        protected virtual Expression VisitSqlUnary([NotNull] SqlUnaryExpression sqlUnaryExpression)
         {
             var newOperand = (SqlExpression)Visit(sqlUnaryExpression.Operand);
 
@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return SqlExpressionFactory.MakeUnary(operatorType, operand, type, typeMapping);
         }
 
-        protected virtual Expression VisitSqlBinaryExpression([NotNull] SqlBinaryExpression sqlBinaryExpression)
+        protected virtual Expression VisitSqlBinary([NotNull] SqlBinaryExpression sqlBinaryExpression)
         {
             var newLeft = (SqlExpression)Visit(sqlBinaryExpression.Left);
             var newRight = (SqlExpression)Visit(sqlBinaryExpression.Right);
