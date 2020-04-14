@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected virtual RelationalShapedQueryCompilingExpressionVisitorDependencies RelationalDependencies { get; }
 
-        protected override Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression)
+        protected override Expression VisitShapedQuery(ShapedQueryExpression shapedQueryExpression)
         {
             Check.NotNull(shapedQueryExpression, nameof(shapedQueryExpression));
 

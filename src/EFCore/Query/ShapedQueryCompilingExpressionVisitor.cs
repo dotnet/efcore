@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (extensionExpression is ShapedQueryExpression shapedQueryExpression)
             {
-                var serverEnumerable = VisitShapedQueryExpression(shapedQueryExpression);
+                var serverEnumerable = VisitShapedQuery(shapedQueryExpression);
                 switch (shapedQueryExpression.ResultCardinality)
                 {
                     case ResultCardinality.Enumerable:
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return result;
         }
 
-        protected abstract Expression VisitShapedQueryExpression([NotNull] ShapedQueryExpression shapedQueryExpression);
+        protected abstract Expression VisitShapedQuery([NotNull] ShapedQueryExpression shapedQueryExpression);
 
         protected virtual Expression InjectEntityMaterializers([NotNull] Expression expression)
         {

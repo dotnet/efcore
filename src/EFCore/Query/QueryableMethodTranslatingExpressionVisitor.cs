@@ -513,16 +513,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _memberShift = memberShift;
             }
 
-            protected override Expression VisitExtension(Expression node)
+            protected override Expression VisitExtension(Expression extensionExpression)
             {
-                Check.NotNull(node, nameof(node));
+                Check.NotNull(extensionExpression, nameof(extensionExpression));
 
-                return node is ProjectionBindingExpression projectionBindingExpression
+                return extensionExpression is ProjectionBindingExpression projectionBindingExpression
                     ? new ProjectionBindingExpression(
                         _queryExpression,
                         projectionBindingExpression.ProjectionMember.Prepend(_memberShift),
                         projectionBindingExpression.Type)
-                    : base.VisitExtension(node);
+                    : base.VisitExtension(extensionExpression);
             }
         }
 
