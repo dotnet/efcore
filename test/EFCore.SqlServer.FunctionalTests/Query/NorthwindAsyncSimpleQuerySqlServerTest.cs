@@ -31,18 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact(Skip = "Issue#16314")]
-        public override Task Concat_non_entity()
-        {
-            return Task.CompletedTask;
-        }
-
-        [ConditionalFact(Skip = "Issue#16314")]
-        public override Task Concat_simple()
-        {
-            return Task.CompletedTask;
-        }
-
-        [ConditionalFact(Skip = "Issue#16314")]
         public Task Query_compiler_concurrency()
         {
             const int threadCount = 50;

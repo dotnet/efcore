@@ -557,6 +557,90 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [ConditionalFact]
+        public virtual async Task Compiled_query_with_max_parameters()
+        {
+            var syncEnumerableQuery = EF.CompileQuery(
+                (NorthwindContext context, string s1, string s2, string s3, string s4, string s5, string s6, string s7, string s8,
+                    string s9, string s10, string s11, string s12, string s13, string s14, string s15)
+                => context.Set<Customer>()
+                    .Where(c => c.CustomerID == s1 || c.CustomerID == s2 || c.CustomerID == s3 || c.CustomerID == s4 || c.CustomerID == s5
+                        || c.CustomerID == s6 || c.CustomerID == s7 || c.CustomerID == s8 || c.CustomerID == s9 || c.CustomerID == s10
+                        || c.CustomerID == s11 || c.CustomerID == s12 || c.CustomerID == s13 || c.CustomerID == s14 || c.CustomerID == s15));
+
+            var syncIncludeEnumerableQuery = EF.CompileQuery(
+                (NorthwindContext context, string s1, string s2, string s3, string s4, string s5, string s6, string s7, string s8,
+                    string s9, string s10, string s11, string s12, string s13, string s14, string s15)
+                => context.Set<Customer>()
+                    .Where(c => c.CustomerID == s1 || c.CustomerID == s2 || c.CustomerID == s3 || c.CustomerID == s4 || c.CustomerID == s5
+                        || c.CustomerID == s6 || c.CustomerID == s7 || c.CustomerID == s8 || c.CustomerID == s9 || c.CustomerID == s10
+                        || c.CustomerID == s11 || c.CustomerID == s12 || c.CustomerID == s13 || c.CustomerID == s14 || c.CustomerID == s15)
+                    .Include(c => c.Orders));
+
+            var syncSingleResultQuery = EF.CompileQuery(
+                (NorthwindContext context, string s1, string s2, string s3, string s4, string s5, string s6, string s7, string s8,
+                    string s9, string s10, string s11, string s12, string s13, string s14, string s15)
+                => context.Set<Customer>()
+                    .Count(c => c.CustomerID == s1 || c.CustomerID == s2 || c.CustomerID == s3 || c.CustomerID == s4 || c.CustomerID == s5
+                        || c.CustomerID == s6 || c.CustomerID == s7 || c.CustomerID == s8 || c.CustomerID == s9 || c.CustomerID == s10
+                        || c.CustomerID == s11 || c.CustomerID == s12 || c.CustomerID == s13 || c.CustomerID == s14 || c.CustomerID == s15));
+
+            var asyncEnumerableQuery = EF.CompileAsyncQuery(
+                (NorthwindContext context, string s1, string s2, string s3, string s4, string s5, string s6, string s7, string s8,
+                    string s9, string s10, string s11, string s12, string s13, string s14, string s15)
+                => context.Set<Customer>()
+                    .Where(c => c.CustomerID == s1 || c.CustomerID == s2 || c.CustomerID == s3 || c.CustomerID == s4 || c.CustomerID == s5
+                        || c.CustomerID == s6 || c.CustomerID == s7 || c.CustomerID == s8 || c.CustomerID == s9 || c.CustomerID == s10
+                        || c.CustomerID == s11 || c.CustomerID == s12 || c.CustomerID == s13 || c.CustomerID == s14 || c.CustomerID == s15));
+
+            var asyncIncludeEnumerableQuery = EF.CompileAsyncQuery(
+                (NorthwindContext context, string s1, string s2, string s3, string s4, string s5, string s6, string s7, string s8,
+                    string s9, string s10, string s11, string s12, string s13, string s14, string s15)
+                => context.Set<Customer>()
+                    .Where(c => c.CustomerID == s1 || c.CustomerID == s2 || c.CustomerID == s3 || c.CustomerID == s4 || c.CustomerID == s5
+                        || c.CustomerID == s6 || c.CustomerID == s7 || c.CustomerID == s8 || c.CustomerID == s9 || c.CustomerID == s10
+                        || c.CustomerID == s11 || c.CustomerID == s12 || c.CustomerID == s13 || c.CustomerID == s14 || c.CustomerID == s15)
+                    .Include(c => c.Orders));
+
+            var asyncSingleResultQuery = EF.CompileAsyncQuery(
+                (NorthwindContext context, string s1, string s2, string s3, string s4, string s5, string s6, string s7, string s8,
+                    string s9, string s10, string s11, string s12, string s13, string s14, string s15)
+                => context.Set<Customer>()
+                    .Count(c => c.CustomerID == s1 || c.CustomerID == s2 || c.CustomerID == s3 || c.CustomerID == s4 || c.CustomerID == s5
+                        || c.CustomerID == s6 || c.CustomerID == s7 || c.CustomerID == s8 || c.CustomerID == s9 || c.CustomerID == s10
+                        || c.CustomerID == s11 || c.CustomerID == s12 || c.CustomerID == s13 || c.CustomerID == s14 || c.CustomerID == s15));
+
+            var asyncSingleResultQueryWithCancellationToken = EF.CompileAsyncQuery(
+                (NorthwindContext context, string s1, string s2, string s3, string s4, string s5, string s6, string s7, string s8,
+                    string s9, string s10, string s11, string s12, string s13, string s14, CancellationToken ct)
+                => context.Set<Customer>()
+                    .Count(c => c.CustomerID == s1 || c.CustomerID == s2 || c.CustomerID == s3 || c.CustomerID == s4 || c.CustomerID == s5
+                        || c.CustomerID == s6 || c.CustomerID == s7 || c.CustomerID == s8 || c.CustomerID == s9 || c.CustomerID == s10
+                        || c.CustomerID == s11 || c.CustomerID == s12 || c.CustomerID == s13 || c.CustomerID == s14));
+
+            using var context = CreateContext();
+
+            var syncEnumerableResult = syncEnumerableQuery(context, "ALFKI", "ANATR", "ANTON", "AROUT", "BERGS", "BLAUS", "BLONP", "BOLID", "BONAP", "BSBEV", "CACTU", "CENTC", "CHOPS", "CONSH", "RANDM").ToList();
+            Assert.Equal(14, syncEnumerableResult.Count);
+
+            var syncIncludeEnumerableResult = syncIncludeEnumerableQuery(context, "ALFKI", "ANATR", "ANTON", "AROUT", "BERGS", "BLAUS", "BLONP", "BOLID", "BONAP", "BSBEV", "CACTU", "CENTC", "CHOPS", "CONSH", "RANDM").ToList();
+            Assert.Equal(14, syncIncludeEnumerableResult.Count);
+            Assert.All(syncIncludeEnumerableResult, t => Assert.NotNull(t.Orders));
+
+            Assert.Equal(14, syncSingleResultQuery(context, "ALFKI", "ANATR", "ANTON", "AROUT", "BERGS", "BLAUS", "BLONP", "BOLID", "BONAP", "BSBEV", "CACTU", "CENTC", "CHOPS", "CONSH", "RANDM"));
+
+            var asyncEnumerableResult = await asyncEnumerableQuery(context, "ALFKI", "ANATR", "ANTON", "AROUT", "BERGS", "BLAUS", "BLONP", "BOLID", "BONAP", "BSBEV", "CACTU", "CENTC", "CHOPS", "CONSH", "RANDM").ToListAsync();
+            Assert.Equal(14, asyncEnumerableResult.Count);
+
+            var asyncIncludeEnumerableResult = await asyncIncludeEnumerableQuery(context, "ALFKI", "ANATR", "ANTON", "AROUT", "BERGS", "BLAUS", "BLONP", "BOLID", "BONAP", "BSBEV", "CACTU", "CENTC", "CHOPS", "CONSH", "RANDM").ToListAsync();
+            Assert.Equal(14, asyncIncludeEnumerableResult.Count);
+            Assert.All(asyncIncludeEnumerableResult, t => Assert.NotNull(t.Orders));
+
+            Assert.Equal(14, await asyncSingleResultQuery(context, "ALFKI", "ANATR", "ANTON", "AROUT", "BERGS", "BLAUS", "BLONP", "BOLID", "BONAP", "BSBEV", "CACTU", "CENTC", "CHOPS", "CONSH", "RANDM"));
+
+            Assert.Equal(14, await asyncSingleResultQueryWithCancellationToken(context, "ALFKI", "ANATR", "ANTON", "AROUT", "BERGS", "BLAUS", "BLONP", "BOLID", "BONAP", "BSBEV", "CACTU", "CENTC", "CHOPS", "CONSH", default));
+        }
+
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
     }
 }
