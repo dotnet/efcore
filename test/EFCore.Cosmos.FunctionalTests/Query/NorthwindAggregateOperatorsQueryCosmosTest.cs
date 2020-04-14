@@ -1600,6 +1600,12 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             return base.Min_after_default_if_empty_does_not_throw(isAsync);
         }
 
+        [ConditionalTheory(Skip = "Issue#20677")]
+        public override Task Average_with_unmapped_property_access_throws_meaningful_exception(bool async)
+        {
+            return base.Average_with_unmapped_property_access_throws_meaningful_exception(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

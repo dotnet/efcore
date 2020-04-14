@@ -785,6 +785,17 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Trying_to_access_non_existent_indexer_property_throws_meaningful_exception(bool async)
+        {
+            return AssertTranslationFailedWithDetails(
+                () => AssertQuery(
+                    async,
+                    ss => ss.Set<OwnedPerson>().Where(op => (bool)op["Foo"])),
+                CoreStrings.QueryUnableToTranslateMember("Foo", nameof(OwnedPerson)));
+        }
+
         protected virtual DbContext CreateContext() => Fixture.CreateContext();
 
         public abstract class OwnedQueryFixtureBase : SharedStoreFixtureBase<PoolableDbContext>, IQueryFixtureBase

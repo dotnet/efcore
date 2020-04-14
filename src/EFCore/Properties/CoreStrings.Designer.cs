@@ -41,6 +41,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 expression);
 
         /// <summary>
+        ///     The LINQ expression '{expression}' could not be translated. Additional information: {details} Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.
+        /// </summary>
+        public static string TranslationFailedWithDetails([CanBeNull] object expression, [CanBeNull] object details)
+            => string.Format(
+                GetString("TranslationFailedWithDetails", nameof(expression), nameof(details)),
+                expression, details);
+
+        /// <summary>
         ///     Processing of the LINQ expression '{expression}' by '{visitor}' failed. This may indicate either a bug or a limitation in EF Core. See https://go.microsoft.com/fwlink/?linkid=2101433 for more detailed information.
         /// </summary>
         public static string QueryFailed([CanBeNull] object expression, [CanBeNull] object visitor)
@@ -2559,6 +2567,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("QueryUnableToTranslateEFProperty", nameof(expression)),
                 expression);
+
+        /// <summary>
+        ///     Translation of member '{member}' on entity type '{entityType}' failed. Possibly the specified member is not mapped.
+        /// </summary>
+        public static string QueryUnableToTranslateMember([CanBeNull] object member, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("QueryUnableToTranslateMember", nameof(member), nameof(entityType)),
+                member, entityType);
+
+        /// <summary>
+        ///     Translation of 'string.Equals' method which takes 'StringComparison' argument is not supported. See https://go.microsoft.com/fwlink/?linkid=2129535 for more information.
+        /// </summary>
+        public static string QueryUnableToTranslateStringEqualsWithStringComparison
+            => GetString("QueryUnableToTranslateStringEqualsWithStringComparison");
 
         /// <summary>
         ///     Invalid {state} encountered.

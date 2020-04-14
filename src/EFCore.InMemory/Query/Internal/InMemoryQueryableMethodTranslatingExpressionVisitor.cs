@@ -56,8 +56,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             [NotNull] InMemoryQueryableMethodTranslatingExpressionVisitor parentVisitor)
             : base(parentVisitor.Dependencies, parentVisitor.QueryCompilationContext, subquery: true)
         {
-            _expressionTranslator = parentVisitor._expressionTranslator;
-            _weakEntityExpandingExpressionVisitor = parentVisitor._weakEntityExpandingExpressionVisitor;
+            _expressionTranslator = new InMemoryExpressionTranslatingExpressionVisitor(QueryCompilationContext, parentVisitor);
+            _weakEntityExpandingExpressionVisitor = new WeakEntityExpandingExpressionVisitor(_expressionTranslator);
             _projectionBindingExpressionVisitor = new InMemoryProjectionBindingExpressionVisitor(this, _expressionTranslator);
             _model = parentVisitor._model;
         }
@@ -465,7 +465,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     return memberInitExpression.Update(updatedNewExpression, newBindings);
 
                 default:
-                    var translation = _expressionTranslator.Translate(expression);
+                    var translation = TranslateExpression(expression);
                     if (translation == null)
                     {
                         return null;
@@ -1204,19 +1204,23 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         private Expression TranslateExpression(Expression expression, bool preserveType = false)
         {
-            var result = _expressionTranslator.Translate(expression);
-
-            if (expression != null
-                && result != null
-                && preserveType
-                && expression.Type != result.Type)
+            var translation = _expressionTranslator.Translate(expression);
+            if (translation == null && _expressionTranslator.TranslationErrorDetails != null)
             {
-                result = expression.Type == typeof(bool)
-                    ? Expression.Equal(result, Expression.Constant(true, result.Type))
-                    : (Expression)Expression.Convert(result, expression.Type);
+                ProvideTranslationErrorDetails(_expressionTranslator.TranslationErrorDetails);
             }
 
-            return result;
+            if (expression != null
+                && translation != null
+                && preserveType
+                && expression.Type != translation.Type)
+            {
+                translation = expression.Type == typeof(bool)
+                    ? Expression.Equal(translation, Expression.Constant(true, translation.Type))
+                    : (Expression)Expression.Convert(translation, expression.Type);
+            }
+
+            return translation;
         }
 
         private LambdaExpression TranslateLambdaExpression(
@@ -1253,6 +1257,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             {
                 _expressionTranslator = expressionTranslator;
             }
+
+            public string TranslationErrorDetails => _expressionTranslator.TranslationErrorDetails;
 
             public Expression Expand(InMemoryQueryExpression queryExpression, Expression lambdaBody)
             {

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -1887,6 +1888,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertCount(
                 async,
                 ss => ss.Set<Order>().Select(o => new { Id = CodeFormat(o.OrderID) }));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Average_with_unmapped_property_access_throws_meaningful_exception(bool async)
+        {
+            return AssertTranslationFailedWithDetails(
+                () => AssertAverage(
+                async,
+                ss => ss.Set<Order>(),
+                selector: c => c.ShipVia),
+                CoreStrings.QueryUnableToTranslateMember(nameof(Order.ShipVia), nameof(Order)));
         }
 
         private static string CodeFormat(int str) => str.ToString();

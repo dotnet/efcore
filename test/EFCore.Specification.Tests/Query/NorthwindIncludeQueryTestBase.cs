@@ -1812,7 +1812,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using var context = CreateContext();
             Assert.Contains(
-                CoreStrings.TranslationFailed("").Substring(21),
+                CoreStrings.TranslationFailedWithDetails(
+                    "",
+                    CoreStrings.QueryUnableToTranslateMember(nameof(Customer.IsLondon), nameof(Customer))).Substring(21),
                 Assert.Throws<InvalidOperationException>(
                     () => useString
                         ? context.Set<Customer>()

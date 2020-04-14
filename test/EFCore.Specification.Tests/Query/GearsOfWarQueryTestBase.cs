@@ -1563,12 +1563,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_Where_Navigation_Client(bool async)
         {
-            return AssertTranslationFailed(
+            return AssertTranslationFailedWithDetails(
                 () => AssertQuery(
                     async,
                     ss => from t in ss.Set<CogTag>()
                           where t.Gear != null && t.Gear.IsMarcus
-                          select t));
+                          select t),
+                CoreStrings.QueryUnableToTranslateMember(nameof(Gear.IsMarcus), nameof(Gear)));
         }
 
         [ConditionalTheory]
@@ -7504,6 +7505,85 @@ namespace Microsoft.EntityFrameworkCore.Query
                 () => AssertMax(
                     async,
                     ss => ss.Set<Mission>().Select(m => m.Duration.Ticks)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Trying_to_access_unmapped_property_throws_informative_error(bool async)
+        {
+            return AssertTranslationFailedWithDetails(
+                () => AssertQuery(
+                    async,
+                    ss => ss.Set<Gear>().Where(g => g.IsMarcus)),
+                CoreStrings.QueryUnableToTranslateMember(nameof(Gear.IsMarcus), nameof(Gear)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Trying_to_access_unmapped_property_in_projection(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Gear>().Select(g => g.IsMarcus));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Trying_to_access_unmapped_property_inside_aggregate(bool async)
+        {
+            return AssertTranslationFailedWithDetails(
+                () => AssertQuery(
+                async,
+                ss => ss.Set<City>().Where(c => c.BornGears.Count(g => g.IsMarcus) > 0)),
+                CoreStrings.QueryUnableToTranslateMember(nameof(Gear.IsMarcus), nameof(Gear)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Trying_to_access_unmapped_property_inside_subquery(bool async)
+        {
+            return AssertTranslationFailedWithDetails(
+                () => AssertQuery(
+                async,
+                ss => ss.Set<City>().Where(c => ss.Set<Gear>().Where(g => g.IsMarcus).Select(g => g.Nickname).FirstOrDefault() == "Marcus")),
+                CoreStrings.QueryUnableToTranslateMember(nameof(Gear.IsMarcus), nameof(Gear)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Trying_to_access_unmapped_property_inside_join_key_selector(bool async)
+        {
+            return AssertTranslationFailedWithDetails(
+                () => AssertQuery(
+                async,
+                ss => from w in ss.Set<Weapon>()
+                      join g in ss.Set<Gear>() on w.IsAutomatic equals g.IsMarcus into grouping
+                      from g in grouping.DefaultIfEmpty()
+                      select new { w, g }),
+                CoreStrings.QueryUnableToTranslateMember(nameof(Gear.IsMarcus), nameof(Gear)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Client_projection_with_nested_unmapped_property_bubbles_up_translation_failure_info(bool async)
+        {
+            return AssertTranslationFailedWithDetails(
+                () => AssertQuery(
+                    async,
+                    ss => ss.Set<Gear>().Select(g => new { nested = ss.Set<Gear>().Where(gg => gg.IsMarcus).ToList() })),
+                CoreStrings.QueryUnableToTranslateMember(nameof(Gear.IsMarcus), nameof(Gear)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Client_member_and_unsupported_string_Equals_in_the_same_query(bool async)
+        {
+            return AssertTranslationFailedWithDetails(
+                () => AssertQuery(
+                    async,
+                    ss => ss.Set<Gear>().Where(g => g.FullName.Equals(g.Nickname, StringComparison.InvariantCulture) || g.IsMarcus)),
+                CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison
+                + Environment.NewLine + CoreStrings.QueryUnableToTranslateMember(nameof(Gear.IsMarcus), nameof(Gear)));
         }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();

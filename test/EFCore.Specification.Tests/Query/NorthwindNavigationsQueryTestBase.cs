@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -146,13 +147,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_Where_Navigation_Client(bool async)
         {
-            return AssertTranslationFailed(
+            return AssertTranslationFailedWithDetails(
                 () => AssertQuery(
                     async,
                     ss => from o in ss.Set<Order>()
                           where o.Customer.IsLondon
                           select o,
-                    entryCount: 46));
+                    entryCount: 46),
+                CoreStrings.QueryUnableToTranslateMember(nameof(Customer.IsLondon), nameof(Customer)));
         }
 
         [ConditionalTheory]
@@ -603,7 +605,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_select_nav_prop_all_client(bool async)
         {
-            return AssertTranslationFailed(
+            return AssertTranslationFailedWithDetails(
                 () => AssertQuery(
                     async,
                     ss => from c in ss.Set<Customer>()
@@ -612,7 +614,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ss => from c in ss.Set<Customer>()
                           orderby c.CustomerID
                           select new { All = (c.Orders ?? new List<Order>()).All(o => false) },
-                    assertOrder: true));
+                    assertOrder: true),
+                CoreStrings.QueryUnableToTranslateMember(nameof(Order.ShipCity), nameof(Order)));
         }
 
         [ConditionalTheory]
@@ -634,13 +637,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_where_nav_prop_all_client(bool async)
         {
-            return AssertTranslationFailed(
+            return AssertTranslationFailedWithDetails(
                 () => AssertQuery(
                     async,
                     ss => from c in ss.Set<Customer>()
                           orderby c.CustomerID
                           where c.Orders.All(o => o.ShipCity == "London")
-                          select c));
+                          select c),
+                CoreStrings.QueryUnableToTranslateMember(nameof(Order.ShipCity), nameof(Order)));
         }
 
         [ConditionalTheory]

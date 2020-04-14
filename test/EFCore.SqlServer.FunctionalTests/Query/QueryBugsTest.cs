@@ -6723,8 +6723,9 @@ FROM [MockEntities] AS [m]");
                 () => queryBase.Cast<IDummyEntity>().FirstOrDefault(x => x.Id == id)).Message;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed(@"DbSet<MockEntity>()    .Cast<IDummyEntity>()    .Where(e => e.Id == __id_0)"),
-                message.Replace("\r", "").Replace("\n", ""));
+                CoreStrings.TranslationFailed(
+                    @"DbSet<MockEntity>()    .Cast<IDummyEntity>()    .Where(e => e.Id == __id_0)"),
+                    message.Replace("\r", "").Replace("\n", ""));
         }
 
         private SqlServerTestStore CreateDatabase18087()

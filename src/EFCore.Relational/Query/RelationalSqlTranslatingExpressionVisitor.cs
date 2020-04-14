@@ -35,6 +35,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         private static readonly MethodInfo _parameterListValueExtractor =
             typeof(RelationalSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterListValueExtractor));
 
+        private static readonly MethodInfo _stringEqualsWithStringComparison
+            = typeof(string).GetRuntimeMethod(nameof(string.Equals), new[] { typeof(string), typeof(StringComparison) });
+        private static readonly MethodInfo _stringEqualsWithStringComparisonStatic
+            = typeof(string).GetRuntimeMethod(nameof(string.Equals), new[] { typeof(string), typeof(string), typeof(StringComparison) });
+
         private readonly QueryCompilationContext _queryCompilationContext;
         private readonly IModel _model;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -65,6 +70,29 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
+        ///     Detailed information about errors encountered during translation.
+        /// </summary>
+        public virtual string TranslationErrorDetails { get; private set; }
+
+        /// <summary>
+        ///     Provides detailed information about error encountered during translation.
+        /// </summary>
+        /// <param name="details">Detailed information about error encountered during translation.</param>
+        protected virtual void ProvideTranslationErrorDetails([NotNull] string details)
+        {
+            Check.NotNull(details, nameof(details));
+
+            if (TranslationErrorDetails == null)
+            {
+                TranslationErrorDetails = details;
+            }
+            else
+            {
+                TranslationErrorDetails += Environment.NewLine + details;
+            }
+        }
+
+        /// <summary>
         ///     Parameter object containing service dependencies.
         /// </summary>
         protected virtual RelationalSqlTranslatingExpressionVisitorDependencies Dependencies { get; }
@@ -78,6 +106,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(expression, nameof(expression));
 
+            TranslationErrorDetails = null;
+
+            return TranslateInternal(expression);
+        }
+
+        private SqlExpression TranslateInternal(Expression expression)
+        {
             var result = Visit(expression);
 
             if (result is SqlExpression translation)
@@ -116,12 +151,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (!(expression is SqlExpression sqlExpression))
             {
-                sqlExpression = Translate(expression);
+                sqlExpression = TranslateInternal(expression);
             }
 
             if (sqlExpression == null)
             {
-                throw new InvalidOperationException(CoreStrings.TranslationFailed(expression.Print()));
+                throw new InvalidOperationException(
+                    TranslationErrorDetails == null
+                        ? CoreStrings.TranslationFailed(expression.Print())
+                        : CoreStrings.TranslationFailedWithDetails(expression.Print(), TranslationErrorDetails));
             }
 
             var inputType = sqlExpression.Type.UnwrapNullableType();
@@ -206,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (!(expression is SqlExpression sqlExpression))
             {
-                sqlExpression = Translate(expression);
+                sqlExpression = TranslateInternal(expression);
             }
 
             return sqlExpression != null
@@ -231,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (!(expression is SqlExpression sqlExpression))
             {
-                sqlExpression = Translate(expression);
+                sqlExpression = TranslateInternal(expression);
             }
 
             return sqlExpression != null
@@ -256,12 +294,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (!(expression is SqlExpression sqlExpression))
             {
-                sqlExpression = Translate(expression);
+                sqlExpression = TranslateInternal(expression);
             }
 
             if (sqlExpression == null)
             {
-                throw new InvalidOperationException(CoreStrings.TranslationFailed(expression.Print()));
+                throw new InvalidOperationException(
+                    TranslationErrorDetails == null
+                        ? CoreStrings.TranslationFailed(expression.Print())
+                        : CoreStrings.TranslationFailedWithDetails(expression.Print(), TranslationErrorDetails));
             }
 
             var inputType = sqlExpression.Type.UnwrapNullableType();
@@ -438,7 +479,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 if (translatedAggregate == null)
                 {
-                    throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
+                    throw new InvalidOperationException(
+                        TranslationErrorDetails == null
+                            ? CoreStrings.TranslationFailed(methodCallExpression.Print())
+                            : CoreStrings.TranslationFailedWithDetails(methodCallExpression.Print(), TranslationErrorDetails));
                 }
 
                 return translatedAggregate;
@@ -618,7 +662,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
 
-            return Dependencies.MethodCallTranslatorProvider.Translate(_model, sqlObject, methodCallExpression.Method, arguments);
+            var translation = Dependencies.MethodCallTranslatorProvider.Translate(_model, sqlObject, methodCallExpression.Method, arguments);
+
+            if (translation == null
+                && (methodCallExpression.Method == _stringEqualsWithStringComparison
+                    || methodCallExpression.Method == _stringEqualsWithStringComparisonStatic))
+            {
+                ProvideTranslationErrorDetails(CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
+            }
+
+            return translation;
 
             static Expression RemoveObjectConvert(Expression expression)
                 => expression is UnaryExpression unaryExpression
@@ -750,7 +803,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ? entityType.FindProperty(member.MemberInfo)
                 : entityType.FindProperty(member.Name);
 
-            return property != null ? BindProperty(entityReferenceExpression, property) : null;
+            if (property != null)
+            {
+                return BindProperty(entityReferenceExpression, property);
+            }
+
+            ProvideTranslationErrorDetails(
+                CoreStrings.QueryUnableToTranslateMember(
+                    member.Name,
+                    entityReferenceExpression.EntityType.DisplayName()));
+
+            return null;
         }
 
         private SqlExpression BindProperty(EntityReferenceExpression entityReferenceExpression, IProperty property)

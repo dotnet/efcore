@@ -1153,6 +1153,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (await Assert.ThrowsAsync<InvalidOperationException>(query))
                 .Message);
 
+        protected static async Task AssertTranslationFailedWithDetails(Func<Task> query, string details)
+            => Assert.Contains(
+                CoreStrings.TranslationFailedWithDetails("", details).Substring(21),
+                (await Assert.ThrowsAsync<InvalidOperationException>(query))
+                .Message);
+
         #endregion
     }
 }

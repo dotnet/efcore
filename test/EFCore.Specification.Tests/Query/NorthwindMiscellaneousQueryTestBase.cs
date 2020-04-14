@@ -559,11 +559,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Queryable_reprojection(bool async)
         {
-            return AssertTranslationFailed(
+            return AssertTranslationFailedWithDetails(
                 () => AssertQuery(
                     async,
                     ss => ss.Set<Customer>().Where(c => c.IsLondon)
-                        .Select(c => new Customer { CustomerID = "Foo", City = c.City })));
+                        .Select(c => new Customer { CustomerID = "Foo", City = c.City })),
+                CoreStrings.QueryUnableToTranslateMember(nameof(Customer.IsLondon), nameof(Customer)));
         }
 
         [ConditionalTheory]
@@ -1140,33 +1141,36 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task All_client(bool async)
         {
-            return AssertTranslationFailed(
+            return AssertTranslationFailedWithDetails(
                 () => AssertAll(
                     async,
                     ss => ss.Set<Customer>(),
-                    predicate: c => c.IsLondon));
+                    predicate: c => c.IsLondon),
+                CoreStrings.QueryUnableToTranslateMember(nameof(Customer.IsLondon), nameof(Customer)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task All_client_and_server_top_level(bool async)
         {
-            return AssertTranslationFailed(
+            return AssertTranslationFailedWithDetails(
                 () => AssertAll(
                     async,
                     ss => ss.Set<Customer>(),
-                    predicate: c => c.CustomerID != "Foo" && c.IsLondon));
+                    predicate: c => c.CustomerID != "Foo" && c.IsLondon),
+                CoreStrings.QueryUnableToTranslateMember(nameof(Customer.IsLondon), nameof(Customer)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task All_client_or_server_top_level(bool async)
         {
-            return AssertTranslationFailed(
+            return AssertTranslationFailedWithDetails(
                 () => AssertAll(
                     async,
                     ss => ss.Set<Customer>(),
-                    predicate: c => c.CustomerID != "Foo" || c.IsLondon));
+                    predicate: c => c.CustomerID != "Foo" || c.IsLondon),
+                CoreStrings.QueryUnableToTranslateMember(nameof(Customer.IsLondon), nameof(Customer)));
         }
 
         [ConditionalTheory]
@@ -1207,12 +1211,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task First_client_predicate(bool async)
         {
-            return AssertTranslationFailed(
+            return AssertTranslationFailedWithDetails(
                 () => AssertFirst(
                     async,
                     ss => ss.Set<Customer>().OrderBy(c => c.CustomerID),
                     predicate: c => c.IsLondon,
-                    entryCount: 1));
+                    entryCount: 1),
+                CoreStrings.QueryUnableToTranslateMember(nameof(Customer.IsLondon), nameof(Customer)));
         }
 
         [ConditionalTheory]
@@ -1935,20 +1940,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_query_composition3(bool async)
         {
-            return AssertTranslationFailed(
+            return AssertTranslationFailedWithDetails(
                 () => AssertQuery(
                     async,
                     ss => from c1 in ss.Set<Customer>()
                           where c1.City == ss.Set<Customer>().OrderBy(c => c.CustomerID).First(c => c.IsLondon).City
                           select c1,
-                    entryCount: 6));
+                    entryCount: 6),
+                CoreStrings.QueryUnableToTranslateMember(nameof(Customer.IsLondon), nameof(Customer)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_query_composition4(bool async)
         {
-            return AssertTranslationFailed(
+            return AssertTranslationFailedWithDetails(
                 () => AssertQuery(
                     async,
                     ss => from c1 in ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(2)
@@ -1957,27 +1963,29 @@ namespace Microsoft.EntityFrameworkCore.Query
                                   from c3 in ss.Set<Customer>().OrderBy(c => c.IsLondon).ThenBy(c => c.CustomerID)
                                   select new { c3 }).First().c3.City
                           select c1,
-                    entryCount: 1));
+                    entryCount: 1),
+            CoreStrings.QueryUnableToTranslateMember(nameof(Customer.IsLondon), nameof(Customer)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_query_composition5(bool async)
         {
-            return AssertTranslationFailed(
+            return AssertTranslationFailedWithDetails(
                 () => AssertQuery(
                     async,
                     ss => from c1 in ss.Set<Customer>()
                           where c1.IsLondon == ss.Set<Customer>().OrderBy(c => c.CustomerID).First().IsLondon
                           select c1,
-                    entryCount: 85));
+                    entryCount: 85),
+            CoreStrings.QueryUnableToTranslateMember(nameof(Customer.IsLondon), nameof(Customer)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_query_composition6(bool async)
         {
-            return AssertTranslationFailed(
+            return AssertTranslationFailedWithDetails(
                 () => AssertQuery(
                     async,
                     ss => from c1 in ss.Set<Customer>()
@@ -1986,7 +1994,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                                   .Select(c => new { Foo = c })
                                   .First().Foo.IsLondon
                           select c1,
-                    entryCount: 85));
+                    entryCount: 85),
+            CoreStrings.QueryUnableToTranslateMember(nameof(Customer.IsLondon), nameof(Customer)));
         }
 
         [ConditionalTheory]
@@ -2614,12 +2623,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_client_mixed(bool async)
         {
-            return AssertTranslationFailed(
+            return AssertTranslationFailedWithDetails(
                 () => AssertQuery(
                     async,
                     ss => ss.Set<Customer>().OrderBy(c => c.IsLondon).ThenBy(c => c.CompanyName),
                     assertOrder: true,
-                    entryCount: 91));
+                    entryCount: 91),
+                CoreStrings.QueryUnableToTranslateMember(nameof(Customer.IsLondon), nameof(Customer)));
         }
 
         [ConditionalTheory]
@@ -5918,6 +5928,28 @@ namespace Microsoft.EntityFrameworkCore.Query
             var firstArout = arouts[0];
             Assert.All(arouts, t => Assert.Same(firstArout, t));
             Assert.Empty(context.ChangeTracker.Entries());
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Using_string_Equals_with_StringComparison_throws_informative_error(bool async)
+        {
+            return AssertTranslationFailedWithDetails(
+                () => AssertQuery(
+                    async,
+                    ss => ss.Set<Customer>().Where(c => c.CustomerID.Equals("ALFKI", StringComparison.InvariantCulture))),
+                CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Using_static_string_Equals_with_StringComparison_throws_informative_error(bool async)
+        {
+            return AssertTranslationFailedWithDetails(
+                () => AssertQuery(
+                    async,
+                    ss => ss.Set<Customer>().Where(c => string.Equals(c.CustomerID, "ALFKI", StringComparison.InvariantCulture))),
+                CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
         }
     }
 }

@@ -55,6 +55,29 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual QueryableMethodTranslatingExpressionVisitorDependencies Dependencies { get; }
 
         /// <summary>
+        ///     Additional information about errors encountered during translation.
+        /// </summary>
+        public virtual string TranslationErrorDetails { get; private set; }
+
+        /// <summary>
+        ///     Provides additional information about errors encountered during translation.
+        /// </summary>
+        /// <param name="details">Error encountered during translation</param>
+        protected virtual void ProvideTranslationErrorDetails([NotNull] string details)
+        {
+            Check.NotNull(details, nameof(details));
+
+            if (TranslationErrorDetails == null)
+            {
+                TranslationErrorDetails = details;
+            }
+            else
+            {
+                TranslationErrorDetails += Environment.NewLine + details;
+            }
+        }
+
+        /// <summary>
         ///     The query compilation context object for current compilation.
         /// </summary>
         protected virtual QueryCompilationContext QueryCompilationContext { get; }
@@ -79,7 +102,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             ShapedQueryExpression CheckTranslated(ShapedQueryExpression translated)
             {
-                return translated ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
+                return translated ?? throw new InvalidOperationException(
+                    TranslationErrorDetails == null
+                        ? CoreStrings.TranslationFailed(methodCallExpression.Print())
+                        : CoreStrings.TranslationFailedWithDetails(
+                            methodCallExpression.Print(),
+                            TranslationErrorDetails));
             }
 
             var method = methodCallExpression.Method;
@@ -596,7 +624,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(expression, nameof(expression));
 
-            return (ShapedQueryExpression)CreateSubqueryVisitor().Visit(expression);
+            var subqueryVisitor = CreateSubqueryVisitor();
+            var translation = (ShapedQueryExpression)subqueryVisitor.Visit(expression);
+            if (translation == null && subqueryVisitor.TranslationErrorDetails != null)
+            {
+                ProvideTranslationErrorDetails(subqueryVisitor.TranslationErrorDetails);
+            }
+
+            return translation;
         }
 
         /// <summary>

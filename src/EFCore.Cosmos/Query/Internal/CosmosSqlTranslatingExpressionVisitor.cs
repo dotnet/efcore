@@ -35,6 +35,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
         private static readonly MethodInfo _concatMethodInfo
             = typeof(string).GetRuntimeMethod(nameof(string.Concat), new[] { typeof(object), typeof(object) });
+        private static readonly MethodInfo _stringEqualsWithStringComparison
+            = typeof(string).GetRuntimeMethod(nameof(string.Equals), new[] { typeof(string), typeof(StringComparison) });
+        private static readonly MethodInfo _stringEqualsWithStringComparisonStatic
+            = typeof(string).GetRuntimeMethod(nameof(string.Equals), new[] { typeof(string), typeof(string), typeof(StringComparison) });
 
         private readonly QueryCompilationContext _queryCompilationContext;
         private readonly IModel _model;
@@ -69,7 +73,44 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual string TranslationErrorDetails { get; private set; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected virtual void ProvideTranslationErrorDetails([NotNull] string details)
+        {
+            Check.NotNull(details, nameof(details));
+
+            if (TranslationErrorDetails == null)
+            {
+                TranslationErrorDetails = details;
+            }
+            else
+            {
+                TranslationErrorDetails += Environment.NewLine + details;
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual SqlExpression Translate([NotNull] Expression expression)
+        {
+            Check.NotNull(expression, nameof(expression));
+
+            TranslationErrorDetails = null;
+
+            return TranslateInternal(expression);
+        }
+
+        private SqlExpression TranslateInternal(Expression expression)
         {
             var result = Visit(expression);
 
@@ -416,7 +457,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 }
             }
 
-            return _methodCallTranslatorProvider.Translate(_model, sqlObject, methodCallExpression.Method, arguments);
+            var translation = _methodCallTranslatorProvider.Translate(_model, sqlObject, methodCallExpression.Method, arguments);
+
+            if (translation == null
+                && (methodCallExpression.Method == _stringEqualsWithStringComparison
+                    || methodCallExpression.Method == _stringEqualsWithStringComparisonStatic))
+            {
+                ProvideTranslationErrorDetails(CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
+            }
+
+            return translation;
 
             static Expression RemoveObjectConvert(Expression expression)
                 => expression is UnaryExpression unaryExpression
@@ -517,6 +567,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             var result = member.MemberInfo != null
                 ? entityReferenceExpression.ParameterEntity.BindMember(member.MemberInfo, entityReferenceExpression.Type, clientEval: false, out _)
                 : entityReferenceExpression.ParameterEntity.BindMember(member.Name, entityReferenceExpression.Type, clientEval: false, out _);
+
+            if (result == null)
+            {
+                ProvideTranslationErrorDetails(
+                    CoreStrings.QueryUnableToTranslateMember(
+                        member.Name,
+                        entityReferenceExpression.EntityType.DisplayName()));
+            }
 
             return result switch
             {
