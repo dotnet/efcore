@@ -20,31 +20,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="eventDefinition"> The event definition. </param>
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
-        /// <param name="dependentEntityType"> The entity type on the dependent end of the relationship. </param>
-        /// <param name="principalEntityType"> The entity type on the principal end of the relationship. </param>
+        /// <param name="dependentToPrincipalNavigationSpecification"> The name of the navigation property or entity type on the dependent end of the relationship. </param>
+        /// <param name="principalToDependentNavigationSpecification"> The name of the navigation property or entity type on the principal end of the relationship. </param>
         /// <param name="firstPropertyCollection"> The first property collection. </param>
         /// <param name="secondPropertyCollection"> The second property collection. </param>
         public ForeignKeyCandidateEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] IConventionEntityType dependentEntityType,
-            [NotNull] IConventionEntityType principalEntityType,
+            [NotNull] string dependentToPrincipalNavigationSpecification,
+            [NotNull] string principalToDependentNavigationSpecification,
             [NotNull] IReadOnlyList<IPropertyBase> firstPropertyCollection,
             [NotNull] IReadOnlyList<IPropertyBase> secondPropertyCollection)
             : base(eventDefinition, messageGenerator, firstPropertyCollection, secondPropertyCollection)
         {
-            DependentEntityType = dependentEntityType;
-            PrincipalEntityType = principalEntityType;
+            DependentToPrincipalNavigationSpecification = dependentToPrincipalNavigationSpecification;
+            PrincipalToDependentNavigationSpecification = principalToDependentNavigationSpecification;
         }
 
         /// <summary>
-        ///     The dependent entity type.
+        ///     The name of the navigation property or entity type on the dependent end of the relationship.
         /// </summary>
-        public virtual IConventionEntityType DependentEntityType { get; }
+        public virtual string DependentToPrincipalNavigationSpecification { get; }
 
         /// <summary>
-        ///     The principal entity type.
+        ///     The name of the navigation property or entity type on the principal end of the relationship.
         /// </summary>
-        public virtual IConventionEntityType PrincipalEntityType { get; }
+        public virtual string PrincipalToDependentNavigationSpecification { get; }
     }
 }

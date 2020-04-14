@@ -1081,14 +1081,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Logs for the <see cref="CoreEventId.IncompatibleMatchingForeignKeyProperties" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="dependentEntityType"> The entity type on the dependent end of the relationship. </param>
-        /// <param name="principalEntityType"> The entity type on the principal end of the relationship. </param>
+        /// <param name="dependentToPrincipalNavigationSpecification"> The name of the navigation property or entity type on the dependent end of the relationship. </param>
+        /// <param name="principalToDependentNavigationSpecification"> The name of the navigation property or entity type on the principal end of the relationship. </param>
         /// <param name="foreignKeyProperties"> The properties that make up the foreign key. </param>
         /// <param name="principalKeyProperties"> The corresponding keys on the principal side. </param>
         public static void IncompatibleMatchingForeignKeyProperties(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
-            [NotNull] IConventionEntityType dependentEntityType,
-            [NotNull] IConventionEntityType principalEntityType,
+            [NotNull] string dependentToPrincipalNavigationSpecification,
+            [NotNull] string principalToDependentNavigationSpecification,
             [NotNull] IReadOnlyList<IPropertyBase> foreignKeyProperties,
             [NotNull] IReadOnlyList<IPropertyBase> principalKeyProperties)
         {
@@ -1098,8 +1098,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             {
                 definition.Log(
                     diagnostics,
-                    dependentEntityType.DisplayName(),
-                    principalEntityType.DisplayName(),
+                    dependentToPrincipalNavigationSpecification,
+                    principalToDependentNavigationSpecification,
                     foreignKeyProperties.Format(includeTypes: true),
                     principalKeyProperties.Format(includeTypes: true));
             }
@@ -1109,8 +1109,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 var eventData = new ForeignKeyCandidateEventData(
                     definition,
                     IncompatibleMatchingForeignKeyProperties,
-                    dependentEntityType,
-                    principalEntityType,
+                    dependentToPrincipalNavigationSpecification,
+                    principalToDependentNavigationSpecification,
                     foreignKeyProperties,
                     principalKeyProperties);
 
@@ -1123,8 +1123,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var d = (EventDefinition<string, string, string, string>)definition;
             var p = (ForeignKeyCandidateEventData)payload;
             return d.GenerateMessage(
-                p.DependentEntityType.DisplayName(),
-                p.PrincipalEntityType.DisplayName(),
+                p.DependentToPrincipalNavigationSpecification,
+                p.PrincipalToDependentNavigationSpecification,
                 p.FirstPropertyCollection.Format(includeTypes: true),
                 p.SecondPropertyCollection.Format(includeTypes: true));
         }

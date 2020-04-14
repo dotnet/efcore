@@ -418,8 +418,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     p => !p.IsShadowProperty()
                         || p.GetConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)))
                 {
+                    var dependentNavigationSpec = onDependent
+                        ? foreignKey.DependentToPrincipal?.Name
+                        : foreignKey.PrincipalToDependent?.Name;
+                    dependentNavigationSpec = dependentEntityType.DisplayName() +
+                        (string.IsNullOrEmpty(dependentNavigationSpec)
+                            ? string.Empty
+                            : "." + dependentNavigationSpec);
+
+                    var principalNavigationSpec = onDependent
+                        ? foreignKey.PrincipalToDependent?.Name
+                        : foreignKey.DependentToPrincipal?.Name;
+                    principalNavigationSpec = principalEntityType.DisplayName() +
+                        (string.IsNullOrEmpty(principalNavigationSpec)
+                            ? string.Empty
+                            : "." + principalNavigationSpec);
+
                     Dependencies.Logger.IncompatibleMatchingForeignKeyProperties(
-                        dependentEntityType, principalEntityType, foreignKeyProperties, propertiesToReference);
+                        dependentNavigationSpec, principalNavigationSpec,
+                        foreignKeyProperties, propertiesToReference);
                 }
 
                 // Stop searching if match found, but is incompatible
