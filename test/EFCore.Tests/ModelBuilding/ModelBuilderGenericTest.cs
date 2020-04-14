@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => Wrap(EntityTypeBuilder.HasBaseType(baseEntityTypeName));
 
             public override TestKeyBuilder<TEntity> HasKey(Expression<Func<TEntity, object>> keyExpression)
-                => new GenericTestKeyBuilder<TEntity>(EntityTypeBuilder.HasKey(keyExpression));
+                => new GenericTestKeyBuilder<TEntity>((KeyBuilder<TEntity>)EntityTypeBuilder.HasKey(keyExpression));
 
             public override TestKeyBuilder<TEntity> HasKey(params string[] propertyNames)
                 => new GenericTestKeyBuilder<TEntity>(EntityTypeBuilder.HasKey(propertyNames));
