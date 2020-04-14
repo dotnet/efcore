@@ -1582,6 +1582,24 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             return base.Contains_over_entityType_should_materialize_when_composite2(async);
         }
 
+        [ConditionalTheory(Skip = "Issue#17246 (DefaultIfEmpty is not translated)")]
+        public override Task Average_after_default_if_empty_does_not_throw(bool isAsync)
+        {
+            return base.Average_after_default_if_empty_does_not_throw(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246 (DefaultIfEmpty is not translated)")]
+        public override Task Max_after_default_if_empty_does_not_throw(bool isAsync)
+        {
+            return base.Max_after_default_if_empty_does_not_throw(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246 (DefaultIfEmpty is not translated)")]
+        public override Task Min_after_default_if_empty_does_not_throw(bool isAsync)
+        {
+            return base.Min_after_default_if_empty_does_not_throw(isAsync);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
