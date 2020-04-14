@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var projection = _sqlTranslator.TranslateAverage(newSelector);
             return projection != null
-                ? AggregateResultShaper(source, projection, throwOnNullResult: true, resultType)
+                ? AggregateResultShaper(source, projection, throwWhenEmpty: true, resultType)
                 : null;
         }
 
@@ -648,7 +648,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var projection = _sqlTranslator.TranslateMax(newSelector);
 
-            return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
+            return AggregateResultShaper(source, projection, throwWhenEmpty: true, resultType);
         }
 
         protected override ShapedQueryExpression TranslateMin(ShapedQueryExpression source, LambdaExpression selector, Type resultType)
@@ -665,7 +665,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var projection = _sqlTranslator.TranslateMin(newSelector);
 
-            return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
+            return AggregateResultShaper(source, projection, throwWhenEmpty: true, resultType);
         }
 
         protected override ShapedQueryExpression TranslateOfType(ShapedQueryExpression source, Type resultType)
@@ -984,7 +984,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var projection = _sqlTranslator.TranslateSum(newSelector);
             return projection != null
-                ? AggregateResultShaper(source, projection, throwOnNullResult: false, resultType)
+                ? AggregateResultShaper(source, projection, throwWhenEmpty: false, resultType)
                 : null;
         }
 
@@ -1315,7 +1315,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private ShapedQueryExpression AggregateResultShaper(
-            ShapedQueryExpression source, Expression projection, bool throwOnNullResult, Type resultType)
+            ShapedQueryExpression source, Expression projection, bool throwWhenEmpty, Type resultType)
         {
             if (projection == null)
             {
@@ -1327,22 +1327,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), projection } });
 
             selectExpression.ClearOrdering();
+            Expression shaper;
 
-            var nullableResultType = resultType.MakeNullable();
-            Expression shaper = new ProjectionBindingExpression(
-                source.QueryExpression, new ProjectionMember(), throwOnNullResult ? nullableResultType : projection.Type);
-
-            if (throwOnNullResult)
+            if (throwWhenEmpty)
             {
+                // Avg/Max/Min case.
+                // We always read nullable value
+                // If resultType is nullable then we always return null. Only non-null result shows throwing behavior.
+                // otherwise, if projection.Type is nullable then server result is passed through DefaultIfEmpty, hence we return default
+                // otherwise, server would return null only if it is empty, and we throw
+                var nullableResultType = resultType.MakeNullable();
+                shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), nullableResultType);
                 var resultVariable = Expression.Variable(nullableResultType, "result");
                 var returnValueForNull = resultType.IsNullableType()
-                    ? (Expression)Expression.Constant(null, resultType)
-                    : Expression.Throw(
-                        Expression.New(
-                            typeof(InvalidOperationException).GetConstructors()
-                                .Single(ci => ci.GetParameters().Length == 1),
-                            Expression.Constant(CoreStrings.NoElements)),
-                        resultType);
+                    ? Expression.Constant(null, resultType)
+                    : projection.Type.IsNullableType()
+                        ? (Expression)Expression.Default(resultType)
+                        : Expression.Throw(
+                            Expression.New(
+                                typeof(InvalidOperationException).GetConstructors()
+                                    .Single(ci => ci.GetParameters().Length == 1),
+                                Expression.Constant(CoreStrings.NoElements)),
+                            resultType);
 
                 shaper = Expression.Block(
                     new[] { resultVariable },
@@ -1354,9 +1360,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                             ? Expression.Convert(resultVariable, resultType)
                             : (Expression)resultVariable));
             }
-            else if (resultType != shaper.Type)
+            else
             {
-                shaper = Expression.Convert(shaper, resultType);
+                // Sum case. Projection is always non-null. We read non-nullable value (0 if empty)
+                shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), projection.Type);
+                // Cast to nullable type if required
+                if (resultType != shaper.Type)
+                {
+                    shaper = Expression.Convert(shaper, resultType);
+                }
             }
 
             return source.UpdateShaperExpression(shaper);
