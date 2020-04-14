@@ -789,7 +789,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                         if (includeTreeNodes.Count == 0)
                         {
-                            throw new InvalidOperationException(CoreStrings.InvalidIncludePath(navigationChain, navigationName));
+                            _queryCompilationContext.Logger.InvalidIncludePathError(navigationChain, navigationName);
                         }
                     }
                 }

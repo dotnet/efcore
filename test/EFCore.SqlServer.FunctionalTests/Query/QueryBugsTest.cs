@@ -7207,6 +7207,75 @@ WHERE [e].[Id] = CAST(1 AS bigint)");
 
         #endregion
 
+        #region Issue20609
+
+        [ConditionalFact]
+        public virtual void Can_ignore_invalid_include_path_error()
+        {
+            using var context = CreateContext20609();
+            var result = context.Set<ClassA>().Include("SubB").ToList();
+        }
+
+        public class BaseClass
+        {
+            public string Id { get; set; }
+        }
+
+        public class ClassA : BaseClass
+        {
+            public SubA SubA { get; set; }
+        }
+
+        public class ClassB : BaseClass
+        {
+            public SubB SubB { get; set; }
+        }
+
+        public class SubA
+        {
+            public int Id { get; set; }
+        }
+
+        public class SubB
+        {
+            public int Id { get; set; }
+        }
+
+        private BugContext20609 CreateContext20609()
+        {
+            var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest", multipleActiveResultSets: true);
+            var options = Fixture.AddOptions(testStore.AddProviderOptions(new DbContextOptionsBuilder()))
+                .EnableDetailedErrors()
+                .EnableServiceProviderCaching(false)
+                .ConfigureWarnings(x => x.Ignore(CoreEventId.InvalidIncludePathError))
+                .Options;
+
+            var context = new BugContext20609(options);
+            context.Database.EnsureCreatedResiliently();
+
+            return context;
+        }
+
+        private class BugContext20609 : DbContext
+        {
+            public BugContext20609(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<BaseClass> BaseClasses { get; set; }
+            public DbSet<SubA> SubAs { get; set; }
+            public DbSet<SubB> SubBs { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<ClassA>().HasBaseType<BaseClass>().HasOne(x => x.SubA).WithMany();
+                modelBuilder.Entity<ClassB>().HasBaseType<BaseClass>().HasOne(x => x.SubB).WithMany();
+            }
+        }
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
