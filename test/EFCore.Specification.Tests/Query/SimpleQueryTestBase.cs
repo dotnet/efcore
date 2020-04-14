@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -5628,6 +5629,29 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .Select(o => new { o.OrderDate }).ToList()),
                 assertOrder: true,
                 elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Null_parameter_name_works(bool isAsync)
+        {
+            using var context = CreateContext();
+            var customerDbSet = context.Set<Customer>().AsQueryable();
+
+            var parameter = Expression.Parameter(typeof(Customer));
+            var body = Expression.Equal(parameter, Expression.Default(typeof(Customer)));
+            var queryExpression = Expression.Call(
+                QueryableMethods.Where.MakeGenericMethod(typeof(Customer)),
+                customerDbSet.Expression,
+                Expression.Quote(Expression.Lambda(body, parameter)));
+
+            var query = ((IAsyncQueryProvider)customerDbSet.Provider).CreateQuery<Customer>(queryExpression);
+
+            var result = isAsync
+                ? (await query.ToListAsync())
+                : query.ToList();
+
+            Assert.Empty(result);
         }
 
         protected async Task AssertTranslationFailed(Func<Task> testCode)
