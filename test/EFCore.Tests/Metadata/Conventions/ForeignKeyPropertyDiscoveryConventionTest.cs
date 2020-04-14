@@ -506,8 +506,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var logEntry = ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Debug, logEntry.Level);
             Assert.Equal(
-                CoreResources.LogIncompatibleMatchingForeignKeyProperties(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
-                    "{'PrincipalEntityPeeKay' : string}", "{'PeeKay' : int}"), logEntry.Message);
+                CoreResources.LogIncompatibleMatchingForeignKeyProperties(
+                    new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
+                        nameof(DependentEntity) + "." + nameof(DependentEntity.SomeNav),
+                        nameof(PrincipalEntity),
+                        "{'PrincipalEntityPeeKay' : string}",
+                        "{'PeeKay' : int}"),
+                logEntry.Message);
 
             ValidateModel();
         }
