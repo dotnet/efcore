@@ -1081,8 +1081,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Logs for the <see cref="CoreEventId.IncompatibleMatchingForeignKeyProperties" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="principalEntityType"> The entity type on the principal end of the relationship. </param>
         /// <param name="dependentEntityType"> The entity type on the dependent end of the relationship. </param>
+        /// <param name="principalEntityType"> The entity type on the principal end of the relationship. </param>
         /// <param name="foreignKeyProperties"> The properties that make up the foreign key. </param>
         /// <param name="principalKeyProperties"> The corresponding keys on the principal side. </param>
         public static void IncompatibleMatchingForeignKeyProperties(

@@ -20,8 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="eventDefinition"> The event definition. </param>
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
-        /// <param name="principalEntityType"> The entity type on the principal end of the relationship. </param>
         /// <param name="dependentEntityType"> The entity type on the dependent end of the relationship. </param>
+        /// <param name="principalEntityType"> The entity type on the principal end of the relationship. </param>
         /// <param name="firstPropertyCollection"> The first property collection. </param>
         /// <param name="secondPropertyCollection"> The second property collection. </param>
         public ForeignKeyCandidateEventData(
