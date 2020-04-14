@@ -625,7 +625,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (propertyBuilder.CanSetCollation(collation, fromDataAnnotation))
             {
-                propertyBuilder.Metadata.SetCollation(collation);
+                propertyBuilder.Metadata.SetCollation(collation, fromDataAnnotation);
 
                 return propertyBuilder;
             }
