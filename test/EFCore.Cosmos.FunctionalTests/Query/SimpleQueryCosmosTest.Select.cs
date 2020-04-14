@@ -10,6 +10,21 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public partial class SimpleQueryCosmosTest
     {
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Projection_with_Value_Property(bool async)
+        {
+            await AssertQuery(
+                async,
+                ss => ss.Set<Order>().Select(o => new { Value = o.OrderID }),
+                e => (e.Value));
+
+            AssertSql(
+                @"SELECT c[""OrderID""] AS Value0
+FROM root c
+WHERE (c[""Discriminator""] = ""Order"")");
+        }
+
         public override async Task Projection_when_arithmetic_expression_precedence(bool isAsync)
         {
             await base.Projection_when_arithmetic_expression_precedence(isAsync);
