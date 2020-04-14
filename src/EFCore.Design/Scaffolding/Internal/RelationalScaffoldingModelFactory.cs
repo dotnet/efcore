@@ -488,6 +488,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 property.HasComment(column.Comment);
             }
 
+            if (column.Collation != null)
+            {
+                property.HasComment(column.Collation);
+            }
+
             if (!(column.Table.PrimaryKey?.Columns.Contains(column) ?? false))
             {
                 property.IsRequired(!column.IsNullable);

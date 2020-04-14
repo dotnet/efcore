@@ -572,6 +572,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             GenerateFluentApiForAnnotation(
                 ref annotations,
+                RelationalAnnotationNames.Collation,
+                nameof(RelationalPropertyBuilderExtensions.UseCollation),
+                stringBuilder);
+
+            GenerateFluentApiForAnnotation(
+                ref annotations,
                 CoreAnnotationNames.MaxLength,
                 nameof(PropertyBuilder.HasMaxLength),
                 stringBuilder);

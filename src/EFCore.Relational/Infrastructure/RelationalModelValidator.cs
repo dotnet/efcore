@@ -542,6 +542,22 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         previousComment,
                         currentComment));
             }
+
+            var currentCollation = property.GetCollation() ?? "";
+            var previousCollation = duplicateProperty.GetCollation() ?? "";
+            if (!currentCollation.Equals(previousCollation, StringComparison.Ordinal))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameCollationMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        tableName,
+                        previousCollation,
+                        currentCollation));
+            }
         }
 
         /// <summary>

@@ -44,7 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <param name="defaultValueSql"> The SQL expression to use for the column's default constraint. </param>
         /// <param name="computedColumnSql"> The SQL expression to use to compute the column value. </param>
         /// <param name="fixedLength"> Indicates whether or not the column is constrained to fixed-length data. </param>
-        /// <param name="comment"> A comment to be applied to the table. </param>
+        /// <param name="comment"> A comment to be applied to the column. </param>
+        /// <param name="collation"> A collation to be applied to the column. </param>
         /// <param name="precision"> The maximum number of digits for data in the column. </param>
         /// <param name="scale"> The maximum number of decimal places for data in the column. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
@@ -60,6 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
             [CanBeNull] string computedColumnSql = null,
             bool? fixedLength = null,
             [CanBeNull] string comment = null,
+            [CanBeNull] string collation = null,
             int? precision = null,
             int? scale = null)
         {
@@ -79,6 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
                 ComputedColumnSql = computedColumnSql,
                 IsFixedLength = fixedLength,
                 Comment = comment,
+                Collation = collation,
                 Precision = precision,
                 Scale = scale
             };

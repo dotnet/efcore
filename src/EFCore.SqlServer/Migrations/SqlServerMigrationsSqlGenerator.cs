@@ -312,6 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 IsRowVersion = operation.IsRowVersion,
                 IsNullable = operation.IsNullable,
                 ComputedColumnSql = operation.ComputedColumnSql,
+                Collation = operation.Collation,
                 OldColumn = operation.OldColumn
             };
             definitionOperation.AddAnnotations(
@@ -808,6 +809,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     .Append(")");
             }
 
+            if (!string.IsNullOrEmpty(operation.Collation))
+            {
+                builder
+                    .AppendLine()
+                    .Append("COLLATE ")
+                    .Append(operation.Collation);
+            }
+
             builder
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
                 .EndCommand(suppressTransaction: true)
@@ -912,9 +921,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     .AppendLine();
             }
 
+            if (operation.Collation != operation.OldDatabase.Collation)
+            {
+                builder
+                    .AppendLine("BEGIN")
+                    .AppendLine("DECLARE @db_name NVARCHAR(MAX) = DB_NAME();")
+                    .Append("EXEC(N'ALTER DATABASE [' + @db_name + '] COLLATE ")
+                    .Append(operation.Collation)
+                    .AppendLine(";');")
+                    .AppendLine("END")
+                    .AppendLine();
+            }
+
             if (!IsMemoryOptimized(operation))
             {
-                builder.EndCommand();
+                builder.EndCommand(suppressTransaction: true);
                 return;
             }
 
@@ -1385,10 +1406,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
+            builder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(name));
+
             builder
-                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(name))
                 .Append(" AS ")
                 .Append(operation.ComputedColumnSql);
+
+            if (operation.Collation != null)
+            {
+                builder
+                    .Append(" COLLATE ")
+                    .Append(operation.Collation);
+            }
         }
 
         /// <summary>

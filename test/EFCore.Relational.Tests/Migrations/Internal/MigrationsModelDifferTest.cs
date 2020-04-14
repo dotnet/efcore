@@ -8204,6 +8204,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
+        [ConditionalFact]
+        public void Alter_database_collation()
+        {
+            Execute(
+                source => source.UseCollation("Some collation"),
+                target => target.UseCollation("Some other collation"),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AlterDatabaseOperation>(operations[0]);
+                    Assert.Equal("Some other collation", operation.Collation);
+                    Assert.Equal("Some collation", operation.OldDatabase.Collation);
+                });
+        }
+
         public class Customer13300 : ProviderTenantEntity13300
         {
             public string DisplayName { get; set; }
@@ -8547,6 +8563,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .HasForeignKey("UserId"),
                 ops => { });
         }
+
 
         private class TestKeylessType
         {

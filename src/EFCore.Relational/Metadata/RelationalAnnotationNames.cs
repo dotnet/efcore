@@ -72,6 +72,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string Comment = Prefix + "Comment";
 
         /// <summary>
+        ///     The name for collation annotations.
+        /// </summary>
+        public const string Collation = Prefix + "Collation";
+
+        /// <summary>
         ///     The name for default schema annotations.
         /// </summary>
         public const string DefaultSchema = Prefix + "DefaultSchema";

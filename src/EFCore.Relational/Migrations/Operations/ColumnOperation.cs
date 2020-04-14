@@ -81,8 +81,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string ComputedColumnSql { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     Comment for this column
+        ///     Comment for this column.
         /// </summary>
         public virtual string Comment { get; [param: CanBeNull] set; }
+
+        /// <summary>
+        ///     The collation for this column, or <c>null</c> if one hasn't been explicitly configured.
+        /// </summary>
+        public virtual string Collation { get; [param: CanBeNull] set; }
     }
 }

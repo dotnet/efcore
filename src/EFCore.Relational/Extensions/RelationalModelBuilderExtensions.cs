@@ -424,5 +424,66 @@ namespace Microsoft.EntityFrameworkCore
 
             return modelBuilder.CanSetAnnotation(RelationalAnnotationNames.MaxIdentifierLength, length, fromDataAnnotation);
         }
+
+        /// <summary>
+        ///     Configures the database collation, which will be used by all columns without an explicit collation.
+        /// </summary>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="collation"> The collation. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static ModelBuilder UseCollation(
+            [NotNull] this ModelBuilder modelBuilder,
+            [CanBeNull] string collation)
+        {
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+            Check.NullButNotEmpty(collation, nameof(collation));
+
+            modelBuilder.Model.SetCollation(collation);
+
+            return modelBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the database collation, which will be used by all columns without an explicit collation.
+        /// </summary>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="collation"> The collation. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        public static IConventionModelBuilder UseCollation(
+            [NotNull] this IConventionModelBuilder modelBuilder,
+            [CanBeNull] string collation,
+            bool fromDataAnnotation = false)
+        {
+            if (modelBuilder.CanSetCollation(collation, fromDataAnnotation))
+            {
+                modelBuilder.Metadata.SetCollation(collation, fromDataAnnotation);
+
+                return modelBuilder;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Returns a value indicating whether the given collation can be set as default.
+        /// </summary>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="collation"> The collation. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the given collation can be set as default. </returns>
+        public static bool CanSetCollation(
+            [NotNull] this IConventionModelBuilder modelBuilder,
+            [CanBeNull] string collation,
+            bool fromDataAnnotation = false)
+        {
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+            Check.NullButNotEmpty(collation, nameof(collation));
+
+            return modelBuilder.CanSetAnnotation(RelationalAnnotationNames.Collation, collation, fromDataAnnotation);
+        }
     }
 }

@@ -25,6 +25,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         public virtual string? DefaultSchema { get; [param: CanBeNull] set; }
 
         /// <summary>
+        ///     The database collation, or <c>null</c> if none is set.
+        /// </summary>
+        public virtual string? Collation { get; [param: CanBeNull] set; }
+
+        /// <summary>
         ///     The list of tables in the database.
         /// </summary>
         public virtual IList<DatabaseTable> Tables { get; } = new List<DatabaseTable>();

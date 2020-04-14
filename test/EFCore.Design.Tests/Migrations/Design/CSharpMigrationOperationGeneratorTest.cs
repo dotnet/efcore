@@ -81,7 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     IsNullable = true,
                     DefaultValue = 1,
                     IsFixedLength = true,
-                    Comment = "My Comment"
+                    Comment = "My Comment",
+                    Collation = "Some Collation"
                 },
                 "mb.AddColumn<int>("
                 + _eol
@@ -109,7 +110,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + _eol
                 + "    defaultValue: 1,"
                 + _eol
-                + "    comment: \"My Comment\");",
+                + "    comment: \"My Comment\","
+                + _eol
+                + "    collation: \"Some Collation\");",
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
@@ -122,6 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.False(o.IsUnicode);
                     Assert.True(o.IsFixedLength);
                     Assert.Equal("My Comment", o.Comment);
+                    Assert.Equal("Some Collation", o.Collation);
                 });
         }
 
@@ -529,6 +533,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Null(o.DefaultValue);
                     Assert.Null(o.DefaultValueSql);
                     Assert.Null(o.ComputedColumnSql);
+                    Assert.Null(o.Comment);
+                    Assert.Null(o.Collation);
                     Assert.Equal(typeof(int), o.OldColumn.ClrType);
                     Assert.Null(o.OldColumn.ColumnType);
                     Assert.Null(o.OldColumn.IsUnicode);
@@ -541,6 +547,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Null(o.OldColumn.DefaultValue);
                     Assert.Null(o.OldColumn.DefaultValueSql);
                     Assert.Null(o.OldColumn.ComputedColumnSql);
+                    Assert.Null(o.OldColumn.Comment);
+                    Assert.Null(o.OldColumn.Collation);
                 });
         }
 
@@ -564,6 +572,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     DefaultValue = 1,
                     IsFixedLength = true,
                     Comment = "My Comment 2",
+                    Collation = "Some Collation 2",
                     OldColumn =
                     {
                         ClrType = typeof(string),
@@ -576,7 +585,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         IsNullable = true,
                         DefaultValue = 0,
                         IsFixedLength = true,
-                        Comment = "My Comment"
+                        Comment = "My Comment",
+                        Collation = "Some Collation"
                     }
                 },
                 "mb.AlterColumn<int>("
@@ -607,6 +617,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + _eol
                 + "    comment: \"My Comment 2\","
                 + _eol
+                + "    collation: \"Some Collation 2\","
+                + _eol
                 + "    oldClrType: typeof(string),"
                 + _eol
                 + "    oldType: \"string\","
@@ -627,7 +639,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + _eol
                 + "    oldDefaultValue: 0,"
                 + _eol
-                + "    oldComment: \"My Comment\");",
+                + "    oldComment: \"My Comment\","
+                + _eol
+                + "    oldCollation: \"Some Collation\");",
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
@@ -646,6 +660,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Null(o.DefaultValueSql);
                     Assert.Null(o.ComputedColumnSql);
                     Assert.Equal("My Comment 2", o.Comment);
+                    Assert.Equal("Some Collation 2", o.Collation);
                     Assert.Equal(typeof(string), o.OldColumn.ClrType);
                     Assert.Equal("string", o.OldColumn.ColumnType);
                     Assert.False(o.OldColumn.IsUnicode);
@@ -659,6 +674,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Null(o.OldColumn.DefaultValueSql);
                     Assert.Null(o.OldColumn.ComputedColumnSql);
                     Assert.Equal("My Comment", o.OldColumn.Comment);
+                    Assert.Equal("Some Collation", o.OldColumn.Collation);
                 });
         }
 
@@ -762,8 +778,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void AlterDatabaseOperation()
         {
             Test(
-                new AlterDatabaseOperation { ["foo"] = "bar", OldDatabase = { ["bar"] = "foo" } },
-                "mb.AlterDatabase()" + _eol + "    .Annotation(\"foo\", \"bar\")" + _eol + "    .OldAnnotation(\"bar\", \"foo\");",
+                new AlterDatabaseOperation
+                {
+                    Collation = "Some collation",
+                    ["foo"] = "bar",
+                    OldDatabase =
+                    {
+                        Collation = "Some other collation",
+                        ["bar"] = "foo"
+                    }
+                },
+                "mb.AlterDatabase("
+                + _eol
+                + "    collation: \"Some collation\","
+                + _eol
+                + "    oldCollation: \"Some other collation\")"
+                + _eol
+                + "    .Annotation(\"foo\", \"bar\")"
+                + _eol
+                + "    .OldAnnotation(\"bar\", \"foo\");",
                 o =>
                 {
                     Assert.Equal("bar", o["foo"]);
@@ -1165,7 +1198,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             Scale = 10,
                             IsRowVersion = true,
                             IsNullable = true,
-                            DefaultValue = 1
+                            DefaultValue = 1,
+                            Comment = "My Comment",
+                            Collation = "Some Collation"
                         }
                     }
                 },
@@ -1179,7 +1214,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + _eol
                 + "    {"
                 + _eol
-                + "        PostId = table.Column<int>(name: \"Post Id\", type: \"int\", unicode: false, fixedLength: true, maxLength: 30, precision: 20, scale: 10, rowVersion: true, nullable: true, defaultValue: 1)"
+                + "        PostId = table.Column<int>(name: \"Post Id\", type: \"int\", unicode: false, fixedLength: true, maxLength: 30, precision: 20, scale: 10, rowVersion: true, nullable: true, defaultValue: 1, comment: \"My Comment\", collation: \"Some Collation\")"
                 + _eol
                 + "    },"
                 + _eol
@@ -1203,6 +1238,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.False(o.Columns[0].IsUnicode);
                     Assert.True(o.Columns[0].IsFixedLength);
                     Assert.Equal(1, o.Columns[0].DefaultValue);
+                    Assert.Equal("My Comment", o.Columns[0].Comment);
+                    Assert.Equal("Some Collation", o.Columns[0].Collation);
                 });
         }
 

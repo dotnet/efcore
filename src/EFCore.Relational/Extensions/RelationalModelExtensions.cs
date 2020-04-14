@@ -410,5 +410,46 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to get the functions in. </param>
         public static IEnumerable<IConventionDbFunction> GetDbFunctions([NotNull] this IConventionModel model)
             => DbFunction.GetDbFunctions((Model)Check.NotNull(model, nameof(model)));
+
+        /// <summary>
+        ///     Returns the database collation.
+        /// </summary>
+        /// <param name="model"> The model to get the collation for. </param>
+        /// <returns> The collation. </returns>
+        public static string GetCollation([NotNull] this IModel model)
+            => (string)model[RelationalAnnotationNames.Collation];
+
+        /// <summary>
+        ///     Sets the database collation.
+        /// </summary>
+        /// <param name="model"> The model to set the collation for. </param>
+        /// <param name="value"> The value to set. </param>
+        public static void SetCollation([NotNull] this IMutableModel model, [CanBeNull] string value)
+            => model.SetOrRemoveAnnotation(
+                RelationalAnnotationNames.Collation,
+                Check.NullButNotEmpty(value, nameof(value)));
+
+        /// <summary>
+        ///     Sets the database collation.
+        /// </summary>
+        /// <param name="model"> The model to set the collation for. </param>
+        /// <param name="value"> The value to set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured collation. </returns>
+        public static string SetCollation([NotNull] this IConventionModel model, [CanBeNull] string value, bool fromDataAnnotation = false)
+        {
+            model.SetOrRemoveAnnotation(
+                RelationalAnnotationNames.Collation,
+                Check.NullButNotEmpty(value, nameof(value)), fromDataAnnotation);
+            return value;
+        }
+
+        /// <summary>
+        ///     Returns the configuration source for the collation.
+        /// </summary>
+        /// <param name="model"> The model to find configuration source for. </param>
+        /// <returns> The configuration source for the collation. </returns>
+        public static ConfigurationSource? GetCollationConfigurationSource([NotNull] this IConventionModel model)
+            => model.FindAnnotation(RelationalAnnotationNames.Collation)?.GetConfigurationSource();
     }
 }
