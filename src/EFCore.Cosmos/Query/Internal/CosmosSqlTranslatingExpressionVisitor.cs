@@ -33,6 +33,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         private static readonly MethodInfo _parameterListValueExtractor =
             typeof(CosmosSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterListValueExtractor));
 
+        private static readonly MethodInfo _concatMethodInfo
+            = typeof(string).GetRuntimeMethod(nameof(string.Concat), new[] { typeof(object), typeof(object) });
+
         private readonly QueryCompilationContext _queryCompilationContext;
         private readonly IModel _model;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -126,6 +129,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 && TryRewriteEntityEquality(binaryExpression.NodeType, visitedLeft ?? left, visitedRight ?? right, out var result))
             {
                 return result;
+            }
+
+            if (binaryExpression.Method == _concatMethodInfo)
+            {
+                return null;
             }
 
             var uncheckedNodeTypeVariant = binaryExpression.NodeType switch
@@ -474,11 +482,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                 case ExpressionType.Convert:
                 case ExpressionType.ConvertChecked:
-                    // Object convert needs to be converted to explicit cast when mismatching types
                     if (operand.Type.IsInterface
                         && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)
                         || unaryExpression.Type.UnwrapNullableType() == operand.Type
-                        || unaryExpression.Type.UnwrapNullableType() == typeof(Enum))
+                        || unaryExpression.Type.UnwrapNullableType() == typeof(Enum)
+                        // Object convert needs to be converted to explicit cast when mismatching types
+                        // But we let is pass here since we don't have explicit cast mechanism here and in some cases object convert is due to value types
+                        || unaryExpression.Type == typeof(object))
                     {
                         return sqlOperand;
                     }

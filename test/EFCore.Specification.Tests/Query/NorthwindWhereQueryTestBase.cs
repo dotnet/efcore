@@ -2248,5 +2248,29 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true,
                 elementAsserter: (e, a) => AssertCollection(e, a));
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_list_object_contains_over_value_type(bool async)
+        {
+            var orderIds = new List<object> { 10248, 10249 };
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(o => orderIds.Contains(o.OrderID)),
+                entryCount: 2);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_array_of_object_contains_over_value_type(bool async)
+        {
+            var orderIds = new object[] { 10248, 10249 };
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(o => orderIds.Contains(o.OrderID)),
+                entryCount: 2);
+        }
     }
 }

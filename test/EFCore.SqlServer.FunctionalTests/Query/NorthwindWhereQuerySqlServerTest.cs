@@ -2041,6 +2041,26 @@ WHERE ([o].[OrderID] < 10300) AND ((
 ORDER BY [o].[OrderID], [o0].[OrderID], [o0].[ProductID]");
         }
 
+        public override async Task Where_list_object_contains_over_value_type(bool async)
+        {
+            await base.Where_list_object_contains_over_value_type(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] IN (10248, 10249)");
+        }
+
+        public override async Task Where_array_of_object_contains_over_value_type(bool async)
+        {
+            await base.Where_array_of_object_contains_over_value_type(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] IN (10248, 10249)");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
