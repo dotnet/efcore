@@ -1087,8 +1087,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="principalKeyProperties"> The corresponding keys on the principal side. </param>
         public static void IncompatibleMatchingForeignKeyProperties(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
-            [NotNull] IConventionEntityType principalEntityType,
             [NotNull] IConventionEntityType dependentEntityType,
+            [NotNull] IConventionEntityType principalEntityType,
             [NotNull] IReadOnlyList<IPropertyBase> foreignKeyProperties,
             [NotNull] IReadOnlyList<IPropertyBase> principalKeyProperties)
         {
@@ -1098,19 +1098,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             {
                 definition.Log(
                     diagnostics,
-                    principalEntityType.DisplayName(),
                     dependentEntityType.DisplayName(),
+                    principalEntityType.DisplayName(),
                     foreignKeyProperties.Format(includeTypes: true),
                     principalKeyProperties.Format(includeTypes: true));
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                var eventData = new IncompatibleMatchingForeignKeyEventData(
+                var eventData = new ForeignKeyCandidateEventData(
                     definition,
                     IncompatibleMatchingForeignKeyProperties,
-                    principalEntityType,
                     dependentEntityType,
+                    principalEntityType,
                     foreignKeyProperties,
                     principalKeyProperties);
 
@@ -1121,10 +1121,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static string IncompatibleMatchingForeignKeyProperties(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string, string, string>)definition;
-            var p = (IncompatibleMatchingForeignKeyEventData)payload;
+            var p = (ForeignKeyCandidateEventData)payload;
             return d.GenerateMessage(
-                p.PrincipalEntityType.DisplayName(),
                 p.DependentEntityType.DisplayName(),
+                p.PrincipalEntityType.DisplayName(),
                 p.FirstPropertyCollection.Format(includeTypes: true),
                 p.SecondPropertyCollection.Format(includeTypes: true));
         }

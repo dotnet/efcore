@@ -419,7 +419,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         || p.GetConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)))
                 {
                     Dependencies.Logger.IncompatibleMatchingForeignKeyProperties(
-                        principalEntityType, dependentEntityType, foreignKeyProperties, propertiesToReference);
+                        dependentEntityType, principalEntityType, foreignKeyProperties, propertiesToReference);
                 }
 
                 // Stop searching if match found, but is incompatible

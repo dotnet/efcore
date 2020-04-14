@@ -3671,7 +3671,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     For the relationship between principal entity type '{principalEntityType}' and dependent entity type '{dependentEntityType}', the foreign key properties haven't been configured by convention because the best match {foreignKey} are incompatible with the current principal key {principalKey}. This message can be disregarded if explicit configuration has been specified.
+        ///     For the relationship between dependent entity type '{dependentEntityType}' and principal entity type '{principalEntityType}', the foreign key properties haven't been configured by convention because the best match {foreignKey} are incompatible with the current principal key {principalKey}. This message can be disregarded if explicit configuration has been specified.
         /// </summary>
         public static EventDefinition<string, string, string, string> LogIncompatibleMatchingForeignKeyProperties([NotNull] IDiagnosticsLogger logger)
         {

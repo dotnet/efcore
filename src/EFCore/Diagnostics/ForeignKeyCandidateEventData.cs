@@ -10,10 +10,10 @@ using Microsoft.EntityFrameworkCore.Metadata;
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
-    ///     A <see cref="DiagnosticSource" /> event payload class for the 
-    ///     IncompatibleMatchingForeignKeyProperties event.
+    ///     A <see cref="DiagnosticSource" /> event payload class for
+    ///     incompatible foreign key properties.
     /// </summary>
-    public class IncompatibleMatchingForeignKeyEventData : TwoPropertyBaseCollectionsEventData
+    public class ForeignKeyCandidateEventData : TwoPropertyBaseCollectionsEventData
     {
         /// <summary>
         ///     Constructs the event payload.
@@ -24,27 +24,27 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="dependentEntityType"> The entity type on the dependent end of the relationship. </param>
         /// <param name="firstPropertyCollection"> The first property collection. </param>
         /// <param name="secondPropertyCollection"> The second property collection. </param>
-        public IncompatibleMatchingForeignKeyEventData(
+        public ForeignKeyCandidateEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] IConventionEntityType principalEntityType,
             [NotNull] IConventionEntityType dependentEntityType,
+            [NotNull] IConventionEntityType principalEntityType,
             [NotNull] IReadOnlyList<IPropertyBase> firstPropertyCollection,
             [NotNull] IReadOnlyList<IPropertyBase> secondPropertyCollection)
             : base(eventDefinition, messageGenerator, firstPropertyCollection, secondPropertyCollection)
         {
-            PrincipalEntityType = principalEntityType;
             DependentEntityType = dependentEntityType;
+            PrincipalEntityType = principalEntityType;
         }
-
-        /// <summary>
-        ///     The principal entity type.
-        /// </summary>
-        public virtual IConventionEntityType PrincipalEntityType { get; }
 
         /// <summary>
         ///     The dependent entity type.
         /// </summary>
         public virtual IConventionEntityType DependentEntityType { get; }
+
+        /// <summary>
+        ///     The principal entity type.
+        /// </summary>
+        public virtual IConventionEntityType PrincipalEntityType { get; }
     }
 }
