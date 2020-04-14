@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         /// </param>
         /// <returns> An object that can be used to configure the primary key. </returns>
-        public virtual KeyBuilder<TEntity> HasKey([NotNull] Expression<Func<TEntity, object>> keyExpression)
+        public virtual KeyBuilder HasKey([NotNull] Expression<Func<TEntity, object>> keyExpression)
             => new KeyBuilder<TEntity>(
                 Builder.PrimaryKey(
                     Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(),
