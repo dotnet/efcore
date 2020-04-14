@@ -843,6 +843,7 @@ SELECT
     [i].[is_unique],
     [i].[has_filter],
     [i].[filter_definition],
+    [i].[fill_factor],
     COL_NAME([ic].[object_id], [ic].[column_id]) AS [column_name]
 FROM [sys].[indexes] AS [i]
 JOIN [sys].[tables] AS [t] ON [i].[object_id] = [t].[object_id]
@@ -965,7 +966,8 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                                 TypeDesc: ddr.GetValueOrDefault<string>("type_desc"),
                                 IsUnique: ddr.GetValueOrDefault<bool>("is_unique"),
                                 HasFilter: ddr.GetValueOrDefault<bool>("has_filter"),
-                                FilterDefinition: ddr.GetValueOrDefault<string>("filter_definition")))
+                                FilterDefinition: ddr.GetValueOrDefault<string>("filter_definition"),
+                                FillFactor: ddr.GetValueOrDefault<byte>("fill_factor")))
                     .ToArray();
 
                 foreach (var indexGroup in indexGroups)
@@ -981,6 +983,11 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                     if (indexGroup.Key.TypeDesc == "CLUSTERED")
                     {
                         index[SqlServerAnnotationNames.Clustered] = true;
+                    }
+
+                    if (indexGroup.Key.FillFactor > 0 && indexGroup.Key.FillFactor < 100)
+                    {
+                        index[SqlServerAnnotationNames.FillFactor] = indexGroup.Key.FillFactor;
                     }
 
                     foreach (var dataRecord in indexGroup)

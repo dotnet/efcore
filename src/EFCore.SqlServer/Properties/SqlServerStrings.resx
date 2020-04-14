@@ -266,4 +266,7 @@
   <data name="DuplicateIndexOnlineMismatch" xml:space="preserve">
     <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different online configuration.</value>
   </data>
+  <data name="DuplicateIndexFillFactorMismatch" xml:space="preserve">
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different fill factor configuration.</value>
+  </data>
 </root>

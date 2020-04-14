@@ -223,6 +223,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 GetString("DuplicateIndexOnlineMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(indexName)),
                 index1, entityType1, index2, entityType2, table, indexName);
 
+        /// <summary>
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different fill factor configuration.
+        /// </summary>
+        public static string DuplicateIndexFillFactorMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName)
+            => string.Format(
+                GetString("DuplicateIndexFillFactorMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(indexName)),
+                index1, entityType1, index2, entityType2, table, indexName);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

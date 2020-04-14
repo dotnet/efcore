@@ -104,6 +104,29 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         [ConditionalFact]
+        public void GenerateFluentApi_IIndex_works_when_fillfactor()
+        {
+            var generator = new SqlServerAnnotationCodeGenerator(new AnnotationCodeGeneratorDependencies());
+            var modelBuilder = new ModelBuilder(SqlServerConventionSetBuilder.Build());
+            modelBuilder.Entity(
+                "Post",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.Property<string>("Name");
+                    x.HasIndex("Name").HasFillFactor(90);
+                });
+
+            var index = modelBuilder.Model.FindEntityType("Post").GetIndexes().Single();
+            var annotation = index.FindAnnotation(SqlServerAnnotationNames.FillFactor); 
+            var result = generator.GenerateFluentApi(index, annotation);
+
+            Assert.Equal("HasFillFactor", result.Method);
+            Assert.Equal(1, result.Arguments.Count);
+            Assert.Equal((byte)90, result.Arguments[0]);
+        }
+
+        [ConditionalFact]
         public void GenerateFluentApi_IIndex_works_with_includes()
         {
             var generator = new SqlServerAnnotationCodeGenerator(new AnnotationCodeGeneratorDependencies());

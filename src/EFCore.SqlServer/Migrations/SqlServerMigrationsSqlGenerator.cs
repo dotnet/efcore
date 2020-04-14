@@ -1552,9 +1552,29 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             base.IndexOptions(operation, model, builder);
 
+            IndexWithOptions(operation, builder);
+        }
+
+        private void IndexWithOptions(CreateIndexOperation operation, MigrationCommandListBuilder builder)
+        {
+            var options = new HashSet<string>();
+
+            if (operation[SqlServerAnnotationNames.FillFactor] is byte fillFactor)
+            {
+                options.Add("FILLFACTOR = " + fillFactor);
+            }
+
             if (operation[SqlServerAnnotationNames.CreatedOnline] is bool isOnline && isOnline)
             {
-                builder.Append(" WITH (ONLINE = ON)");
+                options.Add("ONLINE = ON");
+            }
+
+            if (options.Count > 0)
+            {
+                builder
+                    .Append(" WITH (")
+                    .Append(string.Join(", ", options))
+                    .Append(")");
             }
         }
 

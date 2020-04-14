@@ -80,6 +80,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
+            if (index.GetFillFactor() != duplicateIndex.GetFillFactor())
+            {
+                if (shouldThrow)
+                {
+                    throw new InvalidOperationException(
+                        SqlServerStrings.DuplicateIndexFillFactorMismatch(
+                            index.Properties.Format(),
+                            index.DeclaringEntityType.DisplayName(),
+                            duplicateIndex.Properties.Format(),
+                            duplicateIndex.DeclaringEntityType.DisplayName(),
+                            index.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                            index.GetName()));
+                }
+
+                return false;
+            }
+
             return true;
         }
 
