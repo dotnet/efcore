@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
         private readonly ISet<string> _tags;
+        private readonly bool _detailedErrorsEnabled;
         private readonly bool _useRelationalNulls;
 
         public RelationalShapedQueryCompilingExpressionVisitor(
@@ -36,12 +37,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             _contextType = queryCompilationContext.ContextType;
             _logger = queryCompilationContext.Logger;
             _tags = queryCompilationContext.Tags;
+            _detailedErrorsEnabled = relationalDependencies.CoreSingletonOptions.AreDetailedErrorsEnabled;
             _useRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
         }
 
         protected virtual RelationalShapedQueryCompilingExpressionVisitorDependencies RelationalDependencies { get; }
 
-        protected override Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression)
+        protected override Expression VisitShapedQuery(ShapedQueryExpression shapedQueryExpression)
         {
             Check.NotNull(shapedQueryExpression, nameof(shapedQueryExpression));
 
@@ -66,6 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     selectExpression,
                     dataReaderParameter,
                     isNonComposedFromSql ? indexMapParameter : null,
+                    _detailedErrorsEnabled,
                     IsBuffering)
                 .Visit(shaper, out var projectionColumns);
 

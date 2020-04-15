@@ -159,8 +159,29 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override string GenerateNonNullSqlLiteral(object value)
-            => IsUnicode
-                ? $"N'{EscapeSqlLiteral((string)value)}'" // Interpolation okay; strings
-                : $"'{EscapeSqlLiteral((string)value)}'";
+            => EscapeLineBreaks(EscapeSqlLiteral((string)value));
+
+        private static readonly char[] LineBreakChars = new char[] { '\r', '\n' };
+        private string EscapeLineBreaks(string value)
+        {
+            var unicodePrefix = IsUnicode ? "N" : string.Empty;
+
+            if (value == null
+                || value.IndexOfAny(LineBreakChars) == -1)
+            {
+                return $"{unicodePrefix}'{value}'";
+            }
+
+            if (value.Length == 1)
+            {
+                return value[0] == '\n' ? "CHAR(10)" : "CHAR(13)";
+            }
+
+            return ($"CONCAT({unicodePrefix}'" + value
+                    .Replace("\r", $"', CHAR(13), {unicodePrefix}'")
+                    .Replace("\n", $"', CHAR(10), {unicodePrefix}'") + "')")
+                    .Replace($"{unicodePrefix}'', ", string.Empty)
+                    .Replace($", {unicodePrefix}''", string.Empty);
+        }
     }
 }

@@ -446,7 +446,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 VisitInternal<SqlExpression>(projectionExpression.Expression).ResultExpression);
         }
 
-        protected override Expression VisitQueryableFunctionExpression(QueryableFunctionExpression queryableFunctionExpression)
+        protected override Expression VisitQueryableFunction(QueryableFunctionExpression queryableFunctionExpression)
         {
             Check.NotNull(queryableFunctionExpression, nameof(queryableFunctionExpression));
 
@@ -724,12 +724,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             if (IsTrueOrFalse(right) is bool rightTrueFalseValue
-                && !leftNullable
-                && left.TypeMapping.Converter == null)
+                && !leftNullable)
             {
                 _nullable = leftNullable;
 
-                // only correct in 2-value logic and only if 'a' doesn't have value converter applied to it
+                // only correct in 2-value logic
                 // a == true -> a
                 // a == false -> !a
                 // a != true -> !a
@@ -740,12 +739,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             if (IsTrueOrFalse(left) is bool leftTrueFalseValue
-                && !rightNullable
-                && right.TypeMapping.Converter == null)
+                && !rightNullable)
             {
                 _nullable = rightNullable;
 
-                // only correct in 2-value logic and only if 'a' doesn't have value converter applied to it
+                // only correct in 2-value logic
                 // true == a -> a
                 // false == a -> !a
                 // true != a -> !a

@@ -578,5 +578,76 @@ namespace Microsoft.EntityFrameworkCore
                 RelationalAnnotationNames.Comment,
                 comment,
                 fromDataAnnotation);
+
+        /// <summary>
+        ///     Configures the property to use the given collation. The database column will be be created with the given
+        ///     collation, and it will be used implicitly in all collation-sensitive operations.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="collation"> The collation for the column. </param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+        public static PropertyBuilder UseCollation([NotNull] this PropertyBuilder propertyBuilder, [CanBeNull] string collation)
+        {
+            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
+            Check.NullButNotEmpty(collation, nameof(collation));
+
+            propertyBuilder.Metadata.SetCollation(collation);
+
+            return propertyBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the property to use the given collation. The database column will be be created with the given
+        ///     collation, and it will be used implicitly in all collation-sensitive operations.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="collation"> The collation for the column. </param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+        public static PropertyBuilder<TProperty> UseCollation<TProperty>(
+            [NotNull] this PropertyBuilder<TProperty> propertyBuilder, [CanBeNull] string collation)
+            => (PropertyBuilder<TProperty>)UseCollation((PropertyBuilder)propertyBuilder, collation);
+
+        /// <summary>
+        ///     Configures the property to use the given collation. The database column will be be created with the given
+        ///     collation, and it will be used implicitly in all collation-sensitive operations.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="collation"> The collation. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        public static IConventionPropertyBuilder UseCollation(
+            [NotNull] this IConventionPropertyBuilder propertyBuilder,
+            [CanBeNull] string collation,
+            bool fromDataAnnotation = false)
+        {
+            if (propertyBuilder.CanSetCollation(collation, fromDataAnnotation))
+            {
+                propertyBuilder.Metadata.SetCollation(collation, fromDataAnnotation);
+
+                return propertyBuilder;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Returns a value indicating whether the given value can be set as the collation.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="collation"> The collation. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the given value can be set as default for the column. </returns>
+        public static bool CanSetCollation(
+            [NotNull] this IConventionPropertyBuilder propertyBuilder,
+            [CanBeNull] string collation,
+            bool fromDataAnnotation = false)
+        {
+            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
+
+            return propertyBuilder.CanSetAnnotation(RelationalAnnotationNames.Collation, collation, fromDataAnnotation);
+        }
     }
 }

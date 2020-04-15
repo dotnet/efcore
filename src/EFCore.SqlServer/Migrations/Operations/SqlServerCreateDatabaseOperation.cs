@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Diagnostics;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
@@ -8,7 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     /// <summary>
     ///     A SQL Server-specific <see cref="MigrationOperation" /> to create a database.
     /// </summary>
-    public class SqlServerCreateDatabaseOperation : MigrationOperation
+    [DebuggerDisplay("CREATE DATABASE {Name}")]
+    public class SqlServerCreateDatabaseOperation : DatabaseOperation
     {
         /// <summary>
         ///     The name of the database.

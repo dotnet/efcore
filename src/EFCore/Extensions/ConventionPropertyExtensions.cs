@@ -29,6 +29,15 @@ namespace Microsoft.EntityFrameworkCore
             => (IConventionProperty)((IProperty)property).FindFirstPrincipal();
 
         /// <summary>
+        ///     Finds the list of principal properties including the given property that the given property is constrained by
+        ///     if the given property is part of a foreign key.
+        /// </summary>
+        /// <param name="property"> The foreign key property. </param>
+        /// <returns> The list of all associated principal properties including the given property. </returns>
+        public static IReadOnlyList<IConventionProperty> FindPrincipals([NotNull] this IConventionProperty property)
+            => ((IProperty)property).FindPrincipals().Cast<IConventionProperty>().ToList();
+
+        /// <summary>
         ///     Gets all foreign keys that use this property (including composite foreign keys in which this property
         ///     is included).
         /// </summary>
@@ -100,6 +109,46 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The configuration source for <see cref="PropertyExtensions.GetMaxLength" />. </returns>
         public static ConfigurationSource? GetMaxLengthConfigurationSource([NotNull] this IConventionProperty property)
             => property.FindAnnotation(CoreAnnotationNames.MaxLength)?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Sets the precision of data that is allowed in this property.
+        ///     For example, if the property is a <see cref="decimal" />
+        ///     then this is the maximum number of digits.
+        /// </summary>
+        /// <param name="property"> The property to get the precision of. </param>
+        /// <param name="precision"> The maximum number of digits that is allowed in this property. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static int? SetPrecision([NotNull] this IConventionProperty property, int? precision, bool fromDataAnnotation = false)
+            => property.AsProperty().SetPrecision(
+                precision, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     Returns the configuration source for <see cref="PropertyExtensions.GetPrecision" />.
+        /// </summary>
+        /// <param name="property"> The property to find configuration source for. </param>
+        /// <returns> The configuration source for <see cref="PropertyExtensions.GetPrecision" />. </returns>
+        public static ConfigurationSource? GetPrecisionConfigurationSource([NotNull] this IConventionProperty property)
+            => property.FindAnnotation(CoreAnnotationNames.Precision)?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Sets the scale of data that is allowed in this property.
+        ///     For example, if the property is a <see cref="decimal" />
+        ///     then this is the maximum number of decimal places.
+        /// </summary>
+        /// <param name="property"> The property to get the precision of. </param>
+        /// <param name="scale"> The maximum number of decimal places that is allowed in this property. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static int? SetScale([NotNull] this IConventionProperty property, int? scale, bool fromDataAnnotation = false)
+            => property.AsProperty().SetScale(
+                scale, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     Returns the configuration source for <see cref="PropertyExtensions.GetScale" />.
+        /// </summary>
+        /// <param name="property"> The property to find configuration source for. </param>
+        /// <returns> The configuration source for <see cref="PropertyExtensions.GetScale" />. </returns>
+        public static ConfigurationSource? GetScaleConfigurationSource([NotNull] this IConventionProperty property)
+            => property.FindAnnotation(CoreAnnotationNames.Scale)?.GetConfigurationSource();
 
         /// <summary>
         ///     Sets a value indicating whether this property can persist Unicode characters.

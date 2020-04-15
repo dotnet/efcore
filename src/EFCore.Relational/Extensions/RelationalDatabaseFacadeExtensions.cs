@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -208,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (concurrencyDetector.EnterCriticalSection())
             {
-                var rawSqlCommand = GetFacadeDependencies(databaseFacade).RawSqlCommandBuilder
+                var rawSqlCommand = facadeDependencies.RawSqlCommandBuilder
                     .Build(sql, parameters);
 
                 return rawSqlCommand
@@ -361,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (concurrencyDetector.EnterCriticalSection())
             {
-                var rawSqlCommand = GetFacadeDependencies(databaseFacade).RawSqlCommandBuilder
+                var rawSqlCommand = facadeDependencies.RawSqlCommandBuilder
                     .Build(sql, parameters);
 
                 return await rawSqlCommand

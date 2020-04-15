@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public OwnedNavigationBuilder(
             [NotNull] EntityType principalEntityType,
             [NotNull] EntityType dependentEntityType,
-            [NotNull] InternalRelationshipBuilder builder)
+            [NotNull] InternalForeignKeyBuilder builder)
             : base(principalEntityType, dependentEntityType, builder)
         {
         }
@@ -59,10 +59,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         /// </param>
         /// <returns> An object that can be used to configure the primary key. </returns>
-        public virtual KeyBuilder HasKey([NotNull] Expression<Func<TDependentEntity, object>> keyExpression)
-            => new KeyBuilder(
+        public virtual KeyBuilder<TDependentEntity> HasKey([NotNull] Expression<Func<TDependentEntity, object>> keyExpression)
+            => new KeyBuilder<TDependentEntity>(
                 DependentEntityType.Builder.PrimaryKey(
                     Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit).Metadata);
+
+        /// <summary>
+        ///     Sets the properties that make up the primary key for this owned entity type.
+        /// </summary>
+        /// <param name="propertyNames"> The names of the properties that make up the primary key. </param>
+        /// <returns> An object that can be used to configure the primary key. </returns>
+        public new virtual KeyBuilder<TDependentEntity> HasKey([NotNull] params string[] propertyNames)
+            => new KeyBuilder<TDependentEntity>(
+                DependentEntityType.Builder.PrimaryKey(
+                    Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     <para>
@@ -146,11 +156,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         /// </param>
         /// <returns> An object that can be used to configure the index. </returns>
-        public virtual IndexBuilder HasIndex([NotNull] Expression<Func<TDependentEntity, object>> indexExpression)
-            => new IndexBuilder(
+        public virtual IndexBuilder<TEntity> HasIndex([NotNull] Expression<Func<TDependentEntity, object>> indexExpression)
+            => new IndexBuilder<TEntity>(
                 DependentEntityType.Builder.HasIndex(
                         Check.NotNull(indexExpression, nameof(indexExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit)
                     .Metadata);
+
+        /// <summary>
+        ///     Configures an index on the specified properties. If there is an existing index on the given
+        ///     set of properties, then the existing index will be returned for configuration.
+        /// </summary>
+        /// <param name="propertyNames"> The names of the properties that make up the index. </param>
+        /// <returns> An object that can be used to configure the index. </returns>
+        public new virtual IndexBuilder<TEntity> HasIndex([NotNull] params string[] propertyNames)
+            => new IndexBuilder<TEntity>(
+                DependentEntityType.Builder.HasIndex(
+                    Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     <para>
@@ -343,7 +364,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             MemberIdentity navigation)
             where TNewDependentEntity : class
         {
-            InternalRelationshipBuilder relationship;
+            InternalForeignKeyBuilder relationship;
             using (var batch = DependentEntityType.Model.ConventionDispatcher.DelayConventions())
             {
                 relationship = navigation.MemberInfo == null
@@ -351,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     : DependentEntityType.Builder.HasOwnership(
                         typeof(TNewDependentEntity), (PropertyInfo)navigation.MemberInfo, ConfigurationSource.Explicit);
                 relationship.IsUnique(true, ConfigurationSource.Explicit);
-                relationship = (InternalRelationshipBuilder)batch.Run(relationship.Metadata).Builder;
+                relationship = (InternalForeignKeyBuilder)batch.Run(relationship.Metadata).Builder;
             }
 
             return new OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>(
@@ -496,7 +517,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         private OwnedNavigationBuilder<TDependentEntity, TNewRelatedEntity> OwnsManyBuilder<TNewRelatedEntity>(MemberIdentity navigation)
             where TNewRelatedEntity : class
         {
-            InternalRelationshipBuilder relationship;
+            InternalForeignKeyBuilder relationship;
             using (var batch = DependentEntityType.Model.ConventionDispatcher.DelayConventions())
             {
                 relationship = navigation.MemberInfo == null
@@ -504,7 +525,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     : DependentEntityType.Builder.HasOwnership(
                         typeof(TNewRelatedEntity), (PropertyInfo)navigation.MemberInfo, ConfigurationSource.Explicit);
                 relationship.IsUnique(false, ConfigurationSource.Explicit);
-                relationship = (InternalRelationshipBuilder)batch.Run(relationship.Metadata).Builder;
+                relationship = (InternalForeignKeyBuilder)batch.Run(relationship.Metadata).Builder;
             }
 
             return new OwnedNavigationBuilder<TDependentEntity, TNewRelatedEntity>(

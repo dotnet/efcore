@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             base.Value_conversion_is_appropriately_used_for_left_join_condition();
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#18147")]
         public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used()
         {
             base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used();
@@ -149,6 +149,7 @@ FROM root c
 WHERE (c[""Discriminator""] IN (""Blog"", ""RssBlog"") AND (c[""IsVisible""] = ""Y""))");
         }
 
+        [ConditionalFact(Skip = "Issue#18147")]
         public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
         {
             base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty();
@@ -159,6 +160,7 @@ FROM root c
 WHERE (c[""Discriminator""] IN (""Blog"", ""RssBlog"") AND (c[""IsVisible""] = ""Y""))");
         }
 
+        [ConditionalFact(Skip = "Issue#18147")]
         public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer()
         {
             base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer();
@@ -167,6 +169,14 @@ WHERE (c[""Discriminator""] IN (""Blog"", ""RssBlog"") AND (c[""IsVisible""] = "
                 @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] IN (""Blog"", ""RssBlog"") AND NOT((c[""IndexerVisible""] = ""Aye"")))");
+        }
+
+        [ConditionalFact(Skip = "Issue #20543")]
+        public override void Object_to_string_conversion()
+        {
+            base.Object_to_string_conversion();
+
+            AssertSql(@" ");
         }
 
         private void AssertSql(params string[] expected)

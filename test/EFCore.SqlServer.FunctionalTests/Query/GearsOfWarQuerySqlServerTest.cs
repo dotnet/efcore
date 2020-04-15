@@ -2,7 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -945,7 +948,7 @@ CROSS JOIN [Gears] AS [g0]");
 
             AssertSql(
                 @"SELECT [g0].[Nickname], CASE
-    WHEN [g0].[Nickname] IS NOT NULL THEN CASE
+    WHEN [g0].[Nickname] IS NOT NULL AND [g0].[SquadId] IS NOT NULL THEN CASE
         WHEN [g0].[LeaderNickname] IS NOT NULL THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
@@ -962,7 +965,7 @@ ORDER BY [g0].[Nickname]");
 
             AssertSql(
                 @"SELECT CASE
-    WHEN [g0].[Nickname] IS NOT NULL THEN CAST(1 AS bit)
+    WHEN [g0].[Nickname] IS NOT NULL AND [g0].[SquadId] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END, [g0].[Nickname]
 FROM [Gears] AS [g]
@@ -976,7 +979,7 @@ ORDER BY [g0].[Nickname]");
 
             AssertSql(
                 @"SELECT CASE
-    WHEN [g0].[Nickname] IS NOT NULL THEN CAST(1 AS bit)
+    WHEN [g0].[Nickname] IS NOT NULL AND [g0].[SquadId] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END, [g0].[Nickname]
 FROM [Gears] AS [g]
@@ -1187,7 +1190,7 @@ WHERE (([g].[Nickname] = [g0].[Nickname]) OR ([g].[Nickname] IS NULL AND [g0].[N
                 @"SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note]
 FROM [Tags] AS [t]
 LEFT JOIN [Gears] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])
-WHERE [g].[Nickname] IS NULL");
+WHERE [g].[Nickname] IS NULL OR [g].[SquadId] IS NULL");
         }
 
         public override async Task Select_Where_Navigation_Null_Reverse(bool async)
@@ -1198,7 +1201,7 @@ WHERE [g].[Nickname] IS NULL");
                 @"SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note]
 FROM [Tags] AS [t]
 LEFT JOIN [Gears] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])
-WHERE [g].[Nickname] IS NULL");
+WHERE [g].[Nickname] IS NULL OR [g].[SquadId] IS NULL");
         }
 
         public override async Task Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected(bool async)
@@ -3182,7 +3185,7 @@ LEFT JOIN [Gears] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[Gear
 WHERE ([g].[Discriminator] = N'Officer') AND ((
     SELECT COUNT(*)
     FROM [Gears] AS [g0]
-    WHERE ([g].[Nickname] IS NOT NULL AND (([g].[Nickname] = [g0].[LeaderNickname]) AND ([g].[SquadId] = [g0].[LeaderSquadId]))) AND ([g0].[Nickname] = N'Dom')) > 0)");
+    WHERE (([g].[Nickname] IS NOT NULL AND [g].[SquadId] IS NOT NULL) AND (([g].[Nickname] = [g0].[LeaderNickname]) AND ([g].[SquadId] = [g0].[LeaderSquadId]))) AND ([g0].[Nickname] = N'Dom')) > 0)");
         }
 
         public override async Task Select_null_conditional_with_inheritance(bool async)
@@ -3473,7 +3476,7 @@ ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId], [t].[Id],
 
             AssertSql(
                 @"SELECT CASE
-    WHEN [g].[Nickname] IS NOT NULL THEN [g].[HasSoulPatch]
+    WHEN [g].[Nickname] IS NOT NULL AND [g].[SquadId] IS NOT NULL THEN [g].[HasSoulPatch]
     ELSE CAST(0 AS bit)
 END AS [Prop]
 FROM [Tags] AS [t]
@@ -5889,7 +5892,7 @@ LEFT JOIN [Gears] AS [g0] ON [g].[LeaderNickname] = [g0].[Nickname]");
 
             AssertSql(
                 @"SELECT CASE
-    WHEN [g0].[Nickname] IS NULL THEN CAST(1 AS bit)
+    WHEN [g0].[Nickname] IS NULL OR [g0].[SquadId] IS NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END, [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
 FROM [Gears] AS [g]
@@ -5907,7 +5910,7 @@ LEFT JOIN [Gears] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[Gear
 OUTER APPLY (
     SELECT TOP(50) [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
     FROM [Gears] AS [g0]
-    WHERE [g].[Nickname] IS NOT NULL AND (([g].[Nickname] = [g0].[LeaderNickname]) AND ([g].[SquadId] = [g0].[LeaderSquadId]))
+    WHERE ([g].[Nickname] IS NOT NULL AND [g].[SquadId] IS NOT NULL) AND (([g].[Nickname] = [g0].[LeaderNickname]) AND ([g].[SquadId] = [g0].[LeaderSquadId]))
 ) AS [t0]
 WHERE [g].[Discriminator] = N'Officer'
 ORDER BY [t].[Id], [t0].[Nickname], [t0].[SquadId]");
@@ -6120,7 +6123,7 @@ ORDER BY [t].[Note]");
 
             AssertSql(
                 @"SELECT CASE
-    WHEN [g].[Nickname] IS NOT NULL THEN CAST(1 AS bit)
+    WHEN [g].[Nickname] IS NOT NULL AND [g].[SquadId] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END, [t].[Id], [t0].[Nickname], [t0].[Id]
 FROM [Tags] AS [t]
@@ -6627,7 +6630,7 @@ ORDER BY [w0].[IsAutomatic]");
             await base.DateTimeOffset_Date_returns_datetime(async);
 
             AssertSql(
-                @"@__dateTimeOffset_Date_0='0002-03-01T00:00:00'
+                @"@__dateTimeOffset_Date_0='0002-03-01T00:00:00.0000000'
 
 SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
@@ -6804,10 +6807,10 @@ WHERE DATEPART(millisecond, [m].[Duration]) = 1");
             AssertSql(
                 @"SELECT [l].[Name], [l].[Discriminator], [l].[LocustHordeId], [l].[ThreatLevel], [l].[ThreatLevelByte], [l].[ThreatLevelNullableByte], [l].[DefeatedByNickname], [l].[DefeatedBySquadId], [l].[HighCommandId]
 FROM [LocustLeaders] AS [l]
-WHERE [l].[ThreatLevelByte] IN (
-    SELECT [l0].[ThreatLevelByte]
+WHERE EXISTS (
+    SELECT 1
     FROM [LocustLeaders] AS [l0]
-)");
+    WHERE [l0].[ThreatLevelByte] = [l].[ThreatLevelByte])");
         }
 
         public override async Task Contains_on_collection_of_nullable_byte_subquery(bool async)
@@ -6870,10 +6873,10 @@ FROM [LocustLeaders] AS [l]
 CROSS APPLY (
     SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
     FROM [Gears] AS [g]
-    WHERE [l].[ThreatLevelByte] IN (
-        SELECT [l0].[ThreatLevelByte]
+    WHERE EXISTS (
+        SELECT 1
         FROM [LocustLeaders] AS [l0]
-    )
+        WHERE [l0].[ThreatLevelByte] = [l].[ThreatLevelByte])
 ) AS [t]");
         }
 
@@ -6887,10 +6890,10 @@ FROM [LocustLeaders] AS [l]
 CROSS APPLY (
     SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
     FROM [Gears] AS [g]
-    WHERE [l].[ThreatLevelByte] NOT IN (
-        SELECT [l0].[ThreatLevelByte]
+    WHERE NOT (EXISTS (
+        SELECT 1
         FROM [LocustLeaders] AS [l0]
-    )
+        WHERE [l0].[ThreatLevelByte] = [l].[ThreatLevelByte]))
 ) AS [t]");
         }
 
@@ -6974,6 +6977,20 @@ WHERE (@__prm_0 & CAST([g].[Rank] AS int)) = CAST([g].[Rank] AS int)");
 SELECT TOP(@__p_0) [g].[Rank] & @__p_0
 FROM [Gears] AS [g]
 ORDER BY [g].[Nickname]");
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public async Task DataLength_function_for_string_parameter(bool async)
+        {
+            await AssertQueryScalar(
+                async,
+                ss => ss.Set<Mission>().Select(m => EF.Functions.DataLength(m.CodeName)),
+                ss => ss.Set<Mission>().Select(m => (int?)(m.CodeName.Length * 2)));
+
+            AssertSql(
+                @"SELECT CAST(DATALENGTH([m].[CodeName]) AS int)
+FROM [Missions] AS [m]");
         }
 
         private void AssertSql(params string[] expected)

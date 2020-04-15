@@ -359,6 +359,9 @@
   <data name="DuplicateColumnNameCommentMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different comments ('{comment1}' and '{comment2}').</value>
   </data>
+  <data name="DuplicateColumnNameCollationMismatch" xml:space="preserve">
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different collations ('{collation1}' and '{collation2}').</value>
+  </data>
   <data name="ConflictingColumnServerGeneration" xml:space="preserve">
     <value>{conflictingConfiguration} cannot be set for '{property}' at the same time as {existingConfiguration}. Remove one of these values.</value>
   </data>
@@ -404,9 +407,6 @@
   </data>
   <data name="DbFunctionInvalidReturnType" xml:space="preserve">
     <value>The DbFunction '{function}' has an invalid return type '{type}'. Ensure that the return type can be mapped by the current provider.</value>
-  </data>
-  <data name="DbFunctionNameEmpty" xml:space="preserve">
-    <value>The DbFunction '{function}' has no name set. Name is a required property of a DbFunction.</value>
   </data>
   <data name="DbFunctionInvalidParameterType" xml:space="preserve">
     <value>The parameter '{parameter}' for the DbFunction '{function}' has an invalid type '{type}'. Ensure the parameter type can be mapped by the current provider.</value>
@@ -500,7 +500,82 @@
   <data name="NestedAmbientTransactionError" xml:space="preserve">
     <value>Root ambient transaction was completed before the nested transaction. The more nested transactions should be completed first.</value>
   </data>
+  <data name="DuplicateColumnNameConcurrencyTokenMismatch" xml:space="preserve">
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different concurrency token configuration.</value>
+  </data>
+  <data name="DuplicateColumnNameFixedLengthMismatch" xml:space="preserve">
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different fixed length configuration.</value>
+  </data>
+  <data name="DuplicateColumnNameMaxLengthMismatch" xml:space="preserve">
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different max lengths ('{maxLength1}' and '{maxLength2}').</value>
+  </data>
+  <data name="DuplicateColumnNameUnicodenessMismatch" xml:space="preserve">
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different unicode configuration</value>
+  </data>
+  <data name="DatabaseModelMissing" xml:space="preserve">
+    <value>The database model hasn't been initialized. The model needs to be finalized before the database model can be accessed.</value>
+  </data>
   <data name="DbFunctionQueryableCustomTranslation" xml:space="preserve">
     <value>Cannot set custom translation on the DbFunction '{function}' since it returns IQueryable type.</value>
+  </data>
+  <data name="DbFunctionInvalidIQueryableReturnType" xml:space="preserve">
+    <value>The DbFunction '{function}' has an invalid return type '{type}'. Only functions that return IQueryable of entity type are supported.</value>
+  </data>
+  <data name="DbFunctionInvalidIQueryableOwnedReturnType" xml:space="preserve">
+    <value>The DbFunction '{function}' has an invalid return type '{type}'. Owned entity types cannot be used as the return type of a DbFunction.</value>
+  </data>
+  <data name="DataOperationNoProperty" xml:space="preserve">
+    <value>There is no property mapped to the column '{table}.{column}' used in a data operation. Either add a property mapped to this column or specify the column types in the data operation.</value>
+  </data>
+  <data name="DataOperationNoTable" xml:space="preserve">
+    <value>There is no entity type mapped to the table '{table}' used in a data operation. Either add the corresponding entity type to the model or specify the column types in the data operation.</value>
+  </data>
+  <data name="DeleteDataOperationNoModel" xml:space="preserve">
+    <value>The data deletion operation on '{table}' is not associated with a model. Either add a model to the migration or specify the column types in all data operations.</value>
+  </data>
+  <data name="DeleteDataOperationTypesCountMismatch" xml:space="preserve">
+    <value>The number of key column types ({typesCount}) doesn't match the number of key columns ({columnsCount}) for the data deletion operation on '{table}'. Provide the same number of key column types and key columns.</value>
+  </data>
+  <data name="DeleteDataOperationValuesCountMismatch" xml:space="preserve">
+    <value>The number of key values ({valuesCount}) doesn't match the number of key columns ({columnsCount}) for the data deletion operation on '{table}'. Provide the same number of key values and key columns.</value>
+  </data>
+  <data name="InsertDataOperationNoModel" xml:space="preserve">
+    <value>The data insertion operation on '{table}' is not associated with a model. Either add a model to the migration or specify the column types in all data operations.</value>
+  </data>
+  <data name="InsertDataOperationTypesCountMismatch" xml:space="preserve">
+    <value>The number of column types ({typesCount}) doesn't match the number of columns ({columnsCount}) for the data insertion operation on '{table}'. Provide the same number of column types and columns.</value>
+  </data>
+  <data name="InsertDataOperationValuesCountMismatch" xml:space="preserve">
+    <value>The number of values ({valuesCount}) doesn't match the number of columns ({columnsCount}) for the data insertion operation on '{table}'. Provide the same number of values and columns.</value>
+  </data>
+  <data name="MigrationColumnTableMismatch" xml:space="preserve">
+    <value>The operation for the column '{column}' targets the '{columnTable}' table, but is part of the create operation for table '{table}'. Make both operations use the same name.</value>
+  </data>
+  <data name="UpdateDataOperationKeyTypesCountMismatch" xml:space="preserve">
+    <value>The number of key column types ({typesCount}) doesn't match the number of key columns ({columnsCount}) for the data modification operation on '{table}'. Provide the same number of key column types and key columns.</value>
+  </data>
+  <data name="UpdateDataOperationKeyValuesCountMismatch" xml:space="preserve">
+    <value>The number of key values ({valuesCount}) doesn't match the number of key columns ({columnsCount}) for the data modification operation on '{table}'. Provide the same number of key values and key columns.</value>
+  </data>
+  <data name="UpdateDataOperationNoModel" xml:space="preserve">
+    <value>The data modification operation on '{table}' is not associated with a model. Either add a model to the migration or specify the column types in all data operations.</value>
+  </data>
+  <data name="UpdateDataOperationRowCountMismatch" xml:space="preserve">
+    <value>The number of value rows ({valuesCount}) doesn't match the number of key rows ({keyCount}) for the data modification operation on '{table}'. Provide the same number of value rows and key rows.</value>
+  </data>
+  <data name="UpdateDataOperationTypesCountMismatch" xml:space="preserve">
+    <value>The number of column types ({typesCount}) doesn't match the number of columns ({columnsCount}) for the data modification operation on '{table}'. Provide the same number of column types and columns.</value>
+  </data>
+  <data name="UpdateDataOperationValuesCountMismatch" xml:space="preserve">
+    <value>The number of values ({valuesCount}) doesn't match the number of columns ({columnsCount}) for the data modification operation on '{table}'. Provide the same number of values and columns.</value>
+  </data>
+  <data name="UnsupportedStoreType" xml:space="preserve">
+    <value>The store type '{type}' is not supported by the current provider.</value>
+  </data>
+  <data name="ReadonlyEntitySaved" xml:space="preserve">
+    <value>The entity type '{entityType}' is not mapped to a table, therefore the entities cannot be persisted to the database. Use ToTable to map it.</value>
+  </data>
+  <data name="UnsupportedDataOperationStoreType" xml:space="preserve">
+    <value>The store type '{type}' used for the column '{column}' in a migration data operation is not supported by the current provider.</value>
   </data>
 </root>

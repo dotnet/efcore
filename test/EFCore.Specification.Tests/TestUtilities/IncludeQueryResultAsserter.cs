@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Xunit;
@@ -15,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private readonly MethodInfo _assertCollectionMethodInfo;
         private readonly Dictionary<Type, object> _entitySorters;
         private readonly Dictionary<Type, object> _entityAsserters;
+        private readonly MethodInfo _filterMethodInfo;
 
         private List<string> _path;
         private Stack<string> _fullPath;
@@ -28,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             _assertElementMethodInfo = typeof(IncludeQueryResultAsserter).GetTypeInfo().GetDeclaredMethod(nameof(AssertElement));
             _assertCollectionMethodInfo = typeof(IncludeQueryResultAsserter).GetTypeInfo().GetDeclaredMethod(nameof(AssertCollection));
+            _filterMethodInfo = typeof(IncludeQueryResultAsserter).GetTypeInfo().GetDeclaredMethod(nameof(Filter));
         }
 
         public virtual void AssertResult(object expected, object actual, IEnumerable<IExpectedInclude> expectedIncludes)
@@ -149,9 +152,22 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         protected void ProcessIncludes<TEntity>(TEntity expected, TEntity actual, IEnumerable<IExpectedInclude> expectedIncludes)
         {
             var currentPath = string.Join(".", _path);
+
             foreach (var expectedInclude in expectedIncludes.OfType<ExpectedInclude<TEntity>>().Where(i => i.NavigationPath == currentPath))
             {
                 var expectedIncludedNavigation = expectedInclude.Include(expected);
+                if (expectedInclude.GetType().BaseType != typeof(object))
+                {
+                    var includedType = expectedInclude.GetType().GetGenericArguments()[1];
+                    var filterTypedMethod = _filterMethodInfo.MakeGenericMethod(typeof(TEntity), includedType);
+                    expectedIncludedNavigation = filterTypedMethod.Invoke(
+                        this,
+                        BindingFlags.NonPublic,
+                        null,
+                        new object[] { expectedIncludedNavigation, expectedInclude },
+                        CultureInfo.CurrentCulture);
+                }
+
                 var actualIncludedNavigation = expectedInclude.Include(actual);
 
                 _path.Add(expectedInclude.IncludedName);
@@ -163,6 +179,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 _fullPath.Pop();
             }
         }
+
+        private IEnumerable<TIncluded> Filter<TEntity, TIncluded>(
+            IEnumerable<TIncluded> expected,
+            ExpectedFilteredInclude<TEntity, TIncluded> expectedFilteredInclude)
+            => expectedFilteredInclude.IncludeFilter(expected);
 
         // for debugging purposes
         protected string FullPath => string.Join(string.Empty, _fullPath.Reverse());

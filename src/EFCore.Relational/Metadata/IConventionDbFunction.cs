@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Represents a relational database function in an <see cref="IConventionModel" /> in
     ///     the a form that can be mutated while the model is being built.
     /// </summary>
-    public interface IConventionDbFunction : IDbFunction
+    public interface IConventionDbFunction : IConventionAnnotatable, IDbFunction
     {
         /// <summary>
         ///     Gets the <see cref="IConventionModel" /> in which this function is defined.
@@ -24,12 +24,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this function.
         /// </summary>
-        IConventionDbFunctionBuilder Builder { get; }
+        new IConventionDbFunctionBuilder Builder { get; }
 
         /// <summary>
-        ///     Gets the configuration source for this <see cref="IConventionDbFunction" />.
+        ///     Gets the configuration source for this function.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IConventionDbFunction" />. </returns>
+        /// <returns> The configuration source for this function. </returns>
         ConfigurationSource GetConfigurationSource();
 
         /// <summary>

@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// </summary>
         public override bool Exists()
         {
-            var connectionOptions = new SqliteConnectionStringBuilder(_connection.GetCheckedConnectionString());
+            var connectionOptions = new SqliteConnectionStringBuilder(_connection.ConnectionString);
             if (connectionOptions.DataSource.Equals(":memory:", StringComparison.OrdinalIgnoreCase)
                 || connectionOptions.Mode == SqliteOpenMode.Memory)
             {

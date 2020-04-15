@@ -1319,12 +1319,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 firstDependentToPrincipalNavigationSpecification, firstPrincipalToDependentNavigationSpecification, secondDependentToPrincipalNavigationSpecification, secondPrincipalToDependentNavigationSpecification, foreignKeyProperties);
 
         /// <summary>
-        ///     The {methodName} property lambda expression '{includeLambdaExpression}' is invalid. The expression should represent a property access: 't =&gt; t.MyProperty'. To target navigations declared on derived types, specify an explicitly typed lambda parameter of the target type, E.g. '(Derived d) =&gt; d.MyProperty'. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.
+        ///     The expression '{expression}' is invalid inside Include operation. The expression should represent a property access: 't =&gt; t.MyProperty'. To target navigations declared on derived types use cast, e.g. 't =&gt; ((Derived)t).MyProperty' or 'as' operator, e.g. 't =&gt; (t as Derived).MyProperty'. Collection navigation access can be filtered by composing Where, OrderBy(Descending), ThenBy(Descending), Skip or Take operations. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.
         /// </summary>
-        public static string InvalidIncludeLambdaExpression([CanBeNull] object methodName, [CanBeNull] object includeLambdaExpression)
+        public static string InvalidIncludeExpression([CanBeNull] object expression)
             => string.Format(
-                GetString("InvalidIncludeLambdaExpression", nameof(methodName), nameof(includeLambdaExpression)),
-                methodName, includeLambdaExpression);
+                GetString("InvalidIncludeExpression", nameof(expression)),
+                expression);
 
         /// <summary>
         ///     The corresponding CLR type for entity type '{entityType}' is not instantiable and there is no derived entity type in the model that corresponds to a concrete CLR type.
@@ -2153,7 +2153,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, clrName);
 
         /// <summary>
-        ///     The indexed property '{property}' cannot be added to type '{entityType}' because the CLR class contains a member with the same name.
+        ///     The indexer property '{property}' cannot be added to type '{entityType}' because the CLR class contains a member with the same name.
         /// </summary>
         public static string PropertyClashingNonIndexer([CanBeNull] object property, [CanBeNull] object entityType)
             => string.Format(
@@ -2423,6 +2423,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("IncludeOnNonEntity");
 
         /// <summary>
+        ///     Different filters: '{filter1}' and '{filter2}' have been applied on the same included navigation. Only one unique filter per navigation is allowed. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.
+        /// </summary>
+        public static string MultipleFilteredIncludesOnSameNavigation([CanBeNull] object filter1, [CanBeNull] object filter2)
+            => string.Format(
+                GetString("MultipleFilteredIncludesOnSameNavigation", nameof(filter1), nameof(filter2)),
+                filter1, filter2);
+
+        /// <summary>
         ///     Unable to convert queryable method to enumerable method.
         /// </summary>
         public static string CannotConvertQueryableToEnumerableMethod
@@ -2527,10 +2535,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("UnsupportedBinaryOperator");
 
         /// <summary>
-        ///     EF.Property called with wrong property name.
+        ///     Translation of '{expression}' failed. Either source is not an entity type or the specified property does not exist on the entity type.
         /// </summary>
-        public static string EFPropertyCalledWithWrongPropertyName
-            => GetString("EFPropertyCalledWithWrongPropertyName");
+        public static string QueryUnableToTranslateEFProperty([CanBeNull] object expression)
+            => string.Format(
+                GetString("QueryUnableToTranslateEFProperty", nameof(expression)),
+                expression);
 
         /// <summary>
         ///     Invalid {state} encountered.
@@ -2577,6 +2587,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("FunctionOnClient", nameof(methodName)),
                 methodName);
+
+        /// <summary>
+        ///     Materialization condition passed for entity shaper of entity type '{entityType}' is not of correct shape. Materialization condition must be LambdaExpression of 'Func&lt;ValueBuffer, IEntityType&gt;'
+        /// </summary>
+        public static string QueryEntityMaterializationConditionWrongShape([CanBeNull] object entityType)
+            => string.Format(
+                GetString("QueryEntityMaterializationConditionWrongShape", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     Unable to set IsUnique to '{isUnique}' on the relationship underlying the navigation property '{navigationName}' on the entity type '{entityType}' because the navigation property has the opposite multiplicity.
+        /// </summary>
+        public static string UnableToSetIsUnique([CanBeNull] object isUnique, [CanBeNull] object navigationName, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("UnableToSetIsUnique", nameof(isUnique), nameof(navigationName), nameof(entityType)),
+                isUnique, navigationName, entityType);
+
+        /// <summary>
+        ///     Unable to set up a many-to-many relationship between the entity types '{principalEntityType}' and '{declaringEntityType}' because one of the navigations was not specified. Please provide a navigation property in the HasMany() call.
+        /// </summary>
+        public static string MissingInverseManyToManyNavigation([CanBeNull] object principalEntityType, [CanBeNull] object declaringEntityType)
+            => string.Format(
+                GetString("MissingInverseManyToManyNavigation", nameof(principalEntityType), nameof(declaringEntityType)),
+                principalEntityType, declaringEntityType);
 
         private static string GetString(string name, params string[] formatterNames)
         {
@@ -3637,27 +3671,27 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The foreign key properties haven't been configured by convention because the best match {foreignKey} are incompatible with the current principal key {principalKey}. This message can be disregarded if explicit configuration has been specified.
+        ///     For the relationship between dependent '{dependentToPrincipalNavigationSpecification}' and principal '{principalToDependentNavigationSpecification}', the foreign key properties haven't been configured by convention because the best match {foreignKey} are incompatible with the current principal key {principalKey}. This message can be disregarded if explicit configuration has been specified.
         /// </summary>
-        public static EventDefinition<string, string> LogIncompatibleMatchingForeignKeyProperties([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, string, string> LogIncompatibleMatchingForeignKeyProperties([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogIncompatibleMatchingForeignKeyProperties;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
                     ref ((LoggingDefinitions)logger.Definitions).LogIncompatibleMatchingForeignKeyProperties,
-                    () => new EventDefinition<string, string>(
+                    () => new EventDefinition<string, string, string, string>(
                         logger.Options,
                         CoreEventId.IncompatibleMatchingForeignKeyProperties,
                         LogLevel.Debug,
                         "CoreEventId.IncompatibleMatchingForeignKeyProperties",
-                        level => LoggerMessage.Define<string, string>(
+                        level => LoggerMessage.Define<string, string, string, string>(
                             level,
                             CoreEventId.IncompatibleMatchingForeignKeyProperties,
                             _resourceManager.GetString("LogIncompatibleMatchingForeignKeyProperties"))));
             }
 
-            return (EventDefinition<string, string>)definition;
+            return (EventDefinition<string, string, string, string>)definition;
         }
 
         /// <summary>

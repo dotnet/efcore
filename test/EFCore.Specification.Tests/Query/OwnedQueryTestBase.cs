@@ -534,7 +534,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertCollection(e, a));
         }
 
-        [ConditionalTheory(Skip = "Issue#19431")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_collection_navigation_ToArray_Length_member(bool async)
         {
@@ -750,6 +750,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(expectedAddress["AddressLine"], actualAddress["AddressLine"]);
                 Assert.Equal(expectedAddress["ZipCode"], actualAddress["ZipCode"]);
+                Assert.Equal(expectedAddress["BranchName"], actualAddress["BranchName"]);
+                Assert.Equal(expectedAddress["LeafType"], actualAddress["LeafType"]);
+                Assert.Equal(expectedAddress["LeafBType"], actualAddress["LeafBType"]);
+                Assert.Equal(expectedAddress.PlaceType, actualAddress.PlaceType);
                 Assert.Equal(expectedAddress.Country.PlanetId, actualAddress.Country.PlanetId);
                 Assert.Equal(expectedAddress.Country.Name, actualAddress.Country.Name);
             }
@@ -1031,7 +1035,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 modelBuilder.Entity<OwnedPerson>(
                     eb =>
                     {
-                        eb.IndexedProperty<string>("Name");
+                        eb.IndexerProperty<string>("Name");
                         var ownedPerson = new OwnedPerson { Id = 1 };
                         ownedPerson["Name"] = "Mona Cy";
                         eb.HasData(ownedPerson);
@@ -1039,13 +1043,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                         eb.OwnsOne(
                             p => p.PersonAddress, ab =>
                             {
-                                ab.IndexedProperty<string>("AddressLine");
-                                ab.IndexedProperty(typeof(int), "ZipCode");
+                                ab.IndexerProperty<string>("AddressLine");
+                                ab.IndexerProperty(typeof(int), "ZipCode");
                                 ab.HasData(
-                                    new { OwnedPersonId = 1, AddressLine = "804 S. Lakeshore Road", ZipCode = 38654 },
-                                    new { OwnedPersonId = 2, AddressLine = "7 Church Dr.", ZipCode = 28655 },
-                                    new { OwnedPersonId = 3, AddressLine = "72 Hickory Rd.", ZipCode = 07728 },
-                                    new { OwnedPersonId = 4, AddressLine = "28 Strawberry St.", ZipCode = 19053 });
+                                    new { OwnedPersonId = 1, PlaceType = "Land", AddressLine = "804 S. Lakeshore Road", ZipCode = 38654 },
+                                    new { OwnedPersonId = 2, PlaceType = "Land", AddressLine = "7 Church Dr.", ZipCode = 28655 },
+                                    new { OwnedPersonId = 3, PlaceType = "Land", AddressLine = "72 Hickory Rd.", ZipCode = 07728 },
+                                    new { OwnedPersonId = 4, PlaceType = "Land", AddressLine = "28 Strawberry St.", ZipCode = 19053 });
 
                                 ab.OwnsOne(
                                     a => a.Country, cb =>
@@ -1084,7 +1088,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         eb.OwnsMany(
                             p => p.Orders, ob =>
                             {
-                                ob.IndexedProperty<DateTime>("OrderDate");
+                                ob.IndexerProperty<DateTime>("OrderDate");
                                 ob.HasData(
                                     new { Id = -10, ClientId = 1, OrderDate = Convert.ToDateTime("2018-07-11 10:01:41") },
                                     new { Id = -11, ClientId = 1, OrderDate = Convert.ToDateTime("2015-03-03 04:37:59") },
@@ -1103,8 +1107,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                         eb.OwnsOne(
                             p => p.BranchAddress, ab =>
                             {
+                                ab.IndexerProperty<string>("BranchName");
                                 ab.HasData(
-                                    new { BranchId = 2 }, new { BranchId = 3 });
+                                    new { BranchId = 2, PlaceType = "Land", BranchName = "BranchA" },
+                                    new { BranchId = 3, PlaceType = "Land", BranchName = "BranchB" });
 
                                 ab.OwnsOne(
                                     a => a.Country, cb =>
@@ -1136,8 +1142,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                         eb.OwnsOne(
                             p => p.LeafAAddress, ab =>
                             {
+                                ab.IndexerProperty<int>("LeafType");
+
                                 ab.HasData(
-                                    new { LeafAId = 3 });
+                                    new { LeafAId = 3, PlaceType = "Land", LeafType = 1 });
 
                                 ab.OwnsOne(
                                     a => a.Country, cb =>
@@ -1166,8 +1174,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                         eb.OwnsOne(
                             p => p.LeafBAddress, ab =>
                             {
+                                ab.IndexerProperty<string>("LeafBType");
                                 ab.HasData(
-                                    new { LeafBId = 4 });
+                                    new { LeafBId = 4, PlaceType = "Land", LeafBType = "Green" });
 
                                 ab.OwnsOne(
                                     a => a.Country, cb =>
@@ -1354,7 +1363,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             private static IReadOnlyList<OwnedPerson> CreateOwnedPeople()
             {
-                var personAddress1 = new OwnedAddress { Country = new OwnedCountry { Name = "USA", PlanetId = 1 } };
+                var personAddress1 = new OwnedAddress { PlaceType = "Land", Country = new OwnedCountry { Name = "USA", PlanetId = 1 } };
                 personAddress1["AddressLine"] = "804 S. Lakeshore Road";
                 personAddress1["ZipCode"] = 38654;
                 var ownedPerson1 = new OwnedPerson
@@ -1364,37 +1373,46 @@ namespace Microsoft.EntityFrameworkCore.Query
                 };
                 ownedPerson1["Name"] = "Mona Cy";
 
-                var personAddress2 = new OwnedAddress { Country = new OwnedCountry { Name = "USA", PlanetId = 1 } };
+                var personAddress2 = new OwnedAddress { PlaceType = "Land", Country = new OwnedCountry { Name = "USA", PlanetId = 1 } };
                 personAddress2["AddressLine"] = "7 Church Dr.";
                 personAddress2["ZipCode"] = 28655;
+                var branchAddress2 = new OwnedAddress { PlaceType = "Land", Country = new OwnedCountry { Name = "Canada", PlanetId = 1 } };
+                branchAddress2["BranchName"] = "BranchA";
+
                 var ownedPerson2 = new Branch
                 {
                     Id = 2,
                     PersonAddress = personAddress2,
-                    BranchAddress = new OwnedAddress { Country = new OwnedCountry { Name = "Canada", PlanetId = 1 } }
+                    BranchAddress = branchAddress2
                 };
                 ownedPerson2["Name"] = "Antigonus Mitul";
 
-                var personAddress3 = new OwnedAddress { Country = new OwnedCountry { Name = "USA", PlanetId = 1 } };
+                var personAddress3 = new OwnedAddress { PlaceType = "Land", Country = new OwnedCountry { Name = "USA", PlanetId = 1 } };
                 personAddress3["AddressLine"] = "72 Hickory Rd.";
                 personAddress3["ZipCode"] = 07728;
+                var branchAddress3 = new OwnedAddress { PlaceType = "Land", Country = new OwnedCountry { Name = "Canada", PlanetId = 1 } };
+                branchAddress3["BranchName"] = "BranchB";
+                var leafAAddress3 = new OwnedAddress { PlaceType = "Land", Country = new OwnedCountry { Name = "Mexico", PlanetId = 1 } };
+                leafAAddress3["LeafType"] = 1;
                 var ownedPerson3 = new LeafA
                 {
                     Id = 3,
                     PersonAddress = personAddress3,
-                    BranchAddress = new OwnedAddress { Country = new OwnedCountry { Name = "Canada", PlanetId = 1 } },
-                    LeafAAddress = new OwnedAddress { Country = new OwnedCountry { Name = "Mexico", PlanetId = 1 } }
+                    BranchAddress = branchAddress3,
+                    LeafAAddress = leafAAddress3
                 };
                 ownedPerson3["Name"] = "Madalena Morana";
 
-                var personAddress4 = new OwnedAddress { Country = new OwnedCountry { Name = "USA", PlanetId = 1 } };
+                var personAddress4 = new OwnedAddress { PlaceType = "Land", Country = new OwnedCountry { Name = "USA", PlanetId = 1 } };
                 personAddress4["AddressLine"] = "28 Strawberry St.";
                 personAddress4["ZipCode"] = 19053;
+                var leafBAddress4 = new OwnedAddress { PlaceType = "Land", Country = new OwnedCountry { Name = "Panama", PlanetId = 1 } };
+                leafBAddress4["LeafBType"] = "Green";
                 var ownedPerson4 = new LeafB
                 {
                     Id = 4,
                     PersonAddress = personAddress4,
-                    LeafBAddress = new OwnedAddress { Country = new OwnedCountry { Name = "Panama", PlanetId = 1 } }
+                    LeafBAddress = leafBAddress4
                 };
                 ownedPerson4["Name"] = "Vanda Waldemar";
 
@@ -1474,37 +1492,50 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             private string _addressLine;
             private int _zipCode;
+            private string _branchName;
+            private int _leafAType;
+            private string _leafBType;
+
+            public string PlaceType { get; set; }
             public OwnedCountry Country { get; set; }
             public object this[string name]
             {
-                get
+                get => name switch
                 {
-                    if (string.Equals(name, "AddressLine", StringComparison.Ordinal))
-                    {
-                        return _addressLine;
-                    }
-
-                    if (string.Equals(name, "ZipCode", StringComparison.Ordinal))
-                    {
-                        return _zipCode;
-                    }
-
-                    throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(OwnedPerson)}.");
-                }
+                    "AddressLine" => _addressLine,
+                    "ZipCode" => _zipCode,
+                    "BranchName" => _branchName,
+                    "LeafType" => _leafAType,
+                    "LeafBType" => _leafBType,
+                    _ => throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(OwnedPerson)}."),
+                };
 
                 set
                 {
-                    if (string.Equals(name, "AddressLine", StringComparison.Ordinal))
+                    switch (name)
                     {
-                        _addressLine = (string)value;
-                    }
-                    else if (string.Equals(name, "ZipCode", StringComparison.Ordinal))
-                    {
-                        _zipCode = (int)value;
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(OwnedPerson)}.");
+                        case "AddressLine":
+                            _addressLine = (string)value;
+                            break;
+
+                        case "ZipCode":
+                            _zipCode = (int)value;
+                            break;
+
+                        case "BranchName":
+                            _branchName = (string)value;
+                            break;
+
+                        case "LeafType":
+                            _leafAType = (int)value;
+                            break;
+
+                        case "LeafBType":
+                            _leafBType = (string)value;
+                            break;
+
+                        default:
+                            throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(OwnedPerson)}.");
                     }
                 }
             }

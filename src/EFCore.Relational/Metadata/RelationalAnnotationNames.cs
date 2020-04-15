@@ -72,6 +72,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string Comment = Prefix + "Comment";
 
         /// <summary>
+        ///     The name for collation annotations.
+        /// </summary>
+        public const string Collation = Prefix + "Collation";
+
+        /// <summary>
         ///     The name for default schema annotations.
         /// </summary>
         public const string DefaultSchema = Prefix + "DefaultSchema";
@@ -129,9 +134,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string ViewDefinition = Prefix + "ViewDefinition";
 
         /// <summary>
-        ///     The name for tables annotation.
+        ///     The name for database model annotation.
         /// </summary>
-        public const string Tables = Prefix + "Tables";
+        public const string RelationalModel = Prefix + "RelationalModel";
 
         /// <summary>
         ///     The name for table mappings annotations.
@@ -144,11 +149,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string TableColumnMappings = Prefix + "TableColumnMappings";
 
         /// <summary>
-        ///     The name for tables annotation.
-        /// </summary>
-        public const string Views = Prefix + "Views";
-
-        /// <summary>
         ///     The name for table mappings annotations.
         /// </summary>
         public const string ViewMappings = Prefix + "ViewMappings";
@@ -157,11 +157,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The name for column mappings annotations.
         /// </summary>
         public const string ViewColumnMappings = Prefix + "ViewColumnMappings";
-
-        /// <summary>
-        ///     The definition of a Queryable Function Result Type.
-        /// </summary>
-        public const string QueryableFunctionResultType = Prefix + "QueryableFunctionResultType";
 
         /// <summary>
         ///     The name for foreign key mappings annotations.

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -201,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (!_entityTypesWithDefiningNavigation.TryGetValue(entityTypeName, out var entityTypesWithSameType))
                 {
-                    entityTypesWithSameType = new SortedSet<EntityType>(EntityTypePathComparer.Instance);
+                    entityTypesWithSameType = new SortedSet<EntityType>(EntityTypeFullNameComparer.Instance);
                     _entityTypesWithDefiningNavigation[entityTypeName] = entityTypesWithSameType;
                 }
 
@@ -222,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(CoreStrings.DuplicateEntityType(entityType.DisplayName()));
                 }
 
-                if (entityType.IsSharedType)
+                if (entityType.HasSharedClrType)
                 {
                     _sharedEntityClrTypes.Add(entityType.ClrType);
                 }
@@ -473,7 +474,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (_entityTypesWithDefiningNavigation.TryGetValue(entityType.Name, out var entityTypesWithSameType))
             {
-                if (entityTypesWithSameType.Any(e => EntityTypePathComparer.Instance.Compare(e, entityType) != 0))
+                if (entityTypesWithSameType.Any(e => EntityTypeFullNameComparer.Instance.Compare(e, entityType) != 0))
                 {
                     return true;
                 }
@@ -903,6 +904,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IModel FinalizeModel()
         {
+            ConventionDispatcher.AssertNoScope();
             IModel finalizedModel = ConventionDispatcher.OnModelFinalizing(Builder)?.Metadata;
             if (finalizedModel != null)
             {

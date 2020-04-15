@@ -9,10 +9,9 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal
@@ -179,39 +178,48 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     continue;
                 }
 
-                var entityType = entry.EntityType;
-                var table = entityType.GetTableMappings().Single().Table;
-                var tableKey = (table.Name, table.Schema);
-
-                ModificationCommand command;
-                var isMainEntry = true;
-                if (_sharedTableEntryMapFactories.TryGetValue(tableKey, out var commandIdentityMapFactory))
+                var mappingFound = false;
+                foreach (var mapping in entry.EntityType.GetTableMappings())
                 {
-                    if (sharedTablesCommandsMap == null)
+                    mappingFound = true;
+                    var table = mapping.Table;
+                    var tableKey = (table.Name, table.Schema);
+
+                    ModificationCommand command;
+                    var isMainEntry = true;
+                    if (_sharedTableEntryMapFactories.TryGetValue(tableKey, out var commandIdentityMapFactory))
                     {
-                        sharedTablesCommandsMap =
-                            new Dictionary<(string, string), SharedTableEntryMap<ModificationCommand>>();
+                        if (sharedTablesCommandsMap == null)
+                        {
+                            sharedTablesCommandsMap =
+                                new Dictionary<(string, string), SharedTableEntryMap<ModificationCommand>>();
+                        }
+
+                        if (!sharedTablesCommandsMap.TryGetValue(tableKey, out var sharedCommandsMap))
+                        {
+                            sharedCommandsMap = commandIdentityMapFactory(
+                                (n, s, c) => new ModificationCommand(
+                                    n, s, generateParameterName, _sensitiveLoggingEnabled, c));
+                            sharedTablesCommandsMap.Add(tableKey, sharedCommandsMap);
+                        }
+
+                        command = sharedCommandsMap.GetOrAddValue(entry);
+                        isMainEntry = sharedCommandsMap.IsMainEntry(entry);
+                    }
+                    else
+                    {
+                        command = new ModificationCommand(
+                            table.Name, table.Schema, generateParameterName, _sensitiveLoggingEnabled, comparer: null);
                     }
 
-                    if (!sharedTablesCommandsMap.TryGetValue(tableKey, out var sharedCommandsMap))
-                    {
-                        sharedCommandsMap = commandIdentityMapFactory(
-                            (n, s, c) => new ModificationCommand(
-                                n, s, generateParameterName, _sensitiveLoggingEnabled, c));
-                        sharedTablesCommandsMap.Add(tableKey, sharedCommandsMap);
-                    }
-
-                    command = sharedCommandsMap.GetOrAddValue(entry);
-                    isMainEntry = sharedCommandsMap.IsMainEntityType(entry.EntityType.GetRootType());
+                    command.AddEntry(entry, isMainEntry);
+                    commands.Add(command);
                 }
-                else
+
+                if (!mappingFound)
                 {
-                    command = new ModificationCommand(
-                        table.Name, table.Schema, generateParameterName, _sensitiveLoggingEnabled, comparer: null);
+                    throw new InvalidOperationException(RelationalStrings.ReadonlyEntitySaved(entry.EntityType.DisplayName()));
                 }
-
-                command.AddEntry(entry, isMainEntry);
-                commands.Add(command);
             }
 
             if (sharedTablesCommandsMap != null)
@@ -246,8 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                         entry.EntityState = EntityState.Modified;
 
-                        var isMainEntry = sharedCommandsMap.IsMainEntityType(entry.EntityType.GetRootType());
-                        command.AddEntry(entry, isMainEntry);
+                        command.AddEntry(entry, sharedCommandsMap.IsMainEntry(entry));
                         entries.Add(entry);
                     }
                 }
@@ -455,7 +462,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         // Builds a map from foreign key values to list of modification commands, with an entry for every command
         // that may need to precede some other command involving that foreign key value.
         private Dictionary<IKeyValueIndex, List<ModificationCommand>> CreateKeyValuePredecessorMap(
-            Graph<ModificationCommand> commandGraph)
+            Multigraph<ModificationCommand, IAnnotatable> commandGraph)
         {
             var predecessorsMap = new Dictionary<IKeyValueIndex, List<ModificationCommand>>();
             foreach (var command in commandGraph.Vertices)
@@ -654,14 +661,12 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                         }
 
                         var valueFactory = index.GetNullableValueFactory<object[]>();
-                        if (valueFactory.TryCreateFromOriginalValues(
-                            (InternalEntityEntry)entry, out var indexValue))
+                        if (valueFactory.TryCreateFromOriginalValues(entry, out var indexValue))
                         {
                             predecessorsMap ??= new Dictionary<IIndex, Dictionary<object[], ModificationCommand>>();
                             if (!predecessorsMap.TryGetValue(index, out var predecessorCommands))
                             {
-                                predecessorCommands =
-                                    new Dictionary<object[], ModificationCommand>(valueFactory.EqualityComparer);
+                                predecessorCommands = new Dictionary<object[], ModificationCommand>(valueFactory.EqualityComparer);
                                 predecessorsMap.Add(index, predecessorCommands);
                             }
 
@@ -697,7 +702,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                                 || indexColumnModifications.Any())
                             {
                                 var valueFactory = index.GetNullableValueFactory<object[]>();
-                                if (valueFactory.TryCreateFromCurrentValues((InternalEntityEntry)entry, out var indexValue)
+                                if (valueFactory.TryCreateFromCurrentValues(entry, out var indexValue)
                                     && predecessorsMap.TryGetValue(index, out var predecessorCommands)
                                     && predecessorCommands.TryGetValue(indexValue, out var predecessor)
                                     && predecessor != command)

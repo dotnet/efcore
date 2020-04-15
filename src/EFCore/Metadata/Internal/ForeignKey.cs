@@ -9,7 +9,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         principalEntityType.DisplayName()));
             }
 
-            Builder = new InternalRelationshipBuilder(this, dependentEntityType.Model.Builder);
+            Builder = new InternalForeignKeyBuilder(this, dependentEntityType.Model.Builder);
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalRelationshipBuilder Builder
+        public virtual InternalForeignKeyBuilder Builder
         {
             get;
 

@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Represents a database sequence in the <see cref="IConventionModel" /> in a form that
     ///     can be mutated while building the model.
     /// </summary>
-    public interface IConventionSequence : ISequence
+    public interface IConventionSequence : ISequence, IConventionAnnotatable
     {
         /// <summary>
         ///     Gets the <see cref="IConventionModel" /> in which this sequence is defined.
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this sequence.
         /// </summary>
-        IConventionSequenceBuilder Builder { get; }
+        new IConventionSequenceBuilder Builder { get; }
 
         /// <summary>
         ///     Gets the configuration source for this <see cref="IConventionSequence" />.

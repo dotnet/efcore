@@ -1,7 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
@@ -57,8 +59,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public RelationalConventionSetBuilderDependencies()
+        public RelationalConventionSetBuilderDependencies([NotNull] IRelationalAnnotationProvider relationalAnnotationProvider)
         {
+            Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
+
+            RelationalAnnotationProvider = relationalAnnotationProvider;
         }
+
+        /// <summary>
+        ///     The relational annotation provider.
+        /// </summary>
+        public IRelationalAnnotationProvider RelationalAnnotationProvider { get; }
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="relationalAnnotationProvider"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalConventionSetBuilderDependencies With([NotNull] IRelationalAnnotationProvider relationalAnnotationProvider)
+            => new RelationalConventionSetBuilderDependencies(relationalAnnotationProvider);
     }
 }

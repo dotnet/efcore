@@ -40,6 +40,5 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             return base.VisitExtension(extensionExpression);
         }
-
     }
 }

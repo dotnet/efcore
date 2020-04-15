@@ -132,6 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     The operation reporter.
         /// </summary>
+        [EntityFrameworkInternal]
         public IOperationReporter OperationReporter { get; }
 
         /// <summary>
@@ -142,6 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     The snapshot model processor.
         /// </summary>
+        [EntityFrameworkInternal]
         public ISnapshotModelProcessor SnapshotModelProcessor { get; }
 
         /// <summary>
@@ -287,6 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         /// <param name="operationReporter"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
+        [EntityFrameworkInternal]
         public MigrationsScaffolderDependencies With([NotNull] IOperationReporter operationReporter)
             => new MigrationsScaffolderDependencies(
                 CurrentContext,
@@ -325,6 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         /// <param name="snapshotModelProcessor"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
+        [EntityFrameworkInternal]
         public MigrationsScaffolderDependencies With([NotNull] ISnapshotModelProcessor snapshotModelProcessor)
             => new MigrationsScaffolderDependencies(
                 CurrentContext,

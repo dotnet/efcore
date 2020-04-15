@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             var model = EnsureModel();
 
-            var operations = Dependencies.ModelDiffer.GetDifferences(null, model);
+            var operations = Dependencies.ModelDiffer.GetDifferences(null, model.GetRelationalModel());
             var commandList = Dependencies.MigrationsSqlGenerator.Generate(operations, model);
 
             return string.Concat(commandList.Select(c => c.CommandText));

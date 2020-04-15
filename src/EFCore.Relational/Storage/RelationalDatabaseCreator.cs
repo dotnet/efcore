@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The generated commands. </returns>
         protected virtual IReadOnlyList<MigrationCommand> GetCreateTablesCommands()
             => Dependencies.MigrationsSqlGenerator.Generate(
-                Dependencies.ModelDiffer.GetDifferences(null, Dependencies.Model), Dependencies.Model);
+                Dependencies.ModelDiffer.GetDifferences(null, Dependencies.Model.GetRelationalModel()), Dependencies.Model);
 
         /// <summary>
         ///     Determines whether the database contains any tables. No attempt is made to determine if

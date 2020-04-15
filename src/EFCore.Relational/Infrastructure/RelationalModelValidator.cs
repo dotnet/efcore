@@ -74,14 +74,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 var methodInfo = dbFunction.MethodInfo;
 
-                if (string.IsNullOrEmpty(dbFunction.Name))
-                {
-                    throw new InvalidOperationException(
-                        RelationalStrings.DbFunctionNameEmpty(methodInfo.DisplayName()));
-                }
-
-                if (dbFunction.TypeMapping == null &&
-                    !(dbFunction.IsQueryable && model.FindEntityType(dbFunction.MethodInfo.ReturnType.GetGenericArguments()[0]) != null))
+                if (dbFunction.TypeMapping == null
+                    && dbFunction.QueryableEntityType == null)
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.DbFunctionInvalidReturnType(
@@ -397,6 +391,70 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             [NotNull] string columnName,
             [NotNull] string tableName)
         {
+            if (property.IsNullable != duplicateProperty.IsNullable)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameNullabilityMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        tableName));
+            }
+
+            var currentMaxLength = property.GetMaxLength();
+            var previousMaxLength = duplicateProperty.GetMaxLength();
+            if (currentMaxLength != previousMaxLength)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameMaxLengthMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        tableName,
+                        previousMaxLength,
+                        currentMaxLength));
+            }
+
+            if (property.IsUnicode() != duplicateProperty.IsUnicode())
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameUnicodenessMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        tableName));
+            }
+
+            if (property.IsFixedLength() != duplicateProperty.IsFixedLength())
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameFixedLengthMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        tableName));
+            }
+
+            if (property.IsConcurrencyToken != duplicateProperty.IsConcurrencyToken)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameConcurrencyTokenMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        tableName));
+            }
+
             var currentTypeString = property.GetColumnType()
                 ?? property.GetRelationalTypeMapping().StoreType;
             var previousTypeString = duplicateProperty.GetColumnType()
@@ -413,18 +471,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         tableName,
                         previousTypeString,
                         currentTypeString));
-            }
-
-            if (property.IsNullable != duplicateProperty.IsNullable)
-            {
-                throw new InvalidOperationException(
-                    RelationalStrings.DuplicateColumnNameNullabilityMismatch(
-                        duplicateProperty.DeclaringEntityType.DisplayName(),
-                        duplicateProperty.Name,
-                        property.DeclaringEntityType.DisplayName(),
-                        property.Name,
-                        columnName,
-                        tableName));
             }
 
             var currentComputedColumnSql = property.GetComputedColumnSql() ?? "";
@@ -447,7 +493,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var previousDefaultValue = duplicateProperty.GetDefaultValue();
             if (!Equals(currentDefaultValue, previousDefaultValue))
             {
-                throw new InvalidOperationException(
+                currentDefaultValue = GetDefaultColumnValue(property);
+                previousDefaultValue = GetDefaultColumnValue(duplicateProperty);
+
+                if (!Equals(currentDefaultValue, previousDefaultValue))
+                {
+                    throw new InvalidOperationException(
                     RelationalStrings.DuplicateColumnNameDefaultSqlMismatch(
                         duplicateProperty.DeclaringEntityType.DisplayName(),
                         duplicateProperty.Name,
@@ -457,6 +508,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         tableName,
                         previousDefaultValue ?? "NULL",
                         currentDefaultValue ?? "NULL"));
+                }
             }
 
             var currentDefaultValueSql = property.GetDefaultValueSql() ?? "";
@@ -490,6 +542,37 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         previousComment,
                         currentComment));
             }
+
+            var currentCollation = property.GetCollation() ?? "";
+            var previousCollation = duplicateProperty.GetCollation() ?? "";
+            if (!currentCollation.Equals(previousCollation, StringComparison.Ordinal))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameCollationMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        tableName,
+                        previousCollation,
+                        currentCollation));
+            }
+        }
+
+        /// <summary>
+        ///     Returns the object that is used as the default value for the column the property is mapped to.
+        /// </summary>
+        /// <param name="property"> The property to get the default value for. </param>
+        /// <returns> The object that is used as the default value for the column the property is mapped to. </returns>
+        protected virtual object GetDefaultColumnValue([NotNull] IProperty property)
+        {
+            var value = property.GetDefaultValue();
+            var converter = property.GetValueConverter() ?? property.FindRelationalTypeMapping()?.Converter;
+
+            return converter != null
+                ? converter.ConvertToProvider(value)
+                : value;
         }
 
         /// <summary>
@@ -641,7 +724,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             foreach (var entityType in model.GetEntityTypes())
             {
                 if (entityType.BaseType != null
-                    && ((EntityType)entityType).FindAnnotation(RelationalAnnotationNames.TableName)?.GetConfigurationSource()
+                    && ((IConventionEntityType)entityType).FindAnnotation(RelationalAnnotationNames.TableName)?.GetConfigurationSource()
                         == ConfigurationSource.Explicit)
                 {
                     throw new InvalidOperationException(

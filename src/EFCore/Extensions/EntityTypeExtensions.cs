@@ -49,6 +49,16 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Gets all types in the model which a given entity type derives from.
+        /// </summary>
+        /// <param name="entityType"> The type to find base types. </param>
+        /// <returns>
+        ///     The base types.
+        /// </returns>
+        public static IEnumerable<IEntityType> GetAllBaseTypes([NotNull] this IEntityType entityType)
+            => entityType.GetAllBaseTypesAscending().Reverse();
+
+        /// <summary>
         ///     Gets all types in the model that derive from a given entity type.
         /// </summary>
         /// <param name="entityType"> The base type to find types that derive from. </param>
@@ -183,6 +193,27 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Determines if an entity type is in same hierarchy as the given entity type.
+        /// </summary>
+        /// <param name="firstEntityType"> An entity type for hierachy. </param>
+        /// <param name="secondEntityType"> The entity type to check if it is in same hierarchy from <paramref name="firstEntityType" />. </param>
+        /// <returns>
+        ///     <c>true</c> if <paramref name="secondEntityType" /> is in same hierarchy as <paramref name="firstEntityType" />,
+        ///     otherwise <c>false</c>.
+        /// </returns>
+        public static bool IsSameHierarchy([NotNull] this IEntityType firstEntityType, [NotNull] IEntityType secondEntityType)
+            => firstEntityType.IsAssignableFrom(secondEntityType)
+                || secondEntityType.IsAssignableFrom(firstEntityType);
+
+        /// <summary>
+        ///     Returns all types in hierarchy of the given <see cref="IEntityType" />.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> All types in the hierarchy. </returns>
+        public static IEnumerable<IEntityType> GetTypesInHierarchy([NotNull] this IEntityType entityType)
+            => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive());
+
+        /// <summary>
         ///     <para>
         ///         Gets all keys declared on the given <see cref="IEntityType" />.
         ///     </para>
@@ -292,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore
             => entityType.AsEntityType().GetDeclaredIndexes();
 
         private static string DisplayNameDefault(this ITypeBase type)
-            => type.ClrType != null && !type.IsSharedType
+            => type.ClrType != null && !type.HasSharedClrType
                 ? type.ClrType.ShortDisplayName()
                 : type.Name;
 
@@ -345,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore
         [DebuggerStepThrough]
         public static string ShortName([NotNull] this ITypeBase type)
         {
-            if (type.ClrType != null && !type.IsSharedType)
+            if (type.ClrType != null && !type.HasSharedClrType)
             {
                 return type.ClrType.ShortDisplayName();
             }
@@ -374,6 +405,32 @@ namespace Microsoft.EntityFrameworkCore
         [DebuggerStepThrough]
         public static bool IsOwned([NotNull] this IEntityType entityType)
             => entityType.GetForeignKeys().Any(fk => fk.IsOwnership);
+
+        /// <summary>
+        ///     Gets a value indicating whether given entity type is in ownership path for this entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="targetType"> Entity type to search for in ownership path. </param>
+        ///     <c>true</c> if <paramref name="targetType" /> is in ownership path of <paramref name="entityType" />,
+        ///     otherwise <c>false</c>.
+        public static bool IsInOwnershipPath([NotNull] this IEntityType entityType, [NotNull] IEntityType targetType)
+        {
+            var owner = entityType;
+            while (true)
+            {
+                var ownOwnership = owner.FindOwnership();
+                if (ownOwnership == null)
+                {
+                    return false;
+                }
+
+                owner = ownOwnership.PrincipalEntityType;
+                if (owner.IsAssignableFrom(targetType))
+                {
+                    return true;
+                }
+            }
+        }
 
         /// <summary>
         ///     Gets the primary or alternate key that is defined on the given property. Returns <c>null</c> if no key is defined

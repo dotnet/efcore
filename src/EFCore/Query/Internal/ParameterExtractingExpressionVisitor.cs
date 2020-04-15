@@ -316,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             parameterName
-                = CompiledQueryCache.CompiledQueryParameterPrefix
+                = QueryCompilationContext.QueryParameterPrefix
                 + parameterName
                 + "_"
                 + _parameterValues.ParameterValues.Count;
@@ -529,9 +529,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 Visit(memberInitExpression.Bindings, VisitMemberBinding);
 
                 // Cannot make parameter for NewExpression if Bindings cannot be evaluated
-                if (_evaluatable)
+                // but we still need to visit inside of it.
+                var bindingsEvaluatable = _evaluatable;
+                Visit(memberInitExpression.NewExpression);
+
+                if (!bindingsEvaluatable)
                 {
-                    Visit(memberInitExpression.NewExpression);
+                    _evaluatableExpressions.Remove(memberInitExpression.NewExpression);
                 }
 
                 return memberInitExpression;
@@ -542,9 +546,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 Visit(listInitExpression.Initializers, VisitElementInit);
 
                 // Cannot make parameter for NewExpression if Initializers cannot be evaluated
-                if (_evaluatable)
+                // but we still need to visit inside of it.
+                var initializersEvaluatable = _evaluatable;
+                Visit(listInitExpression.NewExpression);
+
+                if (!initializersEvaluatable)
                 {
-                    Visit(listInitExpression.NewExpression);
+                    _evaluatableExpressions.Remove(listInitExpression.NewExpression);
                 }
 
                 return listInitExpression;

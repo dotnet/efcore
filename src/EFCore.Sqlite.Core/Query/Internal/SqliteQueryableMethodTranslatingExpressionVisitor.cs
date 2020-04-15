@@ -6,7 +6,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
@@ -19,8 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         public SqliteQueryableMethodTranslatingExpressionVisitor(
             [NotNull] QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
             [NotNull] RelationalQueryableMethodTranslatingExpressionVisitorDependencies relationalDependencies,
-            [NotNull] IModel model)
-            : base(dependencies, relationalDependencies, model)
+            [NotNull] QueryCompilationContext queryCompilationContext)
+            : base(dependencies, relationalDependencies, queryCompilationContext)
         {
         }
 

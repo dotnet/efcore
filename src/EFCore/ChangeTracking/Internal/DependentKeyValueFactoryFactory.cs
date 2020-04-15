@@ -43,21 +43,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (dependentProperty.ClrType.IsNullableType()
                 && principalType.IsNullableType())
             {
-                return new SimpleFullyNullableDependentKeyValueFactory<TKey>(propertyAccessors);
+                return new SimpleFullyNullableDependentKeyValueFactory<TKey>(dependentProperty, propertyAccessors);
             }
 
             if (dependentProperty.ClrType.IsNullableType())
             {
                 return (IDependentKeyValueFactory<TKey>)Activator.CreateInstance(
                     typeof(SimpleNullableDependentKeyValueFactory<>).MakeGenericType(
-                        typeof(TKey)), propertyAccessors);
+                        typeof(TKey)), dependentProperty, propertyAccessors);
             }
 
             return principalType.IsNullableType()
                 ? (IDependentKeyValueFactory<TKey>)Activator.CreateInstance(
                     typeof(SimpleNullablePrincipalDependentKeyValueFactory<,>).MakeGenericType(
-                        typeof(TKey), typeof(TKey).UnwrapNullableType()), propertyAccessors)
-                : new SimpleNonNullableDependentKeyValueFactory<TKey>(propertyAccessors);
+                        typeof(TKey), typeof(TKey).UnwrapNullableType()), dependentProperty, propertyAccessors)
+                : new SimpleNonNullableDependentKeyValueFactory<TKey>(dependentProperty, propertyAccessors);
         }
 
         /// <summary>

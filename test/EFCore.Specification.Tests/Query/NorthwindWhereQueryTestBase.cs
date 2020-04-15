@@ -2119,7 +2119,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertCollection(e, a));
         }
 
-        [ConditionalTheory(Skip = "Issue#19431")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_Queryable_ToArray_Length_member(bool async)
         {
@@ -2176,7 +2176,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertCollection(e, a));
         }
 
-        [ConditionalTheory(Skip = "Issue#19433")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_collection_navigation_ToArray_Contains(bool async)
         {
@@ -2185,7 +2185,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<Customer>()
-                    .Select(c => c.Orders.ToArray())
+                    .Select(c => c.Orders.AsEnumerable().ToArray())
                     .Where(e => e.Contains(order)),
                 entryCount: 5);
         }
@@ -2234,7 +2234,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertCollection(e, a));
         }
 
-        [ConditionalTheory(Skip = "Issue#19431")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_collection_navigation_ToArray_Length_member(bool async)
         {
@@ -2247,6 +2247,30 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Where(e => e.Length == 0),
                 assertOrder: true,
                 elementAsserter: (e, a) => AssertCollection(e, a));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_list_object_contains_over_value_type(bool async)
+        {
+            var orderIds = new List<object> { 10248, 10249 };
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(o => orderIds.Contains(o.OrderID)),
+                entryCount: 2);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_array_of_object_contains_over_value_type(bool async)
+        {
+            var orderIds = new object[] { 10248, 10249 };
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(o => orderIds.Contains(o.OrderID)),
+                entryCount: 2);
         }
     }
 }

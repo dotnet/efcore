@@ -1,13 +1,25 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
+
 // ReSharper disable once CheckNamespace
 // ReSharper disable InconsistentNaming
 namespace SQLitePCL
 {
     internal static class SQLitePCLExtensions
     {
-        public static bool EncryptionNotSupported()
-            => raw.GetNativeLibraryName() == "e_sqlite3";
+        private static readonly Dictionary<string, bool> _knownLibraries = new Dictionary<string, bool>
+        {
+            { "e_sqlcipher", true },
+            { "e_sqlite3", false},
+            { "sqlcipher", true },
+            { "winsqlite3", false }
+        };
+
+        public static bool? EncryptionSupported()
+            => _knownLibraries.TryGetValue(raw.GetNativeLibraryName(), out var supported)
+                ? supported
+                : default(bool?);
     }
 }

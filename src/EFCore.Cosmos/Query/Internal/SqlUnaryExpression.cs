@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 
-            expressionPrinter.Append(OperatorType);
+            expressionPrinter.Append(OperatorType.ToString());
             expressionPrinter.Append("(");
             expressionPrinter.Visit(Operand);
             expressionPrinter.Append(")");

@@ -8,7 +8,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -60,11 +59,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 ChangeDetector.SkipDetectChangesAnnotation,
                 CoreAnnotationNames.ChangeTrackingStrategy,
                 CoreAnnotationNames.OwnedTypes,
+                RelationalAnnotationNames.RelationalModel,
                 RelationalAnnotationNames.CheckConstraints,
                 RelationalAnnotationNames.Sequences,
-                RelationalAnnotationNames.DbFunctions,
-                RelationalAnnotationNames.Tables,
-                RelationalAnnotationNames.Views);
+                RelationalAnnotationNames.DbFunctions);
 
             if (annotations.Count > 0)
             {
@@ -574,8 +572,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             GenerateFluentApiForAnnotation(
                 ref annotations,
+                RelationalAnnotationNames.Collation,
+                nameof(RelationalPropertyBuilderExtensions.UseCollation),
+                stringBuilder);
+
+            GenerateFluentApiForAnnotation(
+                ref annotations,
                 CoreAnnotationNames.MaxLength,
                 nameof(PropertyBuilder.HasMaxLength),
+                stringBuilder);
+
+            GenerateFluentApiForPrecisionAndScale(
+                ref annotations,
                 stringBuilder);
 
             GenerateFluentApiForAnnotation(
@@ -1299,6 +1307,50 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .Append(")");
 
                 annotations.Remove(annotation);
+            }
+        }
+
+        /// <summary>
+        ///     Generates a Fluent API call for the Precision and Scale annotations.
+        /// </summary>
+        /// <param name="annotations"> The list of annotations. </param>
+        /// <param name="stringBuilder"> The builder code is added to. </param>
+        protected virtual void GenerateFluentApiForPrecisionAndScale(
+            [NotNull] ref List<IAnnotation> annotations,
+            [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            var precisionAnnotation = annotations
+                .FirstOrDefault(a => a.Name == CoreAnnotationNames.Precision);
+            var precisionValue = precisionAnnotation?.Value;
+
+            if (precisionValue != null)
+            {
+                stringBuilder
+                    .AppendLine()
+                    .Append(".")
+                    .Append(nameof(PropertyBuilder.HasPrecision))
+                    .Append("(")
+                    .Append(Code.UnknownLiteral(precisionValue));
+
+                var scaleAnnotation = annotations
+                    .FirstOrDefault(a => a.Name == CoreAnnotationNames.Scale);
+                var scaleValue = (int?)scaleAnnotation?.Value;
+
+                if (scaleValue != null)
+                {
+                    if (scaleValue != 0)
+                    {
+                        stringBuilder
+                            .Append(", ")
+                            .Append(Code.UnknownLiteral(scaleValue));
+                    }
+
+                    annotations.Remove(scaleAnnotation);
+                }
+
+                stringBuilder.Append(")");
+
+                annotations.Remove(precisionAnnotation);
             }
         }
 

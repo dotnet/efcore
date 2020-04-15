@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -43,6 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var notForEntityType = new HashSet<string>
             {
                 CoreAnnotationNames.MaxLength,
+                CoreAnnotationNames.Precision,
+                CoreAnnotationNames.Scale,
                 CoreAnnotationNames.Unicode,
                 CoreAnnotationNames.ProductVersion,
                 CoreAnnotationNames.ValueGeneratorFactory,
@@ -73,7 +74,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 RelationalAnnotationNames.Filter,
                 RelationalAnnotationNames.DbFunctions,
                 RelationalAnnotationNames.MaxIdentifierLength,
-                RelationalAnnotationNames.IsFixedLength
+                RelationalAnnotationNames.IsFixedLength,
+                RelationalAnnotationNames.Collation
             };
 
             // Add a line here if the code generator is supposed to handle this annotation
@@ -169,6 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var forProperty = new Dictionary<string, (object, string)>
             {
                 { CoreAnnotationNames.MaxLength, (256, $@"{columnMapping}{_nl}.{nameof(PropertyBuilder.HasMaxLength)}(256)") },
+                { CoreAnnotationNames.Precision, (4, $@"{columnMapping}{_nl}.{nameof(PropertyBuilder.HasPrecision)}(4)") },
                 { CoreAnnotationNames.Unicode, (false, $@"{columnMapping}{_nl}.{nameof(PropertyBuilder.IsUnicode)}(false)") },
                 {
                     CoreAnnotationNames.ValueConverter, (new ValueConverter<int, long>(v => v, v => (int)v),
@@ -209,6 +212,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     RelationalAnnotationNames.Comment,
                     ("My Comment", $@"{columnMapping}{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasComment)}(""My Comment"")")
+                },
+                {
+                    RelationalAnnotationNames.Collation,
+                    ("Some Collation", $@"{columnMapping}{_nl}.{nameof(RelationalPropertyBuilderExtensions.UseCollation)}(""Some Collation"")")
                 }
             };
 

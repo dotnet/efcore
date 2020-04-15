@@ -315,15 +315,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
         /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
+        /// <param name="fixedLength"> A value indicating whether the type has fixed length data or not. </param>
+        /// <param name="precision"> The precision of data the property is configured to store, or null if no precision is configured. </param>
+        /// <param name="scale"> The scale of data the property is configured to store, or null if no scale is configured. </param>
         protected RelationalTypeMapping(
             [NotNull] string storeType,
             [NotNull] Type clrType,
             DbType? dbType = null,
             bool unicode = false,
-            int? size = null)
+            int? size = null,
+            bool fixedLength = false,
+            int? precision = null,
+            int? scale = null)
             : this(
                 new RelationalTypeMappingParameters(
-                    new CoreTypeMappingParameters(clrType), storeType, StoreTypePostfix.None, dbType, unicode, size))
+                    new CoreTypeMappingParameters(clrType), storeType, StoreTypePostfix.None, dbType, unicode, size, fixedLength, precision, scale))
         {
         }
 
@@ -404,6 +410,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         public virtual int? Size => Parameters.Size;
 
+         /// <summary>
+        ///     Gets the precision of data the property is configured to store, or null if no precision is configured.
+        /// </summary>
+        public virtual int? Precision => Parameters.Precision;
+
+         /// <summary>
+        ///     Gets the scale of data the property is configured to store, or null if no scale is configured.
+        /// </summary>
+        public virtual int? Scale => Parameters.Scale;
+
         /// <summary>
         ///     Gets a value indicating whether the type is constrained to fixed-length data.
         /// </summary>
@@ -435,7 +451,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             parameter.ParameterName = name;
 
             value = ConvertUnderlyingEnumValueToEnum(value);
-
             if (Converter != null)
             {
                 value = Converter.ConvertToProvider(value);

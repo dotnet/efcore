@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,11 +31,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             _dependencies = dependencies;
         }
 
-        public virtual QueryableMethodTranslatingExpressionVisitor Create(IModel model)
+        public virtual QueryableMethodTranslatingExpressionVisitor Create(QueryCompilationContext queryCompilationContext)
         {
-            Check.NotNull(model, nameof(model));
+            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
-            return new InMemoryQueryableMethodTranslatingExpressionVisitor(_dependencies, model);
+            return new InMemoryQueryableMethodTranslatingExpressionVisitor(_dependencies, queryCompilationContext);
         }
     }
 }

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -115,6 +116,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual CollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany(
             [NotNull] Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> navigationExpression)
         {
+            if (Builder != null
+                && Builder.Metadata.PrincipalToDependent == null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.MissingInverseManyToManyNavigation(
+                        Builder.Metadata.PrincipalEntityType.DisplayName(),
+                        Builder.Metadata.DeclaringEntityType.DisplayName()));
+            }
+
             var leftName = Builder?.Metadata.PrincipalToDependent.Name;
             return new CollectionCollectionBuilder<TRelatedEntity, TEntity>(
                            RelatedEntityType,

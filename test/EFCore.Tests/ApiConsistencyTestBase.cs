@@ -4,20 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -68,6 +62,9 @@ namespace Microsoft.EntityFrameworkCore
                 "\r\n-- Errors: --\r\n" + string.Join(Environment.NewLine, errors));
         }
 
+        private static readonly string MetadataNamespace = typeof(IModel).Namespace;
+        private static readonly string MetadataBuilderNamespace = typeof(IConventionModelBuilder).Namespace;
+
         private string ValidateMetadata(KeyValuePair<Type, (Type, Type, Type)> types)
         {
             var readonlyType = types.Key;
@@ -81,6 +78,52 @@ namespace Microsoft.EntityFrameworkCore
             if (!readonlyType.IsAssignableFrom(conventionType))
             {
                 return $"{mutableType.Name} should derive from {readonlyType.Name}";
+            }
+
+            if (typeof(IAnnotation) != readonlyType
+                && typeof(IAnnotatable) != readonlyType)
+            {
+                if (!typeof(IAnnotatable).IsAssignableFrom(readonlyType))
+                {
+                    return $"{readonlyType.Name} should derive from IAnnotatable";
+                }
+
+                if (!typeof(IMutableAnnotatable).IsAssignableFrom(mutableType))
+                {
+                    return $"{mutableType.Name} should derive from IMutableAnnotatable";
+                }
+
+                if (!typeof(IConventionAnnotatable).IsAssignableFrom(conventionType))
+                {
+                    return $"{conventionType.Name} should derive from IConventionAnnotatable";
+                }
+
+                if (conventionBuilderType != null
+                    && !typeof(IConventionAnnotatableBuilder).IsAssignableFrom(conventionBuilderType))
+                {
+                    return $"{conventionBuilderType.Name} should derive from IConventionAnnotatableBuilder";
+                }
+
+                if (readonlyType.Namespace != MetadataNamespace)
+                {
+                    return $"{readonlyType.Name} is expected to be in the {MetadataNamespace} namespace";
+                }
+
+                if (mutableType.Namespace != MetadataNamespace)
+                {
+                    return $"{mutableType.Name} is expected to be in the {MetadataNamespace} namespace";
+                }
+
+                if (conventionType.Namespace != MetadataNamespace)
+                {
+                    return $"{conventionType.Name} is expected to be in the {MetadataNamespace} namespace";
+                }
+
+                if (conventionBuilderType != null
+                    && conventionBuilderType.Namespace != MetadataBuilderNamespace)
+                {
+                    return $"{conventionBuilderType.Name} is expected to be in the {MetadataBuilderNamespace} namespace";
+                }
             }
 
             if (conventionBuilderType != null)

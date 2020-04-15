@@ -85,6 +85,7 @@ namespace Microsoft.EntityFrameworkCore
                             .HasComment("Employer ID comment");
                         e.Property<string>("SSN")
                             .HasColumnType(char11StoreType)
+                            .UseCollation(NonDefaultCollation)
                             .IsRequired(false);
 
                         e.HasKey("CustomId");
@@ -177,14 +178,8 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual Task Create_table_with_multiline_comments()
         {
-            var tableComment = @"This is a multi-line
-table comment.
-More information can
-be found in the docs.";
-            var columnComment = @"This is a multi-line
-column comment.
-More information can
-be found in the docs.";
+            var tableComment = "This is a multi-line\r\ntable comment.\r\nMore information can\r\nbe found in the docs.";
+            var columnComment = "This is a multi-line\ncolumn comment.\nMore information can\nbe found in the docs.";
 
             return Test(
                 builder => { },
@@ -480,6 +475,38 @@ be found in the docs.";
                 });
 
         [ConditionalFact]
+        public virtual Task Add_column_with_collation()
+            => Test(
+                builder => builder.Entity("People").Property<int>("Id"),
+                builder => { },
+                builder => builder.Entity("People").Property<string>("Name")
+                    .UseCollation(NonDefaultCollation),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    Assert.Equal(2, table.Columns.Count);
+                    var nameColumn = Assert.Single(table.Columns, c => c.Name == "Name");
+                    Assert.Equal(NonDefaultCollation, nameColumn.Collation);
+                });
+
+        [ConditionalFact]
+        public virtual Task Add_column_computed_with_collation()
+            => Test(
+                builder => builder.Entity("People").Property<int>("Id"),
+                builder => { },
+                builder => builder.Entity("People").Property<string>("Name")
+                    .HasComputedColumnSql("'hello'")
+                    .UseCollation(NonDefaultCollation),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    Assert.Equal(2, table.Columns.Count);
+                    var nameColumn = Assert.Single(table.Columns, c => c.Name == "Name");
+                    Assert.Contains("hello", nameColumn.ComputedColumnSql);
+                    Assert.Equal(NonDefaultCollation, nameColumn.Collation);
+                });
+
+        [ConditionalFact]
         public virtual Task Add_column_shared()
             => Test(
                 builder =>
@@ -651,6 +678,32 @@ be found in the docs.";
                     var column = Assert.Single(table.Columns);
                     Assert.Null(column.Comment);
                 });
+
+        [Fact]
+        public virtual Task Alter_column_set_collation()
+            => Test(
+                builder => builder.Entity("People").Property<string>("Name"),
+                builder => { },
+                builder => builder.Entity("People").Property<string>("Name")
+                    .UseCollation(NonDefaultCollation),
+                model =>
+                    {
+                        var nameColumn = Assert.Single(Assert.Single(model.Tables).Columns);
+                        Assert.Equal(NonDefaultCollation, nameColumn.Collation);
+                    });
+
+        [Fact]
+        public virtual Task Alter_column_reset_collation()
+            => Test(
+                builder => builder.Entity("People").Property<string>("Name"),
+                builder => builder.Entity("People").Property<string>("Name")
+                    .UseCollation(NonDefaultCollation),
+                builder => { },
+                model =>
+                    {
+                        var nameColumn = Assert.Single(Assert.Single(model.Tables).Columns);
+                        Assert.Null(nameColumn.Collation);
+                    });
 
         [ConditionalFact]
         public virtual Task Drop_column()
@@ -1309,6 +1362,10 @@ be found in the docs.";
             public int Age { get; set; }
         }
 
+        protected virtual string NonDefaultCollation
+            => throw new NotSupportedException(
+                $"Providers must override the '{nameof(NonDefaultCollation)}' property with a valid, non-default collation name for your database.");
+
         protected virtual DbContext CreateContext() => Fixture.CreateContext();
 
         protected virtual string DelimitIdentifier(string unquotedIdentifier)
@@ -1348,7 +1405,7 @@ be found in the docs.";
             var serviceProvider = ((IInfrastructure<IServiceProvider>)context).Instance;
             var modelDiffer = serviceProvider.GetRequiredService<IMigrationsModelDiffer>();
 
-            var operations = modelDiffer.GetDifferences(sourceModel, targetModel);
+            var operations = modelDiffer.GetDifferences(sourceModel.GetRelationalModel(), targetModel.GetRelationalModel());
 
             return Test(sourceModel, targetModel, operations, asserter);
         }
@@ -1397,7 +1454,7 @@ be found in the docs.";
                 using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
                 {
                     await migrationsCommandExecutor.ExecuteNonQueryAsync(
-                        migrationsSqlGenerator.Generate(modelDiffer.GetDifferences(null, sourceModel), sourceModel),
+                        migrationsSqlGenerator.Generate(modelDiffer.GetDifferences(null, sourceModel.GetRelationalModel()), sourceModel),
                         connection);
                 }
 
@@ -1446,8 +1503,10 @@ be found in the docs.";
             var conventionSet = new ConventionSet();
 
             var dependencies = Fixture.TestHelpers.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
+            var relationalDependencies = Fixture.TestHelpers.CreateContextServices()
+                .GetRequiredService<RelationalConventionSetBuilderDependencies>();
             conventionSet.ModelFinalizingConventions.Add(new TypeMappingConvention(dependencies));
-            conventionSet.ModelFinalizedConventions.Add(new RelationalModelConvention());
+            conventionSet.ModelFinalizedConventions.Add(new RelationalModelConvention(dependencies, relationalDependencies));
 
             return new ModelBuilder(conventionSet);
         }

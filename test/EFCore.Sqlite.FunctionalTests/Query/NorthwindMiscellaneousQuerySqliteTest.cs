@@ -242,10 +242,13 @@ FROM (
 
         public override Task AsQueryable_in_query_server_evals(bool async) => null;
 
-        [ConditionalTheory(Skip = "Issue #19990")]
         public override async Task Concat_string_int(bool async)
         {
             await base.Concat_string_int(async);
+
+            AssertSql(
+                @"SELECT CAST(""o"".""OrderID"" AS TEXT) || COALESCE(""o"".""CustomerID"", '')
+FROM ""Orders"" AS ""o""");
         }
 
         public override async Task Concat_int_string(bool async)

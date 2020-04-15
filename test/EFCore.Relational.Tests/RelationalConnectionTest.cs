@@ -897,11 +897,6 @@ namespace Microsoft.EntityFrameworkCore
                     () => connection.DbConnection).Message);
 
             Assert.Null(connection.ConnectionString);
-
-            Assert.Equal(
-                RelationalStrings.NoConnectionOrConnectionString,
-                Assert.Throws<InvalidOperationException>(
-                    () => connection.GetCheckedConnectionString()).Message);
         }
 
         [ConditionalFact]

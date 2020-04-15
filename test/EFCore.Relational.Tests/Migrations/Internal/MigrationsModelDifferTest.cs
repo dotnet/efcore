@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -20,26 +21,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
     public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     {
-        private class TestQueryType
-        {
-            public string Something { get; set; }
-        }
-
-        [ConditionalFact(Skip = "Issue#20051")]
-        public void Model_differ_does_not_detect_queryable_function_result_type()
-        {
-            Execute(
-                _ => { },
-                modelBuilder => modelBuilder.Entity<TestQueryType>().ToQueryableFunctionResultType(),
-                result => Assert.Equal(0, result.Count));
-        }
-
         [ConditionalFact]
         public void Model_differ_does_not_detect_views()
         {
             Execute(
                 _ => { },
-                modelBuilder => modelBuilder.Entity<TestQueryType>().HasNoKey().ToView("Vista", "dbo"),
+                modelBuilder => modelBuilder.Entity<TestKeylessType>().HasNoKey().ToView("Vista", "dbo"),
                 result => Assert.Equal(0, result.Count));
         }
 
@@ -78,8 +65,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             DbContext context = null;
             Execute(
                 _ => { },
-                modelBuilder => modelBuilder.Entity<TestQueryType>().HasNoKey().ToQuery(
-                    () => context.Set<TestQueryType>().FromSqlRaw("SELECT * FROM Vista")),
+                modelBuilder => modelBuilder.Entity<TestKeylessType>().HasNoKey().ToQuery(
+                    () => context.Set<TestKeylessType>().FromSqlRaw("SELECT * FROM Vista")),
                 result => Assert.Empty(result));
         }
 
@@ -2066,6 +2053,70 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Toad", operation.Table);
                     Assert.Equal("Name", operation.Name);
                     Assert.Equal(30, operation.MaxLength);
+                    Assert.True(operation.IsDestructiveChange);
+                });
+        }
+
+        [ConditionalFact]
+        public void Alter_column_precision()
+        {
+            Execute(
+                source => source.Entity(
+                    "Toad",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<decimal>("Salary");
+                    }),
+                target => target.Entity(
+                    "Toad",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<decimal>("Salary")
+                            .HasPrecision(10);
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AlterColumnOperation>(operations[0]);
+                    Assert.Equal("Toad", operation.Table);
+                    Assert.Equal("Salary", operation.Name);
+                    Assert.Equal(10, operation.Precision);
+                    Assert.Equal(0, operation.Scale);
+                    Assert.True(operation.IsDestructiveChange);
+                });
+        }
+
+        [ConditionalFact]
+        public void Alter_column_precision_and_scale()
+        {
+            Execute(
+                source => source.Entity(
+                    "Toad",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<decimal>("Salary");
+                    }),
+                target => target.Entity(
+                    "Toad",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<decimal>("Salary")
+                            .HasPrecision(17, 5);
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AlterColumnOperation>(operations[0]);
+                    Assert.Equal("Toad", operation.Table);
+                    Assert.Equal("Salary", operation.Name);
+                    Assert.Equal(17, operation.Precision);
+                    Assert.Equal(5, operation.Scale);
                     Assert.True(operation.IsDestructiveChange);
                 });
         }
@@ -6395,14 +6446,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o =>
                     {
                         var operation = Assert.IsType<DeleteDataOperation>(o);
-                        Assert.Equal("Table", operation.Table);
-                        AssertMultidimensionalArray(
-                            operation.KeyValues,
-                            v => Assert.Equal(43, v));
-                    },
-                    o =>
-                    {
-                        var operation = Assert.IsType<DeleteDataOperation>(o);
                         Assert.Equal("ReferencedTable", operation.Table);
                         AssertMultidimensionalArray(
                             operation.KeyValues,
@@ -6416,26 +6459,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             operation.Values,
                             v => Assert.Equal(42, v),
                             v => Assert.Equal(4343, v));
-                    },
-                    o =>
-                    {
-                        var operation = Assert.IsType<InsertDataOperation>(o);
-                        Assert.Equal("Table", operation.Table);
-                        AssertMultidimensionalArray(
-                            operation.Values,
-                            v => Assert.Equal(43, v),
-                            v => Assert.Equal(42, v));
                     }),
                 downOps => Assert.Collection(
                     downOps,
-                    o =>
-                    {
-                        var operation = Assert.IsType<DeleteDataOperation>(o);
-                        Assert.Equal("Table", operation.Table);
-                        AssertMultidimensionalArray(
-                            operation.KeyValues,
-                            v => Assert.Equal(43, v));
-                    },
                     o =>
                     {
                         var operation = Assert.IsType<DeleteDataOperation>(o);
@@ -6452,15 +6478,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             operation.Values,
                             v => Assert.Equal(42, v),
                             v => Assert.Equal(4242, v));
-                    },
-                    o =>
-                    {
-                        var operation = Assert.IsType<InsertDataOperation>(o);
-                        Assert.Equal("Table", operation.Table);
-                        AssertMultidimensionalArray(
-                            operation.Values,
-                            v => Assert.Equal(43, v),
-                            v => Assert.Equal(42, v));
                     }));
         }
 
@@ -7548,30 +7565,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o =>
                     {
                         var m = Assert.IsType<DeleteDataOperation>(o);
-                        Assert.Equal("Post", m.Table);
-                        AssertMultidimensionalArray(
-                            m.KeyValues,
-                            v => Assert.Equal(416, v));
-                    },
-                    o =>
-                    {
-                        var m = Assert.IsType<DeleteDataOperation>(o);
-                        Assert.Equal("Post", m.Table);
-                        AssertMultidimensionalArray(
-                            m.KeyValues,
-                            v => Assert.Equal(545, v));
-                    },
-                    o =>
-                    {
-                        var m = Assert.IsType<DeleteDataOperation>(o);
-                        Assert.Equal("Post", m.Table);
-                        AssertMultidimensionalArray(
-                            m.KeyValues,
-                            v => Assert.Equal(546, v));
-                    },
-                    o =>
-                    {
-                        var m = Assert.IsType<DeleteDataOperation>(o);
                         Assert.Equal("Blog", m.Table);
                         AssertMultidimensionalArray(
                             m.KeyValues,
@@ -7587,6 +7580,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     },
                     o =>
                     {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Equal("Post", m.Table);
+                        AssertMultidimensionalArray(
+                            m.KeyValues,
+                            v => Assert.Equal(546, v));
+                    },
+                    o =>
+                    {
                         var m = Assert.IsType<UpdateDataOperation>(o);
                         Assert.Equal("Blog", m.Table);
                         AssertMultidimensionalArray(
@@ -7598,21 +7599,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     },
                     o =>
                     {
-                        var m = Assert.IsType<InsertDataOperation>(o);
+                        var m = Assert.IsType<UpdateDataOperation>(o);
                         Assert.Equal("Post", m.Table);
                         AssertMultidimensionalArray(
-                            m.Values,
-                            v => Assert.Equal(416, v),
-                            v => Assert.Equal(316, v),
-                            v => Assert.Equal("Post To Non-existent BlogId", v));
-                    },
-                    o =>
-                    {
-                        var m = Assert.IsType<InsertDataOperation>(o);
-                        Assert.Equal("Post", m.Table);
+                            m.KeyValues,
+                            v => Assert.Equal(545, v));
                         AssertMultidimensionalArray(
                             m.Values,
-                            v => Assert.Equal(545, v),
                             v => Assert.Equal(32, v),
                             v => Assert.Equal("Original Title", v));
                     },
@@ -8167,7 +8160,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#15339")]
         public void Owner_pk_properties_appear_before_owned_pk_which_preserves_annotations()
         {
             Execute(
@@ -8208,6 +8201,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         },
                         c => Assert.Equal("DisplayName", c.Name)
                     );
+                });
+        }
+
+        [ConditionalFact]
+        public void Alter_database_collation()
+        {
+            Execute(
+                source => source.UseCollation("Some collation"),
+                target => target.UseCollation("Some other collation"),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AlterDatabaseOperation>(operations[0]);
+                    Assert.Equal("Some other collation", operation.Collation);
+                    Assert.Equal("Some collation", operation.OldDatabase.Collation);
                 });
         }
 
@@ -8553,6 +8562,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .WithMany()
                     .HasForeignKey("UserId"),
                 ops => { });
+        }
+
+
+        private class TestKeylessType
+        {
+            public string Something { get; set; }
+        }
+
+        private static IQueryable<TestKeylessType> GetCountByYear(int id)
+            => throw new NotImplementedException();
+
+        [ConditionalFact]
+        public void Model_differ_does_not_detect_queryable_function_result_type()
+        {
+            Execute(
+                _ => { },
+                modelBuilder =>
+                    modelBuilder.HasDbFunction(typeof(MigrationsModelDifferTest).GetMethod(
+                        nameof(GetCountByYear),
+                        BindingFlags.NonPublic | BindingFlags.Static)),
+                result => Assert.Equal(0, result.Count),
+                skipSourceConventions: true);
         }
 
         protected override TestHelpers TestHelpers => RelationalTestHelpers.Instance;

@@ -9,7 +9,6 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -23,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private SelectExpression _selectExpression;
         private bool _clientEval;
-        private readonly IModel _model;
 
         private readonly IDictionary<ProjectionMember, Expression> _projectionMapping
             = new Dictionary<ProjectionMember, Expression>();
@@ -32,12 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         public RelationalProjectionBindingExpressionVisitor(
             [NotNull] RelationalQueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor,
-            [NotNull] RelationalSqlTranslatingExpressionVisitor sqlTranslatingExpressionVisitor,
-            [NotNull] IModel model)
+            [NotNull] RelationalSqlTranslatingExpressionVisitor sqlTranslatingExpressionVisitor)
         {
             _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
             _sqlTranslator = sqlTranslatingExpressionVisitor;
-            _model = model;
         }
 
         public virtual Expression Translate([NotNull] SelectExpression selectExpression, [NotNull] Expression expression)
@@ -96,10 +92,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             return expression;
 
                         case ParameterExpression parameterExpression:
-                            return Expression.Call(
-                                _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
-                                QueryCompilationContext.QueryContextParameter,
-                                Expression.Constant(parameterExpression.Name));
+                            if (parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true)
+                            {
+                                return Expression.Call(
+                                    _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
+                                    QueryCompilationContext.QueryContextParameter,
+                                    Expression.Constant(parameterExpression.Name));
+                            }
+
+                            throw new InvalidOperationException(CoreStrings.TranslationFailed(parameterExpression.Print()));
 
                         case MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression:
                             return _selectExpression.AddCollectionProjection(

@@ -4,7 +4,7 @@
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -62,16 +62,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var columns = table.Columns.ToList();
                 if (columns.Count != 0)
                 {
-                    builder.AppendLine().Append(indent).Append("  Properties: ");
+                    builder.AppendLine().Append(indent).Append("  Columns: ");
                     foreach (var column in columns)
                     {
                         builder.AppendLine().Append(column.ToDebugString(options, indent + "    "));
                     }
                 }
 
+                var checkConstraints = table.CheckConstraints.ToList();
+                if (checkConstraints.Count != 0)
+                {
+                    builder.AppendLine().Append(indent).Append("  Check constraints: ");
+                    foreach (var checkConstraint in checkConstraints)
+                    {
+                        builder.AppendLine().Append(checkConstraint.ToDebugString(options, indent + "    "));
+                    }
+                }
+
                 if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
                 {
-                    builder.Append(table.AnnotationsToDebugString(indent: indent + "  "));
+                    builder.Append(table.AnnotationsToDebugString(indent + "  "));
                 }
             }
 

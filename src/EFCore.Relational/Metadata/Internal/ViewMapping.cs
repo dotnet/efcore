@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SortedSet<IViewColumnMapping> ColumnMappings { get; }
-            = new SortedSet<IViewColumnMapping>(ViewColumnMappingComparer.Instance);
+            = new SortedSet<IViewColumnMapping>(ColumnMappingBaseComparer.Instance);
 
         /// <inheritdoc/>
         public virtual bool IncludesDerivedTypes { get; }

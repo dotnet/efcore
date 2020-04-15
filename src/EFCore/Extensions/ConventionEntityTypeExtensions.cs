@@ -32,6 +32,16 @@ namespace Microsoft.EntityFrameworkCore
             => (IConventionEntityType)((IEntityType)entityType).GetRootType();
 
         /// <summary>
+        ///     Gets all types in the model which a given entity type derives from.
+        /// </summary>
+        /// <param name="entityType"> The type to find base types. </param>
+        /// <returns>
+        ///     The base types.
+        /// </returns>
+        public static IEnumerable<IConventionEntityType> GetAllBaseTypes([NotNull] this IConventionEntityType entityType)
+            => entityType.GetAllBaseTypesAscending().Reverse().Cast<IConventionEntityType>();
+
+        /// <summary>
         ///     Gets all types in the model that derive from a given entity type.
         /// </summary>
         /// <param name="entityType"> The base type to find types that derive from. </param>
@@ -78,6 +88,15 @@ namespace Microsoft.EntityFrameworkCore
                 entityType = entityType.BaseType;
             }
         }
+
+
+        /// <summary>
+        ///     Returns all types in hierarchy of the given <see cref="IConventionEntityType" />.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> All types in the hierarchy. </returns>
+        public static IEnumerable<IConventionEntityType> GetTypesInHierarchy([NotNull] this IConventionEntityType entityType)
+            => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive()).Cast<IConventionEntityType>();
 
         /// <summary>
         ///     <para>

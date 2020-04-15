@@ -9,7 +9,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -79,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// </summary>
         protected override DbConnection CreateDbConnection()
         {
-            var connection = new SqliteConnection(GetCheckedConnectionString());
+            var connection = new SqliteConnection(GetValidatedConnectionString());
             InitializeDbConnection(connection);
 
             return connection;
@@ -94,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         public virtual ISqliteRelationalConnection CreateReadOnlyConnection()
         {
             var connectionStringBuilder =
-                new SqliteConnectionStringBuilder(GetCheckedConnectionString()) { Mode = SqliteOpenMode.ReadOnly };
+                new SqliteConnectionStringBuilder(GetValidatedConnectionString()) { Mode = SqliteOpenMode.ReadOnly };
 
             var contextOptions = new DbContextOptionsBuilder().UseSqlite(connectionStringBuilder.ToString()).Options;
 

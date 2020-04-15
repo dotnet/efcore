@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -75,6 +76,44 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             return null;
+        }
+
+        /// <summary>
+        ///     Finds the list of principal properties including the given property that the given property is constrained by
+        ///     if the given property is part of a foreign key.
+        /// </summary>
+        /// <param name="property"> The foreign key property. </param>
+        /// <returns> The list of all associated principal properties including the given property. </returns>
+        public static IReadOnlyList<IProperty> FindPrincipals([NotNull] this IProperty property)
+        {
+            var principals = new List<IProperty> { property };
+            AddPrincipals(property, principals);
+            return principals;
+        }
+
+        private static void AddPrincipals(IProperty property, List<IProperty> visited)
+        {
+            var concreteProperty = property.AsProperty();
+
+            if (concreteProperty.ForeignKeys != null)
+            {
+                foreach (var foreignKey in concreteProperty.ForeignKeys)
+                {
+                    for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
+                    {
+                        if (property == foreignKey.Properties[propertyIndex])
+                        {
+                            var principal = foreignKey.PrincipalKey.Properties[propertyIndex];
+                            if (!visited.Contains(principal))
+                            {
+                                visited.Add(principal);
+
+                                AddPrincipals(principal, visited);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -183,6 +222,34 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(property, nameof(property));
 
             return (int?)property[CoreAnnotationNames.MaxLength];
+        }
+
+        /// <summary>
+        ///     Gets the precision of data that is allowed in this property.
+        ///     For example, if the property is a <see cref="decimal" />
+        ///     then this is the maximum number of digits.
+        /// </summary>
+        /// <param name="property"> The property to get the precision of. </param>
+        /// <returns> The precision, or <c>null</c> if none if defined. </returns>
+        public static int? GetPrecision([NotNull] this IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            return (int?)property[CoreAnnotationNames.Precision];
+        }
+
+        /// <summary>
+        ///     Gets the scale of data that is allowed in this property.
+        ///     For example, if the property is a <see cref="decimal" />
+        ///     then this is the maximum number of decimal places.
+        /// </summary>
+        /// <param name="property"> The property to get the scale of. </param>
+        /// <returns> The scale, or <c>null</c> if none if defined. </returns>
+        public static int? GetScale([NotNull] this IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            return (int?)property[CoreAnnotationNames.Scale];
         }
 
         /// <summary>
@@ -310,9 +377,42 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="fallback"> If true, then the key comparer is returned when the structural comparer is not set. </param>
         /// <returns> The comparer, or <c>null</c> if none has been set. </returns>
-        [Obsolete("Use GetKeyValueComparer. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
+        [Obsolete(
+            "Use GetKeyValueComparer. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
         public static ValueComparer GetStructuralValueComparer([NotNull] this IProperty property, bool fallback = true)
             => property.GetKeyValueComparer(fallback);
+
+        /// <summary>
+        ///     Creates an <see cref="IEqualityComparer{T}" /> for values of the given property type.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <typeparam name="TProperty"> The property type. </typeparam>
+        /// <returns> A new equality comparer. </returns>
+        public static IEqualityComparer<TProperty> CreateKeyEqualityComparer<TProperty>([NotNull] this IProperty property)
+        {
+            var comparer = property.GetKeyValueComparer();
+
+            return comparer is IEqualityComparer<TProperty> nullableComparer
+                ? nullableComparer
+                : new NullableComparer<TProperty>(comparer);
+        }
+
+        private sealed class NullableComparer<TNullableKey> : IEqualityComparer<TNullableKey>
+        {
+            private readonly IEqualityComparer _comparer;
+
+            public NullableComparer(IEqualityComparer comparer)
+            {
+                _comparer = comparer;
+            }
+
+            public bool Equals(TNullableKey x, TNullableKey y)
+                => (x == null && y == null)
+                    || (x != null && y != null && _comparer.Equals(x, y));
+
+            public int GetHashCode(TNullableKey obj)
+                => _comparer.GetHashCode(obj);
+        }
 
         /// <summary>
         ///     Creates a formatted string representation of the given properties such as is useful

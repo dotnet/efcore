@@ -13,10 +13,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     public class TemporaryGuidValueGenerator : GuidValueGenerator
     {
         /// <summary>
-        ///     Gets a value indicating whether the values generated are temporary or permanent. This implementation
-        ///     always returns true, meaning the generated values will be replaced by database generated values when
-        ///     the entity is saved
+        ///     Gets a value to be assigned to a property.
         /// </summary>
+        /// <returns> The value to be assigned to a property. </returns>
         public override bool GeneratesTemporaryValues => true;
     }
 }

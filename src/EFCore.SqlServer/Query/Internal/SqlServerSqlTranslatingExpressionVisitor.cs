@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -35,9 +34,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
         public SqlServerSqlTranslatingExpressionVisitor(
             [NotNull] RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
-            [NotNull] IModel model,
+            [NotNull] QueryCompilationContext queryCompilationContext,
             [NotNull] QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
-            : base(dependencies, model, queryableMethodTranslatingExpressionVisitor)
+            : base(dependencies, queryCompilationContext, queryableMethodTranslatingExpressionVisitor)
         {
         }
 
@@ -45,19 +44,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 
-            var visitedExpression = (SqlExpression)base.VisitBinary(binaryExpression);
-
-            if (visitedExpression == null)
-            {
-                return null;
-            }
-
-            return visitedExpression is SqlBinaryExpression sqlBinary
-                && _arithmeticOperatorTypes.Contains(sqlBinary.OperatorType)
-                && (_dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Left))
-                    || _dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Right)))
-                    ? null
-                    : visitedExpression;
+            return !(base.VisitBinary(binaryExpression) is SqlExpression visitedExpression)
+                ? (Expression)null
+                : (Expression)(visitedExpression is SqlBinaryExpression sqlBinary
+                    && _arithmeticOperatorTypes.Contains(sqlBinary.OperatorType)
+                    && (_dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Left))
+                        || _dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Right)))
+                        ? null
+                        : visitedExpression);
         }
 
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
@@ -65,15 +59,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             if (unaryExpression.NodeType == ExpressionType.ArrayLength
                 && unaryExpression.Operand.Type == typeof(byte[]))
             {
-                var sqlExpression = base.Visit(unaryExpression.Operand) as SqlExpression;
-
-                if (sqlExpression == null)
+                if (!(base.Visit(unaryExpression.Operand) is SqlExpression sqlExpression))
                 {
                     return null;
                 }
 
                 var isBinaryMaxDataType = GetProviderType(sqlExpression) == "varbinary(max)" || sqlExpression is SqlParameterExpression;
-                var dataLengthSqlFunction = SqlExpressionFactory.Function(
+                var dataLengthSqlFunction = Dependencies.SqlExpressionFactory.Function(
                     "DATALENGTH",
                     new[] { sqlExpression },
                     nullable: true,
@@ -81,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     isBinaryMaxDataType ? typeof(long) : typeof(int));
 
                 return isBinaryMaxDataType
-                    ? (Expression)SqlExpressionFactory.Convert(dataLengthSqlFunction, typeof(int))
+                    ? (Expression)Dependencies.SqlExpressionFactory.Convert(dataLengthSqlFunction, typeof(int))
                     : dataLengthSqlFunction;
             }
 
@@ -96,18 +88,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return null;
             }
 
-            return SqlExpressionFactory.ApplyDefaultTypeMapping(
-                SqlExpressionFactory.Function(
+            return Dependencies.SqlExpressionFactory.ApplyDefaultTypeMapping(
+                Dependencies.SqlExpressionFactory.Function(
                     "COUNT_BIG",
-                    new[] { SqlExpressionFactory.Fragment("*") },
+                    new[] { Dependencies.SqlExpressionFactory.Fragment("*") },
                     nullable: false,
                     argumentsPropagateNullability: new[] { false },
                     typeof(long)));
         }
 
-        private static string GetProviderType(SqlExpression expression)
-        {
-            return expression.TypeMapping?.StoreType;
-        }
+        private static string GetProviderType(SqlExpression expression) => expression.TypeMapping?.StoreType;
     }
 }

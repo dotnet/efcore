@@ -133,6 +133,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 
                 databaseModel.DatabaseName = connection.Database;
                 databaseModel.DefaultSchema = GetDefaultSchema(connection);
+                databaseModel.Collation = GetCollation(connection);
 
                 var typeAliases = GetTypeAliases(connection);
 
@@ -199,6 +200,19 @@ WHERE name = '{connection.Database}';";
 
                 var result = command.ExecuteScalar();
                 return result != null ? Convert.ToByte(result) : (byte)0;
+            }
+
+            static string? GetCollation(DbConnection connection)
+            {
+                using var command = connection.CreateCommand();
+                command.CommandText = $@"
+SELECT collation_name
+FROM sys.databases
+WHERE name = '{connection.Database}';";
+
+                return command.ExecuteScalar() is string collation
+                    ? collation
+                    : null;
             }
         }
 
@@ -565,7 +579,7 @@ WHERE "
             }
 
             // This is done separately due to MARS property may be turned off
-            GetColumns(connection, tables, filter, viewFilter, typeAliases);
+            GetColumns(connection, tables, filter, viewFilter, typeAliases, databaseModel.Collation);
             GetIndexes(connection, tables, filter);
             GetForeignKeys(connection, tables, filter);
 
@@ -580,7 +594,8 @@ WHERE "
             IReadOnlyList<DatabaseTable> tables,
             string tableFilter,
             string viewFilter,
-            IReadOnlyDictionary<string, (string storeType, string typeName)> typeAliases)
+            IReadOnlyDictionary<string, (string storeType, string typeName)> typeAliases,
+            string? databaseCollation)
         {
             using var command = connection.CreateCommand();
             var commandText = @"
@@ -598,7 +613,8 @@ SELECT
     [c].[is_identity],
     [dc].[definition] AS [default_sql],
     [cc].[definition] AS [computed_sql],
-    CAST([e].[value] AS nvarchar(MAX)) AS [comment]
+    CAST([e].[value] AS nvarchar(MAX)) AS [comment],
+    [c].[collation_name]
 FROM
 (
     SELECT[v].[name], [v].[object_id], [v].[schema_id]
@@ -658,6 +674,7 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                     var defaultValue = dataRecord.GetValueOrDefault<string>("default_sql");
                     var computedValue = dataRecord.GetValueOrDefault<string>("computed_sql");
                     var comment = dataRecord.GetValueOrDefault<string>("comment");
+                    var collation = dataRecord.GetValueOrDefault<string>("collation_name");
 
                     _logger.ColumnFound(
                         DisplayName(tableSchema, tableName),
@@ -695,6 +712,7 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                         DefaultValueSql = defaultValue,
                         ComputedColumnSql = computedValue,
                         Comment = comment,
+                        Collation = collation == databaseCollation ? null : collation,
                         ValueGenerated = isIdentity
                             ? ValueGenerated.OnAdd
                             : storeType == "rowversion"

@@ -5,7 +5,6 @@ using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration

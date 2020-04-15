@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Logs to the supplied sink. For example, use <c>optionsBuilder.LogTo(Console.WriteLine)</c> to
+        ///         Logs using the supplied action. For example, use <c>optionsBuilder.LogTo(Console.WriteLine)</c> to
         ///         log to the console.
         ///     </para>
         ///     <para>
@@ -99,21 +99,21 @@ namespace Microsoft.EntityFrameworkCore
         ///         Use the <see cref="LogTo(Func{EventId,LogLevel,bool},Action{EventData})" /> overload to log to a fully custom logger.
         ///     </para>
         /// </summary>
-        /// <param name="sink"> The sink to which log messages will be written. </param>
+        /// <param name="action"> Delegate called when there is a message to log. </param>
         /// <param name="minimumLevel"> The minimum level of logging event to log. Defaults to <see cref="LogLevel.Debug" /> </param>
         /// <param name="options">
         ///     Formatting options for log messages. Passing null (the default) means use <see cref="DbContextLoggerOptions.DefaultWithLocalTime" />
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> LogTo(
-            [NotNull] Action<string> sink,
+            [NotNull] Action<string> action,
             LogLevel minimumLevel = LogLevel.Debug,
             DbContextLoggerOptions? options = null)
-            => (DbContextOptionsBuilder<TContext>)base.LogTo(sink, minimumLevel, options);
+            => (DbContextOptionsBuilder<TContext>)base.LogTo(action, minimumLevel, options);
 
         /// <summary>
         ///     <para>
-        ///         Logs the specified events to the supplied sink. For example, use
+        ///         Logs the specified events using the supplied action. For example, use
         ///         <c>optionsBuilder.LogTo(Console.WriteLine, new[] { CoreEventId.ContextInitialized })</c> to log the
         ///         <see cref="CoreEventId.ContextInitialized" /> event to the console.
         ///     </para>
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         Use the <see cref="LogTo(Func{EventId,LogLevel,bool},Action{EventData})" /> overload to log to a fully custom logger.
         ///     </para>
         /// </summary>
-        /// <param name="sink"> The sink to which log messages will be written. </param>
+        /// <param name="action"> Delegate called when there is a message to log. </param>
         /// <param name="events"> The <see cref="EventId" /> of each event to log. </param>
         /// <param name="minimumLevel"> The minimum level of logging event to log. Defaults to <see cref="LogLevel.Debug" /> </param>
         /// <param name="options">
@@ -135,15 +135,15 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> LogTo(
-            [NotNull] Action<string> sink,
+            [NotNull] Action<string> action,
             [NotNull] IEnumerable<EventId> events,
             LogLevel minimumLevel = LogLevel.Debug,
             DbContextLoggerOptions? options = null)
-            => (DbContextOptionsBuilder<TContext>)base.LogTo(sink, events, minimumLevel, options);
+            => (DbContextOptionsBuilder<TContext>)base.LogTo(action, events, minimumLevel, options);
 
         /// <summary>
         ///     <para>
-        ///         Logs all events in the specified categories to the supplied sink. For example, use
+        ///         Logs all events in the specified categories using the supplied action. For example, use
         ///         <c>optionsBuilder.LogTo(Console.WriteLine, new[] { DbLoggerCategory.Infrastructure.Name })</c> to log all
         ///         events in the <see cref="DbLoggerCategory.Infrastructure" /> category.
         ///     </para>
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         Use the <see cref="LogTo(Func{EventId,LogLevel,bool},Action{EventData})" /> overload to log to a fully custom logger.
         ///     </para>
         /// </summary>
-        /// <param name="sink"> The sink to which log messages will be written. </param>
+        /// <param name="action"> Delegate called when there is a message to log. </param>
         /// <param name="categories"> The <see cref="DbLoggerCategory" /> of each event to log. </param>
         /// <param name="minimumLevel"> The minimum level of logging event to log. Defaults to <see cref="LogLevel.Debug" /> </param>
         /// <param name="options">
@@ -165,11 +165,11 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> LogTo(
-            [NotNull] Action<string> sink,
+            [NotNull] Action<string> action,
             [NotNull] IEnumerable<string> categories,
             LogLevel minimumLevel = LogLevel.Debug,
             DbContextLoggerOptions? options = null)
-            => (DbContextOptionsBuilder<TContext>)base.LogTo(sink, categories, minimumLevel, options);
+            => (DbContextOptionsBuilder<TContext>)base.LogTo(action, categories, minimumLevel, options);
 
         /// <summary>
         ///     <para>
@@ -185,17 +185,17 @@ namespace Microsoft.EntityFrameworkCore
         ///         Use the <see cref="LogTo(Func{EventId,LogLevel,bool},Action{EventData})" /> overload to log to a fully custom logger.
         ///     </para>
         /// </summary>
-        /// <param name="sink"> The sink to which log messages will be written. </param>
+        /// <param name="action"> Delegate called when there is a message to log. </param>
         /// <param name="filter"> Delegate that returns true to log the message or false to ignore it. </param>
         /// <param name="options">
         ///     Formatting options for log messages. Passing null (the default) means use <see cref="DbContextLoggerOptions.DefaultWithLocalTime" />
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> LogTo(
-            [NotNull] Action<string> sink,
+            [NotNull] Action<string> action,
             [NotNull] Func<EventId, LogLevel, bool> filter,
             DbContextLoggerOptions? options = null)
-            => (DbContextOptionsBuilder<TContext>)base.LogTo(sink, filter, options);
+            => (DbContextOptionsBuilder<TContext>)base.LogTo(action, filter, options);
 
         /// <summary>
         ///     <para>

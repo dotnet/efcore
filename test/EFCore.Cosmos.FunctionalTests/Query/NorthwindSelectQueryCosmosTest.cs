@@ -21,6 +21,21 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Projection_with_Value_Property(bool async)
+        {
+            await AssertQuery(
+                async,
+                ss => ss.Set<Order>().Select(o => new { Value = o.OrderID }),
+                e => (e.Value));
+
+            AssertSql(
+                @"SELECT c[""OrderID""] AS Value0
+FROM root c
+WHERE (c[""Discriminator""] = ""Order"")");
+        }
+
         public override async Task Projection_when_arithmetic_expression_precedence(bool async)
         {
             await base.Projection_when_arithmetic_expression_precedence(async);
@@ -1097,6 +1112,12 @@ ORDER BY c[""EmployeeID""]");
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")
 ORDER BY c[""CustomerID""]");
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task Projecting_multiple_collection_with_same_constant_works(bool async)
+        {
+            return base.Projecting_multiple_collection_with_same_constant_works(async);
         }
 
         private void AssertSql(params string[] expected)

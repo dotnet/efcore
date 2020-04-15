@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
@@ -93,28 +92,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return base.VisitMethodCall(methodCallExpression);
             }
 
-            protected EntityReference UnwrapEntityReference(Expression expression)
-            {
-                switch (expression)
-                {
-                    case EntityReference entityReference:
-                        return entityReference;
-
-                    case NavigationTreeExpression navigationTreeExpression:
-                        return UnwrapEntityReference(navigationTreeExpression.Value);
-
-                    case NavigationExpansionExpression navigationExpansionExpression
-                        when navigationExpansionExpression.CardinalityReducingGenericMethodInfo != null:
-                        return UnwrapEntityReference(navigationExpansionExpression.PendingSelector);
-
-                    case OwnedNavigationReference ownedNavigationReference:
-                        return ownedNavigationReference.EntityReference;
-
-                    default:
-                        return null;
-                }
-            }
-
             private Expression TryExpandNavigation(Expression root, MemberIdentity memberIdentity)
             {
                 var innerExpression = root.UnwrapTypeConversion(out var convertedType);
@@ -181,9 +158,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var innerSource = (NavigationExpansionExpression)_navigationExpandingExpressionVisitor.Visit(innerQueryable);
                 if (entityReference.IncludePaths.ContainsKey(navigation))
                 {
-                    var innerIncludeTreeNode = entityReference.IncludePaths[navigation];
                     var innerEntityReference = (EntityReference)((NavigationTreeExpression)innerSource.PendingSelector).Value;
-                    innerEntityReference.SetIncludePaths(innerIncludeTreeNode);
+                    innerEntityReference.SetIncludePaths(entityReference.IncludePaths[navigation]);
                 }
 
                 var innerSourceSequenceType = innerSource.Type.GetSequenceType();
@@ -194,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     // This is FirstOrDefault ending so we need to push down properties.
                     var temporaryParameter = Expression.Parameter(root.Type);
-                    var temporaryKey = temporaryParameter.CreateKeyAccessExpression(
+                    var temporaryKey = temporaryParameter.CreateKeyValueReadExpression(
                         navigation.IsOnDependent
                             ? navigation.ForeignKey.Properties
                             : navigation.ForeignKey.PrincipalKey.Properties,
@@ -208,14 +184,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
                 else
                 {
-                    outerKey = root.CreateKeyAccessExpression(
+                    outerKey = root.CreateKeyValueReadExpression(
                         navigation.IsOnDependent
                             ? navigation.ForeignKey.Properties
                             : navigation.ForeignKey.PrincipalKey.Properties,
                         makeNullable: true);
                 }
 
-                var innerKey = innerParameter.CreateKeyAccessExpression(
+                var innerKey = innerParameter.CreateKeyValueReadExpression(
                     navigation.IsOnDependent
                         ? navigation.ForeignKey.PrincipalKey.Properties
                         : navigation.ForeignKey.Properties,
@@ -236,17 +212,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (navigation.IsCollection)
                 {
-                    var outerKeyFirstProperty = outerKey is NewExpression newExpression
-                        ? ((UnaryExpression)((NewArrayExpression)newExpression.Arguments[0]).Expressions[0]).Operand
-                        : outerKey;
-
                     // This is intentionally deferred to be applied to innerSource.Source
                     // Since outerKey's reference could change if a reference navigation is expanded afterwards
-                    var predicateBody = outerKeyFirstProperty.Type.IsNullableType()
-                        ? Expression.AndAlso(
-                            Expression.NotEqual(outerKeyFirstProperty, Expression.Constant(null, outerKeyFirstProperty.Type)),
-                            Expression.Equal(outerKey, innerKey))
-                        : Expression.Equal(outerKey, innerKey);
+                    var predicateBody = Expression.AndAlso(
+                        outerKey is NewExpression newExpression
+                        && newExpression.Arguments[0] is NewArrayExpression newArrayExpression
+                            ? newArrayExpression.Expressions
+                                .Select(e =>
+                                {
+                                    var left = (e as UnaryExpression)?.Operand ?? e;
+
+                                    return Expression.NotEqual(left, Expression.Constant(null, left.Type));
+                                })
+                                .Aggregate((l, r) => Expression.AndAlso(l, r))
+                            : Expression.NotEqual(outerKey, Expression.Constant(null, outerKey.Type)),
+                        Expression.Equal(outerKey, innerKey));
 
                     var subquery = Expression.Call(
                         QueryableMethods.Where.MakeGenericMethod(innerSourceSequenceType),
@@ -532,6 +512,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         included = ExpandIncludesHelper(included, innerEntityReference);
                     }
 
+                    if (included is MaterializeCollectionNavigationExpression materializeCollectionNavigation)
+                    {
+                        var filterExpression = entityReference.IncludePaths[navigation].FilterExpression;
+                        if (filterExpression != null)
+                        {
+                            var subquery = ReplacingExpressionVisitor.Replace(
+                                filterExpression.Parameters[0],
+                                materializeCollectionNavigation.Subquery,
+                                filterExpression.Body);
+
+                            included = materializeCollectionNavigation.Update(subquery);
+                        }
+                    }
+
                     result = new IncludeExpression(result, included, navigation);
                 }
 
@@ -684,6 +678,173 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     && queryRootExpression.EntityType == _entityType
                     ? _navigationExpandingExpressionVisitor.CreateNavigationExpansionExpression(queryRootExpression, _entityType)
                     : base.VisitExtension(extensionExpression);
+            }
+        }
+
+        private sealed class RemoveRedundantNavigationComparisonExpressionVisitor : ExpressionVisitor
+        {
+            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+
+            public RemoveRedundantNavigationComparisonExpressionVisitor(IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+            {
+                _logger = logger;
+            }
+
+            protected override Expression VisitBinary(BinaryExpression binaryExpression)
+                => (binaryExpression.NodeType == ExpressionType.Equal
+                    || binaryExpression.NodeType == ExpressionType.NotEqual)
+                    && TryRemoveNavigationComparison(
+                        binaryExpression.NodeType, binaryExpression.Left, binaryExpression.Right, out var result)
+                    ? result
+                    : base.VisitBinary(binaryExpression);
+
+            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+            {
+                var method = methodCallExpression.Method;
+                if (method.Name == nameof(object.Equals)
+                    && methodCallExpression.Object != null
+                    && methodCallExpression.Arguments.Count == 1
+                    && TryRemoveNavigationComparison(
+                        ExpressionType.Equal, methodCallExpression.Object, methodCallExpression.Arguments[0], out var result))
+                {
+                    return result;
+                }
+
+                if (method.Name == nameof(object.Equals)
+                    && methodCallExpression.Object == null
+                    && methodCallExpression.Arguments.Count == 2
+                    && TryRemoveNavigationComparison(
+                        ExpressionType.Equal, methodCallExpression.Arguments[0], methodCallExpression.Arguments[1], out result))
+                {
+                    return result;
+                }
+
+                return base.VisitMethodCall(methodCallExpression);
+            }
+
+            private bool TryRemoveNavigationComparison(ExpressionType nodeType, Expression left, Expression right, out Expression result)
+            {
+                result = null;
+                var leftNavigationData = ProcessNavigationPath(left) as NavigationDataExpression;
+                var rightNavigationData = ProcessNavigationPath(right) as NavigationDataExpression;
+
+                if (leftNavigationData == null
+                    && rightNavigationData == null)
+                {
+                    return false;
+                }
+
+                if (left.IsNullConstantExpression()
+                    || right.IsNullConstantExpression())
+                {
+                    var nonNullNavigationData = left.IsNullConstantExpression()
+                        ? rightNavigationData
+                        : leftNavigationData;
+
+                    if (nonNullNavigationData.Navigation?.IsCollection == true)
+                    {
+                        _logger.PossibleUnintendedCollectionNavigationNullComparisonWarning(nonNullNavigationData.Navigation);
+
+                        result = Expression.MakeBinary(
+                            nodeType, nonNullNavigationData.Inner.Current, Expression.Constant(null, nonNullNavigationData.Inner.Type));
+
+                        return true;
+                    }
+                }
+                else if (leftNavigationData != null
+                    && rightNavigationData != null)
+                {
+                    if (leftNavigationData.Navigation?.IsCollection == true)
+                    {
+                        if (leftNavigationData.Navigation == rightNavigationData.Navigation)
+                        {
+                            _logger.PossibleUnintendedReferenceComparisonWarning(leftNavigationData.Current, rightNavigationData.Current);
+
+                            result = Expression.MakeBinary(nodeType, leftNavigationData.Inner.Current, rightNavigationData.Inner.Current);
+                        }
+                        else
+                        {
+                            result = Expression.Constant(nodeType == ExpressionType.NotEqual);
+                        }
+
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            private Expression ProcessNavigationPath(Expression expression)
+            {
+                switch (expression)
+                {
+                    case MemberExpression memberExpression:
+                        var innerExpression = ProcessNavigationPath(memberExpression.Expression);
+                        if (innerExpression is NavigationDataExpression navigationDataExpression
+                            && navigationDataExpression.EntityType != null)
+                        {
+                            var navigation = navigationDataExpression.EntityType.FindNavigation(memberExpression.Member);
+                            if (navigation != null)
+                            {
+                                return new NavigationDataExpression(expression, navigationDataExpression, navigation);
+                            }
+                        }
+
+                        return expression;
+
+                    case MethodCallExpression methodCallExpression
+                    when methodCallExpression.TryGetEFPropertyArguments(out var source, out var navigationName):
+                        return expression;
+
+                    default:
+                        var convertlessExpression = expression.UnwrapTypeConversion(out var convertedType);
+                        if (UnwrapEntityReference(convertlessExpression) is EntityReference entityReference)
+                        {
+                            var entityType = entityReference.EntityType;
+                            if (convertedType != null)
+                            {
+                                entityType = entityType.GetTypesInHierarchy()
+                                    .FirstOrDefault(et => et.ClrType == convertedType);
+                                if (entityType == null)
+                                {
+                                    return expression;
+                                }
+                            }
+
+                            return new NavigationDataExpression(expression, entityType);
+                        }
+
+                        return expression;
+                }
+            }
+
+            private sealed class NavigationDataExpression : Expression
+            {
+                public NavigationDataExpression(Expression current, IEntityType entityType)
+                {
+                    Navigation = default;
+                    Current = current;
+                    EntityType = entityType;
+                }
+
+                public NavigationDataExpression(Expression current, NavigationDataExpression inner, INavigation navigation)
+                {
+                    Current = current;
+                    Inner = inner;
+                    Navigation = navigation;
+                    if (!navigation.IsCollection)
+                    {
+                        EntityType = navigation.TargetEntityType;
+                    }
+                }
+
+                public override Type Type => Current.Type;
+                public override ExpressionType NodeType => ExpressionType.Extension;
+
+                public INavigation Navigation { get; }
+                public Expression Current { get; }
+                public NavigationDataExpression Inner { get; }
+                public IEntityType EntityType { get; }
             }
         }
     }

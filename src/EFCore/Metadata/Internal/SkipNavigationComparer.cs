@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var result = StringComparer.Ordinal.Compare(x.Name, y.Name);
 
-            return result != 0 ? result : EntityTypePathComparer.Instance.Compare(x.DeclaringEntityType, y.DeclaringEntityType);
+            return result != 0 ? result : EntityTypeFullNameComparer.Instance.Compare(x.DeclaringEntityType, y.DeclaringEntityType);
         }
     }
 }

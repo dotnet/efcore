@@ -2,14 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a database function parameter in an <see cref="IDbFunction" />.
+    ///     Represents a <see cref="IDbFunction" /> parameter.
     /// </summary>
-    public interface IDbFunctionParameter
+    public interface IDbFunctionParameter : IAnnotatable
     {
         /// <summary>
         ///     Gets the <see cref="IDbFunction" /> to which this parameter belongs.

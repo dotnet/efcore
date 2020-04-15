@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -23,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public View([NotNull] string name, [CanBeNull] string schema)
-            : base(name, schema)
+        public View([NotNull] string name, [CanBeNull] string schema, [NotNull] RelationalModel model)
+            : base(name, schema, model)
         {
         }
 
@@ -34,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SortedSet<IViewMapping> EntityTypeMappings { get; } = new SortedSet<IViewMapping>(ViewMappingComparer.Instance);
+        public virtual SortedSet<IViewMapping> EntityTypeMappings { get; } = new SortedSet<IViewMapping>(TableMappingBaseComparer.Instance);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -42,8 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SortedDictionary<string, IViewColumn> Columns { get; }
-            = new SortedDictionary<string, IViewColumn>(StringComparer.Ordinal);
+        public virtual SortedDictionary<string, ViewColumn> Columns { get; }
+            = new SortedDictionary<string, ViewColumn>(StringComparer.Ordinal);
 
         /// <inheritdoc/>
         public virtual string ViewDefinition
@@ -100,13 +101,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => InternalForeignKeys != null
                 && InternalForeignKeys.TryGetValue(entityType, out var foreignKeys)
                 ? foreignKeys
-                : null;
+                : Enumerable.Empty<IForeignKey>();
 
         /// <inheritdoc/>
         IEnumerable<IForeignKey> ITableBase.GetReferencingInternalForeignKeys(IEntityType entityType)
             => ReferencingInternalForeignKeys != null
                 && ReferencingInternalForeignKeys.TryGetValue(entityType, out var foreignKeys)
                 ? foreignKeys
-                : null;
+                : Enumerable.Empty<IForeignKey>();
     }
 }

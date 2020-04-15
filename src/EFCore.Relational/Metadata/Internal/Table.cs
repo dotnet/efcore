@@ -4,7 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -22,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public Table([NotNull] string name, [CanBeNull] string schema)
-            : base(name, schema)
+        public Table([NotNull] string name, [CanBeNull] string schema, [NotNull] RelationalModel model)
+            : base(name, schema, model)
         {
         }
 
@@ -33,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SortedSet<TableMapping> EntityTypeMappings { get; } = new SortedSet<TableMapping>(TableMappingComparer.Instance);
+        public virtual SortedSet<TableMapping> EntityTypeMappings { get; } = new SortedSet<TableMapping>(TableMappingBaseComparer.Instance);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -50,8 +52,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual UniqueConstraint PrimaryKey { get; [param: NotNull] set; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual SortedDictionary<string, UniqueConstraint> UniqueConstraints { get; }
             = new SortedDictionary<string, UniqueConstraint>();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual UniqueConstraint FindUniqueConstraint([NotNull] string name)
+            => PrimaryKey != null && PrimaryKey.Name == name
+                ? PrimaryKey
+                : UniqueConstraints.TryGetValue(name, out var constraint)
+                    ? constraint
+                    : null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -123,6 +146,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <inheritdoc/>
+        IUniqueConstraint ITable.PrimaryKey
+        {
+            [DebuggerStepThrough]
+            get => PrimaryKey;
+        }
+
+        /// <inheritdoc/>
         IEnumerable<IUniqueConstraint> ITable.UniqueConstraints
         {
             [DebuggerStepThrough]
@@ -144,13 +174,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => InternalForeignKeys != null
                 && InternalForeignKeys.TryGetValue(entityType, out var foreignKeys)
                 ? foreignKeys
-                : null;
+                : Enumerable.Empty<IForeignKey>();
 
         /// <inheritdoc/>
         IEnumerable<IForeignKey> ITableBase.GetReferencingInternalForeignKeys(IEntityType entityType)
             => ReferencingInternalForeignKeys != null
                 && ReferencingInternalForeignKeys.TryGetValue(entityType, out var foreignKeys)
                 ? foreignKeys
-                : null;
+                : Enumerable.Empty<IForeignKey>();
     }
 }

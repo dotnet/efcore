@@ -4,8 +4,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -35,9 +35,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IEnumerable<IForeignKeyConstraint> ForeignKeyConstraints { get; }
 
         /// <summary>
-        ///     Gets the unique constraints for this table.
+        ///     Gets the unique constraints including the primary key for this table.
         /// </summary>
         IEnumerable<IUniqueConstraint> UniqueConstraints { get; }
+
+        /// <summary>
+        ///     Gets the primary key for this table.
+        /// </summary>
+        IUniqueConstraint PrimaryKey { get; }
 
         /// <summary>
         ///     Gets the indexes for this table.

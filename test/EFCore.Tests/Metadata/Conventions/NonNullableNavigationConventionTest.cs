@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     nameof(Blog), nameof(Blog.BlogDetails), nameof(BlogDetails), nameof(BlogDetails.Blog)), logEntry.Message);
         }
 
-        private Navigation RunConvention(InternalRelationshipBuilder relationshipBuilder, Navigation navigation)
+        private Navigation RunConvention(InternalForeignKeyBuilder relationshipBuilder, Navigation navigation)
         {
             var context = new ConventionContext<IConventionNavigationBuilder>(
                 relationshipBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);

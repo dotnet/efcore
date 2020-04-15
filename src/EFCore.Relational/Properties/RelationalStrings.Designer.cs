@@ -293,6 +293,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType1, property1, entityType2, property2, columnName, table, value1, value2);
 
         /// <summary>
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different collations ('{collation1}' and '{collation2}').
+        /// </summary>
+        public static string DuplicateColumnNameCollationMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table, [CanBeNull] object collation1, [CanBeNull] object collation2)
+            => string.Format(
+                GetString("DuplicateColumnNameCollationMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table), nameof(collation1), nameof(collation2)),
+                entityType1, property1, entityType2, property2, columnName, table, collation1, collation2);
+
+        /// <summary>
         ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different comments ('{comment1}' and '{comment2}').
         /// </summary>
         public static string DuplicateColumnNameCommentMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table, [CanBeNull] object comment1, [CanBeNull] object comment2)
@@ -411,14 +419,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("DbFunctionInvalidReturnType", nameof(function), nameof(type)),
                 function, type);
-
-        /// <summary>
-        ///     The DbFunction '{function}' has no name set. Name is a required property of a DbFunction.
-        /// </summary>
-        public static string DbFunctionNameEmpty([CanBeNull] object function)
-            => string.Format(
-                GetString("DbFunctionNameEmpty", nameof(function)),
-                function);
 
         /// <summary>
         ///     The parameter '{parameter}' for the DbFunction '{function}' has an invalid type '{type}'. Ensure the parameter type can be mapped by the current provider.
@@ -587,12 +587,210 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("NestedAmbientTransactionError");
 
         /// <summary>
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different concurrency token configuration.
+        /// </summary>
+        public static string DuplicateColumnNameConcurrencyTokenMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table)
+            => string.Format(
+                GetString("DuplicateColumnNameConcurrencyTokenMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table)),
+                entityType1, property1, entityType2, property2, columnName, table);
+
+        /// <summary>
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different fixed length configuration.
+        /// </summary>
+        public static string DuplicateColumnNameFixedLengthMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table)
+            => string.Format(
+                GetString("DuplicateColumnNameFixedLengthMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table)),
+                entityType1, property1, entityType2, property2, columnName, table);
+
+        /// <summary>
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different max lengths ('{maxLength1}' and '{maxLength2}').
+        /// </summary>
+        public static string DuplicateColumnNameMaxLengthMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table, [CanBeNull] object maxLength1, [CanBeNull] object maxLength2)
+            => string.Format(
+                GetString("DuplicateColumnNameMaxLengthMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table), nameof(maxLength1), nameof(maxLength2)),
+                entityType1, property1, entityType2, property2, columnName, table, maxLength1, maxLength2);
+
+        /// <summary>
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different unicode configuration
+        /// </summary>
+        public static string DuplicateColumnNameUnicodenessMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table)
+            => string.Format(
+                GetString("DuplicateColumnNameUnicodenessMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table)),
+                entityType1, property1, entityType2, property2, columnName, table);
+
+        /// <summary>
+        ///     The database model hasn't been initialized. The model needs to be finalized before the database model can be accessed.
+        /// </summary>
+        public static string DatabaseModelMissing
+            => GetString("DatabaseModelMissing");
+
+        /// <summary>
         ///     Cannot set custom translation on the DbFunction '{function}' since it returns IQueryable type.
         /// </summary>
         public static string DbFunctionQueryableCustomTranslation([CanBeNull] object function)
             => string.Format(
                 GetString("DbFunctionQueryableCustomTranslation", nameof(function)),
                 function);
+
+        /// <summary>
+        ///     The DbFunction '{function}' has an invalid return type '{type}'. Only functions that return IQueryable of entity type are supported.
+        /// </summary>
+        public static string DbFunctionInvalidIQueryableReturnType([CanBeNull] object function, [CanBeNull] object type)
+            => string.Format(
+                GetString("DbFunctionInvalidIQueryableReturnType", nameof(function), nameof(type)),
+                function, type);
+
+        /// <summary>
+        ///     The DbFunction '{function}' has an invalid return type '{type}'. Owned entity types cannot be used as the return type of a DbFunction.
+        /// </summary>
+        public static string DbFunctionInvalidIQueryableOwnedReturnType([CanBeNull] object function, [CanBeNull] object type)
+            => string.Format(
+                GetString("DbFunctionInvalidIQueryableOwnedReturnType", nameof(function), nameof(type)),
+                function, type);
+
+        /// <summary>
+        ///     There is no property mapped to the column '{table}.{column}' used in a data operation. Either add a property mapped to this column or specify the column types in the data operation.
+        /// </summary>
+        public static string DataOperationNoProperty([CanBeNull] object table, [CanBeNull] object column)
+            => string.Format(
+                GetString("DataOperationNoProperty", nameof(table), nameof(column)),
+                table, column);
+
+        /// <summary>
+        ///     There is no entity type mapped to the table '{table}' used in a data operation. Either add the corresponding entity type to the model or specify the column types in the data operation.
+        /// </summary>
+        public static string DataOperationNoTable([CanBeNull] object table)
+            => string.Format(
+                GetString("DataOperationNoTable", nameof(table)),
+                table);
+
+        /// <summary>
+        ///     The data deletion operation on '{table}' is not associated with a model. Either add a model to the migration or specify the column types in all data operations.
+        /// </summary>
+        public static string DeleteDataOperationNoModel([CanBeNull] object table)
+            => string.Format(
+                GetString("DeleteDataOperationNoModel", nameof(table)),
+                table);
+
+        /// <summary>
+        ///     The number of key column types ({typesCount}) doesn't match the number of key columns ({columnsCount}) for the data deletion operation on '{table}'. Provide the same number of key column types and key columns.
+        /// </summary>
+        public static string DeleteDataOperationTypesCountMismatch([CanBeNull] object typesCount, [CanBeNull] object columnsCount, [CanBeNull] object table)
+            => string.Format(
+                GetString("DeleteDataOperationTypesCountMismatch", nameof(typesCount), nameof(columnsCount), nameof(table)),
+                typesCount, columnsCount, table);
+
+        /// <summary>
+        ///     The number of key values ({valuesCount}) doesn't match the number of key columns ({columnsCount}) for the data deletion operation on '{table}'. Provide the same number of key values and key columns.
+        /// </summary>
+        public static string DeleteDataOperationValuesCountMismatch([CanBeNull] object valuesCount, [CanBeNull] object columnsCount, [CanBeNull] object table)
+            => string.Format(
+                GetString("DeleteDataOperationValuesCountMismatch", nameof(valuesCount), nameof(columnsCount), nameof(table)),
+                valuesCount, columnsCount, table);
+
+        /// <summary>
+        ///     The data insertion operation on '{table}' is not associated with a model. Either add a model to the migration or specify the column types in all data operations.
+        /// </summary>
+        public static string InsertDataOperationNoModel([CanBeNull] object table)
+            => string.Format(
+                GetString("InsertDataOperationNoModel", nameof(table)),
+                table);
+
+        /// <summary>
+        ///     The number of column types ({typesCount}) doesn't match the number of columns ({columnsCount}) for the data insertion operation on '{table}'. Provide the same number of column types and columns.
+        /// </summary>
+        public static string InsertDataOperationTypesCountMismatch([CanBeNull] object typesCount, [CanBeNull] object columnsCount, [CanBeNull] object table)
+            => string.Format(
+                GetString("InsertDataOperationTypesCountMismatch", nameof(typesCount), nameof(columnsCount), nameof(table)),
+                typesCount, columnsCount, table);
+
+        /// <summary>
+        ///     The number of values ({valuesCount}) doesn't match the number of columns ({columnsCount}) for the data insertion operation on '{table}'. Provide the same number of values and columns.
+        /// </summary>
+        public static string InsertDataOperationValuesCountMismatch([CanBeNull] object valuesCount, [CanBeNull] object columnsCount, [CanBeNull] object table)
+            => string.Format(
+                GetString("InsertDataOperationValuesCountMismatch", nameof(valuesCount), nameof(columnsCount), nameof(table)),
+                valuesCount, columnsCount, table);
+
+        /// <summary>
+        ///     The operation for the column '{column}' targets the '{columnTable}' table, but is part of the create operation for table '{table}'. Make both operations use the same name.
+        /// </summary>
+        public static string MigrationColumnTableMismatch([CanBeNull] object column, [CanBeNull] object columnTable, [CanBeNull] object table)
+            => string.Format(
+                GetString("MigrationColumnTableMismatch", nameof(column), nameof(columnTable), nameof(table)),
+                column, columnTable, table);
+
+        /// <summary>
+        ///     The number of key column types ({typesCount}) doesn't match the number of key columns ({columnsCount}) for the data modification operation on '{table}'. Provide the same number of key column types and key columns.
+        /// </summary>
+        public static string UpdateDataOperationKeyTypesCountMismatch([CanBeNull] object typesCount, [CanBeNull] object columnsCount, [CanBeNull] object table)
+            => string.Format(
+                GetString("UpdateDataOperationKeyTypesCountMismatch", nameof(typesCount), nameof(columnsCount), nameof(table)),
+                typesCount, columnsCount, table);
+
+        /// <summary>
+        ///     The number of key values ({valuesCount}) doesn't match the number of key columns ({columnsCount}) for the data modification operation on '{table}'. Provide the same number of key values and key columns.
+        /// </summary>
+        public static string UpdateDataOperationKeyValuesCountMismatch([CanBeNull] object valuesCount, [CanBeNull] object columnsCount, [CanBeNull] object table)
+            => string.Format(
+                GetString("UpdateDataOperationKeyValuesCountMismatch", nameof(valuesCount), nameof(columnsCount), nameof(table)),
+                valuesCount, columnsCount, table);
+
+        /// <summary>
+        ///     The data modification operation on '{table}' is not associated with a model. Either add a model to the migration or specify the column types in all data operations.
+        /// </summary>
+        public static string UpdateDataOperationNoModel([CanBeNull] object table)
+            => string.Format(
+                GetString("UpdateDataOperationNoModel", nameof(table)),
+                table);
+
+        /// <summary>
+        ///     The number of value rows ({valuesCount}) doesn't match the number of key rows ({keyCount}) for the data modification operation on '{table}'. Provide the same number of value rows and key rows.
+        /// </summary>
+        public static string UpdateDataOperationRowCountMismatch([CanBeNull] object valuesCount, [CanBeNull] object keyCount, [CanBeNull] object table)
+            => string.Format(
+                GetString("UpdateDataOperationRowCountMismatch", nameof(valuesCount), nameof(keyCount), nameof(table)),
+                valuesCount, keyCount, table);
+
+        /// <summary>
+        ///     The number of column types ({typesCount}) doesn't match the number of columns ({columnsCount}) for the data modification operation on '{table}'. Provide the same number of column types and columns.
+        /// </summary>
+        public static string UpdateDataOperationTypesCountMismatch([CanBeNull] object typesCount, [CanBeNull] object columnsCount, [CanBeNull] object table)
+            => string.Format(
+                GetString("UpdateDataOperationTypesCountMismatch", nameof(typesCount), nameof(columnsCount), nameof(table)),
+                typesCount, columnsCount, table);
+
+        /// <summary>
+        ///     The number of values ({valuesCount}) doesn't match the number of columns ({columnsCount}) for the data modification operation on '{table}'. Provide the same number of values and columns.
+        /// </summary>
+        public static string UpdateDataOperationValuesCountMismatch([CanBeNull] object valuesCount, [CanBeNull] object columnsCount, [CanBeNull] object table)
+            => string.Format(
+                GetString("UpdateDataOperationValuesCountMismatch", nameof(valuesCount), nameof(columnsCount), nameof(table)),
+                valuesCount, columnsCount, table);
+
+        /// <summary>
+        ///     The store type '{type}' is not supported by the current provider.
+        /// </summary>
+        public static string UnsupportedStoreType([CanBeNull] object type)
+            => string.Format(
+                GetString("UnsupportedStoreType", nameof(type)),
+                type);
+
+        /// <summary>
+        ///     The entity type '{entityType}' is not mapped to a table, therefore the entities cannot be persisted to the database. Use ToTable to map it.
+        /// </summary>
+        public static string ReadonlyEntitySaved([CanBeNull] object entityType)
+            => string.Format(
+                GetString("ReadonlyEntitySaved", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     The store type '{type}' used for the column '{column}' in a migration data operation is not supported by the current provider.
+        /// </summary>
+        public static string UnsupportedDataOperationStoreType([CanBeNull] object type, [CanBeNull] object column)
+            => string.Format(
+                GetString("UnsupportedDataOperationStoreType", nameof(type), nameof(column)),
+                type, column);
 
         private static string GetString(string name, params string[] formatterNames)
         {

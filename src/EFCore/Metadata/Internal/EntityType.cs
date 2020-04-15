@@ -403,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private void UpdateBaseTypeConfigurationSource(ConfigurationSource configurationSource)
             => _baseTypeConfigurationSource = configurationSource.Max(_baseTypeConfigurationSource);
 
-        private readonly SortedSet<EntityType> _directlyDerivedTypes = new SortedSet<EntityType>(EntityTypePathComparer.Instance);
+        private readonly SortedSet<EntityType> _directlyDerivedTypes = new SortedSet<EntityType>(EntityTypeFullNameComparer.Instance);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

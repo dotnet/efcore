@@ -41,20 +41,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             foreach (var dbFunction in modelBuilder.Metadata.GetDbFunctions())
             {
-                var typeMapping = !string.IsNullOrEmpty(dbFunction.StoreType)
-                    ? _relationalTypeMappingSource.FindMapping(dbFunction.StoreType)
-                    : _relationalTypeMappingSource.FindMapping(dbFunction.MethodInfo.ReturnType);
-
-                dbFunction.Builder.HasTypeMapping(typeMapping);
-
                 foreach (var parameter in dbFunction.Parameters)
                 {
-                    typeMapping = !string.IsNullOrEmpty(parameter.StoreType)
+                    parameter.Builder.HasTypeMapping(!string.IsNullOrEmpty(parameter.StoreType)
                         ? _relationalTypeMappingSource.FindMapping(parameter.StoreType)
-                        : _relationalTypeMappingSource.FindMapping(parameter.ClrType);
-
-                    parameter.Builder.HasTypeMapping(typeMapping);
+                        : _relationalTypeMappingSource.FindMapping(parameter.ClrType));
                 }
+
+                if (dbFunction.IsQueryable)
+                {
+                    continue;
+                }
+
+                dbFunction.Builder.HasTypeMapping(!string.IsNullOrEmpty(dbFunction.StoreType)
+                    ? _relationalTypeMappingSource.FindMapping(dbFunction.StoreType)
+                    : _relationalTypeMappingSource.FindMapping(dbFunction.ReturnType));
             }
         }
     }

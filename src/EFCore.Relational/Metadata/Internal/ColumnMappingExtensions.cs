@@ -3,7 +3,7 @@
 
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -36,9 +36,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append($"ColumnMapping: ");
             }
 
-            builder.Append(columnMapping.Property.Name).Append(" - ");
+            builder
+                .Append(columnMapping.Property.DeclaringEntityType.DisplayName())
+                .Append(".")
+                .Append(columnMapping.Property.Name)
+                .Append(" - ");
 
-            builder.Append(columnMapping.Column.Name);
+            builder
+                .Append(columnMapping.Column.Table.Name)
+                .Append(".")
+                .Append(columnMapping.Column.Name);
 
             if (!singleLine &&
                 (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)

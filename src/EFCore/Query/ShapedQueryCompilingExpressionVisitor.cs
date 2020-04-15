@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (extensionExpression is ShapedQueryExpression shapedQueryExpression)
             {
-                var serverEnumerable = VisitShapedQueryExpression(shapedQueryExpression);
+                var serverEnumerable = VisitShapedQuery(shapedQueryExpression);
                 switch (shapedQueryExpression.ResultCardinality)
                 {
                     case ResultCardinality.Enumerable:
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return result;
         }
 
-        protected abstract Expression VisitShapedQueryExpression([NotNull] ShapedQueryExpression shapedQueryExpression);
+        protected abstract Expression VisitShapedQuery([NotNull] ShapedQueryExpression shapedQueryExpression);
 
         protected virtual Expression InjectEntityMaterializers([NotNull] Expression expression)
         {
@@ -386,7 +386,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Expression.IfThenElse(
                                 Expression.NotEqual(
                                     entryVariable,
-                                    Expression.Constant(default(InternalEntityEntry), typeof(InternalEntityEntry))),
+                                    Expression.Default(typeof(InternalEntityEntry))),
                                 Expression.Block(
                                     Expression.Assign(
                                         concreteEntityTypeVariable,
@@ -452,9 +452,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expressions.Add(
                     Expression.Assign(concreteEntityTypeVariable,
                         ReplacingExpressionVisitor.Replace(
-                            entityShaperExpression.DiscriminatorCondition.Parameters[0],
+                            entityShaperExpression.MaterializationCondition.Parameters[0],
                             valueBufferExpression,
-                            entityShaperExpression.DiscriminatorCondition.Body)));
+                            entityShaperExpression.MaterializationCondition.Body)));
 
                 var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToArray();
                 var discriminatorProperty = entityType.GetDiscriminatorProperty();
@@ -489,12 +489,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     expressions.Add(
                         Expression.Assign(
-                            entryVariable, Expression.Call(
-                                QueryCompilationContext.QueryContextParameter,
-                                _startTrackingMethodInfo,
-                                concreteEntityTypeVariable,
-                                instanceVariable,
-                                shadowValuesVariable)));
+                            entryVariable,
+                            Expression.Condition(
+                                Expression.Equal(concreteEntityTypeVariable, Expression.Default(typeof(IEntityType))),
+                                Expression.Default(typeof(InternalEntityEntry)),
+                                Expression.Call(
+                                    QueryCompilationContext.QueryContextParameter,
+                                    _startTrackingMethodInfo,
+                                    concreteEntityTypeVariable,
+                                    instanceVariable,
+                                    shadowValuesVariable))));
                 }
 
                 expressions.Add(instanceVariable);
@@ -546,14 +550,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 return Expression.Block(blockExpressions);
             }
-
-            private static readonly MethodInfo _createUnableToDiscriminateException
-                = typeof(EntityMaterializerInjectingExpressionVisitor).GetTypeInfo()
-                    .GetDeclaredMethod(nameof(CreateUnableToDiscriminateException));
-
-            [UsedImplicitly]
-            private static Exception CreateUnableToDiscriminateException(IEntityType entityType, object discriminator)
-                => new InvalidOperationException(CoreStrings.UnableToDiscriminate(entityType.DisplayName(), discriminator?.ToString()));
         }
     }
 }

@@ -8,9 +8,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -23,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly RelationalSqlTranslatingExpressionVisitor _sqlTranslator;
         private readonly WeakEntityExpandingExpressionVisitor _weakEntityExpandingExpressionVisitor;
         private readonly RelationalProjectionBindingExpressionVisitor _projectionBindingExpressionVisitor;
+        private readonly QueryCompilationContext _queryCompilationContext;
         private readonly IModel _model;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly bool _subquery;
@@ -30,20 +29,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         public RelationalQueryableMethodTranslatingExpressionVisitor(
             [NotNull] QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
             [NotNull] RelationalQueryableMethodTranslatingExpressionVisitorDependencies relationalDependencies,
-            [NotNull] IModel model)
+            [NotNull] QueryCompilationContext queryCompilationContext)
             : base(dependencies, subquery: false)
         {
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
-            Check.NotNull(model, nameof(model));
+            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
             RelationalDependencies = relationalDependencies;
 
             var sqlExpressionFactory = relationalDependencies.SqlExpressionFactory;
-            _sqlTranslator = relationalDependencies.RelationalSqlTranslatingExpressionVisitorFactory.Create(model, this);
+            _model = queryCompilationContext.Model;
+            _sqlTranslator = relationalDependencies.RelationalSqlTranslatingExpressionVisitorFactory.Create(queryCompilationContext, this);
             _weakEntityExpandingExpressionVisitor = new WeakEntityExpandingExpressionVisitor(_sqlTranslator, sqlExpressionFactory);
-            _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator, model);
-            _model = model;
+            _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator);
             _sqlExpressionFactory = sqlExpressionFactory;
             _subquery = false;
         }
@@ -55,10 +54,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             : base(parentVisitor.Dependencies, subquery: true)
         {
             RelationalDependencies = parentVisitor.RelationalDependencies;
-            _model = parentVisitor._model;
+            _queryCompilationContext = parentVisitor._queryCompilationContext;
             _sqlTranslator = parentVisitor._sqlTranslator;
             _weakEntityExpandingExpressionVisitor = parentVisitor._weakEntityExpandingExpressionVisitor;
-            _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator, _model);
+            _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator);
             _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
             _subquery = true;
         }
@@ -117,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(elementType, nameof(elementType));
 
-            var entityType = _model.FindEntityType(elementType);
+            var entityType = _queryCompilationContext.Model.FindEntityType(elementType);
             var queryExpression = _sqlExpressionFactory.Select(entityType);
 
             return CreateShapedQueryExpression(entityType, queryExpression);
@@ -133,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private static ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType, SelectExpression selectExpression)
             => new ShapedQueryExpression(
                 selectExpression,
-                new EntityShaperExpression(
+                new RelationalEntityShaperExpression(
                     entityType,
                     new ProjectionBindingExpression(
                         selectExpression,
@@ -1186,12 +1185,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                     var innerSequenceType = innerShapedQuery.Type.TryGetSequenceType();
                     var correlationPredicateParameter = Expression.Parameter(innerSequenceType);
 
-                    var outerKey = entityShaperExpression.CreateKeyAccessExpression(
+                    var outerKey = entityShaperExpression.CreateKeyValueReadExpression(
                         navigation.IsOnDependent
                             ? foreignKey.Properties
                             : foreignKey.PrincipalKey.Properties,
                         makeNullable);
-                    var innerKey = correlationPredicateParameter.CreateKeyAccessExpression(
+                    var innerKey = correlationPredicateParameter.CreateKeyValueReadExpression(
                         navigation.IsOnDependent
                             ? foreignKey.PrincipalKey.Properties
                             : foreignKey.Properties,
@@ -1223,36 +1222,95 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var innerShaper = entityProjectionExpression.BindNavigation(navigation);
                 if (innerShaper == null)
                 {
-                    var innerSelectExpression = _sqlExpressionFactory.Select(targetEntityType);
-                    var innerShapedQuery = CreateShapedQueryExpression(targetEntityType, innerSelectExpression);
+                    if (entityType.GetViewOrTableMappings().Single().Table
+                        .GetReferencingInternalForeignKeys(foreignKey.PrincipalEntityType)?.Contains(foreignKey) == true)
+                    {
+                        // Since we are not going to update table or visit, we always generate propertyExpressions
+                        // We just first column of PK to figure out the base table
+                        var identifyingColumn = entityProjectionExpression.BindProperty(entityType.FindPrimaryKey().Properties.First());
+                        var propertyExpressions = identifyingColumn.Table is TableExpression innerTable
+                            ? GetPropertyExpressionsFromTable(targetEntityType, innerTable, identifyingColumn.IsNullable)
+                            // Pull columns out of inner subquery
+                            : GetPropertyExpressionsFromSubquery(targetEntityType, identifyingColumn, identifyingColumn.IsNullable);
 
-                    var makeNullable = foreignKey.PrincipalKey.Properties
-                        .Concat(foreignKey.Properties)
-                        .Select(p => p.ClrType)
-                        .Any(t => t.IsNullableType());
+                        innerShaper = new RelationalEntityShaperExpression(
+                            targetEntityType, new EntityProjectionExpression(targetEntityType, propertyExpressions), true);
+                    }
+                    else
+                    {
+                        var innerSelectExpression = _sqlExpressionFactory.Select(targetEntityType);
+                        var innerShapedQuery = CreateShapedQueryExpression(targetEntityType, innerSelectExpression);
 
-                    var outerKey = entityShaperExpression.CreateKeyAccessExpression(
-                        navigation.IsOnDependent
-                            ? foreignKey.Properties
-                            : foreignKey.PrincipalKey.Properties,
-                        makeNullable);
-                    var innerKey = innerShapedQuery.ShaperExpression.CreateKeyAccessExpression(
-                        navigation.IsOnDependent
-                            ? foreignKey.PrincipalKey.Properties
-                            : foreignKey.Properties,
-                        makeNullable);
+                        var makeNullable = foreignKey.PrincipalKey.Properties
+                            .Concat(foreignKey.Properties)
+                            .Select(p => p.ClrType)
+                            .Any(t => t.IsNullableType());
 
-                    var joinPredicate = _sqlTranslator.Translate(Expression.Equal(outerKey, innerKey));
-                    _selectExpression.AddLeftJoin(innerSelectExpression, joinPredicate, null);
-                    var leftJoinTable = ((LeftJoinExpression)_selectExpression.Tables.Last()).Table;
-                    innerShaper = new EntityShaperExpression(
-                        targetEntityType,
-                        new EntityProjectionExpression(targetEntityType, leftJoinTable, true),
-                        true);
+                        var outerKey = entityShaperExpression.CreateKeyValueReadExpression(
+                            navigation.IsOnDependent
+                                ? foreignKey.Properties
+                                : foreignKey.PrincipalKey.Properties,
+                            makeNullable);
+                        var innerKey = innerShapedQuery.ShaperExpression.CreateKeyValueReadExpression(
+                            navigation.IsOnDependent
+                                ? foreignKey.PrincipalKey.Properties
+                                : foreignKey.Properties,
+                            makeNullable);
+
+                        var joinPredicate = _sqlTranslator.Translate(Expression.Equal(outerKey, innerKey));
+                        _selectExpression.AddLeftJoin(innerSelectExpression, joinPredicate, null);
+                        var leftJoinTable = ((LeftJoinExpression)_selectExpression.Tables.Last()).Table;
+                        innerShaper = new RelationalEntityShaperExpression(
+                            targetEntityType,
+                            new EntityProjectionExpression(targetEntityType, leftJoinTable, true),
+                            true);
+                    }
+
                     entityProjectionExpression.AddNavigationBinding(navigation, innerShaper);
                 }
 
                 return innerShaper;
+            }
+
+
+
+            private static IDictionary<IProperty, ColumnExpression> LiftPropertyExpressionsFromSubquery(
+                IDictionary<IProperty, ColumnExpression> propertyExpressions, SelectExpression subquery)
+            {
+                var newPropertyExpressions = new Dictionary<IProperty, ColumnExpression>();
+                foreach (var item in propertyExpressions)
+                {
+                    newPropertyExpressions[item.Key] = new ColumnExpression(
+                        subquery.Projection[subquery.AddToProjection(item.Value)], subquery);
+                }
+
+                return newPropertyExpressions;
+            }
+
+            private static IDictionary<IProperty, ColumnExpression> GetPropertyExpressionsFromSubquery(
+                IEntityType entityType, ColumnExpression identifyingColumn, bool nullable)
+            {
+                var subquery = (SelectExpression)identifyingColumn.Table;
+                var subqueryIdentifyingColumn = (ColumnExpression)subquery.Projection
+                    .SingleOrDefault(e => string.Equals(e.Alias, identifyingColumn.Name, StringComparison.OrdinalIgnoreCase)).Expression;
+
+                var subqueryPropertyExpressions = subqueryIdentifyingColumn.Table is TableExpression innerTable
+                    ? GetPropertyExpressionsFromTable(entityType, innerTable, nullable)
+                    : GetPropertyExpressionsFromSubquery(entityType, subqueryIdentifyingColumn, nullable);
+
+                return LiftPropertyExpressionsFromSubquery(subqueryPropertyExpressions, subquery);
+            }
+
+            private static IDictionary<IProperty, ColumnExpression> GetPropertyExpressionsFromTable(
+                IEntityType entityType, TableExpression table, bool nullable)
+            {
+                var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
+                foreach (var property in entityType.GetTypesInHierarchy().SelectMany(EntityTypeExtensions.GetDeclaredProperties))
+                {
+                    propertyExpressions[property] = new ColumnExpression(property, table, nullable || !property.IsPrimaryKey());
+                }
+
+                return propertyExpressions;
             }
         }
 

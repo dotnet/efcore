@@ -2,13 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
     ///     Represents a database sequence in the <see cref="IModel" />.
     /// </summary>
-    public interface ISequence
+    public interface ISequence : IAnnotatable
     {
         /// <summary>
         ///     Gets the name of the sequence in the database.

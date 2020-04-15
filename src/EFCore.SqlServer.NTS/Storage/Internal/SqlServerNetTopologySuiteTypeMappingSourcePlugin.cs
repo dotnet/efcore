@@ -56,14 +56,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         public virtual RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
         {
-            var clrType = mappingInfo.ClrType ?? typeof(Geometry);
+            var clrType = mappingInfo.ClrType;
             var storeTypeName = mappingInfo.StoreTypeName;
 
             return typeof(Geometry).IsAssignableFrom(clrType)
                 || (storeTypeName != null
                     && _spatialStoreTypes.Contains(storeTypeName))
                     ? (RelationalTypeMapping)Activator.CreateInstance(
-                        typeof(SqlServerGeometryTypeMapping<>).MakeGenericType(clrType),
+                        typeof(SqlServerGeometryTypeMapping<>).MakeGenericType(clrType ?? typeof(Geometry)),
                         _geometryServices,
                         storeTypeName ?? "geography")
                     : null;

@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 {
@@ -37,10 +37,10 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessModelInitialized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
         {
-            if (_options?.UseChangeDetectionProxies == true)
+            if (_options?.UseChangeTrackingProxies == true)
             {
                 modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
-                modelBuilder.HasAnnotation(ModelValidator.SkipChangeTrackingStrategyValidationAnnotation, "true");
+                modelBuilder.HasAnnotation(CoreAnnotationNames.SkipChangeTrackingStrategyValidationAnnotation, "true");
             }
         }
     }

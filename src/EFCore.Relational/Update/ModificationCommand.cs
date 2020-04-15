@@ -401,14 +401,14 @@ namespace Microsoft.EntityFrameworkCore.Update
                 }
             }
 
-            public bool TryPropagate(IProperty property, InternalEntityEntry entry)
+            public bool TryPropagate(IProperty property, IUpdateEntry entry)
             {
                 if (_write
                     && (entry.EntityState == EntityState.Unchanged
                         || (entry.EntityState == EntityState.Modified && !entry.IsModified(property))
                         || (entry.EntityState == EntityState.Added && Equals(_originalValue, entry.GetCurrentValue(property)))))
                 {
-                    entry[property] = _currentValue;
+                    ((InternalEntityEntry)entry)[property] = _currentValue;
 
                     return false;
                 }

@@ -89,7 +89,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="type"> The CLR type. </param>
         /// <param name="storeTypeName"> The database type name. </param>
         /// <param name="keyOrIndex"> If <c>true</c>, then a special mapping for a key or index may be returned. </param>
-        /// <param name="unicode"> Specifies Unicode or Ansi mapping, or <c>null</c> for default. </param>
+        /// <param name="unicode">
+        ///     Specify <c>true</c> for Unicode mapping, <c>false</c> for Ansi mapping or <c>null</c> for the default.
+        /// </param>
         /// <param name="size"> Specifies a size for the mapping, or <c>null</c> for default. </param>
         /// <param name="rowVersion"> Specifies a row-version, or <c>null</c> for default. </param>
         /// <param name="fixedLength"> Specifies a fixed length mapping, or <c>null</c> for default. </param>

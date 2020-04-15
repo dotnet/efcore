@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -49,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             if (_useChangeDetectionProxies)
             {
-                optionsBuilder.UseChangeDetectionProxies(checkEquality: _checkEquality);
+                optionsBuilder.UseChangeTrackingProxies(checkEquality: _checkEquality);
             }
 
             if (_internalServiceProvider != null)

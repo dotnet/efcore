@@ -242,6 +242,25 @@ be found in the docs.";
                 @"ALTER TABLE ""People"" ADD ""FullName"" TEXT NULL;");
         }
 
+        public override async Task Add_column_with_collation()
+        {
+            await Test(
+                builder => builder.Entity("People").Property<int>("Id"),
+                builder => { },
+                builder => builder.Entity("People").Property<string>("Name")
+                    .UseCollation(NonDefaultCollation),
+                model =>
+                {
+                    // Our current version Sqlite doesn't seem to support scaffolding collations
+                });
+
+            AssertSql(
+                @"ALTER TABLE ""People"" ADD ""Name"" TEXT COLLATE NOCASE NULL;");
+        }
+
+        public override Task Add_column_computed_with_collation()
+            => AssertNotSupportedAsync(base.Add_column_computed_with_collation, SqliteStrings.ComputedColumnsNotSupported);
+
         public override Task Alter_column_make_required()
             => AssertNotSupportedAsync(base.Alter_column_make_required, SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
 
@@ -267,6 +286,12 @@ be found in the docs.";
 
         public override Task Alter_column_remove_comment()
             => AssertNotSupportedAsync(base.Alter_column_remove_comment, SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
+
+        public override Task Alter_column_set_collation()
+            => AssertNotSupportedAsync(base.Alter_column_set_collation, SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
+
+        public override Task Alter_column_reset_collation()
+            => AssertNotSupportedAsync(base.Alter_column_reset_collation, SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
 
         public override Task Drop_column()
             => AssertNotSupportedAsync(base.Drop_column, SqliteStrings.InvalidMigrationOperation("DropColumnOperation"));
@@ -378,6 +403,8 @@ CREATE INDEX ""foo"" ON ""People"" (""FirstName"");");
 
         public override Task Move_sequence()
             => AssertNotSupportedAsync(base.Create_sequence, SqliteStrings.SequencesNotSupported);
+
+        protected override string NonDefaultCollation => "NOCASE";
 
         protected virtual async Task AssertNotSupportedAsync(Func<Task> action, string? message = null)
         {

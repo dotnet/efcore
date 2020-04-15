@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             return base.VisitSqlFunction(sqlFunctionExpression);
         }
 
-        protected override Expression VisitQueryableFunctionExpression(QueryableFunctionExpression queryableFunctionExpression)
+        protected override Expression VisitQueryableFunction(QueryableFunctionExpression queryableFunctionExpression)
         {
             Check.NotNull(queryableFunctionExpression, nameof(queryableFunctionExpression));
 
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     queryableFunctionExpression.Alias);
             }
 
-            return base.VisitQueryableFunctionExpression(queryableFunctionExpression);
+            return base.VisitQueryableFunction(queryableFunctionExpression);
         }
     }
 }

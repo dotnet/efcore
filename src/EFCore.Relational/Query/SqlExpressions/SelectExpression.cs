@@ -10,7 +10,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
@@ -66,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         internal SelectExpression(SqlExpression projection)
-            :base(null)
+            : base(null)
         {
             if (projection != null)
             {
@@ -108,7 +107,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 && Tables[0] is FromSqlExpression fromSql
                 && Projection.All(
                     pe => pe.Expression is ColumnExpression column
-                        && string.Equals(fromSql.Alias, column.Table.Alias, StringComparison.OrdinalIgnoreCase));
+                        && string.Equals(fromSql.Alias, column.Table.Alias, StringComparison.OrdinalIgnoreCase))
+                && _projectionMapping.TryGetValue(new ProjectionMember(), out var mapping)
+                && mapping.Type == typeof(Dictionary<IProperty, int>);
 
         public void ApplyProjection()
         {
@@ -229,7 +230,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Check.NotNull(expression, nameof(expression));
 
             if (expression is SqlConstantExpression sqlConstant
-                && (bool)sqlConstant.Value)
+                && sqlConstant.Value is bool boolValue
+                && boolValue)
             {
                 return;
             }
@@ -874,17 +876,18 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             // Joined SelectExpression may different based on left join or outer apply
             // And it will always be SelectExpression because of presence of Take(1)
             // So we need to remap projections from that SelectExpression to outer SelectExpression
-            var addedSelectExperssion = (SelectExpression)((JoinExpressionBase)_tables[_tables.Count - 1]).Table;
-            var indexOffset = _projection.Count;
+            var addedSelectExperssion = (SelectExpression)((JoinExpressionBase)_tables[^1]).Table;
+            var indexMap = new int[projectionCount];
             // We only take projectionCount since the subquery can have additional projections for identifiers
             // Which are not relevant for this translation
-            foreach (var projection in addedSelectExperssion.Projection.Take(projectionCount))
+            for (var i = 0; i < projectionCount; i++)
             {
-                AddToProjection(MakeNullable(addedSelectExperssion.GenerateOuterColumn(projection.Expression)));
+                indexMap[i] = AddToProjection(MakeNullable(
+                    addedSelectExperssion.GenerateOuterColumn(addedSelectExperssion.Projection[i].Expression)));
             }
 
             // We move pendingCollectionOffset if one was lifted from inner.
-            return new ShaperRemappingExpressionVisitor(this, innerSelectExpression, indexOffset, pendingCollectionOffset)
+            return new ShaperRemappingExpressionVisitor(this, innerSelectExpression, indexMap, pendingCollectionOffset)
                 .Visit(shaperExpression);
 
             static Expression RemoveConvert(Expression expression)
@@ -967,10 +970,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 AppendOrdering(ordering.Update(MakeNullable(ordering.Expression)));
             }
 
-            var indexOffset = _projection.Count;
-            foreach (var projection in innerSelectExpression.Projection)
+            var innerProjectionCount = innerSelectExpression.Projection.Count;
+            var indexMap = new int[innerProjectionCount];
+            for (var i = 0; i < innerProjectionCount; i++)
             {
-                AddToProjection(MakeNullable(projection.Expression));
+                indexMap[i] = AddToProjection(MakeNullable(innerSelectExpression.Projection[i].Expression));
             }
 
             foreach (var identifier in innerSelectExpression._identifier.Concat(innerSelectExpression._childIdentifiers))
@@ -982,7 +986,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             // Inner should not have pendingCollection since we apply them first.
             // Shaper should not have CollectionShaperExpression as any collection would get converted to RelationalCollectionShaperExpression.
-            var shaperRemapper = new ShaperRemappingExpressionVisitor(this, innerSelectExpression, indexOffset, pendingCollectionOffset: 0);
+            var shaperRemapper = new ShaperRemappingExpressionVisitor(this, innerSelectExpression, indexMap, pendingCollectionOffset: 0);
             innerShaper = shaperRemapper.Visit(innerShaper);
             selfIdentifier = shaperRemapper.Visit(selfIdentifier);
 
@@ -1019,16 +1023,24 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
             private readonly SelectExpression _queryExpression;
             private readonly SelectExpression _innerSelectExpression;
-            private readonly int _projectionOffset;
+            private readonly int[] _indexMap;
             private readonly int _pendingCollectionOffset;
 
             public ShaperRemappingExpressionVisitor(
-                SelectExpression queryExpression, SelectExpression innerSelectExpression, int projectionOffset, int pendingCollectionOffset)
+                SelectExpression queryExpression, SelectExpression innerSelectExpression, int[] indexMap, int pendingCollectionOffset)
             {
                 _queryExpression = queryExpression;
                 _innerSelectExpression = innerSelectExpression;
-                _projectionOffset = projectionOffset;
                 _pendingCollectionOffset = pendingCollectionOffset;
+                _indexMap = indexMap;
+            }
+
+            public ShaperRemappingExpressionVisitor(
+                SelectExpression queryExpression, SelectExpression innerSelectExpression, int[] indexMap)
+            {
+                _queryExpression = queryExpression;
+                _innerSelectExpression = innerSelectExpression;
+                _indexMap = indexMap;
             }
 
             protected override Expression VisitExtension(Expression extensionExpression)
@@ -1038,10 +1050,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 switch (extensionExpression)
                 {
                     case ProjectionBindingExpression projectionBindingExpression:
-                        var oldIndex = (int)GetProjectionIndex(projectionBindingExpression);
-
                         return new ProjectionBindingExpression(
-                            _queryExpression, oldIndex + _projectionOffset, projectionBindingExpression.Type);
+                            _queryExpression, _indexMap[(int)GetProjectionIndex(projectionBindingExpression)], projectionBindingExpression.Type);
 
                     case EntityShaperExpression entityShaperExpression:
                         var oldIndexMap = (IDictionary<IProperty, int>)GetProjectionIndex(
@@ -1049,10 +1059,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         var indexMap = new Dictionary<IProperty, int>();
                         foreach (var keyValuePair in oldIndexMap)
                         {
-                            indexMap[keyValuePair.Key] = keyValuePair.Value + _projectionOffset;
+                            indexMap[keyValuePair.Key] = _indexMap[keyValuePair.Value];
                         }
 
-                        return new EntityShaperExpression(
+                        return new RelationalEntityShaperExpression(
                             entityShaperExpression.EntityType,
                             new ProjectionBindingExpression(_queryExpression, indexMap),
                             nullable: true);

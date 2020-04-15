@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                                     ProxiesStrings.FieldProperty(navigation.Name, entityType.DisplayName()));
                             }
 
-                            if (_options.UseChangeDetectionProxies
+                            if (_options.UseChangeTrackingProxies
                                 && navigation.PropertyInfo.SetMethod?.IsVirtual == false)
                             {
                                 throw new InvalidOperationException(

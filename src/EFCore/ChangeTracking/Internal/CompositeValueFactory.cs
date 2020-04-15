@@ -7,8 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -29,7 +29,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public CompositeValueFactory([NotNull] IReadOnlyList<IProperty> properties)
         {
             Properties = properties;
+            EqualityComparer = CreateEqualityComparer(properties);
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IEqualityComparer<object[]> EqualityComparer { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -68,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool TryCreateFromCurrentValues(InternalEntityEntry entry, out object[] key)
+        public virtual bool TryCreateFromCurrentValues(IUpdateEntry entry, out object[] key)
             => TryCreateFromEntry(entry, (e, p) => e.GetCurrentValue(p), out key);
 
         /// <summary>
@@ -77,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool TryCreateFromPreStoreGeneratedCurrentValues(InternalEntityEntry entry, out object[] key)
+        public virtual bool TryCreateFromPreStoreGeneratedCurrentValues(IUpdateEntry entry, out object[] key)
             => TryCreateFromEntry(entry, (e, p) => e.GetPreStoreGeneratedCurrentValue(p), out key);
 
         /// <summary>
@@ -86,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool TryCreateFromOriginalValues(InternalEntityEntry entry, out object[] key)
+        public virtual bool TryCreateFromOriginalValues(IUpdateEntry entry, out object[] key)
             => TryCreateFromEntry(entry, (e, p) => e.GetOriginalValue(p), out key);
 
         /// <summary>
@@ -95,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool TryCreateFromRelationshipSnapshot(InternalEntityEntry entry, out object[] key)
+        public virtual bool TryCreateFromRelationshipSnapshot(IUpdateEntry entry, out object[] key)
             => TryCreateFromEntry(entry, (e, p) => e.GetRelationshipSnapshotValue(p), out key);
 
         /// <summary>
@@ -105,8 +114,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual bool TryCreateFromEntry(
-            [NotNull] InternalEntityEntry entry,
-            [NotNull] Func<InternalEntityEntry, IProperty, object> getValue,
+            [NotNull] IUpdateEntry entry,
+            [NotNull] Func<IUpdateEntry, IProperty, object> getValue,
             out object[] key)
         {
             key = new object[Properties.Count];

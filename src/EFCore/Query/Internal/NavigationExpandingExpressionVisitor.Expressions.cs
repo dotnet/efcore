@@ -84,6 +84,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             private EntityReference _entityReference;
 
+            public virtual LambdaExpression FilterExpression { get; set; }
+
             public IncludeTreeNode(IEntityType entityType, EntityReference entityReference)
             {
                 EntityType = entityType;

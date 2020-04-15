@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Expression.Parameter(typeof(Order), "o"));
 
             Assert.Equal(
-                CoreStrings.InvalidIncludeLambdaExpression("Include", lambdaExpression.ToString()),
+                CoreStrings.InvalidIncludeExpression(lambdaExpression.Body.ToString()),
                 Assert.Throws<InvalidOperationException>(
                     () =>
                     {
@@ -196,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Expression.Parameter(typeof(Order), "o"));
 
             Assert.Equal(
-                CoreStrings.InvalidIncludeLambdaExpression("ThenInclude", lambdaExpression.ToString()),
+                CoreStrings.InvalidIncludeExpression(lambdaExpression.Body.ToString()),
                 Assert.Throws<InvalidOperationException>(
                     () =>
                     {

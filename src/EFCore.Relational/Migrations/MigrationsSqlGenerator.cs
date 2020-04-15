@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
@@ -83,12 +82,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(dependencies, nameof(dependencies));
 
             Dependencies = dependencies;
+
+            if (dependencies.LoggingOptions.IsSensitiveDataLoggingEnabled)
+            {
+                SensitiveLoggingEnabled = true;
+            }
         }
 
         /// <summary>
         ///     Parameter object containing dependencies for this service.
         /// </summary>
         protected virtual MigrationsSqlGeneratorDependencies Dependencies { get; }
+
+        private bool SensitiveLoggingEnabled { get; }
 
         /// <summary>
         ///     The <see cref="IUpdateSqlGenerator" />.
@@ -913,7 +919,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(builder, nameof(builder));
 
             var sqlBuilder = new StringBuilder();
-            foreach (var modificationCommand in operation.GenerateModificationCommands(model))
+            foreach (var modificationCommand in GenerateModificationCommands(operation, model))
             {
                 SqlGenerator.AppendInsertOperation(
                     sqlBuilder,
@@ -926,6 +932,55 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             if (terminate)
             {
                 EndStatement(builder);
+            }
+        }
+
+        /// <summary>
+        ///     Generates the commands that correspond to the given operation.
+        /// </summary>
+        /// <param name="operation"> The data operation to generate commands for. </param>
+        /// <param name="model"> The model. </param>
+        /// <returns> The commands that correspond to the given operation. </returns>
+        protected virtual IEnumerable<ModificationCommand> GenerateModificationCommands(
+            [NotNull] InsertDataOperation operation,
+            [CanBeNull] IModel model)
+        {
+            if (operation.Columns.Length != operation.Values.GetLength(1))
+            {
+                throw new InvalidOperationException(RelationalStrings.InsertDataOperationValuesCountMismatch(
+                    operation.Values.GetLength(1), operation.Columns.Length, FormatTable(operation.Table, operation.Schema)));
+            }
+
+            if (operation.ColumnTypes != null
+                && operation.Columns.Length != operation.ColumnTypes.Length)
+            {
+                throw new InvalidOperationException(RelationalStrings.InsertDataOperationTypesCountMismatch(
+                    operation.ColumnTypes.Length, operation.Columns.Length, FormatTable(operation.Table, operation.Schema)));
+            }
+
+            if (operation.ColumnTypes == null
+                && model == null)
+            {
+                throw new InvalidOperationException(RelationalStrings.InsertDataOperationNoModel(
+                    FormatTable(operation.Table, operation.Schema)));
+            }
+
+            var properties = operation.ColumnTypes == null
+                ? GetMappedProperties(operation.Columns, operation.Table, operation.Schema, model)
+                : null;
+
+            for (var i = 0; i < operation.Values.GetLength(0); i++)
+            {
+                var modifications = new ColumnModification[operation.Columns.Length];
+                for (var j = 0; j < operation.Columns.Length; j++)
+                {
+                    modifications[j] = new ColumnModification(
+                        operation.Columns[j], originalValue: null, value: operation.Values[i, j], property: properties?[j],
+                        columnType: operation.ColumnTypes?[j], isRead: false, isWrite: true, isKey: true, isCondition: false,
+                        sensitiveLoggingEnabled: SensitiveLoggingEnabled);
+                }
+
+                yield return new ModificationCommand(operation.Table, operation.Schema, modifications, sensitiveLoggingEnabled: SensitiveLoggingEnabled);
             }
         }
 
@@ -945,7 +1000,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(builder, nameof(builder));
 
             var sqlBuilder = new StringBuilder();
-            foreach (var modificationCommand in operation.GenerateModificationCommands(model))
+            foreach (var modificationCommand in GenerateModificationCommands(operation, model))
             {
                 SqlGenerator.AppendDeleteOperation(
                     sqlBuilder,
@@ -955,6 +1010,55 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             builder.Append(sqlBuilder.ToString());
             EndStatement(builder);
+        }
+
+        /// <summary>
+        ///     Generates the commands that correspond to the given operation.
+        /// </summary>
+        /// <param name="operation"> The data operation to generate commands for. </param>
+        /// <param name="model"> The model. </param>
+        /// <returns> The commands that correspond to the given operation. </returns>
+        protected virtual IEnumerable<ModificationCommand> GenerateModificationCommands(
+            [NotNull] DeleteDataOperation operation,
+            [CanBeNull] IModel model)
+        {
+            if (operation.KeyColumns.Length != operation.KeyValues.GetLength(1))
+            {
+                throw new InvalidOperationException(RelationalStrings.DeleteDataOperationValuesCountMismatch(
+                    operation.KeyValues.GetLength(1), operation.KeyColumns.Length, FormatTable(operation.Table, operation.Schema)));
+            }
+
+            if (operation.KeyColumnTypes != null
+                && operation.KeyColumns.Length != operation.KeyColumnTypes.Length)
+            {
+                throw new InvalidOperationException(RelationalStrings.DeleteDataOperationTypesCountMismatch(
+                    operation.KeyColumnTypes.Length, operation.KeyColumns.Length, FormatTable(operation.Table, operation.Schema)));
+            }
+
+            if (operation.KeyColumnTypes == null
+                && model == null)
+            {
+                throw new InvalidOperationException(RelationalStrings.DeleteDataOperationNoModel(
+                    FormatTable(operation.Table, operation.Schema)));
+            }
+
+            var properties = operation.KeyColumnTypes == null
+                ? GetMappedProperties(operation.KeyColumns, operation.Table, operation.Schema, model)
+                : null;
+
+            for (var i = 0; i < operation.KeyValues.GetLength(0); i++)
+            {
+                var modifications = new ColumnModification[operation.KeyColumns.Length];
+                for (var j = 0; j < operation.KeyColumns.Length; j++)
+                {
+                    modifications[j] = new ColumnModification(
+                        operation.KeyColumns[j], originalValue: null, value: operation.KeyValues[i, j], property: properties?[j],
+                        columnType: operation.KeyColumnTypes?[j], isRead: false, isWrite: true, isKey: true, isCondition: true,
+                        sensitiveLoggingEnabled: SensitiveLoggingEnabled);
+                }
+
+                yield return new ModificationCommand(operation.Table, operation.Schema, modifications, sensitiveLoggingEnabled: SensitiveLoggingEnabled);
+            }
         }
 
         /// <summary>
@@ -973,7 +1077,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(builder, nameof(builder));
 
             var sqlBuilder = new StringBuilder();
-            foreach (var modificationCommand in operation.GenerateModificationCommands(model))
+            foreach (var modificationCommand in GenerateModificationCommands(operation, model))
             {
                 SqlGenerator.AppendUpdateOperation(
                     sqlBuilder,
@@ -983,6 +1087,115 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             builder.Append(sqlBuilder.ToString());
             EndStatement(builder);
+        }
+
+        /// <summary>
+        ///     Generates the commands that correspond to the given operation.
+        /// </summary>
+        /// <param name="operation"> The data operation to generate commands for. </param>
+        /// <param name="model"> The model. </param>
+        /// <returns> The commands that correspond to the given operation. </returns>
+        protected virtual IEnumerable<ModificationCommand> GenerateModificationCommands(
+            [NotNull] UpdateDataOperation operation, [CanBeNull] IModel model)
+        {
+            if (operation.KeyColumns.Length != operation.KeyValues.GetLength(1))
+            {
+                throw new InvalidOperationException(RelationalStrings.UpdateDataOperationKeyValuesCountMismatch(
+                    operation.KeyValues.GetLength(1), operation.KeyColumns.Length, FormatTable(operation.Table, operation.Schema)));
+            }
+
+            if (operation.Columns.Length != operation.Values.GetLength(1))
+            {
+                throw new InvalidOperationException(RelationalStrings.UpdateDataOperationValuesCountMismatch(
+                    operation.Values.GetLength(1), operation.Columns.Length, FormatTable(operation.Table, operation.Schema)));
+            }
+
+            if (operation.KeyValues.GetLength(0) != operation.Values.GetLength(0))
+            {
+                throw new InvalidOperationException(RelationalStrings.UpdateDataOperationRowCountMismatch(
+                    operation.Values.GetLength(0), operation.KeyValues.GetLength(0), FormatTable(operation.Table, operation.Schema)));
+            }
+
+            if (operation.KeyColumnTypes != null
+                && operation.KeyColumns.Length != operation.KeyColumnTypes.Length)
+            {
+                throw new InvalidOperationException(RelationalStrings.UpdateDataOperationKeyTypesCountMismatch(
+                    operation.KeyColumnTypes.Length, operation.KeyColumns.Length, FormatTable(operation.Table, operation.Schema)));
+            }
+
+            if (operation.ColumnTypes != null
+                && operation.Columns.Length != operation.ColumnTypes.Length)
+            {
+                throw new InvalidOperationException(RelationalStrings.UpdateDataOperationTypesCountMismatch(
+                    operation.ColumnTypes.Length, operation.Columns.Length, FormatTable(operation.Table, operation.Schema)));
+            }
+
+            if (operation.KeyColumnTypes == null
+                && model == null)
+            {
+                throw new InvalidOperationException(RelationalStrings.UpdateDataOperationNoModel(
+                    FormatTable(operation.Table, operation.Schema)));
+            }
+
+            var keyProperties = operation.KeyColumnTypes == null
+                ? GetMappedProperties(operation.KeyColumns, operation.Table, operation.Schema, model)
+                : null;
+            var properties = operation.ColumnTypes == null
+                ? GetMappedProperties(operation.Columns, operation.Table, operation.Schema, model)
+                : null;
+
+            for (var i = 0; i < operation.KeyValues.GetLength(0); i++)
+            {
+                var keys = new ColumnModification[operation.KeyColumns.Length];
+                for (var j = 0; j < operation.KeyColumns.Length; j++)
+                {
+                    keys[j] = new ColumnModification(
+                        operation.KeyColumns[j], originalValue: null, value: operation.KeyValues[i, j], property: keyProperties?[j],
+                        columnType: operation.KeyColumnTypes?[j], isRead: false, isWrite: false, isKey: true, isCondition: true,
+                        sensitiveLoggingEnabled: SensitiveLoggingEnabled);
+                }
+
+                var modifications = new ColumnModification[operation.Columns.Length];
+                for (var j = 0; j < operation.Columns.Length; j++)
+                {
+                    modifications[j] = new ColumnModification(
+                        operation.Columns[j], originalValue: null, value: operation.Values[i, j], property: properties?[j],
+                        columnType: operation.ColumnTypes?[j], isRead: false, isWrite: true, isKey: true, isCondition: false,
+                        sensitiveLoggingEnabled: SensitiveLoggingEnabled);
+                }
+
+                yield return new ModificationCommand(operation.Table, operation.Schema, keys.Concat(modifications).ToArray(), sensitiveLoggingEnabled: SensitiveLoggingEnabled);
+            }
+        }
+
+        private static string FormatTable(string table, string schema)
+            => schema == null ? table : schema + "." + table;
+
+        private static IProperty[] GetMappedProperties(
+            [NotNull] string[] names, [NotNull] string tableName, [CanBeNull] string schema, [NotNull] IModel model)
+        {
+            var table = model.GetRelationalModel().FindTable(tableName, schema);
+            if (table == null)
+            {
+                throw new InvalidOperationException(RelationalStrings.DataOperationNoTable(
+                    FormatTable(tableName, schema)));
+            }
+
+            var properties = new IProperty[names.Length];
+            for (var i = 0; i < names.Length; i++)
+            {
+                var name = names[i];
+                var column = table.FindColumn(name);
+                if (column == null)
+                {
+                    throw new InvalidOperationException(RelationalStrings.DataOperationNoProperty(
+                        FormatTable(tableName, schema), name));
+                }
+
+                properties[i] = column.PropertyMappings.First().Property;
+            }
+
+            return properties;
         }
 
         /// <summary>
@@ -1087,6 +1300,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             for (var i = 0; i < operation.Columns.Count; i++)
             {
                 var column = operation.Columns[i];
+                if (column.Table != operation.Name
+                    || column.Schema != operation.Schema)
+                {
+                    throw new InvalidOperationException(RelationalStrings.MigrationColumnTableMismatch(
+                        column.Name, FormatTable(column.Table, column.Schema), FormatTable(operation.Name, operation.Schema)));
+                }
+
                 ColumnDefinition(column, model, builder);
 
                 if (i != operation.Columns.Count - 1)
@@ -1148,6 +1368,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(" ")
                 .Append(columnType);
 
+            if (operation.Collation != null)
+            {
+                builder
+                    .Append(" COLLATE ")
+                    .Append(operation.Collation);
+            }
+
             builder.Append(operation.IsNullable ? " NULL" : " NOT NULL");
 
             DefaultValue(operation.DefaultValue, operation.DefaultValueSql, columnType, builder);
@@ -1177,36 +1404,41 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Gets the store/database type of a column given the provided metadata.
         /// </summary>
         /// <param name="schema"> The schema that contains the table, or <c>null</c> to use the default schema. </param>
-        /// <param name="table"> The table that contains the column. </param>
+        /// <param name="tableName"> The table that contains the column. </param>
         /// <param name="name"> The column name. </param>
         /// <param name="operation"> The column metadata. </param>
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <returns> The database/store type for the column. </returns>
         protected virtual string GetColumnType(
             [CanBeNull] string schema,
-            [NotNull] string table,
+            [NotNull] string tableName,
             [NotNull] string name,
             [NotNull] ColumnOperation operation,
             [CanBeNull] IModel model)
         {
-            Check.NotEmpty(table, nameof(table));
+            Check.NotEmpty(tableName, nameof(tableName));
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(operation, nameof(operation));
 
             var keyOrIndex = false;
 
-            var property = FindProperty(model, schema, table, name);
-            if (property != null)
+            var table = model?.GetRelationalModel().FindTable(tableName, schema);
+            var column = table?.FindColumn(name);
+            if (column != null)
             {
-                if (operation.IsUnicode == property.IsUnicode()
-                    && operation.MaxLength == property.GetMaxLength()
-                    && operation.IsFixedLength == property.IsFixedLength()
-                    && operation.IsRowVersion == (property.IsConcurrencyToken && property.ValueGenerated == ValueGenerated.OnAddOrUpdate))
+                if (operation.IsUnicode == column.IsUnicode
+                    && operation.MaxLength == column.MaxLength
+                    && operation.Precision == column.Precision
+                    && operation.Scale == column.Scale
+                    && operation.IsFixedLength == column.IsFixedLength
+                    && operation.IsRowVersion == column.IsRowVersion)
                 {
-                    return Dependencies.TypeMappingSource.FindMapping(property).StoreType;
+                    return column.Type;
                 }
 
-                keyOrIndex = property.IsKey() || property.IsForeignKey();
+                keyOrIndex = table.UniqueConstraints.Any(u => u.Columns.Contains(column))
+                    || table.ForeignKeyConstraints.Any(u => u.Columns.Contains(column))
+                    || table.Indexes.Any(u => u.Columns.Contains(column));
             }
 
             return Dependencies.TypeMappingSource.FindMapping(
@@ -1216,7 +1448,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     operation.IsUnicode,
                     operation.MaxLength,
                     operation.IsRowVersion,
-                    operation.IsFixedLength)
+                    operation.IsFixedLength,
+                    operation.Precision,
+                    operation.Scale)
                 .StoreType;
         }
 
@@ -1578,12 +1812,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <c>null</c> to use the default schema. </param>
         /// <param name="tableName"> The table name. </param>
         /// <returns> The list of types, which may be empty if no types are mapped to the given table. </returns>
+        [Obsolete("Use model?.GetRelationalModel().FindTable()")]
         protected virtual IEnumerable<IEntityType> FindEntityTypes(
             [CanBeNull] IModel model,
             [CanBeNull] string schema,
             [NotNull] string tableName)
-            => model?.GetEntityTypes().Where(
-                t => t.GetTableName() == tableName && t.GetSchema() == schema && !t.IsIgnoredByMigrations());
+            => model?.GetRelationalModel().FindTable(Check.NotEmpty(tableName, nameof(tableName)), schema)
+                ?.EntityTypeMappings.Select(m => m.EntityType);
 
         /// <summary>
         ///     <para>
@@ -1592,7 +1827,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     <para>
         ///         If multiple properties map to the same column, then the property returned is one chosen
         ///         arbitrarily. The model validator ensures that all properties mapped to a given column
-        ///         have consistent mappings.
+        ///         have consistent configuration.
         ///     </para>
         /// </summary>
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
@@ -1600,15 +1835,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="tableName"> The name of the table that contains the column. </param>
         /// <param name="columnName"> The column name. </param>
         /// <returns> The property found, or <c>null</c> if no property maps to the given column. </returns>
+        [Obsolete("Use model?.GetRelationalModel().FindTable().FindColumn()")]
         protected virtual IProperty FindProperty(
                 [CanBeNull] IModel model,
                 [CanBeNull] string schema,
                 [NotNull] string tableName,
                 [NotNull] string columnName)
-            // Any property that maps to the column will work because model validator has
-            // checked that all properties result in the same column definition.
-            => FindEntityTypes(model, schema, tableName)?.SelectMany(e => e.GetDeclaredProperties())
-                .FirstOrDefault(p => p.GetColumnName() == columnName);
+            => model?.GetRelationalModel().FindTable(Check.NotEmpty(tableName, nameof(tableName)), schema)
+                .Columns.FirstOrDefault(c => c.Name == columnName)?.PropertyMappings.First().Property;
 
         /// <summary>
         ///     Generates a SQL fragment to terminate the SQL command.
@@ -1665,7 +1899,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns> True if the version could be retrieved. </returns>
         protected virtual bool TryGetVersion([CanBeNull] IModel model, out string version)
         {
-            if (!(model?[CoreAnnotationNames.ProductVersion] is string versionString))
+            if (!(model?.GetProductVersion() is string versionString))
             {
                 version = null;
 

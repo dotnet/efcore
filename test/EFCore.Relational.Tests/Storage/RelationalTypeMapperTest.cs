@@ -145,6 +145,39 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Relationship1Id")).StoreType);
         }
 
+        [ConditionalFact]
+        public void Does_default_type_mapping_from_decimal()
+        {
+            var model = CreateModel();
+            var mapper = CreateTestTypeMapper();
+
+            Assert.Equal(
+                "default_decimal_mapping",
+                GetMapping(mapper, model.FindEntityType(typeof(MyPrecisionType)).FindProperty("Id")).StoreType);
+        }
+
+        [ConditionalFact]
+        public void Does_type_mapping_from_decimal_with_precision_only()
+        {
+            var model = CreateModel();
+            var mapper = CreateTestTypeMapper();
+
+            Assert.Equal(
+                "decimal_mapping(16)",
+                GetMapping(mapper, model.FindEntityType(typeof(MyPrecisionType)).FindProperty("PrecisionOnly")).StoreType);
+        }
+
+        [ConditionalFact]
+        public void Does_type_mapping_from_decimal_with_precision_and_scale()
+        {
+            var model = CreateModel();
+            var mapper = CreateTestTypeMapper();
+
+            Assert.Equal(
+                "decimal_mapping(18,7)",
+                GetMapping(mapper, model.FindEntityType(typeof(MyPrecisionType)).FindProperty("PrecisionAndScale")).StoreType);
+        }
+
         private static IRelationalTypeMappingSource CreateTestTypeMapper()
             => new TestRelationalTypeMappingSource(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
@@ -214,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 GetMapping(mapper, model.FindEntityType(typeof(MyType)).FindProperty("Id")).StoreType);
 
             Assert.Equal(
-                "dec(6,1)",
+                "decimal_mapping(6,1)",
                 GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Relationship2Id")).StoreType);
         }
 

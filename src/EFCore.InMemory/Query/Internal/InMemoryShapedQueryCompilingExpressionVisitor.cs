@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return base.VisitExtension(extensionExpression);
         }
 
-        protected override Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression)
+        protected override Expression VisitShapedQuery(ShapedQueryExpression shapedQueryExpression)
         {
             Check.NotNull(shapedQueryExpression, nameof(shapedQueryExpression));
 

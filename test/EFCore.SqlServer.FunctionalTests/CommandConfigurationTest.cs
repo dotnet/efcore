@@ -30,7 +30,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         [InlineData(59, 6)]
         [InlineData(50, 5)]
         [InlineData(20, 2)]
@@ -82,10 +81,7 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                if (TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsSequences)) ?? true)
-                {
-                    modelBuilder.UseHiLo();
-                }
+                modelBuilder.UseHiLo();
             }
         }
 

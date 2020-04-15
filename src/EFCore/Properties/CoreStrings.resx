@@ -747,8 +747,8 @@
   <data name="AmbiguousForeignKeyPropertyCandidates" xml:space="preserve">
     <value>Both relationships between '{firstDependentToPrincipalNavigationSpecification}' and '{firstPrincipalToDependentNavigationSpecification}' and between '{secondDependentToPrincipalNavigationSpecification}' and '{secondPrincipalToDependentNavigationSpecification}' could use {foreignKeyProperties} as the foreign key. To resolve this configure the foreign key properties explicitly on at least one of the relationships.</value>
   </data>
-  <data name="InvalidIncludeLambdaExpression" xml:space="preserve">
-    <value>The {methodName} property lambda expression '{includeLambdaExpression}' is invalid. The expression should represent a property access: 't =&gt; t.MyProperty'. To target navigations declared on derived types, specify an explicitly typed lambda parameter of the target type, E.g. '(Derived d) =&gt; d.MyProperty'. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.</value>
+  <data name="InvalidIncludeExpression" xml:space="preserve">
+    <value>The expression '{expression}' is invalid inside Include operation. The expression should represent a property access: 't =&gt; t.MyProperty'. To target navigations declared on derived types use cast, e.g. 't =&gt; ((Derived)t).MyProperty' or 'as' operator, e.g. 't =&gt; (t as Derived).MyProperty'. Collection navigation access can be filtered by composing Where, OrderBy(Descending), ThenBy(Descending), Skip or Take operations. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.</value>
   </data>
   <data name="AbstractLeafEntityType" xml:space="preserve">
     <value>The corresponding CLR type for entity type '{entityType}' is not instantiable and there is no derived entity type in the model that corresponds to a concrete CLR type.</value>
@@ -992,8 +992,8 @@
     <comment>Debug CoreEventId.RedundantIndexRemoved string string string</comment>
   </data>
   <data name="LogIncompatibleMatchingForeignKeyProperties" xml:space="preserve">
-    <value>The foreign key properties haven't been configured by convention because the best match {foreignKey} are incompatible with the current principal key {principalKey}. This message can be disregarded if explicit configuration has been specified.</value>
-    <comment>Debug CoreEventId.IncompatibleMatchingForeignKeyProperties string string</comment>
+    <value>For the relationship between dependent '{dependentToPrincipalNavigationSpecification}' and principal '{principalToDependentNavigationSpecification}', the foreign key properties haven't been configured by convention because the best match {foreignKey} are incompatible with the current principal key {principalKey}. This message can be disregarded if explicit configuration has been specified.</value>
+    <comment>Debug CoreEventId.IncompatibleMatchingForeignKeyProperties string string string string</comment>
   </data>
   <data name="LogRequiredAttributeInverted" xml:space="preserve">
     <value>The navigation property '{navigation}' has a RequiredAttribute causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.</value>
@@ -1170,7 +1170,7 @@
     <value>The property '{property}' cannot be added to type '{entityType}' because the name of the given CLR property or field '{clrName}' is different.</value>
   </data>
   <data name="PropertyClashingNonIndexer" xml:space="preserve">
-    <value>The indexed property '{property}' cannot be added to type '{entityType}' because the CLR class contains a member with the same name.</value>
+    <value>The indexer property '{property}' cannot be added to type '{entityType}' because the CLR class contains a member with the same name.</value>
   </data>
   <data name="EntityEqualitySubqueryWithCompositeKeyNotSupported" xml:space="preserve">
     <value>This query would cause multiple evaluation of a subquery because entity '{entityType}' has a composite key. Rewrite your query avoiding the subquery.</value>
@@ -1290,6 +1290,9 @@
   <data name="IncludeOnNonEntity" xml:space="preserve">
     <value>Include has been used on non entity queryable.</value>
   </data>
+  <data name="MultipleFilteredIncludesOnSameNavigation" xml:space="preserve">
+    <value>Different filters: '{filter1}' and '{filter2}' have been applied on the same included navigation. Only one unique filter per navigation is allowed. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.</value>
+  </data>
   <data name="CannotConvertQueryableToEnumerableMethod" xml:space="preserve">
     <value>Unable to convert queryable method to enumerable method.</value>
   </data>
@@ -1338,8 +1341,8 @@
   <data name="UnsupportedBinaryOperator" xml:space="preserve">
     <value>Unsupported Binary operator type specified.</value>
   </data>
-  <data name="EFPropertyCalledWithWrongPropertyName" xml:space="preserve">
-    <value>EF.Property called with wrong property name.</value>
+  <data name="QueryUnableToTranslateEFProperty" xml:space="preserve">
+    <value>Translation of '{expression}' failed. Either source is not an entity type or the specified property does not exist on the entity type.</value>
   </data>
   <data name="InvalidStateEncountered" xml:space="preserve">
     <value>Invalid {state} encountered.</value>
@@ -1362,5 +1365,14 @@
   </data>
   <data name="FunctionOnClient" xml:space="preserve">
     <value>The '{methodName}' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.</value>
+  </data>
+  <data name="QueryEntityMaterializationConditionWrongShape" xml:space="preserve">
+    <value>Materialization condition passed for entity shaper of entity type '{entityType}' is not of correct shape. Materialization condition must be LambdaExpression of 'Func&lt;ValueBuffer, IEntityType&gt;'</value>
+  </data>
+  <data name="UnableToSetIsUnique" xml:space="preserve">
+    <value>Unable to set IsUnique to '{isUnique}' on the relationship underlying the navigation property '{navigationName}' on the entity type '{entityType}' because the navigation property has the opposite multiplicity.</value>
+  </data>
+  <data name="MissingInverseManyToManyNavigation" xml:space="preserve">
+    <value>Unable to set up a many-to-many relationship between the entity types '{principalEntityType}' and '{declaringEntityType}' because one of the navigations was not specified. Please provide a navigation property in the HasMany() call.</value>
   </data>
 </root>

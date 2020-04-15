@@ -15,9 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// <summary>
     ///     Provides a simple API for configuring a navigation to an owned entity type.
     /// </summary>
-    public class OwnedNavigationBuilder : IInfrastructure<InternalEntityTypeBuilder>
+    public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     {
-        private InternalRelationshipBuilder _builder;
+        private InternalForeignKeyBuilder _builder;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public OwnedNavigationBuilder(
             [NotNull] EntityType principalEntityType,
             [NotNull] EntityType dependentEntityType,
-            [NotNull] InternalRelationshipBuilder builder)
+            [NotNull] InternalForeignKeyBuilder builder)
         {
             PrincipalEntityType = principalEntityType;
             DependentEntityType = dependentEntityType;
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalRelationshipBuilder Builder
+        protected virtual InternalForeignKeyBuilder Builder
         {
             get
             {
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Gets the internal builder being used to configure the owned entity type.
         /// </summary>
-        InternalEntityTypeBuilder IInfrastructure<InternalEntityTypeBuilder>.Instance => DependentEntityType.Builder;
+        IConventionEntityTypeBuilder IInfrastructure<IConventionEntityTypeBuilder>.Instance => DependentEntityType.Builder;
 
         /// <summary>
         ///     The foreign key that represents this ownership.
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         If no property with the given name exists, then a new property will be added.
         ///     </para>
         ///     <para>
-        ///         Indexed properties are stored in the entity using
+        ///         Indexer properties are stored in the entity using
         ///         <see href="https://docs.microsoft.com/dotnet/csharp/programming-guide/indexers/">an indexer</see>
         ///         supplying the provided property name.
         ///     </para>
@@ -208,9 +208,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <typeparam name="TProperty"> The type of the property to be configured. </typeparam>
         /// <param name="propertyName"> The name of the property to be configured. </param>
         /// <returns> An object that can be used to configure the property. </returns>
-        public virtual PropertyBuilder<TProperty> IndexedProperty<TProperty>([NotNull] string propertyName)
+        public virtual PropertyBuilder<TProperty> IndexerProperty<TProperty>([NotNull] string propertyName)
             => new PropertyBuilder<TProperty>(
-                DependentEntityType.Builder.IndexedProperty(
+                DependentEntityType.Builder.IndexerProperty(
                     typeof(TProperty),
                     Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit).Metadata);
 
@@ -220,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         If no property with the given name exists, then a new property will be added.
         ///     </para>
         ///     <para>
-        ///         Indexed properties are stored in the entity using
+        ///         Indexer properties are stored in the entity using
         ///         <see href="https://docs.microsoft.com/dotnet/csharp/programming-guide/indexers/">an indexer</see>
         ///         supplying the provided property name.
         ///     </para>
@@ -228,9 +228,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyType"> The type of the property to be configured. </param>
         /// <param name="propertyName"> The name of the property to be configured. </param>
         /// <returns> An object that can be used to configure the property. </returns>
-        public virtual PropertyBuilder IndexedProperty([NotNull] Type propertyType, [NotNull] string propertyName)
+        public virtual PropertyBuilder IndexerProperty([NotNull] Type propertyType, [NotNull] string propertyName)
             => new PropertyBuilder(
-                DependentEntityType.Builder.IndexedProperty(
+                DependentEntityType.Builder.IndexerProperty(
                     Check.NotNull(propertyType, nameof(propertyType)),
                     Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit).Metadata);
 
@@ -444,7 +444,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         private OwnedNavigationBuilder OwnsOneBuilder(in TypeIdentity ownedType, string navigationName)
         {
-            InternalRelationshipBuilder relationship;
+            InternalForeignKeyBuilder relationship;
             using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
             {
                 relationship = ownedType.Type == null
@@ -597,7 +597,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         private OwnedNavigationBuilder OwnsManyBuilder(in TypeIdentity ownedType, string navigationName)
         {
-            InternalRelationshipBuilder relationship;
+            InternalForeignKeyBuilder relationship;
             using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
             {
                 relationship = ownedType.Type == null

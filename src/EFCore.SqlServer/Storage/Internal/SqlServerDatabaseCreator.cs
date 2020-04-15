@@ -169,7 +169,15 @@ SELECT 1 ELSE SELECT 0");
         {
             var builder = new SqlConnectionStringBuilder(_connection.DbConnection.ConnectionString);
             return Dependencies.MigrationsSqlGenerator.Generate(
-                new[] { new SqlServerCreateDatabaseOperation { Name = builder.InitialCatalog, FileName = builder.AttachDBFilename } });
+                new[]
+                {
+                    new SqlServerCreateDatabaseOperation
+                    {
+                        Name = builder.InitialCatalog,
+                        FileName = builder.AttachDBFilename,
+                        Collation = Dependencies.Model.GetCollation()
+                    }
+                });
         }
 
         /// <summary>

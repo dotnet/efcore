@@ -202,8 +202,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public ModelBuilder CreateConventionBuilder(bool skipValidation = false)
         {
-            var conventionSet = CreateContextServices().GetRequiredService<IConventionSetBuilder>()
-                .CreateConventionSet();
+            var conventionSet = CreateConventionSetBuilder().CreateConventionSet();
 
             if (skipValidation)
             {
@@ -212,6 +211,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             return new ModelBuilder(conventionSet);
         }
+
+        public virtual IConventionSetBuilder CreateConventionSetBuilder()
+            => CreateContextServices().GetRequiredService<IConventionSetBuilder>();
 
         public ModelBuilder CreateConventionBuilder(
             DiagnosticsLogger<DbLoggerCategory.Model> modelLogger,

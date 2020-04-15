@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -521,18 +520,16 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A value indicating whether the entity type is ignored by Migrations.</returns>
         public static bool IsIgnoredByMigrations([NotNull] this IEntityType entityType)
         {
-            if (entityType.BaseType != null)
+            if (entityType.BaseType != null
+                && entityType.BaseType.IsIgnoredByMigrations())
             {
-                return entityType.BaseType.IsIgnoredByMigrations();
+                return true;
             }
 
             if (entityType.GetTableName() != null)
             {
                 return false;
             }
-
-            if (entityType.FindAnnotation(RelationalAnnotationNames.QueryableFunctionResultType) != null)
-                return true;
 
             var viewDefinition = entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinition);
             if (viewDefinition?.Value != null)

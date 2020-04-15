@@ -11,7 +11,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class EntityTypeBuilder : IInfrastructure<InternalEntityTypeBuilder>
+    public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -47,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Gets the internal builder being used to configure the entity type.
         /// </summary>
-        InternalEntityTypeBuilder IInfrastructure<InternalEntityTypeBuilder>.Instance => Builder;
+        IConventionEntityTypeBuilder IInfrastructure<IConventionEntityTypeBuilder>.Instance => Builder;
 
         /// <summary>
         ///     The entity type being configured.
@@ -186,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         If no property with the given name exists, then a new property will be added.
         ///     </para>
         ///     <para>
-        ///         Indexed properties are stored in the entity using
+        ///         Indexer properties are stored in the entity using
         ///         <see href="https://docs.microsoft.com/dotnet/csharp/programming-guide/indexers/">an indexer</see>
         ///         supplying the provided property name.
         ///     </para>
@@ -194,9 +193,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <typeparam name="TProperty"> The type of the property to be configured. </typeparam>
         /// <param name="propertyName"> The name of the property to be configured. </param>
         /// <returns> An object that can be used to configure the property. </returns>
-        public virtual PropertyBuilder<TProperty> IndexedProperty<TProperty>([NotNull] string propertyName)
+        public virtual PropertyBuilder<TProperty> IndexerProperty<TProperty>([NotNull] string propertyName)
             => new PropertyBuilder<TProperty>(
-                Builder.IndexedProperty(
+                Builder.IndexerProperty(
                     typeof(TProperty),
                     Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit).Metadata);
 
@@ -206,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         If no property with the given name exists, then a new property will be added.
         ///     </para>
         ///     <para>
-        ///         Indexed properties are stored in the entity using
+        ///         Indexer properties are stored in the entity using
         ///         <see href="https://docs.microsoft.com/dotnet/csharp/programming-guide/indexers/">an indexer</see>
         ///         supplying the provided property name.
         ///     </para>
@@ -214,9 +213,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyType"> The type of the property to be configured. </param>
         /// <param name="propertyName"> The name of the property to be configured. </param>
         /// <returns> An object that can be used to configure the property. </returns>
-        public virtual PropertyBuilder IndexedProperty([NotNull] Type propertyType, [NotNull] string propertyName)
+        public virtual PropertyBuilder IndexerProperty([NotNull] Type propertyType, [NotNull] string propertyName)
             => new PropertyBuilder(
-                Builder.IndexedProperty(
+                Builder.IndexerProperty(
                     Check.NotNull(propertyType, nameof(propertyType)),
                     Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit).Metadata);
 
@@ -402,7 +401,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         private OwnedNavigationBuilder OwnsOneBuilder(in TypeIdentity ownedType, string navigationName)
         {
-            InternalRelationshipBuilder relationship;
+            InternalForeignKeyBuilder relationship;
             using (Builder.Metadata.Model.ConventionDispatcher.DelayConventions())
             {
                 relationship = ownedType.Type == null
@@ -549,7 +548,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         private OwnedNavigationBuilder OwnsManyBuilder(in TypeIdentity ownedType, string navigationName)
         {
-            InternalRelationshipBuilder relationship;
+            InternalForeignKeyBuilder relationship;
             using (Builder.Metadata.Model.ConventionDispatcher.DelayConventions())
             {
                 relationship = ownedType.Type == null
@@ -818,7 +817,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             var skipNavigation = navigationName != null ? Builder.Metadata.FindSkipNavigation(navigationName) : null;
 
-            InternalRelationshipBuilder relationship = null;
+            InternalForeignKeyBuilder relationship = null;
             if (skipNavigation == null)
             {
                 relationship = Builder

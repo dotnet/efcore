@@ -24,10 +24,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
+        /// <param name="precision"> The precision of data the property is configured to store, or null if the default precision is required. </param>
+        /// <param name="scale"> The scale of data the property is configured to store, or null if the default scale is required. </param>
         public DecimalTypeMapping(
             [NotNull] string storeType,
-            DbType? dbType = null)
-            : base(storeType, typeof(decimal), dbType)
+            DbType? dbType = null,
+            int? precision = null,
+            int? scale = null)
+            : base(storeType, typeof(decimal), dbType, precision: precision, scale: scale)
         {
         }
 

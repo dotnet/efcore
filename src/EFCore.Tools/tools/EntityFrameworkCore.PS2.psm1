@@ -25,6 +25,9 @@ $versionErrorMessage = 'The Entity Framework Core Package Manager Console Tools 
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
+.PARAMETER Namespace
+    Specify to override the namespace for the migration.
+
 .LINK
     Remove-Migration
     Update-Database
@@ -35,7 +38,8 @@ function Add-Migration(
     $OutputDir,
     $Context,
     $Project,
-    $StartupProject)
+    $StartupProject,
+    $Namespace)
 {
     WarnIfEF6 'Add-Migration'
     throw $UpdatePowerShell
@@ -177,6 +181,12 @@ function Remove-Migration(
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
+.PARAMETER Namespace
+    Specify to override the namespace for the generated entity types.
+
+.PARAMETER ContextNamespace
+    Specify to override the namespace for the DbContext class.
+
 .LINK
     about_EntityFrameworkCore
 #>
@@ -192,7 +202,9 @@ function Scaffold-DbContext(
     [switch] $UseDatabaseNames,
     [switch] $Force,
     $Project,
-    $StartupProject)
+    $StartupProject,
+    $Namespace,
+    $ContextNamespace)
 {
     throw $UpdatePowerShell
 }
