@@ -2011,13 +2011,8 @@ namespace Microsoft.EntityFrameworkCore
                     Uint = b.TestUnsignedInt32.ToString(),
                     Long = b.TestInt64.ToString(),
                     Ulong = b.TestUnsignedInt64.ToString(),
-                    Float = b.TestSingle.ToString(),
-                    Double = b.TestDouble.ToString(),
                     Decimal = b.TestDecimal.ToString(),
-                    Char = b.TestCharacter.ToString(),
-                    DateTime = b.TestDateTime.ToString(),
-                    DateTimeOffset = b.TestDateTimeOffset.ToString(),
-                    TimeSpan = b.TestTimeSpan.ToString(),
+                    Char = b.TestCharacter.ToString()
                 })
                 .First();
 
@@ -2039,7 +2034,7 @@ namespace Microsoft.EntityFrameworkCore
                     Char = b.TestCharacter.ToString(),
                     DateTime = b.TestDateTime.ToString(),
                     DateTimeOffset = b.TestDateTimeOffset.ToString(),
-                    TimeSpan = b.TestTimeSpan.ToString(),
+                    TimeSpan = b.TestTimeSpan.ToString()
                 })
                 .ToList();
 
@@ -2054,7 +2049,6 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(expected.Ulong, actual.Ulong);
             Assert.Equal(expected.Decimal, actual.Decimal);
             Assert.Equal(expected.Char, actual.Char);
-            Assert.Equal(expected.TimeSpan, actual.TimeSpan);
         }
 
         public abstract class BuiltInDataTypesFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
