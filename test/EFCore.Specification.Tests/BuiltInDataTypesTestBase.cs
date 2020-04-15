@@ -2011,13 +2011,8 @@ namespace Microsoft.EntityFrameworkCore
                     Uint = b.TestUnsignedInt32.ToString(),
                     Long = b.TestInt64.ToString(),
                     Ulong = b.TestUnsignedInt64.ToString(),
-                    Float = b.TestSingle.ToString(),
-                    Double = b.TestDouble.ToString(),
                     Decimal = b.TestDecimal.ToString(),
-                    Char = b.TestCharacter.ToString(),
-                    DateTime = b.TestDateTime.ToString(),
-                    DateTimeOffset = b.TestDateTimeOffset.ToString(),
-                    TimeSpan = b.TestTimeSpan.ToString()
+                    Char = b.TestCharacter.ToString()
                 })
                 .First();
 
