@@ -12,7 +12,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -237,10 +236,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 
-            if (binaryExpression.Left.Type == typeof(AnonymousObject)
+            if (binaryExpression.Left.Type == typeof(object[])
+                && binaryExpression.Left is NewArrayExpression
                 && binaryExpression.NodeType == ExpressionType.Equal)
             {
-                return Visit(ConvertAnonymousObjectEqualityComparison(binaryExpression));
+                return Visit(ConvertObjectArrayEqualityComparison(binaryExpression));
             }
 
             var left = TryRemoveImplicitConvert(binaryExpression.Left);
@@ -768,10 +768,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             return expression;
         }
 
-        private static Expression ConvertAnonymousObjectEqualityComparison(BinaryExpression binaryExpression)
+        private static Expression ConvertObjectArrayEqualityComparison(BinaryExpression binaryExpression)
         {
-            var leftExpressions = ((NewArrayExpression)((NewExpression)binaryExpression.Left).Arguments[0]).Expressions;
-            var rightExpressions = ((NewArrayExpression)((NewExpression)binaryExpression.Right).Arguments[0]).Expressions;
+            var leftExpressions = ((NewArrayExpression)binaryExpression.Left).Expressions;
+            var rightExpressions = ((NewArrayExpression)binaryExpression.Right).Expressions;
 
             return leftExpressions.Zip(
                     rightExpressions,

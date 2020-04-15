@@ -293,13 +293,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             bool makeNullable = false)
             => properties.Count == 1
                 ? target.CreateEFPropertyExpression(properties[0], makeNullable)
-                : Expression.New(
-                    AnonymousObject.AnonymousObjectCtor,
-                    Expression.NewArrayInit(
-                        typeof(object),
-                        properties
-                            .Select(p => Expression.Convert(target.CreateEFPropertyExpression(p, makeNullable), typeof(object)))
-                            .Cast<Expression>()));
+                : Expression.NewArrayInit(
+                    typeof(object),
+                    properties
+                        .Select(p => Expression.Convert(target.CreateEFPropertyExpression(p, makeNullable), typeof(object)))
+                        .Cast<Expression>());
 
         /// <summary>
         ///     <para>
