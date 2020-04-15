@@ -2014,7 +2014,10 @@ namespace Microsoft.EntityFrameworkCore
                     Float = b.TestSingle.ToString(),
                     Double = b.TestDouble.ToString(),
                     Decimal = b.TestDecimal.ToString(),
-                    Char = b.TestCharacter.ToString()
+                    Char = b.TestCharacter.ToString(),
+                    DateTime = b.TestDateTime.ToString(),
+                    DateTimeOffset = b.TestDateTimeOffset.ToString(),
+                    TimeSpan = b.TestTimeSpan.ToString()
                 })
                 .First();
 
@@ -2033,7 +2036,10 @@ namespace Microsoft.EntityFrameworkCore
                     Float = b.TestSingle.ToString(),
                     Double = b.TestDouble.ToString(),
                     Decimal = b.TestDecimal.ToString(),
-                    Char = b.TestCharacter.ToString()
+                    Char = b.TestCharacter.ToString(),
+                    DateTime = b.TestDateTime.ToString(),
+                    DateTimeOffset = b.TestDateTimeOffset.ToString(),
+                    TimeSpan = b.TestTimeSpan.ToString()
                 })
                 .ToList();
 

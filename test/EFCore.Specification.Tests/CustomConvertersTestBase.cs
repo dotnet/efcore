@@ -617,6 +617,8 @@ namespace Microsoft.EntityFrameworkCore
             Seller
         }
 
+        public override void Object_to_string_conversion() {}
+
         public abstract class CustomConvertersFixtureBase : BuiltInDataTypesFixtureBase
         {
             protected override string StoreName { get; } = "CustomConverters";
