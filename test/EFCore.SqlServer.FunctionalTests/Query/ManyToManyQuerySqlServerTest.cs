@@ -2,11 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ManyToManyQuerySqlServerTest : ManyToManyQueryTestBase<ManyToManyQuerySqlServerFixture>
+    public class ManyToManyQuerySqlServerTest : ManyToManyQueryTestBase<ManyToManyQuerySqlServerTest.ManyToManyQuerySqlServerFixture>
     {
         public ManyToManyQuerySqlServerTest(ManyToManyQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -30,5 +31,10 @@ WHERE (
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+
+        public class ManyToManyQuerySqlServerFixture : ManyToManyQueryRelationalFixture
+        {
+            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+        }
     }
 }
