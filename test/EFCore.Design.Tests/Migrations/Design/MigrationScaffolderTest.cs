@@ -127,6 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         services.GetRequiredService<IRelationalConnection>(),
                         services.GetRequiredService<ISqlGenerationHelper>(),
                         services.GetRequiredService<ICurrentDbContext>(),
+                        services.GetRequiredService<IConventionSetBuilder>(),
                         services.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Migrations>>(),
                         services.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>(),
                         services.GetRequiredService<IDatabaseProvider>())));
