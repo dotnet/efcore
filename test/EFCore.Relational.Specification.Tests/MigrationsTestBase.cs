@@ -23,7 +23,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
+    public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : MigrationsTestBase<TFixture>.MigrationsFixtureBase, new()
     {
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
@@ -1362,9 +1362,7 @@ namespace Microsoft.EntityFrameworkCore
             public int Age { get; set; }
         }
 
-        protected virtual string NonDefaultCollation
-            => throw new NotSupportedException(
-                $"Providers must override the '{nameof(NonDefaultCollation)}' property with a valid, non-default collation name for your database.");
+        protected abstract string NonDefaultCollation { get; }
 
         protected virtual DbContext CreateContext() => Fixture.CreateContext();
 
