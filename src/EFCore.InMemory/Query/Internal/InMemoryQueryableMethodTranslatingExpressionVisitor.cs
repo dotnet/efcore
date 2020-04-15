@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -457,6 +456,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     : (CreateAnonymousObject(leftExpressions), CreateAnonymousObject(rightExpressions))
                 : (null, null);
 
+            // InMemory joins need to use AnonymousObject to perform correct key comparison for server side joins
             static Expression CreateAnonymousObject(List<Expression> expressions)
                 => Expression.New(
                     AnonymousObject.AnonymousObjectCtor,

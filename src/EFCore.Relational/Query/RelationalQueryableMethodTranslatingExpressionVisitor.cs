@@ -544,8 +544,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var outerKey = RemapLambdaBody(outer, outerKeySelector);
             var innerKey = RemapLambdaBody(inner, innerKeySelector);
 
-            if (outerKey is NewExpression outerNew
-                && outerNew.Type != typeof(AnonymousObject))
+            if (outerKey is NewExpression outerNew)
             {
                 var innerNew = (NewExpression)innerKey;
 
