@@ -919,10 +919,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         public class OwnerOfOwnees
         {
             public string Id { get; private set; }
+
             public Ownee2 AnOwnee2 { get; private set; }
-
             public Ownee1 Ownee1 { get; private set; }
-
         }
 
         public class Ownee1

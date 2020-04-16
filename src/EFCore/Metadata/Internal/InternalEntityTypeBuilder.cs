@@ -3119,7 +3119,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         .Where(
                             fk => !fk.IsOwnership
                                 && !Contains(fk.DeclaringEntityType.FindOwnership(), fk)))
-                .Distinct()
                 .ToList();
 
             if (incompatibleRelationships.Any(fk => !configurationSource.Overrides(fk.GetConfigurationSource())))
@@ -3127,18 +3126,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            var firstForeignKey = incompatibleRelationships.FirstOrDefault();
-            if (firstForeignKey == null)
+            foreach (var foreignKey in incompatibleRelationships)
             {
-                return true;
+                // foreignKey.Builder can be null below if calling HasNoRelationship() below
+                // affects the other foreign key(s) in incompatibleRelationships
+                if (foreignKey.Builder != null)
+                {
+                    foreignKey.DeclaringEntityType.Builder.HasNoRelationship(foreignKey, configurationSource);
+                }
             }
 
-            firstForeignKey.DeclaringEntityType
-                .Builder.HasNoRelationship(firstForeignKey, configurationSource);
-
-            // have to recalculate the list of incompatible relationships
-            // because the HasNoRelationship() call above may have changed them
-            return RemoveNonOwnershipRelationships(ownership, configurationSource);
+            return true;
         }
 
         private bool Contains(IForeignKey inheritedFk, IForeignKey derivedFk)
