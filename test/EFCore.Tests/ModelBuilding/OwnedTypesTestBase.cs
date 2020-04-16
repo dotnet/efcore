@@ -429,6 +429,17 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Null(model.FindEntityType(typeof(SpecialOrder)));
             }
 
+            [ConditionalFact]
+            public virtual void Can_call_Owner_fluent_api_after_calling_Entity()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<OwnerOfOwnees>();
+                modelBuilder.Owned<Ownee1>();
+                modelBuilder.Owned<Ownee2>();
+                modelBuilder.Owned<Ownee3>();
+            }
+
             [Flags]
             public enum HasDataOverload
             {

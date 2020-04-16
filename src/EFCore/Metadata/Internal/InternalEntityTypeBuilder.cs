@@ -3127,12 +3127,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            foreach (var foreignKey in incompatibleRelationships)
+            var firstForeignKey = incompatibleRelationships.FirstOrDefault();
+            if (firstForeignKey == null)
             {
-                foreignKey.DeclaringEntityType.Builder.HasNoRelationship(foreignKey, configurationSource);
+                return true;
             }
 
-            return true;
+            firstForeignKey.DeclaringEntityType
+                .Builder.HasNoRelationship(firstForeignKey, configurationSource);
+
+            // have to recalculate the list of incompatible relationships
+            // because the HasNoRelationship() call above may have changed them
+            return RemoveNonOwnershipRelationships(ownership, configurationSource);
         }
 
         private bool Contains(IForeignKey inheritedFk, IForeignKey derivedFk)
