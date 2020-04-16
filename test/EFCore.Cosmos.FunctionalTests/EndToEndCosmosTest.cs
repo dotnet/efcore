@@ -182,6 +182,142 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
+        [ConditionalFact]
+        public void Can_add_update_untracked_properties()
+        {
+            var options = Fixture.CreateOptions();
+
+            var customer = new Customer { Id = 42, Name = "Theon" };
+
+            using (var context = new CustomerContext(options))
+            {
+                context.Database.EnsureCreated();
+
+                var entry = context.Add(customer);
+
+                entry.Property<JObject>("__jObject").CurrentValue = new JObject
+                {
+                    ["key1"] = "value1"
+                };
+
+                context.SaveChanges();
+
+                var providersJson = entry.Property<JObject>("__jObject").CurrentValue;
+                Assert.NotNull(providersJson);
+
+                providersJson["key2"] = "value2";
+                entry.State = EntityState.Modified;
+                context.SaveChanges();
+            }
+
+            using (var context = new CustomerContext(options))
+            {
+                var customerFromStore = context.Set<Customer>().Single();
+
+                Assert.Equal(42, customerFromStore.Id);
+                Assert.Equal("Theon", customerFromStore.Name);
+
+                var entry = context.Entry(customerFromStore);
+                var document = entry.Property<JObject>("__jObject").CurrentValue;
+                Assert.Equal("value1", document["key1"]);
+                Assert.Equal("value2", document["key2"]);
+
+                document["key1"] = "value1.1";
+                customerFromStore.Name = "Theon Greyjoy";
+
+                context.SaveChanges();
+            }
+
+            using (var context = new CustomerContext(options))
+            {
+                var customerFromStore = context.Set<Customer>().Single();
+
+                Assert.Equal("Theon Greyjoy", customerFromStore.Name);
+
+                var entry = context.Entry(customerFromStore);
+                var document = entry.Property<JObject>("__jObject").CurrentValue;
+                Assert.Equal("value1.1", document["key1"]);
+                Assert.Equal("value2", document["key2"]);
+
+                context.Remove(customerFromStore);
+
+                context.SaveChanges();
+            }
+
+            using (var context = new CustomerContext(options))
+            {
+                Assert.Empty(context.Set<Customer>().ToList());
+            }
+        }
+
+        [ConditionalFact]
+        public async Task Can_add_update_untracked_properties_async()
+        {
+            var options = Fixture.CreateOptions();
+
+            var customer = new Customer { Id = 42, Name = "Theon" };
+
+            using (var context = new CustomerContext(options))
+            {
+                context.Database.EnsureCreated();
+
+                var entry = context.Add(customer);
+
+                entry.Property<JObject>("__jObject").CurrentValue = new JObject
+                {
+                    ["key1"] = "value1"
+                };
+
+                await context.SaveChangesAsync();
+
+                var providersJson = entry.Property<JObject>("__jObject").CurrentValue;
+                Assert.NotNull(providersJson);
+
+                providersJson["key2"] = "value2";
+                entry.State = EntityState.Modified;
+                await context.SaveChangesAsync();
+            }
+
+            using (var context = new CustomerContext(options))
+            {
+                var customerFromStore = await context.Set<Customer>().SingleAsync();
+
+                Assert.Equal(42, customerFromStore.Id);
+                Assert.Equal("Theon", customerFromStore.Name);
+
+                var entry = context.Entry(customerFromStore);
+                var document = entry.Property<JObject>("__jObject").CurrentValue;
+                Assert.Equal("value1", document["key1"]);
+                Assert.Equal("value2", document["key2"]);
+
+                document["key1"] = "value1.1";
+                customerFromStore.Name = "Theon Greyjoy";
+
+                await context.SaveChangesAsync();
+            }
+
+            using (var context = new CustomerContext(options))
+            {
+                var customerFromStore = await context.Set<Customer>().SingleAsync();
+
+                Assert.Equal("Theon Greyjoy", customerFromStore.Name);
+
+                var entry = context.Entry(customerFromStore);
+                var document = entry.Property<JObject>("__jObject").CurrentValue;
+                Assert.Equal("value1.1", document["key1"]);
+                Assert.Equal("value2", document["key2"]);
+
+                context.Remove(customerFromStore);
+
+                await context.SaveChangesAsync();
+            }
+
+            using (var context = new CustomerContext(options))
+            {
+                Assert.Empty(context.Set<Customer>().ToList());
+            }
+        }
+
         private class Customer
         {
             public int Id { get; set; }

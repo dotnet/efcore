@@ -284,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             public IIndex FindIndex(IReadOnlyList<IProperty> properties) => throw new NotImplementedException();
             public IKey FindKey(IReadOnlyList<IProperty> properties) => throw new NotImplementedException();
             public IKey FindPrimaryKey() => throw new NotImplementedException();
-            public IProperty FindProperty(string name) => throw new NotImplementedException();
+            public IProperty FindProperty(string name) => null;
             public IServiceProperty FindServiceProperty(string name) => throw new NotImplementedException();
             public ISkipNavigation FindSkipNavigation(string name) => throw new NotImplementedException();
             public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();
