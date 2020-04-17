@@ -967,7 +967,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                                 IsUnique: ddr.GetValueOrDefault<bool>("is_unique"),
                                 HasFilter: ddr.GetValueOrDefault<bool>("has_filter"),
                                 FilterDefinition: ddr.GetValueOrDefault<string>("filter_definition"),
-                                FillFactor: ddr.GetValueOrDefault<byte>("fill_factor")))
+                                FillFactor: ddr.GetValueOrDefault<int>("fill_factor")))
                     .ToArray();
 
                 foreach (var indexGroup in indexGroups)
@@ -985,7 +985,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                         index[SqlServerAnnotationNames.Clustered] = true;
                     }
 
-                    if (indexGroup.Key.FillFactor > 0 && indexGroup.Key.FillFactor < 100)
+                    if (indexGroup.Key.FillFactor > 0 && indexGroup.Key.FillFactor <= 100)
                     {
                         index[SqlServerAnnotationNames.FillFactor] = indexGroup.Key.FillFactor;
                     }

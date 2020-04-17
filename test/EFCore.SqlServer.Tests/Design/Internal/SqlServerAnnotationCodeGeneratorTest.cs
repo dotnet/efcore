@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         [ConditionalFact]
-        public void GenerateFluentApi_IIndex_works_when_fillfactor()
+        public void GenerateFluentApi_IIndex_works_with_fillfactor()
         {
             var generator = new SqlServerAnnotationCodeGenerator(new AnnotationCodeGeneratorDependencies());
             var modelBuilder = new ModelBuilder(SqlServerConventionSetBuilder.Build());
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             Assert.Equal("HasFillFactor", result.Method);
             Assert.Equal(1, result.Arguments.Count);
-            Assert.Equal((byte)90, result.Arguments[0]);
+            Assert.Equal(90, result.Arguments[0]);
         }
 
         [ConditionalFact]

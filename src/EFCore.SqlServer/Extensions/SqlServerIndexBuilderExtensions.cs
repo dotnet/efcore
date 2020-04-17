@@ -252,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="indexBuilder"> The builder for the index being configured. </param>
         /// <param name="fillFactor"> A value indicating whether the index is created with fill factor option. </param>
         /// <returns> A builder to further configure the index. </returns>
-        public static IndexBuilder HasFillFactor([NotNull] this IndexBuilder indexBuilder, byte fillFactor)
+        public static IndexBuilder HasFillFactor([NotNull] this IndexBuilder indexBuilder, int fillFactor)
         {
             Check.NotNull(indexBuilder, nameof(indexBuilder));
 
@@ -268,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fillFactor"> A value indicating whether the index is created with fill factor option. </param>
         /// <returns> A builder to further configure the index. </returns>
         public static IndexBuilder<TEntity> HasFillFactor<TEntity>(
-            [NotNull] this IndexBuilder<TEntity> indexBuilder, byte fillFactor)
+            [NotNull] this IndexBuilder<TEntity> indexBuilder, int fillFactor)
             => (IndexBuilder<TEntity>)HasFillFactor((IndexBuilder)indexBuilder, fillFactor);
 
         /// <summary>
@@ -283,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static IConventionIndexBuilder HasFillFactor(
             [NotNull] this IConventionIndexBuilder indexBuilder,
-            byte? fillFactor,
+            int? fillFactor,
             bool fromDataAnnotation = false)
         {
             if (indexBuilder.CanSetFillFactor(fillFactor, fromDataAnnotation))
@@ -309,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <c>true</c> if the index can be configured with fill factor option when targeting SQL Server. </returns>
         public static bool CanSetFillFactor(
             [NotNull] this IConventionIndexBuilder indexBuilder,
-            byte? fillFactor,
+            int? fillFactor,
             bool fromDataAnnotation = false)
         {
             Check.NotNull(indexBuilder, nameof(indexBuilder));

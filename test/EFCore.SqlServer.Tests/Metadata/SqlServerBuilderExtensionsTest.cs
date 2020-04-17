@@ -738,6 +738,55 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("[Id] % 2 = 0", index.GetFilter());
         }
 
+
+        [ConditionalFact]
+        public void Can_set_index_with_fillfactor()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .HasIndex(e => e.Name)
+                .HasFillFactor(90);
+
+            var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+
+            Assert.Equal(90, index.GetFillFactor());
+        }
+
+        [ConditionalFact]
+        public void Can_set_index_with_fillfactor_non_generic()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity(typeof(Customer))
+                .HasIndex("Name")
+                .HasFillFactor(90);
+
+            var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+
+            Assert.Equal(90, index.GetFillFactor());
+        }
+
+        [ConditionalTheory]
+        [InlineData(-1)]
+        [InlineData(101)]
+        [InlineData(int.MinValue)]
+        [InlineData(int.MaxValue)]
+        public void Can_set_index_with_fillfactor_argument_out_of_range_exception(int fillFactor)
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                modelBuilder
+                    .Entity(typeof(Customer))
+                    .HasIndex("Name")
+                    .HasFillFactor(fillFactor);
+            });
+        }
+
         private void AssertIsGeneric(EntityTypeBuilder<Customer> _)
         {
         }

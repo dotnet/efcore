@@ -1557,9 +1557,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         private void IndexWithOptions(CreateIndexOperation operation, MigrationCommandListBuilder builder)
         {
-            var options = new HashSet<string>();
+            var options = new List<string>();
 
-            if (operation[SqlServerAnnotationNames.FillFactor] is byte fillFactor)
+            if (operation[SqlServerAnnotationNames.FillFactor] is int fillFactor)
             {
                 options.Add("FILLFACTOR = " + fillFactor);
             }
