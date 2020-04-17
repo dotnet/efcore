@@ -195,6 +195,23 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
                 var entry = context.Add(customer);
 
+                context.SaveChanges();
+
+                var document = entry.Property<JObject>("__jObject").CurrentValue;
+                Assert.NotNull(document);
+                Assert.Equal("Theon", document["Name"]);
+
+                context.Remove(customer);
+
+                context.SaveChanges();
+            }
+
+            using (var context = new CustomerContext(options))
+            {
+                Assert.Empty(context.Set<Customer>().ToList());
+
+                var entry = context.Add(customer);
+
                 entry.Property<JObject>("__jObject").CurrentValue = new JObject
                 {
                     ["key1"] = "value1"
@@ -202,10 +219,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
                 context.SaveChanges();
 
-                var providersJson = entry.Property<JObject>("__jObject").CurrentValue;
-                Assert.NotNull(providersJson);
+                var document = entry.Property<JObject>("__jObject").CurrentValue;
+                Assert.NotNull(document);
+                Assert.Equal("Theon", document["Name"]);
+                Assert.Equal("value1", document["key1"]);
 
-                providersJson["key2"] = "value2";
+                document["key2"] = "value2";
                 entry.State = EntityState.Modified;
                 context.SaveChanges();
             }
@@ -259,7 +278,24 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             using (var context = new CustomerContext(options))
             {
-                context.Database.EnsureCreated();
+                await context.Database.EnsureCreatedAsync();
+
+                var entry = context.Add(customer);
+
+                await context.SaveChangesAsync();
+
+                var document = entry.Property<JObject>("__jObject").CurrentValue;
+                Assert.NotNull(document);
+                Assert.Equal("Theon", document["Name"]);
+
+                context.Remove(customer);
+
+                await context.SaveChangesAsync();
+            }
+
+            using (var context = new CustomerContext(options))
+            {
+                Assert.Empty(await context.Set<Customer>().ToListAsync());
 
                 var entry = context.Add(customer);
 
@@ -270,10 +306,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
                 await context.SaveChangesAsync();
 
-                var providersJson = entry.Property<JObject>("__jObject").CurrentValue;
-                Assert.NotNull(providersJson);
+                var document = entry.Property<JObject>("__jObject").CurrentValue;
+                Assert.NotNull(document);
+                Assert.Equal("Theon", document["Name"]);
+                Assert.Equal("value1", document["key1"]);
 
-                providersJson["key2"] = "value2";
+                document["key2"] = "value2";
                 entry.State = EntityState.Modified;
                 await context.SaveChangesAsync();
             }
@@ -314,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             using (var context = new CustomerContext(options))
             {
-                Assert.Empty(context.Set<Customer>().ToList());
+                Assert.Empty(await context.Set<Customer>().ToListAsync());
             }
         }
 
