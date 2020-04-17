@@ -3119,7 +3119,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         .Where(
                             fk => !fk.IsOwnership
                                 && !Contains(fk.DeclaringEntityType.FindOwnership(), fk)))
-                .Distinct()
                 .ToList();
 
             if (incompatibleRelationships.Any(fk => !configurationSource.Overrides(fk.GetConfigurationSource())))
@@ -3129,7 +3128,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             foreach (var foreignKey in incompatibleRelationships)
             {
-                foreignKey.DeclaringEntityType.Builder.HasNoRelationship(foreignKey, configurationSource);
+                // foreignKey.Builder can be null below if calling HasNoRelationship() below
+                // affects the other foreign key(s) in incompatibleRelationships
+                if (foreignKey.Builder != null)
+                {
+                    foreignKey.DeclaringEntityType.Builder.HasNoRelationship(foreignKey, configurationSource);
+                }
             }
 
             return true;
