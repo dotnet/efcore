@@ -218,7 +218,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             switch (state)
             {
                 case EntityState.Added:
-                    var newDocument = documentSource.CreateDocument(entry);
+                    var newDocument = documentSource.GetCurrentDocument(entry);
+                    if (newDocument != null)
+                    {
+                        documentSource.UpdateDocument(newDocument, entry);
+                    }
+                    else
+                    {
+                        newDocument = documentSource.CreateDocument(entry);
+                    }
+
                     return _cosmosClient.CreateItem(collectionId, newDocument, entry);
 
                 case EntityState.Modified:
@@ -276,7 +285,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             switch (state)
             {
                 case EntityState.Added:
-                    var newDocument = documentSource.CreateDocument(entry);
+                    var newDocument = documentSource.GetCurrentDocument(entry);
+                    if (newDocument != null)
+                    {
+                        documentSource.UpdateDocument(newDocument, entry);
+                    }
+                    else
+                    {
+                        newDocument = documentSource.CreateDocument(entry);
+                    }
+
                     return _cosmosClient.CreateItemAsync(
                         collectionId, newDocument, entry, cancellationToken);
 

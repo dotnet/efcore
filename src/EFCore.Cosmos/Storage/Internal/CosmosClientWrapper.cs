@@ -16,6 +16,8 @@ using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -464,6 +466,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             if (etagProperty != null && entry.EntityState != EntityState.Deleted)
             {
                 entry.SetStoreGeneratedValue(etagProperty, response.Headers.ETag);
+            }
+
+            var jObjectProperty = entry.EntityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
+            if (jObjectProperty != null
+                && jObjectProperty.ValueGenerated == ValueGenerated.OnAddOrUpdate
+                && response.Content != null)
+            {
+                using var responseStream = response.Content;
+                using var reader = new StreamReader(responseStream);
+                using var jsonReader = new JsonTextReader(reader);
+
+                var createdDocument = new JsonSerializer().Deserialize<JObject>(jsonReader);
+
+                entry.SetStoreGeneratedValue(jObjectProperty, createdDocument);
             }
         }
 
