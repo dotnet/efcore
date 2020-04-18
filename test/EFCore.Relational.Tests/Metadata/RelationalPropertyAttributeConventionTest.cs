@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -17,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public class RelationalPropertyAttributeConventionTest
     {
         [ConditionalFact]
-        public void ColumnAttribute_sets_column_name_and_type_with_conventional_builder()
+        public void ColumnAttribute_sets_column_name_type_and_comment_with_conventional_builder()
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
@@ -25,10 +26,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("Post Name", entityBuilder.Property(e => e.Name).Metadata.GetColumnName());
             Assert.Equal("DECIMAL", entityBuilder.Property(e => e.Name).Metadata.GetColumnType());
+            Assert.Equal("Test column comment", entityBuilder.Property(e => e.Name).Metadata.GetComment());
         }
 
         [ConditionalFact]
-        public void ColumnAttribute_on_field_sets_column_name_and_type_with_conventional_builder()
+        public void ColumnAttribute_on_field_sets_column_name_type_and_comment_with_conventional_builder()
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
@@ -36,6 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("Post Name", entityBuilder.Property<string>(nameof(F.Name)).Metadata.GetColumnName());
             Assert.Equal("DECIMAL", entityBuilder.Property<string>(nameof(F.Name)).Metadata.GetColumnType());
+            Assert.Equal("Test column comment", entityBuilder.Property<string>(nameof(F.Name)).Metadata.GetComment());
         }
 
         [ConditionalFact]
@@ -47,11 +50,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnName, "ConventionalName", ConfigurationSource.Convention);
             propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnType, "BYTE", ConfigurationSource.Convention);
+            propertyBuilder.HasAnnotation(RelationalAnnotationNames.Comment, "ConventionalName", ConfigurationSource.Convention);
 
             RunConvention(propertyBuilder);
 
             Assert.Equal("Post Name", propertyBuilder.Metadata.GetColumnName());
             Assert.Equal("DECIMAL", propertyBuilder.Metadata.GetColumnType());
+            Assert.Equal("Test column comment", propertyBuilder.Metadata.GetComment());
         }
 
         [ConditionalFact]
@@ -63,11 +68,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnName, "ExplicitName", ConfigurationSource.Explicit);
             propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnType, "BYTE", ConfigurationSource.Explicit);
+            propertyBuilder.HasAnnotation(RelationalAnnotationNames.Comment, "ExplicitComment", ConfigurationSource.Explicit);
 
             RunConvention(propertyBuilder);
 
             Assert.Equal("ExplicitName", propertyBuilder.Metadata.GetColumnName());
             Assert.Equal("BYTE", propertyBuilder.Metadata.GetColumnType());
+            Assert.Equal("ExplicitComment", propertyBuilder.Metadata.GetComment());
         }
 
         private void RunConvention(InternalPropertyBuilder propertyBuilder)
@@ -76,6 +83,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 propertyBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
 
             new RelationalColumnAttributeConvention(CreateDependencies(), CreateRelationalDependencies())
+                .ProcessPropertyAdded(propertyBuilder, context);
+
+            new RelationalColumnDescriptionAttributeConvention(CreateDependencies(), CreateRelationalDependencies())
                 .ProcessPropertyAdded(propertyBuilder, context);
         }
 
@@ -104,6 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             public int Id { get; set; }
 
             [Column("Post Name", Order = 1, TypeName = "DECIMAL")]
+            [Description("Test column comment")]
             public string Name { get; set; }
         }
 
@@ -112,6 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             public int Id { get; set; }
 
             [Column("Post Name", Order = 1, TypeName = "DECIMAL")]
+            [Description("Test column comment")]
             public string Name;
         }
     }

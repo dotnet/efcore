@@ -60,11 +60,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             var conventionSet = base.CreateConventionSet();
 
             var relationalColumnAttributeConvention = new RelationalColumnAttributeConvention(Dependencies, RelationalDependencies);
+            var relationalDescriptionAttributeConvention = new RelationalColumnDescriptionAttributeConvention(Dependencies, RelationalDependencies);
 
             conventionSet.PropertyAddedConventions.Add(relationalColumnAttributeConvention);
+            conventionSet.PropertyAddedConventions.Add(relationalDescriptionAttributeConvention);
 
             var tableNameFromDbSetConvention = new TableNameFromDbSetConvention(Dependencies, RelationalDependencies);
             conventionSet.EntityTypeAddedConventions.Add(new RelationalTableAttributeConvention(Dependencies, RelationalDependencies));
+            conventionSet.EntityTypeAddedConventions.Add(new RelationalTableDescriptionAttributeConvention(Dependencies, RelationalDependencies));
             conventionSet.EntityTypeAddedConventions.Add(tableNameFromDbSetConvention);
 
             ValueGenerationConvention valueGenerationConvention =
@@ -80,6 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGenerationConvention);
 
             conventionSet.PropertyFieldChangedConventions.Add(relationalColumnAttributeConvention);
+            conventionSet.PropertyFieldChangedConventions.Add(relationalDescriptionAttributeConvention);            
 
             var storeGenerationConvention = new StoreGenerationConvention(Dependencies, RelationalDependencies);
             conventionSet.PropertyAnnotationChangedConventions.Add(storeGenerationConvention);

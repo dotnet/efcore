@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -17,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public class RelationalEntityTypeAttributeConventionTest
     {
         [ConditionalFact]
-        public void TableAttribute_sets_column_name_order_and_type_with_conventional_builder()
+        public void TableAttribute_sets_column_name_order_type_and_comment_with_conventional_builder()
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
@@ -25,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("MyTable", entityBuilder.Metadata.GetTableName());
             Assert.Equal("MySchema", entityBuilder.Metadata.GetSchema());
+            Assert.Equal("Test comment table", entityBuilder.Metadata.GetComment());
         }
 
         [ConditionalFact]
@@ -34,11 +36,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             entityBuilder.HasAnnotation(RelationalAnnotationNames.TableName, "ConventionalName", ConfigurationSource.Convention);
             entityBuilder.HasAnnotation(RelationalAnnotationNames.Schema, "ConventionalSchema", ConfigurationSource.Convention);
+            entityBuilder.HasAnnotation(RelationalAnnotationNames.Comment, "ConventionalComment", ConfigurationSource.Convention);
 
             RunConvention(entityBuilder);
 
             Assert.Equal("MyTable", entityBuilder.Metadata.GetTableName());
             Assert.Equal("MySchema", entityBuilder.Metadata.GetSchema());
+            Assert.Equal("Test comment table", entityBuilder.Metadata.GetComment());
         }
 
         [ConditionalFact]
@@ -48,11 +52,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             entityBuilder.HasAnnotation(RelationalAnnotationNames.TableName, "ExplicitName", ConfigurationSource.Explicit);
             entityBuilder.HasAnnotation(RelationalAnnotationNames.Schema, "ExplicitName", ConfigurationSource.Explicit);
+            entityBuilder.HasAnnotation(RelationalAnnotationNames.Comment, "ExplicitName", ConfigurationSource.Explicit);
 
             RunConvention(entityBuilder);
 
             Assert.Equal("ExplicitName", entityBuilder.Metadata.GetTableName());
             Assert.Equal("ExplicitName", entityBuilder.Metadata.GetSchema());
+            Assert.Equal("ExplicitName", entityBuilder.Metadata.GetComment());
         }
 
         private void RunConvention(InternalEntityTypeBuilder entityTypeBuilder)
@@ -60,6 +66,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var context = new ConventionContext<IConventionEntityTypeBuilder>(entityTypeBuilder.Metadata.Model.ConventionDispatcher);
 
             new RelationalTableAttributeConvention(CreateDependencies(), CreateRelationalDependencies())
+                .ProcessEntityTypeAdded(entityTypeBuilder, context);
+
+            new RelationalTableDescriptionAttributeConvention(CreateDependencies(), CreateRelationalDependencies())
                 .ProcessEntityTypeAdded(entityTypeBuilder, context);
         }
 
@@ -84,6 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => RelationalTestHelpers.Instance.CreateConventionBuilder();
 
         [Table("MyTable", Schema = "MySchema")]
+        [Description("Test comment table")]
         private class A
         {
             public int Id { get; set; }
