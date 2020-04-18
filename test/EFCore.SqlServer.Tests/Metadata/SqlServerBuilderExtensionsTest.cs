@@ -234,8 +234,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Entity<Customer>()
-                .HasIndex(e => e.Name)
+                .Entity(typeof(Customer))
+                .HasIndex("Name")
                 .IsCreatedOnline();
 
             var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
@@ -770,10 +770,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [ConditionalTheory]
-        [InlineData(-1)]
+        [InlineData(0)]
         [InlineData(101)]
-        [InlineData(int.MinValue)]
-        [InlineData(int.MaxValue)]
         public void Can_set_index_with_fillfactor_argument_out_of_range_exception(int fillFactor)
         {
             var modelBuilder = CreateConventionModelBuilder();

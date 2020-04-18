@@ -1003,5 +1003,56 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Empty(operation2.GetAnnotations());
                 });
         }
+
+        [ConditionalFact]
+        public void Rebuild_index_with_different_fillfactor_option()
+        {
+            Execute(
+                source => source
+                    .Entity(
+                        "Address",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("Zip");
+                            x.Property<string>("City");
+                            x.Property<string>("Street");
+                            x.HasIndex("Zip")
+                                .HasFillFactor(50);
+                        }),
+                target => target
+                    .Entity(
+                        "Address",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("Zip");
+                            x.Property<string>("City");
+                            x.Property<string>("Street");
+                            x.HasIndex("Zip")
+                                .HasFillFactor(90);
+                        }),
+                operations =>
+                {
+                    Assert.Equal(2, operations.Count);
+
+                    var operation1 = Assert.IsType<DropIndexOperation>(operations[0]);
+                    Assert.Equal("Address", operation1.Table);
+                    Assert.Equal("IX_Address_Zip", operation1.Name);
+
+                    Assert.Empty(operation1.GetAnnotations());
+
+                    var operation2 = Assert.IsType<CreateIndexOperation>(operations[1]);
+                    Assert.Equal("Address", operation1.Table);
+                    Assert.Equal("IX_Address_Zip", operation1.Name);
+
+                    var annotation = operation2.GetAnnotation(SqlServerAnnotationNames.FillFactor);
+                    Assert.NotNull(annotation); 
+
+                    var annotationValue = Assert.IsType<int>(annotation.Value); 
+                    
+                    Assert.Equal(90, annotationValue);
+                });
+        }
     }
 }

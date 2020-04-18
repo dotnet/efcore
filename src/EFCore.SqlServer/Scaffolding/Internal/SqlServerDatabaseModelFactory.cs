@@ -967,7 +967,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                                 IsUnique: ddr.GetValueOrDefault<bool>("is_unique"),
                                 HasFilter: ddr.GetValueOrDefault<bool>("has_filter"),
                                 FilterDefinition: ddr.GetValueOrDefault<string>("filter_definition"),
-                                FillFactor: ddr.GetValueOrDefault<int>("fill_factor")))
+                                FillFactor: ddr.GetValueOrDefault<byte>("fill_factor")))
                     .ToArray();
 
                 foreach (var indexGroup in indexGroups)
