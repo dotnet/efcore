@@ -127,11 +127,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual FieldInfo SetFieldInfo([CanBeNull] string fieldName, ConfigurationSource configurationSource)
+        public virtual FieldInfo SetField([CanBeNull] string fieldName, ConfigurationSource configurationSource)
         {
             if (fieldName == null)
             {
-                return SetFieldInfo((FieldInfo)null, configurationSource);
+                return SetFieldInfo(null, configurationSource);
             }
 
             if (FieldInfo?.GetSimpleMemberName() == fieldName)

@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .IsConcurrencyToken();
 
             var model = modelBuilder.Model;
-            VerifyError(CosmosStrings.NonEtagConcurrencyToken(typeof(Customer).Name, "_not_etag"), model);
+            VerifyError(CosmosStrings.NonETagConcurrencyToken(typeof(Customer).Name, "_not_etag"), model);
         }
 
         protected override TestHelpers TestHelpers => CosmosTestHelpers.Instance;

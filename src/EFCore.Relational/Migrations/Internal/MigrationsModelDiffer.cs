@@ -982,8 +982,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var sourceTypeMapping = sourceMapping.TypeMapping;
             var targetTypeMapping = targetMapping.TypeMapping;
 
-            var sourceColumnType = source.Type ?? sourceTypeMapping.StoreType;
-            var targetColumnType = target.Type ?? targetTypeMapping.StoreType;
+            var sourceColumnType = source.StoreType ?? sourceTypeMapping.StoreType;
+            var targetColumnType = target.StoreType ?? targetTypeMapping.StoreType;
 
             var sourceMigrationsAnnotations = source.GetAnnotations();
             var targetMigrationsAnnotations = target.GetAnnotations();
@@ -1090,7 +1090,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 = (valueConverter?.ProviderClrType
                     ?? typeMapping.ClrType).UnwrapNullableType();
 
-            columnOperation.ColumnType = column.Type;
+            columnOperation.ColumnType = column.StoreType;
             columnOperation.MaxLength = column.MaxLength;
             columnOperation.Precision = column.Precision;
             columnOperation.Scale = column.Scale;

@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             builder.Append(column.Name).Append(" (");
 
-            builder.Append(column.Type).Append(")");
+            builder.Append(column.StoreType).Append(")");
 
             if (column.IsNullable)
             {

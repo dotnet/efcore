@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     // This is FirstOrDefault ending so we need to push down properties.
                     var temporaryParameter = Expression.Parameter(root.Type);
-                    var temporaryKey = temporaryParameter.CreateKeyValueReadExpression(
+                    var temporaryKey = temporaryParameter.CreateKeyValuesExpression(
                         navigation.IsOnDependent
                             ? navigation.ForeignKey.Properties
                             : navigation.ForeignKey.PrincipalKey.Properties,
@@ -184,14 +184,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
                 else
                 {
-                    outerKey = root.CreateKeyValueReadExpression(
+                    outerKey = root.CreateKeyValuesExpression(
                         navigation.IsOnDependent
                             ? navigation.ForeignKey.Properties
                             : navigation.ForeignKey.PrincipalKey.Properties,
                         makeNullable: true);
                 }
 
-                var innerKey = innerParameter.CreateKeyValueReadExpression(
+                var innerKey = innerParameter.CreateKeyValuesExpression(
                     navigation.IsOnDependent
                         ? navigation.ForeignKey.PrincipalKey.Properties
                         : navigation.ForeignKey.Properties,

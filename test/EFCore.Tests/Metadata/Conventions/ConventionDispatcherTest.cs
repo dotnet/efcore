@@ -3179,7 +3179,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
             else
             {
-                propertyBuilder.Metadata.SetFieldInfo(nameof(Order.IntField),
+                propertyBuilder.Metadata.SetField(nameof(Order.IntField),
                     ConfigurationSource.Convention);
             }
 
@@ -3200,7 +3200,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
             else
             {
-                propertyBuilder.Metadata.SetFieldInfo(nameof(Order.IntField),
+                propertyBuilder.Metadata.SetField(nameof(Order.IntField),
                     ConfigurationSource.Convention);
             }
 

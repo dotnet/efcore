@@ -287,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="properties"> The list of properties to use to generate key values. </param>
         /// <param name="makeNullable"> A value indicating if the key values should be read nullable. </param>
         /// <returns> An expression to read the key values. </returns>
-        public static Expression CreateKeyValueReadExpression(
+        public static Expression CreateKeyValuesExpression(
             [NotNull] this Expression target,
             [NotNull] IReadOnlyList<IProperty> properties,
             bool makeNullable = false)

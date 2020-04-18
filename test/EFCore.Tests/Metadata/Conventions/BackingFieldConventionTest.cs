@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention(property);
 
-            property.SetFieldInfo("m_onTheRun");
+            property.SetField("m_onTheRun");
 
             Validate(property);
 
@@ -234,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention((IMutableProperty)property);
 
-            property.SetFieldInfo("m_onTheRun", fromDataAnnotation: true);
+            property.SetField("m_onTheRun", fromDataAnnotation: true);
 
             Validate((IMutableProperty)property);
 
@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             Assert.Equal(
                 CoreStrings.BackingFieldOnIndexer("nation", entityType.DisplayName(), "Nation"),
-                Assert.Throws<InvalidOperationException>(() => property.SetFieldInfo("nation")).Message);
+                Assert.Throws<InvalidOperationException>(() => property.SetField("nation")).Message);
         }
 
         private void RunConvention(IMutableProperty property)

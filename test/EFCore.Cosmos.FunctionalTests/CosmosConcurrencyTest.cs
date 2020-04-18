@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     b =>
                     {
                         b.HasKey(c => c.Id);
-                        b.Property(c => c.ETag).IsEtagConcurrency();
+                        b.Property(c => c.ETag).IsETagConcurrency();
                     });
             }
         }

@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public Column([NotNull] string name, [CanBeNull] string type, [NotNull] Table table)
         {
             Name = name;
-            Type = type;
+            StoreType = type;
             Table = table;
         }
 
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual ITable Table { get; }
 
         /// <inheritdoc/>
-        public virtual string Type { get; }
+        public virtual string StoreType { get; }
 
         /// <inheritdoc/>
         public virtual bool IsNullable { get; set; }

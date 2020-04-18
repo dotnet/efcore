@@ -1433,7 +1433,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     && operation.IsFixedLength == column.IsFixedLength
                     && operation.IsRowVersion == column.IsRowVersion)
                 {
-                    return column.Type;
+                    return column.StoreType;
                 }
 
                 keyOrIndex = table.UniqueConstraints.Any(u => u.Columns.Contains(column))

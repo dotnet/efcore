@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (Metadata.FieldInfo?.GetSimpleMemberName() == fieldName
                 || configurationSource.Overrides(Metadata.GetFieldInfoConfigurationSource()))
             {
-                Metadata.SetFieldInfo(fieldName, configurationSource);
+                Metadata.SetField(fieldName, configurationSource);
 
                 return this;
             }
