@@ -772,7 +772,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalTheory]
         [InlineData(0)]
         [InlineData(101)]
-        public void Can_set_index_with_fillfactor_argument_out_of_range_exception(int fillFactor)
+        public void Throws_if_attempt_to_set_fillfactor_with_argument_out_of_range(int fillFactor)
         {
             var modelBuilder = CreateConventionModelBuilder();
 

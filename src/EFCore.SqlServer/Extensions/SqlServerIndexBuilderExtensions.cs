@@ -302,10 +302,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="indexBuilder"> The builder for the index being configured. </param>
         /// <param name="fillFactor"> A value indicating whether the index is created with fill factor option. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <c>null</c> otherwise.
-        /// </returns>
         /// <returns> <c>true</c> if the index can be configured with fill factor option when targeting SQL Server. </returns>
         public static bool CanSetFillFactor(
             [NotNull] this IConventionIndexBuilder indexBuilder,

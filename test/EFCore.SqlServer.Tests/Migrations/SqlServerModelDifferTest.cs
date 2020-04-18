@@ -939,7 +939,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         [ConditionalFact]
-        public void Rebuild_index_when_changing_fillfactor_option()
+        public void Rebuild_index_when_adding_fillfactor_option()
         {
             Execute(
                 _ => { },
@@ -1005,7 +1005,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         [ConditionalFact]
-        public void Rebuild_index_with_different_fillfactor_option()
+        public void Rebuild_index_with_different_fillfactor_value()
         {
             Execute(
                 source => source
