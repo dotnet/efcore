@@ -211,16 +211,17 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="comparer"> The comparer, or <c>null</c> to remove any previously set comparer. </param>
+        [Obsolete("Use SetValueComparer. Only a single value comparer is allowed for a given property.")]
         public static void SetKeyValueComparer([NotNull] this IMutableProperty property, [CanBeNull] ValueComparer comparer)
-            => property.AsProperty().SetKeyValueComparer(comparer, ConfigurationSource.Explicit);
+            => property.AsProperty().SetValueComparer(comparer, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     Sets the custom <see cref="ValueComparer" /> for structural copies for this property.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="comparer"> The comparer, or <c>null</c> to remove any previously set comparer. </param>
-        [Obsolete("Use SetKeyValueComparer. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
+        [Obsolete("Use SetValueComparer. Only a single value comparer is allowed for a given property.")]
         public static void SetStructuralValueComparer([NotNull] this IMutableProperty property, [CanBeNull] ValueComparer comparer)
-            => property.SetKeyValueComparer(comparer);
+            => property.SetValueComparer(comparer);
     }
 }

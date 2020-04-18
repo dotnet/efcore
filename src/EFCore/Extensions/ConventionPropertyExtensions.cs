@@ -345,11 +345,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="comparer"> The comparer, or <c>null</c> to remove any previously set comparer. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
+        [Obsolete("Use SetValueComparer. Only a single value comparer is allowed for a given property.")]
         public static ValueComparer SetKeyValueComparer(
             [NotNull] this IConventionProperty property,
             [CanBeNull] ValueComparer comparer,
             bool fromDataAnnotation = false)
-            => property.AsProperty().SetKeyValueComparer(
+            => property.AsProperty().SetValueComparer(
                 comparer, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -357,6 +358,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to find configuration source for. </param>
         /// <returns> The configuration source for <see cref="PropertyExtensions.GetKeyValueComparer" />. </returns>
+        [Obsolete("Use GetValueComparerConfigurationSource. Only a single value comparer is allowed for a given property.")]
         public static ConfigurationSource? GetKeyValueComparerConfigurationSource([NotNull] this IConventionProperty property)
             => property.FindAnnotation(CoreAnnotationNames.KeyValueComparer)?.GetConfigurationSource();
 
@@ -366,7 +368,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="comparer"> The comparer, or <c>null</c> to remove any previously set comparer. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        [Obsolete("Use SetKeyValueComparer. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
+        [Obsolete("Use SetValueComparer. Only a single value comparer is allowed for a given property.")]
         public static ValueComparer SetStructuralValueComparer(
             [NotNull] this IConventionProperty property,
             [CanBeNull] ValueComparer comparer,
@@ -378,7 +380,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to find configuration source for. </param>
         /// <returns> The configuration source for <see cref="PropertyExtensions.GetStructuralValueComparer" />. </returns>
-        [Obsolete("Use GetKeyValueComparerConfigurationSource. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
+        [Obsolete("Use GetValueComparerConfigurationSource. Only a single value comparer is allowed for a given property.")]
         public static ConfigurationSource? GetStructuralValueComparerConfigurationSource([NotNull] this IConventionProperty property)
             => property.GetKeyValueComparerConfigurationSource();
     }

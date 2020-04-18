@@ -879,7 +879,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     var converter = property.GetValueConverter();
                     if (converter != null
-                        && property.GetValueComparer(fallback: false) == null)
+                        && property[CoreAnnotationNames.ValueComparer] == null)
                     {
                         var type = converter.ModelClrType;
                         if (type != typeof(string)
