@@ -396,6 +396,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             return default;
         }
 
+        /// <summary>
+        ///     <para>
+        ///         Expand this property in the debugger for a human-readable view of the entities being tracked.
+        ///     </para>
+        ///     <para>
+        ///         Warning: Do not rely on the format of the debug strings.
+        ///         They are designed for debugging only and may change arbitrarily between releases.
+        ///     </para>
+        /// </summary>
+        public virtual DebugView DebugView
+            => new DebugView(
+                () => this.ToDebugString(ChangeTrackerDebugStringOptions.ShortDefault),
+                () => this.ToDebugString(ChangeTrackerDebugStringOptions.LongDefault));
+
         #region Hidden System.Object members
 
         /// <summary>

@@ -4,11 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -244,72 +242,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static IDependentsMap CreateDependentsMapFactory([NotNull] this IForeignKey foreignKey)
             => foreignKey.AsForeignKey().DependentsMapFactory();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static string ToDebugString(
-            [NotNull] this IForeignKey foreignKey,
-            MetadataDebugStringOptions options,
-            [NotNull] string indent = "")
-        {
-            var builder = new StringBuilder();
-
-            builder.Append(indent);
-
-            var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
-            if (singleLine)
-            {
-                builder.Append("ForeignKey: ");
-            }
-
-            builder
-                .Append(foreignKey.DeclaringEntityType.DisplayName())
-                .Append(" ")
-                .Append(foreignKey.Properties.Format())
-                .Append(" -> ")
-                .Append(foreignKey.PrincipalEntityType.DisplayName())
-                .Append(" ")
-                .Append(foreignKey.PrincipalKey.Properties.Format());
-
-            if (foreignKey.IsUnique)
-            {
-                builder.Append(" Unique");
-            }
-
-            if (foreignKey.IsOwnership)
-            {
-                builder.Append(" Ownership");
-            }
-
-            if (foreignKey.PrincipalToDependent != null)
-            {
-                builder.Append(" ToDependent: ").Append(foreignKey.PrincipalToDependent.Name);
-            }
-
-            if (foreignKey.DependentToPrincipal != null)
-            {
-                builder.Append(" ToPrincipal: ").Append(foreignKey.DependentToPrincipal.Name);
-            }
-
-            if (foreignKey.DeleteBehavior != DeleteBehavior.NoAction)
-            {
-                builder
-                    .Append(" ")
-                    .Append(foreignKey.DeleteBehavior);
-            }
-
-            if (!singleLine &&
-                (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
-            {
-                builder.Append(foreignKey.AnnotationsToDebugString(indent + "  "));
-            }
-
-            return builder.ToString();
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

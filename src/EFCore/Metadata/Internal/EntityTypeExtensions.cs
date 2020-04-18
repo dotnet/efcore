@@ -6,12 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable ArgumentsStyleOther
@@ -420,115 +418,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     yield return property;
                 }
             }
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static string ToDebugString(
-            [NotNull] this IEntityType entityType,
-            MetadataDebugStringOptions options,
-            [NotNull] string indent = "")
-        {
-            var builder = new StringBuilder();
-
-            builder
-                .Append(indent)
-                .Append("EntityType: ")
-                .Append(entityType.DisplayName());
-
-            if (entityType.BaseType != null)
-            {
-                builder.Append(" Base: ").Append(entityType.BaseType.DisplayName());
-            }
-
-            if (entityType.IsAbstract())
-            {
-                builder.Append(" Abstract");
-            }
-
-            if (entityType.FindPrimaryKey() == null)
-            {
-                builder.Append(" Keyless");
-            }
-
-            if (entityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot)
-            {
-                builder.Append(" ChangeTrackingStrategy.").Append(entityType.GetChangeTrackingStrategy());
-            }
-
-            if ((options & MetadataDebugStringOptions.SingleLine) == 0)
-            {
-                var properties = entityType.GetDeclaredProperties().ToList();
-                if (properties.Count != 0)
-                {
-                    builder.AppendLine().Append(indent).Append("  Properties: ");
-                    foreach (var property in properties)
-                    {
-                        builder.AppendLine().Append(property.ToDebugString(options, indent + "    "));
-                    }
-                }
-
-                var navigations = entityType.GetDeclaredNavigations().ToList();
-                if (navigations.Count != 0)
-                {
-                    builder.AppendLine().Append(indent).Append("  Navigations: ");
-                    foreach (var navigation in navigations)
-                    {
-                        builder.AppendLine().Append(navigation.ToDebugString(options, indent + "    "));
-                    }
-                }
-
-                var serviceProperties = entityType.GetDeclaredServiceProperties().ToList();
-                if (serviceProperties.Count != 0)
-                {
-                    builder.AppendLine().Append(indent).Append("  Service properties: ");
-                    foreach (var serviceProperty in serviceProperties)
-                    {
-                        builder.AppendLine().Append(serviceProperty.ToDebugString(options, indent + "    "));
-                    }
-                }
-
-                var keys = entityType.GetDeclaredKeys().ToList();
-                if (keys.Count != 0)
-                {
-                    builder.AppendLine().Append(indent).Append("  Keys: ");
-                    foreach (var key in keys)
-                    {
-                        builder.AppendLine().Append(key.ToDebugString(options, indent + "    "));
-                    }
-                }
-
-                var fks = entityType.GetDeclaredForeignKeys().ToList();
-                if (fks.Count != 0)
-                {
-                    builder.AppendLine().Append(indent).Append("  Foreign keys: ");
-                    foreach (var fk in fks)
-                    {
-                        builder.AppendLine().Append(fk.ToDebugString(options, indent + "    "));
-                    }
-                }
-
-                var indexes = entityType.GetDeclaredIndexes().ToList();
-                if (indexes.Count != 0)
-                {
-                    builder.AppendLine().Append(indent).Append("  Indexes: ");
-                    foreach (var index in indexes)
-                    {
-                        builder.AppendLine().Append(index.ToDebugString(options, indent + "    "));
-                    }
-                }
-
-                if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
-                {
-                    builder.Append(entityType.AnnotationsToDebugString(indent: indent + "  "));
-                }
-            }
-
-            return builder.ToString();
         }
 
         /// <summary>
