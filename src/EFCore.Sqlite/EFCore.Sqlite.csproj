@@ -16,12 +16,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EFCore.Sqlite.Core\EFCore.Sqlite.Core.csproj" PrivateAssets="contentfiles;build" />
+    <ProjectReference Condition="'$(BuildingByReSharper)' != 'true'" Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" ReferenceOutputAssembly="False" OutputItemType="Analyzer" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="$(SQLitePCLRawBundleESqlite3PackageVersion)">
-      <PrivateAssets>None</PrivateAssets>
-    </PackageReference>
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="$(SQLitePCLRawBundleESqlite3Version)" PrivateAssets="None" />
   </ItemGroup>
 
   <ItemGroup>

@@ -531,7 +531,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics,left, right);
+                definition.Log(diagnostics, left, right);
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -551,6 +551,37 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var d = (EventDefinition<object, object>)definition;
             var p = (BinaryExpressionEventData)payload;
             return d.GenerateMessage(p.Left, p.Right);
+        }
+
+        public static void InvalidIncludePathError(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+            [NotNull] string navigationChain,
+            [NotNull] string navigationName)
+        {
+            var definition = CoreResources.LogInvalidIncludePath(diagnostics);
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics, navigationChain, navigationName);
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new InvalidIncludePathEventData(
+                    definition,
+                    InvalidIncludePathError,
+                    navigationChain,
+                    navigationName);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        private static string InvalidIncludePathError(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<object, object>)definition;
+            var p = (InvalidIncludePathEventData)payload;
+
+            return d.GenerateMessage(p.NavigationChain, p.NavigationName);
         }
 
         /// <summary>

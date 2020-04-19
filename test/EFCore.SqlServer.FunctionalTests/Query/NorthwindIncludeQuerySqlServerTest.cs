@@ -143,7 +143,7 @@ ORDER BY [t].[CustomerID], [o].[OrderID]");
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
-ORDER BY [o].[OrderID], [o0].[OrderID], [o0].[ProductID]");
+ORDER BY [o].[OrderID], [c].[CustomerID], [o0].[OrderID], [o0].[ProductID]");
         }
 
         public override void Include_references_multi_level(bool useString)
@@ -191,7 +191,7 @@ FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
 LEFT JOIN [Orders] AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
-ORDER BY [o].[OrderID], [o].[ProductID], [o0].[OrderID], [o1].[OrderID]");
+ORDER BY [o].[OrderID], [o].[ProductID], [o0].[OrderID], [c].[CustomerID], [o1].[OrderID]");
         }
 
         public override void Include_multi_level_reference_and_collection_predicate(bool useString)
@@ -207,7 +207,7 @@ FROM (
     WHERE [o].[OrderID] = 10248
 ) AS [t]
 LEFT JOIN [Orders] AS [o0] ON [t].[CustomerID0] = [o0].[CustomerID]
-ORDER BY [t].[OrderID], [o0].[OrderID]");
+ORDER BY [t].[OrderID], [t].[CustomerID0], [o0].[OrderID]");
         }
 
         public override void Include_multi_level_collection_and_then_include_reference_predicate(bool useString)
@@ -476,17 +476,83 @@ ORDER BY [c].[CustomerID], [t0].[OrderID], [t0].[OrderID0], [t0].[ProductID], [t
 FROM [Customers] AS [c]");
         }
 
-        public override void Include_collection_on_join_clause_with_filter(bool useString)
+        public override void Include_collection_with_join_clause_with_filter(bool useString)
         {
-            base.Include_collection_on_join_clause_with_filter(useString);
+            base.Include_collection_with_join_clause_with_filter(useString);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
-WHERE [c].[CustomerID] = N'ALFKI'
+WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID], [o].[OrderID], [o0].[OrderID]");
+        }
+
+        public override void Include_collection_with_left_join_clause_with_filter(bool useString)
+        {
+            base.Include_collection_with_left_join_clause_with_filter(useString);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID], [o].[OrderID], [o0].[OrderID]");
+        }
+
+        public override void Include_collection_with_cross_join_clause_with_filter(bool useString)
+        {
+            base.Include_collection_with_cross_join_clause_with_filter(useString);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[OrderID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM [Customers] AS [c]
+CROSS JOIN (
+    SELECT TOP(5) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    ORDER BY [o].[OrderID]
+) AS [t]
+LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID], [t].[OrderID], [o0].[OrderID]");
+        }
+
+        public override void Include_collection_with_cross_apply_with_filter(bool useString)
+        {
+            base.Include_collection_with_cross_apply_with_filter(useString);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[OrderID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM [Customers] AS [c]
+CROSS APPLY (
+    SELECT TOP(5) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID] AS [CustomerID0]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [c].[CustomerID]
+) AS [t]
+LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID], [t].[OrderID], [o0].[OrderID]");
+        }
+
+        public override void Include_collection_with_outer_apply_with_filter(bool useString)
+        {
+            base.Include_collection_with_outer_apply_with_filter(useString);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[OrderID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT TOP(5) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID] AS [CustomerID0]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [c].[CustomerID]
+) AS [t]
+LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID], [t].[OrderID], [o0].[OrderID]");
         }
 
         public override void Include_collection_on_additional_from_clause_with_filter(bool useString)
@@ -924,9 +990,9 @@ ORDER BY [t].[ContactName], [t].[CustomerID], [o].[OrderID]");
             AssertSql(
                 @"@__p_0='5'
 
-SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [t].[CustomerID0], [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
 FROM (
-    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], CASE
+    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID] AS [CustomerID0], CASE
         WHEN [o].[OrderID] > 0 THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c], CASE
@@ -944,7 +1010,7 @@ FROM (
     END
 ) AS [t]
 LEFT JOIN [Order Details] AS [o0] ON [t].[OrderID] = [o0].[OrderID]
-ORDER BY [t].[c], [t].[c0], [t].[OrderID], [o0].[OrderID], [o0].[ProductID]");
+ORDER BY [t].[c], [t].[c0], [t].[OrderID], [t].[CustomerID0], [o0].[OrderID], [o0].[ProductID]");
         }
 
         public override void Then_include_collection_order_by_collection_column(bool useString)

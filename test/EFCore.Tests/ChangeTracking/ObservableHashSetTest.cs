@@ -10,6 +10,8 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;
 
+using ReferenceEqualityComparer = Microsoft.EntityFrameworkCore.Infrastructure.ReferenceEqualityComparer;
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     public class ObservableHashSetTest

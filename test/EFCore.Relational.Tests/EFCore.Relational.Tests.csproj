@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
+    <TargetFrameworks>$(StandardTestTfms)</TargetFrameworks>
     <AssemblyName>Microsoft.EntityFrameworkCore.Relational.Tests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
@@ -19,16 +19,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="$(MicrosoftExtensionsConfigurationPackageVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="$(MicrosoftExtensionsConfigurationVersion)" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="TestUtilities\FakeProvider\FakeDbCommand.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Update="TestUtilities\FakeProvider\FakeDbConnection.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Update="TestUtilities\FakeProvider\FakeDbCommand.cs" />
+    <Compile Update="TestUtilities\FakeProvider\FakeDbConnection.cs" />
   </ItemGroup>
 
 </Project>

@@ -3479,6 +3479,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     Invalid include path '{navigationChain}', couldn't find navigation for '{navigationName}'.
+        /// </summary>
+        public static EventDefinition<object, object> LogInvalidIncludePath([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogInvalidIncludePath;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogInvalidIncludePath,
+                    () => new EventDefinition<object, object>(
+                        logger.Options,
+                        CoreEventId.InvalidIncludePathError,
+                        LogLevel.Error,
+                        "CoreEventId.InvalidIncludePathError",
+                        level => LoggerMessage.Define<object, object>(
+                            level,
+                            CoreEventId.InvalidIncludePathError,
+                            _resourceManager.GetString("InvalidIncludePath"))));
+            }
+
+            return (EventDefinition<object, object>)definition;
+        }
+
+        /// <summary>
         ///     The same entity is being tracked as different weak entity types '{dependent1}' and '{dependent2}'. If a property value changes it will result in two store changes, which might not be the desired outcome.
         /// </summary>
         public static EventDefinition<string, string> LogDuplicateDependentEntityTypeInstance([NotNull] IDiagnosticsLogger logger)

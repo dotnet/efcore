@@ -617,6 +617,8 @@ namespace Microsoft.EntityFrameworkCore
             Seller
         }
 
+        public override void Object_to_string_conversion() {}
+
         public abstract class CustomConvertersFixtureBase : BuiltInDataTypesFixtureBase
         {
             protected override string StoreName { get; } = "CustomConverters";
@@ -920,7 +922,9 @@ namespace Microsoft.EntityFrameworkCore
                         var property = b.Property(e => e.Id)
                             .HasConversion(v => "KeyValue=" + v, v => v.Substring(9)).Metadata;
 
+#pragma warning disable 618
                         property.SetKeyValueComparer(caseInsensitiveComparer);
+#pragma warning restore 618
                     });
 
                 modelBuilder.Entity<StringForeignKeyDataType>(
@@ -929,7 +933,7 @@ namespace Microsoft.EntityFrameworkCore
                         var property = b.Property(e => e.StringKeyDataTypeId)
                             .HasConversion(v => "KeyValue=" + v, v => v.Substring(9)).Metadata;
 
-                        property.SetKeyValueComparer(caseInsensitiveComparer);
+                        property.SetValueComparer(caseInsensitiveComparer);
                     });
 
                 modelBuilder.Entity<MaxLengthDataTypes>(

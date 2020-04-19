@@ -24,10 +24,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private readonly List<TableExpressionBase> _tables = new List<TableExpressionBase>();
         private readonly List<SqlExpression> _groupBy = new List<SqlExpression>();
         private readonly List<OrderingExpression> _orderings = new List<OrderingExpression>();
-        private readonly List<(SqlExpression Column, ValueComparer Comparer)> _identifier
-            = new List<(SqlExpression Column, ValueComparer Comparer)>();
-        private readonly List<(SqlExpression Column, ValueComparer Comparer)> _childIdentifiers
-            = new List<(SqlExpression Column, ValueComparer Comparer)>();
+        private readonly List<(ColumnExpression Column, ValueComparer Comparer)> _identifier
+            = new List<(ColumnExpression Column, ValueComparer Comparer)>();
+        private readonly List<(ColumnExpression Column, ValueComparer Comparer)> _childIdentifiers
+            = new List<(ColumnExpression Column, ValueComparer Comparer)>();
         private readonly List<SelectExpression> _pendingCollections = new List<SelectExpression>();
 
         private IDictionary<ProjectionMember, Expression> _projectionMapping = new Dictionary<ProjectionMember, Expression>();
@@ -979,7 +979,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             foreach (var identifier in innerSelectExpression._identifier.Concat(innerSelectExpression._childIdentifiers))
             {
-                var updatedColumn = MakeNullable(identifier.Column);
+                var updatedColumn = identifier.Column.MakeNullable();
                 _childIdentifiers.Add((updatedColumn, identifier.Comparer));
                 AppendOrdering(new OrderingExpression(updatedColumn, ascending: true));
             }
@@ -1000,7 +1000,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             => sqlExpression is ColumnExpression column ? column.MakeNullable() : sqlExpression;
 
         private (Expression, IReadOnlyList<ValueComparer>) GetIdentifierAccessor(
-            IEnumerable<(SqlExpression Column, ValueComparer Comparer)> identifyingProjection)
+            IEnumerable<(ColumnExpression Column, ValueComparer Comparer)> identifyingProjection)
         {
             var updatedExpressions = new List<Expression>();
             var comparers = new List<ValueComparer>();
@@ -1383,7 +1383,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     .Remap(joinPredicate);
             }
 
-            if (joinType != JoinType.LeftJoin)
+            if (joinType == JoinType.LeftJoin
+                || joinType == JoinType.OuterApply)
+            {
+                _identifier.AddRange(innerSelectExpression._identifier.Select(e => (e.Column.MakeNullable(), e.Comparer)));
+            }
+            else
             {
                 _identifier.AddRange(innerSelectExpression._identifier);
             }

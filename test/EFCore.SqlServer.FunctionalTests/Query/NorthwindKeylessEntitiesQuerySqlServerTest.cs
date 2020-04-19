@@ -102,7 +102,7 @@ WHERE [o].[CustomerID] = N'ALFKI'");
             await base.KeylessEntity_with_defining_query_and_correlated_collection(async);
 
             AssertSql(
-                @"SELECT [o].[OrderID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+                @"SELECT [o].[OrderID], [c].[CustomerID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM (
     select * from ""Orders""
 ) AS [o]

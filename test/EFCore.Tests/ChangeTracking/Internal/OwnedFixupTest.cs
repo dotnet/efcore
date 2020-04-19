@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+using ReferenceEqualityComparer = Microsoft.EntityFrameworkCore.Infrastructure.ReferenceEqualityComparer;
+
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable AccessToDisposedClosure

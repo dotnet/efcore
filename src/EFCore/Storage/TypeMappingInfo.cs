@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -112,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var mappingHints = customConverter?.MappingHints;
             var property = principals[0];
 
-            IsKeyOrIndex = property.IsKeyOrForeignKey() || property.IsIndex();
+            IsKeyOrIndex = property.IsKey() || property.IsForeignKey() || property.IsIndex();
             Size = size ?? mappingHints?.Size ?? fallbackSize;
             IsUnicode = isUnicode ?? mappingHints?.IsUnicode ?? fallbackUnicode;
             IsRowVersion = property.IsConcurrencyToken && property.ValueGenerated == ValueGenerated.OnAddOrUpdate;

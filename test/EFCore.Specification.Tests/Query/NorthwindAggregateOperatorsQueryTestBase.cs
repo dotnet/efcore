@@ -1930,5 +1930,32 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Order>().Where(o => o.OrderID == 10248),
                 o => o.OrderID - 10248);
         }
+
+        [ConditionalTheory(Skip = "Issue#20637")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Average_after_default_if_empty_does_not_throw(bool isAsync)
+        {
+            return AssertAverage(
+                isAsync,
+                ss => ss.Set<Order>().Where(o => o.OrderID == 10243).Select(o => o.OrderID).DefaultIfEmpty());
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Max_after_default_if_empty_does_not_throw(bool isAsync)
+        {
+            return AssertMax(
+                isAsync,
+                ss => ss.Set<Order>().Where(o => o.OrderID == 10243).Select(o => o.OrderID).DefaultIfEmpty());
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Min_after_default_if_empty_does_not_throw(bool isAsync)
+        {
+            return AssertMin(
+                isAsync,
+                ss => ss.Set<Order>().Where(o => o.OrderID == 10243).Select(o => o.OrderID).DefaultIfEmpty());
+        }
     }
 }

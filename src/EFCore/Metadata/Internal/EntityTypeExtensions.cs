@@ -290,7 +290,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     index: index++,
                     originalValueIndex: property.RequiresOriginalValue() ? originalValueIndex++ : -1,
                     shadowIndex: property.IsShadowProperty() ? shadowIndex++ : -1,
-                    relationshipIndex: property.IsKeyOrForeignKey() ? relationshipIndex++ : -1,
+                    relationshipIndex: property.IsKey() || property.IsForeignKey() ? relationshipIndex++ : -1,
                     storeGenerationIndex: property.MayBeStoreGenerated() ? storeGenerationIndex++ : -1);
 
                 property.PropertyIndexes = indexes;

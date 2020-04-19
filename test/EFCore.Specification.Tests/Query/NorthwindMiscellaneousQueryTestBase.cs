@@ -5864,5 +5864,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Assert.Empty(result);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_include_on_incorrect_property_throws(bool async)
+        {
+            return Assert.ThrowsAsync<InvalidOperationException>(
+                async () => await AssertQuery(async, ss => ss.Set<Customer>().Include("OrderDetails")));
+        }
     }
 }

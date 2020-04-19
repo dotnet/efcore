@@ -19,5 +19,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             base.Include_collection_order_by_non_key_with_take(useString);
         }
+
+        // Sqlite does not support Apply operations
+        public override void Include_collection_with_cross_apply_with_filter(bool useString)
+        {
+        }
+
+        public override void Include_collection_with_outer_apply_with_filter(bool useString)
+        {
+        }
     }
 }

@@ -879,7 +879,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     var converter = property.GetValueConverter();
                     if (converter != null
-                        && property.GetValueComparer(fallback: false) == null)
+                        && property[CoreAnnotationNames.ValueComparer] == null)
                     {
                         var type = converter.ModelClrType;
                         if (type != typeof(string)
@@ -890,7 +890,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         }
                     }
 
-                    if (property.IsKeyOrForeignKey()
+                    if (property.IsKey()
+                        || property.IsForeignKey()
                         || property.IsUniqueIndex())
                     {
                         var _ = property.GetCurrentValueComparer(); // Will throw if there is no way to compare

@@ -14,6 +14,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+using ReferenceEqualityComparer = Microsoft.EntityFrameworkCore.Infrastructure.ReferenceEqualityComparer;
+
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
 // ReSharper disable ArrangeAccessorOwnerBody
 // ReSharper disable NonReadonlyMemberInGetHashCode

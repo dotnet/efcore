@@ -80,6 +80,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 
+            if (binaryExpression.Left.Type == typeof(object[])
+                && binaryExpression.Left is NewArrayExpression
+                && binaryExpression.NodeType == ExpressionType.Equal)
+            {
+                return Visit(ConvertObjectArrayEqualityComparison(binaryExpression));
+            }
+
             var newLeft = Visit(binaryExpression.Left);
             var newRight = Visit(binaryExpression.Right);
 
@@ -1096,6 +1103,38 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 default:
                     return false;
             }
+        }
+
+        private static Expression ConvertObjectArrayEqualityComparison(BinaryExpression binaryExpression)
+        {
+            var leftExpressions = ((NewArrayExpression)binaryExpression.Left).Expressions;
+            var rightExpressions = ((NewArrayExpression)binaryExpression.Right).Expressions;
+
+            return leftExpressions.Zip(
+                    rightExpressions,
+                    (l, r) =>
+                    {
+                        l = RemoveObjectConvert(l);
+                        r = RemoveObjectConvert(r);
+                        if (l.Type.IsNullableType())
+                        {
+                            r = r.Type.IsNullableType() ? r : Expression.Convert(r, l.Type);
+                        }
+                        else if (r.Type.IsNullableType())
+                        {
+                            l = l.Type.IsNullableType() ? l : Expression.Convert(l, r.Type);
+                        }
+
+                        return Expression.Equal(l, r);
+                    })
+                .Aggregate((a, b) => Expression.AndAlso(a, b));
+
+            static Expression RemoveObjectConvert(Expression expression)
+                => expression is UnaryExpression unaryExpression
+                    && expression.Type == typeof(object)
+                    && expression.NodeType == ExpressionType.Convert
+                    ? unaryExpression.Operand
+                    : expression;
         }
 
         private static bool IsNullConstantExpression(Expression expression)

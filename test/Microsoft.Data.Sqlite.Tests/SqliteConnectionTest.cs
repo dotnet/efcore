@@ -28,6 +28,25 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void ConnectionString_defaults_to_empty()
+        {
+            var connection = new SqliteConnection();
+
+            Assert.Empty(connection.ConnectionString);
+        }
+
+        [Fact]
+        public void ConnectionString_coalesces_to_empty()
+        {
+            var connection = new SqliteConnection
+            {
+                ConnectionString = null
+            };
+
+            Assert.Empty(connection.ConnectionString);
+        }
+
+        [Fact]
         public void ConnectionString_setter_throws_when_open()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))

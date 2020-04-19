@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+using ReferenceEqualityComparer = Microsoft.EntityFrameworkCore.Infrastructure.ReferenceEqualityComparer;
+
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixture<TFixture>

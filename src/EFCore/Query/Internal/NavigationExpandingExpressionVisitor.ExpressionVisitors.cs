@@ -215,8 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     // This is intentionally deferred to be applied to innerSource.Source
                     // Since outerKey's reference could change if a reference navigation is expanded afterwards
                     var predicateBody = Expression.AndAlso(
-                        outerKey is NewExpression newExpression
-                        && newExpression.Arguments[0] is NewArrayExpression newArrayExpression
+                        outerKey is NewArrayExpression newArrayExpression
                             ? newArrayExpression.Expressions
                                 .Select(e =>
                                 {

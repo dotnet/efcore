@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             if (migrations.Count != 0)
             {
                 var migration = migrations[migrations.Count - 1];
-                model = migration.TargetModel;
+                model = Dependencies.SnapshotModelProcessor.Process(migration.TargetModel);
 
                 if (!Dependencies.MigrationsModelDiffer.HasDifferences(
                     model.GetRelationalModel(), Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model).GetRelationalModel()))
@@ -324,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     }
 
                     model = migrations.Count > 1
-                        ? migrations[migrations.Count - 2].TargetModel
+                        ? Dependencies.SnapshotModelProcessor.Process(migrations[migrations.Count - 2].TargetModel)
                         : null;
                 }
                 else

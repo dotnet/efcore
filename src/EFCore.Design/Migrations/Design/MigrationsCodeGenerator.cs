@@ -229,8 +229,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.AfterSaveBehavior,
                 CoreAnnotationNames.TypeMapping,
                 CoreAnnotationNames.ValueComparer,
-                CoreAnnotationNames.KeyValueComparer,
 #pragma warning disable 618
+                CoreAnnotationNames.KeyValueComparer,
                 CoreAnnotationNames.StructuralValueComparer,
 #pragma warning restore 618
                 CoreAnnotationNames.ConstructorBinding,
