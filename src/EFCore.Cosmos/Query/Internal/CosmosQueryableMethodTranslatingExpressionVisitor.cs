@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -74,6 +75,115 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public override Expression Visit(Expression expression)
+        {
+            if (expression is MethodCallExpression methodCallExpression
+                && methodCallExpression.Method.IsGenericMethod
+                && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.FirstOrDefaultWithoutPredicate)
+            {
+                if (methodCallExpression.Arguments[0] is MethodCallExpression queryRootMethodCallExpression
+                    && methodCallExpression.Method.IsGenericMethod
+                    && queryRootMethodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.Where)
+                {
+                    if (queryRootMethodCallExpression.Arguments[0] is QueryRootExpression queryRootExpression)
+                    {
+                        var entityType = queryRootExpression.EntityType;
+
+                        if (queryRootMethodCallExpression.Arguments[1] is UnaryExpression unaryExpression
+                            && unaryExpression.Operand is LambdaExpression lambdaExpression
+                            && lambdaExpression.Body is BinaryExpression lambdaBodyBinaryExpression)
+                        {
+                            var queryProperties = new List<IProperty>();
+                            var parameterNames = new List<string>();
+
+                            if (ProcessJoinCondition(lambdaBodyBinaryExpression, queryProperties, parameterNames))
+                            {
+                                var entityTypePrimaryKeyProperties = entityType.FindPrimaryKey().Properties;
+                                
+                                if (TryGetPartitionKeyProperty(out var partitionKeyProperty)
+                                    && entityTypePrimaryKeyProperties.Contains(partitionKeyProperty)
+                                    && entityTypePrimaryKeyProperties.SequenceEqual(queryProperties))
+                                {
+                                    var propertyParameterList = queryProperties.Zip(parameterNames,
+                                        (property, parameter) => (property, parameter))
+                                        .ToDictionary(tuple => tuple.property, tuple => tuple.parameter);
+
+                                    var readItemExpression = new ReadItemExpression(entityType, propertyParameterList);
+
+                                    var shapedQueryExpression = new ShapedQueryExpression(
+                                        readItemExpression,
+                                        new EntityShaperExpression(
+                                            entityType,
+                                            new ProjectionBindingExpression(
+                                                readItemExpression,
+                                                new ProjectionMember(),
+                                                typeof(ValueBuffer)),
+                                            false));
+
+                                    shapedQueryExpression = shapedQueryExpression.UpdateResultCardinality(ResultCardinality.Single);
+
+                                    return shapedQueryExpression;
+                                }
+                            }
+
+                            bool ProcessJoinCondition(
+                                Expression joinCondition, ICollection<IProperty> properties, ICollection<string> paramNames)
+                            {
+                                if (joinCondition is BinaryExpression binaryExpression)
+                                {
+                                    switch (binaryExpression.NodeType)
+                                    {
+                                        case ExpressionType.AndAlso:
+                                            return ProcessJoinCondition(binaryExpression.Left, properties, paramNames)
+                                                && ProcessJoinCondition(binaryExpression.Right, properties, paramNames);
+
+                                        case ExpressionType.Equal:
+                                            if (binaryExpression.Left is MethodCallExpression methodCallExpr
+                                                && binaryExpression.Right is ParameterExpression parameterExpr)
+                                            {
+                                                if (methodCallExpr.TryGetEFPropertyArguments(out _, out var propertyName))
+                                                {
+#pragma warning disable EF1001
+                                                    properties.Add(entityType.GetProperty(propertyName));
+                                                    paramNames.Add(parameterExpr.Name);
+                                                    return true;
+                                                }
+                                            }
+                                            return false;
+
+                                        default:
+                                            return false;
+                                    }
+                                }
+                                return false;
+                            }
+
+                            bool TryGetPartitionKeyProperty(out IProperty partitionKeyProperty)
+                            {
+                                var partitionKeyPropertyName = entityType.GetPartitionKeyPropertyName();
+
+                                if (partitionKeyPropertyName is null)
+                                {
+                                    partitionKeyProperty = null;
+                                    return false;
+                                }
+
+                                partitionKeyProperty = entityType.FindProperty(partitionKeyPropertyName);
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            return base.Visit(expression);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor()
             => new CosmosQueryableMethodTranslatingExpressionVisitor(this);
 
@@ -124,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         protected override ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
-
+            
             var selectExpression = _sqlExpressionFactory.Select(entityType);
 
             return new ShapedQueryExpression(
@@ -194,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             projection = _sqlExpressionFactory.Function(
                 "AVG", new[] { projection }, projection.Type, projection.TypeMapping);
 
-            return AggregateResultShaper(source, projection, throwWhenEmpty: true, resultType);
+            return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
         }
 
         /// <summary>
@@ -551,7 +661,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             projection = _sqlExpressionFactory.Function("MAX", new[] { projection }, resultType, projection.TypeMapping);
 
-            return AggregateResultShaper(source, projection, throwWhenEmpty: true, resultType);
+            return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
         }
 
         /// <summary>
@@ -581,7 +691,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             projection = _sqlExpressionFactory.Function("MIN", new[] { projection }, resultType, projection.TypeMapping);
 
-            return AggregateResultShaper(source, projection, throwWhenEmpty: true, resultType);
+            return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
         }
 
         /// <summary>
@@ -796,7 +906,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             projection = _sqlExpressionFactory.Function(
                 "SUM", new[] { projection }, serverOutputType, projection.TypeMapping);
 
-            return AggregateResultShaper(source, projection, throwWhenEmpty: false, resultType);
+            return AggregateResultShaper(source, projection, throwOnNullResult: false, resultType);
         }
 
         /// <summary>
@@ -912,35 +1022,29 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         }
 
         private ShapedQueryExpression AggregateResultShaper(
-            ShapedQueryExpression source, Expression projection, bool throwWhenEmpty, Type resultType)
+            ShapedQueryExpression source, Expression projection, bool throwOnNullResult, Type resultType)
         {
             var selectExpression = (SelectExpression)source.QueryExpression;
             selectExpression.ReplaceProjectionMapping(
                 new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), projection } });
 
             selectExpression.ClearOrdering();
-            Expression shaper;
 
-            if (throwWhenEmpty)
+            var nullableResultType = resultType.MakeNullable();
+            Expression shaper = new ProjectionBindingExpression(
+                source.QueryExpression, new ProjectionMember(), throwOnNullResult ? nullableResultType : projection.Type);
+
+            if (throwOnNullResult)
             {
-                // Avg/Max/Min case.
-                // We always read nullable value
-                // If resultType is nullable then we always return null. Only non-null result shows throwing behavior.
-                // otherwise, if projection.Type is nullable then server result is passed through DefaultIfEmpty, hence we return default
-                // otherwise, server would return null only if it is empty, and we throw
-                var nullableResultType = resultType.MakeNullable();
-                shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), nullableResultType);
                 var resultVariable = Expression.Variable(nullableResultType, "result");
                 var returnValueForNull = resultType.IsNullableType()
-                    ? Expression.Constant(null, resultType)
-                    : projection.Type.IsNullableType()
-                        ? (Expression)Expression.Default(resultType)
-                        : Expression.Throw(
-                            Expression.New(
-                                typeof(InvalidOperationException).GetConstructors()
-                                    .Single(ci => ci.GetParameters().Length == 1),
-                                Expression.Constant(CoreStrings.NoElements)),
-                            resultType);
+                    ? (Expression)Expression.Constant(null, resultType)
+                    : Expression.Throw(
+                        Expression.New(
+                            typeof(InvalidOperationException).GetConstructors()
+                                .Single(ci => ci.GetParameters().Length == 1),
+                            Expression.Constant(CoreStrings.NoElements)),
+                        resultType);
 
                 shaper = Expression.Block(
                     new[] { resultVariable },
@@ -952,15 +1056,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             ? Expression.Convert(resultVariable, resultType)
                             : (Expression)resultVariable));
             }
-            else
+            else if (resultType != shaper.Type)
             {
-                // Sum case. Projection is always non-null. We read non-nullable value (0 if empty)
-                shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), projection.Type);
-                // Cast to nullable type if required
-                if (resultType != shaper.Type)
-                {
-                    shaper = Expression.Convert(shaper, resultType);
-                }
+                shaper = Expression.Convert(shaper, resultType);
             }
 
             return source.UpdateShaperExpression(shaper);

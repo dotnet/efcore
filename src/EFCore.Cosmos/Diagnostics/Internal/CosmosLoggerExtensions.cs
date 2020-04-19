@@ -51,6 +51,28 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
                 cosmosSqlQuery.Query);
         }
 
+        public static void ExecutingReadItem(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnosticsLogger,
+            [NotNull] string partitionKey,
+            [NotNull] string resourceId)
+        {
+            var definition = new EventDefinition<string, string, string>(
+                diagnosticsLogger.Options,
+                CoreEventId.ProviderBaseId,
+                LogLevel.Debug,
+                "CoreEventId.ProviderBaseId",
+                level => LoggerMessage.Define<string, string, string>(
+                    level,
+                    CoreEventId.ProviderBaseId,
+                    "Executing Read Item [Partition Key, Resource Id=[{parameters}]]{newLine}{commandText}"));
+
+            definition.Log(
+                diagnosticsLogger,
+                $"{partitionKey}, {resourceId}", 
+                Environment.NewLine,
+                "Read Item");
+        }
+
         private static string FormatParameters(IReadOnlyList<SqlParameter> parameters)
         {
             return parameters.Count == 0

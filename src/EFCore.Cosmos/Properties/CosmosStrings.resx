@@ -168,4 +168,13 @@
   <data name="ReverseRequiresOffsetOrLimit" xml:space="preserve">
     <value>Reverse is not supported without Limit or Offset.</value>
   </data>
+  <data name="InvalidResourceId" xml:space="preserve">
+    <value>Invalid Resource id. Resource id cannot be null or empty and must be a string value.</value>
+  </data>
+  <data name="ParitionKeyMissing" xml:space="preserve">
+    <value>Partition key missing.</value>
+  </data>
+  <data name="ResourceIdMissing" xml:space="preserve">
+    <value>Resource id missing or cannot be generated.</value>
+  </data>
 </root>

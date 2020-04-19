@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     public class CosmosQueryCompilationContext : QueryCompilationContext
     {
-        public virtual string PartitionKey { get; internal set; }
+        public virtual string PartitionKeyFromExtension { get; internal set; }
 
         public CosmosQueryCompilationContext(
             [NotNull] QueryCompilationContextDependencies dependencies, bool async)
