@@ -27,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore
         protected override void AddServices(ServiceCollection serviceCollection)
             => new EntityFrameworkServicesBuilder(serviceCollection).TryAddCoreServices();
 
+
         public class ApiConsistencyFixture : ApiConsistencyFixtureBase
         {
             protected override void Initialize()
@@ -34,6 +35,12 @@ namespace Microsoft.EntityFrameworkCore
                 AddInstanceMethods(MetadataTypes);
 
                 base.Initialize();
+            }
+
+            public override bool TryGetProviderOptionsDelegate(out Action<DbContextOptionsBuilder> configureOptions)
+            {
+                configureOptions = null;
+                return false;
             }
 
             public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>

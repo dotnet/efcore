@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public override IServiceCollection AddProviderServices(IServiceCollection services)
             => services.AddEntityFrameworkSqlServer();
 
-        protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
+        public override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlServer(new SqlConnection("Database=DummyDatabase"));
 
         public override LoggingDefinitions LoggingDefinitions { get; } = new SqlServerLoggingDefinitions();
