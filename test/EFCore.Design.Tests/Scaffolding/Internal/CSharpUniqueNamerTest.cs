@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
@@ -40,8 +41,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData("Name with no s at end", "Name_with_no_s_at_end")]
         public void Singularizes_names(string input, string output)
         {
-            var fakePluralizer = new RelationalDatabaseModelFactoryTest.FakePluralizer();
-            var namer = new CSharpUniqueNamer<DatabaseTable>(t => t.Name, new CSharpUtilities(), fakePluralizer.Singularize);
+            var pluralizer = new HumanizerPluralizer();
+            var namer = new CSharpUniqueNamer<DatabaseTable>(t => t.Name, new CSharpUtilities(), pluralizer.Singularize);
             var table = new DatabaseTable { Database = new DatabaseModel(), Name = input };
             Assert.Equal(output, namer.GetName(table));
         }
@@ -51,8 +52,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData("Name with no s at end", "Name_with_no_s_at_ends")]
         public void Pluralizes_names(string input, string output)
         {
-            var fakePluralizer = new RelationalDatabaseModelFactoryTest.FakePluralizer();
-            var namer = new CSharpUniqueNamer<DatabaseTable>(t => t.Name, new CSharpUtilities(), fakePluralizer.Pluralize);
+            var pluralizer = new HumanizerPluralizer();
+            var namer = new CSharpUniqueNamer<DatabaseTable>(t => t.Name, new CSharpUtilities(), pluralizer.Pluralize);
             var table = new DatabaseTable { Database = new DatabaseModel(), Name = input };
             Assert.Equal(output, namer.GetName(table));
         }

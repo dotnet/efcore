@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -45,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             var services = new ServiceCollection()
                 .AddEntityFrameworkDesignTimeServices(_reporter)
+                .AddSingleton<IPluralizer, NullPluralizer>()
                 .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>();
             new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
 
@@ -1202,7 +1204,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             var services = new ServiceCollection()
                 .AddEntityFrameworkDesignTimeServices(_reporter)
-                .AddSingleton<IPluralizer, FakePluralizer>()
+                .AddSingleton<IPluralizer, HumanizerPluralizer>()
                 .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>();
             new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
 
@@ -1290,7 +1292,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             var services = new ServiceCollection()
                 .AddEntityFrameworkDesignTimeServices(_reporter)
-                .AddSingleton<IPluralizer, FakePluralizer>()
+                .AddSingleton<IPluralizer, HumanizerPluralizer>()
                 .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>();
             new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
 
@@ -1525,23 +1527,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             var column = model.FindEntityType("Table").GetProperty("Column");
             Assert.Equal("An int column", column.GetComment());
-        }
-
-        public class FakePluralizer : IPluralizer
-        {
-            public string Pluralize(string name)
-            {
-                return name.EndsWith("s")
-                    ? name
-                    : name + "s";
-            }
-
-            public string Singularize(string name)
-            {
-                return name.EndsWith("s")
-                    ? name[..^1]
-                    : name;
-            }
         }
     }
 }

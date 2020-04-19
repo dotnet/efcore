@@ -6,6 +6,7 @@ updates:
       interval: weekly
     allow:
       - dependency-name: Castle.Core
+      - dependency-name: Humanizer.Core
       - dependency-name: IdentityServer4.EntityFramework
       - dependency-name: Microsoft.Azure.Cosmos
       - dependency-name: Microsoft.CSharp
