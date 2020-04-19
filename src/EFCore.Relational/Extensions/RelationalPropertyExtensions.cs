@@ -305,6 +305,28 @@ namespace Microsoft.EntityFrameworkCore
                 ?? Enumerable.Empty<IViewColumnMapping>();
 
         /// <summary>
+        ///     Returns the table column corresponding to this property if it's mapped to the given table.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="tableName"> The target table name. </param>
+        /// <param name="schema"> The target table schema. </param>
+        /// <returns> The table column to which the property is mapped. </returns>
+        public static IColumn FindTableColumn([NotNull] this IProperty property, [NotNull] string tableName, [CanBeNull] string schema)
+            => property.GetTableColumnMappings().Select(m => m.Column)
+                .FirstOrDefault(c => c.Table.Name == tableName && c.Table.Schema == schema);
+
+        /// <summary>
+        ///     Returns the view column corresponding to this property if it's mapped to the given table.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="viewName"> The target table name. </param>
+        /// <param name="schema"> The target table schema. </param>
+        /// <returns> The table column to which the property is mapped. </returns>
+        public static IViewColumn FindViewColumn([NotNull] this IProperty property, [NotNull] string viewName, [CanBeNull] string schema)
+            => property.GetViewColumnMappings().Select(m => m.Column)
+                .FirstOrDefault(c => c.View.Name == viewName && c.View.Schema == schema);
+
+        /// <summary>
         ///     Returns the SQL expression that is used as the default value for the column this property is mapped to.
         /// </summary>
         /// <param name="property"> The property. </param>

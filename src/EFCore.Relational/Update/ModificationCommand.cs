@@ -254,12 +254,20 @@ namespace Microsoft.EntityFrameworkCore.Update
 
                 foreach (var property in entry.EntityType.GetProperties())
                 {
+                    var column = property.FindTableColumn(TableName, Schema);
+                    if (column == null)
+                    {
+                        continue;
+                    }
+
                     var isKey = property.IsPrimaryKey();
-                    var isConcurrencyToken = property.IsConcurrencyToken;
-                    var isCondition = !adding && (isKey || isConcurrencyToken);
+                    var isCondition = !adding && (isKey || property.IsConcurrencyToken);
                     var readValue = entry.IsStoreGenerated(property);
-                    var columnName = property.GetColumnName();
-                    var columnPropagator = sharedColumnMap?[columnName];
+                    ColumnValuePropagator columnPropagator = null;
+                    if (sharedColumnMap != null)
+                    {
+                        columnPropagator = sharedColumnMap[column.Name];
+                    }
 
                     var writeValue = false;
                     if (!readValue)
@@ -288,12 +296,12 @@ namespace Microsoft.EntityFrameworkCore.Update
                         var columnModification = new ColumnModification(
                             entry,
                             property,
+                            column,
                             _generateParameterName,
                             readValue,
                             writeValue,
                             isKey,
                             isCondition,
-                            isConcurrencyToken,
                             _sensitiveLoggingEnabled);
 
                         if (columnPropagator != null)
@@ -316,11 +324,16 @@ namespace Microsoft.EntityFrameworkCore.Update
             return columnModifications;
         }
 
-        private static void InitializeSharedColumns(IUpdateEntry entry, bool updating, Dictionary<string, ColumnValuePropagator> columnMap)
+        private void InitializeSharedColumns(IUpdateEntry entry, bool updating, Dictionary<string, ColumnValuePropagator> columnMap)
         {
             foreach (var property in entry.EntityType.GetProperties())
             {
-                var columnName = property.GetColumnName();
+                var columnName = property.FindTableColumn(TableName, Schema)?.Name;
+                if (columnName == null)
+                {
+                    continue;
+                }
+
                 if (!columnMap.TryGetValue(columnName, out var columnPropagator))
                 {
                     columnPropagator = new ColumnValuePropagator();

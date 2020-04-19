@@ -108,9 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _name = name;
             _schema = schema;
             _configurationSource = configurationSource;
-#pragma warning disable EF1001 // Internal EF Core API usage.
-            Builder = new InternalSequenceBuilder(this, ((Model)model).Builder.ModelBuilder);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+            Builder = new InternalSequenceBuilder(this, ((IConventionModel)model).Builder);
         }
 
         /// <summary>
@@ -137,9 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _maxValue = data.MaxValue;
             _clrType = data.ClrType;
             _isCyclic = data.IsCyclic;
-#pragma warning disable EF1001 // Internal EF Core API usage.
-            Builder = new InternalSequenceBuilder(this, ((Model)model).Builder.ModelBuilder);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+            Builder = new InternalSequenceBuilder(this, ((IConventionModel)model).Builder);
         }
 
         /// <summary>

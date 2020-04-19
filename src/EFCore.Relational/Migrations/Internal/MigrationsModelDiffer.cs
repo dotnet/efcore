@@ -1728,8 +1728,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
             }
 
-            var targetKeys = target.EntityTypeMappings
-                .SelectMany(m => m.EntityType.GetDeclaredKeys()).Where(k => k.IsPrimaryKey()).ToList();
+            var targetKeys = target.PrimaryKey?.MappedKeys.ToList() ?? new List<IKey>();
             var keyMapping = new Dictionary<IEntityType,
                 Dictionary<IKey, List<(IProperty Property, ValueConverter SourceConverter, ValueConverter TargetConverter)>>>();
             foreach (var sourceMapping in source.EntityTypeMappings)
@@ -1792,7 +1791,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     if (!keyMapping.TryGetValue(sourceEntityType, out var targetKeyMap))
                     {
-                        entryMapping.RecreateRow = true;
                         continue;
                     }
 
@@ -2021,20 +2019,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 foreach (var commandBatch in commandBatches)
                 {
                     InsertDataOperation batchInsertOperation = null;
-                    foreach (var c in commandBatch.ModificationCommands)
+                    foreach (var command in commandBatch.ModificationCommands)
                     {
-                        if (c.EntityState == EntityState.Added)
+                        if (diffContext.FindDrop(model.FindTable(command.TableName, command.Schema)) != null)
+                        {
+                            continue;
+                        }
+
+                        if (command.EntityState == EntityState.Added)
                         {
                             if (batchInsertOperation != null)
                             {
-                                if (batchInsertOperation.Table == c.TableName
-                                    && batchInsertOperation.Schema == c.Schema
+                                if (batchInsertOperation.Table == command.TableName
+                                    && batchInsertOperation.Schema == command.Schema
                                     && batchInsertOperation.Columns.SequenceEqual(
-                                        c.ColumnModifications.Where(col => col.IsKey || col.IsWrite).Select(col => col.ColumnName)))
+                                        command.ColumnModifications.Where(col => col.IsKey || col.IsWrite).Select(col => col.ColumnName)))
                                 {
                                     batchInsertOperation.Values =
                                         AddToMultidimensionalArray(
-                                            c.ColumnModifications.Where(col => col.IsKey || col.IsWrite).Select(GetValue).ToList(),
+                                            command.ColumnModifications.Where(col => col.IsKey || col.IsWrite).Select(GetValue).ToList(),
                                             batchInsertOperation.Values);
                                     continue;
                                 }
@@ -2044,15 +2047,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                             batchInsertOperation = new InsertDataOperation
                             {
-                                Schema = c.Schema,
-                                Table = c.TableName,
-                                Columns = c.ColumnModifications.Where(col => col.IsKey || col.IsWrite).Select(col => col.ColumnName)
+                                Schema = command.Schema,
+                                Table = command.TableName,
+                                Columns = command.ColumnModifications.Where(col => col.IsKey || col.IsWrite).Select(col => col.ColumnName)
                                     .ToArray(),
                                 Values = ToMultidimensionalArray(
-                                    c.ColumnModifications.Where(col => col.IsKey || col.IsWrite).Select(GetValue).ToList())
+                                    command.ColumnModifications.Where(col => col.IsKey || col.IsWrite).Select(GetValue).ToList())
                             };
                         }
-                        else if (c.EntityState == EntityState.Modified)
+                        else if (command.EntityState == EntityState.Modified)
                         {
                             if (batchInsertOperation != null)
                             {
@@ -2062,14 +2065,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                             yield return new UpdateDataOperation
                             {
-                                Schema = c.Schema,
-                                Table = c.TableName,
-                                KeyColumns = c.ColumnModifications.Where(col => col.IsKey).Select(col => col.ColumnName).ToArray(),
+                                Schema = command.Schema,
+                                Table = command.TableName,
+                                KeyColumns = command.ColumnModifications.Where(col => col.IsKey).Select(col => col.ColumnName).ToArray(),
                                 KeyValues = ToMultidimensionalArray(
-                                    c.ColumnModifications.Where(col => col.IsKey).Select(GetValue).ToList()),
-                                Columns = c.ColumnModifications.Where(col => col.IsWrite).Select(col => col.ColumnName).ToArray(),
+                                    command.ColumnModifications.Where(col => col.IsKey).Select(GetValue).ToList()),
+                                Columns = command.ColumnModifications.Where(col => col.IsWrite).Select(col => col.ColumnName).ToArray(),
                                 Values = ToMultidimensionalArray(
-                                    c.ColumnModifications.Where(col => col.IsWrite).Select(GetValue).ToList())
+                                    command.ColumnModifications.Where(col => col.IsWrite).Select(GetValue).ToList())
                             };
                         }
                         else
@@ -2080,17 +2083,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 batchInsertOperation = null;
                             }
 
-                            if (diffContext.FindDrop(model.FindTable(c.TableName, c.Schema)) == null)
+                            yield return new DeleteDataOperation
                             {
-                                yield return new DeleteDataOperation
-                                {
-                                    Schema = c.Schema,
-                                    Table = c.TableName,
-                                    KeyColumns = c.ColumnModifications.Where(col => col.IsKey).Select(col => col.ColumnName).ToArray(),
-                                    KeyValues = ToMultidimensionalArray(
-                                        c.ColumnModifications.Where(col => col.IsKey).Select(GetValue).ToArray())
-                                };
-                            }
+                                Schema = command.Schema,
+                                Table = command.TableName,
+                                KeyColumns = command.ColumnModifications.Where(col => col.IsKey).Select(col => col.ColumnName).ToArray(),
+                                KeyValues = ToMultidimensionalArray(
+                                    command.ColumnModifications.Where(col => col.IsKey).Select(GetValue).ToArray())
+                            };
                         }
                     }
 

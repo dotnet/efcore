@@ -332,17 +332,20 @@ namespace Microsoft.EntityFrameworkCore.Update
             var columnModifications = new[]
             {
                 new ColumnModification(
-                    entry, idProperty, generator.GenerateNext, identityKey, !identityKey, true, false, false, true),
+                    entry, idProperty, idProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                    identityKey, !identityKey, true, false, true),
                 new ColumnModification(
-                    entry, nameProperty, generator.GenerateNext, false, true, false, false, false, true),
+                    entry, nameProperty, nameProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                    false, true, false, false, true),
                 new ColumnModification(
-                    entry, quacksProperty, generator.GenerateNext, false, true, false, false, false, true),
+                    entry, quacksProperty, quacksProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                    false, true, false, false, true),
                 new ColumnModification(
-                    entry, computedProperty, generator.GenerateNext, isComputed, false, false, false,
-                    true, true),
+                    entry, computedProperty, computedProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                    isComputed, false, false, false, true),
                 new ColumnModification(
-                    entry, concurrencyProperty, generator.GenerateNext, false, true, false, false,
-                    false, true)
+                    entry, concurrencyProperty, concurrencyProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                    false, true, false, false, true)
             };
 
             if (defaultsOnly)
@@ -369,17 +372,20 @@ namespace Microsoft.EntityFrameworkCore.Update
             var columnModifications = new[]
             {
                 new ColumnModification(
-                    entry, idProperty, generator.GenerateNext, false, false, true, true, false, true),
+                    entry, idProperty, idProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                    false, false, true, true, true),
                 new ColumnModification(
-                    entry, nameProperty, generator.GenerateNext, false, true, false, false, false, true),
+                    entry, nameProperty, nameProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                    false, true, false, false, true),
                 new ColumnModification(
-                    entry, quacksProperty, generator.GenerateNext, false, true, false, false, false, true),
+                    entry, quacksProperty, quacksProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                    false, true, false, false, true),
                 new ColumnModification(
-                    entry, computedProperty, generator.GenerateNext, isComputed, false, false, false,
-                    false, true),
+                    entry, computedProperty, computedProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                    isComputed, false, false, false, true),
                 new ColumnModification(
-                    entry, concurrencyProperty, generator.GenerateNext, false, true, false,
-                    concurrencyToken, concurrencyToken, true)
+                    entry, concurrencyProperty, concurrencyProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                    false, true, false, concurrencyToken, true)
             };
 
             return new FakeModificationCommand(
@@ -398,10 +404,11 @@ namespace Microsoft.EntityFrameworkCore.Update
             var columnModifications = new[]
             {
                 new ColumnModification(
-                    entry, idProperty, generator.GenerateNext, false, false, true, true, concurrencyToken, true),
+                    entry, idProperty, idProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                    false, false, true, true, true),
                 new ColumnModification(
-                    entry, concurrencyProperty, generator.GenerateNext, false, false, false,
-                    concurrencyToken, concurrencyToken, true)
+                    entry, concurrencyProperty, concurrencyProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                    false, false, false, concurrencyToken, true)
             };
 
             return new FakeModificationCommand(
@@ -413,7 +420,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         private IMutableEntityType GetDuckType()
         {
             var modelBuilder = TestHelpers.CreateConventionBuilder();
-            modelBuilder.Entity<Duck>().Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<Duck>().ToTable("Ducks", Schema).Property(e => e.Id).ValueGeneratedNever();
             return modelBuilder.Model.FindEntityType(typeof(Duck));
         }
 
