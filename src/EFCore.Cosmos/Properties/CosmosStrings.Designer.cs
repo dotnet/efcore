@@ -57,11 +57,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType, container);
 
         /// <summary>
-        ///     The entity type '{entityType}' has property '{property}' as its concurrency token, but only '_etag' is supported. Consider using 'EntityTypeBuilder.UseEtagConcurrency'.
+        ///     The entity type '{entityType}' has property '{property}' as its concurrency token, but only '_etag' is supported. Consider using 'EntityTypeBuilder.UseETagConcurrency'.
         /// </summary>
-        public static string NonEtagConcurrencyToken([CanBeNull] object entityType, [CanBeNull] object property)
+        public static string NonETagConcurrencyToken([CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
-                GetString("NonEtagConcurrencyToken", nameof(entityType), nameof(property)),
+                GetString("NonETagConcurrencyToken", nameof(entityType), nameof(property)),
                 entityType, property);
 
         /// <summary>

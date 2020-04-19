@@ -737,7 +737,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 .Property<int>(propertyName)
                 .Metadata;
 
-            property.SetFieldInfo(fieldName);
+            property.SetField(fieldName);
             Assert.False(property.IsShadowProperty());
 
             return property;
@@ -755,7 +755,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 .WithMany();
 
             var navigation = relationship.Metadata.DependentToPrincipal;
-            navigation.SetFieldInfo(fieldName);
+            navigation.SetField(fieldName);
 
             return navigation;
         }
@@ -772,7 +772,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 .WithOne();
 
             var navigation = relationship.Metadata.PrincipalToDependent;
-            navigation.SetFieldInfo(fieldName);
+            navigation.SetField(fieldName);
 
             return navigation;
         }
@@ -908,7 +908,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.FieldNameMismatch(null, nameof(FieldOnly), "_foo"),
-                Assert.Throws<InvalidOperationException>(() => propertyBase.SetFieldInfo(null)).Message);
+                Assert.Throws<InvalidOperationException>(() => propertyBase.SetField(null)).Message);
         }
 
         [ConditionalFact]
@@ -931,14 +931,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(propertyBase.FieldInfo);
             Assert.Same(propertyInfo, propertyBase.GetIdentifyingMemberInfo());
 
-            propertyBase.SetFieldInfo(fieldName);
+            propertyBase.SetField(fieldName);
 
             Assert.Equal(fieldName, propertyBase.GetFieldName());
             var fieldInfo = propertyBase.FieldInfo;
             Assert.Equal(fieldName, fieldInfo.Name);
             Assert.Same(propertyInfo ?? (MemberInfo)fieldInfo, propertyBase.GetIdentifyingMemberInfo());
 
-            propertyBase.SetFieldInfo(null);
+            propertyBase.SetField(null);
 
             Assert.Null(propertyBase.GetFieldName());
             Assert.Null(propertyBase.FieldInfo);
@@ -966,7 +966,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.FieldNameMismatch("_foo", nameof(FullProp), "shadow"),
-                Assert.Throws<InvalidOperationException>(() => property.SetFieldInfo("_foo")).Message);
+                Assert.Throws<InvalidOperationException>(() => property.SetField("_foo")).Message);
         }
 
         private class AutoProp

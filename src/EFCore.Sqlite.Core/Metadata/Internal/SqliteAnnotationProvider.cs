@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal
         public override IEnumerable<IAnnotation> For(IRelationalModel model)
         {
             if (model.Tables.SelectMany(t => t.Columns).Any(
-                c => SqliteTypeMappingSource.IsSpatialiteType(c.Type)))
+                c => SqliteTypeMappingSource.IsSpatialiteType(c.StoreType)))
             {
                 yield return new Annotation(SqliteAnnotationNames.InitSpatialMetaData, true);
             }

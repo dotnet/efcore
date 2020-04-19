@@ -105,6 +105,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new HashSet<MethodInfo>
             {
+                typeof(IConventionPropertyBase).GetMethod(nameof(IConventionPropertyBase.SetField)),
                 typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.FindAnnotation)),
                 typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.GetAnnotations)),
                 typeof(IMutableAnnotatable).GetMethod("set_Item"),

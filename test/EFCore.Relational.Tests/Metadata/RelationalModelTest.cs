@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(orderDateColumn, ordersView.FindColumn("OrderDateView"));
             Assert.Equal(new[] { orderDate, orderDetailsDate }, orderDateColumn.PropertyMappings.Select(m => m.Property));
             Assert.Equal("OrderDateView", orderDateColumn.Name);
-            Assert.Equal("default_datetime_mapping", orderDateColumn.Type);
+            Assert.Equal("default_datetime_mapping", orderDateColumn.StoreType);
             Assert.False(orderDateColumn.IsNullable);
             Assert.Same(ordersView, orderDateColumn.Table);
 
@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(orderDateColumn, ordersTable.FindColumn("OrderDate"));
             Assert.Equal(new[] { orderDate, orderDetailsDate }, orderDateColumn.PropertyMappings.Select(m => m.Property));
             Assert.Equal("OrderDate", orderDateColumn.Name);
-            Assert.Equal("default_datetime_mapping", orderDateColumn.Type);
+            Assert.Equal("default_datetime_mapping", orderDateColumn.StoreType);
             Assert.False(orderDateColumn.IsNullable);
             Assert.Same(ordersTable, orderDateColumn.Table);
 

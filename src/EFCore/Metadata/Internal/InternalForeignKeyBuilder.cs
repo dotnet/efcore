@@ -942,7 +942,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (navigation.FieldInfo?.GetSimpleMemberName() == fieldName
                 || configurationSource.Overrides(navigation.GetFieldInfoConfigurationSource()))
             {
-                navigation.SetFieldInfo(fieldName, configurationSource);
+                navigation.SetField(fieldName, configurationSource);
 
                 return this;
             }
@@ -2838,7 +2838,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 return null;
             }
-        
+
             // This workaround prevents the properties to be cleaned away before the new FK is created,
             // this should be replaced with reference counting
             // Issue #15898

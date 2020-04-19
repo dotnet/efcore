@@ -296,16 +296,6 @@ namespace Microsoft.EntityFrameworkCore
                 ?? Enumerable.Empty<IColumnMapping>();
 
         /// <summary>
-        ///     Returns the view or table columns to which the property is mapped.
-        /// </summary>
-        /// <param name="property"> The property. </param>
-        /// <returns> The view or table columns to which the property is mapped. </returns>
-        public static IEnumerable<IColumnMappingBase> GetViewOrTableColumnMappings([NotNull] this IProperty property) =>
-            (IEnumerable<IColumnMappingBase>)(property[RelationalAnnotationNames.ViewColumnMappings]
-                ?? property[RelationalAnnotationNames.TableColumnMappings])
-                ?? Enumerable.Empty<IColumnMappingBase>();
-
-        /// <summary>
         ///     Returns the view columns to which the property is mapped.
         /// </summary>
         /// <param name="property"> The property. </param>

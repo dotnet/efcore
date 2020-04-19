@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public ViewColumn([NotNull] string name, [NotNull] string type, [NotNull] View view)
         {
             Name = name;
-            Type = type;
+            StoreType = type;
             View = view;
         }
 
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IView View { get; }
 
         /// <inheritdoc/>
-        public virtual string Type { get; }
+        public virtual string StoreType { get; }
 
         /// <inheritdoc/>
         public virtual bool IsNullable { get; set; }

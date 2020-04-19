@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public void Can_set_etag_concurrency_entity()
         {
             var modelBuilder = CreateConventionModelBuilder();
-            modelBuilder.Entity<Customer>().UseEtagConcurrency();
+            modelBuilder.Entity<Customer>().UseETagConcurrency();
             var model = modelBuilder.Model;
 
             var etagProperty = model.FindEntityType(typeof(Customer).FullName).FindProperty("_etag");
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public void Can_set_etag_concurrency_property()
         {
             var modelBuilder = CreateConventionModelBuilder();
-            modelBuilder.Entity<Customer>().Property(x => x.ETag).IsEtagConcurrency();
+            modelBuilder.Entity<Customer>().Property(x => x.ETag).IsETagConcurrency();
             var model = modelBuilder.Model;
 
             var etagProperty = model.FindEntityType(typeof(Customer).FullName).FindProperty("ETag");
