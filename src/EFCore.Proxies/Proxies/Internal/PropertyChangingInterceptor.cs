@@ -6,7 +6,7 @@ using System.Collections;
 using System.ComponentModel;
 using Castle.DynamicProxy;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                     var navigation = _entityType.FindNavigation(propertyName);
                     if (navigation != null)
                     {
-                        HandleChanging(invocation, navigation, ReferenceEqualityComparer.Instance);
+                        HandleChanging(invocation, navigation, LegacyReferenceEqualityComparer.Instance);
                     }
                     else
                     {

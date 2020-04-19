@@ -9,11 +9,10 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
-
-using ReferenceEqualityComparer = Microsoft.EntityFrameworkCore.Infrastructure.ReferenceEqualityComparer;
 
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -4669,8 +4668,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 CollectionType.SortedSet => new SortedSet<T> { dependent },
                 CollectionType.Collection => new Collection<T> { dependent },
                 CollectionType.ObservableCollection => new ObservableCollection<T> { dependent },
-                CollectionType.ObservableHashSet => new ObservableHashSet<T>(ReferenceEqualityComparer.Instance) { dependent },
-                _ => new HashSet<T>(ReferenceEqualityComparer.Instance) { dependent }
+                CollectionType.ObservableHashSet => new ObservableHashSet<T>(LegacyReferenceEqualityComparer.Instance) { dependent },
+                _ => new HashSet<T>(LegacyReferenceEqualityComparer.Instance) { dependent }
             };
 
         private void AssertFixup(DbContext context, Action asserts)

@@ -689,7 +689,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (_referencedUntrackedEntities == null)
             {
                 _referencedUntrackedEntities
-                    = new Dictionary<object, IList<Tuple<INavigation, InternalEntityEntry>>>(ReferenceEqualityComparer.Instance);
+                    = new Dictionary<object, IList<Tuple<INavigation, InternalEntityEntry>>>(LegacyReferenceEqualityComparer.Instance);
             }
 
             if (!_referencedUntrackedEntities.TryGetValue(referencedEntity, out var danglers))

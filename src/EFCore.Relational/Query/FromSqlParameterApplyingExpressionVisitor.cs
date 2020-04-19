@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class FromSqlParameterApplyingExpressionVisitor : ExpressionVisitor
     {
         private readonly IDictionary<FromSqlExpression, Expression> _visitedFromSqlExpressions
-            = new Dictionary<FromSqlExpression, Expression>(ReferenceEqualityComparer.Instance);
+            = new Dictionary<FromSqlExpression, Expression>(LegacyReferenceEqualityComparer.Instance);
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly ParameterNameGenerator _parameterNameGenerator;
