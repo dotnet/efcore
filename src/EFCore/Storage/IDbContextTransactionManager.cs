@@ -46,9 +46,27 @@ namespace Microsoft.EntityFrameworkCore.Storage
         void CommitTransaction();
 
         /// <summary>
+        ///     Commits all changes made to the database in the current transaction.
+        /// </summary>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous operation.
+        /// </returns>
+        Task CommitTransactionAsync(CancellationToken cancellationToken = default);
+
+        /// <summary>
         ///     Discards all changes made to the database in the current transaction.
         /// </summary>
         void RollbackTransaction();
+
+        /// <summary>
+        ///     Discards all changes made to the database in the current transaction.
+        /// </summary>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous operation.
+        /// </returns>
+        Task RollbackTransactionAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Gets the current transaction.
