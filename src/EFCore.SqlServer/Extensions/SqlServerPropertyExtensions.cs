@@ -333,13 +333,14 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <c>true</c> if compatible. </returns>
         public static bool IsCompatibleWithValueGeneration([NotNull] IProperty property)
         {
-            var type = property.ClrType;
+            var converter = property.FindTypeMapping()?.Converter ?? property.GetValueConverter();
 
-            return (type.IsInteger()
-                    || type == typeof(decimal))
-                && (property.FindTypeMapping()?.Converter
-                    ?? property.GetValueConverter())
-                == null;
+            var hasConverter = converter != null;
+            var hasConverterToSupportedType = hasConverter && IsSupportedType(converter.ProviderClrType);
+
+            return (IsSupportedType(property.ClrType) && !hasConverter) || hasConverterToSupportedType;
+
+            static bool IsSupportedType(Type type) => type.IsInteger() || type == typeof(decimal);
         }
     }
 }
