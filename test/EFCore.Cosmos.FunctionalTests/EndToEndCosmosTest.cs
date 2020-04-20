@@ -404,7 +404,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             using (var context = new PartitionKeyContext(options))
             {
                 var customerFromStore = await context.Set<Customer>()
-                    .Where(b => b.PartitionKey == pk1)
+                    .Where(b => (b.Id == 42 || b.Name == "John Snow") && b.PartitionKey == pk1)
                     .FirstAsync();
 
                 Assert.Equal(42, customerFromStore.Id);
@@ -419,10 +419,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             using (var context = new PartitionKeyContext(options))
             {
                 var customerFromStore = await context.Set<Customer>()
-                    .Where(b => (b.Id == 42 || b.Name == "John Snow") && b.PartitionKey == pk1)
-                    .FirstAsync();
+                    .Where(b => b.Id == 42 && b.PartitionKey == pk1 || b.PartitionKey == pk2)
+                    .ToListAsync();
 
-                customerFromStore.PartitionKey = pk2;
+                Assert.Equal(2, customerFromStore.Count);
+
+                customerFromStore.FirstOrDefault(b => b.PartitionKey == 1).PartitionKey = pk2;
 
                 Assert.Equal(
                     CoreStrings.KeyReadOnly(nameof(Customer.PartitionKey), nameof(Customer)),
