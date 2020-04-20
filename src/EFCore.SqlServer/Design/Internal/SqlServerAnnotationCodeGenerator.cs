@@ -82,6 +82,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
                 return new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.IncludeProperties), annotation.Value);
             }
 
+            if (annotation.Name == SqlServerAnnotationNames.FillFactor)
+            { 
+                return new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.HasFillFactor), annotation.Value);
+            }
+
             return null;
         }
     }
