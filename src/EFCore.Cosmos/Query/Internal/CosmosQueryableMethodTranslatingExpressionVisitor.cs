@@ -999,10 +999,49 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             {
                 ((SelectExpression)source.QueryExpression).ApplyPredicate(translation);
 
+                if (source.ShaperExpression is EntityShaperExpression entityShaperExpression
+                    && TryGetPartitionKeyFromPredicate(predicate.Body, entityShaperExpression.EntityType, out var partitionKeyProperty))
+                {
+                    ((SelectExpression)source.QueryExpression).SetPartitionKeyProperty(partitionKeyProperty);
+                }
+
                 return source;
             }
 
             return null;
+
+            bool TryGetPartitionKeyFromPredicate(
+                Expression predicateExpression, IEntityType entityType, out KeyValuePair<IProperty, object> partitionKeyProperty)
+            {
+                partitionKeyProperty = default;
+
+                if (predicateExpression is BinaryExpression binaryExpression)
+                {
+                    switch (binaryExpression.NodeType)
+                    {
+                        case ExpressionType.AndAlso:
+                            return TryGetPartitionKeyFromPredicate(binaryExpression.Left, entityType, out partitionKeyProperty)
+                                    || TryGetPartitionKeyFromPredicate(binaryExpression.Right, entityType, out partitionKeyProperty);
+
+                        case ExpressionType.Equal:
+                            if (binaryExpression.Left is MemberExpression memberExpression
+                                && binaryExpression.Right is ConstantExpression constantExpression
+                                && memberExpression.Member.Name == entityType.GetPartitionKeyPropertyName())
+                            {
+                                partitionKeyProperty = new KeyValuePair<IProperty, object>(
+                                    entityType.FindProperty(memberExpression.Member.Name), constantExpression.Value);
+                                return true;
+                            }
+
+                            return false;
+
+                        default:
+                            return false;
+                    }
+                }
+
+                return false;
+            }
         }
 
         private SqlExpression TranslateExpression(Expression expression)

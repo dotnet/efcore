@@ -50,7 +50,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 _shaper = shaper;
                 _contextType = contextType;
                 _logger = logger;
-                _partitionKey = partitionKeyFromExtension;
+
+                _partitionKey = _selectExpression.TryGetPartitionKey(out var partitionKey)
+                    ? partitionKey
+                    : partitionKeyFromExtension;
             }
 
             public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
