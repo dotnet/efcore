@@ -7,6 +7,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
@@ -80,23 +81,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     switch (state)
                     {
                         case EntityState.Detached:
-                            _detachedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
+                            _detachedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(LegacyReferenceEqualityComparer.Instance);
                             _detachedReferenceMap[mapKey] = entry;
                             break;
                         case EntityState.Unchanged:
-                            _unchangedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
+                            _unchangedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(LegacyReferenceEqualityComparer.Instance);
                             _unchangedReferenceMap[mapKey] = entry;
                             break;
                         case EntityState.Deleted:
-                            _deletedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
+                            _deletedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(LegacyReferenceEqualityComparer.Instance);
                             _deletedReferenceMap[mapKey] = entry;
                             break;
                         case EntityState.Modified:
-                            _modifiedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
+                            _modifiedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(LegacyReferenceEqualityComparer.Instance);
                             _modifiedReferenceMap[mapKey] = entry;
                             break;
                         case EntityState.Added:
-                            _addedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
+                            _addedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(LegacyReferenceEqualityComparer.Instance);
                             _addedReferenceMap[mapKey] = entry;
                             break;
                     }
