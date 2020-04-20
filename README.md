@@ -118,7 +118,7 @@ See also
 * [Documentation](https://docs.microsoft.com/ef/core/)
 * [Roadmap](https://docs.microsoft.com/ef/core/what-is-new/roadmap)
 * [Weekly status updates](https://github.com/dotnet/efcore/issues/15403)
-* [Release planning process](https://docs.microsoft.com/en-us/ef/core/what-is-new/release-planning)
+* [Release planning process](https://docs.microsoft.com/ef/core/what-is-new/release-planning)
 * [How to write an EF Core provider](https://docs.microsoft.com/ef/core/providers/writing-a-provider)
 * [Security](./docs/security.md)
 * [Code of conduct](.github/CODE_OF_CONDUCT.md)
