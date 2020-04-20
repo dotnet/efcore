@@ -171,24 +171,24 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                         foreach (var containerProperties in await containerIterator.ReadNextAsync())
                         {
                             var container = database.GetContainer(containerProperties.Id);
+                            var partitionKey = containerProperties.PartitionKeyPath[1..];
                             var itemIterator = container.GetItemQueryIterator<JObject>(
-                                new QueryDefinition("SELECT c.id FROM c"));
-                            var partitionKeyPath = containerProperties.PartitionKeyPath;
+                                new QueryDefinition("SELECT * FROM c"));
 
-                            var items = new List<(string, string)>();
+                            var items = new List<(string Id, string PartitionKey)>();
                             while (itemIterator.HasMoreResults)
                             {
-                                foreach (var itemId in await itemIterator.ReadNextAsync())
+                                foreach (var item in await itemIterator.ReadNextAsync())
                                 {
-                                    items.Add((itemId["id"].ToString(), itemId[partitionKeyPath]?.ToString()));
+                                    items.Add((item["id"].ToString(), item[partitionKey]?.ToString()));
                                 }
                             }
 
                             foreach (var item in items)
                             {
                                 await container.DeleteItemAsync<object>(
-                                    item.Item1,
-                                    item.Item2 == null ? PartitionKey.None : new PartitionKey(item.Item1));
+                                    item.Id,
+                                    item.PartitionKey == null ? PartitionKey.None : new PartitionKey(item.PartitionKey));
                             }
                         }
                     }

@@ -5,9 +5,12 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
@@ -182,6 +185,179 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
+        [ConditionalFact]
+        public void Can_add_update_untracked_properties()
+        {
+            var options = Fixture.CreateOptions();
+
+            var customer = new Customer { Id = 42, Name = "Theon" };
+
+            using (var context = new CustomerContext(options))
+            {
+                context.Database.EnsureCreated();
+
+                var entry = context.Add(customer);
+
+                context.SaveChanges();
+
+                var document = entry.Property<JObject>("__jObject").CurrentValue;
+                Assert.NotNull(document);
+                Assert.Equal("Theon", document["Name"]);
+
+                context.Remove(customer);
+
+                context.SaveChanges();
+            }
+
+            using (var context = new CustomerContext(options))
+            {
+                Assert.Empty(context.Set<Customer>().ToList());
+
+                var entry = context.Add(customer);
+
+                entry.Property<JObject>("__jObject").CurrentValue = new JObject
+                {
+                    ["key1"] = "value1"
+                };
+
+                context.SaveChanges();
+
+                var document = entry.Property<JObject>("__jObject").CurrentValue;
+                Assert.NotNull(document);
+                Assert.Equal("Theon", document["Name"]);
+                Assert.Equal("value1", document["key1"]);
+
+                document["key2"] = "value2";
+                entry.State = EntityState.Modified;
+                context.SaveChanges();
+            }
+
+            using (var context = new CustomerContext(options))
+            {
+                var customerFromStore = context.Set<Customer>().Single();
+
+                Assert.Equal(42, customerFromStore.Id);
+                Assert.Equal("Theon", customerFromStore.Name);
+
+                var entry = context.Entry(customerFromStore);
+                var document = entry.Property<JObject>("__jObject").CurrentValue;
+                Assert.Equal("value1", document["key1"]);
+                Assert.Equal("value2", document["key2"]);
+
+                document["key1"] = "value1.1";
+                customerFromStore.Name = "Theon Greyjoy";
+
+                context.SaveChanges();
+            }
+
+            using (var context = new CustomerContext(options))
+            {
+                var customerFromStore = context.Set<Customer>().Single();
+
+                Assert.Equal("Theon Greyjoy", customerFromStore.Name);
+
+                var entry = context.Entry(customerFromStore);
+                var document = entry.Property<JObject>("__jObject").CurrentValue;
+                Assert.Equal("value1.1", document["key1"]);
+                Assert.Equal("value2", document["key2"]);
+
+                context.Remove(customerFromStore);
+
+                context.SaveChanges();
+            }
+
+            using (var context = new CustomerContext(options))
+            {
+                Assert.Empty(context.Set<Customer>().ToList());
+            }
+        }
+
+        [ConditionalFact]
+        public async Task Can_add_update_untracked_properties_async()
+        {
+            var options = Fixture.CreateOptions();
+
+            var customer = new Customer { Id = 42, Name = "Theon" };
+
+            using (var context = new CustomerContext(options))
+            {
+                await context.Database.EnsureCreatedAsync();
+
+                var entry = context.Add(customer);
+
+                await context.SaveChangesAsync();
+
+                var document = entry.Property<JObject>("__jObject").CurrentValue;
+                Assert.NotNull(document);
+                Assert.Equal("Theon", document["Name"]);
+
+                context.Remove(customer);
+
+                await context.SaveChangesAsync();
+            }
+
+            using (var context = new CustomerContext(options))
+            {
+                Assert.Empty(await context.Set<Customer>().ToListAsync());
+
+                var entry = context.Add(customer);
+
+                entry.Property<JObject>("__jObject").CurrentValue = new JObject
+                {
+                    ["key1"] = "value1"
+                };
+
+                await context.SaveChangesAsync();
+
+                var document = entry.Property<JObject>("__jObject").CurrentValue;
+                Assert.NotNull(document);
+                Assert.Equal("Theon", document["Name"]);
+                Assert.Equal("value1", document["key1"]);
+
+                document["key2"] = "value2";
+                entry.State = EntityState.Modified;
+                await context.SaveChangesAsync();
+            }
+
+            using (var context = new CustomerContext(options))
+            {
+                var customerFromStore = await context.Set<Customer>().SingleAsync();
+
+                Assert.Equal(42, customerFromStore.Id);
+                Assert.Equal("Theon", customerFromStore.Name);
+
+                var entry = context.Entry(customerFromStore);
+                var document = entry.Property<JObject>("__jObject").CurrentValue;
+                Assert.Equal("value1", document["key1"]);
+                Assert.Equal("value2", document["key2"]);
+
+                document["key1"] = "value1.1";
+                customerFromStore.Name = "Theon Greyjoy";
+
+                await context.SaveChangesAsync();
+            }
+
+            using (var context = new CustomerContext(options))
+            {
+                var customerFromStore = await context.Set<Customer>().SingleAsync();
+
+                Assert.Equal("Theon Greyjoy", customerFromStore.Name);
+
+                var entry = context.Entry(customerFromStore);
+                var document = entry.Property<JObject>("__jObject").CurrentValue;
+                Assert.Equal("value1.1", document["key1"]);
+                Assert.Equal("value2", document["key2"]);
+
+                context.Remove(customerFromStore);
+
+                await context.SaveChangesAsync();
+            }
+
+            using (var context = new CustomerContext(options))
+            {
+                Assert.Empty(await context.Set<Customer>().ToListAsync());
+            }
+        }
         private class Customer
         {
             public int Id { get; set; }
@@ -191,7 +367,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
         private class Customer_WithResourceId
         {
-            public int Id { get; set; }
             public string id { get; set; }
             public string Name { get; set; }
             public int PartitionKey { get; set; }
@@ -372,7 +547,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         [ConditionalFact]
-        public async Task Can_read_with_find_with_partitionkey_async()
+        public async Task Can_read_with_find_with_resource_id_async()
         {
             var options = Fixture.CreateOptions();
             const int pk1 = 1;
@@ -380,7 +555,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             var customer = new Customer_WithResourceId
             {
-                Id = 42,
+                id = "42",
                 Name = "Theon",
                 PartitionKey = pk1
             };
@@ -393,7 +568,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 context.Add(
                     new Customer_WithResourceId
                     {
-                        Id = 42,
+                        id = "42",
                         Name = "Theon Twin",
                         PartitionKey = pk2
                     });
@@ -404,12 +579,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             await using (var context = new PartitionKeyContext_WithResourceId(options))
             {
                 var customerFromStore = await context.Set<Customer_WithResourceId>()
-                    .FindAsync(
-                        pk1, 42);
+                    .FindAsync(pk1, "42");
 
-                Assert.Equal(42, customerFromStore.Id);
+                Assert.Equal("42", customerFromStore.id);
                 Assert.Equal("Theon", customerFromStore.Name);
                 Assert.Equal(pk1, customerFromStore.PartitionKey);
+                AssertSql(context, @"ReadItem(1, 42)");
 
                 customerFromStore.Name = "Theon Greyjoy";
 
@@ -419,45 +594,87 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             await using (var context = new PartitionKeyContext_WithResourceId(options))
             {
                 var customerFromStore = await context.Set<Customer_WithResourceId>()
-                    .FindAsync(
-                        pk1, 42);
-
-                customerFromStore.PartitionKey = pk2;
-
-                Assert.Equal(
-                    CoreStrings.KeyReadOnly(nameof(Customer_WithResourceId.PartitionKey), nameof(Customer_WithResourceId)),
-                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-            }
-
-            await using (var context = new PartitionKeyContext_WithResourceId(options))
-            {
-                var customerFromStore = await context.Set<Customer_WithResourceId>()
                     .WithPartitionKey(partitionKey: pk1.ToString())
                     .FirstAsync();
 
-                Assert.Equal(42, customerFromStore.Id);
+                Assert.Equal("42", customerFromStore.id);
                 Assert.Equal("Theon Greyjoy", customerFromStore.Name);
                 Assert.Equal(pk1, customerFromStore.PartitionKey);
-
-                context.Remove(customerFromStore);
-
-                context.Remove(await context.Set<Customer_WithResourceId>()
-                    .WithPartitionKey(pk2.ToString())
-                    .LastAsync());
-
-                await context.SaveChangesAsync();
-            }
-
-            await using (var context = new PartitionKeyContext_WithResourceId(options))
-            {
-                Assert.Empty(await context.Set<Customer_WithResourceId>()
-                    .WithPartitionKey(partitionKey: pk2.ToString())
-                    .ToListAsync());
             }
         }
 
         [ConditionalFact]
-        public async Task Can_read_with_find_with_partitionkey_and_value_generator_async()
+        public void Can_read_with_find_with_resource_id()
+        {
+            var options = Fixture.CreateOptions();
+            const int pk1 = 1;
+            const int pk2 = 2;
+
+            var customer = new Customer_WithResourceId
+            {
+                id = "42",
+                Name = "Theon",
+                PartitionKey = pk1
+            };
+
+            using (var context = new PartitionKeyContext_WithResourceId(options))
+            {
+                context.Database.EnsureCreated();
+
+                context.Add(customer);
+                context.Add(
+                    new Customer_WithResourceId
+                    {
+                        id = "42",
+                        Name = "Theon Twin",
+                        PartitionKey = pk2
+                    });
+
+                context.SaveChanges();
+            }
+
+            using (var context = new PartitionKeyContext_WithResourceId(options))
+            {
+                var customerFromStore = context.Set<Customer_WithResourceId>()
+                    .Find(pk1, "42");
+
+                Assert.Equal("42", customerFromStore.id);
+                Assert.Equal("Theon", customerFromStore.Name);
+                Assert.Equal(pk1, customerFromStore.PartitionKey);
+                AssertSql(context, @"ReadItem(1, 42)");
+
+                customerFromStore.Name = "Theon Greyjoy";
+
+                context.SaveChanges();
+            }
+
+            using (var context = new PartitionKeyContext_WithResourceId(options))
+            {
+                var customerFromStore = context.Set<Customer_WithResourceId>()
+                    .WithPartitionKey(partitionKey: pk1.ToString())
+                    .First();
+
+                Assert.Equal("42", customerFromStore.id);
+                Assert.Equal("Theon Greyjoy", customerFromStore.Name);
+                Assert.Equal(pk1, customerFromStore.PartitionKey);
+            }
+        }
+
+        [ConditionalFact]
+        public void Find_with_empty_resource_id_throws()
+        {
+            var options = Fixture.CreateOptions();
+            using (var context = new PartitionKeyContext_WithResourceId(options))
+            {
+                context.Database.EnsureCreated();
+
+                Assert.Equal(CosmosStrings.InvalidResourceId,
+                    Assert.Throws<InvalidOperationException>(() => context.Set<Customer_WithResourceId>().Find(1, "")).Message);
+            }
+        }
+
+        [ConditionalFact]
+        public async Task Can_read_with_find_with_partition_key_and_value_generator_async()
         {
             var options = Fixture.CreateOptions();
             const int pk1 = 1;
@@ -470,7 +687,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 PartitionKey = pk1
             };
 
-            await using (var context = new PartitionKeyContext_WithCustomValueGenerator(options))
+            await using (var context = new PartitionKeyContextCustomValueGenerator(options))
             {
                 await context.Database.EnsureCreatedAsync();
 
@@ -486,7 +703,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 await context.SaveChangesAsync();
             }
 
-            await using (var context = new PartitionKeyContext_WithCustomValueGenerator(options))
+            await using (var context = new PartitionKeyContextCustomValueGenerator(options))
             {
                 var customerFromStore = await context.Set<Customer>()
                     .FindAsync(pk1, 42);
@@ -500,20 +717,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 await context.SaveChangesAsync();
             }
 
-
-            await using (var context = new PartitionKeyContext_WithCustomValueGenerator(options))
-            {
-                var customerFromStore = await context.Set<Customer>()
-                    .FindAsync(pk1, 42);
-
-                customerFromStore.PartitionKey = pk2;
-
-                Assert.Equal(
-                    CoreStrings.KeyReadOnly(nameof(Customer.PartitionKey), nameof(Customer)),
-                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-            }
-
-            await using (var context = new PartitionKeyContext_WithCustomValueGenerator(options))
+            await using (var context = new PartitionKeyContextCustomValueGenerator(options))
             {
                 var customerFromStore = await context.Set<Customer>()
                     .WithPartitionKey(partitionKey: pk1.ToString())
@@ -522,109 +726,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 Assert.Equal(42, customerFromStore.Id);
                 Assert.Equal("Theon Greyjoy", customerFromStore.Name);
                 Assert.Equal(pk1, customerFromStore.PartitionKey);
-
-                context.Remove(customerFromStore);
-
-                context.Remove(await context.Set<Customer>()
-                    .WithPartitionKey(pk2.ToString())
-                    .LastAsync());
-
-                await context.SaveChangesAsync();
-            }
-
-            await using (var context = new PartitionKeyContext_WithCustomValueGenerator(options))
-            {
-                Assert.Empty(await context.Set<Customer>()
-                    .WithPartitionKey(partitionKey: pk2.ToString())
-                    .ToListAsync());
             }
         }
 
         [ConditionalFact]
-        public void Can_read_with_find_with_partitionkey()
-        {
-            var options = Fixture.CreateOptions();
-            const int pk1 = 1;
-            const int pk2 = 2;
-
-            var customer = new Customer_WithResourceId
-            {
-                Id = 42,
-                Name = "Theon",
-                PartitionKey = pk1
-            };
-
-            using (var context = new PartitionKeyContext_WithResourceId(options))
-            {
-                context.Database.EnsureCreated();
-
-                context.Add(customer);
-                context.Add(
-                    new Customer_WithResourceId
-                    {
-                        Id = 42,
-                        Name = "Theon Twin",
-                        PartitionKey = pk2
-                    });
-
-                context.SaveChanges();
-            }
-
-            using (var context = new PartitionKeyContext_WithResourceId(options))
-            {
-                var customerFromStore = context.Set<Customer_WithResourceId>()
-                    .Find(pk1, 42);
-
-                Assert.Equal(42, customerFromStore.Id);
-                Assert.Equal("Theon", customerFromStore.Name);
-                Assert.Equal(pk1, customerFromStore.PartitionKey);
-
-                customerFromStore.Name = "Theon Greyjoy";
-
-                context.SaveChanges();
-            }
-
-            using (var context = new PartitionKeyContext_WithResourceId(options))
-            {
-                var customerFromStore = context.Set<Customer_WithResourceId>()
-                    .Find(pk1, 42);
-
-                customerFromStore.PartitionKey = pk2;
-
-                Assert.Equal(
-                    CoreStrings.KeyReadOnly(nameof(Customer_WithResourceId.PartitionKey), nameof(Customer_WithResourceId)),
-                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-            }
-
-            using (var context = new PartitionKeyContext_WithResourceId(options))
-            {
-                var customerFromStore = context.Set<Customer_WithResourceId>()
-                    .WithPartitionKey(partitionKey: pk1.ToString())
-                    .First();
-
-                Assert.Equal(42, customerFromStore.Id);
-                Assert.Equal("Theon Greyjoy", customerFromStore.Name);
-                Assert.Equal(pk1, customerFromStore.PartitionKey);
-
-                context.Remove(customerFromStore);
-
-                context.Remove(context.Set<Customer_WithResourceId>()
-                    .WithPartitionKey(pk2.ToString())
-                    .Last());
-
-                context.SaveChanges();
-            }
-
-            using (var context = new PartitionKeyContext_WithResourceId(options))
-            {
-                Assert.Empty(context.Set<Customer_WithResourceId>()
-                    .WithPartitionKey(partitionKey: pk2.ToString())
-                    .ToList());
-            }
-        }
-
-        [ConditionalFact]
-        public void Can_read_with_find_with_partitionkey_and_value_generator()
+        public void Can_read_with_find_with_partition_key_and_value_generator()
         {
             var options = Fixture.CreateOptions();
             const int pk1 = 1;
@@ -637,7 +743,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 PartitionKey = pk1
             };
 
-            using (var context = new PartitionKeyContext_WithCustomValueGenerator(options))
+            using (var context = new PartitionKeyContextCustomValueGenerator(options))
             {
                 context.Database.EnsureCreated();
 
@@ -653,7 +759,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 context.SaveChanges();
             }
 
-            using (var context = new PartitionKeyContext_WithCustomValueGenerator(options))
+            using (var context = new PartitionKeyContextCustomValueGenerator(options))
             {
                 var customerFromStore = context.Set<Customer>()
                     .Find(pk1, 42);
@@ -661,26 +767,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 Assert.Equal(42, customerFromStore.Id);
                 Assert.Equal("Theon", customerFromStore.Name);
                 Assert.Equal(pk1, customerFromStore.PartitionKey);
+                AssertSql(context, @"ReadItem(1, Customer-42)");
 
                 customerFromStore.Name = "Theon Greyjoy";
 
                 context.SaveChanges();
             }
 
-
-            using (var context = new PartitionKeyContext_WithCustomValueGenerator(options))
-            {
-                var customerFromStore = context.Set<Customer>()
-                    .Find(pk1, 42);
-
-                customerFromStore.PartitionKey = pk2;
-
-                Assert.Equal(
-                    CoreStrings.KeyReadOnly(nameof(Customer.PartitionKey), nameof(Customer)),
-                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-            }
-
-            using (var context = new PartitionKeyContext_WithCustomValueGenerator(options))
+            using (var context = new PartitionKeyContextCustomValueGenerator(options))
             {
                 var customerFromStore = context.Set<Customer>()
                     .WithPartitionKey(partitionKey: pk1.ToString())
@@ -689,26 +783,68 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 Assert.Equal(42, customerFromStore.Id);
                 Assert.Equal("Theon Greyjoy", customerFromStore.Name);
                 Assert.Equal(pk1, customerFromStore.PartitionKey);
-
-                context.Remove(customerFromStore);
-
-                context.Remove(context.Set<Customer>()
-                    .WithPartitionKey(pk2.ToString())
-                    .Last());
-
-                context.SaveChanges();
-            }
-
-            using (var context = new PartitionKeyContext_WithCustomValueGenerator(options))
-            {
-                Assert.Empty(context.Set<Customer>()
-                    .WithPartitionKey(partitionKey: pk2.ToString())
-                    .ToList());
             }
         }
 
         [ConditionalFact]
-        public async Task Entity_type_with_partitionkey_not_part_of_primary_keys()
+        public void Can_read_with_find_with_partition_key_without_value_generator()
+        {
+            var options = Fixture.CreateOptions();
+            const int pk1 = 1;
+
+            var customer = new Customer
+            {
+                Id = 42,
+                Name = "Theon",
+                PartitionKey = pk1
+            };
+
+            using (var context = new PartitionKeyContextNoValueGenerator(options))
+            {
+                context.Database.EnsureCreated();
+
+                var customerEntry = context.Entry(customer);
+                customerEntry.Property("id").CurrentValue = "42";
+                customerEntry.State = EntityState.Added;
+
+                context.SaveChanges();
+            }
+
+            using (var context = new PartitionKeyContextNoValueGenerator(options))
+            {
+                var customerFromStore = context.Set<Customer>()
+                    .Find(pk1, 42);
+
+                Assert.Equal(42, customerFromStore.Id);
+                Assert.Equal("Theon", customerFromStore.Name);
+                Assert.Equal(pk1, customerFromStore.PartitionKey);
+                AssertSql(context, @"@__p_0='1'
+@__p_1='42'
+
+SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""PartitionKey""] = @__p_0) AND (c[""Id""] = @__p_1)))
+OFFSET 0 LIMIT 1");
+
+                customerFromStore.Name = "Theon Greyjoy";
+
+                context.SaveChanges();
+            }
+
+            using (var context = new PartitionKeyContextNoValueGenerator(options))
+            {
+                var customerFromStore = context.Set<Customer>()
+                    .WithPartitionKey(partitionKey: pk1.ToString())
+                    .First();
+
+                Assert.Equal(42, customerFromStore.Id);
+                Assert.Equal("Theon Greyjoy", customerFromStore.Name);
+                Assert.Equal(pk1, customerFromStore.PartitionKey);
+            }
+        }
+
+        [ConditionalFact]
+        public async Task Can_read_with_find_with_partition_key_not_part_of_primary_key()
         {
             var options = Fixture.CreateOptions();
 
@@ -719,7 +855,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 PartitionKey = 1
             };
 
-            await using (var context = new Context_No_PartitionKey_In_PK(options))
+            await using (var context = new PartitionKeyContextNonPrimaryKey(options))
             {
                 await context.Database.EnsureCreatedAsync();
 
@@ -728,21 +864,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 await context.SaveChangesAsync();
             }
 
-            await using (var context = new Context_No_PartitionKey_In_PK(options))
+            await using (var context = new PartitionKeyContextNonPrimaryKey(options))
             {
                 var customerFromStore = context.Set<Customer>().Find(42);
 
                 Assert.Equal(42, customerFromStore.Id);
                 Assert.Equal("Theon", customerFromStore.Name);
-
-                context.Remove(customerFromStore);
-
-                await context.SaveChangesAsync();
+                AssertSql(context, "ReadItem(, Customer|42)");
             }
         }
 
         [ConditionalFact]
-        public async Task Entity_type_has_no_primiary_keys()
+        public async Task Can_read_with_find_without_partition_key()
         {
             var options = Fixture.CreateOptions();
 
@@ -767,13 +900,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
                 Assert.Equal(42, customerFromStore.Id);
                 Assert.Equal("Theon", customerFromStore.Name);
-
-                context.Remove(customerFromStore);
-
-                await context.SaveChangesAsync();
+                AssertSql(context, @"ReadItem(, Customer_NoPartitionKey|42)");
             }
         }
-
 
         private class PartitionKeyContext : DbContext
         {
@@ -811,9 +940,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        private class PartitionKeyContext_WithCustomValueGenerator : DbContext
+        private class PartitionKeyContextCustomValueGenerator : DbContext
         {
-            public PartitionKeyContext_WithCustomValueGenerator(DbContextOptions dbContextOptions)
+            public PartitionKeyContextCustomValueGenerator(DbContextOptions dbContextOptions)
                 : base(dbContextOptions)
             {
             }
@@ -825,25 +954,21 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     {
                         var valueGeneratorFactory = new CustomPartitionKeyIdValueGeneratorFactory();
 
-                        // Create Shadow property for 'id' (Cosmos Resource Id).
-                        // and attach a value generator to it.
                         cb.Property("id")
                             .HasValueGenerator((p, e) => valueGeneratorFactory.Create(p));
 
-                        cb.Property(c => c.Id)
-                            .HasConversion<int>();
+                        cb.Property(c => c.Id);
+                        cb.Property(c => c.PartitionKey).HasConversion<string>();
 
                         cb.HasPartitionKey(c => c.PartitionKey);
-                        cb.Property(c => c.PartitionKey).HasConversion<string>();
-                        cb.Property(c => c.PartitionKey);
                         cb.HasKey(c => new { c.PartitionKey, c.Id});
                     });
             }
         }
 
-        private class Context_No_PartitionKey_In_PK : DbContext
+        private class PartitionKeyContextNoValueGenerator : DbContext
         {
-            public Context_No_PartitionKey_In_PK(DbContextOptions dbContextOptions)
+            public PartitionKeyContextNoValueGenerator(DbContextOptions dbContextOptions)
                 : base(dbContextOptions)
             {
             }
@@ -855,7 +980,32 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     {
                         var valueGeneratorFactory = new CustomPartitionKeyIdValueGeneratorFactory();
 
-                        cb.Property(c => c.Id).HasConversion<int>();
+                        cb.Property("id").HasValueGenerator((Type)null);
+
+                        cb.Property(c => c.Id);
+                        cb.Property(c => c.PartitionKey).HasConversion<string>();
+
+                        cb.HasPartitionKey(c => c.PartitionKey);
+                        cb.HasKey(c => new { c.PartitionKey, c.Id });
+                    });
+            }
+        }
+
+        private class PartitionKeyContextNonPrimaryKey : DbContext
+        {
+            public PartitionKeyContextNonPrimaryKey(DbContextOptions dbContextOptions)
+                : base(dbContextOptions)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Customer>(
+                    cb =>
+                    {
+                        var valueGeneratorFactory = new CustomPartitionKeyIdValueGeneratorFactory();
+
+                        cb.Property(c => c.Id);
                         cb.HasKey(c => new { c.Id });
                     });
             }
@@ -875,7 +1025,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     {
                         cb.HasPartitionKey(c => c.PartitionKey);
                         cb.Property(c => c.PartitionKey).HasConversion<string>();
-                        cb.HasKey(c => new { c.PartitionKey, c.Id });
+                        cb.HasKey(c => new { c.PartitionKey, c.id });
                     });
             }
         }
@@ -1235,6 +1385,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
+        private void AssertSql(DbContext context, params string[] expected)
+        {
+            var logger = (TestSqlLoggerFactory)context.GetService<ILoggerFactory>();
+            logger.AssertBaseline(expected);
+        }
+
         public class CosmosFixture : ServiceProviderFixtureBase, IAsyncLifetime
         {
             public CosmosFixture()
@@ -1248,6 +1404,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             public DbContextOptions CreateOptions()
             {
                 TestStore.Initialize(null, (Func<DbContext>)null);
+                ListLoggerFactory.Clear();
                 return CreateOptions(TestStore);
             }
 

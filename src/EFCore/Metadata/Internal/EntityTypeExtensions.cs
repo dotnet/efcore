@@ -537,33 +537,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IProperty GetProperty([NotNull] this IEntityType entityType, [NotNull] string name)
-        {
-            Check.NotEmpty(name, nameof(name));
-
-            var property = entityType.FindProperty(name);
-            if (property == null)
-            {
-                if (entityType.FindNavigation(name) != null)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.PropertyIsNavigation(
-                            name, entityType.DisplayName(),
-                            nameof(EntityEntry.Property), nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)));
-                }
-
-                throw new InvalidOperationException(CoreStrings.PropertyNotFound(name, entityType.DisplayName()));
-            }
-
-            return property;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public static IProperty CheckPropertyBelongsToType([NotNull] this IEntityType entityType, [NotNull] IProperty property)
         {
             Check.NotNull(property, nameof(property));

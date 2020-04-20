@@ -9,6 +9,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -581,7 +583,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Gets a property on the given entity type. Returns <c>null</c> if no property is found.
+        ///         Gets a property with the given member info. Returns <c>null</c> if no property is found.
         ///     </para>
         ///     <para>
         ///         This API only finds scalar properties and does not find navigation properties. Use
@@ -589,7 +591,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="entityType"> The entity type to find the property on. </param>
-        /// <param name="memberInfo"> The property on the entity class. </param>
+        /// <param name="memberInfo"> The member on the entity class. </param>
         /// <returns> The property, or <c>null</c> if none is found. </returns>
         public static IProperty FindProperty([NotNull] this IEntityType entityType, [NotNull] MemberInfo memberInfo)
         {
@@ -599,6 +601,39 @@ namespace Microsoft.EntityFrameworkCore
             return (memberInfo as PropertyInfo)?.IsIndexerProperty() == true
                 ? null
                 : entityType.FindProperty(memberInfo.GetSimpleMemberName());
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Gets a property with the given name.
+        ///     </para>
+        ///     <para>
+        ///         This API only finds scalar properties and does not find navigation properties. Use
+        ///         <see cref="FindNavigation(IEntityType, string)" /> to find a navigation property.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type to find the property on. </param>
+        /// <param name="name"> The property name. </param>
+        /// <returns> The property, or <c>null</c> if none is found. </returns>
+        public static IProperty GetProperty([NotNull] this IEntityType entityType, [NotNull] string name)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            var property = entityType.FindProperty(name);
+            if (property == null)
+            {
+                if (entityType.FindNavigation(name) != null)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.PropertyIsNavigation(
+                            name, entityType.DisplayName(),
+                            nameof(EntityEntry.Property), nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)));
+                }
+
+                throw new InvalidOperationException(CoreStrings.PropertyNotFound(name, entityType.DisplayName()));
+            }
+
+            return property;
         }
 
         /// <summary>

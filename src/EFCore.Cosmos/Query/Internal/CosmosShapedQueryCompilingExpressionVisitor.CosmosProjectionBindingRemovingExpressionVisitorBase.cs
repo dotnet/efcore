@@ -423,8 +423,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 // For non-null relatedEntity StateManager will set the flag
                 else if (relatedEntity == null)
                 {
-#pragma warning disable EF1001
+#pragma warning disable EF1001 // Internal EF Core API usage.
                     entry.SetIsLoaded(navigation);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 }
             }
 
@@ -471,7 +472,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 }
                 else
                 {
+#pragma warning disable EF1001 // Internal EF Core API usage.
                     entry.SetIsLoaded(navigation);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                     if (relatedEntities != null)
                     {
                         using var enumerator = relatedEntities.GetEnumerator();

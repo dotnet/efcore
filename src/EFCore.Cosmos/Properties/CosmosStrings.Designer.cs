@@ -149,19 +149,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("ReverseRequiresOffsetOrLimit");
 
         /// <summary>
-        ///     Invalid Resource id. Resource id cannot be null or empty and must be a string value.
+        ///     Invalid id value. Specify a  string value that's not null or empty.
         /// </summary>
         public static string InvalidResourceId
             => GetString("InvalidResourceId");
 
         /// <summary>
-        ///     Partition key missing.
+        ///     A ReadItem query was detected, but the partition key value is missing.
         /// </summary>
         public static string ParitionKeyMissing
             => GetString("ParitionKeyMissing");
 
         /// <summary>
-        ///     Resource id missing or cannot be generated.
+        ///     A ReadItem query was detected, but the id value is missing and cannot be generated.
         /// </summary>
         public static string ResourceIdMissing
             => GetString("ResourceIdMissing");
