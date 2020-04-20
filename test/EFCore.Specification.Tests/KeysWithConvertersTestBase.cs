@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
@@ -97,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(dependents[3], context.Find(typeof(IntStructKeyOptionalDependent), new IntStructKey { Id = 104 }));
                 Assert.Same(dependents[4], context.Find(typeof(IntStructKeyOptionalDependent), new IntStructKey { Id = oneOhFive }));
                 Assert.Same(dependents[5], context.Find(typeof(IntStructKeyOptionalDependent), oneOhSix));
-           }
+            }
 
             void Validate(
                 IntStructKeyPrincipal[] principals,
@@ -191,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(dependents[3], context.Find(typeof(ComparableIntStructKeyOptionalDependent), new ComparableIntStructKey { Id = 104 }));
                 Assert.Same(dependents[4], context.Find(typeof(ComparableIntStructKeyOptionalDependent), new ComparableIntStructKey { Id = oneOhFive }));
                 Assert.Same(dependents[5], context.Find(typeof(ComparableIntStructKeyOptionalDependent), oneOhSix));
-           }
+            }
 
             void Validate(
                 ComparableIntStructKeyPrincipal[] principals,
@@ -285,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(dependents[3], context.Find(typeof(GenericComparableIntStructKeyOptionalDependent), new GenericComparableIntStructKey { Id = 104 }));
                 Assert.Same(dependents[4], context.Find(typeof(GenericComparableIntStructKeyOptionalDependent), new GenericComparableIntStructKey { Id = oneOhFive }));
                 Assert.Same(dependents[5], context.Find(typeof(GenericComparableIntStructKeyOptionalDependent), oneOhSix));
-           }
+            }
 
             void Validate(
                 GenericComparableIntStructKeyPrincipal[] principals,
@@ -379,7 +380,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(dependents[3], context.Find(typeof(IntStructKeyRequiredDependent), new IntStructKey { Id = 114 }));
                 Assert.Same(dependents[4], context.Find(typeof(IntStructKeyRequiredDependent), new IntStructKey { Id = oneFifteeen }));
                 Assert.Same(dependents[5], context.Find(typeof(IntStructKeyRequiredDependent), oneSixteen));
-           }
+            }
 
             void Validate(
                 IntStructKeyPrincipal[] principals,
@@ -473,7 +474,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(dependents[3], context.Find(typeof(ComparableIntStructKeyRequiredDependent), new ComparableIntStructKey { Id = 114 }));
                 Assert.Same(dependents[4], context.Find(typeof(ComparableIntStructKeyRequiredDependent), new ComparableIntStructKey { Id = oneFifteeen }));
                 Assert.Same(dependents[5], context.Find(typeof(ComparableIntStructKeyRequiredDependent), oneSixteen));
-           }
+            }
 
             void Validate(
                 ComparableIntStructKeyPrincipal[] principals,
@@ -567,7 +568,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(dependents[3], context.Find(typeof(GenericComparableIntStructKeyRequiredDependent), new GenericComparableIntStructKey { Id = 114 }));
                 Assert.Same(dependents[4], context.Find(typeof(GenericComparableIntStructKeyRequiredDependent), new GenericComparableIntStructKey { Id = oneFifteeen }));
                 Assert.Same(dependents[5], context.Find(typeof(GenericComparableIntStructKeyRequiredDependent), oneSixteen));
-           }
+            }
 
             void Validate(
                 GenericComparableIntStructKeyPrincipal[] principals,
@@ -855,7 +856,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(dependents[3], context.Find(typeof(BytesStructKeyOptionalDependent), new BytesStructKey { Id = new byte[] { 104 } }));
                 Assert.Same(dependents[4], context.Find(typeof(BytesStructKeyOptionalDependent), new BytesStructKey { Id = oneOhFive }));
                 Assert.Same(dependents[5], context.Find(typeof(BytesStructKeyOptionalDependent), oneOhSix));
-           }
+            }
 
             void Validate(
                 BytesStructKeyPrincipal[] principals,
@@ -949,7 +950,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(dependents[3], context.Find(typeof(StructuralComparableBytesStructKeyOptionalDependent), new StructuralComparableBytesStructKey { Id = new byte[] { 104 } }));
                 Assert.Same(dependents[4], context.Find(typeof(StructuralComparableBytesStructKeyOptionalDependent), new StructuralComparableBytesStructKey { Id = oneOhFive }));
                 Assert.Same(dependents[5], context.Find(typeof(StructuralComparableBytesStructKeyOptionalDependent), oneOhSix));
-           }
+            }
 
             void Validate(
                 StructuralComparableBytesStructKeyPrincipal[] principals,
@@ -1043,7 +1044,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(dependents[3], context.Find(typeof(ComparableBytesStructKeyOptionalDependent), new ComparableBytesStructKey { Id = new byte[] { 104 } }));
                 Assert.Same(dependents[4], context.Find(typeof(ComparableBytesStructKeyOptionalDependent), new ComparableBytesStructKey { Id = oneOhFive }));
                 Assert.Same(dependents[5], context.Find(typeof(ComparableBytesStructKeyOptionalDependent), oneOhSix));
-           }
+            }
 
             void Validate(
                 ComparableBytesStructKeyPrincipal[] principals,
@@ -1137,7 +1138,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(dependents[3], context.Find(typeof(GenericComparableBytesStructKeyOptionalDependent), new GenericComparableBytesStructKey { Id = new byte[] { 104 } }));
                 Assert.Same(dependents[4], context.Find(typeof(GenericComparableBytesStructKeyOptionalDependent), new GenericComparableBytesStructKey { Id = oneOhFive }));
                 Assert.Same(dependents[5], context.Find(typeof(GenericComparableBytesStructKeyOptionalDependent), oneOhSix));
-           }
+            }
 
             void Validate(
                 GenericComparableBytesStructKeyPrincipal[] principals,
@@ -1231,7 +1232,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(dependents[3], context.Find(typeof(BytesStructKeyRequiredDependent), new BytesStructKey { Id = new byte[] { 114 } }));
                 Assert.Same(dependents[4], context.Find(typeof(BytesStructKeyRequiredDependent), new BytesStructKey { Id = oneFifteeen }));
                 Assert.Same(dependents[5], context.Find(typeof(BytesStructKeyRequiredDependent), oneSixteen));
-           }
+            }
 
             void Validate(
                 BytesStructKeyPrincipal[] principals,
@@ -1325,7 +1326,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(dependents[3], context.Find(typeof(ComparableBytesStructKeyRequiredDependent), new ComparableBytesStructKey { Id = new byte[] { 114 } }));
                 Assert.Same(dependents[4], context.Find(typeof(ComparableBytesStructKeyRequiredDependent), new ComparableBytesStructKey { Id = oneFifteeen }));
                 Assert.Same(dependents[5], context.Find(typeof(ComparableBytesStructKeyRequiredDependent), oneSixteen));
-           }
+            }
 
             void Validate(
                 ComparableBytesStructKeyPrincipal[] principals,
@@ -1419,7 +1420,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(dependents[3], context.Find(typeof(StructuralComparableBytesStructKeyRequiredDependent), new StructuralComparableBytesStructKey { Id = new byte[] { 114 } }));
                 Assert.Same(dependents[4], context.Find(typeof(StructuralComparableBytesStructKeyRequiredDependent), new StructuralComparableBytesStructKey { Id = oneFifteeen }));
                 Assert.Same(dependents[5], context.Find(typeof(StructuralComparableBytesStructKeyRequiredDependent), oneSixteen));
-           }
+            }
 
             void Validate(
                 StructuralComparableBytesStructKeyPrincipal[] principals,
@@ -1513,7 +1514,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(dependents[3], context.Find(typeof(GenericComparableBytesStructKeyRequiredDependent), new GenericComparableBytesStructKey { Id = new byte[] { 114 } }));
                 Assert.Same(dependents[4], context.Find(typeof(GenericComparableBytesStructKeyRequiredDependent), new GenericComparableBytesStructKey { Id = oneFifteeen }));
                 Assert.Same(dependents[5], context.Find(typeof(GenericComparableBytesStructKeyRequiredDependent), oneSixteen));
-           }
+            }
 
             void Validate(
                 GenericComparableBytesStructKeyPrincipal[] principals,
@@ -1528,6 +1529,181 @@ namespace Microsoft.EntityFrameworkCore
                     expectedDependentToPrincipals,
                     p => ((GenericComparableBytesStructKeyPrincipal)p).RequiredDependents.Select(d => (IBytesRequiredDependent)d).ToList(),
                     d => ((GenericComparableBytesStructKeyRequiredDependent)d).Principal);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Can_insert_and_read_back_with_wrapped_int_key_identity()
+        {
+            var newEntities = InsertStoreGenerationEntities<IntWrappedKeyIdentity>(3);
+
+            Assert.All(newEntities, entity =>
+            {
+                Assert.NotNull(entity);
+                Assert.NotNull(entity.Id);
+            });
+
+            var lastGeneratedValue = newEntities[^1].Id.Value;
+
+            Validate<IntWrappedKeyIdentity, IntWrappingKey, int>(lastGeneratedValue, i => new IntWrappingKey(i));
+        }
+
+        [ConditionalFact]
+        public virtual void Can_insert_and_read_back_with_wrapped_int_key_high_low()
+        {
+            var newEntities = InsertStoreGenerationEntities<IntWrappedKeyHiLo>(3);
+
+            Assert.All(newEntities, entity =>
+            {
+                Assert.NotNull(entity);
+                Assert.NotNull(entity.Id);
+            });
+
+            var lastGeneratedValue = newEntities[^1].Id.Value;
+
+            Validate<IntWrappedKeyHiLo, IntWrappingKey, int>(lastGeneratedValue, i => new IntWrappingKey(i));
+        }
+
+        [ConditionalFact]
+        public virtual void Can_insert_and_read_back_with_wrapped_int_key_client_gen()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<IntWrappedKeyClientGen>().AddRange(new IntWrappedKeyClientGen { Id = new IntWrappingKey(1) }, new IntWrappedKeyClientGen { Id = new IntWrappingKey(2) }, new IntWrappedKeyClientGen { Id = new IntWrappingKey(3) });
+
+                Assert.Equal(3, context.SaveChanges());
+            }
+
+            Validate<IntWrappedKeyClientGen, IntWrappingKey, int>(3, i => new IntWrappingKey(i));
+        }
+
+        [ConditionalFact]
+        public virtual void Can_insert_and_read_back_with_wrapped_long_key_identity()
+        {
+            var newEntities = InsertStoreGenerationEntities<LongWrappedKeyIdentity>(3);
+
+            Assert.All(newEntities, entity =>
+            {
+                Assert.NotNull(entity);
+                Assert.NotNull(entity.Id);
+            });
+
+            var lastGeneratedValue = newEntities[^1].Id.Value;
+
+            Validate<LongWrappedKeyIdentity, LongWrappingKey, long>(lastGeneratedValue, i => new LongWrappingKey(i));
+        }
+
+        [ConditionalFact]
+        public virtual void Can_insert_and_read_back_with_wrapped_long_key_high_low()
+        {
+            var newEntities = InsertStoreGenerationEntities<LongWrappedKeyHiLo>(3);
+
+            Assert.All(newEntities, entity =>
+            {
+                Assert.NotNull(entity);
+                Assert.NotNull(entity.Id);
+            });
+
+            var lastGeneratedValue = newEntities[^1].Id.Value;
+
+            Validate<LongWrappedKeyHiLo, LongWrappingKey, long>(lastGeneratedValue, i => new LongWrappingKey(i));
+        }
+
+        [ConditionalFact]
+        public virtual void Can_insert_and_read_back_with_wrapped_long_key_client_gen()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<LongWrappedKeyClientGen>().AddRange(new LongWrappedKeyClientGen { Id = new LongWrappingKey(1) }, new LongWrappedKeyClientGen { Id = new LongWrappingKey(2) }, new LongWrappedKeyClientGen { Id = new LongWrappingKey(3) });
+
+                Assert.Equal(3, context.SaveChanges());
+            }
+
+            Validate<LongWrappedKeyClientGen, LongWrappingKey, long>(3, i => new LongWrappingKey(i));
+        }
+
+        [ConditionalFact]
+        public virtual void Can_insert_and_read_back_with_wrapped_short_key_identity()
+        {
+            var newEntities = InsertStoreGenerationEntities<ShortWrappedKeyIdentity>(3);
+
+            Assert.All(newEntities, entity =>
+            {
+                Assert.NotNull(entity);
+                Assert.NotNull(entity.Id);
+            });
+
+            var lastGeneratedValue = newEntities[^1].Id.Value;
+
+            Validate<ShortWrappedKeyIdentity, ShortWrappingKey, short>(lastGeneratedValue, i => new ShortWrappingKey(i));
+        }
+
+        [ConditionalFact]
+        public virtual void Can_insert_and_read_back_with_wrapped_short_key_high_low()
+        {
+            var newEntities = InsertStoreGenerationEntities<ShortWrappedKeyHiLo>(3);
+
+            Assert.All(newEntities, entity =>
+            {
+                Assert.NotNull(entity);
+                Assert.NotNull(entity.Id);
+            });
+
+            var lastGeneratedValue = newEntities[^1].Id.Value;
+
+            Validate<ShortWrappedKeyHiLo, ShortWrappingKey, short>(lastGeneratedValue, i => new ShortWrappingKey(i));
+        }
+
+        [ConditionalFact]
+        public virtual void Can_insert_and_read_back_with_wrapped_short_key_client_gen()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<ShortWrappedKeyClientGen>().AddRange(new ShortWrappedKeyClientGen { Id = new ShortWrappingKey(1) }, new ShortWrappedKeyClientGen { Id = new ShortWrappingKey(2) }, new ShortWrappedKeyClientGen { Id = new ShortWrappingKey(3) });
+
+                Assert.Equal(3, context.SaveChanges());
+            }
+
+            Validate<ShortWrappedKeyClientGen, ShortWrappingKey, short>(3, i => new ShortWrappingKey(i));
+        }
+
+        private TEntity[] InsertStoreGenerationEntities<TEntity>(int count)
+            where TEntity : class, new()
+        {
+            var array = new TEntity[count];
+            for (int i = 0; i < count; i++)
+            {
+                array[i] = new TEntity();
+            }
+            using (var context = CreateContext())
+            {
+                context.Set<TEntity>().AddRange(array);
+
+                Assert.Equal(count, context.SaveChanges());
+            }
+
+            return array;
+        }
+
+        private void Validate<TEntity, TEntityKey, TWrappedKey>(TWrappedKey wrapped, Func<TWrappedKey, TEntityKey> keyFactory)
+            where TEntity : class, IClassWithWrappedKey<TEntityKey>
+            where TEntityKey : WrappingKey<TWrappedKey>
+        {
+            using (var context = CreateContext())
+            {
+                var key = keyFactory.Invoke(wrapped);
+                var entities = new[]
+                {
+                    context.Set<TEntity>().FirstOrDefault(e => e.Id.Equals(keyFactory.Invoke(wrapped))),
+                    context.Set<TEntity>().FirstOrDefault(e => e.Id.Equals(key)),
+                    context.Set<TEntity>().FirstOrDefault(e => e.Id == key),
+                };
+
+                Assert.All(entities, entity =>
+                {
+                    Assert.NotNull(entity);
+                    Assert.Equal(wrapped, entity.Id.Value);
+                });
             }
         }
 
@@ -1587,41 +1763,41 @@ namespace Microsoft.EntityFrameworkCore
             Func<IIntPrincipal, IList<IIntOptionalDependent>> getDependents,
             Func<IIntOptionalDependent, IIntPrincipal> getPrincipal)
         {
-                Assert.Equal(4, principals.Count);
-                for (var i = 0; i < 4; i++)
-                {
-                    Assert.Equal(i + 1, principals[i].BackingId);
-                }
+            Assert.Equal(4, principals.Count);
+            for (var i = 0; i < 4; i++)
+            {
+                Assert.Equal(i + 1, principals[i].BackingId);
+            }
 
-                Assert.Equal(6, dependents.Count);
-                for (var i = 0; i < 6; i++)
-                {
-                    Assert.Equal(i + 101, dependents[i].BackingId);
-                }
+            Assert.Equal(6, dependents.Count);
+            for (var i = 0; i < 6; i++)
+            {
+                Assert.Equal(i + 101, dependents[i].BackingId);
+            }
 
-                foreach (var (dependentIndex, principalIndex) in expectedDependentToPrincipals)
+            foreach (var (dependentIndex, principalIndex) in expectedDependentToPrincipals)
+            {
+                if (principalIndex.HasValue)
                 {
-                    if (principalIndex.HasValue)
-                    {
-                        Assert.Same(principals[principalIndex.Value], getPrincipal(dependents[dependentIndex]));
-                        Assert.Equal(principals[principalIndex.Value].BackingId, dependents[dependentIndex].BackingPrincipalId);
-                    }
-                    else
-                    {
-                        Assert.Null(getPrincipal(dependents[dependentIndex]));
-                        Assert.Null(dependents[dependentIndex].BackingPrincipalId);
-                    }
+                    Assert.Same(principals[principalIndex.Value], getPrincipal(dependents[dependentIndex]));
+                    Assert.Equal(principals[principalIndex.Value].BackingId, dependents[dependentIndex].BackingPrincipalId);
                 }
+                else
+                {
+                    Assert.Null(getPrincipal(dependents[dependentIndex]));
+                    Assert.Null(dependents[dependentIndex].BackingPrincipalId);
+                }
+            }
 
-                foreach (var (principalIndex, dependentIndexes) in expectedPrincipalToDependents)
+            foreach (var (principalIndex, dependentIndexes) in expectedPrincipalToDependents)
+            {
+                Assert.Equal(dependentIndexes.Length, getDependents(principals[principalIndex]).Count);
+                foreach (var dependentIndex in dependentIndexes)
                 {
-                    Assert.Equal(dependentIndexes.Length, getDependents(principals[principalIndex]).Count);
-                    foreach (var dependentIndex in dependentIndexes)
-                    {
-                        Assert.Same(principals[principalIndex], getPrincipal(dependents[dependentIndex]));
-                        Assert.Equal(principals[principalIndex].BackingId, dependents[dependentIndex].BackingPrincipalId);
-                    }
+                    Assert.Same(principals[principalIndex], getPrincipal(dependents[dependentIndex]));
+                    Assert.Equal(principals[principalIndex].BackingId, dependents[dependentIndex].BackingPrincipalId);
                 }
+            }
         }
 
         protected void ValidateRequired(
@@ -1632,36 +1808,36 @@ namespace Microsoft.EntityFrameworkCore
             Func<IIntPrincipal, IList<IIntRequiredDependent>> getDependents,
             Func<IIntRequiredDependent, IIntPrincipal> getPrincipal)
         {
-                Assert.Equal(4, principals.Count);
-                for (var i = 0; i < 4; i++)
-                {
-                    Assert.Equal(i + 11, principals[i].BackingId);
-                }
+            Assert.Equal(4, principals.Count);
+            for (var i = 0; i < 4; i++)
+            {
+                Assert.Equal(i + 11, principals[i].BackingId);
+            }
 
-                Assert.Equal(6, dependents.Count);
-                for (var i = 0; i < 6; i++)
+            Assert.Equal(6, dependents.Count);
+            for (var i = 0; i < 6; i++)
+            {
+                if (dependents[i] != null)
                 {
-                    if (dependents[i] != null)
-                    {
-                        Assert.Equal(i + 111, dependents[i].BackingId);
-                    }
+                    Assert.Equal(i + 111, dependents[i].BackingId);
                 }
+            }
 
-                foreach (var (dependentIndex, principalIndex) in expectedDependentToPrincipals)
+            foreach (var (dependentIndex, principalIndex) in expectedDependentToPrincipals)
+            {
+                Assert.Same(principals[principalIndex], getPrincipal(dependents[dependentIndex]));
+                Assert.Equal(principals[principalIndex].BackingId, dependents[dependentIndex].BackingPrincipalId);
+            }
+
+            foreach (var (principalIndex, dependentIndexes) in expectedPrincipalToDependents)
+            {
+                Assert.Equal(dependentIndexes.Length, getDependents(principals[principalIndex]).Count);
+                foreach (var dependentIndex in dependentIndexes)
                 {
                     Assert.Same(principals[principalIndex], getPrincipal(dependents[dependentIndex]));
                     Assert.Equal(principals[principalIndex].BackingId, dependents[dependentIndex].BackingPrincipalId);
                 }
-
-                foreach (var (principalIndex, dependentIndexes) in expectedPrincipalToDependents)
-                {
-                    Assert.Equal(dependentIndexes.Length, getDependents(principals[principalIndex]).Count);
-                    foreach (var dependentIndex in dependentIndexes)
-                    {
-                        Assert.Same(principals[principalIndex], getPrincipal(dependents[dependentIndex]));
-                        Assert.Equal(principals[principalIndex].BackingId, dependents[dependentIndex].BackingPrincipalId);
-                    }
-                }
+            }
         }
 
         private void InsertOptionalBytesGraph<TPrincipal, TDependent>()
@@ -1720,43 +1896,43 @@ namespace Microsoft.EntityFrameworkCore
             Func<IBytesPrincipal, IList<IBytesOptionalDependent>> getDependents,
             Func<IBytesOptionalDependent, IBytesPrincipal> getPrincipal)
         {
-                Assert.Equal(4, principals.Count);
-                Assert.Equal(new byte[] { 1 }, principals[0].BackingId);
-                Assert.Equal(new byte[] { 2, 2 }, principals[1].BackingId);
-                Assert.Equal(new byte[] { 3, 3, 3 }, principals[2].BackingId);
-                Assert.Equal(new byte[] { 4, 4, 4, 4 }, principals[3].BackingId);
+            Assert.Equal(4, principals.Count);
+            Assert.Equal(new byte[] { 1 }, principals[0].BackingId);
+            Assert.Equal(new byte[] { 2, 2 }, principals[1].BackingId);
+            Assert.Equal(new byte[] { 3, 3, 3 }, principals[2].BackingId);
+            Assert.Equal(new byte[] { 4, 4, 4, 4 }, principals[3].BackingId);
 
-                Assert.Equal(6, dependents.Count);
-                Assert.Equal(new byte[] { 101 }, dependents[0].BackingId);
-                Assert.Equal(new byte[] { 102 }, dependents[1].BackingId);
-                Assert.Equal(new byte[] { 103 }, dependents[2].BackingId);
-                Assert.Equal(new byte[] { 104 }, dependents[3].BackingId);
-                Assert.Equal(new byte[] { 105 }, dependents[4].BackingId);
-                Assert.Equal(new byte[] { 106 }, dependents[5].BackingId);
+            Assert.Equal(6, dependents.Count);
+            Assert.Equal(new byte[] { 101 }, dependents[0].BackingId);
+            Assert.Equal(new byte[] { 102 }, dependents[1].BackingId);
+            Assert.Equal(new byte[] { 103 }, dependents[2].BackingId);
+            Assert.Equal(new byte[] { 104 }, dependents[3].BackingId);
+            Assert.Equal(new byte[] { 105 }, dependents[4].BackingId);
+            Assert.Equal(new byte[] { 106 }, dependents[5].BackingId);
 
-                foreach (var (dependentIndex, principalIndex) in expectedDependentToPrincipals)
+            foreach (var (dependentIndex, principalIndex) in expectedDependentToPrincipals)
+            {
+                if (principalIndex.HasValue)
                 {
-                    if (principalIndex.HasValue)
-                    {
-                        Assert.Same(principals[principalIndex.Value], getPrincipal(dependents[dependentIndex]));
-                        Assert.Equal(principals[principalIndex.Value].BackingId, dependents[dependentIndex].BackingPrincipalId);
-                    }
-                    else
-                    {
-                        Assert.Null(getPrincipal(dependents[dependentIndex]));
-                        Assert.Null(dependents[dependentIndex].BackingPrincipalId);
-                    }
+                    Assert.Same(principals[principalIndex.Value], getPrincipal(dependents[dependentIndex]));
+                    Assert.Equal(principals[principalIndex.Value].BackingId, dependents[dependentIndex].BackingPrincipalId);
                 }
-
-                foreach (var (principalIndex, dependentIndexes) in expectedPrincipalToDependents)
+                else
                 {
-                    Assert.Equal(dependentIndexes.Length, getDependents(principals[principalIndex]).Count);
-                    foreach (var dependentIndex in dependentIndexes)
-                    {
-                        Assert.Same(principals[principalIndex], getPrincipal(dependents[dependentIndex]));
-                        Assert.Equal(principals[principalIndex].BackingId, dependents[dependentIndex].BackingPrincipalId);
-                    }
+                    Assert.Null(getPrincipal(dependents[dependentIndex]));
+                    Assert.Null(dependents[dependentIndex].BackingPrincipalId);
                 }
+            }
+
+            foreach (var (principalIndex, dependentIndexes) in expectedPrincipalToDependents)
+            {
+                Assert.Equal(dependentIndexes.Length, getDependents(principals[principalIndex]).Count);
+                foreach (var dependentIndex in dependentIndexes)
+                {
+                    Assert.Same(principals[principalIndex], getPrincipal(dependents[dependentIndex]));
+                    Assert.Equal(principals[principalIndex].BackingId, dependents[dependentIndex].BackingPrincipalId);
+                }
+            }
         }
 
         protected void ValidateRequiredBytes(
@@ -2704,6 +2880,131 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        protected abstract class WrappingKey<T> : IEquatable<WrappingKey<T>>
+        {
+            protected WrappingKey(T value) => Value = value;
+
+            public T Value { get; }
+
+            public override bool Equals(object obj)
+            {
+                if (obj is null)
+                {
+                    return false;
+                }
+
+                return obj is WrappingKey<T> other && Equals(other);
+            }
+
+            public override int GetHashCode() => Value.GetHashCode();
+
+            public bool Equals(WrappingKey<T> other)
+            {
+                if (other is null)
+                {
+                    return false;
+                }
+
+                return Value.Equals(other.Value);
+            }
+
+            public static bool operator ==(WrappingKey<T> left, WrappingKey<T> right)
+            {
+                if (left is null)
+                {
+                    if (right is null)
+                    {
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                return left.Equals(right);
+            }
+
+            public static bool operator !=(WrappingKey<T> left, WrappingKey<T> right)
+            {
+                return !(left == right);
+            }
+
+            public override string ToString() => Value.ToString();
+        }
+
+        protected interface IClassWithWrappedKey<TKey>
+        {
+            TKey Id { get; }
+        }
+
+        protected class IntWrappingKey : WrappingKey<int>
+        {
+            public IntWrappingKey(int value) : base(value) { }
+
+            public static ValueConverter<IntWrappingKey, int> Converter
+                = new ValueConverter<IntWrappingKey, int>(v => v.Value, v => new IntWrappingKey(v));
+        }
+
+        protected class LongWrappingKey : WrappingKey<long>
+        {
+            public LongWrappingKey(long value) : base(value) { }
+
+            public static ValueConverter<LongWrappingKey, long> Converter
+                = new ValueConverter<LongWrappingKey, long>(v => v.Value, v => new LongWrappingKey(v));
+        }
+
+        protected class ShortWrappingKey : WrappingKey<short>
+        {
+            public ShortWrappingKey(short value) : base(value) { }
+
+            public static ValueConverter<ShortWrappingKey, short> Converter
+                = new ValueConverter<ShortWrappingKey, short>(v => v.Value, v => new ShortWrappingKey(v));
+        }
+
+        protected class IntWrappedKeyIdentity : IClassWithWrappedKey<IntWrappingKey>
+        {
+            public IntWrappingKey Id { get; set; }
+        }
+
+        protected class IntWrappedKeyHiLo : IClassWithWrappedKey<IntWrappingKey>
+        {
+            public IntWrappingKey Id { get; set; }
+        }
+
+        protected class IntWrappedKeyClientGen : IClassWithWrappedKey<IntWrappingKey>
+        {
+            public IntWrappingKey Id { get; set; }
+        }
+
+        protected class LongWrappedKeyIdentity : IClassWithWrappedKey<LongWrappingKey>
+        {
+            public LongWrappingKey Id { get; set; }
+        }
+
+        protected class LongWrappedKeyHiLo : IClassWithWrappedKey<LongWrappingKey>
+        {
+            public LongWrappingKey Id { get; set; }
+        }
+        
+        protected class LongWrappedKeyClientGen : IClassWithWrappedKey<LongWrappingKey>
+        {
+            public LongWrappingKey Id { get; set; }
+        }
+
+        protected class ShortWrappedKeyIdentity : IClassWithWrappedKey<ShortWrappingKey>
+        {
+            public ShortWrappingKey Id { get; set; }
+        }
+
+        protected class ShortWrappedKeyHiLo : IClassWithWrappedKey<ShortWrappingKey>
+        {
+            public ShortWrappingKey Id { get; set; }
+        }
+        
+        protected class ShortWrappedKeyClientGen : IClassWithWrappedKey<ShortWrappingKey>
+        {
+            public ShortWrappingKey Id { get; set; }
+        }
+
         public abstract class KeysWithConvertersFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "KeysWithConverters";
@@ -2908,6 +3209,60 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         b.Property(e => e.Id).HasConversion(GenericComparableIntClassKey.Converter);
                         b.Property(e => e.PrincipalId).HasConversion(GenericComparableIntClassKey.Converter);
+                    });
+
+                modelBuilder.Entity<IntWrappedKeyIdentity>(
+                    b =>
+                    {
+                        b.Property(e => e.Id).HasConversion(IntWrappingKey.Converter);
+                    });
+
+                modelBuilder.Entity<IntWrappedKeyHiLo>(
+                    b =>
+                    {
+                        b.Property(e => e.Id).HasConversion(IntWrappingKey.Converter);
+                    });
+
+                modelBuilder.Entity<IntWrappedKeyClientGen>(
+                    b =>
+                    {
+                        b.Property(e => e.Id).HasConversion(IntWrappingKey.Converter);
+                    });
+
+                modelBuilder.Entity<LongWrappedKeyIdentity>(
+                    b =>
+                    {
+                        b.Property(e => e.Id).HasConversion(LongWrappingKey.Converter);
+                    });
+
+                modelBuilder.Entity<LongWrappedKeyHiLo>(
+                    b =>
+                    {
+                        b.Property(e => e.Id).HasConversion(LongWrappingKey.Converter);
+                    });
+
+                modelBuilder.Entity<LongWrappedKeyClientGen>(
+                    b =>
+                    {
+                        b.Property(e => e.Id).HasConversion(LongWrappingKey.Converter);
+                    });
+
+                modelBuilder.Entity<ShortWrappedKeyIdentity>(
+                    b =>
+                    {
+                        b.Property(e => e.Id).HasConversion(ShortWrappingKey.Converter);
+                    });
+
+                modelBuilder.Entity<ShortWrappedKeyHiLo>(
+                    b =>
+                    {
+                        b.Property(e => e.Id).HasConversion(ShortWrappingKey.Converter);
+                    });
+
+                modelBuilder.Entity<ShortWrappedKeyClientGen>(
+                    b =>
+                    {
+                        b.Property(e => e.Id).HasConversion(ShortWrappingKey.Converter);
                     });
             }
         }
