@@ -166,6 +166,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         public static string ResourceIdMissing
             => GetString("ResourceIdMissing");
 
+        /// <summary>
+        ///     Partition Key set with the WithPartitionKey extension '{paritionKey1}' and the Partition Key set with the Where predicate '{paritionKey2}' must be identical, when both is set. It is generally recommended that only one of the two options is used to set the Partition Key.
+        /// </summary>
+        public static string ParitionKeyMismatch([CanBeNull] object paritionKey1, [CanBeNull] object paritionKey2)
+            => string.Format(
+                GetString("ParitionKeyMismatch", nameof(paritionKey1), nameof(paritionKey2)),
+                paritionKey1, paritionKey2);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

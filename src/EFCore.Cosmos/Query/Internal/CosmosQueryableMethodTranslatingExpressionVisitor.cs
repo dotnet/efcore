@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -129,23 +130,24 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             bool ProcessJoinCondition(
                                 Expression joinCondition, ICollection<IProperty> properties, ICollection<string> paramNames)
                             {
-                                if (joinCondition is BinaryExpression binaryExpression)
+                                if (joinCondition is BinaryExpression joinBinaryExpression)
                                 {
-                                    switch (binaryExpression.NodeType)
+                                    switch (joinBinaryExpression.NodeType)
                                     {
                                         case ExpressionType.AndAlso:
-                                            return ProcessJoinCondition(binaryExpression.Left, properties, paramNames)
-                                                && ProcessJoinCondition(binaryExpression.Right, properties, paramNames);
+                                            return ProcessJoinCondition(joinBinaryExpression.Left, properties, paramNames)
+                                                && ProcessJoinCondition(joinBinaryExpression.Right, properties, paramNames);
 
                                         case ExpressionType.Equal:
-                                            if (binaryExpression.Left is MethodCallExpression methodCallExpr
-                                                && binaryExpression.Right is ParameterExpression parameterExpr)
+                                            if (joinBinaryExpression.Left is MethodCallExpression equalMethodCallExpression
+                                                && joinBinaryExpression.Right is ParameterExpression equalParameterExpresion)
                                             {
-                                                if (methodCallExpr.TryGetEFPropertyArguments(out _, out var propertyName))
+                                                if (equalMethodCallExpression.TryGetEFPropertyArguments(out _, out var propertyName))
                                                 {
 #pragma warning disable EF1001
                                                     properties.Add(entityType.GetProperty(propertyName));
-                                                    paramNames.Add(parameterExpr.Name);
+#pragma warning restore EF1001
+                                                    paramNames.Add(equalParameterExpresion.Name);
                                                     return true;
                                                 }
                                             }
@@ -1026,7 +1028,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         case ExpressionType.Equal:
                             if (binaryExpression.Left is MemberExpression memberExpression
                                 && binaryExpression.Right is ConstantExpression constantExpression
-                                && memberExpression.Member.Name == entityType.GetPartitionKeyPropertyName())
+                                && memberExpression.Member.GetSimpleMemberName() == entityType.GetPartitionKeyPropertyName())
                             {
                                 partitionKeyProperty = new KeyValuePair<IProperty, object>(
                                     entityType.FindProperty(memberExpression.Member.Name), constantExpression.Value);

@@ -372,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         [ConditionalFact]
-        public async Task Can_add_update_delete_end_to_end_with_with_partition_key_filter()
+        public async Task Can_query_with_implicit_partition_key_filter()
         {
             var options = Fixture.CreateOptions();
             const int pk1 = 1;

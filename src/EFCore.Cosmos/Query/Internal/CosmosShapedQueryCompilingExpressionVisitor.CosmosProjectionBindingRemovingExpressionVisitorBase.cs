@@ -425,6 +425,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
 #pragma warning disable EF1001
                     entry.SetIsLoaded(navigation);
+#pragma warning restore EF1001
                 }
             }
 
@@ -471,7 +472,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 }
                 else
                 {
+#pragma warning disable EF1001
                     entry.SetIsLoaded(navigation);
+#pragma warning restore EF1001
                     if (relatedEntities != null)
                     {
                         using var enumerator = relatedEntities.GetEnumerator();

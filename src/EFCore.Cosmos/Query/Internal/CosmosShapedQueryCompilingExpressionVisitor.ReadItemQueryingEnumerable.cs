@@ -216,6 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
 #pragma warning disable EF1001
                     _stateManager = readItemEnumerable._cosmosQueryContext.StateManager;
+#pragma warning restore EF1001
                     CosmosQueryContext = readItemEnumerable._cosmosQueryContext;
                     _readItemExpression = readItemEnumerable._readItemExpression;
                     _entityType = readItemEnumerable._readItemExpression.EntityType;
@@ -278,6 +279,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
 #pragma warning disable EF1001
                     var internalEntityEntry = new InternalEntityEntryFactory().Create(_stateManager, _entityType, entityEntry);
+#pragma warning restore EF1001
 
                     foreach (var entityProperty in entityProperties)
                     {
@@ -291,6 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
 #pragma warning disable EF1001
                     var entry = new EntityEntry(internalEntityEntry) { State = EntityState.Added };
+#pragma warning restore EF1001
 
                     value = entry.Properties
                         .FirstOrDefault(
