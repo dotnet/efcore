@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore
@@ -16,15 +17,20 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected override void AddServices(ServiceCollection serviceCollection)
-        {
-            serviceCollection.AddEntityFrameworkSqliteNetTopologySuite();
-        }
+            => serviceCollection.AddEntityFrameworkSqliteNetTopologySuite();
 
         protected override Assembly TargetAssembly
             => typeof(SqliteNetTopologySuiteServiceCollectionExtensions).Assembly;
 
         public class SqliteNTSApiConsistencyFixture : ApiConsistencyFixtureBase
         {
+            public override bool TryGetProviderOptionsDelegate(out Action<DbContextOptionsBuilder> configureOptions)
+            {
+                configureOptions = b => SqliteTestHelpers.Instance.UseProviderOptions(b);
+
+                return true;
+            }
+
             public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>()
             {
                 typeof(SqliteNetTopologySuiteDbContextOptionsBuilderExtensions),

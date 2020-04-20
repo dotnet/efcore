@@ -12,6 +12,10 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -504,6 +508,119 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public virtual void Ensure_dependency_objects_are_consistent()
+        {
+            var serviceCollection = new ServiceCollection();
+
+            AddServices(serviceCollection);
+
+            var dependencyServices = serviceCollection.Where(
+                    sd => sd.ServiceType.Namespace.StartsWith("Microsoft.Entity", StringComparison.Ordinal)
+                        && sd.ServiceType.Name.EndsWith("Dependencies", StringComparison.Ordinal)
+                && sd.ImplementationType == sd.ServiceType)
+                .ToList();
+
+            foreach (var service in dependencyServices)
+            {
+                TestDependenciesObject(service.ImplementationType);
+            }
+        }
+
+        // ReSharper disable once ClassNeverInstantiated.Local
+        private class FakeCurrentDbContext : ICurrentDbContext
+        {
+            // ReSharper disable once UnassignedGetOnlyAutoProperty
+            public DbContext Context { get; }
+        }
+
+        private void TestDependenciesObject(Type dependenciesType)
+        {
+            if (!TryCreateProviderServices(out var serviceCollection1))
+            {
+                return;
+            }
+
+            AddServices(serviceCollection1);
+            var services1 = serviceCollection1.BuildServiceProvider();
+
+            TryCreateProviderServices(out var serviceCollection2);
+            AddServices(serviceCollection2);
+            var services2 = serviceCollection2.BuildServiceProvider();
+
+            var dependencies = services1.GetService(dependenciesType);
+
+            var serviceProperties = dependenciesType.GetTypeInfo()
+                .DeclaredProperties
+                .Where(p => !Fixture.ComputedDependencyProperties.Contains(p))
+                .ToList();
+
+            var obsoleteTypes = serviceProperties
+                .Where(p => p.CustomAttributes.Any(a => a.AttributeType == typeof(ObsoleteAttribute)))
+                .Select(p => p.PropertyType)
+                .ToList();
+
+            serviceProperties = serviceProperties.Where(p => !obsoleteTypes.Contains(p.PropertyType)).ToList();
+
+            var constructor = dependenciesType.GetTypeInfo().DeclaredConstructors.OrderByDescending(c => c.GetParameters().Length).First();
+            var constructorParameters = constructor.GetParameters().Where(p => !obsoleteTypes.Contains(p.ParameterType)).ToList();
+
+            foreach (var serviceType in constructorParameters.Select(p => p.ParameterType))
+            {
+                var withMethod = dependenciesType.GetTypeInfo().DeclaredMethods
+                    .FirstOrDefault(
+                        m => m.CustomAttributes.All(a => a.AttributeType != typeof(ObsoleteAttribute))
+                            && m.Name == "With"
+                            && m.GetParameters()[0].ParameterType == serviceType);
+
+                if (withMethod == null)
+                {
+                    throw new Exception(
+                        $"Expected 'With' method for service type '{serviceType.ShortDisplayName()}' on '{dependenciesType.ShortDisplayName()}'");
+                }
+
+                var clone = withMethod.Invoke(dependencies, new[] { services2.GetService(serviceType) });
+
+                foreach (var property in serviceProperties)
+                {
+                    if (property.PropertyType == serviceType)
+                    {
+                        Assert.NotSame(property.GetValue(clone), property.GetValue(dependencies));
+                    }
+                    else
+                    {
+                        Assert.Equal(property.GetValue(clone), property.GetValue(dependencies));
+                    }
+                }
+            }
+
+            bool TryCreateProviderServices(out ServiceCollection services)
+            {
+                if (!Fixture.TryGetProviderOptionsDelegate(out var optionsDelegate))
+                {
+                    services = null;
+                    return false;
+                }
+
+                services = (ServiceCollection)new ServiceCollection()
+                    .AddScoped<IDbContextOptions>(p => CreateOptions(p, optionsDelegate))
+                    .AddScoped<ICurrentDbContext, FakeCurrentDbContext>()
+                    .AddScoped<IModel, Model>();
+
+                return true;
+            }
+
+            DbContextOptions CreateOptions(IServiceProvider serviceProvider, Action<DbContextOptionsBuilder> optionsDelegate)
+            {
+                var optionsBuilder = new DbContextOptionsBuilder()
+                    .UseInternalServiceProvider(serviceProvider);
+
+                optionsDelegate(optionsBuilder);
+
+                return optionsBuilder.Options;
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Service_implementations_should_use_dependencies_parameter_object()
         {
             var serviceCollection = new ServiceCollection();
@@ -741,12 +858,25 @@ namespace Microsoft.EntityFrameworkCore
                 Initialize();
             }
 
+            public abstract bool TryGetProviderOptionsDelegate (out Action<DbContextOptionsBuilder> configureOptions);
+
             public virtual HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>();
             public virtual HashSet<MethodInfo> NonVirtualMethods { get; } = new HashSet<MethodInfo>();
             public virtual HashSet<MethodInfo> NotAnnotatedMethods { get; } = new HashSet<MethodInfo>();
             public virtual HashSet<MethodInfo> AsyncMethodExceptions { get; } = new HashSet<MethodInfo>();
             public virtual HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new HashSet<MethodInfo>();
             public virtual HashSet<MethodInfo> MetadataMethodExceptions { get; } = new HashSet<MethodInfo>();
+
+            public virtual HashSet<PropertyInfo> ComputedDependencyProperties { get; }
+                = new HashSet<PropertyInfo>
+                {
+                    typeof(ProviderConventionSetBuilderDependencies).GetProperty(nameof(ProviderConventionSetBuilderDependencies.ContextType)),
+                    typeof(QueryCompilationContextDependencies).GetProperty(nameof(QueryCompilationContextDependencies.ContextType)),
+                    typeof(QueryCompilationContextDependencies).GetProperty(nameof(QueryCompilationContextDependencies.IsTracking)),
+                    typeof(QueryContextDependencies).GetProperty(nameof(QueryContextDependencies.StateManager)),
+                    typeof(QueryContextDependencies).GetProperty(nameof(QueryContextDependencies.QueryProvider))
+                };
+
 
             public Dictionary<Type, (Type Mutable, Type Convention, Type ConventionBuilder)> MetadataTypes { get; }
                 = new Dictionary<Type, (Type, Type, Type)>
