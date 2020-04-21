@@ -216,160 +216,160 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        [ConditionalFact]
-        public async Task Can_add_update_delete_end_to_end_with_partition_key()
-        {
-            var options = Fixture.CreateOptions();
+        //[ConditionalFact]
+        //public async Task Can_add_update_delete_end_to_end_with_partition_key()
+        //{
+        //    var options = Fixture.CreateOptions();
 
-            var customer = new Customer
-            {
-                Id = 42,
-                Name = "Theon",
-                PartitionKey = 1
-            };
+        //    var customer = new Customer
+        //    {
+        //        Id = 42,
+        //        Name = "Theon",
+        //        PartitionKey = 1
+        //    };
 
-            using (var context = new PartitionKeyContext(options))
-            {
-                await context.Database.EnsureCreatedAsync();
+        //    using (var context = new PartitionKeyContext(options))
+        //    {
+        //        await context.Database.EnsureCreatedAsync();
 
-                context.Add(customer);
-                context.Add(
-                    new Customer
-                    {
-                        Id = 42,
-                        Name = "Theon Twin",
-                        PartitionKey = 2
-                    });
+        //        context.Add(customer);
+        //        context.Add(
+        //            new Customer
+        //            {
+        //                Id = 42,
+        //                Name = "Theon Twin",
+        //                PartitionKey = 2
+        //            });
 
-                await context.SaveChangesAsync();
-            }
+        //        await context.SaveChangesAsync();
+        //    }
 
-            using (var context = new PartitionKeyContext(options))
-            {
-                var customerFromStore = await context.Set<Customer>().OrderBy(c => c.PartitionKey).FirstAsync();
+        //    using (var context = new PartitionKeyContext(options))
+        //    {
+        //        var customerFromStore = await context.Set<Customer>().OrderBy(c => c.PartitionKey).FirstAsync();
 
-                Assert.Equal(42, customerFromStore.Id);
-                Assert.Equal("Theon", customerFromStore.Name);
-                Assert.Equal(1, customerFromStore.PartitionKey);
+        //        Assert.Equal(42, customerFromStore.Id);
+        //        Assert.Equal("Theon", customerFromStore.Name);
+        //        Assert.Equal(1, customerFromStore.PartitionKey);
 
-                customerFromStore.Name = "Theon Greyjoy";
+        //        customerFromStore.Name = "Theon Greyjoy";
 
-                await context.SaveChangesAsync();
-            }
+        //        await context.SaveChangesAsync();
+        //    }
 
-            using (var context = new PartitionKeyContext(options))
-            {
-                var customerFromStore = await context.Set<Customer>().OrderBy(c => c.PartitionKey).FirstAsync();
-                customerFromStore.PartitionKey = 2;
+        //    using (var context = new PartitionKeyContext(options))
+        //    {
+        //        var customerFromStore = await context.Set<Customer>().OrderBy(c => c.PartitionKey).FirstAsync();
+        //        customerFromStore.PartitionKey = 2;
 
-                Assert.Equal(
-                    CoreStrings.KeyReadOnly(nameof(Customer.PartitionKey), nameof(Customer)),
-                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-            }
+        //        Assert.Equal(
+        //            CoreStrings.KeyReadOnly(nameof(Customer.PartitionKey), nameof(Customer)),
+        //            Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+        //    }
 
-            using (var context = new PartitionKeyContext(options))
-            {
-                var customerFromStore = await context.Set<Customer>().OrderBy(c => c.PartitionKey).FirstAsync();
+        //    using (var context = new PartitionKeyContext(options))
+        //    {
+        //        var customerFromStore = await context.Set<Customer>().OrderBy(c => c.PartitionKey).FirstAsync();
 
-                Assert.Equal(42, customerFromStore.Id);
-                Assert.Equal("Theon Greyjoy", customerFromStore.Name);
-                Assert.Equal(1, customerFromStore.PartitionKey);
+        //        Assert.Equal(42, customerFromStore.Id);
+        //        Assert.Equal("Theon Greyjoy", customerFromStore.Name);
+        //        Assert.Equal(1, customerFromStore.PartitionKey);
 
-                context.Remove(customerFromStore);
+        //        context.Remove(customerFromStore);
 
-                context.Remove(await context.Set<Customer>().OrderBy(c => c.PartitionKey).LastAsync());
+        //        context.Remove(await context.Set<Customer>().OrderBy(c => c.PartitionKey).LastAsync());
 
-                await context.SaveChangesAsync();
-            }
+        //        await context.SaveChangesAsync();
+        //    }
 
-            using (var context = new PartitionKeyContext(options))
-            {
-                Assert.Empty(await context.Set<Customer>().ToListAsync());
-            }
-        }
+        //    using (var context = new PartitionKeyContext(options))
+        //    {
+        //        Assert.Empty(await context.Set<Customer>().ToListAsync());
+        //    }
+        //}
 
-        [ConditionalFact]
-        public async Task Can_add_update_delete_end_to_end_with_with_partition_key_extension()
-        {
-            var options = Fixture.CreateOptions();
-            const int pk1 = 1;
-            const int pk2 = 2;
+        //[ConditionalFact]
+        //public async Task Can_add_update_delete_end_to_end_with_with_partition_key_extension()
+        //{
+        //    var options = Fixture.CreateOptions();
+        //    const int pk1 = 1;
+        //    const int pk2 = 2;
 
-            var customer = new Customer
-            {
-                Id = 42,
-                Name = "Theon",
-                PartitionKey = pk1
-            };
+        //    var customer = new Customer
+        //    {
+        //        Id = 42,
+        //        Name = "Theon",
+        //        PartitionKey = pk1
+        //    };
 
-            using (var context = new PartitionKeyContext(options))
-            {
-                await context.Database.EnsureCreatedAsync();
+        //    using (var context = new PartitionKeyContext(options))
+        //    {
+        //        await context.Database.EnsureCreatedAsync();
 
-                context.Add(customer);
-                context.Add(
-                    new Customer
-                    {
-                        Id = 42,
-                        Name = "Theon Twin",
-                        PartitionKey = pk2
-                    });
+        //        context.Add(customer);
+        //        context.Add(
+        //            new Customer
+        //            {
+        //                Id = 42,
+        //                Name = "Theon Twin",
+        //                PartitionKey = pk2
+        //            });
 
-                await context.SaveChangesAsync();
-            }
+        //        await context.SaveChangesAsync();
+        //    }
 
-            using (var context = new PartitionKeyContext(options))
-            {
-                var customerFromStore = await context.Set<Customer>()
-                    .WithPartitionKey(partitionKey: pk1.ToString())
-                    .FirstAsync();
+        //    using (var context = new PartitionKeyContext(options))
+        //    {
+        //        var customerFromStore = await context.Set<Customer>()
+        //            .WithPartitionKey(partitionKey: pk1.ToString())
+        //            .FirstAsync();
 
-                Assert.Equal(42, customerFromStore.Id);
-                Assert.Equal("Theon", customerFromStore.Name);
-                Assert.Equal(pk1, customerFromStore.PartitionKey);
+        //        Assert.Equal(42, customerFromStore.Id);
+        //        Assert.Equal("Theon", customerFromStore.Name);
+        //        Assert.Equal(pk1, customerFromStore.PartitionKey);
 
-                customerFromStore.Name = "Theon Greyjoy";
+        //        customerFromStore.Name = "Theon Greyjoy";
 
-                await context.SaveChangesAsync();
-            }
+        //        await context.SaveChangesAsync();
+        //    }
 
-            using (var context = new PartitionKeyContext(options))
-            {
-                var customerFromStore = await context.Set<Customer>().WithPartitionKey(partitionKey:pk1.ToString()).FirstAsync();
+        //    using (var context = new PartitionKeyContext(options))
+        //    {
+        //        var customerFromStore = await context.Set<Customer>().WithPartitionKey(partitionKey:pk1.ToString()).FirstAsync();
 
-                customerFromStore.PartitionKey = pk2;
+        //        customerFromStore.PartitionKey = pk2;
 
-                Assert.Equal(
-                    CoreStrings.KeyReadOnly(nameof(Customer.PartitionKey), nameof(Customer)),
-                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-            }
+        //        Assert.Equal(
+        //            CoreStrings.KeyReadOnly(nameof(Customer.PartitionKey), nameof(Customer)),
+        //            Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+        //    }
 
-            using (var context = new PartitionKeyContext(options))
-            {
-                var customerFromStore = await context.Set<Customer>()
-                    .WithPartitionKey(partitionKey: pk1.ToString())
-                    .FirstAsync();
+        //    using (var context = new PartitionKeyContext(options))
+        //    {
+        //        var customerFromStore = await context.Set<Customer>()
+        //            .WithPartitionKey(partitionKey: pk1.ToString())
+        //            .FirstAsync();
 
-                Assert.Equal(42, customerFromStore.Id);
-                Assert.Equal("Theon Greyjoy", customerFromStore.Name);
-                Assert.Equal(pk1, customerFromStore.PartitionKey);
+        //        Assert.Equal(42, customerFromStore.Id);
+        //        Assert.Equal("Theon Greyjoy", customerFromStore.Name);
+        //        Assert.Equal(pk1, customerFromStore.PartitionKey);
 
-                context.Remove(customerFromStore);
+        //        context.Remove(customerFromStore);
 
-                context.Remove(await context.Set<Customer>()
-                    .WithPartitionKey(pk2.ToString())
-                    .LastAsync());
+        //        context.Remove(await context.Set<Customer>()
+        //            .WithPartitionKey(pk2.ToString())
+        //            .LastAsync());
 
-                await context.SaveChangesAsync();
-            }
+        //        await context.SaveChangesAsync();
+        //    }
 
-            using (var context = new PartitionKeyContext(options))
-            {
-                Assert.Empty(await context.Set<Customer>()
-                    .WithPartitionKey(partitionKey: pk2.ToString())
-                    .ToListAsync());
-            }
-        }
+        //    using (var context = new PartitionKeyContext(options))
+        //    {
+        //        Assert.Empty(await context.Set<Customer>()
+        //            .WithPartitionKey(partitionKey: pk2.ToString())
+        //            .ToListAsync());
+        //    }
+        //}
 
         [ConditionalFact]
         public async Task Can_query_with_implicit_partition_key_filter()

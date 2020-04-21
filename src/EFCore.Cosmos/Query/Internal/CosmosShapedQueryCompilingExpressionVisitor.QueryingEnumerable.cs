@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
                     if (partitionKeyFromExtension != null && partitionKeyFromExtension != partitionKey)
                     {
-                        throw new InvalidOperationException(CosmosStrings.ParitionKeyMismatch(partitionKeyFromExtension, partitionKey));
+                        throw new InvalidOperationException(CosmosStrings.PartitionKeyMismatch(partitionKeyFromExtension, partitionKey));
                     }
 
                     _partitionKey = partitionKey;
