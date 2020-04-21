@@ -305,8 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                         k => IPAddressToStringConverter.DefaultInfo);
                 }
 
-                if (providerClrType == null
-                    || providerClrType == typeof(byte[]))
+                if (providerClrType == typeof(byte[]))
                 {
                     yield return _converters.GetOrAdd(
                         (modelClrType, typeof(byte[])),

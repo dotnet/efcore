@@ -11,6 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     /// </summary>
     public class IPAddressToBytesConverter : ValueConverter<IPAddress, byte[]>
     {
+        private static readonly ConverterMappingHints _defaultHints
+            = new ConverterMappingHints(size: 16);
+
         /// <summary>
         ///     Creates a new instance of this converter.
         /// </summary>
@@ -20,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// </param>
         public IPAddressToBytesConverter([CanBeNull] ConverterMappingHints mappingHints = null)
             : base(
-                v => v.GetAddressBytes(),
-                v => v == null ? IPAddress.None : new IPAddress(v),
-                mappingHints)
+                v => v == null ? default : v.GetAddressBytes(),
+                v => v == null ? default : new IPAddress(v),
+                _defaultHints.With(mappingHints))
         {
         }
 
@@ -30,6 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(typeof(IPAddress), typeof(byte[]), i => new IPAddressToBytesConverter(i.MappingHints));
+            = new ValueConverterInfo(
+                typeof(IPAddress),
+                typeof(byte[]),
+                i => new IPAddressToBytesConverter(i.MappingHints),
+                _defaultHints);
     }
 }

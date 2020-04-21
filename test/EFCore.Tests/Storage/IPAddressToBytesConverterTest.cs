@@ -13,76 +13,105 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly IPAddressToBytesConverter _ipAddressToBytes
             = new IPAddressToBytesConverter();
 
-        [ConditionalFact]
-        public void Can_convert_ipaddress_to_bytes()
+        [ConditionalTheory]
+        [InlineData("255.255.255.255")]
+        [InlineData("255.255.255.0")]
+        [InlineData("255.255.0.0")]
+        [InlineData("255.0.0.0")]
+        [InlineData("0.0.0.0")]
+        public void Can_convert_ipaddress_ipv4_to_bytes(string ipv4)
         {
             var converter = _ipAddressToBytes.ConvertToProviderExpression.Compile();
+            var ip = IPAddress.Parse(ipv4);
+            var bytes = ip.GetAddressBytes();
 
-            Assert.Equal(
-                new byte[] { 255, 255, 255, 0 },
-                converter(IPAddress.Parse("255.255.255.0")));
-
-            Assert.Equal(
-                new byte[] { 255, 255, 255, 255 },
-                converter(IPAddress.None));
-        }
-
-        [ConditionalFact]
-        public void Can_convert_ipaddress_to_bytes_object()
-        {
-            var converter = _ipAddressToBytes.ConvertToProvider;
-
-            Assert.Equal(
-                new byte[] { 255, 255, 255, 0 },
-                converter(IPAddress.Parse("255.255.255.0")));
-
-            Assert.Equal(
-                new byte[] { 255, 255, 255, 255 },
-                converter(IPAddress.None));
+            Assert.Equal(bytes, converter(ip));
 
             Assert.Null(converter(null));
         }
 
-        [ConditionalFact]
-        public void Can_convert_bytes_to_ipaddress()
+        [ConditionalTheory]
+        [InlineData("255.255.255.255")]
+        [InlineData("255.255.255.0")]
+        [InlineData("255.255.0.0")]
+        [InlineData("255.0.0.0")]
+        [InlineData("0.0.0.0")]
+        public void Can_convert_ipaddress_ipv4_to_bytes_object(string ipv4)
+        {
+            var converter = _ipAddressToBytes.ConvertToProvider;
+            var ip = IPAddress.Parse(ipv4);
+            var bytes = ip.GetAddressBytes();
+
+            Assert.Equal(bytes, converter(ip));
+
+            Assert.Null(converter(null));
+        }
+
+        [ConditionalTheory]
+        [InlineData(new byte[] { 255, 255, 255, 255, 255 })]
+        [InlineData(new byte[] { 255, 255, 255, 0, 0 })]
+        [InlineData(new byte[] { 192, 168, 2, 1, 0 })]
+        [InlineData(new byte[] { 0, 0, 0, 0, 0 })]
+        public void Can_convert_bytes_to_ipaddress_ipv4_params(byte[] bytesIPV4Invalid)
         {
             var converter = _ipAddressToBytes.ConvertFromProviderExpression.Compile();
 
-            Assert.Equal(
-                IPAddress.Parse("255.255.255.0"),
-                converter(new byte[] { 255, 255, 255, 0 }));
-
-            Assert.Equal(
-                IPAddress.None,
-                converter(new byte[] { 255, 255, 255, 255 }));
-
             Assert.Throws<ArgumentException>(
-                () => converter(new byte[] { 255, 255, 255, 255, 255 }));
+                () => converter(bytesIPV4Invalid));
 
-            Assert.Throws<ArgumentException>(
-                () => converter(new byte[] { 255, 255, 255, 255, 0 }));
-
-            Assert.Throws<ArgumentException>(
-                () => converter(new byte[] { 1, 1, 1, 1, 1 }));
-
-            Assert.Throws<ArgumentException>(
-                () => converter(new byte[] { 0, 0, 0, 0, 0 }));
-
-            Assert.Equal(IPAddress.None, converter(null));
+            Assert.Null(converter(null));
         }
 
-        [ConditionalFact]
-        public void Can_convert_bytes_to_ipaddress_object()
+        [ConditionalTheory]
+        [InlineData("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")]
+        [InlineData("27ff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")]
+        [InlineData("2001:db8:0000:0000:0000:0000:0fff:ffff")]
+        [InlineData("2001:db8:0000:0000:0000:0000:000f:ffff")]
+        [InlineData("2001:db8::")]
+        public void Can_convert_bytes_to_ipaddress_ipv6(string ipv6)
+        {
+            var converter = _ipAddressToBytes.ConvertFromProviderExpression.Compile();
+
+            var ip = IPAddress.Parse(ipv6);
+            var bytes = ip.GetAddressBytes();
+
+            Assert.Equal(ip, converter(bytes));
+
+            Assert.Null(converter(null));
+        }
+
+        [ConditionalTheory]
+        [InlineData("255.255.255.255")]
+        [InlineData("255.255.255.0")]
+        [InlineData("255.255.0.0")]
+        [InlineData("255.0.0.0")]
+        [InlineData("0.0.0.0")]
+        public void Can_convert_bytes_to_ipaddress_ipv4_object(string ipv4)
         {
             var converter = _ipAddressToBytes.ConvertFromProvider;
 
-            Assert.Equal(
-                IPAddress.Parse("255.255.255.0"),
-                converter(new byte[] { 255, 255, 255, 0 }));
+            var ip = IPAddress.Parse(ipv4);
+            var bytes = ip.GetAddressBytes();
 
-            Assert.Equal(
-                IPAddress.None,
-                converter(new byte[] { 255, 255, 255, 255 }));
+            Assert.Equal(ip, converter(bytes));
+             
+            Assert.Null(converter(null));
+        }
+
+        [ConditionalTheory]
+        [InlineData("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")]
+        [InlineData("27ff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")]
+        [InlineData("2001:db8:0000:0000:0000:0000:0fff:ffff")]
+        [InlineData("2001:db8:0000:0000:0000:0000:000f:ffff")]
+        [InlineData("2001:db8::")]
+        public void Can_convert_bytes_to_ipaddress_ipv6_object(string ipv6)
+        {
+            var converter = _ipAddressToBytes.ConvertFromProvider;
+
+            var ip = IPAddress.Parse(ipv6);
+            var bytes = ip.GetAddressBytes();
+
+            Assert.Equal(ip, converter(bytes));
 
             Assert.Null(converter(null));
         }
