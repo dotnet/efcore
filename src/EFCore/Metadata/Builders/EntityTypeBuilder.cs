@@ -36,8 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [EntityFrameworkInternal]
         public EntityTypeBuilder([NotNull] IMutableEntityType entityType)
         {
-            Check.NotNull(entityType, nameof(entityType));
-
             Builder = ((EntityType)entityType).Builder;
         }
 

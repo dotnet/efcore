@@ -72,16 +72,6 @@ namespace Microsoft.EntityFrameworkCore
             => pointsToPrincipal ? foreignKey.DependentToPrincipal : foreignKey.PrincipalToDependent;
 
         /// <summary>
-        ///     Gets a value indicating whether given foreign key is defined in same hierarchy.
-        /// </summary>
-        /// <param name="foreignKey"> The foreign key to check. </param>
-        /// <returns>
-        ///     True if <paramref name="foreignKey" /> is defined in same hierarchy, otherwise false.
-        /// </returns>
-        public static bool IsIntraHierarchical([NotNull] this IForeignKey foreignKey)
-            => foreignKey.DeclaringEntityType.IsSameHierarchy(foreignKey.PrincipalEntityType);
-
-        /// <summary>
         ///     <para>
         ///         Creates a human-readable representation of the given metadata.
         ///     </para>

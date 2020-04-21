@@ -20,8 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// </summary>
     public class IndexBuilder : IInfrastructure<IConventionIndexBuilder>
     {
-        private readonly InternalIndexBuilder _builder;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -31,15 +29,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [EntityFrameworkInternal]
         public IndexBuilder([NotNull] IMutableIndex index)
         {
-            Check.NotNull(index, nameof(index));
-
-            _builder = ((Index)index).Builder;
+            Builder = ((Index)index).Builder;
         }
 
         /// <summary>
         ///     The internal builder being used to configure the index.
         /// </summary>
-        IConventionIndexBuilder IInfrastructure<IConventionIndexBuilder>.Instance => _builder;
+        IConventionIndexBuilder IInfrastructure<IConventionIndexBuilder>.Instance => Builder;
+
+        private InternalIndexBuilder Builder { get; }
 
         /// <summary>
         ///     The index being configured.
@@ -75,8 +73,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             return this;
         }
-
-        private InternalIndexBuilder Builder => (InternalIndexBuilder)this.GetInfrastructure();
 
         #region Hidden System.Object members
 

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -105,6 +106,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IMutableNavigation SetDependentToPrincipal([CanBeNull] MemberInfo property);
 
         /// <summary>
+        ///     Sets the navigation property on the dependent entity type that points to the principal entity.
+        /// </summary>
+        /// <param name="name">
+        ///     The name of the navigation property on the dependent type. Passing <c>null</c> will result in there being
+        ///     no navigation property defined.
+        /// </param>
+        /// <returns> The newly created navigation property. </returns>
+        [Obsolete("Use SetDependentToPrincipal")]
+        IMutableNavigation HasDependentToPrincipal([CanBeNull] string name)
+            => SetDependentToPrincipal(name);
+
+        /// <summary>
+        ///     Sets the navigation property on the dependent entity type that points to the principal entity.
+        /// </summary>
+        /// <param name="property">
+        ///     The navigation property on the dependent type. Passing <c>null</c> will result in there being
+        ///     no navigation property defined.
+        /// </param>
+        /// <returns> The newly created navigation property. </returns>
+        [Obsolete("Use SetDependentToPrincipal")]
+        IMutableNavigation HasDependentToPrincipal([CanBeNull] MemberInfo property)
+            => SetDependentToPrincipal(property);
+
+        /// <summary>
         ///     Sets the navigation property on the principal entity type that points to the dependent entity.
         /// </summary>
         /// <param name="name">
@@ -123,6 +148,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <returns> The newly set navigation property. </returns>
         IMutableNavigation SetPrincipalToDependent([CanBeNull] MemberInfo property);
+
+        /// <summary>
+        ///     Sets the navigation property on the principal entity type that points to the dependent entity.
+        /// </summary>
+        /// <param name="name">
+        ///     The name of the navigation property on the principal type. Passing <c>null</c> will result in there being
+        ///     no navigation property defined.
+        /// </param>
+        /// <returns> The newly created navigation property. </returns>
+        [Obsolete("Use SetPrincipalToDependent")]
+        IMutableNavigation HasPrincipalToDependent([CanBeNull] string name)
+            => SetPrincipalToDependent(name);
+
+        /// <summary>
+        ///     Sets the navigation property on the principal entity type that points to the dependent entity.
+        /// </summary>
+        /// <param name="property">
+        ///     The name of the navigation property on the principal type. Passing <c>null</c> will result in there being
+        ///     no navigation property defined.
+        /// </param>
+        /// <returns> The newly created navigation property. </returns>
+        [Obsolete("Use SetPrincipalToDependent")]
+        IMutableNavigation HasPrincipalToDependent([CanBeNull] MemberInfo property)
+            => SetPrincipalToDependent(property);
 
         /// <summary>
         ///     Gets all skip navigations using this foreign key.

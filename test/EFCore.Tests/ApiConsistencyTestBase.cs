@@ -15,7 +15,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -408,6 +407,37 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public void Readonly_metadata_methods_have_expected_name()
+        {
+            var errors =
+                Fixture.MetadataMethods
+                .SelectMany(m => m.ReadOnly.Select(ValidateMethodName))
+                .Where(e => e != null)
+                .ToList();
+
+            Assert.False(
+                errors.Count > 0,
+                "\r\n-- Errors: --\r\n" + string.Join(Environment.NewLine, errors));
+        }
+
+        protected string ValidateMethodName(MethodInfo method)
+        {
+            var name = method.Name;
+            if (name.StartsWith("get_", StringComparison.Ordinal))
+            {
+                name = name[4..];
+                if (name.StartsWith("Get", StringComparison.Ordinal)
+                    && !Fixture.MetadataMethodExceptions.Contains(method))
+                {
+                    return $"{method.DeclaringType.ShortDisplayName()}.{name}({Format(method.GetParameters())}) expected to not have " +
+                        $"Get prefix";
+                }
+            }
+
+            return null;
+        }
+
+        [ConditionalFact]
         public void Mutable_metadata_methods_have_expected_shape()
         {
             var errors =
@@ -418,11 +448,17 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.False(
                 errors.Count > 0,
-                "\r\n-- Mismatches: --\r\n" + string.Join(Environment.NewLine, errors));
+                "\r\n-- Errors: --\r\n" + string.Join(Environment.NewLine, errors));
         }
 
         private string ValidateMutableMethod(MethodInfo mutableMethod)
         {
+            var message = ValidateMethodName(mutableMethod);
+            if (message != null)
+            {
+                return message;
+            }
+
             var parameters = mutableMethod.GetParameters();
             var parameterIndex = mutableMethod.IsStatic ? 1 : 0;
             var firstParameter = parameters.Length > parameterIndex ? parameters[parameterIndex] : null;
@@ -465,11 +501,17 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.False(
                 errors.Count > 0,
-                "\r\n-- Mismatches: --\r\n" + string.Join(Environment.NewLine, errors));
+                "\r\n-- Errors: --\r\n" + string.Join(Environment.NewLine, errors));
         }
 
         private string ValidateConventionMethod(MethodInfo conventionMethod)
         {
+            var message = ValidateMethodName(conventionMethod);
+            if (message != null)
+            {
+                return message;
+            }
+
             var parameters = conventionMethod.GetParameters();
             var parameterIndex = conventionMethod.IsStatic ? 1 : 0;
             var firstParameter = parameters.Length > parameterIndex ? parameters[parameterIndex] : null;
@@ -920,13 +962,13 @@ namespace Microsoft.EntityFrameworkCore
                     var type = extensionTypeTuple.Type;
                     var (mutableType, conventionType, conventionBuilderType) = MetadataTypes[type];
                     var readOnlyMethods = extensionTypeTuple.ReadonlyExtensions.GetMethods(BindingFlags.Public | BindingFlags.Static)
-                        .Where(m => m.GetParameters().First().ParameterType == type).ToArray();
+                        .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == type).ToArray();
                     var mutableMethods = extensionTypeTuple.MutableExtensions.GetMethods(BindingFlags.Public | BindingFlags.Static)
-                        .Where(m => m.GetParameters().First().ParameterType == mutableType).ToArray();
+                        .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == mutableType).ToArray();
                     var conventionMethods = extensionTypeTuple.ConventionExtensions.GetMethods(BindingFlags.Public | BindingFlags.Static)
-                        .Where(m => m.GetParameters().First().ParameterType == conventionType).ToArray();
+                        .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == conventionType).ToArray();
                     var conventionBuilderMethods = extensionTypeTuple.ConventionBuilderExtensions?.GetMethods(BindingFlags.Public | BindingFlags.Static)
-                        .Where(m => m.GetParameters().First().ParameterType == conventionBuilderType).ToArray();
+                        .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == conventionBuilderType).ToArray();
                     MetadataMethods.Add((readOnlyMethods, mutableMethods, conventionMethods, conventionBuilderMethods));
                 }
             }
@@ -935,13 +977,20 @@ namespace Microsoft.EntityFrameworkCore
             {
                 foreach (var typeTuple in types)
                 {
-                    var readOnlyMethods = typeTuple.Key.GetMethods(PublicInstance);
-                    var mutableMethods = typeTuple.Value.Mutable.GetMethods(PublicInstance);
-                    var conventionMethods = typeTuple.Value.Convention.GetMethods(PublicInstance);
-                    var conventionBuilderMethods = typeTuple.Value.ConventionBuilder?.GetMethods(PublicInstance);
+                    var readOnlyMethods = typeTuple.Key.GetMethods(PublicInstance)
+                        .Where(m => !IsObsolete(m)).ToArray();
+                    var mutableMethods = typeTuple.Value.Mutable.GetMethods(PublicInstance)
+                        .Where(m => !IsObsolete(m)).ToArray();
+                    var conventionMethods = typeTuple.Value.Convention.GetMethods(PublicInstance)
+                        .Where(m => !IsObsolete(m)).ToArray();
+                    var conventionBuilderMethods = typeTuple.Value.ConventionBuilder?.GetMethods(PublicInstance)
+                        .Where(m => !IsObsolete(m)).ToArray();
                     MetadataMethods.Add((readOnlyMethods, mutableMethods, conventionMethods, conventionBuilderMethods));
                 }
             }
+
+            protected bool IsObsolete(MethodInfo method)
+                => Attribute.IsDefined(method, typeof(ObsoleteAttribute), inherit: false);
         }
     }
 }

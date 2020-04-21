@@ -38,9 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [CanBeNull] IMutableForeignKey foreignKey,
             [CanBeNull] IMutableSkipNavigation skipNavigation)
         {
-            Check.NotNull(declaringEntityType, nameof(declaringEntityType));
-            Check.NotNull(relatedEntityType, nameof(relatedEntityType));
-
             DeclaringEntityType = declaringEntityType;
             RelatedEntityType = relatedEntityType;
             CollectionMember = navigation.MemberInfo;

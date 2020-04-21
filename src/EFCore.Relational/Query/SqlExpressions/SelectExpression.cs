@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
@@ -144,7 +145,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         private static IEnumerable<IProperty> GetAllPropertiesInHierarchy(IEntityType entityType)
-            => entityType.GetTypesInHierarchy().SelectMany(EntityTypeExtensions.GetDeclaredProperties);
+            => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
+                .SelectMany(EntityTypeExtensions.GetDeclaredProperties);
 
         public void ReplaceProjectionMapping([NotNull] IDictionary<ProjectionMember, Expression> projectionMapping)
         {
@@ -821,7 +823,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
                 var newEntityProjection = new EntityProjectionExpression(entityProjection.EntityType, propertyExpressions);
                 // Also lift nested entity projections
-                foreach (var navigation in entityProjection.EntityType.GetTypesInHierarchy()
+                foreach (var navigation in entityProjection.EntityType
+                    .GetAllBaseTypes().Concat(entityProjection.EntityType.GetDerivedTypesInclusive())
                     .SelectMany(EntityTypeExtensions.GetDeclaredNavigations))
                 {
                     var boundEntityShaperExpression = entityProjection.BindNavigation(navigation);
