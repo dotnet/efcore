@@ -867,6 +867,7 @@ AND CAST([i].[object_id] AS nvarchar(12)) + '#' + CAST([i].[index_id] AS nvarcha
 
                 commandText += @"
    AND [c].[is_hidden] = 1
+   AND [i].[is_hypothetical] = 0
 )";
             }
 
