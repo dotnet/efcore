@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("MyTable", entityBuilder.Metadata.GetTableName());
             Assert.Equal("MySchema", entityBuilder.Metadata.GetSchema());
-            Assert.Equal("Test comment table", entityBuilder.Metadata.GetComment());
+            Assert.Equal("Test table comment", entityBuilder.Metadata.GetComment());
         }
 
         [ConditionalFact]
@@ -42,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("MyTable", entityBuilder.Metadata.GetTableName());
             Assert.Equal("MySchema", entityBuilder.Metadata.GetSchema());
-            Assert.Equal("Test comment table", entityBuilder.Metadata.GetComment());
+            Assert.Equal("Test table comment", entityBuilder.Metadata.GetComment());
         }
 
         [ConditionalFact]
@@ -68,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             new RelationalTableAttributeConvention(CreateDependencies(), CreateRelationalDependencies())
                 .ProcessEntityTypeAdded(entityTypeBuilder, context);
 
-            new RelationalTableDescriptionAttributeConvention(CreateDependencies(), CreateRelationalDependencies())
+            new RelationalTableCommentAttributeConvention(CreateDependencies(), CreateRelationalDependencies())
                 .ProcessEntityTypeAdded(entityTypeBuilder, context);
         }
 
@@ -93,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => RelationalTestHelpers.Instance.CreateConventionBuilder();
 
         [Table("MyTable", Schema = "MySchema")]
-        [Description("Test comment table")]
+        [Comment("Test table comment")]
         private class A
         {
             public int Id { get; set; }

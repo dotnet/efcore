@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -85,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             new RelationalColumnAttributeConvention(CreateDependencies(), CreateRelationalDependencies())
                 .ProcessPropertyAdded(propertyBuilder, context);
 
-            new RelationalColumnDescriptionAttributeConvention(CreateDependencies(), CreateRelationalDependencies())
+            new RelationalColumnCommentAttributeConvention(CreateDependencies(), CreateRelationalDependencies())
                 .ProcessPropertyAdded(propertyBuilder, context);
         }
 
@@ -114,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             public int Id { get; set; }
 
             [Column("Post Name", Order = 1, TypeName = "DECIMAL")]
-            [Description("Test column comment")]
+            [Comment("Test column comment")]
             public string Name { get; set; }
         }
 
@@ -123,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             public int Id { get; set; }
 
             [Column("Post Name", Order = 1, TypeName = "DECIMAL")]
-            [Description("Test column comment")]
+            [Comment("Test column comment")]
             public string Name;
         }
     }

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.ComponentModel;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -10,16 +9,16 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     A convention that configures comment for a property based on the applied <see cref="DescriptionAttribute" />.
+    ///     A convention that configures the column comment for a property or member based on the applied <see cref="CommentAttribute" />.
     /// </summary>
-    public class RelationalColumnDescriptionAttributeConvention : PropertyAttributeConventionBase<DescriptionAttribute>
+    public class RelationalColumnCommentAttributeConvention : PropertyAttributeConventionBase<CommentAttribute>
     {
         /// <summary>
-        ///     Creates a new instance of <see cref="RelationalColumnDescriptionAttributeConvention" />.
+        ///     Creates a new instance of <see cref="RelationalColumnCommentAttributeConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
-        public RelationalColumnDescriptionAttributeConvention(
+        public RelationalColumnCommentAttributeConvention(
             [NotNull] ProviderConventionSetBuilderDependencies dependencies,
             [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
             : base(dependencies)
@@ -35,13 +34,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         protected override void ProcessPropertyAdded(
             IConventionPropertyBuilder propertyBuilder,
-            DescriptionAttribute attribute,
+            CommentAttribute attribute,
             MemberInfo clrMember,
             IConventionContext context)
         {
-            if (!string.IsNullOrWhiteSpace(attribute.Description))
+            if (!string.IsNullOrWhiteSpace(attribute.Comment))
             {
-                propertyBuilder.HasComment(attribute.Description, fromDataAnnotation: true);
+                propertyBuilder.HasComment(attribute.Comment, fromDataAnnotation: true);
             }
         }
     }
