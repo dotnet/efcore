@@ -849,7 +849,8 @@ FROM [sys].[indexes] AS [i]
 JOIN [sys].[tables] AS [t] ON [i].[object_id] = [t].[object_id]
 JOIN [sys].[index_columns] AS [ic] ON [i].[object_id] = [ic].[object_id] AND [i].[index_id] = [ic].[index_id]
 JOIN [sys].[columns] AS [c] ON [ic].[object_id] = [c].[object_id] AND [ic].[column_id] = [c].[column_id]
-WHERE "
+WHERE [i].[is_hypothetical] = 0
+AND "
                 + tableFilter;
 
             if (SupportsTemporalTable())
