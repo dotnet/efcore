@@ -345,13 +345,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default) =>
                 throw new NotImplementedException();
 
-            public void CommitTransaction()
-            {
-            }
+            public void CommitTransaction() { }
+            public Task CommitTransactionAsync(CancellationToken cancellationToken = default)
+                => Task.CompletedTask;
 
-            public void RollbackTransaction()
-            {
-            }
+            public void RollbackTransaction() { }
+            public Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
+                => Task.CompletedTask;
 
             public IDbContextTransaction CurrentTransaction => throw new NotImplementedException();
             public SemaphoreSlim Semaphore { get; }

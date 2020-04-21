@@ -129,7 +129,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     rowsAffected += batch.ModificationCommands.Count;
                 }
 
-                startedTransaction?.Commit();
+                if (startedTransaction != null)
+                {
+                    await startedTransaction.CommitAsync(cancellationToken);
+                }
             }
             finally
             {

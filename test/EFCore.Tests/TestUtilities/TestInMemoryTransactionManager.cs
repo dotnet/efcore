@@ -33,7 +33,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public override void CommitTransaction() => CurrentTransaction.Commit();
 
+        public override Task CommitTransactionAsync(CancellationToken cancellationToken = default)
+            => CurrentTransaction.CommitAsync(cancellationToken);
+
         public override void RollbackTransaction() => CurrentTransaction.Rollback();
+
+        public override Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
+            => CurrentTransaction.RollbackAsync(cancellationToken);
 
         public override void EnlistTransaction(Transaction transaction) => _enlistedTransaction = transaction;
 

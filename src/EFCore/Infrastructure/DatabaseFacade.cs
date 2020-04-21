@@ -161,10 +161,26 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => Dependencies.TransactionManager.CommitTransaction();
 
         /// <summary>
+        ///     Applies the outstanding operations in the current transaction to the database.
+        /// </summary>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns> A Task representing the asynchronous operation. </returns>
+        public virtual Task CommitTransactionAsync(CancellationToken cancellationToken = default)
+            => Dependencies.TransactionManager.CommitTransactionAsync(cancellationToken);
+
+        /// <summary>
         ///     Discards the outstanding operations in the current transaction.
         /// </summary>
         public virtual void RollbackTransaction()
             => Dependencies.TransactionManager.RollbackTransaction();
+
+        /// <summary>
+        ///     Applies the outstanding operations in the current transaction to the database.
+        /// </summary>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns> A Task representing the asynchronous operation. </returns>
+        public virtual Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
+            => Dependencies.TransactionManager.RollbackTransactionAsync(cancellationToken);
 
         /// <summary>
         ///     Creates an instance of the configured <see cref="IExecutionStrategy" />.
