@@ -28,6 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
     /// </summary>
     public class BatchExecutor : IBatchExecutor
     {
+        private const string SavepointName = "__EFSavePoint";
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -58,19 +60,28 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             IRelationalConnection connection)
         {
             var rowsAffected = 0;
-            IDbContextTransaction startedTransaction = null;
+            var transaction = connection.CurrentTransaction;
+            var beganTransaction = false;
+            var createdSavepoint = false;
             try
             {
-                if (connection.CurrentTransaction == null
+                if (transaction == null
                     && (connection as ITransactionEnlistmentManager)?.EnlistedTransaction == null
                     && Transaction.Current == null
                     && CurrentContext.Context.Database.AutoTransactionsEnabled)
                 {
-                    startedTransaction = connection.BeginTransaction();
+                    transaction = connection.BeginTransaction();
+                    beganTransaction = true;
                 }
                 else
                 {
                     connection.Open();
+
+                    if (transaction?.AreSavepointsSupported == true)
+                    {
+                        transaction.Save(SavepointName);
+                        createdSavepoint = true;
+                    }
                 }
 
                 foreach (var batch in commandBatches)
@@ -79,13 +90,29 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     rowsAffected += batch.ModificationCommands.Count;
                 }
 
-                startedTransaction?.Commit();
+                if (beganTransaction)
+                {
+                    transaction.Commit();
+                }
+            }
+            catch
+            {
+                if (createdSavepoint)
+                {
+                    transaction.Rollback(SavepointName);
+                }
+
+                throw;
             }
             finally
             {
-                if (startedTransaction != null)
+                if (createdSavepoint)
                 {
-                    startedTransaction.Dispose();
+                    transaction.Release(SavepointName);
+                }
+                else if (beganTransaction)
+                {
+                    transaction.Dispose();
                 }
                 else
                 {
@@ -108,19 +135,28 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             CancellationToken cancellationToken = default)
         {
             var rowsAffected = 0;
-            IDbContextTransaction startedTransaction = null;
+            var transaction = connection.CurrentTransaction;
+            var beganTransaction = false;
+            var createdSavepoint = false;
             try
             {
-                if (connection.CurrentTransaction == null
+                if (transaction == null
                     && (connection as ITransactionEnlistmentManager)?.EnlistedTransaction == null
                     && Transaction.Current == null
                     && CurrentContext.Context.Database.AutoTransactionsEnabled)
                 {
-                    startedTransaction = await connection.BeginTransactionAsync(cancellationToken);
+                    transaction = await connection.BeginTransactionAsync(cancellationToken);
+                    beganTransaction = true;
                 }
                 else
                 {
                     await connection.OpenAsync(cancellationToken);
+
+                    if (transaction?.AreSavepointsSupported == true)
+                    {
+                        await transaction.SaveAsync(SavepointName, cancellationToken);
+                        createdSavepoint = true;
+                    }
                 }
 
                 foreach (var batch in commandBatches)
@@ -129,16 +165,29 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     rowsAffected += batch.ModificationCommands.Count;
                 }
 
-                if (startedTransaction != null)
+                if (beganTransaction)
                 {
-                    await startedTransaction.CommitAsync(cancellationToken);
+                    await transaction.CommitAsync(cancellationToken);
                 }
+            }
+            catch
+            {
+                if (createdSavepoint)
+                {
+                    await transaction.RollbackAsync(SavepointName, cancellationToken);
+                }
+
+                throw;
             }
             finally
             {
-                if (startedTransaction != null)
+                if (createdSavepoint)
                 {
-                    await startedTransaction.DisposeAsync();
+                    await transaction.ReleaseAsync(SavepointName, cancellationToken);
+                }
+                else if (beganTransaction)
+                {
+                    await transaction.DisposeAsync();
                 }
                 else
                 {

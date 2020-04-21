@@ -151,6 +151,10 @@ namespace Microsoft.EntityFrameworkCore
 
             public int CommitCalls;
             public int RollbackCalls;
+            public int CreateSavepointCalls;
+            public int RollbackSavepointCalls;
+            public int ReleaseSavepointCalls;
+            public int AreSavepointsSupportedCalls;
 
             public IDbContextTransaction BeginTransaction()
                 => _transaction;
@@ -172,6 +176,39 @@ namespace Microsoft.EntityFrameworkCore
             {
                 RollbackCalls++;
                 return Task.CompletedTask;
+            }
+
+            public void CreateSavepoint(string savepointName) => CreateSavepointCalls++;
+
+            public Task CreateSavepointAsync(string savepointName, CancellationToken cancellationToken = default)
+            {
+                CreateSavepointCalls++;
+                return Task.CompletedTask;
+            }
+
+            public void RollbackSavepoint(string savepointName) => RollbackSavepointCalls++;
+
+            public Task RollbackSavepointAsync(string savepointName, CancellationToken cancellationToken = default)
+            {
+                RollbackSavepointCalls++;
+                return Task.CompletedTask;
+            }
+
+            public void ReleaseSavepoint(string savepointName) => ReleaseSavepointCalls++;
+
+            public Task ReleaseSavepointAsync(string savepointName, CancellationToken cancellationToken = default)
+            {
+                ReleaseSavepointCalls++;
+                return Task.CompletedTask;
+            }
+
+            public bool AreSavepointsSupported
+            {
+                get
+                {
+                    AreSavepointsSupportedCalls++;
+                    return true;
+                }
             }
 
             public IDbContextTransaction CurrentTransaction => _transaction;
@@ -243,6 +280,97 @@ namespace Microsoft.EntityFrameworkCore
             await context.Database.RollbackTransactionAsync();
 
             Assert.Equal(1, manager.RollbackCalls);
+        }
+
+        [ConditionalFact]
+        public void Can_create_savepoint()
+        {
+            var manager = new FakeDbContextTransactionManager(new FakeDbContextTransaction());
+
+            var context = InMemoryTestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddSingleton<IDbContextTransactionManager>(manager));
+
+            context.Database.CreateSavepoint("foo");
+
+            Assert.Equal(1, manager.CreateSavepointCalls);
+        }
+
+        [ConditionalFact]
+        public async Task Can_create_savepoint_async()
+        {
+            var manager = new FakeDbContextTransactionManager(new FakeDbContextTransaction());
+
+            var context = InMemoryTestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddSingleton<IDbContextTransactionManager>(manager));
+
+            await context.Database.CreateSavepointAsync("foo");
+
+            Assert.Equal(1, manager.CreateSavepointCalls);
+        }
+
+        [ConditionalFact]
+        public void Can_rollback_savepoint()
+        {
+            var manager = new FakeDbContextTransactionManager(new FakeDbContextTransaction());
+
+            var context = InMemoryTestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddSingleton<IDbContextTransactionManager>(manager));
+
+            context.Database.RollbackSavepoint("foo");
+
+            Assert.Equal(1, manager.RollbackSavepointCalls);
+        }
+
+        [ConditionalFact]
+        public async Task Can_rollback_savepoint_async()
+        {
+            var manager = new FakeDbContextTransactionManager(new FakeDbContextTransaction());
+
+            var context = InMemoryTestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddSingleton<IDbContextTransactionManager>(manager));
+
+            await context.Database.RollbackSavepointAsync("foo");
+
+            Assert.Equal(1, manager.RollbackSavepointCalls);
+        }
+
+        [ConditionalFact]
+        public void Can_release_savepoint()
+        {
+            var manager = new FakeDbContextTransactionManager(new FakeDbContextTransaction());
+
+            var context = InMemoryTestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddSingleton<IDbContextTransactionManager>(manager));
+
+            context.Database.ReleaseSavepoint("foo");
+
+            Assert.Equal(1, manager.ReleaseSavepointCalls);
+        }
+
+        [ConditionalFact]
+        public async Task Can_release_savepoint_async()
+        {
+            var manager = new FakeDbContextTransactionManager(new FakeDbContextTransaction());
+
+            var context = InMemoryTestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddSingleton<IDbContextTransactionManager>(manager));
+
+            await context.Database.ReleaseSavepointAsync("foo");
+
+            Assert.Equal(1, manager.ReleaseSavepointCalls);
+        }
+
+        [ConditionalFact]
+        public void Can_check_if_checkpoints_are_supported()
+        {
+            var manager = new FakeDbContextTransactionManager(new FakeDbContextTransaction());
+
+            var context = InMemoryTestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddSingleton<IDbContextTransactionManager>(manager));
+
+            _ = context.Database.AreSavepointsSupported;
+
+            Assert.Equal(1, manager.AreSavepointsSupportedCalls);
         }
 
         [ConditionalFact]

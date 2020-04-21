@@ -64,6 +64,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IModelValidator, SqlServerModelValidator>()
                 .TryAdd<IProviderConventionSetBuilder, SqlServerConventionSetBuilder>()
                 .TryAdd<IUpdateSqlGenerator>(p => p.GetService<ISqlServerUpdateSqlGenerator>())
+                .TryAdd<IRelationalTransactionFactory, SqlServerTransactionFactory>()
                 .TryAdd<IModificationCommandBatchFactory, SqlServerModificationCommandBatchFactory>()
                 .TryAdd<IValueGeneratorSelector, SqlServerValueGeneratorSelector>()
                 .TryAdd<IRelationalConnection>(p => p.GetService<ISqlServerConnection>())

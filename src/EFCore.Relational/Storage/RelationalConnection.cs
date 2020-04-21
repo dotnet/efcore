@@ -509,6 +509,86 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return CurrentTransaction.RollbackAsync(cancellationToken);
         }
 
+        /// <inheritdoc />
+        public virtual void CreateSavepoint(string savepointName)
+        {
+            if (CurrentTransaction == null)
+            {
+                throw new InvalidOperationException(RelationalStrings.NoActiveTransaction);
+            }
+
+            CurrentTransaction.Save(savepointName);
+        }
+
+        /// <inheritdoc />
+        public virtual Task CreateSavepointAsync(string savepointName, CancellationToken cancellationToken = default)
+        {
+            if (CurrentTransaction == null)
+            {
+                throw new InvalidOperationException(RelationalStrings.NoActiveTransaction);
+            }
+
+            return CurrentTransaction.SaveAsync(savepointName, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public virtual void RollbackSavepoint(string savepointName)
+        {
+            if (CurrentTransaction == null)
+            {
+                throw new InvalidOperationException(RelationalStrings.NoActiveTransaction);
+            }
+
+            CurrentTransaction.Rollback(savepointName);
+        }
+
+        /// <inheritdoc />
+        public virtual Task RollbackSavepointAsync(string savepointName, CancellationToken cancellationToken = default)
+        {
+            if (CurrentTransaction == null)
+            {
+                throw new InvalidOperationException(RelationalStrings.NoActiveTransaction);
+            }
+
+            return CurrentTransaction.RollbackAsync(savepointName, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public virtual void ReleaseSavepoint(string savepointName)
+        {
+            if (CurrentTransaction == null)
+            {
+                throw new InvalidOperationException(RelationalStrings.NoActiveTransaction);
+            }
+
+            CurrentTransaction.Release(savepointName);
+        }
+
+        /// <inheritdoc />
+        public virtual Task ReleaseSavepointAsync(string savepointName, CancellationToken cancellationToken = default)
+        {
+            if (CurrentTransaction == null)
+            {
+                throw new InvalidOperationException(RelationalStrings.NoActiveTransaction);
+            }
+
+            return CurrentTransaction.ReleaseAsync(savepointName, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public virtual bool AreSavepointsSupported
+        {
+            get
+            {
+                if (CurrentTransaction == null)
+                {
+                    throw new InvalidOperationException(RelationalStrings.NoActiveTransaction);
+                }
+
+                return CurrentTransaction.AreSavepointsSupported;
+            }
+        }
+
         /// <summary>
         ///     Opens the connection to the database.
         /// </summary>

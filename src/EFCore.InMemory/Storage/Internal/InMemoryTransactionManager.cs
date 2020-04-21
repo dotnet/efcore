@@ -114,6 +114,42 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             return Task.CompletedTask;
         }
 
+        /// <inheritdoc />
+        public virtual void CreateSavepoint(string savepointName)
+            => _logger.TransactionIgnoredWarning();
+
+        /// <inheritdoc />
+        public virtual Task CreateSavepointAsync(string savepointName, CancellationToken cancellationToken = default)
+        {
+            _logger.TransactionIgnoredWarning();
+            return Task.CompletedTask;
+        }
+
+        /// <inheritdoc />
+        public virtual void RollbackSavepoint(string savepointName)
+            => _logger.TransactionIgnoredWarning();
+
+        /// <inheritdoc />
+        public virtual Task RollbackSavepointAsync(string savepointName, CancellationToken cancellationToken = default)
+        {
+            _logger.TransactionIgnoredWarning();
+            return Task.CompletedTask;
+        }
+
+        /// <inheritdoc />
+        public virtual void ReleaseSavepoint(string savepointName)
+            => _logger.TransactionIgnoredWarning();
+
+        /// <inheritdoc />
+        public virtual Task ReleaseSavepointAsync(string savepointName, CancellationToken cancellationToken = default)
+        {
+            _logger.TransactionIgnoredWarning();
+            return Task.CompletedTask;
+        }
+
+        /// <inheritdoc />
+        public virtual bool AreSavepointsSupported => true;
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

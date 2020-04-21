@@ -169,6 +169,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public void RollbackTransaction() => throw new NotImplementedException();
             public Task RollbackTransactionAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+
             public IDbContextTransaction UseTransaction(DbTransaction transaction) => throw new NotImplementedException();
 
             public Task<IDbContextTransaction> UseTransactionAsync(

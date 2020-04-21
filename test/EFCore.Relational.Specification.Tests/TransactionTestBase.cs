@@ -649,34 +649,67 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(false, false)]
-        public virtual async Task SaveChanges_uses_explicit_transaction_and_does_not_rollback_on_failure(bool async, bool autoTransaction)
+        public virtual async Task SaveChanges_uses_explicit_transaction_with_failure_behavior(bool async, bool autoTransaction)
         {
-            using var context = CreateContext();
-            context.Database.AutoTransactionsEnabled = autoTransaction;
-
-            using (var transaction = context.Database.BeginTransaction())
+            using (var context = CreateContext())
             {
-                var firstEntry = context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).First());
-                firstEntry.State = EntityState.Deleted;
+                context.Database.AutoTransactionsEnabled = autoTransaction;
 
+                using var transaction = context.Database.BeginTransaction();
+
+                var firstEntry = context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).First());
                 var lastEntry = context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last());
-                lastEntry.State = EntityState.Added;
 
                 if (async)
                 {
+                    firstEntry.State = EntityState.Deleted;
+                    lastEntry.State = EntityState.Added;
                     await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
+
+                    lastEntry.State = EntityState.Unchanged;
+                    firstEntry.Entity.Name = "John";
+                    firstEntry.State = EntityState.Modified;
+                    if (AreSavepointsSupported)
+                    {
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync());
+                    }
                 }
                 else
                 {
+                    firstEntry.State = EntityState.Deleted;
+                    lastEntry.State = EntityState.Added;
                     Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+
+                    lastEntry.State = EntityState.Unchanged;
+                    firstEntry.Entity.Name = "John";
+                    firstEntry.State = EntityState.Modified;
+                    if (AreSavepointsSupported)
+                    {
+                        context.SaveChanges();
+                    }
+                    else
+                    {
+                        Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges());
+                    }
                 }
 
-                Assert.Equal(EntityState.Deleted, firstEntry.State);
-                Assert.Equal(EntityState.Added, lastEntry.State);
                 Assert.NotNull(transaction.GetDbTransaction().Connection);
+
+                transaction.Commit();
+
+                context.Database.AutoTransactionsEnabled = true;
             }
 
-            context.Database.AutoTransactionsEnabled = true;
+            if (AreSavepointsSupported)
+            {
+                using var context = CreateContext();
+                Assert.Equal(Customers.Count, context.Set<TransactionCustomer>().Count());
+                Assert.Equal("John", context.Set<TransactionCustomer>().OrderBy(c => c.Id).First().Name);
+            }
         }
 
         [ConditionalTheory]
@@ -1189,6 +1222,8 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual bool AmbientTransactionsSupported => false;
 
         protected virtual bool DirtyReadsOccur => true;
+
+        protected virtual bool AreSavepointsSupported => true;
 
         protected DbContext CreateContext() => Fixture.CreateContext();
 
