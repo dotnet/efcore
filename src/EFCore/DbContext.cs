@@ -158,6 +158,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         IDbSetSource IDbContextDependencies.SetSource => DbContextDependencies.SetSource;
 
         /// <summary>
@@ -166,6 +167,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         IEntityFinderFactory IDbContextDependencies.EntityFinderFactory => DbContextDependencies.EntityFinderFactory;
 
         /// <summary>
@@ -174,6 +176,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         IAsyncQueryProvider IDbContextDependencies.QueryProvider => DbContextDependencies.QueryProvider;
 
         /// <summary>
@@ -182,6 +185,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         IStateManager IDbContextDependencies.StateManager => DbContextDependencies.StateManager;
 
         /// <summary>
@@ -190,6 +194,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         IChangeDetector IDbContextDependencies.ChangeDetector => DbContextDependencies.ChangeDetector;
 
         /// <summary>
@@ -198,6 +203,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         IEntityGraphAttacher IDbContextDependencies.EntityGraphAttacher => DbContextDependencies.EntityGraphAttacher;
 
         /// <summary>
@@ -206,6 +212,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         IDiagnosticsLogger<DbLoggerCategory.Update> IDbContextDependencies.UpdateLogger => DbContextDependencies.UpdateLogger;
 
         /// <summary>
@@ -214,6 +221,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         IDiagnosticsLogger<DbLoggerCategory.Infrastructure> IDbContextDependencies.InfrastructureLogger
             => DbContextDependencies.InfrastructureLogger;
 
@@ -223,6 +231,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         object IDbSetCache.GetOrAddSet(IDbSetSource source, Type type)
         {
             CheckDisposed();
@@ -247,6 +256,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         object IDbSetCache.GetOrAddSet(IDbSetSource source, string entityTypeName, Type type)
         {
             CheckDisposed();
@@ -611,6 +621,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         void IDbContextPoolable.SetPool(IDbContextPool contextPool)
         {
             _dbContextPool = contextPool;
@@ -623,6 +634,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         DbContextPoolConfigurationSnapshot IDbContextPoolable.SnapshotConfiguration()
             => new DbContextPoolConfigurationSnapshot(
                 _changeTracker?.AutoDetectChangesEnabled,
@@ -638,6 +650,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         void IDbContextPoolable.Resurrect(DbContextPoolConfigurationSnapshot configurationSnapshot)
         {
             _disposed = false;
@@ -675,6 +688,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         void IResettableService.ResetState()
         {
             foreach (var service in GetResettableServices())
@@ -692,6 +706,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        [EntityFrameworkInternal]
         async Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
         {
             foreach (var service in GetResettableServices())
