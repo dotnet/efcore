@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
@@ -297,7 +298,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         values as they were when the entity was retrieved from the database.
         ///     </para>
         ///     <para>
-        ///         Note that whenever real original property values are not available (e.g. entity was not yet 
+        ///         Note that whenever real original property values are not available (e.g. entity was not yet
         ///         persisted to the database) this will default to the current property values of this entity.
         ///     </para>
         /// </summary>
@@ -414,6 +415,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         public override string ToString() => InternalEntry.ToString();
+
+        /// <summary>
+        ///     <para>
+        ///         Expand this property in the debugger for a human-readable view of entry.
+        ///     </para>
+        ///     <para>
+        ///         Warning: Do not rely on the format of the debug strings.
+        ///         They are designed for debugging only and may change arbitrarily between releases.
+        ///     </para>
+        /// </summary>
+        public virtual DebugView DebugView
+            => new DebugView(
+                () => InternalEntry.ToDebugString(ChangeTrackerDebugStringOptions.ShortDefault),
+                () => InternalEntry.ToDebugString(ChangeTrackerDebugStringOptions.LongDefault));
 
         #region Hidden System.Object members
 

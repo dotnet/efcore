@@ -378,7 +378,8 @@ namespace Microsoft.EntityFrameworkCore
         [DebuggerStepThrough]
         public static string ShortName([NotNull] this ITypeBase type)
         {
-            if (type.ClrType != null && !type.HasSharedClrType)
+            if (type.ClrType != null
+                && !type.HasSharedClrType)
             {
                 return type.ClrType.ShortDisplayName();
             }
@@ -763,5 +764,122 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The discriminator value for this entity type. </returns>
         public static object GetDiscriminatorValue([NotNull] this IEntityType entityType)
             => entityType[CoreAnnotationNames.DiscriminatorValue];
+
+        /// <summary>
+        ///     <para>
+        ///         Creates a human-readable representation of the given metadata.
+        ///     </para>
+        ///     <para>
+        ///         Warning: Do not rely on the format of the returned string.
+        ///         It is designed for debugging only and may change arbitrarily between releases.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The metadata item. </param>
+        /// <param name="options"> Options for generating the string. </param>
+        /// <param name="indent"> The number of indent spaces to use before each new line. </param>
+        /// <returns> A human-readable representation. </returns>
+        public static string ToDebugString(
+            [NotNull] this IEntityType entityType,
+            MetadataDebugStringOptions options,
+            int indent = 0)
+        {
+            var builder = new StringBuilder();
+            var indentString = new string(' ', indent);
+
+            builder
+                .Append(indentString)
+                .Append("EntityType: ")
+                .Append(entityType.DisplayName());
+
+            if (entityType.BaseType != null)
+            {
+                builder.Append(" Base: ").Append(entityType.BaseType.DisplayName());
+            }
+
+            if (entityType.IsAbstract())
+            {
+                builder.Append(" Abstract");
+            }
+
+            if (entityType.FindPrimaryKey() == null)
+            {
+                builder.Append(" Keyless");
+            }
+
+            if (entityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot)
+            {
+                builder.Append(" ChangeTrackingStrategy.").Append(entityType.GetChangeTrackingStrategy());
+            }
+
+            if ((options & MetadataDebugStringOptions.SingleLine) == 0)
+            {
+                var properties = entityType.GetDeclaredProperties().ToList();
+                if (properties.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Properties: ");
+                    foreach (var property in properties)
+                    {
+                        builder.AppendLine().Append(property.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                var navigations = entityType.GetDeclaredNavigations().ToList();
+                if (navigations.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Navigations: ");
+                    foreach (var navigation in navigations)
+                    {
+                        builder.AppendLine().Append(navigation.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                var serviceProperties = entityType.GetDeclaredServiceProperties().ToList();
+                if (serviceProperties.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Service properties: ");
+                    foreach (var serviceProperty in serviceProperties)
+                    {
+                        builder.AppendLine().Append(serviceProperty.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                var keys = entityType.GetDeclaredKeys().ToList();
+                if (keys.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Keys: ");
+                    foreach (var key in keys)
+                    {
+                        builder.AppendLine().Append(key.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                var fks = entityType.GetDeclaredForeignKeys().ToList();
+                if (fks.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Foreign keys: ");
+                    foreach (var fk in fks)
+                    {
+                        builder.AppendLine().Append(fk.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                var indexes = entityType.GetDeclaredIndexes().ToList();
+                if (indexes.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Indexes: ");
+                    foreach (var index in indexes)
+                    {
+                        builder.AppendLine().Append(index.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+                {
+                    builder.Append(entityType.AnnotationsToDebugString(indent: indent + 2));
+                }
+            }
+
+            return builder.ToString();
+        }
     }
 }
