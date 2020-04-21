@@ -37,8 +37,10 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TFixture Fixture { get; set; }
 
-        [ConditionalFact]
-        public virtual void SaveChanges_can_be_used_with_no_transaction()
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task SaveChanges_can_be_used_with_no_transaction(bool async)
         {
             using (var context = CreateContext())
             {
@@ -49,90 +51,52 @@ namespace Microsoft.EntityFrameworkCore
 
                 context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
 
-                Assert.Throws<DbUpdateException>(() => context.SaveChanges());
-
-                context.Database.AutoTransactionsEnabled = true;
-            }
-
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    new List<int>
-                    {
-                        1,
-                        2,
-                        77
-                    },
-                    context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
-            }
-        }
-
-        [ConditionalFact]
-        public virtual async Task SaveChangesAsync_can_be_used_with_no_transaction()
-        {
-            using (var context = CreateContext())
-            {
-                context.Database.AutoTransactionsEnabled = false;
-
-                context.Add(
-                    new TransactionCustomer { Id = 77, Name = "Bobble" });
-
-                context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
-
-                await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
-
-                context.Database.AutoTransactionsEnabled = true;
-            }
-
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    new List<int>
-                    {
-                        1,
-                        2,
-                        77
-                    },
-                    context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void SaveChanges_implicitly_starts_transaction()
-        {
-            using (var context = CreateContext())
-            {
-                Assert.True(context.Database.AutoTransactionsEnabled);
-
-                context.Add(
-                    new TransactionCustomer { Id = 77, Name = "Bobble" });
-
-                context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
-
-                Assert.Throws<DbUpdateException>(() => context.SaveChanges());
-            }
-
-            AssertStoreInitialState();
-        }
-
-        [ConditionalFact]
-        public virtual async Task SaveChangesAsync_implicitly_starts_transaction()
-        {
-            using (var context = CreateContext())
-            {
-                Assert.True(context.Database.AutoTransactionsEnabled);
-
-                context.Add(
-                    new TransactionCustomer { Id = 77, Name = "Bobble" });
-
-                context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
-
-                try
+                if (async)
                 {
-                    await context.SaveChangesAsync();
+                    await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
                 }
-                catch (DbUpdateException)
+                else
                 {
+                    Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                }
+
+                context.Database.AutoTransactionsEnabled = true;
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    new List<int>
+                    {
+                        1,
+                        2,
+                        77
+                    },
+                    context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task SaveChanges_implicitly_starts_transaction(bool async)
+        {
+            using (var context = CreateContext())
+            {
+                Assert.True(context.Database.AutoTransactionsEnabled);
+
+                context.Add(
+                    new TransactionCustomer { Id = 77, Name = "Bobble" });
+
+                context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
+
+                if (async)
+                {
+                    await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
+                }
+                else
+                {
+                    Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                 }
             }
 
@@ -560,8 +524,10 @@ namespace Microsoft.EntityFrameworkCore
             AssertStoreInitialState();
         }
 
-        [ConditionalFact]
-        public virtual void SaveChanges_does_not_close_connection_opened_by_user()
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task SaveChanges_does_not_close_connection_opened_by_user(bool async)
         {
             using (var context = CreateContext())
             {
@@ -572,125 +538,61 @@ namespace Microsoft.EntityFrameworkCore
 
                 context.Add(
                     new TransactionCustomer { Id = 77, Name = "Bobble" });
-                context.SaveChanges();
 
-                Assert.Equal(ConnectionState.Open, connection.State);
-                context.Database.CloseConnection();
-            }
-
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    new List<int>
-                    {
-                        1,
-                        2,
-                        77
-                    },
-                    context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
-            }
-        }
-
-        [ConditionalFact]
-        public virtual async Task SaveChangesAsync_does_not_close_connection_opened_by_user()
-        {
-            using (var context = CreateContext())
-            {
-                var connection = context.Database.GetDbConnection();
-                context.Database.OpenConnection();
-
-                Assert.Equal(ConnectionState.Open, connection.State);
-
-                context.Add(
-                    new TransactionCustomer { Id = 77, Name = "Bobble" });
-                await context.SaveChangesAsync();
-
-                Assert.Equal(ConnectionState.Open, connection.State);
-                context.Database.CloseConnection();
-            }
-
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    new List<int>
-                    {
-                        1,
-                        2,
-                        77
-                    },
-                    context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
-            }
-        }
-
-        [ConditionalTheory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual void SaveChanges_uses_explicit_transaction_without_committing(bool autoTransaction)
-        {
-            using (var context = CreateContext())
-            {
-                context.Database.AutoTransactionsEnabled = autoTransaction;
-
-                var firstEntry = context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).First());
-                firstEntry.State = EntityState.Deleted;
-
-                using (context.Database.BeginTransaction())
-                {
-                    context.SaveChanges();
-                }
-
-                Assert.Equal(EntityState.Detached, firstEntry.State);
-
-                context.Database.AutoTransactionsEnabled = true;
-            }
-
-            AssertStoreInitialState();
-        }
-
-        [ConditionalTheory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual void SaveChanges_false_uses_explicit_transaction_without_committing_or_accepting_changes(bool autoTransaction)
-        {
-            using (var context = CreateContext())
-            {
-                context.Database.AutoTransactionsEnabled = autoTransaction;
-
-                var firstEntry = context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).First());
-                firstEntry.State = EntityState.Deleted;
-
-                using (context.Database.BeginTransaction())
-                {
-                    context.SaveChanges(acceptAllChangesOnSuccess: false);
-                }
-
-                Assert.Equal(EntityState.Deleted, firstEntry.State);
-
-                context.ChangeTracker.AcceptAllChanges();
-
-                Assert.Equal(EntityState.Detached, firstEntry.State);
-
-                context.Database.AutoTransactionsEnabled = true;
-            }
-
-            AssertStoreInitialState();
-        }
-
-        [ConditionalTheory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task SaveChangesAsync_uses_explicit_transaction_without_committing(bool autoTransaction)
-        {
-            using (var context = CreateContext())
-            {
-                context.Database.AutoTransactionsEnabled = autoTransaction;
-
-                var firstEntry = context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).First());
-                firstEntry.State = EntityState.Deleted;
-
-                using (await context.Database.BeginTransactionAsync())
+                if (async)
                 {
                     await context.SaveChangesAsync();
+                    Assert.Equal(ConnectionState.Open, connection.State);
+                    await context.Database.CloseConnectionAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                    Assert.Equal(ConnectionState.Open, connection.State);
+                    context.Database.CloseConnection();
+                }
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    new List<int>
+                    {
+                        1,
+                        2,
+                        77
+                    },
+                    context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public virtual async Task SaveChanges_uses_explicit_transaction_without_committing(bool async, bool autoTransaction)
+        {
+            using (var context = CreateContext())
+            {
+                context.Database.AutoTransactionsEnabled = autoTransaction;
+
+                var firstEntry = context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).First());
+                firstEntry.State = EntityState.Deleted;
+
+                if (async)
+                {
+                    using (await context.Database.BeginTransactionAsync())
+                    {
+                        await context.SaveChangesAsync();
+                    }
+                }
+                else
+                {
+                    using (context.Database.BeginTransaction())
+                    {
+                        context.SaveChanges();
+                    }
                 }
 
                 Assert.Equal(EntityState.Detached, firstEntry.State);
@@ -702,10 +604,11 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task SaveChangesAsync_false_uses_explicit_transaction_without_committing_or_accepting_changes(
-            bool autoTransaction)
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public virtual async Task SaveChanges_false_uses_explicit_transaction_without_committing_or_accepting_changes(bool async, bool autoTransaction)
         {
             using (var context = CreateContext())
             {
@@ -714,9 +617,19 @@ namespace Microsoft.EntityFrameworkCore
                 var firstEntry = context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).First());
                 firstEntry.State = EntityState.Deleted;
 
-                using (await context.Database.BeginTransactionAsync())
+                if (async)
                 {
-                    await context.SaveChangesAsync(acceptAllChangesOnSuccess: false);
+                    using (await context.Database.BeginTransactionAsync())
+                    {
+                        await context.SaveChangesAsync(acceptAllChangesOnSuccess: false);
+                    }
+                }
+                else
+                {
+                    using (context.Database.BeginTransaction())
+                    {
+                        context.SaveChanges(acceptAllChangesOnSuccess: false);
+                    }
                 }
 
                 Assert.Equal(EntityState.Deleted, firstEntry.State);
@@ -732,9 +645,11 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual void SaveChanges_uses_explicit_transaction_and_does_not_rollback_on_failure(bool autoTransaction)
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public virtual async Task SaveChanges_uses_explicit_transaction_and_does_not_rollback_on_failure(bool async, bool autoTransaction)
         {
             using var context = CreateContext();
             context.Database.AutoTransactionsEnabled = autoTransaction;
@@ -747,44 +662,13 @@ namespace Microsoft.EntityFrameworkCore
                 var lastEntry = context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last());
                 lastEntry.State = EntityState.Added;
 
-                try
+                if (async)
                 {
-                    context.SaveChanges();
+                    await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
                 }
-                catch (DbUpdateException)
+                else
                 {
-                }
-
-                Assert.Equal(EntityState.Deleted, firstEntry.State);
-                Assert.Equal(EntityState.Added, lastEntry.State);
-                Assert.NotNull(transaction.GetDbTransaction().Connection);
-            }
-
-            context.Database.AutoTransactionsEnabled = true;
-        }
-
-        [ConditionalTheory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task SaveChangesAsync_uses_explicit_transaction_and_does_not_rollback_on_failure(bool autoTransaction)
-        {
-            using var context = CreateContext();
-            context.Database.AutoTransactionsEnabled = autoTransaction;
-
-            using (var transaction = await context.Database.BeginTransactionAsync())
-            {
-                var firstEntry = context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).First());
-                firstEntry.State = EntityState.Deleted;
-
-                var lastEntry = context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last());
-                lastEntry.State = EntityState.Added;
-
-                try
-                {
-                    await context.SaveChangesAsync();
-                }
-                catch (DbUpdateException)
-                {
+                    Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                 }
 
                 Assert.Equal(EntityState.Deleted, firstEntry.State);
