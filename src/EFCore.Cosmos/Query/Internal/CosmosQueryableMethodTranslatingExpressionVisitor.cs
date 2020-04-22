@@ -1002,9 +1002,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 ((SelectExpression)source.QueryExpression).ApplyPredicate(translation);
 
                 if (source.ShaperExpression is EntityShaperExpression entityShaperExpression
-                    && TryGetPartitionKeyFromPredicate(predicate.Body, entityShaperExpression.EntityType, out var partitionKeyProperty))
+                    && TryGetPartitionKeyFromPredicate(predicate.Body, entityShaperExpression.EntityType,
+                        out var partitionKeyProperty,
+                        out var partitionKeyValue))
                 {
-                    ((SelectExpression)source.QueryExpression).SetPartitionKeyProperty(partitionKeyProperty);
+                    ((SelectExpression)source.QueryExpression).SetPartitionKeyProperty(partitionKeyProperty, partitionKeyValue);
                 }
 
                 return source;
@@ -1012,26 +1014,34 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             return null;
 
-            bool TryGetPartitionKeyFromPredicate(
-                Expression predicateExpression, IEntityType entityType, out KeyValuePair<IProperty, object> partitionKeyProperty)
+            static bool TryGetPartitionKeyFromPredicate(
+                Expression predicateExpression,
+                IEntityType entityType,
+                out IProperty partitionKeyProperty,
+                out object partitionKeyValue)
             {
                 partitionKeyProperty = default;
+                partitionKeyValue = default;
 
                 if (predicateExpression is BinaryExpression binaryExpression)
                 {
                     switch (binaryExpression.NodeType)
                     {
                         case ExpressionType.AndAlso:
-                            return TryGetPartitionKeyFromPredicate(binaryExpression.Left, entityType, out partitionKeyProperty)
-                                    || TryGetPartitionKeyFromPredicate(binaryExpression.Right, entityType, out partitionKeyProperty);
+                            return TryGetPartitionKeyFromPredicate(binaryExpression.Left, entityType,
+                                    out partitionKeyProperty,
+                                    out partitionKeyValue)
+                                    || TryGetPartitionKeyFromPredicate(binaryExpression.Right, entityType,
+                                        out partitionKeyProperty,
+                                        out partitionKeyValue);
 
                         case ExpressionType.Equal:
                             if (binaryExpression.Left is MemberExpression memberExpression
                                 && binaryExpression.Right is ConstantExpression constantExpression
                                 && memberExpression.Member.GetSimpleMemberName() == entityType.GetPartitionKeyPropertyName())
                             {
-                                partitionKeyProperty = new KeyValuePair<IProperty, object>(
-                                    entityType.FindProperty(memberExpression.Member.Name), constantExpression.Value);
+                                partitionKeyProperty = entityType.FindProperty(memberExpression.Member.GetSimpleMemberName());
+                                partitionKeyValue = constantExpression.Value;
                                 return true;
                             }
 

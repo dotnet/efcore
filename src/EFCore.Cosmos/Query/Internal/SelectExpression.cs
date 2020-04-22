@@ -28,7 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         private readonly List<ProjectionExpression> _projection = new List<ProjectionExpression>();
         private readonly List<OrderingExpression> _orderings = new List<OrderingExpression>();
 
-        private KeyValuePair<IProperty, object> _partitionKeyProperty;
+        private IProperty _partitionKeyProperty;
+        private object _partitionKeyValue;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -138,9 +139,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetPartitionKeyProperty(KeyValuePair<IProperty, object> partitionKeyProperty)
+        public virtual void SetPartitionKeyProperty(IProperty partitionKeyProperty, object partitionKeyValue)
         {
             _partitionKeyProperty = partitionKeyProperty;
+            _partitionKeyValue = partitionKeyValue;
         }
 
         /// <summary>
@@ -151,17 +153,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public virtual bool TryGetPartitionKey(out string partitionKey)
         {
-            if (_partitionKeyProperty.Key is null || _partitionKeyProperty.Value is null)
+            if (_partitionKeyProperty is null || _partitionKeyValue is null)
             {
                 partitionKey = null;
                 return false;
             }
 
-            var converter = _partitionKeyProperty.Key.GetTypeMapping().Converter;
+            var converter = _partitionKeyProperty.GetTypeMapping().Converter;
 
             partitionKey = converter is null
-                ? (string)_partitionKeyProperty.Value
-                : (string)converter.ConvertToProvider(_partitionKeyProperty.Value);
+                ? (string)_partitionKeyValue
+                : (string)converter.ConvertToProvider(_partitionKeyValue);
 
             return true;
         }

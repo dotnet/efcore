@@ -36,10 +36,10 @@ ORDER BY c[""PartitionKey""]
 OFFSET 0 LIMIT 1";
 
             await PartitionKeyTestAsync(
-                async ctx => await ctx.Customers.OrderBy(c => c.PartitionKey).FirstAsync(),
+                 ctx => ctx.Customers.OrderBy(c => c.PartitionKey).FirstAsync(),
                 readSql,
-                async ctx => await ctx.Customers.OrderBy(c => c.PartitionKey).LastAsync(),
-                async ctx => await ctx.Customers.OrderBy(c => c.PartitionKey).ToListAsync(),
+                ctx => ctx.Customers.OrderBy(c => c.PartitionKey).LastAsync(),
+                ctx => ctx.Customers.OrderBy(c => c.PartitionKey).ToListAsync(),
                 2);
         }
 
@@ -53,10 +53,10 @@ WHERE (c[""Discriminator""] = ""Customer"")
 OFFSET 0 LIMIT 1";
 
             await PartitionKeyTestAsync(
-                async ctx => await ctx.Customers.WithPartitionKey("1").FirstAsync(),
+                ctx => ctx.Customers.WithPartitionKey("1").FirstAsync(),
                 readSql,
-                async ctx => await ctx.Customers.WithPartitionKey("2").LastAsync(),
-                async ctx => await ctx.Customers.WithPartitionKey("2").ToListAsync(),
+                ctx => ctx.Customers.WithPartitionKey("2").LastAsync(),
+                ctx => ctx.Customers.WithPartitionKey("2").ToListAsync(),
                 1);
         }
 
@@ -70,12 +70,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (((c[""Id""] = 42) OR (c[""Name
 OFFSET 0 LIMIT 1";
 
             await PartitionKeyTestAsync(
-                async ctx => await ctx.Customers
+                ctx => ctx.Customers
                     .Where(b => (b.Id == 42 || b.Name == "John Snow") && b.PartitionKey == 1)
                     .FirstAsync(),
                 readSql,
-                async ctx => await ctx.Customers.WithPartitionKey("2").LastAsync(),
-                async ctx => await ctx.Customers
+                ctx => ctx.Customers.WithPartitionKey("2").LastAsync(),
+                ctx => ctx.Customers
                     .Where(b => b.Id == 42 && b.PartitionKey == 1 || b.PartitionKey == 2)
                     .ToListAsync(),
                 2);
@@ -88,9 +88,6 @@ OFFSET 0 LIMIT 1";
             Func<PartitionKeyContext, Task<List<Customer>>> readListTask,
             int listCount)
         {
-            await using var outerContext = CreateContext();
-            await outerContext.Database.EnsureCreatedAsync();
-
             var customer1 = new Customer
             {
                 Id = 42,
@@ -104,11 +101,16 @@ OFFSET 0 LIMIT 1";
                 Name = "Theon Twin",
                 PartitionKey =  2
             };
-            
-            await outerContext.AddAsync(customer1);
-            await outerContext.AddAsync(customer2);
-            await outerContext.SaveChangesAsync();
 
+            await using (var innerContext = CreateContext())
+            {
+                await innerContext.Database.EnsureCreatedAsync();
+
+                await innerContext.AddAsync(customer1);
+                await innerContext.AddAsync(customer2);
+                await innerContext.SaveChangesAsync();
+            }
+            
             // Read & update
             await using (var innerContext = CreateContext())
             {

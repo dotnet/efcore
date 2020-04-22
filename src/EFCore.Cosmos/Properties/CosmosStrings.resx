@@ -178,6 +178,6 @@
     <value>Resource id missing or cannot be generated.</value>
   </data>
   <data name="PartitionKeyMismatch" xml:space="preserve">
-    <value>Partition Key set with the WithPartitionKey extension '{paritionKey1}' and the Partition Key set with the Where predicate '{paritionKey2}' must be identical, when both is set. It is generally recommended that only one of the two options is used to set the Partition Key.</value>
+    <value>Partition key specified in the WithPartitionKey call '{paritionKey1}' and the partition key specified in the Where predicate '{paritionKey2}' must be identical. Remove one of them .</value>
   </data>
 </root>
