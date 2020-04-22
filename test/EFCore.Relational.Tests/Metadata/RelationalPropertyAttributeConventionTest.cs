@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public class RelationalPropertyAttributeConventionTest
     {
         [ConditionalFact]
-        public void ColumnAttribute_sets_column_name_type_and_comment_with_conventional_builder()
+        public void ColumnAttribute_sets_column_name_and_type_with_conventional_builder()
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
@@ -25,11 +25,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("Post Name", entityBuilder.Property(e => e.Name).Metadata.GetColumnName());
             Assert.Equal("DECIMAL", entityBuilder.Property(e => e.Name).Metadata.GetColumnType());
+        }
+
+        [ConditionalFact]
+        public void ColumnAttribute_sets_column_comment_with_conventional_builder()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            var entityBuilder = modelBuilder.Entity<A>();
+
             Assert.Equal("Test column comment", entityBuilder.Property(e => e.Name).Metadata.GetComment());
         }
 
         [ConditionalFact]
-        public void ColumnAttribute_on_field_sets_column_name_type_and_comment_with_conventional_builder()
+        public void ColumnAttribute_on_field_sets_column_name_and_type_with_conventional_builder()
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
@@ -37,6 +46,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("Post Name", entityBuilder.Property<string>(nameof(F.Name)).Metadata.GetColumnName());
             Assert.Equal("DECIMAL", entityBuilder.Property<string>(nameof(F.Name)).Metadata.GetColumnType());
+        }
+
+        [ConditionalFact]
+        public void CommentAttribute_on_field_sets_column_comment_with_conventional_builder()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            var entityBuilder = modelBuilder.Entity<F>();
+
             Assert.Equal("Test column comment", entityBuilder.Property<string>(nameof(F.Name)).Metadata.GetComment());
         }
 
@@ -59,6 +77,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [ConditionalFact]
+        public void CommentAttribute_overrides_configuration_from_convention_source()
+        {
+            var entityBuilder = CreateInternalEntityTypeBuilder<A>();
+
+            var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
+
+            propertyBuilder.HasAnnotation(RelationalAnnotationNames.Comment, "ConventionalName", ConfigurationSource.Convention);
+
+            RunConvention(propertyBuilder);
+
+            Assert.Equal("Test column comment", propertyBuilder.Metadata.GetComment());
+        }
+
+        [ConditionalFact]
         public void ColumnAttribute_does_not_override_configuration_from_explicit_source()
         {
             var entityBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -73,6 +105,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("ExplicitName", propertyBuilder.Metadata.GetColumnName());
             Assert.Equal("BYTE", propertyBuilder.Metadata.GetColumnType());
+            Assert.Equal("ExplicitComment", propertyBuilder.Metadata.GetComment());
+        }
+
+        [ConditionalFact]
+        public void CommentAttribute_does_not_override_configuration_from_explicit_source()
+        {
+            var entityBuilder = CreateInternalEntityTypeBuilder<A>();
+
+            var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
+
+            propertyBuilder.HasAnnotation(RelationalAnnotationNames.Comment, "ExplicitComment", ConfigurationSource.Explicit);
+
+            RunConvention(propertyBuilder);
+
             Assert.Equal("ExplicitComment", propertyBuilder.Metadata.GetComment());
         }
 

@@ -3,37 +3,30 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Marks a type or property with comment.
+    ///     Marks a class, property or field with a comment which will be included in the SQL sent to the database .
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property | AttributeTargets.Field)]
     public sealed class CommentAttribute : Attribute
     {
-        private readonly string _comment;
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="CommentAttribute" /> class.
-        /// </summary>
-        public CommentAttribute()
-        {
-        }
-
         /// <summary>
         ///     Initializes a new instance of the <see cref="CommentAttribute" /> class.
         /// </summary>
         /// <param name="comment">The comment.</param>
         public CommentAttribute([CanBeNull] string comment)
         {
-            _comment = comment;
-        }
+            Check.NotEmpty(comment, nameof(comment));
 
+            Comment = comment;
+        }
 
         /// <summary>
         ///     The Comment
         /// </summary>
-        public string Comment => _comment;
+        public string Comment { get; }
     }
 }

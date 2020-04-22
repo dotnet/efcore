@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     A convention that configures the column comment for a property or member based on the applied <see cref="CommentAttribute" />.
+    ///     A convention that configures the column comment for a property or field based on the applied <see cref="CommentAttribute" />.
     /// </summary>
     public class RelationalColumnCommentAttributeConvention : PropertyAttributeConventionBase<CommentAttribute>
     {
