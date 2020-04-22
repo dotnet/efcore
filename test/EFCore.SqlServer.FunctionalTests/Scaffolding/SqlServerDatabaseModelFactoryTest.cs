@@ -1890,6 +1890,26 @@ CREATE UNIQUE INDEX IX_UNIQUE ON FilteredIndexTable ( Id2 ) WHERE Id2 > 10;",
                 "DROP TABLE FilteredIndexTable;");
         }
 
+        [ConditionalFact]
+        public void Ignore_hypothetical_index()
+        {
+            Test(
+                @"
+CREATE TABLE HypotheticalIndexTable (
+    Id1 int,
+    Id2 int NULL,
+);
+
+CREATE INDEX ixHypo ON HypotheticalIndexTable ( Id1 ) WITH STATISTICS_ONLY = -1;",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    Assert.Empty(dbModel.Tables.Single().Indexes);
+                },
+                "DROP TABLE HypotheticalIndexTable;");
+        }
+
         #endregion
 
         #region ForeignKeyFacets
