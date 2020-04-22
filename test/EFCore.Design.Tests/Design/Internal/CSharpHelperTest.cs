@@ -132,8 +132,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         [ConditionalFact]
         public void Literal_works_when_multiline_string() =>
             Literal_works(
-                "multi-line" + Environment.NewLine + "string with \"",
-                "@\"multi-line" + Environment.NewLine + "string with \"\"\"");
+                "multi-line\r\nstring\nwith\r\"",
+                "\"multi-line\\r\\nstring\\nwith\\r\\\"\"");
 
         [ConditionalFact]
         [UseCulture("de-DE")]

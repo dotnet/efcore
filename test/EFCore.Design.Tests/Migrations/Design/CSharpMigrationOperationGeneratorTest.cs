@@ -2729,6 +2729,54 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         [ConditionalFact]
+        public void InsertDataOperation_args_with_linebreaks()
+        {
+            Test(
+                new InsertDataOperation
+                {
+                    Schema = "dbo",
+                    Table = "TestLineBreaks",
+                    Columns = new[] { "Id", "Description" },
+                    Values = new object[,]
+                    {
+                        { 0, "Contains\r\na Windows linebreak" },
+                        { 1, "Contains a\nLinux linebreak" },
+                        { 2, "Contains a single Backslash r,\rjust in case" },
+                    }
+                },
+                "mb.InsertData("
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    table: \"TestLineBreaks\","
+                + _eol
+                + "    columns: new[] { \"Id\", \"Description\" },"
+                + _eol
+                + "    values: new object[,]"
+                + _eol
+                + "    {"
+                + _eol
+                + "        { 0, \"Contains\\r\\na Windows linebreak\" },"
+                + _eol
+                + "        { 1, \"Contains a\\nLinux linebreak\" },"
+                + _eol
+                + "        { 2, \"Contains a single Backslash r,\\rjust in case\" }"
+                + _eol
+                + "    });",
+                operation =>
+                {
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("TestLineBreaks", operation.Table);
+                    Assert.Equal(2, operation.Columns.Length);
+                    Assert.Equal(3, operation.Values.GetLength(0));
+                    Assert.Equal(2, operation.Values.GetLength(1));
+                    Assert.Equal("Contains\r\na Windows linebreak", operation.Values[0, 1]);
+                    Assert.Equal("Contains a\nLinux linebreak", operation.Values[1, 1]);
+                    Assert.Equal("Contains a single Backslash r,\rjust in case", operation.Values[2, 1]);
+                });
+        }
+
+        [ConditionalFact]
         public void DeleteDataOperation_all_args()
         {
             Test(
@@ -2868,6 +2916,50 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(1, o.KeyValues.GetLength(0));
                     Assert.Equal(2, o.KeyValues.GetLength(1));
                     Assert.Equal("Snow", o.KeyValues[0, 1]);
+                });
+        }
+
+        [ConditionalFact]
+        public void DeleteDataOperation_args_with_linebreaks()
+        {
+            Test(
+                new DeleteDataOperation
+                {
+                    Table = "TestLineBreaks",
+                    KeyColumns = new[] { "Id", "Description" },
+                    KeyValues = new object[,]
+                    {
+                        { 0, "Contains\r\na Windows linebreak" },
+                        { 1, "Contains a\nLinux linebreak" },
+                        { 2, "Contains a single Backslash r,\rjust in case" },
+                    }
+                },
+                "mb.DeleteData("
+                + _eol
+                + "    table: \"TestLineBreaks\","
+                + _eol
+                + "    keyColumns: new[] { \"Id\", \"Description\" },"
+                + _eol
+                + "    keyValues: new object[,]"
+                + _eol
+                + "    {"
+                + _eol
+                + "        { 0, \"Contains\\r\\na Windows linebreak\" },"
+                + _eol
+                + "        { 1, \"Contains a\\nLinux linebreak\" },"
+                + _eol
+                + "        { 2, \"Contains a single Backslash r,\\rjust in case\" }"
+                + _eol
+                + "    });",
+                operation =>
+                {
+                    Assert.Equal("TestLineBreaks", operation.Table);
+                    Assert.Equal(2, operation.KeyColumns.Length);
+                    Assert.Equal(3, operation.KeyValues.GetLength(0));
+                    Assert.Equal(2, operation.KeyValues.GetLength(1));
+                    Assert.Equal("Contains\r\na Windows linebreak", operation.KeyValues[0, 1]);
+                    Assert.Equal("Contains a\nLinux linebreak", operation.KeyValues[1, 1]);
+                    Assert.Equal("Contains a single Backslash r,\rjust in case", operation.KeyValues[2, 1]);
                 });
         }
 
@@ -3273,6 +3365,73 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(1, o.Values.GetLength(0));
                     Assert.Equal(3, o.Values.GetLength(1));
                     Assert.Equal("Targaryen", o.Values[0, 1]);
+                });
+        }
+
+        [ConditionalFact]
+        public void UpdateDataOperation_with_linebreaks()
+        {
+            Test(
+                new UpdateDataOperation
+                {
+                    Schema = "dbo",
+                    Table = "TestLineBreaks",
+                    KeyColumns = new[] { "Id" },
+                    KeyValues = new object[,] { { 0 }, { 1 }, { 2 }, },
+                    Columns = new[] { "Description" },
+                    Values = new object[,]
+                    {
+                        { "Contains\r\na Windows linebreak" },
+                        { "Contains a\nLinux linebreak" },
+                        { "Contains a single Backslash r,\rjust in case" },
+                    }
+                },
+                "mb.UpdateData("
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    table: \"TestLineBreaks\","
+                + _eol
+                + "    keyColumn: \"Id\","
+                + _eol
+                + "    keyValues: new object[]"
+                + _eol
+                + "    {"
+                + _eol
+                + "        0,"
+                + _eol
+                + "        1,"
+                + _eol
+                + "        2"
+                + _eol
+                + "    },"
+                + _eol
+                + "    column: \"Description\","
+                + _eol
+                + "    values: new object[]"
+                + _eol
+                + "    {"
+                + _eol
+                + "        \"Contains\\r\\na Windows linebreak\","
+                + _eol
+                + "        \"Contains a\\nLinux linebreak\","
+                + _eol
+                + "        \"Contains a single Backslash r,\\rjust in case\""
+                + _eol
+                + "    });",
+                operation =>
+                {
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("TestLineBreaks", operation.Table);
+                    Assert.Single(operation.KeyColumns);
+                    Assert.Equal(3, operation.KeyValues.GetLength(0));
+                    Assert.Equal(1, operation.KeyValues.GetLength(1));
+                    Assert.Single(operation.Columns);
+                    Assert.Equal(3, operation.Values.GetLength(0));
+                    Assert.Equal(1, operation.Values.GetLength(1));
+                    Assert.Equal("Contains\r\na Windows linebreak", operation.Values[0, 0]);
+                    Assert.Equal("Contains a\nLinux linebreak", operation.Values[1, 0]);
+                    Assert.Equal("Contains a single Backslash r,\rjust in case", operation.Values[2, 0]);
                 });
         }
 
