@@ -167,7 +167,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Name = "Id",
                     Table = "Post",
                     ClrType = typeof(int),
-                    ComputedColumnSql = "1"
+                    ComputedColumnSql = "1",
+                    ComputedColumnIsStored = true
                 },
                 "mb.AddColumn<int>("
                 + _eol
@@ -177,13 +178,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + _eol
                 + "    nullable: false,"
                 + _eol
-                + "    computedColumnSql: \"1\");",
+                + "    computedColumnSql: \"1\","
+                + _eol
+                + "    computedColumnIsStored: true);",
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
                     Assert.Equal("Post", o.Table);
                     Assert.Equal(typeof(int), o.ClrType);
                     Assert.Equal("1", o.ComputedColumnSql);
+                    Assert.True(o.ComputedColumnIsStored);
                 });
         }
 
@@ -734,7 +738,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Name = "Id",
                     Table = "Post",
                     ClrType = typeof(int),
-                    ComputedColumnSql = "1"
+                    ComputedColumnSql = "1",
+                    ComputedColumnIsStored = true
                 },
                 "mb.AlterColumn<int>("
                 + _eol
@@ -744,12 +749,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + _eol
                 + "    nullable: false,"
                 + _eol
-                + "    computedColumnSql: \"1\");",
+                + "    computedColumnSql: \"1\","
+                + _eol
+                + "    computedColumnIsStored: true);",
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
                     Assert.Equal("Post", o.Table);
                     Assert.Equal("1", o.ComputedColumnSql);
+                    Assert.True(o.ComputedColumnIsStored);
                     Assert.Equal(typeof(int), o.ClrType);
                     Assert.Null(o.ColumnType);
                     Assert.Null(o.IsUnicode);
@@ -771,6 +779,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Null(o.OldColumn.DefaultValue);
                     Assert.Null(o.OldColumn.DefaultValueSql);
                     Assert.Null(o.OldColumn.ComputedColumnSql);
+                    Assert.Null(o.OldColumn.ComputedColumnIsStored);
                 });
         }
 
@@ -1303,7 +1312,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             Name = "Id",
                             Table = "Post",
                             ClrType = typeof(int),
-                            ComputedColumnSql = "1"
+                            ComputedColumnSql = "1",
+                            ComputedColumnIsStored = true
                         }
                     }
                 },
@@ -1315,7 +1325,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + _eol
                 + "    {"
                 + _eol
-                + "        Id = table.Column<int>(nullable: false, computedColumnSql: \"1\")"
+                + "        Id = table.Column<int>(nullable: false, computedColumnSql: \"1\", computedColumnIsStored: true)"
                 + _eol
                 + "    },"
                 + _eol
@@ -1332,6 +1342,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Post", o.Columns[0].Table);
                     Assert.Equal(typeof(int), o.Columns[0].ClrType);
                     Assert.Equal("1", o.Columns[0].ComputedColumnSql);
+                    Assert.True(o.Columns[0].ComputedColumnIsStored);
                 });
         }
 

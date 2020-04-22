@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
@@ -243,6 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     DefaultValue = operation.DefaultValue,
                     DefaultValueSql = operation.DefaultValueSql,
                     ComputedColumnSql = operation.ComputedColumnSql,
+                    ComputedColumnIsStored = operation.ComputedColumnIsStored,
                     IsFixedLength = operation.IsFixedLength
                 };
                 addColumnOperation.AddAnnotations(operation.GetAnnotations());
@@ -1411,6 +1413,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             builder
                 .Append(" AS ")
                 .Append(operation.ComputedColumnSql);
+
+            if (operation.ComputedColumnIsStored == true)
+            {
+                builder.Append(" PERSISTED");
+            }
 
             if (operation.Collation != null)
             {

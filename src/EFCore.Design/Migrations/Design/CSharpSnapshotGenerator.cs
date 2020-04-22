@@ -552,11 +552,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql),
                 stringBuilder);
 
-            GenerateFluentApiForAnnotation(
-                ref annotations,
-                RelationalAnnotationNames.ComputedColumnSql,
-                nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql),
-                stringBuilder);
+            GenerateFluentApiForComputedColumn(ref annotations, stringBuilder);
 
             GenerateFluentApiForAnnotation(
                 ref annotations,
@@ -582,9 +578,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 nameof(PropertyBuilder.HasMaxLength),
                 stringBuilder);
 
-            GenerateFluentApiForPrecisionAndScale(
-                ref annotations,
-                stringBuilder);
+            GenerateFluentApiForPrecisionAndScale(ref annotations, stringBuilder);
 
             GenerateFluentApiForAnnotation(
                 ref annotations,
@@ -1352,6 +1346,47 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                 annotations.Remove(precisionAnnotation);
             }
+        }
+
+        /// <summary>
+        ///     Generates a Fluent API call for the computed column annotations.
+        /// </summary>
+        /// <param name="annotations"> The list of annotations. </param>
+        /// <param name="stringBuilder"> The builder code is added to. </param>
+        protected virtual void GenerateFluentApiForComputedColumn(
+            [NotNull] ref List<IAnnotation> annotations,
+            [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            var sql = annotations
+                .FirstOrDefault(a => a.Name == RelationalAnnotationNames.ComputedColumnSql);
+
+            if (sql is null)
+            {
+                return;
+            }
+
+            stringBuilder
+                .AppendLine()
+                .Append(".")
+                .Append(nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql))
+                .Append("(")
+                .Append(Code.UnknownLiteral(sql.Value));
+
+            var isStored = annotations
+                .FirstOrDefault(a => a.Name == RelationalAnnotationNames.ComputedColumnIsStored);
+
+            if (isStored != null)
+            {
+                stringBuilder
+                    .Append(", ")
+                    .Append(Code.UnknownLiteral(isStored.Value));
+
+                annotations.Remove(isStored);
+            }
+
+            stringBuilder.Append(")");
+
+            annotations.Remove(sql);
         }
 
         /// <summary>

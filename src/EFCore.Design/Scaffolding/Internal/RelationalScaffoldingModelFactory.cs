@@ -480,7 +480,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (column.ComputedColumnSql != null)
             {
-                property.HasComputedColumnSql(column.ComputedColumnSql);
+                property.HasComputedColumnSql(column.ComputedColumnSql, column.ComputedColumnIsStored);
             }
 
             if (column.Comment != null)

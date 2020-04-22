@@ -13,6 +13,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
@@ -613,6 +614,7 @@ SELECT
     [c].[is_identity],
     [dc].[definition] AS [default_sql],
     [cc].[definition] AS [computed_sql],
+    [cc].[is_persisted] AS [computed_is_persisted],
     CAST([e].[value] AS nvarchar(MAX)) AS [comment],
     [c].[collation_name]
 FROM
@@ -673,6 +675,7 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                     var isIdentity = dataRecord.GetValueOrDefault<bool>("is_identity");
                     var defaultValue = dataRecord.GetValueOrDefault<string>("default_sql");
                     var computedValue = dataRecord.GetValueOrDefault<string>("computed_sql");
+                    var computedIsPersisted = dataRecord.GetValueOrDefault<bool>("computed_is_persisted");
                     var comment = dataRecord.GetValueOrDefault<string>("comment");
                     var collation = dataRecord.GetValueOrDefault<string>("collation_name");
 
@@ -687,7 +690,8 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                         nullable,
                         isIdentity,
                         defaultValue,
-                        computedValue);
+                        computedValue,
+                        computedIsPersisted);
 
                     string storeType;
                     string systemTypeName;
@@ -711,6 +715,7 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                         IsNullable = nullable,
                         DefaultValueSql = defaultValue,
                         ComputedColumnSql = computedValue,
+                        ComputedColumnIsStored = computedIsPersisted,
                         Comment = comment,
                         Collation = collation == databaseCollation ? null : collation,
                         ValueGenerated = isIdentity

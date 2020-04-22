@@ -443,6 +443,67 @@ namespace Microsoft.EntityFrameworkCore
             => property.FindAnnotation(RelationalAnnotationNames.ComputedColumnSql)?.GetConfigurationSource();
 
         /// <summary>
+        ///     Gets whether the value of the computed column this property is mapped to is stored in the database, or calculated when
+        ///     it is read.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns>
+        ///     Whether the value of the computed column this property is mapped to is stored in the database,
+        ///     or calculated when it is read.
+        /// </returns>
+        public static bool? GetComputedColumnIsStored([NotNull] this IProperty property)
+        {
+            var computedColumnIsStored = (bool?)property[RelationalAnnotationNames.ComputedColumnIsStored];
+            if (computedColumnIsStored != null)
+            {
+                return computedColumnIsStored;
+            }
+
+            var sharedTablePrincipalPrimaryKeyProperty = property.FindSharedRootPrimaryKeyProperty();
+            if (sharedTablePrincipalPrimaryKeyProperty != null)
+            {
+                return GetComputedColumnIsStored(sharedTablePrincipalPrimaryKeyProperty);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Sets whether the value of the computed column this property is mapped to is stored in the database, or calculated when
+        ///     it is read.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="value"> The value to set. </param>
+        public static void SetComputedColumnIsStored([NotNull] this IMutableProperty property, bool? value)
+            => property.SetOrRemoveAnnotation(
+                RelationalAnnotationNames.ComputedColumnIsStored,
+                value);
+
+        /// <summary>
+        ///     Sets whether the value of the computed column this property is mapped to is stored in the database, or calculated when
+        ///     it is read.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="value"> The value to set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured value. </returns>
+        public static bool? SetComputedColumnIsStored(
+            [NotNull] this IConventionProperty property, bool? value, bool fromDataAnnotation = false)
+        {
+            property.SetOrRemoveAnnotation(RelationalAnnotationNames.ComputedColumnIsStored, value, fromDataAnnotation);
+
+            return value;
+        }
+
+        /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for the computed value SQL expression.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for the computed value SQL expression. </returns>
+        public static ConfigurationSource? GetComputedColumnIsStoredConfigurationSource([NotNull] this IConventionProperty property)
+            => property.FindAnnotation(RelationalAnnotationNames.ComputedColumnIsStored)?.GetConfigurationSource();
+
+        /// <summary>
         ///     Returns the object that is used as the default value for the column this property is mapped to.
         /// </summary>
         /// <param name="property"> The property. </param>

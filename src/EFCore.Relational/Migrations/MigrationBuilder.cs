@@ -59,6 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="defaultValue"> The default value for the column. </param>
         /// <param name="defaultValueSql"> The SQL expression to use for the column's default constraint. </param>
         /// <param name="computedColumnSql"> The SQL expression to use to compute the column value. </param>
+        /// <param name="computedColumnIsStored"> Whether the value of the computed column is stored in the database or not. </param>
         /// <param name="fixedLength"> Indicates whether or not the column is constrained to fixed-length data. </param>
         /// <param name="comment"> A comment to associate with the column. </param>
         /// <param name="collation"> A collation to apply to the column. </param>
@@ -81,6 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] object defaultValue = null,
             [CanBeNull] string defaultValueSql = null,
             [CanBeNull] string computedColumnSql = null,
+            bool? computedColumnIsStored = null,
             bool? fixedLength = null,
             [CanBeNull] string comment = null,
             [CanBeNull] string collation = null,
@@ -104,6 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 DefaultValue = defaultValue,
                 DefaultValueSql = defaultValueSql,
                 ComputedColumnSql = computedColumnSql,
+                ComputedColumnIsStored = computedColumnIsStored,
                 IsFixedLength = fixedLength,
                 Comment = comment,
                 Collation = collation,
@@ -325,6 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="defaultValue"> The default value for the column. </param>
         /// <param name="defaultValueSql"> The SQL expression to use for the column's default constraint. </param>
         /// <param name="computedColumnSql"> The SQL expression to use to compute the column value. </param>
+        /// <param name="computedColumnIsStored"> Whether the value of the computed column is stored in the database or not. </param>
         /// <param name="oldClrType">
         ///     The CLR type that the column was previously mapped to. Can be <c>null</c>, in which case previous value is considered unknown.
         /// </param>
@@ -355,6 +359,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="oldComputedColumnSql">
         ///     The previous SQL expression used to compute the column value. Can be <c>null</c>, in which case previous value is considered unknown.
         /// </param>
+        /// <param name="oldComputedColumnIsStored"> Whether the value of the previous computed column was stored in the database or not. </param>
         /// <param name="fixedLength"> Indicates whether or not the column is constrained to fixed-length data. </param>
         /// <param name="oldFixedLength"> Indicates whether or not the column was previously constrained to fixed-length data. </param>
         /// <param name="comment"> A comment to associate with the column. </param>
@@ -386,6 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] object defaultValue = null,
             [CanBeNull] string defaultValueSql = null,
             [CanBeNull] string computedColumnSql = null,
+            bool? computedColumnIsStored = null,
             [CanBeNull] Type oldClrType = null,
             [CanBeNull] string oldType = null,
             bool? oldUnicode = null,
@@ -395,6 +401,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] object oldDefaultValue = null,
             [CanBeNull] string oldDefaultValueSql = null,
             [CanBeNull] string oldComputedColumnSql = null,
+            bool? oldComputedColumnIsStored = null,
             bool? fixedLength = null,
             bool? oldFixedLength = null,
             [CanBeNull] string comment = null,
@@ -423,6 +430,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 DefaultValue = defaultValue,
                 DefaultValueSql = defaultValueSql,
                 ComputedColumnSql = computedColumnSql,
+                ComputedColumnIsStored = computedColumnIsStored,
                 IsFixedLength = fixedLength,
                 Comment = comment,
                 Collation = collation,
@@ -439,6 +447,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     DefaultValue = oldDefaultValue,
                     DefaultValueSql = oldDefaultValueSql,
                     ComputedColumnSql = oldComputedColumnSql,
+                    ComputedColumnIsStored = oldComputedColumnIsStored,
                     IsFixedLength = oldFixedLength,
                     Comment = oldComment,
                     Collation = oldCollation,

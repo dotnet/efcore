@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -82,6 +83,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Returns the SQL expression that is used as the computed value for this column.
         /// </summary>
         public virtual string ComputedColumnSql => PropertyMappings.First().Property.GetComputedColumnSql();
+
+        /// <summary>
+        ///     Returns whether the value of the computed column this property is mapped to is stored in the database, or calculated when
+        ///     it is read.
+        /// </summary>
+        public virtual bool? ComputedColumnIsStored => PropertyMappings.First().Property.GetComputedColumnIsStored();
 
         /// <summary>
         ///     Comment for this column
