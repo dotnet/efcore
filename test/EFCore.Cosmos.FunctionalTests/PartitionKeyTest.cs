@@ -28,39 +28,65 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [ConditionalFact]
         public virtual async Task Can_add_update_delete_end_to_end_with_partition_key()
         {
-            var readSql = "SELECT c\r\n"
-                + "FROM root c\r\n"
-                + "WHERE (c[\"Discriminator\"] = \"Customer\")\r\n"
-                + "ORDER BY c[\"PartitionKey\"]\r\n"
-                + "OFFSET 0 LIMIT 1";
+            const string readSql =
+@"SELECT c
+FROM root c
+WHERE (c[""Discriminator""] = ""Customer"")
+ORDER BY c[""PartitionKey""]
+OFFSET 0 LIMIT 1";
 
             await PartitionKeyTestAsync(
                 async ctx => await ctx.Customers.OrderBy(c => c.PartitionKey).FirstAsync(),
                 readSql,
                 async ctx => await ctx.Customers.OrderBy(c => c.PartitionKey).LastAsync(),
-                async ctx => await ctx.Customers.OrderBy(c => c.PartitionKey).ToListAsync());
+                async ctx => await ctx.Customers.OrderBy(c => c.PartitionKey).ToListAsync(),
+                2);
         }
 
         [ConditionalFact]
         public virtual async Task Can_add_update_delete_end_to_end_with_with_partition_key_extension()
         {
-            var readSql = "SELECT c\r\n"
-                + "FROM root c\r\n"
-                + "WHERE (c[\"Discriminator\"] = \"Customer\")\r\n"
-                + "OFFSET 0 LIMIT 1";
+            const string readSql =
+@"SELECT c
+FROM root c
+WHERE (c[""Discriminator""] = ""Customer"")
+OFFSET 0 LIMIT 1";
 
             await PartitionKeyTestAsync(
                 async ctx => await ctx.Customers.WithPartitionKey("1").FirstAsync(),
                 readSql,
                 async ctx => await ctx.Customers.WithPartitionKey("2").LastAsync(),
-                async ctx => await ctx.Customers.WithPartitionKey("2").ToListAsync());
+                async ctx => await ctx.Customers.WithPartitionKey("2").ToListAsync(),
+                1);
+        }
+
+        [ConditionalFact]
+        public async Task Can_query_with_implicit_partition_key_filter()
+        {
+            const string readSql =
+@"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (((c[""Id""] = 42) OR (c[""Name""] = ""John Snow"")) AND (c[""PartitionKey""] = ""1"")))
+OFFSET 0 LIMIT 1";
+
+            await PartitionKeyTestAsync(
+                async ctx => await ctx.Customers
+                    .Where(b => (b.Id == 42 || b.Name == "John Snow") && b.PartitionKey == 1)
+                    .FirstAsync(),
+                readSql,
+                async ctx => await ctx.Customers.WithPartitionKey("2").LastAsync(),
+                async ctx => await ctx.Customers
+                    .Where(b => b.Id == 42 && b.PartitionKey == 1 || b.PartitionKey == 2)
+                    .ToListAsync(),
+                2);
         }
 
         protected virtual async Task PartitionKeyTestAsync(
             Func<PartitionKeyContext, Task<Customer>> readSingleTask,
             string readSql,
             Func<PartitionKeyContext, Task<Customer>> readLastTask,
-            Func<PartitionKeyContext, Task<List<Customer>>> readListTask)
+            Func<PartitionKeyContext, Task<List<Customer>>> readListTask,
+            int listCount)
         {
             await using var outerContext = CreateContext();
             await outerContext.Database.EnsureCreatedAsync();
@@ -76,9 +102,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             {
                 Id = 42,
                 Name = "Theon Twin",
-                PartitionKey = 2
+                PartitionKey =  2
             };
-
+            
             await outerContext.AddAsync(customer1);
             await outerContext.AddAsync(customer2);
             await outerContext.SaveChangesAsync();
@@ -93,10 +119,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 Assert.Equal(42, customerFromStore.Id);
                 Assert.Equal("Theon", customerFromStore.Name);
                 Assert.Equal(1, customerFromStore.PartitionKey);
-
+              
                 customerFromStore.Name = "Theon Greyjoy";
 
                 await innerContext.SaveChangesAsync();
+            }
+
+            // Read list
+            await using (var innerContext = CreateContext())
+            {
+                var customerFromStore = await readListTask(innerContext);
+
+                Assert.Equal(listCount, customerFromStore.Count);
             }
 
             // Test exception
@@ -104,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             {
                 var customerFromStore = await readSingleTask(innerContext);
                 customerFromStore.PartitionKey = 2;
-
+                
                 Assert.Equal(
                     CoreStrings.KeyReadOnly(nameof(Customer.PartitionKey), nameof(Customer)),
                     Assert.Throws<InvalidOperationException>(() => innerContext.SaveChanges()).Message);
@@ -137,6 +171,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         public class CosmosPartitionKeyFixture : SharedStoreFixtureBase<PartitionKeyContext>
         {
             protected override string StoreName => DatabaseName;
+
+            protected override bool UsePooling => false;
             
             protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
 
@@ -144,9 +180,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
         }
 
-        public class PartitionKeyContext : PoolableDbContext
+        public class PartitionKeyContext : DbContext
         {
-            public DbSet<Customer> Customers { get; set; }
+            public virtual DbSet<Customer> Customers { get; set; }
 
             public PartitionKeyContext(DbContextOptions dbContextOptions)
                 : base(dbContextOptions)
