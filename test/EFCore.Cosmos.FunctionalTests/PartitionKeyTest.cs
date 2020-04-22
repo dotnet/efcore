@@ -18,11 +18,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
+        protected void ClearLog()
+            => Fixture.TestSqlLoggerFactory.Clear();
+
         protected CosmosPartitionKeyFixture Fixture { get; }
         
         public PartitionKeyTest(CosmosPartitionKeyFixture fixture)
         {
             Fixture = fixture;
+            ClearLog();
         }
 
         [ConditionalFact]

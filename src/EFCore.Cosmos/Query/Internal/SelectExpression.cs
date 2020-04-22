@@ -28,9 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         private readonly List<ProjectionExpression> _projection = new List<ProjectionExpression>();
         private readonly List<OrderingExpression> _orderings = new List<OrderingExpression>();
 
-        private IProperty _partitionKeyProperty;
-        private object _partitionKeyValue;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -133,17 +130,29 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         public virtual Expression GetMappedProjection([NotNull] ProjectionMember projectionMember)
             => _projectionMapping[projectionMember];
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void SetPartitionKeyProperty(IProperty partitionKeyProperty, object partitionKeyValue)
-        {
-            _partitionKeyProperty = partitionKeyProperty;
-            _partitionKeyValue = partitionKeyValue;
-        }
+        ///// <summary>
+        /////     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        /////     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        /////     any release. You should only use it directly in your code with extreme caution and knowing that
+        /////     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///// </summary>
+        public virtual IProperty PartitionKeyProperty { get; private set; }
+    
+        ///// <summary>
+        /////     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        /////     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        /////     any release. You should only use it directly in your code with extreme caution and knowing that
+        /////     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///// </summary>
+        public virtual object PartitionKeyValue { get; private set; }
+
+        ///// <summary>
+        /////     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        /////     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        /////     any release. You should only use it directly in your code with extreme caution and knowing that
+        /////     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///// </summary>
+        public virtual string PartitionKeyParameterName { get; private set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -151,21 +160,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool TryGetPartitionKey(out string partitionKey)
+        public virtual void SetPartitionKeyProperty(IProperty partitionKeyProperty, object partitionKeyValue, string paramenterName)
         {
-            if (_partitionKeyProperty is null || _partitionKeyValue is null)
-            {
-                partitionKey = null;
-                return false;
-            }
-
-            var converter = _partitionKeyProperty.GetTypeMapping().Converter;
-
-            partitionKey = converter is null
-                ? (string)_partitionKeyValue
-                : (string)converter.ConvertToProvider(_partitionKeyValue);
-
-            return true;
+            PartitionKeyProperty = partitionKeyProperty;
+            PartitionKeyValue = partitionKeyValue;
+            PartitionKeyParameterName = paramenterName;
         }
 
         /// <summary>

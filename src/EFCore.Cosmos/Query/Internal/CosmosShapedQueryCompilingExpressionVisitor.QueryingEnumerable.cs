@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Newtonsoft.Json.Linq;
 
@@ -52,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 _contextType = contextType;
                 _logger = logger;
 
-                if (_selectExpression.TryGetPartitionKey(out var partitionKey))
+                if (TryGetPartitionKey(selectExpression, cosmosQueryContext, out var partitionKey))
                 {
                     if (partitionKeyFromExtension != null && partitionKeyFromExtension != partitionKey)
                     {
@@ -67,6 +68,38 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 }
             }
 
+            private static bool TryGetPartitionKey(
+                SelectExpression selectExpression,
+                CosmosQueryContext comCosmosQueryContext,
+                out string partitionKey)
+            {
+                partitionKey = default;
+
+                if (selectExpression.PartitionKeyProperty != null && selectExpression.PartitionKeyValue != null)
+                {
+                    partitionKey = GetString(selectExpression.PartitionKeyProperty, selectExpression.PartitionKeyValue);
+                    return true;
+                }
+
+                if (selectExpression.PartitionKeyProperty != null && selectExpression.PartitionKeyParameterName != null
+                    && comCosmosQueryContext.ParameterValues.TryGetValue(selectExpression.PartitionKeyParameterName, out var value))
+                {
+                    partitionKey = GetString(selectExpression.PartitionKeyProperty, value);
+                    return true;
+                }
+
+                return false;
+
+                static string GetString(IProperty property, object value)
+                {
+                    var converter = property.GetTypeMapping().Converter;
+
+                    return converter is null
+                        ? (string)value
+                        : (string)converter.ConvertToProvider(value);
+                }
+            }
+            
             public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
                 => new AsyncEnumerator(this, cancellationToken);
 

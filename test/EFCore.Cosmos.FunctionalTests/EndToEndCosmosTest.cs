@@ -587,7 +587,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         [ConditionalFact]
-        public async Task Entity_type_has_no_primiary_keys()
+        public async Task Entity_type_has_no_primary_keys()
         {
             var options = Fixture.CreateOptions();
 
