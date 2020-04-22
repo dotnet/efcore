@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Initializes a new instance of the <see cref="CommentAttribute" /> class.
         /// </summary>
         /// <param name="comment">The comment.</param>
-        public CommentAttribute([CanBeNull] string comment)
+        public CommentAttribute([NotNull] string comment)
         {
             Check.NotEmpty(comment, nameof(comment));
 

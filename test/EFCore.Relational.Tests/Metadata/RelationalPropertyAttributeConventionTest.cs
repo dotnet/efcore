@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [ConditionalFact]
-        public void ColumnAttribute_sets_column_comment_with_conventional_builder()
+        public void CommentAttribute_on_property_sets_column_comment_with_conventional_builder()
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
