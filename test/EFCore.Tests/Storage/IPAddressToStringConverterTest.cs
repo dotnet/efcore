@@ -30,8 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [ConditionalTheory]
         [InlineData("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")]
         [InlineData("27ff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")]
-        [InlineData("2001:db8:0000:0000:0000:0000:0fff:ffff")]
-        [InlineData("2001:db8:0000:0000:0000:0000:000f:ffff")]
+        [InlineData("2001:db8::f:ffff")]
+        [InlineData("2001:db8::1")]        
         [InlineData("2001:db8::")]
         public void Can_convert_ipaddress_ipv6_to_String(string ipv6)
         {
@@ -62,8 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [ConditionalTheory]
         [InlineData("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")]
         [InlineData("27ff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")]
-        [InlineData("2001:db8:0000:0000:0000:0000:0fff:ffff")]
-        [InlineData("2001:db8:0000:0000:0000:0000:000f:ffff")]
+        [InlineData("2001:db8::f:ffff")]
+        [InlineData("2001:db8::1")]
         [InlineData("2001:db8::")]
         public void Can_convert_String_to_ipaddress_ipv6(string ipv6)
         {

@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData(new byte[] { 255, 255, 255, 0, 0 })]
         [InlineData(new byte[] { 192, 168, 2, 1, 0 })]
         [InlineData(new byte[] { 0, 0, 0, 0, 0 })]
-        public void Can_convert_bytes_to_ipaddress_ipv4_params(byte[] bytesIPV4Invalid)
+        public void Can_convert_bytes_to_ipaddress_ipv4(byte[] bytesIPV4Invalid)
         {
             var converter = _ipAddressToBytes.ConvertFromProviderExpression.Compile();
 
@@ -65,8 +65,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [ConditionalTheory]
         [InlineData("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")]
         [InlineData("27ff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")]
-        [InlineData("2001:db8:0000:0000:0000:0000:0fff:ffff")]
-        [InlineData("2001:db8:0000:0000:0000:0000:000f:ffff")]
+        [InlineData("2001:db8::f:ffff")]
+        [InlineData("2001:db8::1")]
         [InlineData("2001:db8::")]
         public void Can_convert_bytes_to_ipaddress_ipv6(string ipv6)
         {
@@ -101,8 +101,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [ConditionalTheory]
         [InlineData("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")]
         [InlineData("27ff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")]
-        [InlineData("2001:db8:0000:0000:0000:0000:0fff:ffff")]
-        [InlineData("2001:db8:0000:0000:0000:0000:000f:ffff")]
+        [InlineData("2001:db8::f:ffff")]
+        [InlineData("2001:db8::1")]
         [InlineData("2001:db8::")]
         public void Can_convert_bytes_to_ipaddress_ipv6_object(string ipv6)
         {

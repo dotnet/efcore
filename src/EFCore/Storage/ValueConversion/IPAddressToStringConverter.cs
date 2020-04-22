@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             = new ValueConverterInfo(typeof(IPAddress), typeof(string), i => new IPAddressToStringConverter(i.MappingHints));
 
         private static new Expression<Func<IPAddress, string>> ToString()
-            => v => v.ToString();
+            => v => v == null ? default : v.ToString();
 
         private static Expression<Func<string, IPAddress>> ToIPAddress()
             => v => v == null ? default : IPAddress.Parse(v);
