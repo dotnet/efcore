@@ -293,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         /// <param name="valueGenerationManager"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public StateManagerDependencies With([NotNull] ValueGenerationManager valueGenerationManager)
+        public StateManagerDependencies With([NotNull] IValueGenerationManager valueGenerationManager)
             => new StateManagerDependencies(
                 InternalEntityEntryFactory,
                 InternalEntityEntrySubscriber,

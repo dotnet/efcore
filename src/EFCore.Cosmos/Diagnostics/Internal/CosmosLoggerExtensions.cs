@@ -36,12 +36,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
         {
             var definition = new EventDefinition<string, string, string>(
                 diagnosticsLogger.Options,
-                CoreEventId.ProviderBaseId,
+                CosmosEventId.ExecutingSqlQuery,
                 LogLevel.Debug,
-                "CoreEventId.ProviderBaseId",
+                "CosmosEventId.ExecutingSqlQuery",
                 level => LoggerMessage.Define<string, string, string>(
                     level,
-                    CoreEventId.ProviderBaseId,
+                    CosmosEventId.ExecutingSqlQuery,
                     "Executing Sql Query [Parameters=[{parameters}]]{newLine}{commandText}"));
 
             definition.Log(
@@ -56,21 +56,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
             [NotNull] string partitionKey,
             [NotNull] string resourceId)
         {
-            var definition = new EventDefinition<string, string, string>(
+            var definition = new EventDefinition<string>(
                 diagnosticsLogger.Options,
-                CoreEventId.ProviderBaseId,
+                CosmosEventId.ExecutingReadItem,
                 LogLevel.Debug,
-                "CoreEventId.ProviderBaseId",
-                level => LoggerMessage.Define<string, string, string>(
+                "CosmosEventId.ExecutingReadItem",
+                level => LoggerMessage.Define<string>(
                     level,
-                    CoreEventId.ProviderBaseId,
-                    "Executing Read Item [Partition Key, Resource Id=[{parameters}]]{newLine}{commandText}"));
+                    CosmosEventId.ExecutingReadItem,
+                    "Executing Read Item [Partition Key, Resource Id=[{parameters}]]"));
 
             definition.Log(
                 diagnosticsLogger,
-                $"{partitionKey}, {resourceId}", 
-                Environment.NewLine,
-                "Read Item");
+                $"{partitionKey}, {resourceId}");
         }
 
         private static string FormatParameters(IReadOnlyList<SqlParameter> parameters)

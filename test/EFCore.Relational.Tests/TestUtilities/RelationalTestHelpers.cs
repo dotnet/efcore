@@ -18,10 +18,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public override IServiceCollection AddProviderServices(IServiceCollection services)
             => FakeRelationalOptionsExtension.AddEntityFrameworkRelationalDatabase(services);
 
-        protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseFakeRelational();
-        }
+        public override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder.UseFakeRelational();
 
         public override LoggingDefinitions LoggingDefinitions { get; } = new TestRelationalLoggingDefinitions();
     }

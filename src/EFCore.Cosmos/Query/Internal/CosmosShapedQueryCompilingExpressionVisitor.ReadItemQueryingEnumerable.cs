@@ -231,7 +231,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
                     partitionKey = null;
 
-                    var partitionKeyProperty = _entityType.FindProperty(_entityType.GetPartitionKeyPropertyName());
+                    var partitionKeyPropertyName = _entityType.GetPartitionKeyPropertyName();
+                    if (partitionKeyPropertyName == null)
+                    {
+                        return true;
+                    }
+
+                    var partitionKeyProperty = _entityType.FindProperty(partitionKeyPropertyName);
 
                     if (TryGetParameterValue(partitionKeyProperty, out var value))
                     {
@@ -245,12 +251,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                 protected bool TryGetResourceId(out string resourceId)
                 {
-                    var resourceIdProperty = _entityType.GetProperties()
+                    var idProperty = _entityType.GetProperties()
                         .FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyName);
 
-                    if (TryGetParameterValue(resourceIdProperty, out var value))
+                    if (TryGetParameterValue(idProperty, out var value))
                     {
-                        resourceId = GetString(resourceIdProperty, value);
+                        resourceId = GetString(idProperty, value);
 
                         if (string.IsNullOrEmpty(resourceId))
                         {
@@ -260,9 +266,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         return true;
                     }
 
-                    if (TryGenerateResourceIdFromKeys(out var generatedValue))
+                    if (TryGenerateIdFromKeys(idProperty, out var generatedValue))
                     {
-                        resourceId = GetString(resourceIdProperty, generatedValue);
+                        resourceId = GetString(idProperty, generatedValue);
 
                         return true;
                     }
@@ -271,19 +277,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     return false;
                 }
 
-                private bool TryGenerateResourceIdFromKeys(out object value)
+                private bool TryGenerateIdFromKeys(IProperty idProperty, out object value)
                 {
                     var entityEntry = Activator.CreateInstance(_entityType.ClrType);
-
-                    var entityProperties = entityEntry.GetType().GetProperties();
 
 #pragma warning disable EF1001
                     var internalEntityEntry = new InternalEntityEntryFactory().Create(_stateManager, _entityType, entityEntry);
 #pragma warning restore EF1001
 
-                    foreach (var entityProperty in entityProperties)
+                    foreach (var keyProperty in _entityType.FindPrimaryKey().Properties)
                     {
-                        var property = _entityType.FindProperty(entityProperty.Name);
+                        var property = _entityType.FindProperty(keyProperty.Name);
 
                         if (TryGetParameterValue(property, out var parameterValue))
                         {
@@ -291,18 +295,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         }
                     }
 
-#pragma warning disable EF1001
-                    var entry = new EntityEntry(internalEntityEntry) { State = EntityState.Added };
+                    internalEntityEntry.SetEntityState(EntityState.Added);
+
+                    value = internalEntityEntry[idProperty];
+
+                    internalEntityEntry.SetEntityState(EntityState.Detached);
 #pragma warning restore EF1001
 
-                    value = entry.Properties
-                        .FirstOrDefault(
-                            propertyEntry => propertyEntry.Metadata.GetJsonPropertyName() == StoreKeyConvention.IdPropertyName)
-                        .CurrentValue;
-
-                    entry.State = EntityState.Detached;
-
-                    return !(value is null);
+                    return value != null;
                 }
 
                 private bool TryGetParameterValue(IProperty property, out object value)

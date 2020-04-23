@@ -212,8 +212,10 @@ be found in the docs.";
             Assert.Contains("Cannot add a column with non-constant default", ex.Message);
         }
 
-        public override Task Add_column_with_computedSql()
-            => AssertNotSupportedAsync(base.Add_column_with_computedSql, SqliteStrings.ComputedColumnsNotSupported);
+        public override Task Add_column_with_computedSql(bool? computedColumnStored)
+            => AssertNotSupportedAsync(
+                () => base.Add_column_with_computedSql(computedColumnStored),
+                SqliteStrings.ComputedColumnsNotSupported);
 
         public override async Task Add_column_with_max_length()
         {
@@ -272,10 +274,15 @@ be found in the docs.";
             => AssertNotSupportedAsync(
                 base.Alter_column_make_required_with_composite_index, SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
 
-        public override Task Alter_column_make_computed()
-            => AssertNotSupportedAsync(base.Alter_column_make_computed, SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
+        public override Task Alter_column_make_computed(bool? computedColumnStored)
+            => AssertNotSupportedAsync(
+                () => base.Alter_column_make_computed(computedColumnStored),
+                SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
 
         public override Task Alter_column_change_computed()
+            => AssertNotSupportedAsync(base.Alter_column_change_computed, SqliteStrings.ComputedColumnsNotSupported);
+
+        public override Task Alter_column_change_computed_type()
             => AssertNotSupportedAsync(base.Alter_column_change_computed, SqliteStrings.ComputedColumnsNotSupported);
 
         public override Task Alter_column_add_comment()

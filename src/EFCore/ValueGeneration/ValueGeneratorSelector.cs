@@ -72,13 +72,12 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
             if (factory == null)
             {
-                var mapping = property.FindTypeMapping();
-                factory = mapping?.ValueGeneratorFactory;
+                var mapping = property.GetTypeMapping();
+                factory = mapping.ValueGeneratorFactory;
 
                 if (factory == null)
                 {
-                    var converter = mapping?.Converter
-                        ?? property.GetValueConverter();
+                    var converter = mapping.Converter;
 
                     if (converter != null)
                     {

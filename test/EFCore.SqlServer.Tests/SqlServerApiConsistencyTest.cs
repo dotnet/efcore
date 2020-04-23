@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore
@@ -20,14 +21,19 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected override void AddServices(ServiceCollection serviceCollection)
-        {
-            serviceCollection.AddEntityFrameworkSqlServer();
-        }
+            => serviceCollection.AddEntityFrameworkSqlServer();
 
         protected override Assembly TargetAssembly => typeof(SqlServerConnection).Assembly;
 
         public class SqlServerApiConsistencyFixture : ApiConsistencyFixtureBase
         {
+            public override bool TryGetProviderOptionsDelegate(out Action<DbContextOptionsBuilder> configureOptions)
+            {
+                configureOptions = b => SqlServerTestHelpers.Instance.UseProviderOptions(b);
+
+                return true;
+            }
+
             public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>()
             {
                 typeof(SqlServerDbContextOptionsBuilder),

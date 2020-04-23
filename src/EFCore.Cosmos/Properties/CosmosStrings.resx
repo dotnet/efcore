@@ -169,13 +169,13 @@
     <value>Reverse is not supported without Limit or Offset.</value>
   </data>
   <data name="InvalidResourceId" xml:space="preserve">
-    <value>Invalid Resource id. Resource id cannot be null or empty and must be a string value.</value>
+    <value>Invalid id value. Specify a  string value that's not null or empty.</value>
   </data>
   <data name="ParitionKeyMissing" xml:space="preserve">
-    <value>Partition key missing.</value>
+    <value>A ReadItem query was detected, but the partition key value is missing.</value>
   </data>
   <data name="ResourceIdMissing" xml:space="preserve">
-    <value>Resource id missing or cannot be generated.</value>
+    <value>A ReadItem query was detected, but the id value is missing and cannot be generated.</value>
   </data>
   <data name="PartitionKeyMismatch" xml:space="preserve">
     <value>Partition key specified in the WithPartitionKey call '{paritionKey1}' and the partition key specified in the Where predicate '{paritionKey2}' must be identical. Remove one of them .</value>

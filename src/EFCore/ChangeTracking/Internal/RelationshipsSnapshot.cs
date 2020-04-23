@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var snapshot = (HashSet<object>)_values[index];
                 if (snapshot == null)
                 {
-                    snapshot = new HashSet<object>(ReferenceEqualityComparer.Instance);
+                    snapshot = new HashSet<object>(LegacyReferenceEqualityComparer.Instance);
                     _values[index] = snapshot;
                 }
 

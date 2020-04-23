@@ -49,9 +49,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (propertyBase is IProperty property)
             {
-                var converter = property.GetValueConverter()
-                    ?? property.GetTypeMapping().Converter;
-
+                var converter = property.GetTypeMapping().Converter;
                 if (converter != null)
                 {
                     var providerType = converter.ProviderClrType;

@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -100,10 +101,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             if (ProcessJoinCondition(lambdaBodyBinaryExpression, queryProperties, parameterNames))
                             {
                                 var entityTypePrimaryKeyProperties = entityType.FindPrimaryKey().Properties;
-                                
+                                var idProperty = entityType.GetProperties()
+                                    .First(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyName);
+
                                 if (TryGetPartitionKeyProperty(out var partitionKeyProperty)
-                                    && entityTypePrimaryKeyProperties.Contains(partitionKeyProperty)
-                                    && entityTypePrimaryKeyProperties.SequenceEqual(queryProperties))
+                                    && entityTypePrimaryKeyProperties.SequenceEqual(queryProperties)
+                                    && (partitionKeyProperty == null
+                                        || entityTypePrimaryKeyProperties.Contains(partitionKeyProperty))
+                                    && (idProperty.GetValueGeneratorFactory() != null
+                                        || entityTypePrimaryKeyProperties.Contains(idProperty)))
                                 {
                                     var propertyParameterList = queryProperties.Zip(parameterNames,
                                         (property, parameter) => (property, parameter))
@@ -144,10 +150,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                             {
                                                 if (equalMethodCallExpression.TryGetEFPropertyArguments(out _, out var propertyName))
                                                 {
-#pragma warning disable EF1001
-                                                    properties.Add(entityType.GetProperty(propertyName));
-#pragma warning restore EF1001
-                                                    paramNames.Add(equalParameterExpresion.Name);
+                                                    var property = entityType.FindProperty(propertyName);
+                                                    if (property == null)
+                                                    {
+                                                        return false;
+                                                    }
+                                                    properties.Add(property);
+                                                    paramNames.Add(parameterExpr.Name);
                                                     return true;
                                                 }
                                             }
@@ -163,11 +172,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             bool TryGetPartitionKeyProperty(out IProperty partitionKeyProperty)
                             {
                                 var partitionKeyPropertyName = entityType.GetPartitionKeyPropertyName();
-
                                 if (partitionKeyPropertyName is null)
                                 {
                                     partitionKeyProperty = null;
-                                    return false;
+                                    return true;
                                 }
 
                                 partitionKeyProperty = entityType.FindProperty(partitionKeyPropertyName);
@@ -236,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         protected override ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
-            
+
             var selectExpression = _sqlExpressionFactory.Select(entityType);
 
             return new ShapedQueryExpression(

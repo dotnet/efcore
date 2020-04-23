@@ -27,27 +27,27 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public void Throws_on_BeginTransaction()
-        {
-            AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).BeginTransaction());
-        }
+            => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).BeginTransaction());
 
         [ConditionalFact]
         public void Throws_on_BeginTransactionAsync()
-        {
-            AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).BeginTransactionAsync().GetAwaiter().GetResult());
-        }
+            => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).BeginTransactionAsync().GetAwaiter().GetResult());
 
         [ConditionalFact]
         public void Throws_on_CommitTransaction()
-        {
-            AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).CommitTransaction());
-        }
+            => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).CommitTransaction());
+
+        [ConditionalFact]
+        public void Throws_on_CommitTransactionAsync()
+            => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).CommitTransactionAsync().GetAwaiter().GetResult());
 
         [ConditionalFact]
         public void Throws_on_RollbackTransaction()
-        {
-            AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).RollbackTransaction());
-        }
+            => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).RollbackTransaction());
+
+        [ConditionalFact]
+        public void Throws_on_RollbackTransactionAsync()
+            => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).RollbackTransactionAsync().GetAwaiter().GetResult());
 
         private static void AssertThrows(Action action)
         {
