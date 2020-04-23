@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var snapshot = (HashSet<object>)_values[index];
                 if (snapshot == null)
                 {
-                    snapshot = new HashSet<object>(ReferenceEqualityComparer.Instance);
+                    snapshot = new HashSet<object>(LegacyReferenceEqualityComparer.Instance);
                     _values[index] = snapshot;
                 }
 

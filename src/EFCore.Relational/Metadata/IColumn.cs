@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -26,6 +27,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     then this is the maximum number of characters.
         /// </summary>
         int? MaxLength => PropertyMappings.First().Property.GetMaxLength();
+
+        /// <summary>
+        ///     Gets the precision of data that is allowed in this column. For example, if the property is a <see cref="decimal" /> '
+        ///     then this is the maximum number of digits.
+        /// </summary>
+        int? Precision => PropertyMappings.First().Property.GetPrecision();
+
+        /// <summary>
+        ///     Gets the scale of data that is allowed in this column. For example, if the property is a <see cref="decimal" /> '
+        ///     then this is the maximum number of decimal places.
+        /// </summary>
+        int? Scale => PropertyMappings.First().Property.GetScale();
 
         /// <summary>
         ///     Gets a value indicating whether or not the property can persist Unicode characters.
@@ -72,8 +85,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public virtual string ComputedColumnSql => PropertyMappings.First().Property.GetComputedColumnSql();
 
         /// <summary>
+        ///     Returns whether the value of the computed column this property is mapped to is stored in the database, or calculated when
+        ///     it is read.
+        /// </summary>
+        public virtual bool? ComputedColumnIsStored => PropertyMappings.First().Property.GetComputedColumnIsStored();
+
+        /// <summary>
         ///     Comment for this column
         /// </summary>
         public virtual string Comment => PropertyMappings.First().Property.GetComment();
+
+        /// <summary>
+        ///     Collation for this column
+        /// </summary>
+        public virtual string Collation => PropertyMappings.First().Property.GetCollation();
     }
 }

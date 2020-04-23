@@ -47,9 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-#pragma warning disable EF1001 // Internal EF Core API usage.
         public virtual SortedSet<IForeignKey> MappedForeignKeys { get; } = new SortedSet<IForeignKey>(ForeignKeyComparer.Instance);
-#pragma warning restore EF1001 // Internal EF Core API usage.
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

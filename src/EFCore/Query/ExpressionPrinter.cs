@@ -11,7 +11,6 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -81,37 +80,30 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        public virtual ExpressionPrinter Append([NotNull] object o)
-        {
-            _stringBuilder.Append(o);
-            return this;
-        }
-
         public virtual ExpressionPrinter AppendLine()
         {
             _stringBuilder.AppendLine();
             return this;
         }
 
-        public virtual ExpressionVisitor AppendLine([NotNull] object o)
+        public virtual ExpressionVisitor AppendLine([NotNull] string value)
         {
-            _stringBuilder.AppendLine(o);
+            _stringBuilder.AppendLine(value);
             return this;
         }
 
-        public virtual ExpressionPrinter AppendLines([NotNull] object o, bool skipFinalNewline = false)
+        public virtual ExpressionPrinter AppendLines([NotNull] string value, bool skipFinalNewline = false)
         {
-            _stringBuilder.AppendLines(o, skipFinalNewline);
+            _stringBuilder.AppendLines(value, skipFinalNewline);
             return this;
         }
 
         public virtual IDisposable Indent() => _stringBuilder.Indent();
 
-        private void Append(string message) => _stringBuilder.Append(message);
-
-        private void AppendLine(string message)
+        public virtual ExpressionPrinter Append([NotNull] string message)
         {
-            _stringBuilder.AppendLine(message);
+            _stringBuilder.Append(message);
+            return this;
         }
 
         public virtual string Print(
@@ -527,7 +519,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _stringBuilder.Append("new " + memberInitExpression.Type.ShortDisplayName());
 
-            var appendAction = memberInitExpression.Bindings.Count > 1 ? (Action<string>)AppendLine : Append;
+            var appendAction = memberInitExpression.Bindings.Count > 1 ? (Func<string, ExpressionVisitor>)AppendLine : Append;
             appendAction("{ ");
             using (_stringBuilder.Indent())
             {
@@ -615,7 +607,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 || methodArguments.Count < 2
                 || method.IsEFPropertyMethod();
 
-            var appendAction = isSimpleMethodOrProperty ? (Action<string>)Append : AppendLine;
+            var appendAction = isSimpleMethodOrProperty ? (Func<string, ExpressionVisitor>)Append : AppendLine;
 
             if (methodArguments.Count > 0)
             {
@@ -696,7 +688,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             _stringBuilder.Append("new ");
 
             var isComplex = newExpression.Arguments.Count > 1;
-            var appendAction = isComplex ? (Action<string>)AppendLine : Append;
+            var appendAction = isComplex ? (Func<string, ExpressionVisitor>)AppendLine : Append;
 
             var isAnonymousType = newExpression.Type.IsAnonymousType();
             if (!isAnonymousType)
@@ -748,7 +740,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(newArrayExpression, nameof(newArrayExpression));
 
             var isComplex = newArrayExpression.Expressions.Count > 1;
-            var appendAction = isComplex ? (Action<string>)AppendLine : Append;
+            var appendAction = isComplex ? (Func<string, ExpressionVisitor>)AppendLine : Append;
 
             appendAction("new " + newArrayExpression.Type.GetElementType().ShortDisplayName() + "[]");
             appendAction("{ ");
@@ -786,7 +778,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
 
                     Append("namelessParameter{");
-                    Append(_namelessParameters.IndexOf(parameterExpression));
+                    Append(_namelessParameters.IndexOf(parameterExpression).ToString());
                     Append("}");
                 }
                 else if (parameterName.Contains("."))
@@ -915,7 +907,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Visit(indexExpression.Object);
             _stringBuilder.Append("[");
-            VisitArguments(indexExpression.Arguments, s => _stringBuilder.Append(s));
+            VisitArguments(indexExpression.Arguments, s =>
+            {
+                _stringBuilder.Append(s);
+                return null;
+            });
             _stringBuilder.Append("]");
 
             return indexExpression;
@@ -992,7 +988,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private void VisitArguments(
             IReadOnlyList<Expression> arguments,
-            Action<string> appendAction,
+            Func<string, ExpressionVisitor> appendAction,
             string lastSeparator = "",
             bool areConnected = false)
         {

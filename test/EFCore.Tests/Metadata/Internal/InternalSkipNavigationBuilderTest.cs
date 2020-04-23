@@ -200,7 +200,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private InternalSkipNavigationBuilder CreateInternalSkipNavigationBuilder()
         {
-            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder().GetInfrastructure();
+            var modelBuilder = (InternalModelBuilder)
+                InMemoryTestHelpers.Instance.CreateConventionBuilder().GetInfrastructure();
 
             return modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention)
                 .HasSkipNavigation(

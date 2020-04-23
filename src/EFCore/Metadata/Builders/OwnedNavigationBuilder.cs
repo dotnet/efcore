@@ -15,9 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// <summary>
     ///     Provides a simple API for configuring a navigation to an owned entity type.
     /// </summary>
-    public class OwnedNavigationBuilder : IInfrastructure<InternalEntityTypeBuilder>
+    public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     {
-        private InternalRelationshipBuilder _builder;
+        private InternalForeignKeyBuilder _builder;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public OwnedNavigationBuilder(
             [NotNull] EntityType principalEntityType,
             [NotNull] EntityType dependentEntityType,
-            [NotNull] InternalRelationshipBuilder builder)
+            [NotNull] InternalForeignKeyBuilder builder)
         {
             PrincipalEntityType = principalEntityType;
             DependentEntityType = dependentEntityType;
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalRelationshipBuilder Builder
+        protected virtual InternalForeignKeyBuilder Builder
         {
             get
             {
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Gets the internal builder being used to configure the owned entity type.
         /// </summary>
-        InternalEntityTypeBuilder IInfrastructure<InternalEntityTypeBuilder>.Instance => DependentEntityType.Builder;
+        IConventionEntityTypeBuilder IInfrastructure<IConventionEntityTypeBuilder>.Instance => DependentEntityType.Builder;
 
         /// <summary>
         ///     The foreign key that represents this ownership.
@@ -444,7 +444,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         private OwnedNavigationBuilder OwnsOneBuilder(in TypeIdentity ownedType, string navigationName)
         {
-            InternalRelationshipBuilder relationship;
+            InternalForeignKeyBuilder relationship;
             using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
             {
                 relationship = ownedType.Type == null
@@ -597,7 +597,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         private OwnedNavigationBuilder OwnsManyBuilder(in TypeIdentity ownedType, string navigationName)
         {
-            InternalRelationshipBuilder relationship;
+            InternalForeignKeyBuilder relationship;
             using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
             {
                 relationship = ownedType.Type == null

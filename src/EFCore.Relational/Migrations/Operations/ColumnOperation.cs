@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
@@ -40,6 +41,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual int? MaxLength { get; set; }
 
         /// <summary>
+        ///     The maximum number of digits that the column can store, or <c>null</c>
+        ///     if this is not specified or does not apply to this column type.
+        /// </summary>
+        public virtual int? Precision { get; set; }
+
+        /// <summary>
+        ///     The maximum number of decimal places that the column can store, or <c>null</c>
+        ///     if this is not specified or does not apply to this column type.
+        /// </summary>
+        public virtual int? Scale { get; set; }
+
+        /// <summary>
         ///     Indicates whether or not this column acts as an automatic concurrency token in the same vein
         ///     as 'rowversion'/'timestamp' columns on SQL Server.
         /// </summary>
@@ -69,8 +82,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string ComputedColumnSql { get; [param: CanBeNull] set; }
 
         /// <summary>
+        ///     Whether the value of the computed column this property is mapped to is stored in the database, or calculated when
+        ///     it is read.
+        /// </summary>
+        public virtual bool? ComputedColumnIsStored { get; set; }
+
+        /// <summary>
         ///     Comment for this column
         /// </summary>
         public virtual string Comment { get; [param: CanBeNull] set; }
+
+        /// <summary>
+        ///     The collation for this column, or <c>null</c> if one hasn't been explicitly configured.
+        /// </summary>
+        public virtual string Collation { get; [param: CanBeNull] set; }
     }
 }

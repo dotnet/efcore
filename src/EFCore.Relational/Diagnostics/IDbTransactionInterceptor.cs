@@ -321,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Called when use of a <see cref="DbTransaction" /> has failed with an exception. />.
+        ///     Called when use of a <see cref="DbTransaction" /> has failed with an exception.
         /// </summary>
         /// <param name="transaction"> The transaction. </param>
         /// <param name="eventData"> Contextual information about connection and transaction. </param>
@@ -330,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] TransactionErrorEventData eventData);
 
         /// <summary>
-        ///     Called when use of a <see cref="DbTransaction" /> has failed with an exception. />.
+        ///     Called when use of a <see cref="DbTransaction" /> has failed with an exception.
         /// </summary>
         /// <param name="transaction"> The transaction. </param>
         /// <param name="eventData"> Contextual information about connection and transaction. </param>

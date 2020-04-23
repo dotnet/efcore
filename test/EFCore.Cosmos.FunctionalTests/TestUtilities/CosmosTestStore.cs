@@ -171,24 +171,24 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                         foreach (var containerProperties in await containerIterator.ReadNextAsync())
                         {
                             var container = database.GetContainer(containerProperties.Id);
+                            var partitionKey = containerProperties.PartitionKeyPath[1..];
                             var itemIterator = container.GetItemQueryIterator<JObject>(
-                                new QueryDefinition("SELECT c.id FROM c"));
-                            var partitionKeyPath = containerProperties.PartitionKeyPath;
+                                new QueryDefinition("SELECT * FROM c"));
 
-                            var items = new List<(string, string)>();
+                            var items = new List<(string Id, string PartitionKey)>();
                             while (itemIterator.HasMoreResults)
                             {
-                                foreach (var itemId in await itemIterator.ReadNextAsync())
+                                foreach (var item in await itemIterator.ReadNextAsync())
                                 {
-                                    items.Add((itemId["id"].ToString(), itemId[partitionKeyPath]?.ToString()));
+                                    items.Add((item["id"].ToString(), item[partitionKey]?.ToString()));
                                 }
                             }
 
                             foreach (var item in items)
                             {
                                 await container.DeleteItemAsync<object>(
-                                    item.Item1,
-                                    item.Item2 == null ? PartitionKey.None : new PartitionKey(item.Item1));
+                                    item.Id,
+                                    item.PartitionKey == null ? PartitionKey.None : new PartitionKey(item.PartitionKey));
                             }
                         }
                     }
@@ -264,6 +264,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             public void SetPropertyModified(IProperty property) => throw new NotImplementedException();
             public void SetStoreGeneratedValue(IProperty property, object value) => throw new NotImplementedException();
             public EntityEntry ToEntityEntry() => throw new NotImplementedException();
+            public object GetRelationshipSnapshotValue(IPropertyBase propertyBase) => throw new NotImplementedException();
+            public object GetPreStoreGeneratedCurrentValue(IPropertyBase propertyBase) => throw new NotImplementedException();
+            public bool IsConceptualNull(IProperty property) => throw new NotImplementedException();
         }
 
         public class FakeEntityType : IEntityType
@@ -281,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             public IIndex FindIndex(IReadOnlyList<IProperty> properties) => throw new NotImplementedException();
             public IKey FindKey(IReadOnlyList<IProperty> properties) => throw new NotImplementedException();
             public IKey FindPrimaryKey() => throw new NotImplementedException();
-            public IProperty FindProperty(string name) => throw new NotImplementedException();
+            public IProperty FindProperty(string name) => null;
             public IServiceProperty FindServiceProperty(string name) => throw new NotImplementedException();
             public ISkipNavigation FindSkipNavigation(string name) => throw new NotImplementedException();
             public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();

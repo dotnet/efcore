@@ -734,7 +734,7 @@ namespace Microsoft.EntityFrameworkCore
                         s.CommitFailed = false;
                         s.Result = await s.Operation(s.State, ct);
                         s.CommitFailed = true;
-                        transaction.Commit();
+                        await transaction.CommitAsync(cancellationToken);
                     }
 
                     return s.Result;

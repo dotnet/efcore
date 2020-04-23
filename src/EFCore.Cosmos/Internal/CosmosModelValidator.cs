@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             base.Validate(model, logger);
 
             ValidateSharedContainerCompatibility(model, logger);
-            ValidateOnlyEtagConcurrencyToken(model, logger);
+            ValidateOnlyETagConcurrencyToken(model, logger);
         }
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void ValidateOnlyEtagConcurrencyToken(
+        protected virtual void ValidateOnlyETagConcurrencyToken(
             [NotNull] IModel model,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                         if (storeName != "_etag")
                         {
                             throw new InvalidOperationException(
-                                CosmosStrings.NonEtagConcurrencyToken(entityType.DisplayName(), storeName));
+                                CosmosStrings.NonETagConcurrencyToken(entityType.DisplayName(), storeName));
                         }
 
                         var etagType = property.GetTypeMapping().Converter?.ProviderClrType ?? property.ClrType;

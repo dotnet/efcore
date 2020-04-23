@@ -46,9 +46,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         bool IsQueryable { get; }
 
         /// <summary>
+        ///     Gets the entity type returned by this queryable function
+        /// </summary>
+        IEntityType QueryableEntityType => IsQueryable
+            ? Model.FindEntityType(ReturnType.GetGenericArguments()[0])
+            : null;
+
+        /// <summary>
         ///     Gets the configured store type string
         /// </summary>
         string StoreType { get; }
+
+        /// <summary>
+        ///     Gets the returned CLR type.
+        /// </summary>
+        Type ReturnType { get; }
 
         /// <summary>
         ///     Gets the type mapping for the function's return type

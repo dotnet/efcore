@@ -57,11 +57,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType, container);
 
         /// <summary>
-        ///     The entity type '{entityType}' has property '{property}' as its concurrency token, but only '_etag' is supported. Consider using 'EntityTypeBuilder.UseEtagConcurrency'.
+        ///     The entity type '{entityType}' has property '{property}' as its concurrency token, but only '_etag' is supported. Consider using 'EntityTypeBuilder.UseETagConcurrency'.
         /// </summary>
-        public static string NonEtagConcurrencyToken([CanBeNull] object entityType, [CanBeNull] object property)
+        public static string NonETagConcurrencyToken([CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
-                GetString("NonEtagConcurrencyToken", nameof(entityType), nameof(property)),
+                GetString("NonETagConcurrencyToken", nameof(entityType), nameof(property)),
                 entityType, property);
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 itemId);
 
         /// <summary>
-        ///      Non-embedded IncludeExpression is not supported: {expression}
+        ///     Non-embedded IncludeExpression is not supported: {expression}
         /// </summary>
         public static string NonEmbeddedIncludeNotSupported([CanBeNull] object expression)
             => string.Format(
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 expression);
 
         /// <summary>
-        ///      Navigation '{entityType}.{navigationName}' doesn't point to an embedded entity.
+        ///     Navigation '{entityType}.{navigationName}' doesn't point to an embedded entity.
         /// </summary>
         public static string NavigationPropertyIsNotAnEmbeddedEntity([CanBeNull] object entityType, [CanBeNull] object navigationName)
             => string.Format(
@@ -137,16 +137,34 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType, navigationName);
 
         /// <summary>
-        ///      Offset is not supported without Limit.
+        ///     Offset is not supported without Limit.
         /// </summary>
         public static string OffsetRequiresLimit
             => GetString("OffsetRequiresLimit");
 
         /// <summary>
-        ///      Reverse is not supported without Limit or Offset.
+        ///     Reverse is not supported without Limit or Offset.
         /// </summary>
         public static string ReverseRequiresOffsetOrLimit
             => GetString("ReverseRequiresOffsetOrLimit");
+
+        /// <summary>
+        ///     Invalid id value. Specify a  string value that's not null or empty.
+        /// </summary>
+        public static string InvalidResourceId
+            => GetString("InvalidResourceId");
+
+        /// <summary>
+        ///     A ReadItem query was detected, but the partition key value is missing.
+        /// </summary>
+        public static string ParitionKeyMissing
+            => GetString("ParitionKeyMissing");
+
+        /// <summary>
+        ///     A ReadItem query was detected, but the id value is missing and cannot be generated.
+        /// </summary>
+        public static string ResourceIdMissing
+            => GetString("ResourceIdMissing");
 
         private static string GetString(string name, params string[] formatterNames)
         {

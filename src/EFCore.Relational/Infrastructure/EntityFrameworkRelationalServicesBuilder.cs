@@ -53,7 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         [EntityFrameworkInternal]
         public static readonly IDictionary<Type, ServiceCharacteristics> RelationalServices
-#pragma warning disable EF1001 // Internal EF Core API usage.
             = new Dictionary<Type, ServiceCharacteristics>
             {
                 { typeof(IKeyValueIndexFactorySource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
@@ -95,7 +94,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IMemberTranslatorPlugin), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
                 { typeof(IRelationalParameterBasedQueryTranslationPostprocessorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) }
             };
-#pragma warning restore EF1001 // Internal EF Core API usage.
 
         /// <summary>
         ///     Used by relational database providers to create a new <see cref="EntityFrameworkRelationalServicesBuilder" /> for
@@ -108,20 +106,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Gets the <see cref="ServiceCharacteristics" /> for the given service type.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="serviceType"> The type that defines the service API. </param>
+        /// <returns> The <see cref="ServiceCharacteristics" /> for the type. </returns>
+        /// <exception cref="InvalidOperationException"> when the type is not an EF service. </exception>
         protected override ServiceCharacteristics GetServiceCharacteristics(Type serviceType)
-        {
-            return RelationalServices.TryGetValue(serviceType, out var characteristics)
+            => RelationalServices.TryGetValue(serviceType, out var characteristics)
                 ? characteristics
-#pragma warning disable EF1001 // Internal EF Core API usage.
                 : base.GetServiceCharacteristics(serviceType);
-#pragma warning restore EF1001 // Internal EF Core API usage.
-        }
 
         /// <summary>
         ///     Registers default implementations of all services, including relational services, not already
@@ -177,7 +170,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IRelationalParameterBasedQueryTranslationPostprocessorFactory, RelationalParameterBasedQueryTranslationPostprocessorFactory>();
             TryAdd<IRelationalQueryStringFactory, RelationalQueryStringFactory>();
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
             ServiceCollectionMap.GetInfrastructure()
                 .AddDependencySingleton<RelationalSqlGenerationHelperDependencies>()
                 .AddDependencySingleton<RelationalTypeMappingSourceDependencies>()
@@ -210,7 +202,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencyScoped<RelationalConnectionDependencies>()
                 .AddDependencyScoped<RelationalDatabaseDependencies>()
                 .AddDependencyScoped<RelationalQueryContextDependencies>();
-#pragma warning restore EF1001 // Internal EF Core API usage.
 
             return base.TryAddCoreServices();
         }

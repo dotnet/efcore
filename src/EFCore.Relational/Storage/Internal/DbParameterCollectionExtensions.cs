@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             {
                 builder
                     .Append('\'')
-                    .Append(((DateTime)parameterValue).ToString("s"))
+                    .Append(((DateTime)parameterValue).ToString("o"))
                     .Append('\'');
             }
             else if (parameterValue.GetType() == typeof(DateTimeOffset))

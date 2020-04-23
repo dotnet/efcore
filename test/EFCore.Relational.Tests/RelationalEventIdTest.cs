@@ -157,6 +157,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public bool Close() => throw new NotImplementedException();
             public void CommitTransaction() => throw new NotImplementedException();
+            public Task CommitTransactionAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
             public void Dispose() => throw new NotImplementedException();
             public bool Open(bool errorsExpected = false) => throw new NotImplementedException();
 
@@ -167,6 +168,7 @@ namespace Microsoft.EntityFrameworkCore
             public Task ResetStateAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
 
             public void RollbackTransaction() => throw new NotImplementedException();
+            public Task RollbackTransactionAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
             public IDbContextTransaction UseTransaction(DbTransaction transaction) => throw new NotImplementedException();
 
             public Task<IDbContextTransaction> UseTransactionAsync(

@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <returns> The connection string. </returns>
         /// <exception cref="InvalidOperationException"> when connection string cannot be obtained. </exception>
-        public virtual string GetCheckedConnectionString()
+        protected virtual string GetValidatedConnectionString()
         {
             var connectionString = ConnectionString;
             if (connectionString == null)
@@ -410,7 +410,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Specifies an existing <see cref="DbTransaction" /> to be used for database operations.
         /// </summary>
         /// <param name="transaction"> The transaction to be used. </param>
-        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> An instance of <see cref="IDbTransaction" /> that wraps the provided transaction. </returns>
         public virtual async Task<IDbContextTransaction> UseTransactionAsync(
             DbTransaction transaction,
@@ -467,6 +467,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
+        ///     Commits all changes made to the database in the current transaction.
+        /// </summary>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns> A Task representing the asynchronous operation. </returns>
+        public virtual Task CommitTransactionAsync(CancellationToken cancellationToken = default)
+        {
+            if (CurrentTransaction == null)
+            {
+                throw new InvalidOperationException(RelationalStrings.NoActiveTransaction);
+            }
+
+            return CurrentTransaction.CommitAsync(cancellationToken);
+        }
+
+        /// <summary>
         ///     Discards all changes made to the database in the current transaction.
         /// </summary>
         public virtual void RollbackTransaction()
@@ -477,6 +492,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
 
             CurrentTransaction.Rollback();
+        }
+
+        /// <summary>
+        ///     Discards all changes made to the database in the current transaction.
+        /// </summary>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns> A Task representing the asynchronous operation. </returns>
+        public virtual Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
+        {
+            if (CurrentTransaction == null)
+            {
+                throw new InvalidOperationException(RelationalStrings.NoActiveTransaction);
+            }
+
+            return CurrentTransaction.RollbackAsync(cancellationToken);
         }
 
         /// <summary>
@@ -638,11 +668,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var current = Transaction.Current;
 
-            if (current == null) 
+            if (current == null)
             {
                 var rootTransaction = _ambientTransactions.Count > 0 && _ambientTransactions.TryPeek(out var transaction) ? transaction : null;
 
-                if (rootTransaction != null) 
+                if (rootTransaction != null)
                 {
                     throw new InvalidOperationException(RelationalStrings.PendingAmbientTransaction);
                 }

@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_reference_with_inheritance1()
+        public virtual void Include_reference_with_inheritance()
         {
             using var context = CreateContext();
             var query = context.BaseEntities.Include(e => e.BaseReferenceOnBase);
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_reference_with_inheritance_with_filter1()
+        public virtual void Include_reference_with_inheritance_with_filter()
         {
             using var context = CreateContext();
             var query = context.BaseEntities.Include(e => e.BaseReferenceOnBase).Where(e => e.Name != "Bar");
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_collection_with_inheritance1()
+        public virtual void Include_collection_with_inheritance()
         {
             using var context = CreateContext();
             var query = context.BaseEntities.Include(e => e.BaseCollectionOnBase);
@@ -196,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_collection_with_inheritance_with_filter1()
+        public virtual void Include_collection_with_inheritance_with_filter()
         {
             using var context = CreateContext();
             var query = context.BaseEntities.Include(e => e.BaseCollectionOnBase).Where(e => e.Name != "Bar");
@@ -410,7 +410,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Nested_include_with_inheritance_reference_reference1()
+        public virtual void Nested_include_with_inheritance_reference_reference()
         {
             using var context = CreateContext();
             var query = context.BaseEntities.Include(e => e.BaseReferenceOnBase.NestedReference);
@@ -420,7 +420,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Nested_include_with_inheritance_reference_reference3()
+        public virtual void Nested_include_with_inheritance_reference_reference_on_base()
         {
             using var context = CreateContext();
             var query = context.DerivedEntities.Include(e => e.BaseReferenceOnBase.NestedReference);
@@ -440,7 +440,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Nested_include_with_inheritance_reference_collection1()
+        public virtual void Nested_include_with_inheritance_reference_collection()
         {
             using var context = CreateContext();
             var query = context.BaseEntities.Include(e => e.BaseReferenceOnBase.NestedCollection);
@@ -450,7 +450,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Nested_include_with_inheritance_reference_collection3()
+        public virtual void Nested_include_with_inheritance_reference_collection_on_base()
         {
             using var context = CreateContext();
             var query = context.DerivedEntities.Include(e => e.BaseReferenceOnBase.NestedCollection);
@@ -470,7 +470,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Nested_include_with_inheritance_collection_reference1()
+        public virtual void Nested_include_with_inheritance_collection_reference()
         {
             using var context = CreateContext();
             var query = context.BaseEntities.Include(e => e.BaseCollectionOnBase).ThenInclude(e => e.NestedReference);
@@ -492,7 +492,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Nested_include_with_inheritance_collection_collection1()
+        public virtual void Nested_include_with_inheritance_collection_collection()
         {
             using var context = CreateContext();
             var query = context.BaseEntities.Include(e => e.BaseCollectionOnBase).ThenInclude(e => e.NestedCollection);

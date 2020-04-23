@@ -85,6 +85,7 @@ namespace Microsoft.EntityFrameworkCore
                             .HasComment("Employer ID comment");
                         e.Property<string>("SSN")
                             .HasColumnType(char11StoreType)
+                            .UseCollation(NonDefaultCollation)
                             .IsRequired(false);
 
                         e.HasKey("CustomId");
@@ -177,14 +178,8 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual Task Create_table_with_multiline_comments()
         {
-            var tableComment = @"This is a multi-line
-table comment.
-More information can
-be found in the docs.";
-            var columnComment = @"This is a multi-line
-column comment.
-More information can
-be found in the docs.";
+            var tableComment = "This is a multi-line\r\ntable comment.\r\nMore information can\r\nbe found in the docs.";
+            var columnComment = "This is a multi-line\ncolumn comment.\nMore information can\nbe found in the docs.";
 
             return Test(
                 builder => { },
@@ -350,8 +345,11 @@ be found in the docs.";
                     Assert.Contains("2", sumColumn.DefaultValueSql);
                 });
 
-        [ConditionalFact]
-        public virtual Task Add_column_with_computedSql()
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        [InlineData(null)]
+        public virtual Task Add_column_with_computedSql(bool? computedColumnStored)
             => Test(
                 builder => builder.Entity(
                     "People", e =>
@@ -361,13 +359,16 @@ be found in the docs.";
                         e.Property<int>("Y");
                     }),
                 builder => { },
-                builder => builder.Entity("People").Property<string>("Sum").HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}"),
+                builder => builder.Entity("People").Property<string>("Sum")
+                    .HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}", computedColumnStored),
                 model =>
                 {
                     var table = Assert.Single(model.Tables);
                     var sumColumn = Assert.Single(table.Columns, c => c.Name == "Sum");
                     Assert.Contains("X", sumColumn.ComputedColumnSql);
                     Assert.Contains("Y", sumColumn.ComputedColumnSql);
+                    if (computedColumnStored != null)
+                        Assert.Equal(computedColumnStored, sumColumn.ComputedColumnIsStored);
                 });
 
         // TODO: Check this out
@@ -480,6 +481,38 @@ be found in the docs.";
                 });
 
         [ConditionalFact]
+        public virtual Task Add_column_with_collation()
+            => Test(
+                builder => builder.Entity("People").Property<int>("Id"),
+                builder => { },
+                builder => builder.Entity("People").Property<string>("Name")
+                    .UseCollation(NonDefaultCollation),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    Assert.Equal(2, table.Columns.Count);
+                    var nameColumn = Assert.Single(table.Columns, c => c.Name == "Name");
+                    Assert.Equal(NonDefaultCollation, nameColumn.Collation);
+                });
+
+        [ConditionalFact]
+        public virtual Task Add_column_computed_with_collation()
+            => Test(
+                builder => builder.Entity("People").Property<int>("Id"),
+                builder => { },
+                builder => builder.Entity("People").Property<string>("Name")
+                    .HasComputedColumnSql("'hello'")
+                    .UseCollation(NonDefaultCollation),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    Assert.Equal(2, table.Columns.Count);
+                    var nameColumn = Assert.Single(table.Columns, c => c.Name == "Name");
+                    Assert.Contains("hello", nameColumn.ComputedColumnSql);
+                    Assert.Equal(NonDefaultCollation, nameColumn.Collation);
+                });
+
+        [ConditionalFact]
         public virtual Task Add_column_shared()
             => Test(
                 builder =>
@@ -573,8 +606,11 @@ be found in the docs.";
                     Assert.Contains(table.Columns.Single(c => c.Name == "LastName"), index.Columns);
                 });
 
-        [ConditionalFact]
-        public virtual Task Alter_column_make_computed()
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        [InlineData(null)]
+        public virtual Task Alter_column_make_computed(bool? computedColumnStored)
             => Test(
                 builder => builder.Entity(
                     "People", e =>
@@ -584,7 +620,8 @@ be found in the docs.";
                         e.Property<int>("Y");
                     }),
                 builder => builder.Entity("People").Property<int>("Sum"),
-                builder => builder.Entity("People").Property<int>("Sum").HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}"),
+                builder => builder.Entity("People").Property<int>("Sum")
+                    .HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}", computedColumnStored),
                 model =>
                 {
                     var table = Assert.Single(model.Tables);
@@ -592,6 +629,8 @@ be found in the docs.";
                     Assert.Contains("X", sumColumn.ComputedColumnSql);
                     Assert.Contains("Y", sumColumn.ComputedColumnSql);
                     Assert.Contains("+", sumColumn.ComputedColumnSql);
+                    if (computedColumnStored != null)
+                        Assert.Equal(computedColumnStored, sumColumn.ComputedColumnIsStored);
                 });
 
         [ConditionalFact]
@@ -615,6 +654,28 @@ be found in the docs.";
                     Assert.Contains("Y", sumColumn.ComputedColumnSql);
                     Assert.Contains("-", sumColumn.ComputedColumnSql);
                 });
+
+        [ConditionalFact]
+        public virtual Task Alter_column_change_computed_type()
+            => Test(
+                builder => builder.Entity(
+                    "People", e =>
+                        {
+                            e.Property<int>("Id");
+                            e.Property<int>("X");
+                            e.Property<int>("Y");
+                            e.Property<int>("Sum");
+                        }),
+                builder => builder.Entity("People").Property<int>("Sum")
+                    .HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}", stored: false),
+                builder => builder.Entity("People").Property<int>("Sum")
+                    .HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}", stored: true),
+                model =>
+                    {
+                        var table = Assert.Single(model.Tables);
+                        var sumColumn = Assert.Single(table.Columns, c => c.Name == "Sum");
+                        Assert.True(sumColumn.ComputedColumnIsStored);
+                    });
 
         [ConditionalFact]
         public virtual Task Alter_column_add_comment()
@@ -651,6 +712,32 @@ be found in the docs.";
                     var column = Assert.Single(table.Columns);
                     Assert.Null(column.Comment);
                 });
+
+        [Fact]
+        public virtual Task Alter_column_set_collation()
+            => Test(
+                builder => builder.Entity("People").Property<string>("Name"),
+                builder => { },
+                builder => builder.Entity("People").Property<string>("Name")
+                    .UseCollation(NonDefaultCollation),
+                model =>
+                    {
+                        var nameColumn = Assert.Single(Assert.Single(model.Tables).Columns);
+                        Assert.Equal(NonDefaultCollation, nameColumn.Collation);
+                    });
+
+        [Fact]
+        public virtual Task Alter_column_reset_collation()
+            => Test(
+                builder => builder.Entity("People").Property<string>("Name"),
+                builder => builder.Entity("People").Property<string>("Name")
+                    .UseCollation(NonDefaultCollation),
+                builder => { },
+                model =>
+                    {
+                        var nameColumn = Assert.Single(Assert.Single(model.Tables).Columns);
+                        Assert.Null(nameColumn.Collation);
+                    });
 
         [ConditionalFact]
         public virtual Task Drop_column()
@@ -1308,6 +1395,10 @@ be found in the docs.";
             public string? Name { get; set; }
             public int Age { get; set; }
         }
+
+        protected virtual string NonDefaultCollation
+            => throw new NotSupportedException(
+                $"Providers must override the '{nameof(NonDefaultCollation)}' property with a valid, non-default collation name for your database.");
 
         protected virtual DbContext CreateContext() => Fixture.CreateContext();
 

@@ -8,7 +8,6 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -22,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly RelationalSqlTranslatingExpressionVisitor _sqlTranslator;
         private readonly WeakEntityExpandingExpressionVisitor _weakEntityExpandingExpressionVisitor;
         private readonly RelationalProjectionBindingExpressionVisitor _projectionBindingExpressionVisitor;
+        private readonly QueryCompilationContext _queryCompilationContext;
         private readonly IModel _model;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly bool _subquery;
@@ -29,20 +29,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         public RelationalQueryableMethodTranslatingExpressionVisitor(
             [NotNull] QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
             [NotNull] RelationalQueryableMethodTranslatingExpressionVisitorDependencies relationalDependencies,
-            [NotNull] IModel model)
+            [NotNull] QueryCompilationContext queryCompilationContext)
             : base(dependencies, subquery: false)
         {
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
-            Check.NotNull(model, nameof(model));
+            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
             RelationalDependencies = relationalDependencies;
 
             var sqlExpressionFactory = relationalDependencies.SqlExpressionFactory;
-            _sqlTranslator = relationalDependencies.RelationalSqlTranslatingExpressionVisitorFactory.Create(model, this);
+            _model = queryCompilationContext.Model;
+            _sqlTranslator = relationalDependencies.RelationalSqlTranslatingExpressionVisitorFactory.Create(queryCompilationContext, this);
             _weakEntityExpandingExpressionVisitor = new WeakEntityExpandingExpressionVisitor(_sqlTranslator, sqlExpressionFactory);
-            _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator, model);
-            _model = model;
+            _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator);
             _sqlExpressionFactory = sqlExpressionFactory;
             _subquery = false;
         }
@@ -54,10 +54,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             : base(parentVisitor.Dependencies, subquery: true)
         {
             RelationalDependencies = parentVisitor.RelationalDependencies;
-            _model = parentVisitor._model;
+            _queryCompilationContext = parentVisitor._queryCompilationContext;
             _sqlTranslator = parentVisitor._sqlTranslator;
             _weakEntityExpandingExpressionVisitor = parentVisitor._weakEntityExpandingExpressionVisitor;
-            _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator, _model);
+            _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator);
             _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
             _subquery = true;
         }
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(elementType, nameof(elementType));
 
-            var entityType = _model.FindEntityType(elementType);
+            var entityType = _queryCompilationContext.Model.FindEntityType(elementType);
             var queryExpression = _sqlExpressionFactory.Select(entityType);
 
             return CreateShapedQueryExpression(entityType, queryExpression);
@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var projection = _sqlTranslator.TranslateAverage(newSelector);
             return projection != null
-                ? AggregateResultShaper(source, projection, throwOnNullResult: true, resultType)
+                ? AggregateResultShaper(source, projection, throwWhenEmpty: true, resultType)
                 : null;
         }
 
@@ -544,8 +544,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var outerKey = RemapLambdaBody(outer, outerKeySelector);
             var innerKey = RemapLambdaBody(inner, innerKeySelector);
 
-            if (outerKey is NewExpression outerNew
-                && outerNew.Type != typeof(AnonymousObject))
+            if (outerKey is NewExpression outerNew)
             {
                 var innerNew = (NewExpression)innerKey;
 
@@ -648,7 +647,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var projection = _sqlTranslator.TranslateMax(newSelector);
 
-            return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
+            return AggregateResultShaper(source, projection, throwWhenEmpty: true, resultType);
         }
 
         protected override ShapedQueryExpression TranslateMin(ShapedQueryExpression source, LambdaExpression selector, Type resultType)
@@ -665,7 +664,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var projection = _sqlTranslator.TranslateMin(newSelector);
 
-            return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
+            return AggregateResultShaper(source, projection, throwWhenEmpty: true, resultType);
         }
 
         protected override ShapedQueryExpression TranslateOfType(ShapedQueryExpression source, Type resultType)
@@ -984,7 +983,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var projection = _sqlTranslator.TranslateSum(newSelector);
             return projection != null
-                ? AggregateResultShaper(source, projection, throwOnNullResult: false, resultType)
+                ? AggregateResultShaper(source, projection, throwWhenEmpty: false, resultType)
                 : null;
         }
 
@@ -1185,12 +1184,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                     var innerSequenceType = innerShapedQuery.Type.TryGetSequenceType();
                     var correlationPredicateParameter = Expression.Parameter(innerSequenceType);
 
-                    var outerKey = entityShaperExpression.CreateKeyValueReadExpression(
+                    var outerKey = entityShaperExpression.CreateKeyValuesExpression(
                         navigation.IsOnDependent
                             ? foreignKey.Properties
                             : foreignKey.PrincipalKey.Properties,
                         makeNullable);
-                    var innerKey = correlationPredicateParameter.CreateKeyValueReadExpression(
+                    var innerKey = correlationPredicateParameter.CreateKeyValuesExpression(
                         navigation.IsOnDependent
                             ? foreignKey.PrincipalKey.Properties
                             : foreignKey.Properties,
@@ -1246,12 +1245,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .Select(p => p.ClrType)
                             .Any(t => t.IsNullableType());
 
-                        var outerKey = entityShaperExpression.CreateKeyValueReadExpression(
+                        var outerKey = entityShaperExpression.CreateKeyValuesExpression(
                             navigation.IsOnDependent
                                 ? foreignKey.Properties
                                 : foreignKey.PrincipalKey.Properties,
                             makeNullable);
-                        var innerKey = innerShapedQuery.ShaperExpression.CreateKeyValueReadExpression(
+                        var innerKey = innerShapedQuery.ShaperExpression.CreateKeyValuesExpression(
                             navigation.IsOnDependent
                                 ? foreignKey.PrincipalKey.Properties
                                 : foreignKey.Properties,
@@ -1315,7 +1314,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private ShapedQueryExpression AggregateResultShaper(
-            ShapedQueryExpression source, Expression projection, bool throwOnNullResult, Type resultType)
+            ShapedQueryExpression source, Expression projection, bool throwWhenEmpty, Type resultType)
         {
             if (projection == null)
             {
@@ -1327,22 +1326,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), projection } });
 
             selectExpression.ClearOrdering();
+            Expression shaper;
 
-            var nullableResultType = resultType.MakeNullable();
-            Expression shaper = new ProjectionBindingExpression(
-                source.QueryExpression, new ProjectionMember(), throwOnNullResult ? nullableResultType : projection.Type);
-
-            if (throwOnNullResult)
+            if (throwWhenEmpty)
             {
+                // Avg/Max/Min case.
+                // We always read nullable value
+                // If resultType is nullable then we always return null. Only non-null result shows throwing behavior.
+                // otherwise, if projection.Type is nullable then server result is passed through DefaultIfEmpty, hence we return default
+                // otherwise, server would return null only if it is empty, and we throw
+                var nullableResultType = resultType.MakeNullable();
+                shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), nullableResultType);
                 var resultVariable = Expression.Variable(nullableResultType, "result");
                 var returnValueForNull = resultType.IsNullableType()
-                    ? (Expression)Expression.Constant(null, resultType)
-                    : Expression.Throw(
-                        Expression.New(
-                            typeof(InvalidOperationException).GetConstructors()
-                                .Single(ci => ci.GetParameters().Length == 1),
-                            Expression.Constant(CoreStrings.NoElements)),
-                        resultType);
+                    ? Expression.Constant(null, resultType)
+                    : projection.Type.IsNullableType()
+                        ? (Expression)Expression.Default(resultType)
+                        : Expression.Throw(
+                            Expression.New(
+                                typeof(InvalidOperationException).GetConstructors()
+                                    .Single(ci => ci.GetParameters().Length == 1),
+                                Expression.Constant(CoreStrings.NoElements)),
+                            resultType);
 
                 shaper = Expression.Block(
                     new[] { resultVariable },
@@ -1354,9 +1359,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                             ? Expression.Convert(resultVariable, resultType)
                             : (Expression)resultVariable));
             }
-            else if (resultType != shaper.Type)
+            else
             {
-                shaper = Expression.Convert(shaper, resultType);
+                // Sum case. Projection is always non-null. We read non-nullable value (0 if empty)
+                shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), projection.Type);
+                // Cast to nullable type if required
+                if (resultType != shaper.Type)
+                {
+                    shaper = Expression.Convert(shaper, resultType);
+                }
             }
 
             return source.UpdateShaperExpression(shaper);

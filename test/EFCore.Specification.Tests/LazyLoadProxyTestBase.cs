@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -2167,6 +2166,24 @@ namespace Microsoft.EntityFrameworkCore
                          select DtoFactory.CreateDto(p)).FirstOrDefault();
 
             Assert.NotNull(((dynamic)query).Single);
+        }
+
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Entity_equality_with_proxy_parameter(bool async)
+        {
+            using var context = CreateContext(lazyLoadingEnabled: true);
+            var called = context.Set<Parent>().FirstOrDefault();
+            ClearLog();
+
+            var query = from Child q in context.Set<Child>()
+                        where q.Parent == called
+                        select q;
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            RecordLog();
         }
 
         private static class DtoFactory

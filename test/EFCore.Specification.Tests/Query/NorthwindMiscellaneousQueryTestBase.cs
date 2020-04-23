@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 
 #pragma warning disable RCS1202 // Avoid NullReferenceException.
@@ -488,6 +489,29 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<OrderDetail>().OrderByDescending(o => o),
                 entryCount: 2155,
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Entity_equality_orderby_subquery(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().OrderBy(c => c.Orders.FirstOrDefault()),
+                ss => ss.Set<Customer>().OrderBy(c => c.Orders.FirstOrDefault() == null ? (int?)null : c.Orders.FirstOrDefault().OrderID),
+                entryCount: 91,
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Entity_equality_orderby_descending_subquery_composite_key(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().OrderByDescending(o => o.OrderDetails.FirstOrDefault()),
+                entryCount: 830,
                 assertOrder: true);
         }
 
@@ -5327,7 +5351,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected internal uint ClientEvalSelector(Order order) => order.EmployeeID % 10 ?? 0;
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#20445")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_navigation_equal_to_null_for_subquery(bool async)
         {
@@ -5349,7 +5373,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 2);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#20445")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_navigation_equality_rewrite_for_subquery(bool async)
         {
@@ -5762,6 +5786,91 @@ namespace Microsoft.EntityFrameworkCore.Query
                     detail => (short?)detail.Quantity
                 );
             }
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Entity_equality_with_null_coalesce_client_side(bool async)
+        {
+            var a = new Customer { CustomerID = "ALFKI" };
+            var b = a;
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c == (a ?? b)),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Entity_equality_contains_with_list_of_null(bool async)
+        {
+            var customers = new List<Customer> { null, new Customer { CustomerID = "ALFKI" } };
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => customers.Contains(c)),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task MemberInitExpression_NewExpression_is_funcletized_even_when_bindings_are_not_evaluatable(bool async)
+        {
+            var randomString = "random";
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c => new Dto(randomString)
+                    {
+                        CustomerID = c.CustomerID,
+                        NestedDto = new Dto(randomString)
+                    }),
+                elementSorter: e => e.CustomerID,
+                elementAsserter: (e, a) => Assert.Equal(e.CustomerID, a.CustomerID));
+        }
+
+        private class Dto
+        {
+            public Dto(string value)
+            {
+                Value = value;
+            }
+
+            public string Value { get; }
+            public string CustomerID { get; set; }
+            public Dto NestedDto { get; set; }
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Null_parameter_name_works(bool isAsync)
+        {
+            using var context = CreateContext();
+            var customerDbSet = context.Set<Customer>().AsQueryable();
+
+            var parameter = Expression.Parameter(typeof(Customer));
+            var body = Expression.Equal(parameter, Expression.Default(typeof(Customer)));
+            var queryExpression = Expression.Call(
+                QueryableMethods.Where.MakeGenericMethod(typeof(Customer)),
+                customerDbSet.Expression,
+                Expression.Quote(Expression.Lambda(body, parameter)));
+
+            var query = ((IAsyncQueryProvider)customerDbSet.Provider).CreateQuery<Customer>(queryExpression);
+
+            var result = isAsync
+                ? (await query.ToListAsync())
+                : query.ToList();
+
+            Assert.Empty(result);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_include_on_incorrect_property_throws(bool async)
+        {
+            return Assert.ThrowsAsync<InvalidOperationException>(
+                async () => await AssertQuery(async, ss => ss.Set<Customer>().Include("OrderDetails")));
         }
     }
 }

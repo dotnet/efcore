@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the column type.
         /// </summary>
-        string Type { get; }
+        string StoreType { get; }
 
         /// <summary>
         ///     Gets the value indicating whether the column can contain NULL.

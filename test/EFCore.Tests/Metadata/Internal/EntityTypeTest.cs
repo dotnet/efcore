@@ -2037,7 +2037,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void AddIndexedProperty_throws_when_entitytype_does_not_have_indexer()
+        public void AddIndexerProperty_throws_when_entitytype_does_not_have_indexer()
         {
             var model = CreateModel();
             var entityType = model.AddEntityType(typeof(Order));
@@ -2053,7 +2053,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void AddIndexedProperty_throws_when_entitytype_have_property_with_same_name()
+        public void AddIndexerProperty_throws_when_entitytype_have_property_with_same_name()
         {
             var model = CreateModel();
             var entityType = model.AddEntityType(typeof(Customer));

@@ -2747,9 +2747,9 @@ BEGIN
                 AssertSql(
                     @"@__p_0='2'
 
-SELECT [t].[Id], [t].[AddressId], [t].[CustomerDetailsId], [t].[Name], [t].[Id0], [o].[Id], [o].[CustomerId], [o].[Name]
+SELECT [t].[Id], [t].[AddressId], [t].[CustomerDetailsId], [t].[Name], [t].[Id0], [t].[Id1], [o].[Id], [o].[CustomerId], [o].[Name]
 FROM (
-    SELECT TOP(@__p_0) [c].[Id], [c].[AddressId], [c].[CustomerDetailsId], [c].[Name], [a].[Id] AS [Id0], CASE
+    SELECT TOP(@__p_0) [c].[Id], [c].[AddressId], [c].[CustomerDetailsId], [c].[Name], [a].[Id] AS [Id0], [c0].[Id] AS [Id1], CASE
         WHEN [a].[Id] > 0 THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c], CASE
@@ -2768,7 +2768,7 @@ FROM (
     END
 ) AS [t]
 LEFT JOIN [Order9735] AS [o] ON [t].[Id] = [o].[CustomerId]
-ORDER BY [t].[c], [t].[c0], [t].[Id], [t].[Id0], [o].[Id]");
+ORDER BY [t].[c], [t].[c0], [t].[Id], [t].[Id0], [t].[Id1], [o].[Id]");
             }
         }
 
@@ -5964,10 +5964,10 @@ ORDER BY [p].[Id] DESC");
                 Assert.Equal(new[] { 1, 2 }, result.ThingIds);
 
                 AssertSql(
-                    @"SELECT [e].[Id], [t0].[ThingId], [t0].[Id]
+                    @"SELECT [e].[Id], [t0].[ThingId], [t0].[Id], [t0].[Id0]
 FROM [Entities] AS [e]
 OUTER APPLY (
-    SELECT [s].[ThingId], [t].[Id]
+    SELECT [s].[ThingId], [t].[Id], [s].[Id] AS [Id0]
     FROM [Things] AS [t]
     LEFT JOIN [Subthings] AS [s] ON [t].[Id] = [s].[ThingId]
     WHERE (
@@ -5981,7 +5981,7 @@ OUTER APPLY (
         FROM [Values] AS [v0]
         WHERE [e].[Id] = [v0].[Entity11023Id]) IS NULL AND [t].[Value11023Id] IS NULL))
 ) AS [t0]
-ORDER BY [e].[Id], [t0].[Id]");
+ORDER BY [e].[Id], [t0].[Id], [t0].[Id0]");
             }
         }
 
@@ -6404,7 +6404,7 @@ LEFT JOIN (
     INNER JOIN [DbContract] AS [d1] ON [d0].[ContractId] = [d1].[Id]
     LEFT JOIN [DbSeason] AS [d2] ON [d1].[SeasonId] = [d2].[Id]
 ) AS [t1] ON [t0].[Id] = [t1].[DbTradeId]
-ORDER BY [t0].[Id], [t1].[Id], [t1].[Id0]");
+ORDER BY [t0].[Id], [t1].[Id], [t1].[Id0], [t1].[Id1]");
             }
         }
 
@@ -6960,7 +6960,10 @@ WHERE (
             }
 
             AssertSql(
-                @"SELECT [c].[Id], [c].[Name], [c0].[Id], [c0].[CustomerId], [c0].[Name]
+    @"SELECT [c].[Id], [c].[Name], [c0].[Id] AS [CustomerMembershipId], CASE
+    WHEN [c0].[Id] IS NOT NULL THEN [c0].[Name]
+    ELSE N''
+END AS [CustomerMembershipName]
 FROM [Customers] AS [c]
 LEFT JOIN [CustomerMemberships] AS [c0] ON [c].[Id] = [c0].[CustomerId]");
         }
@@ -7200,6 +7203,75 @@ WHERE [e].[Id] = CAST(1 AS bigint)");
         private class MyModel20097 : IHaveId20097
         {
             public long Id { get; set; }
+        }
+
+        #endregion
+
+        #region Issue20609
+
+        [ConditionalFact]
+        public virtual void Can_ignore_invalid_include_path_error()
+        {
+            using var context = CreateContext20609();
+            var result = context.Set<ClassA>().Include("SubB").ToList();
+        }
+
+        public class BaseClass
+        {
+            public string Id { get; set; }
+        }
+
+        public class ClassA : BaseClass
+        {
+            public SubA SubA { get; set; }
+        }
+
+        public class ClassB : BaseClass
+        {
+            public SubB SubB { get; set; }
+        }
+
+        public class SubA
+        {
+            public int Id { get; set; }
+        }
+
+        public class SubB
+        {
+            public int Id { get; set; }
+        }
+
+        private BugContext20609 CreateContext20609()
+        {
+            var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest", multipleActiveResultSets: true);
+            var options = Fixture.AddOptions(testStore.AddProviderOptions(new DbContextOptionsBuilder()))
+                .EnableDetailedErrors()
+                .EnableServiceProviderCaching(false)
+                .ConfigureWarnings(x => x.Ignore(CoreEventId.InvalidIncludePathError))
+                .Options;
+
+            var context = new BugContext20609(options);
+            context.Database.EnsureCreatedResiliently();
+
+            return context;
+        }
+
+        private class BugContext20609 : DbContext
+        {
+            public BugContext20609(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<BaseClass> BaseClasses { get; set; }
+            public DbSet<SubA> SubAs { get; set; }
+            public DbSet<SubB> SubBs { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<ClassA>().HasBaseType<BaseClass>().HasOne(x => x.SubA).WithMany();
+                modelBuilder.Entity<ClassB>().HasBaseType<BaseClass>().HasOne(x => x.SubB).WithMany();
+            }
         }
 
         #endregion

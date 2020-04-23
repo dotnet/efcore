@@ -10,7 +10,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -164,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             expressionPrinter.AppendLine(nameof(EntityShaperExpression) + ": ");
             using (expressionPrinter.Indent())
             {
-                expressionPrinter.AppendLine(EntityType);
+                expressionPrinter.AppendLine(EntityType.ToString());
                 expressionPrinter.AppendLine(nameof(ValueBufferExpression) + ": ");
                 using (expressionPrinter.Indent())
                 {
@@ -173,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
 
                 expressionPrinter.Append(nameof(IsNullable) + ": ");
-                expressionPrinter.AppendLine(IsNullable);
+                expressionPrinter.AppendLine(IsNullable.ToString());
             }
         }
     }

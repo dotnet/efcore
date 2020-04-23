@@ -902,6 +902,10 @@
     <value>Possible unintended reference comparison between '{left}' and '{right}'.</value>
     <comment>Warning CoreEventId.PossibleUnintendedReferenceComparisonWarning object object</comment>
   </data>
+  <data name="LogInvalidIncludePath" xml:space="preserve">
+    <value>Invalid include path '{navigationChain}', couldn't find navigation for '{navigationName}'.</value>
+    <comment>Error CoreEventId.InvalidIncludePathError object object</comment>    
+  </data>
   <data name="LogDuplicateDependentEntityTypeInstance" xml:space="preserve">
     <value>The same entity is being tracked as different weak entity types '{dependent1}' and '{dependent2}'. If a property value changes it will result in two store changes, which might not be the desired outcome.</value>
     <comment>Warning CoreEventId.DuplicateDependentEntityTypeInstanceWarning string string</comment>
@@ -992,8 +996,8 @@
     <comment>Debug CoreEventId.RedundantIndexRemoved string string string</comment>
   </data>
   <data name="LogIncompatibleMatchingForeignKeyProperties" xml:space="preserve">
-    <value>The foreign key properties haven't been configured by convention because the best match {foreignKey} are incompatible with the current principal key {principalKey}. This message can be disregarded if explicit configuration has been specified.</value>
-    <comment>Debug CoreEventId.IncompatibleMatchingForeignKeyProperties string string</comment>
+    <value>For the relationship between dependent '{dependentToPrincipalNavigationSpecification}' and principal '{principalToDependentNavigationSpecification}', the foreign key properties haven't been configured by convention because the best match {foreignKey} are incompatible with the current principal key {principalKey}. This message can be disregarded if explicit configuration has been specified.</value>
+    <comment>Debug CoreEventId.IncompatibleMatchingForeignKeyProperties string string string string</comment>
   </data>
   <data name="LogRequiredAttributeInverted" xml:space="preserve">
     <value>The navigation property '{navigation}' has a RequiredAttribute causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.</value>
@@ -1341,8 +1345,8 @@
   <data name="UnsupportedBinaryOperator" xml:space="preserve">
     <value>Unsupported Binary operator type specified.</value>
   </data>
-  <data name="EFPropertyCalledWithWrongPropertyName" xml:space="preserve">
-    <value>EF.Property called with wrong property name.</value>
+  <data name="QueryUnableToTranslateEFProperty" xml:space="preserve">
+    <value>Translation of '{expression}' failed. Either source is not an entity type or the specified property does not exist on the entity type.</value>
   </data>
   <data name="InvalidStateEncountered" xml:space="preserve">
     <value>Invalid {state} encountered.</value>
@@ -1368,5 +1372,11 @@
   </data>
   <data name="QueryEntityMaterializationConditionWrongShape" xml:space="preserve">
     <value>Materialization condition passed for entity shaper of entity type '{entityType}' is not of correct shape. Materialization condition must be LambdaExpression of 'Func&lt;ValueBuffer, IEntityType&gt;'</value>
+  </data>
+  <data name="UnableToSetIsUnique" xml:space="preserve">
+    <value>Unable to set IsUnique to '{isUnique}' on the relationship underlying the navigation property '{navigationName}' on the entity type '{entityType}' because the navigation property has the opposite multiplicity.</value>
+  </data>
+  <data name="MissingInverseManyToManyNavigation" xml:space="preserve">
+    <value>Unable to set up a many-to-many relationship between the entity types '{principalEntityType}' and '{declaringEntityType}' because one of the navigations was not specified. Please provide a navigation property in the HasMany() call.</value>
   </data>
 </root>

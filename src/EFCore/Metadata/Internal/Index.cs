@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -165,9 +166,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual INullableValueFactory<TKey> GetNullableValueFactory<TKey>()
-            => (INullableValueFactory<TKey>)NonCapturingLazyInitializer.EnsureInitialized(
-                ref _nullableValueFactory, this, i => new CompositeNullableValueFactory(i.Properties));
+        public virtual IDependentKeyValueFactory<TKey> GetNullableValueFactory<TKey>()
+            => (IDependentKeyValueFactory<TKey>)NonCapturingLazyInitializer.EnsureInitialized(
+                ref _nullableValueFactory, this, i => new CompositeValueFactory(i.Properties));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

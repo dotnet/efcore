@@ -929,7 +929,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Select(
                     c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()
                         .Maybe(x => x.OrderDetails)
-                        .Maybe(xx => xx.OrderBy(od => od.ProductID).FirstOrDefault()))); 
+                        .Maybe(xx => xx.OrderBy(od => od.ProductID).FirstOrDefault())));
         }
 
         [ConditionalTheory]
@@ -938,10 +938,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQueryScalar(
                 async,
-                ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Select(
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A")).OrderBy(c => c.CustomerID).Select(
                     c => (int?)c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails.OrderBy(od => od.ProductID).FirstOrDefault()
                         .ProductID),
-                ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Select(
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A")).OrderBy(c => c.CustomerID).Select(
                     c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()
                         .Maybe(x => x.OrderDetails)
                         .MaybeScalar(x => x.OrderBy(od => od.ProductID).FirstOrDefault().ProductID)));
@@ -1929,6 +1929,33 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => ss.Set<Order>().Where(o => o.OrderID == 10248),
                 o => o.OrderID - 10248);
+        }
+
+        [ConditionalTheory(Skip = "Issue#20637")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Average_after_default_if_empty_does_not_throw(bool isAsync)
+        {
+            return AssertAverage(
+                isAsync,
+                ss => ss.Set<Order>().Where(o => o.OrderID == 10243).Select(o => o.OrderID).DefaultIfEmpty());
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Max_after_default_if_empty_does_not_throw(bool isAsync)
+        {
+            return AssertMax(
+                isAsync,
+                ss => ss.Set<Order>().Where(o => o.OrderID == 10243).Select(o => o.OrderID).DefaultIfEmpty());
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Min_after_default_if_empty_does_not_throw(bool isAsync)
+        {
+            return AssertMin(
+                isAsync,
+                ss => ss.Set<Order>().Where(o => o.OrderID == 10243).Select(o => o.OrderID).DefaultIfEmpty());
         }
     }
 }

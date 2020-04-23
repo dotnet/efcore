@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore
                 @"CREATE TABLE [dbo2].[People] (
     [CustomId] int NOT NULL,
     [EmployerId] int NOT NULL,
-    [SSN] nvarchar(11) NOT NULL,
+    [SSN] nvarchar(11) COLLATE German_PhoneBook_CI_AS NOT NULL,
     CONSTRAINT [PK_People] PRIMARY KEY ([CustomId]),
     CONSTRAINT [AK_People_SSN] UNIQUE ([SSN]),
     CONSTRAINT [CK_EmployerId] CHECK ([EmployerId] > 0),
@@ -108,7 +108,7 @@ SET @defaultSchema = SCHEMA_NAME();
 DECLARE @description AS sql_variant;
 SET @description = CONCAT(N'This is a multi-line', CHAR(13), CHAR(10), N'table comment.', CHAR(13), CHAR(10), N'More information can', CHAR(13), CHAR(10), N'be found in the docs.');
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'People';
-SET @description = CONCAT(N'This is a multi-line', CHAR(13), CHAR(10), N'column comment.', CHAR(13), CHAR(10), N'More information can', CHAR(13), CHAR(10), N'be found in the docs.');
+SET @description = CONCAT(N'This is a multi-line', CHAR(10), N'column comment.', CHAR(10), N'More information can', CHAR(10), N'be found in the docs.');
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', N'Name';");
         }
 
@@ -328,12 +328,14 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [TestTableSchema].[TestTa
                 @"ALTER TABLE [People] ADD [Sum] int NOT NULL DEFAULT (1 + 2);");
         }
 
-        public override async Task Add_column_with_computedSql()
+        public override async Task Add_column_with_computedSql(bool? computedColumnStored)
         {
-            await base.Add_column_with_computedSql();
+            await base.Add_column_with_computedSql(computedColumnStored);
+
+            var computedColumnTypeSql = computedColumnStored == true ? " PERSISTED" : "";
 
             AssertSql(
-                @"ALTER TABLE [People] ADD [Sum] AS [X] + [Y];");
+                @$"ALTER TABLE [People] ADD [Sum] AS [X] + [Y]{computedColumnTypeSql};");
         }
 
         public override async Task Add_column_with_required()
@@ -386,6 +388,22 @@ SET @defaultSchema = SCHEMA_NAME();
 DECLARE @description AS sql_variant;
 SET @description = N'My comment';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', N'FullName';");
+        }
+
+        public override async Task Add_column_with_collation()
+        {
+            await base.Add_column_with_collation();
+
+            AssertSql(
+                @"ALTER TABLE [People] ADD [Name] nvarchar(max) COLLATE German_PhoneBook_CI_AS NULL;");
+        }
+
+        public override async Task Add_column_computed_with_collation()
+        {
+            await base.Add_column_computed_with_collation();
+
+            AssertSql(
+                @"ALTER TABLE [People] ADD [Name] AS 'hello' COLLATE German_PhoneBook_CI_AS;");
         }
 
         public override async Task Add_column_shared()
@@ -497,20 +515,21 @@ ALTER TABLE [People] ALTER COLUMN [FirstName] nvarchar(450) NOT NULL;
 CREATE INDEX [IX_People_FirstName_LastName] ON [People] ([FirstName], [LastName]);");
         }
 
-        [ConditionalFact]
-        public override async Task Alter_column_make_computed()
+        public override async Task Alter_column_make_computed(bool? computedColumnStored)
         {
-            await base.Alter_column_make_computed();
+            await base.Alter_column_make_computed(computedColumnStored);
+
+            var computedColumnTypeSql = computedColumnStored == true ? " PERSISTED" : "";
 
             AssertSql(
-                @"DECLARE @var0 sysname;
+                $@"DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Sum');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [People] DROP COLUMN [Sum];
-ALTER TABLE [People] ADD [Sum] AS [X] + [Y];");
+ALTER TABLE [People] ADD [Sum] AS [X] + [Y]{computedColumnTypeSql};");
         }
 
         public override async Task Alter_column_change_computed()
@@ -526,6 +545,21 @@ WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Sum');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [People] DROP COLUMN [Sum];
 ALTER TABLE [People] ADD [Sum] AS [X] - [Y];");
+        }
+
+        public override async Task Alter_column_change_computed_type()
+        {
+            await base.Alter_column_change_computed_type();
+
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Sum');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [People] DROP COLUMN [Sum];
+ALTER TABLE [People] ADD [Sum] AS [X] + [Y] PERSISTED;");
         }
 
         [ConditionalFact]
@@ -586,6 +620,36 @@ DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
 DECLARE @description AS sql_variant;
 EXEC sp_dropextendedproperty 'MS_Description', 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', N'Id';");
+        }
+
+        [ConditionalFact]
+        public override async Task Alter_column_set_collation()
+        {
+            await base.Alter_column_set_collation();
+
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(max) COLLATE German_PhoneBook_CI_AS NULL;");
+        }
+
+        [ConditionalFact]
+        public override async Task Alter_column_reset_collation()
+        {
+            await base.Alter_column_reset_collation();
+
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(max) NULL;");
         }
 
         [ConditionalFact]
@@ -1154,6 +1218,96 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;",
                 @"CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WHERE [Name] IS NOT NULL WITH (ONLINE = ON);");
         }
 
+        [ConditionalFact(Skip = "#19668, Online index operations can only be performed in Enterprise edition of SQL Server")]
+        [SqlServerCondition(SqlServerCondition.SupportsOnlineIndexes)]
+        public virtual async Task Create_index_unique_with_include_filter_online_and_fillfactor()
+        {
+            await Test(
+                builder => builder.Entity(
+                    "People", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<string>("FirstName");
+                        e.Property<string>("LastName");
+                        e.Property<string>("Name").IsRequired();
+                    }),
+                builder => { },
+                builder => builder.Entity("People").HasIndex("Name")
+                    .IsUnique()
+                    .IncludeProperties("FirstName", "LastName")
+                    .HasFilter("[Name] IS NOT NULL")
+                    .IsCreatedOnline()
+                    .HasFillFactor(90),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    var index = Assert.Single(table.Indexes);
+                    Assert.True(index.IsUnique);
+                    Assert.Equal("([Name] IS NOT NULL)", index.Filter);
+                    // TODO: This is a scaffolding bug, #17083
+                    Assert.Equal(3, index.Columns.Count);
+                    Assert.Contains(table.Columns.Single(c => c.Name == "Name"), index.Columns);
+                    Assert.Contains(table.Columns.Single(c => c.Name == "FirstName"), index.Columns);
+                    Assert.Contains(table.Columns.Single(c => c.Name == "LastName"), index.Columns);
+                    // TODO: Online index not scaffolded?
+                });
+
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;",
+                //
+                @"CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WHERE [Name] IS NOT NULL WITH (FILLFACTOR = 90, ONLINE = ON);");
+        }
+
+        [ConditionalFact]
+        public virtual async Task Create_index_unique_with_include_filter_and_fillfactor()
+        {
+            await Test(
+                builder => builder.Entity(
+                    "People", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<string>("FirstName");
+                        e.Property<string>("LastName");
+                        e.Property<string>("Name").IsRequired();
+                    }),
+                builder => { },
+                builder => builder.Entity("People").HasIndex("Name")
+                    .IsUnique()
+                    .IncludeProperties("FirstName", "LastName")
+                    .HasFilter("[Name] IS NOT NULL")
+                    .HasFillFactor(90),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    var index = Assert.Single(table.Indexes);
+                    Assert.True(index.IsUnique);
+                    Assert.Equal("([Name] IS NOT NULL)", index.Filter);
+                    // TODO: This is a scaffolding bug, #17083
+                    Assert.Equal(3, index.Columns.Count);
+                    Assert.Contains(table.Columns.Single(c => c.Name == "Name"), index.Columns);
+                    Assert.Contains(table.Columns.Single(c => c.Name == "FirstName"), index.Columns);
+                    Assert.Contains(table.Columns.Single(c => c.Name == "LastName"), index.Columns);
+                    // TODO: Online index not scaffolded?
+                });
+
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;",
+                //
+                @"CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WHERE [Name] IS NOT NULL WITH (FILLFACTOR = 90);");
+        }
+
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
         public virtual async Task Create_index_memoryOptimized_unique_nullable()
@@ -1569,6 +1723,29 @@ SELECT @@ROWCOUNT;");
                 @"UPDATE [Person] SET [Age] = 21, [Name] = N'Another John Snow'
 WHERE [Id] = 2;
 SELECT @@ROWCOUNT;");
+        }
+
+        protected override string NonDefaultCollation
+            => _nonDefaultCollation ??= GetDatabaseCollation() == "German_PhoneBook_CI_AS"
+                ? "French_CI_AS"
+                : "German_PhoneBook_CI_AS";
+
+        private string? _nonDefaultCollation;
+
+        private string? GetDatabaseCollation()
+        {
+            using var ctx = CreateContext();
+            var connection = ctx.Database.GetDbConnection();
+            using var command = connection.CreateCommand();
+
+            command.CommandText = $@"
+SELECT collation_name
+FROM sys.databases
+WHERE name = '{connection.Database}';";
+
+            return command.ExecuteScalar() is string collation
+                ? collation
+                : null;
         }
 
         public class MigrationsSqlServerFixture : MigrationsFixtureBase

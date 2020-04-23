@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -20,26 +21,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
     public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     {
-        private class TestQueryType
-        {
-            public string Something { get; set; }
-        }
-
-        [ConditionalFact(Skip = "Issue#20051")]
-        public void Model_differ_does_not_detect_queryable_function_result_type()
-        {
-            Execute(
-                _ => { },
-                modelBuilder => modelBuilder.Entity<TestQueryType>().ToQueryableFunctionResultType(),
-                result => Assert.Equal(0, result.Count));
-        }
-
         [ConditionalFact]
         public void Model_differ_does_not_detect_views()
         {
             Execute(
                 _ => { },
-                modelBuilder => modelBuilder.Entity<TestQueryType>().HasNoKey().ToView("Vista", "dbo"),
+                modelBuilder => modelBuilder.Entity<TestKeylessType>().HasNoKey().ToView("Vista", "dbo"),
                 result => Assert.Equal(0, result.Count));
         }
 
@@ -78,8 +65,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             DbContext context = null;
             Execute(
                 _ => { },
-                modelBuilder => modelBuilder.Entity<TestQueryType>().HasNoKey().ToQuery(
-                    () => context.Set<TestQueryType>().FromSqlRaw("SELECT * FROM Vista")),
+                modelBuilder => modelBuilder.Entity<TestKeylessType>().HasNoKey().ToQuery(
+                    () => context.Set<TestKeylessType>().FromSqlRaw("SELECT * FROM Vista")),
                 result => Assert.Empty(result));
         }
 
@@ -2066,6 +2053,70 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Toad", operation.Table);
                     Assert.Equal("Name", operation.Name);
                     Assert.Equal(30, operation.MaxLength);
+                    Assert.True(operation.IsDestructiveChange);
+                });
+        }
+
+        [ConditionalFact]
+        public void Alter_column_precision()
+        {
+            Execute(
+                source => source.Entity(
+                    "Toad",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<decimal>("Salary");
+                    }),
+                target => target.Entity(
+                    "Toad",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<decimal>("Salary")
+                            .HasPrecision(10);
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AlterColumnOperation>(operations[0]);
+                    Assert.Equal("Toad", operation.Table);
+                    Assert.Equal("Salary", operation.Name);
+                    Assert.Equal(10, operation.Precision);
+                    Assert.Equal(0, operation.Scale);
+                    Assert.True(operation.IsDestructiveChange);
+                });
+        }
+
+        [ConditionalFact]
+        public void Alter_column_precision_and_scale()
+        {
+            Execute(
+                source => source.Entity(
+                    "Toad",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<decimal>("Salary");
+                    }),
+                target => target.Entity(
+                    "Toad",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<decimal>("Salary")
+                            .HasPrecision(17, 5);
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AlterColumnOperation>(operations[0]);
+                    Assert.Equal("Toad", operation.Table);
+                    Assert.Equal("Salary", operation.Name);
+                    Assert.Equal(17, operation.Precision);
+                    Assert.Equal(5, operation.Scale);
                     Assert.True(operation.IsDestructiveChange);
                 });
         }
@@ -8153,6 +8204,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
+        [ConditionalFact]
+        public void Alter_database_collation()
+        {
+            Execute(
+                source => source.UseCollation("Some collation"),
+                target => target.UseCollation("Some other collation"),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AlterDatabaseOperation>(operations[0]);
+                    Assert.Equal("Some other collation", operation.Collation);
+                    Assert.Equal("Some collation", operation.OldDatabase.Collation);
+                });
+        }
+
         public class Customer13300 : ProviderTenantEntity13300
         {
             public string DisplayName { get; set; }
@@ -8495,6 +8562,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .WithMany()
                     .HasForeignKey("UserId"),
                 ops => { });
+        }
+
+
+        private class TestKeylessType
+        {
+            public string Something { get; set; }
+        }
+
+        private static IQueryable<TestKeylessType> GetCountByYear(int id)
+            => throw new NotImplementedException();
+
+        [ConditionalFact]
+        public void Model_differ_does_not_detect_queryable_function_result_type()
+        {
+            Execute(
+                _ => { },
+                modelBuilder =>
+                    modelBuilder.HasDbFunction(typeof(MigrationsModelDifferTest).GetMethod(
+                        nameof(GetCountByYear),
+                        BindingFlags.NonPublic | BindingFlags.Static)),
+                result => Assert.Equal(0, result.Count),
+                skipSourceConventions: true);
         }
 
         protected override TestHelpers TestHelpers => RelationalTestHelpers.Instance;

@@ -3845,6 +3845,18 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Entity_equality_orderby_subquery(bool async)
+        {
+            return base.Entity_equality_orderby_subquery(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Entity_equality_orderby_descending_subquery_composite_key(bool async)
+        {
+            return base.Entity_equality_orderby_descending_subquery_composite_key(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Null_Coalesce_Short_Circuit(bool async)
         {
             return base.Null_Coalesce_Short_Circuit(async);
@@ -4077,6 +4089,28 @@ ORDER BY c[""OrderID""]");
             AssertSql(@"SELECT MAX(c[""Quantity""]) AS c
 FROM root c
 WHERE (c[""Discriminator""] = ""OrderDetail"")");
+        }
+
+        public override async Task Entity_equality_with_null_coalesce_client_side(bool async)
+        {
+            await base.Entity_equality_with_null_coalesce_client_side(async);
+
+            AssertSql(
+                @"@__entity_equality_p_0_CustomerID='ALFKI'
+
+SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = @__entity_equality_p_0_CustomerID))");
+        }
+
+        public override async Task Entity_equality_contains_with_list_of_null(bool async)
+        {
+            await base.Entity_equality_contains_with_list_of_null(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"") OR (c[""CustomerID""] = null)))");
         }
 
         private void AssertSql(params string[] expected)

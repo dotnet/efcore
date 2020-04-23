@@ -95,6 +95,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             base.Can_read_back_bool_mapped_as_int_through_navigation();
         }
 
+        [ConditionalFact(Skip = "Issue #20543")]
+        public override void Object_to_string_conversion()
+        {
+            base.Object_to_string_conversion();
+
+            AssertSql(@" ");
+        }
+
+        private void AssertSql(params string[] expected)
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+
         public class BuiltInDataTypesCosmosFixture : BuiltInDataTypesFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
@@ -112,6 +123,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             public override bool SupportsBinaryKeys => true;
 
             public override bool SupportsDecimalComparisons => true;
+
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
 
             public override DateTime DefaultDateTime => new DateTime();
 

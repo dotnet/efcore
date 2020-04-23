@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore
@@ -18,14 +19,19 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected override void AddServices(ServiceCollection serviceCollection)
-        {
-            serviceCollection.AddEntityFrameworkInMemoryDatabase();
-        }
+            => serviceCollection.AddEntityFrameworkInMemoryDatabase();
 
         protected override Assembly TargetAssembly => typeof(InMemoryDatabase).Assembly;
 
         public class InMemoryApiConsistencyFixture : ApiConsistencyFixtureBase
         {
+            public override bool TryGetProviderOptionsDelegate(out Action<DbContextOptionsBuilder> configureOptions)
+            {
+                configureOptions = b => InMemoryTestHelpers.Instance.UseProviderOptions(b);
+
+                return true;
+            }
+
             public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>()
             {
                 typeof(InMemoryServiceCollectionExtensions),

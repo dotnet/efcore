@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public override IServiceCollection AddProviderServices(IServiceCollection services)
             => services.AddEntityFrameworkInMemoryDatabase();
 
-        protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
+        public override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseInMemoryDatabase(nameof(InMemoryTestHelpers));
 
         public override LoggingDefinitions LoggingDefinitions { get; } = new InMemoryLoggingDefinitions();

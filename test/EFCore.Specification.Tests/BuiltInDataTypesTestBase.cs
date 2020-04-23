@@ -1994,6 +1994,63 @@ namespace Microsoft.EntityFrameworkCore
             Assert.True(result.BoolField);
         }
 
+        [ConditionalFact]
+        public virtual void Object_to_string_conversion()
+        {
+            using var context = CreateContext();
+            var expected = context.Set<BuiltInDataTypes>()
+                .Where(e => e.Id == 13)
+                .AsEnumerable()
+                .Select(b => new
+                {
+                    Sbyte = b.TestSignedByte.ToString(),
+                    Byte = b.TestByte.ToString(),
+                    Short = b.TestInt16.ToString(),
+                    Ushort = b.TestUnsignedInt16.ToString(),
+                    Int = b.TestInt32.ToString(),
+                    Uint = b.TestUnsignedInt32.ToString(),
+                    Long = b.TestInt64.ToString(),
+                    Ulong = b.TestUnsignedInt64.ToString(),
+                    Decimal = b.TestDecimal.ToString(),
+                    Char = b.TestCharacter.ToString()
+                })
+                .First();
+
+            var query = context.Set<BuiltInDataTypes>()
+                .Where(e => e.Id == 13)
+                .Select(b => new
+                {
+                    Sbyte = b.TestSignedByte.ToString(),
+                    Byte = b.TestByte.ToString(),
+                    Short = b.TestInt16.ToString(),
+                    Ushort = b.TestUnsignedInt16.ToString(),
+                    Int = b.TestInt32.ToString(),
+                    Uint = b.TestUnsignedInt32.ToString(),
+                    Long = b.TestInt64.ToString(),
+                    Ulong = b.TestUnsignedInt64.ToString(),
+                    Float = b.TestSingle.ToString(),
+                    Double = b.TestDouble.ToString(),
+                    Decimal = b.TestDecimal.ToString(),
+                    Char = b.TestCharacter.ToString(),
+                    DateTime = b.TestDateTime.ToString(),
+                    DateTimeOffset = b.TestDateTimeOffset.ToString(),
+                    TimeSpan = b.TestTimeSpan.ToString()
+                })
+                .ToList();
+
+            var actual = Assert.Single(query);
+            Assert.Equal(expected.Sbyte, actual.Sbyte);
+            Assert.Equal(expected.Byte, actual.Byte);
+            Assert.Equal(expected.Short, actual.Short);
+            Assert.Equal(expected.Ushort, actual.Ushort);
+            Assert.Equal(expected.Int, actual.Int);
+            Assert.Equal(expected.Uint, actual.Uint);
+            Assert.Equal(expected.Long, actual.Long);
+            Assert.Equal(expected.Ulong, actual.Ulong);
+            Assert.Equal(expected.Decimal, actual.Decimal);
+            Assert.Equal(expected.Char, actual.Char);
+        }
+
         public abstract class BuiltInDataTypesFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "BuiltInDataTypes";

@@ -6,7 +6,6 @@ using System.Collections;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Xunit;
 
@@ -15,30 +14,30 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     public class CurrentValueComparerTest
     {
         [ConditionalTheory]
-        [InlineData(typeof(CurrentValueComparer<int>), nameof(Godzilla.Id))]
-        [InlineData(typeof(CurrentValueComparer<int>), nameof(Godzilla.Int))]
-        [InlineData(typeof(CurrentValueComparer<ulong>), nameof(Godzilla.ULong))]
+        [InlineData(typeof(EntryCurrentValueComparer<int>), nameof(Godzilla.Id))]
+        [InlineData(typeof(EntryCurrentValueComparer<int>), nameof(Godzilla.Int))]
+        [InlineData(typeof(EntryCurrentValueComparer<ulong>), nameof(Godzilla.ULong))]
         [InlineData(typeof(CurrentProviderValueComparer<IntStruct, int>), nameof(Godzilla.IntStruct))]
-        [InlineData(typeof(StructuralCurrentProviderValueComparer), nameof(Godzilla.BytesStruct))]
-        [InlineData(typeof(CurrentValueComparer), nameof(Godzilla.ComparableIntStruct))]
-        [InlineData(typeof(CurrentValueComparer), nameof(Godzilla.ComparableBytesStruct))]
-        [InlineData(typeof(CurrentValueComparer<GenericComparableIntStruct>), nameof(Godzilla.GenericComparableIntStruct))]
-        [InlineData(typeof(CurrentValueComparer<GenericComparableBytesStruct>), nameof(Godzilla.GenericComparableBytesStruct))]
-        [InlineData(typeof(StructuralCurrentValueComparer), nameof(Godzilla.StructuralComparableBytesStruct))]
+        [InlineData(typeof(StructuralEntryCurrentProviderValueComparer), nameof(Godzilla.BytesStruct))]
+        [InlineData(typeof(EntryCurrentValueComparer), nameof(Godzilla.ComparableIntStruct))]
+        [InlineData(typeof(EntryCurrentValueComparer), nameof(Godzilla.ComparableBytesStruct))]
+        [InlineData(typeof(EntryCurrentValueComparer<GenericComparableIntStruct>), nameof(Godzilla.GenericComparableIntStruct))]
+        [InlineData(typeof(EntryCurrentValueComparer<GenericComparableBytesStruct>), nameof(Godzilla.GenericComparableBytesStruct))]
+        [InlineData(typeof(StructuralEntryCurrentValueComparer), nameof(Godzilla.StructuralComparableBytesStruct))]
         [InlineData(typeof(NullableStructCurrentProviderValueComparer<IntStruct, int>), nameof(Godzilla.NullableIntStruct))]
-        [InlineData(typeof(StructuralCurrentProviderValueComparer), nameof(Godzilla.NullableBytesStruct))]
-        [InlineData(typeof(CurrentValueComparer), nameof(Godzilla.NullableComparableIntStruct))]
-        [InlineData(typeof(CurrentValueComparer), nameof(Godzilla.NullableComparableBytesStruct))]
-        [InlineData(typeof(CurrentValueComparer<GenericComparableIntStruct?>), nameof(Godzilla.NullableGenericComparableIntStruct))]
-        [InlineData(typeof(CurrentValueComparer<GenericComparableBytesStruct?>), nameof(Godzilla.NullableGenericComparableBytesStruct))]
-        [InlineData(typeof(StructuralCurrentValueComparer), nameof(Godzilla.NullableStructuralComparableBytesStruct))]
-        [InlineData(typeof(CurrentValueComparer<int?>), nameof(Godzilla.NullableInt))]
-        [InlineData(typeof(CurrentValueComparer<ulong?>), nameof(Godzilla.NullableULong))]
-        [InlineData(typeof(CurrentValueComparer<string>), nameof(Godzilla.String))]
-        [InlineData(typeof(StructuralCurrentValueComparer), nameof(Godzilla.Bytes))]
+        [InlineData(typeof(StructuralEntryCurrentProviderValueComparer), nameof(Godzilla.NullableBytesStruct))]
+        [InlineData(typeof(EntryCurrentValueComparer), nameof(Godzilla.NullableComparableIntStruct))]
+        [InlineData(typeof(EntryCurrentValueComparer), nameof(Godzilla.NullableComparableBytesStruct))]
+        [InlineData(typeof(EntryCurrentValueComparer<GenericComparableIntStruct?>), nameof(Godzilla.NullableGenericComparableIntStruct))]
+        [InlineData(typeof(EntryCurrentValueComparer<GenericComparableBytesStruct?>), nameof(Godzilla.NullableGenericComparableBytesStruct))]
+        [InlineData(typeof(StructuralEntryCurrentValueComparer), nameof(Godzilla.NullableStructuralComparableBytesStruct))]
+        [InlineData(typeof(EntryCurrentValueComparer<int?>), nameof(Godzilla.NullableInt))]
+        [InlineData(typeof(EntryCurrentValueComparer<ulong?>), nameof(Godzilla.NullableULong))]
+        [InlineData(typeof(EntryCurrentValueComparer<string>), nameof(Godzilla.String))]
+        [InlineData(typeof(StructuralEntryCurrentValueComparer), nameof(Godzilla.Bytes))]
         [InlineData(typeof(NullableClassCurrentProviderValueComparer<IntClass, int>), nameof(Godzilla.IntClass))]
-        [InlineData(typeof(CurrentValueComparer), nameof(Godzilla.ComparableIntClass))]
-        [InlineData(typeof(CurrentValueComparer<GenericComparableIntClass>), nameof(Godzilla.GenericComparableIntClass))]
+        [InlineData(typeof(EntryCurrentValueComparer), nameof(Godzilla.ComparableIntClass))]
+        [InlineData(typeof(EntryCurrentValueComparer<GenericComparableIntClass>), nameof(Godzilla.GenericComparableIntClass))]
         public void Factory_creates_expected_comparer(Type expectedComparer, string property)
         {
             using var context = new GodzillaContext();

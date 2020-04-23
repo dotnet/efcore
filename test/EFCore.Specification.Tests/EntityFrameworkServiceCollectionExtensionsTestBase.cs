@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected virtual void LifetimeTest(
-            params IDictionary<Type, EntityFrameworkServicesBuilder.ServiceCharacteristics>[] serviceDefinitions)
+            params IDictionary<Type, ServiceCharacteristics>[] serviceDefinitions)
         {
             var services = AddServices(new ServiceCollection());
 

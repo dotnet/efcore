@@ -264,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                         _sqlExpressionFactory.Like(
                             instance,
                             _sqlExpressionFactory.Add(
-                                instance,
+                                pattern,
                                 _sqlExpressionFactory.Constant("%"))),
                         _sqlExpressionFactory.Equal(
                             _sqlExpressionFactory.Function(

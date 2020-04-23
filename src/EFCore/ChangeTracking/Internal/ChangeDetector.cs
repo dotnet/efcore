@@ -288,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var snapshotCollection = (IEnumerable)snapshotValue;
                 var currentCollection = (IEnumerable)currentValue;
 
-                var removed = new HashSet<object>(ReferenceEqualityComparer.Instance);
+                var removed = new HashSet<object>(LegacyReferenceEqualityComparer.Instance);
                 if (snapshotCollection != null)
                 {
                     foreach (var entity in snapshotCollection)
@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }
                 }
 
-                var added = new HashSet<object>(ReferenceEqualityComparer.Instance);
+                var added = new HashSet<object>(LegacyReferenceEqualityComparer.Instance);
                 if (currentCollection != null)
                 {
                     foreach (var entity in currentCollection)

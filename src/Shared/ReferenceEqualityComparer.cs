@@ -4,24 +4,34 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
-    // Sealed for perf
-    internal sealed class ReferenceEqualityComparer : IEqualityComparer<object>, IEqualityComparer
+    internal sealed class LegacyReferenceEqualityComparer : IEqualityComparer<object>, IEqualityComparer
     {
-        private ReferenceEqualityComparer()
+        private LegacyReferenceEqualityComparer()
         {
         }
 
-        public static ReferenceEqualityComparer Instance { get; } = new ReferenceEqualityComparer();
+        public static LegacyReferenceEqualityComparer Instance { get; } = new LegacyReferenceEqualityComparer();
 
-        bool IEqualityComparer<object>.Equals(object x, object y) => ReferenceEquals(x, y);
+        public new bool Equals([CanBeNull] object x, [CanBeNull] object y)
+            => ReferenceEquals(x, y);
 
-        bool IEqualityComparer.Equals(object x, object y) => ReferenceEquals(x, y);
+        public int GetHashCode([NotNull] object obj)
+            => RuntimeHelpers.GetHashCode(obj);
 
-        int IEqualityComparer.GetHashCode(object obj) => RuntimeHelpers.GetHashCode(obj);
+        bool IEqualityComparer<object>.Equals(object x, object y)
+            => ReferenceEquals(x, y);
 
-        int IEqualityComparer<object>.GetHashCode(object obj) => RuntimeHelpers.GetHashCode(obj);
+        int IEqualityComparer.GetHashCode(object obj)
+            => RuntimeHelpers.GetHashCode(obj);
+
+        bool IEqualityComparer.Equals(object x, object y)
+            => ReferenceEquals(x, y);
+
+        int IEqualityComparer<object>.GetHashCode(object obj)
+            => RuntimeHelpers.GetHashCode(obj);
     }
 }

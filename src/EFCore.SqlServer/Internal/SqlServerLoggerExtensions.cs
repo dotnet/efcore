@@ -152,7 +152,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             bool nullable,
             bool identity,
             [CanBeNull] string defaultValue,
-            [CanBeNull] string computedValue)
+            [CanBeNull] string computedValue,
+            bool? computedValueIsStored)
         {
             var definition = SqlServerResources.LogFoundColumn(diagnostics);
 
@@ -174,7 +175,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                         nullable,
                         identity,
                         defaultValue,
-                        computedValue));
+                        computedValue,
+                        computedValueIsStored));
             }
 
             // No DiagnosticsSource events because these are purely design-time messages

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore
@@ -18,14 +19,19 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected override void AddServices(ServiceCollection serviceCollection)
-        {
-            serviceCollection.AddEntityFrameworkSqlite();
-        }
+            => serviceCollection.AddEntityFrameworkSqlite();
 
         protected override Assembly TargetAssembly => typeof(SqliteRelationalConnection).Assembly;
 
         public class SqliteApiConsistencyFixture : ApiConsistencyFixtureBase
         {
+            public override bool TryGetProviderOptionsDelegate(out Action<DbContextOptionsBuilder> configureOptions)
+            {
+                configureOptions = b => SqliteTestHelpers.Instance.UseProviderOptions(b);
+
+                return true;
+            }
+
             public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>()
             {
                 typeof(SqliteServiceCollectionExtensions),

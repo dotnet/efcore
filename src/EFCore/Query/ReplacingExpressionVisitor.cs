@@ -1,20 +1,20 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class ReplacingExpressionVisitor : ExpressionVisitor
     {
-        private readonly Expression[] _originals;
-        private readonly Expression[] _replacements;
+        private readonly IReadOnlyList<Expression> _originals;
+        private readonly IReadOnlyList<Expression> _replacements;
 
         public static Expression Replace([NotNull] Expression original, [NotNull] Expression replacement, [NotNull] Expression tree)
         {
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return new ReplacingExpressionVisitor(new[] { original }, new[] { replacement }).Visit(tree);
         }
 
-        public ReplacingExpressionVisitor([NotNull] Expression[] originals, [NotNull] Expression[] replacements)
+        public ReplacingExpressionVisitor([NotNull] IReadOnlyList<Expression> originals, [NotNull] IReadOnlyList<Expression> replacements)
         {
             Check.NotNull(originals, nameof(originals));
             Check.NotNull(replacements, nameof(replacements));
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             // We use two arrays rather than a dictionary because hash calculation here can be prohibitively expensive
             // for deep trees. Locality of reference makes arrays better for the small number of replacements anyway.
-            for (var i = 0; i < _originals.Length; i++)
+            for (var i = 0; i < _originals.Count; i++)
             {
                 if (expression.Equals(_originals[i]))
                 {

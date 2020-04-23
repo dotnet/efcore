@@ -24,16 +24,19 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-
         protected override void AddServices(ServiceCollection serviceCollection)
-        {
-            new EntityFrameworkRelationalServicesBuilder(serviceCollection).TryAddCoreServices();
-        }
+            => new EntityFrameworkRelationalServicesBuilder(serviceCollection).TryAddCoreServices();
 
         protected override Assembly TargetAssembly => typeof(RelationalDatabase).Assembly;
 
         public class RelationalApiConsistencyFixture : ApiConsistencyFixtureBase
         {
+            public override bool TryGetProviderOptionsDelegate(out Action<DbContextOptionsBuilder> configureOptions)
+            {
+                configureOptions = null;
+                return false;
+            }
+
             private static Dictionary<Type, (Type Mutable, Type Convention, Type ConventionBuilder)> _metadataTypes
                 => new Dictionary<Type, (Type, Type, Type)>
                 {
@@ -81,6 +84,11 @@ namespace Microsoft.EntityFrameworkCore
                             m => m.Name == "GenerateCacheKeyCore"
                                 && m.DeclaringType == typeof(RelationalCompiledQueryCacheKeyGenerator))
                 };
+
+            public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new HashSet<MethodInfo>
+            {
+                typeof(IDbFunction).GetMethod("get_QueryableEntityType")
+            };
 
             public override HashSet<MethodInfo> AsyncMethodExceptions { get; } = new HashSet<MethodInfo>
             {

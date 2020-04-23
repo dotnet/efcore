@@ -33,14 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 IModel Create()
                 {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                    var model = new Model();
-                    var modelBuilder = new ModelBuilder(model);
+                    var modelBuilder = new ModelBuilder();
                     BuildTargetModel(modelBuilder);
 
-                    model = (Model)RelationalModel.Add(model, null);
-                    return model.FinalizeModel();
-#pragma warning restore EF1001 // Internal EF Core API usage.
+                    return modelBuilder.Model;
                 }
 
                 return _targetModel ??= Create();
@@ -85,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public virtual string ActiveProvider { get; [param: NotNull] set; }
 
         /// <summary>
-        ///     Implemented to builds the <see cref="TargetModel" />.
+        ///     Implemented to build the <see cref="TargetModel" />.
         /// </summary>
         /// <param name="modelBuilder"> The <see cref="ModelBuilder" /> to use to build the model. </param>
         protected virtual void BuildTargetModel([NotNull] ModelBuilder modelBuilder)

@@ -138,6 +138,7 @@ Statement3
                     generationHelper,
                     typeMappingSource,
                     new CurrentDbContext(new FakeDbContext()),
+                    new LoggingOptions(),
                     logger));
         }
 

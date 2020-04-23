@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
@@ -33,6 +34,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string[] Columns { get; [param: NotNull] set; }
 
         /// <summary>
+        ///     A list of column store types for the columns into which data will be inserted.
+        /// </summary>
+        public virtual string[] ColumnTypes { get; [param: NotNull] set; }
+
+        /// <summary>
         ///     The data to be inserted, represented as a list of value arrays where each
         ///     value in the array corresponds to a column in the <see cref="Columns" /> property.
         /// </summary>
@@ -42,6 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         ///     Generates the commands that correspond to this operation.
         /// </summary>
         /// <returns> The commands that correspond to this operation. </returns>
+        [Obsolete]
         public virtual IEnumerable<ModificationCommand> GenerateModificationCommands([CanBeNull] IModel model)
         {
             Check.DebugAssert(
@@ -60,10 +67,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 {
                     modifications[j] = new ColumnModification(
                         Columns[j], originalValue: null, value: Values[i, j], property: properties?[j],
-                        isRead: false, isWrite: true, isKey: true, isCondition: false, sensitiveLoggingEnabled: true);
+                        columnType: ColumnTypes?[j], isRead: false, isWrite: true, isKey: true, isCondition: false,
+                        sensitiveLoggingEnabled: false);
                 }
 
-                yield return new ModificationCommand(Table, Schema, modifications, sensitiveLoggingEnabled: true);
+                yield return new ModificationCommand(Table, Schema, modifications, sensitiveLoggingEnabled: false);
             }
         }
     }

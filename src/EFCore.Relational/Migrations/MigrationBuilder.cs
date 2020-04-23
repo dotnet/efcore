@@ -59,8 +59,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="defaultValue"> The default value for the column. </param>
         /// <param name="defaultValueSql"> The SQL expression to use for the column's default constraint. </param>
         /// <param name="computedColumnSql"> The SQL expression to use to compute the column value. </param>
+        /// <param name="computedColumnIsStored"> Whether the value of the computed column is stored in the database or not. </param>
         /// <param name="fixedLength"> Indicates whether or not the column is constrained to fixed-length data. </param>
         /// <param name="comment"> A comment to associate with the column. </param>
+        /// <param name="collation"> A collation to apply to the column. </param>
+        /// <param name="precision">
+        ///     The maximum number of digits that is allowed in this column, or <c>null</c> if not specified or not applicable.
+        /// </param>
+        /// <param name="scale">
+        ///     The maximum number of decimal places that is allowed in this column, or <c>null</c> if not specified or not applicable.
+        /// </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<AddColumnOperation> AddColumn<T>(
             [NotNull] string name,
@@ -74,8 +82,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] object defaultValue = null,
             [CanBeNull] string defaultValueSql = null,
             [CanBeNull] string computedColumnSql = null,
+            bool? computedColumnIsStored = null,
             bool? fixedLength = null,
-            [CanBeNull] string comment = null)
+            [CanBeNull] string comment = null,
+            [CanBeNull] string collation = null,
+            int? precision = null,
+            int? scale = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotEmpty(table, nameof(table));
@@ -94,8 +106,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 DefaultValue = defaultValue,
                 DefaultValueSql = defaultValueSql,
                 ComputedColumnSql = computedColumnSql,
+                ComputedColumnIsStored = computedColumnIsStored,
                 IsFixedLength = fixedLength,
-                Comment = comment
+                Comment = comment,
+                Collation = collation,
+                Precision = precision,
+                Scale = scale,
             };
             Operations.Add(operation);
 
@@ -312,6 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="defaultValue"> The default value for the column. </param>
         /// <param name="defaultValueSql"> The SQL expression to use for the column's default constraint. </param>
         /// <param name="computedColumnSql"> The SQL expression to use to compute the column value. </param>
+        /// <param name="computedColumnIsStored"> Whether the value of the computed column is stored in the database or not. </param>
         /// <param name="oldClrType">
         ///     The CLR type that the column was previously mapped to. Can be <c>null</c>, in which case previous value is considered unknown.
         /// </param>
@@ -342,10 +359,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="oldComputedColumnSql">
         ///     The previous SQL expression used to compute the column value. Can be <c>null</c>, in which case previous value is considered unknown.
         /// </param>
+        /// <param name="oldComputedColumnIsStored"> Whether the value of the previous computed column was stored in the database or not. </param>
         /// <param name="fixedLength"> Indicates whether or not the column is constrained to fixed-length data. </param>
         /// <param name="oldFixedLength"> Indicates whether or not the column was previously constrained to fixed-length data. </param>
         /// <param name="comment"> A comment to associate with the column. </param>
         /// <param name="oldComment"> The previous comment to associate with the column. </param>
+        /// <param name="collation"> A collation to apply to the column. </param>
+        /// <param name="oldCollation"> The previous collation to apply to the column. </param>
+        /// <param name="precision">
+        ///     The maximum number of digits that is allowed in this column, or <c>null</c> if not specified or not applicable.
+        /// </param>
+        /// <param name="oldPrecision">
+        ///     The previous maximum number of digits that is allowed in this column, or <c>null</c> if not specified or not applicable.
+        /// </param>
+        /// <param name="scale">
+        ///     The maximum number of decimal places that is allowed in this column, or <c>null</c> if not specified or not applicable.
+        /// </param>
+        /// <param name="oldScale">
+        ///     The previous maximum number of decimal places that is allowed in this column, or <c>null</c> if not specified or not applicable.
+        /// </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual AlterOperationBuilder<AlterColumnOperation> AlterColumn<T>(
             [NotNull] string name,
@@ -359,6 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] object defaultValue = null,
             [CanBeNull] string defaultValueSql = null,
             [CanBeNull] string computedColumnSql = null,
+            bool? computedColumnIsStored = null,
             [CanBeNull] Type oldClrType = null,
             [CanBeNull] string oldType = null,
             bool? oldUnicode = null,
@@ -368,10 +401,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] object oldDefaultValue = null,
             [CanBeNull] string oldDefaultValueSql = null,
             [CanBeNull] string oldComputedColumnSql = null,
+            bool? oldComputedColumnIsStored = null,
             bool? fixedLength = null,
             bool? oldFixedLength = null,
             [CanBeNull] string comment = null,
-            [CanBeNull] string oldComment = null)
+            [CanBeNull] string oldComment = null,
+            [CanBeNull] string collation = null,
+            [CanBeNull] string oldCollation = null,
+            int? precision = null,
+            int? oldPrecision = null,
+            int? scale = null,
+            int? oldScale = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotEmpty(table, nameof(table));
@@ -390,8 +430,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 DefaultValue = defaultValue,
                 DefaultValueSql = defaultValueSql,
                 ComputedColumnSql = computedColumnSql,
+                ComputedColumnIsStored = computedColumnIsStored,
                 IsFixedLength = fixedLength,
                 Comment = comment,
+                Collation = collation,
+                Precision = precision,
+                Scale = scale,
                 OldColumn = new ColumnOperation
                 {
                     ClrType = oldClrType ?? typeof(T),
@@ -403,8 +447,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     DefaultValue = oldDefaultValue,
                     DefaultValueSql = oldDefaultValueSql,
                     ComputedColumnSql = oldComputedColumnSql,
+                    ComputedColumnIsStored = oldComputedColumnIsStored,
                     IsFixedLength = oldFixedLength,
-                    Comment = oldComment
+                    Comment = oldComment,
+                    Collation = oldCollation,
+                    Precision = oldPrecision,
+                    Scale = oldScale
                 }
             };
 
@@ -416,10 +464,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="AlterDatabaseOperation" /> to alter an existing database.
         /// </summary>
+        /// <param name="collation"> A collation to apply to the column. </param>
+        /// <param name="oldCollation"> The previous collation to apply to the column. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
-        public virtual AlterOperationBuilder<AlterDatabaseOperation> AlterDatabase()
+        public virtual AlterOperationBuilder<AlterDatabaseOperation> AlterDatabase(
+            [CanBeNull] string collation = null,
+            [CanBeNull] string oldCollation = null)
         {
-            var operation = new AlterDatabaseOperation();
+            var operation = new AlterDatabaseOperation
+            {
+                Collation = collation
+            };
             Operations.Add(operation);
 
             return new AlterOperationBuilder<AlterDatabaseOperation>(operation);

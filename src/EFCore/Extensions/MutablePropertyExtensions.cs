@@ -91,6 +91,26 @@ namespace Microsoft.EntityFrameworkCore
             => property.AsProperty().SetMaxLength(maxLength, ConfigurationSource.Explicit);
 
         /// <summary>
+        ///     Sets the precision of data that is allowed in this property.
+        ///     For example, if the property is a <see cref="decimal" />
+        ///     then this is the maximum number of digits.
+        /// </summary>
+        /// <param name="property"> The property to set the precision of. </param>
+        /// <param name="precision"> The maximum number of digits that is allowed in this property. </param>
+        public static void SetPrecision([NotNull] this IMutableProperty property, int? precision)
+            => property.AsProperty().SetPrecision(precision, ConfigurationSource.Explicit);
+
+        /// <summary>
+        ///     Sets the scale of data that is allowed in this property.
+        ///     For example, if the property is a <see cref="decimal" />
+        ///     then this is the maximum number of decimal places.
+        /// </summary>
+        /// <param name="property"> The property to set the scale of. </param>
+        /// <param name="scale"> The maximum number of decimal places that is allowed in this property. </param>
+        public static void SetScale([NotNull] this IMutableProperty property, int? scale)
+            => property.AsProperty().SetScale(scale, ConfigurationSource.Explicit);
+
+        /// <summary>
         ///     Sets a value indicating whether this property can persist Unicode characters.
         /// </summary>
         /// <param name="property"> The property to set the value for. </param>
@@ -191,16 +211,17 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="comparer"> The comparer, or <c>null</c> to remove any previously set comparer. </param>
+        [Obsolete("Use SetValueComparer. Only a single value comparer is allowed for a given property.")]
         public static void SetKeyValueComparer([NotNull] this IMutableProperty property, [CanBeNull] ValueComparer comparer)
-            => property.AsProperty().SetKeyValueComparer(comparer, ConfigurationSource.Explicit);
+            => property.AsProperty().SetValueComparer(comparer, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     Sets the custom <see cref="ValueComparer" /> for structural copies for this property.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="comparer"> The comparer, or <c>null</c> to remove any previously set comparer. </param>
-        [Obsolete("Use SetKeyValueComparer. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
+        [Obsolete("Use SetValueComparer. Only a single value comparer is allowed for a given property.")]
         public static void SetStructuralValueComparer([NotNull] this IMutableProperty property, [CanBeNull] ValueComparer comparer)
-            => property.SetKeyValueComparer(comparer);
+            => property.SetValueComparer(comparer);
     }
 }

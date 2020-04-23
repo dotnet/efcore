@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a table-like object in the database.
+    ///     Represents a relational database.
     /// </summary>
     public interface IRelationalModel : IAnnotatable
     {
@@ -40,6 +40,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Returns all user-defined functions contained in the model.
         /// </summary>
         IEnumerable<IDbFunction> DbFunctions => Model.GetDbFunctions();
+
+        /// <summary>
+        ///     Returns the database collation.
+        /// </summary>
+        string Collation => Model.GetCollation();
 
         /// <summary>
         ///     Gets the table with a given name. Returns <c>null</c> if no table with the given name is defined.

@@ -77,6 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The member classifier.
         /// </summary>
+        [EntityFrameworkInternal]
         public IMemberClassifier MemberClassifier { get; }
 
         /// <summary>
@@ -92,6 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="memberClassifier"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
+        [EntityFrameworkInternal]
         public ModelValidatorDependencies With([NotNull] IMemberClassifier memberClassifier)
             => new ModelValidatorDependencies(TypeMappingSource, memberClassifier);
     }

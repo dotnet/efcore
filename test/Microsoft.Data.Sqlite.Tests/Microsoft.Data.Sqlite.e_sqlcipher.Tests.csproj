@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
+    <TargetFrameworks>$(StandardTestTfms)</TargetFrameworks>
     <DefineConstants>$(DefineConstants);E_SQLCIPHER</DefineConstants>
   </PropertyGroup>
 
@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlcipher" Version="$(SQLitePCLRawBundleESqlcipherPackageVersion)" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlcipher" Version="$(SQLitePCLRawBundleESqlcipherVersion)" />
   </ItemGroup>
 
 </Project>

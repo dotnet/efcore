@@ -4999,6 +4999,64 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Filtered_include_OrderBy(bool async)
+        {
+            return AssertIncludeQuery(
+                async,
+                ss => ss.Set<Level1>().Include(l1 => l1.OneToMany_Optional1.OrderBy(x => x.Name)),
+                new List<IExpectedInclude>
+                {
+                    new ExpectedFilteredInclude<Level1, Level2>(
+                        e => e.OneToMany_Optional1,
+                        "OneToMany_Optional1",
+                        includeFilter: x => x.OrderBy(x => x.Name))
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Filtered_ThenInclude_OrderBy(bool async)
+        {
+            return AssertIncludeQuery(
+                async,
+                ss => ss.Set<Level1>().Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToMany_Optional2.OrderBy(x => x.Name)),
+                new List<IExpectedInclude>
+                {
+                    new ExpectedInclude<Level1>(
+                        e => e.OneToMany_Optional1, "OneToMany_Optional1"),
+                    new ExpectedFilteredInclude<Level2, Level3>(
+                        e => e.OneToMany_Optional2,
+                        "OneToMany_Optional2",
+                        "OneToMany_Optional1",
+                        includeFilter: x => x.OrderBy(x => x.Name))
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Filtered_include_ThenInclude_OrderBy(bool async)
+        {
+            return AssertIncludeQuery(
+                async,
+                ss => ss.Set<Level1>()
+                    .Include(l1 => l1.OneToMany_Optional1.OrderBy(x => x.Name))
+                    .ThenInclude(l2 => l2.OneToMany_Optional2.OrderByDescending(x => x.Name)),
+                new List<IExpectedInclude>
+                {
+                    new ExpectedFilteredInclude<Level1, Level2>(
+                        e => e.OneToMany_Optional1,
+                        "OneToMany_Optional1",
+                        includeFilter: x => x.OrderBy(x => x.Name)),
+                    new ExpectedFilteredInclude<Level2, Level3>(
+                        e => e.OneToMany_Optional2,
+                        "OneToMany_Optional2",
+                        "OneToMany_Optional1",
+                        includeFilter: x => x.OrderByDescending(x => x.Name))
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Filtered_include_basic_OrderBy_Take(bool async)
         {
             return AssertIncludeQuery(

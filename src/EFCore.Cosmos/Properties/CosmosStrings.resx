@@ -132,8 +132,8 @@
   <data name="NoDiscriminatorValue" xml:space="preserve">
     <value>The entity type '{entityType}' is sharing the container '{container}' with other types, but does not have a discriminator value configured.</value>
   </data>
-  <data name="NonEtagConcurrencyToken" xml:space="preserve">
-    <value>The entity type '{entityType}' has property '{property}' as its concurrency token, but only '_etag' is supported. Consider using 'EntityTypeBuilder.UseEtagConcurrency'.</value>
+  <data name="NonETagConcurrencyToken" xml:space="preserve">
+    <value>The entity type '{entityType}' has property '{property}' as its concurrency token, but only '_etag' is supported. Consider using 'EntityTypeBuilder.UseETagConcurrency'.</value>
   </data>
   <data name="NoPartitionKey" xml:space="preserve">
     <value>The entity type '{entityType}' does not have a partition key set, but it is mapped to the container '{container}' shared by entity types with partition keys.</value>
@@ -167,5 +167,14 @@
   </data>
   <data name="ReverseRequiresOffsetOrLimit" xml:space="preserve">
     <value>Reverse is not supported without Limit or Offset.</value>
+  </data>
+  <data name="InvalidResourceId" xml:space="preserve">
+    <value>Invalid id value. Specify a  string value that's not null or empty.</value>
+  </data>
+  <data name="ParitionKeyMissing" xml:space="preserve">
+    <value>A ReadItem query was detected, but the partition key value is missing.</value>
+  </data>
+  <data name="ResourceIdMissing" xml:space="preserve">
+    <value>A ReadItem query was detected, but the id value is missing and cannot be generated.</value>
   </data>
 </root>

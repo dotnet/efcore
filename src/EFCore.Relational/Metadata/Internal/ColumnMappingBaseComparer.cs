@@ -52,9 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return result;
             }
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
-            result = EntityTypePathComparer.Instance.Compare(x.Property.DeclaringEntityType, y.Property.DeclaringEntityType);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+            result = EntityTypeFullNameComparer.Instance.Compare(x.Property.DeclaringEntityType, y.Property.DeclaringEntityType);
             if (result != 0)
             {
                 return result;
@@ -90,9 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var hashCode = new HashCode();
             hashCode.Add(obj.Property.Name);
             hashCode.Add(obj.Column.Name);
-#pragma warning disable EF1001 // Internal EF Core API usage.
-            hashCode.Add(obj.Property.DeclaringEntityType, EntityTypePathComparer.Instance);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+            hashCode.Add(obj.Property.DeclaringEntityType, EntityTypeFullNameComparer.Instance);
             hashCode.Add(obj.Column.Table.Name);
             hashCode.Add(obj.Column.Table.Schema);
 

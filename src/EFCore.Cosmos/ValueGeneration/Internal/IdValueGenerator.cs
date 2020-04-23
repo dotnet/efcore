@@ -54,10 +54,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
                     continue;
                 }
 
-                var converter = property.GetValueConverter()
-                    ?? property.GetTypeMapping().Converter;
-
                 var value = entry.Property(property.Name).CurrentValue;
+
+                var converter = property.GetTypeMapping().Converter;
                 if (converter != null)
                 {
                     value = converter.ConvertToProvider(value);

@@ -1,67 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Dependencies>
   <ProductDependencies>
-    <Dependency Name="Microsoft.CSharp" Version="4.7.0" Pinned="true">
-      <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>0f7f38c4fd323b26da10cce95f857f77f0f09b48</Sha>
+    <Dependency Name="Microsoft.DotNet.PlatformAbstractions" Version="5.0.0-preview.2.20160.6" Pinned="true">
+      <Uri>https://github.com/dotnet/runtime</Uri>
+      <Sha>d12f79a4d1b908636b96005fe30f547e54cea3ee</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.DotNet.PlatformAbstractions" Version="3.1.2" Pinned="true" CoherentParentDependency="Microsoft.Extensions.Logging">
-      <Uri>https://github.com/dotnet/core-setup</Uri>
-      <Sha>916b5cba268e1e1e803243004f4276cf40b2dda8</Sha>
+    <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="5.0.0-preview.2.20160.3" Pinned="true">
+      <Uri>https://github.com/dotnet/extensions</Uri>
+      <Sha>e9e40b4686cce3b7e8248f4f9edd47b004e1b52d</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="3.1.2" Pinned="true">
-      <Uri>https://github.com/aspnet/Extensions</Uri>
-      <Sha>1286a6ff55e300352dabeb6d778c9fcdd258bd08</Sha>
+    <Dependency Name="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="5.0.0-preview.2.20160.3" Pinned="true">
+      <Uri>https://github.com/dotnet/extensions</Uri>
+      <Sha>e9e40b4686cce3b7e8248f4f9edd47b004e1b52d</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.1.2" Pinned="true">
-      <Uri>https://github.com/aspnet/Extensions</Uri>
-      <Sha>1286a6ff55e300352dabeb6d778c9fcdd258bd08</Sha>
+    <Dependency Name="Microsoft.Extensions.Configuration.Json" Version="5.0.0-preview.2.20160.3" Pinned="true">
+      <Uri>https://github.com/dotnet/extensions</Uri>
+      <Sha>e9e40b4686cce3b7e8248f4f9edd47b004e1b52d</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration.Json" Version="3.1.2" Pinned="true">
-      <Uri>https://github.com/aspnet/Extensions</Uri>
-      <Sha>1286a6ff55e300352dabeb6d778c9fcdd258bd08</Sha>
+    <Dependency Name="Microsoft.Extensions.Configuration" Version="5.0.0-preview.2.20160.3" Pinned="true">
+      <Uri>https://github.com/dotnet/extensions</Uri>
+      <Sha>e9e40b4686cce3b7e8248f4f9edd47b004e1b52d</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration" Version="3.1.2" Pinned="true">
-      <Uri>https://github.com/aspnet/Extensions</Uri>
-      <Sha>1286a6ff55e300352dabeb6d778c9fcdd258bd08</Sha>
+    <Dependency Name="Microsoft.Extensions.DependencyInjection" Version="5.0.0-preview.2.20160.3" Pinned="true">
+      <Uri>https://github.com/dotnet/extensions</Uri>
+      <Sha>e9e40b4686cce3b7e8248f4f9edd47b004e1b52d</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.DependencyInjection" Version="3.1.2" Pinned="true">
-      <Uri>https://github.com/aspnet/Extensions</Uri>
-      <Sha>1286a6ff55e300352dabeb6d778c9fcdd258bd08</Sha>
+    <Dependency Name="Microsoft.Extensions.DependencyModel" Version="5.0.0-preview.2-runtime.20160.6" Pinned="true">
+      <Uri>https://github.com/dotnet/runtime</Uri>
+      <Sha>d12f79a4d1b908636b96005fe30f547e54cea3ee</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.DependencyModel" Version="3.1.2" Pinned="true" CoherentParentDependency="Microsoft.Extensions.Logging">
-      <Uri>https://github.com/dotnet/core-setup</Uri>
-      <Sha>916b5cba268e1e1e803243004f4276cf40b2dda8</Sha>
+    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="5.0.0-preview.2.20160.3" Pinned="true">
+      <Uri>https://github.com/dotnet/extensions</Uri>
+      <Sha>e9e40b4686cce3b7e8248f4f9edd47b004e1b52d</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="3.1.2-servicing.20067.6" Pinned="true">
-      <Uri>https://github.com/aspnet/Extensions</Uri>
-      <Sha>1286a6ff55e300352dabeb6d778c9fcdd258bd08</Sha>
+    <Dependency Name="Microsoft.Extensions.Logging" Version="5.0.0-preview.2.20160.3" Pinned="true">
+      <Uri>https://github.com/dotnet/extensions</Uri>
+      <Sha>e9e40b4686cce3b7e8248f4f9edd47b004e1b52d</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Logging" Version="3.1.2" Pinned="true">
-      <Uri>https://github.com/aspnet/Extensions</Uri>
-      <Sha>1286a6ff55e300352dabeb6d778c9fcdd258bd08</Sha>
+    <Dependency Name="System.Collections.Immutable" Version="5.0.0-preview.2.20160.6" Pinned="true">
+      <Uri>https://github.com/dotnet/runtime</Uri>
+      <Sha>d12f79a4d1b908636b96005fe30f547e54cea3ee</Sha>
     </Dependency>
-    <Dependency Name="System.Collections.Immutable" Version="1.7.0" Pinned="true" CoherentParentDependency="Microsoft.NETCore.App.Runtime.win-x64">
-      <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>0f7f38c4fd323b26da10cce95f857f77f0f09b48</Sha>
+    <Dependency Name="System.ComponentModel.Annotations" Version="5.0.0-preview.2.20160.6" Pinned="true">
+      <Uri>https://github.com/dotnet/runtime</Uri>
+      <Sha>d12f79a4d1b908636b96005fe30f547e54cea3ee</Sha>
     </Dependency>
-    <Dependency Name="System.ComponentModel.Annotations" Version="4.7.0" Pinned="true" CoherentParentDependency="Microsoft.NETCore.App.Runtime.win-x64">
-      <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>0f7f38c4fd323b26da10cce95f857f77f0f09b48</Sha>
-    </Dependency>
-    <Dependency Name="System.Diagnostics.DiagnosticSource" Version="4.7.0" Pinned="true" CoherentParentDependency="Microsoft.NETCore.App.Runtime.win-x64">
-      <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>0f7f38c4fd323b26da10cce95f857f77f0f09b48</Sha>
+    <Dependency Name="System.Diagnostics.DiagnosticSource" Version="5.0.0-preview.2.20160.6" Pinned="true">
+      <Uri>https://github.com/dotnet/runtime</Uri>
+      <Sha>d12f79a4d1b908636b96005fe30f547e54cea3ee</Sha>
     </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
-    <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="5.0.0-beta.20171.1">
+    <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="5.0.0-beta.20201.2">
       <Uri>https://github.com/dotnet/arcade</Uri>
-      <Sha>7dbc907fa03eacf4c57f827cb4235d77b7ed4fcd</Sha>
+      <Sha>bce0a98620c1c5a110b2bba9912f3d5929069c6b</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.DotNet.Helix.Sdk" Version="5.0.0-beta.20171.1">
+    <Dependency Name="Microsoft.DotNet.Helix.Sdk" Version="5.0.0-beta.20201.2">
       <Uri>https://github.com/dotnet/arcade</Uri>
-      <Sha>7dbc907fa03eacf4c57f827cb4235d77b7ed4fcd</Sha>
+      <Sha>bce0a98620c1c5a110b2bba9912f3d5929069c6b</Sha>
     </Dependency>
   </ToolsetDependencies>
 </Dependencies>

@@ -9,6 +9,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -36,16 +38,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public CosmosQueryableMethodTranslatingExpressionVisitor(
             [NotNull] QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
-            [NotNull] IModel model,
+            [NotNull] QueryCompilationContext queryCompilationContext,
             [NotNull] ISqlExpressionFactory sqlExpressionFactory,
             [NotNull] IMemberTranslatorProvider memberTranslatorProvider,
             [NotNull] IMethodCallTranslatorProvider methodCallTranslatorProvider)
             : base(dependencies, subquery: false)
         {
-            _model = model;
+            _model = queryCompilationContext.Model;
             _sqlExpressionFactory = sqlExpressionFactory;
             _sqlTranslator = new CosmosSqlTranslatingExpressionVisitor(
-                model,
+                queryCompilationContext,
                 sqlExpressionFactory,
                 memberTranslatorProvider,
                 methodCallTranslatorProvider);
@@ -66,6 +68,123 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
             _sqlTranslator = parentVisitor._sqlTranslator;
             _projectionBindingExpressionVisitor = new CosmosProjectionBindingExpressionVisitor(_model, _sqlTranslator);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override Expression Visit(Expression expression)
+        {
+            if (expression is MethodCallExpression methodCallExpression
+                && methodCallExpression.Method.IsGenericMethod
+                && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.FirstOrDefaultWithoutPredicate)
+            {
+                if (methodCallExpression.Arguments[0] is MethodCallExpression queryRootMethodCallExpression
+                    && methodCallExpression.Method.IsGenericMethod
+                    && queryRootMethodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.Where)
+                {
+                    if (queryRootMethodCallExpression.Arguments[0] is QueryRootExpression queryRootExpression)
+                    {
+                        var entityType = queryRootExpression.EntityType;
+
+                        if (queryRootMethodCallExpression.Arguments[1] is UnaryExpression unaryExpression
+                            && unaryExpression.Operand is LambdaExpression lambdaExpression
+                            && lambdaExpression.Body is BinaryExpression lambdaBodyBinaryExpression)
+                        {
+                            var queryProperties = new List<IProperty>();
+                            var parameterNames = new List<string>();
+
+                            if (ProcessJoinCondition(lambdaBodyBinaryExpression, queryProperties, parameterNames))
+                            {
+                                var entityTypePrimaryKeyProperties = entityType.FindPrimaryKey().Properties;
+                                var idProperty = entityType.GetProperties()
+                                    .First(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyName);
+
+                                if (TryGetPartitionKeyProperty(out var partitionKeyProperty)
+                                    && entityTypePrimaryKeyProperties.SequenceEqual(queryProperties)
+                                    && (partitionKeyProperty == null
+                                        || entityTypePrimaryKeyProperties.Contains(partitionKeyProperty))
+                                    && (idProperty.GetValueGeneratorFactory() != null
+                                        || entityTypePrimaryKeyProperties.Contains(idProperty)))
+                                {
+                                    var propertyParameterList = queryProperties.Zip(parameterNames,
+                                        (property, parameter) => (property, parameter))
+                                        .ToDictionary(tuple => tuple.property, tuple => tuple.parameter);
+
+                                    var readItemExpression = new ReadItemExpression(entityType, propertyParameterList);
+
+                                    var shapedQueryExpression = new ShapedQueryExpression(
+                                        readItemExpression,
+                                        new EntityShaperExpression(
+                                            entityType,
+                                            new ProjectionBindingExpression(
+                                                readItemExpression,
+                                                new ProjectionMember(),
+                                                typeof(ValueBuffer)),
+                                            false));
+
+                                    shapedQueryExpression = shapedQueryExpression.UpdateResultCardinality(ResultCardinality.Single);
+
+                                    return shapedQueryExpression;
+                                }
+                            }
+
+                            bool ProcessJoinCondition(
+                                Expression joinCondition, ICollection<IProperty> properties, ICollection<string> paramNames)
+                            {
+                                if (joinCondition is BinaryExpression binaryExpression)
+                                {
+                                    switch (binaryExpression.NodeType)
+                                    {
+                                        case ExpressionType.AndAlso:
+                                            return ProcessJoinCondition(binaryExpression.Left, properties, paramNames)
+                                                && ProcessJoinCondition(binaryExpression.Right, properties, paramNames);
+
+                                        case ExpressionType.Equal:
+                                            if (binaryExpression.Left is MethodCallExpression methodCallExpr
+                                                && binaryExpression.Right is ParameterExpression parameterExpr)
+                                            {
+                                                if (methodCallExpr.TryGetEFPropertyArguments(out _, out var propertyName))
+                                                {
+                                                    var property = entityType.FindProperty(propertyName);
+                                                    if (property == null)
+                                                    {
+                                                        return false;
+                                                    }
+                                                    properties.Add(property);
+                                                    paramNames.Add(parameterExpr.Name);
+                                                    return true;
+                                                }
+                                            }
+                                            return false;
+
+                                        default:
+                                            return false;
+                                    }
+                                }
+                                return false;
+                            }
+
+                            bool TryGetPartitionKeyProperty(out IProperty partitionKeyProperty)
+                            {
+                                var partitionKeyPropertyName = entityType.GetPartitionKeyPropertyName();
+                                if (partitionKeyPropertyName is null)
+                                {
+                                    partitionKeyProperty = null;
+                                    return true;
+                                }
+
+                                partitionKeyProperty = entityType.FindProperty(partitionKeyPropertyName);
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            return base.Visit(expression);
         }
 
         /// <summary>

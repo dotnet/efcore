@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly ISet<string> _usedAliases = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         private readonly ISet<TableExpressionBase> _visitedTableExpressionBases
-            = new HashSet<TableExpressionBase>(ReferenceEqualityComparer.Instance);
+            = new HashSet<TableExpressionBase>(LegacyReferenceEqualityComparer.Instance);
 
         protected override Expression VisitExtension(Expression extensionExpression)
         {

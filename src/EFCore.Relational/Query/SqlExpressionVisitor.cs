@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return VisitProjection(projectionExpression);
 
                 case QueryableFunctionExpression queryableFunctionExpression:
-                    return VisitQueryableFunctionExpression(queryableFunctionExpression);
+                    return VisitQueryableFunction(queryableFunctionExpression);
 
                 case RowNumberExpression rowNumberExpression:
                     return VisitRowNumber(rowNumberExpression);
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected abstract Expression VisitOrdering([NotNull] OrderingExpression orderingExpression);
         protected abstract Expression VisitOuterApply([NotNull] OuterApplyExpression outerApplyExpression);
         protected abstract Expression VisitProjection([NotNull] ProjectionExpression projectionExpression);
-        protected abstract Expression VisitQueryableFunctionExpression([NotNull] QueryableFunctionExpression queryableFunctionExpression);
+        protected abstract Expression VisitQueryableFunction([NotNull] QueryableFunctionExpression queryableFunctionExpression);
         protected abstract Expression VisitRowNumber([NotNull] RowNumberExpression rowNumberExpression);
         protected abstract Expression VisitScalarSubquery([NotNull] ScalarSubqueryExpression scalarSubqueryExpression);
         protected abstract Expression VisitSelect([NotNull] SelectExpression selectExpression);

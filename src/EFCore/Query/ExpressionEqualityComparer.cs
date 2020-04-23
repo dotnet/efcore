@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 // ReSharper disable LoopCanBeConvertedToQuery
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ExpressionEqualityComparer : IEqualityComparer<Expression>
+    public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression>
     {
         /// <summary>
         ///     Creates a new <see cref="ExpressionEqualityComparer" />.
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="obj"> The <see cref="Expression"/> obj to compute hash code for. </param>
         /// <returns> The hash code value for <paramref name="obj"/>. </returns>
-        public virtual int GetHashCode(Expression obj)
+        public int GetHashCode(Expression obj)
         {
             if (obj == null)
             {
@@ -279,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="x"> The left expression. </param>
         /// <param name="y"> The right expression. </param>
         /// <returns> <c>true</c> if the expressions are equal, <c>false</c> otherwise. </returns>
-        public virtual bool Equals(Expression x, Expression y) => new ExpressionComparer().Compare(x, y);
+        public bool Equals(Expression x, Expression y) => new ExpressionComparer().Compare(x, y);
 
         private struct ExpressionComparer
         {

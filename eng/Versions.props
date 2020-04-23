@@ -2,7 +2,7 @@
   <PropertyGroup Label="Version settings">
     <VersionPrefix>5.0.0</VersionPrefix>
     <PreReleaseVersionLabel>preview</PreReleaseVersionLabel>
-    <PreReleaseVersionIteration>3</PreReleaseVersionIteration>
+    <PreReleaseVersionIteration>5</PreReleaseVersionIteration>
     <IncludeSourceRevisionInInformationalVersion>False</IncludeSourceRevisionInInformationalVersion>
     <IsServicingBuild Condition="'$(PreReleaseVersionLabel)' == 'servicing'">true</IsServicingBuild>
     <!--
@@ -17,39 +17,38 @@
     <UsingToolXliff>False</UsingToolXliff>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from nuget.org">
-    <CastleCorePackageVersion>4.4.0</CastleCorePackageVersion>
-    <MicrosoftAzureCosmosPackageVersion>3.7.0-preview</MicrosoftAzureCosmosPackageVersion>
-    <MicrosoftCodeAnalysisCSharpPackageVersion>3.3.1</MicrosoftCodeAnalysisCSharpPackageVersion>
-    <MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>3.3.1</MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>
-    <mod_spatialitePackageVersion>4.3.0.1</mod_spatialitePackageVersion>
-    <NetTopologySuitePackageVersion>2.0.0</NetTopologySuitePackageVersion>
-    <NetTopologySuiteIOSpatiaLitePackageVersion>2.0.0</NetTopologySuiteIOSpatiaLitePackageVersion>
-    <NetTopologySuiteIOSqlServerBytesPackageVersion>2.0.0</NetTopologySuiteIOSqlServerBytesPackageVersion>
-    <SQLitePCLRawBundleESqlite3PackageVersion>2.0.2</SQLitePCLRawBundleESqlite3PackageVersion>
-    <SQLitePCLRawBundleESqlcipherPackageVersion>2.0.2</SQLitePCLRawBundleESqlcipherPackageVersion>
-    <SQLitePCLRawBundleWinsqlite3PackageVersion>2.0.2</SQLitePCLRawBundleWinsqlite3PackageVersion>
-    <SQLitePCLRawCorePackageVersion>2.0.2</SQLitePCLRawCorePackageVersion>
-    <StyleCopAnalyzersPackageVersion>1.1.118</StyleCopAnalyzersPackageVersion>
-    <BenchmarkDotNetPackageVersion>0.12.0</BenchmarkDotNetPackageVersion>
-    <MicrosoftDataSqlClientPackageVersion>2.0.0-preview1.20021.1</MicrosoftDataSqlClientPackageVersion>
+    <CastleCoreVersion>4.4.0</CastleCoreVersion>
+    <MicrosoftAzureCosmosVersion>3.8.0-preview</MicrosoftAzureCosmosVersion>
+    <MicrosoftCodeAnalysisCSharpVersion>3.3.1</MicrosoftCodeAnalysisCSharpVersion>
+    <MicrosoftCodeAnalysisCSharpWorkspacesVersion>3.3.1</MicrosoftCodeAnalysisCSharpWorkspacesVersion>
+    <mod_spatialiteVersion>4.3.0.1</mod_spatialiteVersion>
+    <NetTopologySuiteVersion>2.0.0</NetTopologySuiteVersion>
+    <NetTopologySuiteIOSpatiaLiteVersion>2.0.0</NetTopologySuiteIOSpatiaLiteVersion>
+    <NetTopologySuiteIOSqlServerBytesVersion>2.0.0</NetTopologySuiteIOSqlServerBytesVersion>
+    <SQLitePCLRawBundleESqlite3Version>2.0.2</SQLitePCLRawBundleESqlite3Version>
+    <SQLitePCLRawBundleESqlcipherVersion>2.0.2</SQLitePCLRawBundleESqlcipherVersion>
+    <SQLitePCLRawBundleWinsqlite3Version>2.0.2</SQLitePCLRawBundleWinsqlite3Version>
+    <SQLitePCLRawCoreVersion>2.0.2</SQLitePCLRawCoreVersion>
+    <IdentityServer4EntityFrameworkVersion>3.0.0</IdentityServer4EntityFrameworkVersion>
+    <StyleCopAnalyzersVersion>1.1.118</StyleCopAnalyzersVersion>
+    <BenchmarkDotNetVersion>0.12.0</BenchmarkDotNetVersion>
+    <MicrosoftDataSqlClientVersion>2.0.0-preview2.20084.1</MicrosoftDataSqlClientVersion>
+    <MicrosoftCSharpVersion>4.7.0</MicrosoftCSharpVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/extensions">
-    <MicrosoftExtensionsCachingMemoryPackageVersion>3.1.2</MicrosoftExtensionsCachingMemoryPackageVersion>
-    <MicrosoftExtensionsConfigurationPackageVersion>3.1.2</MicrosoftExtensionsConfigurationPackageVersion>
-    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>3.1.2</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
-    <MicrosoftExtensionsConfigurationJsonPackageVersion>3.1.2</MicrosoftExtensionsConfigurationJsonPackageVersion>
-    <MicrosoftExtensionsDependencyInjectionPackageVersion>3.1.2</MicrosoftExtensionsDependencyInjectionPackageVersion>
-    <MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>3.1.2-servicing.20067.6</MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>
-    <MicrosoftExtensionsLoggingPackageVersion>3.1.2</MicrosoftExtensionsLoggingPackageVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>5.0.0-preview.2.20160.3</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsConfigurationVersion>5.0.0-preview.2.20160.3</MicrosoftExtensionsConfigurationVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>5.0.0-preview.2.20160.3</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
+    <MicrosoftExtensionsConfigurationJsonVersion>5.0.0-preview.2.20160.3</MicrosoftExtensionsConfigurationJsonVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>5.0.0-preview.2.20160.3</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftExtensionsHostFactoryResolverSourcesVersion>5.0.0-preview.2.20160.3</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
+    <MicrosoftExtensionsLoggingVersion>5.0.0-preview.2.20160.3</MicrosoftExtensionsLoggingVersion>
   </PropertyGroup>
-  <PropertyGroup Label="Dependencies from dotnet/corefx">
-    <MicrosoftCSharpPackageVersion>4.7.0</MicrosoftCSharpPackageVersion>
-    <SystemCollectionsImmutablePackageVersion>1.7.0</SystemCollectionsImmutablePackageVersion>
-    <SystemComponentModelAnnotationsPackageVersion>4.7.0</SystemComponentModelAnnotationsPackageVersion>
-    <SystemDiagnosticsDiagnosticSourcePackageVersion>4.7.0</SystemDiagnosticsDiagnosticSourcePackageVersion>
-  </PropertyGroup>
-  <PropertyGroup Label="Dependencies from dotnet/core-setup">
-    <MicrosoftDotNetPlatformAbstractionsPackageVersion>3.1.2</MicrosoftDotNetPlatformAbstractionsPackageVersion>
-    <MicrosoftExtensionsDependencyModelPackageVersion>3.1.2</MicrosoftExtensionsDependencyModelPackageVersion>
+  <PropertyGroup Label="Dependencies from dotnet/runtime">
+    <SystemCollectionsImmutableVersion>5.0.0-preview.2.20160.6</SystemCollectionsImmutableVersion>
+    <SystemComponentModelAnnotationsVersion>5.0.0-preview.2.20160.6</SystemComponentModelAnnotationsVersion>
+    <SystemDiagnosticsDiagnosticSourceVersion>5.0.0-preview.2.20160.6</SystemDiagnosticsDiagnosticSourceVersion>
+    <MicrosoftDotNetPlatformAbstractionsVersion>5.0.0-preview.2.20160.6</MicrosoftDotNetPlatformAbstractionsVersion>
+    <MicrosoftExtensionsDependencyModelVersion>5.0.0-preview.2-runtime.20160.6</MicrosoftExtensionsDependencyModelVersion>
   </PropertyGroup>
 </Project>

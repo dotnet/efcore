@@ -7,7 +7,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -29,7 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     public class CSharpDbContextGenerator : ICSharpDbContextGenerator
     {
         private const string EntityLambdaIdentifier = "entity";
-        private const string Language = "CSharp";
 
         private readonly ICSharpHelper _code;
         private readonly IProviderConfigurationCodeGenerator _providerConfigurationCodeGenerator;
@@ -633,6 +631,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var annotations = property.GetAnnotations().ToList();
 
             RemoveAnnotation(ref annotations, CoreAnnotationNames.MaxLength);
+            RemoveAnnotation(ref annotations, CoreAnnotationNames.Precision);
+            RemoveAnnotation(ref annotations, CoreAnnotationNames.Scale);
             RemoveAnnotation(ref annotations, CoreAnnotationNames.TypeMapping);
             RemoveAnnotation(ref annotations, CoreAnnotationNames.Unicode);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.ColumnName);
@@ -641,7 +641,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.DefaultValue);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.DefaultValueSql);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.Comment);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.Collation);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.ComputedColumnSql);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ComputedColumnIsStored);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.IsFixedLength);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.TableColumnMappings);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.ViewColumnMappings);
@@ -695,6 +697,21 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
             }
 
+            var precision = property.GetPrecision();
+            var scale = property.GetScale();
+            if (precision != null && scale != null && scale != 0)
+            {
+                lines.Add(
+                $".{nameof(PropertyBuilder.HasPrecision)}" +
+                $"({_code.Literal(precision.Value)}, {_code.Literal(scale.Value)})");
+            }
+            else if (precision != null)
+            {
+                lines.Add(
+                $".{nameof(PropertyBuilder.HasPrecision)}" +
+                $"({_code.Literal(precision.Value)})");
+            }
+
             if (property.IsUnicode() != null)
             {
                 lines.Add(
@@ -722,6 +739,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     $"({_code.Literal(property.GetDefaultValueSql())})");
             }
 
+            if (property.GetComputedColumnSql() != null)
+            {
+                lines.Add(
+                    $".{nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql)}" +
+                    $"({_code.Literal(property.GetComputedColumnSql())}" +
+                    (property.GetComputedColumnIsStored() is bool computedColumnIsStored
+                        ? $", stored: {_code.Literal(computedColumnIsStored)})"
+                        : ")"));
+            }
+
             if (property.GetComment() != null)
             {
                 lines.Add(
@@ -729,11 +756,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     $"({_code.Literal(property.GetComment())})");
             }
 
-            if (property.GetComputedColumnSql() != null)
+            if (property.GetCollation() != null)
             {
                 lines.Add(
-                    $".{nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql)}" +
-                    $"({_code.Literal(property.GetComputedColumnSql())})");
+                    $".{nameof(RelationalPropertyBuilderExtensions.UseCollation)}" +
+                    $"({_code.Literal(property.GetCollation())})");
             }
 
             var valueGenerated = property.ValueGenerated;

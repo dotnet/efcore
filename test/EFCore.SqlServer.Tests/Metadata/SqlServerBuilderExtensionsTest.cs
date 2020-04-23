@@ -234,8 +234,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Entity<Customer>()
-                .HasIndex(e => e.Name)
+                .Entity(typeof(Customer))
+                .HasIndex("Name")
                 .IsCreatedOnline();
 
             var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
@@ -736,6 +736,53 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
             Assert.Equal("[Id] % 2 = 0", index.GetFilter());
+        }
+
+
+        [ConditionalFact]
+        public void Can_set_index_with_fillfactor()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .HasIndex(e => e.Name)
+                .HasFillFactor(90);
+
+            var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+
+            Assert.Equal(90, index.GetFillFactor());
+        }
+
+        [ConditionalFact]
+        public void Can_set_index_with_fillfactor_non_generic()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity(typeof(Customer))
+                .HasIndex("Name")
+                .HasFillFactor(90);
+
+            var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+
+            Assert.Equal(90, index.GetFillFactor());
+        }
+
+        [ConditionalTheory]
+        [InlineData(0)]
+        [InlineData(101)]
+        public void Throws_if_attempt_to_set_fillfactor_with_argument_out_of_range(int fillFactor)
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                modelBuilder
+                    .Entity(typeof(Customer))
+                    .HasIndex("Name")
+                    .HasFillFactor(fillFactor);
+            });
         }
 
         private void AssertIsGeneric(EntityTypeBuilder<Customer> _)

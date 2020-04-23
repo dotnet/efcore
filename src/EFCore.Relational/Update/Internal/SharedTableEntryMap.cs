@@ -118,11 +118,11 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool IsMainEntityType([NotNull] IEntityType entityType) => !_table.GetInternalForeignKeys(entityType).Any();
+        public virtual bool IsMainEntry([NotNull] IUpdateEntry entry) => !_table.GetInternalForeignKeys(entry.EntityType).Any();
 
         private IUpdateEntry GetMainEntry(IUpdateEntry entry)
         {
-            var entityType = entry.EntityType.GetRootType();
+            var entityType = entry.EntityType;
             var foreignKeys = _table.GetInternalForeignKeys(entityType);
             foreach (var foreignKey in foreignKeys)
             {

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -24,43 +23,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Model
 
-        public enum PhoneType
-        {
-            Home = 0,
-            Work = 1,
-            Cell = 2
-        }
-
-        public enum CreditCardType
-        {
-            ShutupAndTakeMyMoney = 0,
-            BuyNLarge = 1,
-            BankOfDad = 2
-        }
-
-        public class CreditCard
-        {
-            public CreditCardType CreditCardType { get; set; }
-            public string Number { get; set; }
-        }
-
-        public class PhoneInformation
-        {
-            public PhoneType PhoneType { get; set; }
-            public string Number { get; set; }
-        }
-
         public class Customer
         {
             public int Id { get; set; }
             public string FirstName { get; set; }
             public string LastName { get; set; }
 
-            public CreditCard CreditCard { get; set; }
-
             public List<Order> Orders { get; set; }
             public List<Address> Addresses { get; set; }
-            public List<PhoneInformation> PhoneNumbers { get; set; }
         }
 
         public class Order
@@ -226,16 +196,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return CreateQuery(() => GetOrdersWithMultipleProducts(customerId));
             }
 
-            public IQueryable<CreditCard> GetCreditCards(int customerId)
-            {
-                return CreateQuery(() => GetCreditCards(customerId));
-            }
-
-            public IQueryable<PhoneInformation> GetPhoneInformation(int customerId, string areaCode)
-            {
-                return CreateQuery(() => GetPhoneInformation(customerId, areaCode));
-            }
-
             #endregion
 
             #endregion
@@ -247,9 +207,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Customer>().OwnsOne(typeof(CreditCard), "CreditCard");
-                modelBuilder.Entity<Customer>().OwnsMany(typeof(PhoneInformation), "PhoneNumbers");
-
                 //Static
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(CustomerOrderCountStatic))).HasName("CustomerOrderCount");
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(CustomerOrderCountWithClientStatic)))
@@ -319,17 +276,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                         methodInfo2.ReturnType,
                         null));
 
-                modelBuilder.Entity<MultProductOrders>().ToQueryableFunctionResultType().HasKey(mpo => mpo.OrderId);
-
-                modelBuilder.Entity<OrderByYear>().ToQueryableFunctionResultType().HasNoKey();
-                modelBuilder.Entity<TopSellingProduct>().ToQueryableFunctionResultType().HasNoKey();
+                modelBuilder.Entity<MultProductOrders>().ToTable("MultProductOrders").HasKey(mpo => mpo.OrderId);
 
                 //Table
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerOrderCountByYear), new[] { typeof(int) }));
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetTopTwoSellingProducts)));
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetTopSellingProductsForCustomer)));
-                modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCreditCards)));
-                modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetPhoneInformation)));
 
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetOrdersWithMultipleProducts)));
             }
@@ -418,13 +370,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     FirstName = "Customer",
                     LastName = "One",
                     Orders = new List<Order> { order11, order12, order13 },
-                    Addresses = new List<Address> { address11, address12 },
-                    CreditCard = new CreditCard() {  CreditCardType = CreditCardType.BankOfDad, Number = "123"},
-                    PhoneNumbers = new List<PhoneInformation>
-                    {
-                        new PhoneInformation { Number = "123-978-2342", PhoneType = PhoneType.Cell},
-                        new PhoneInformation { Number = "654-323-2342", PhoneType = PhoneType.Home}
-                    }
+                    Addresses = new List<Address> { address11, address12 }
                 };
 
                 var customer2 = new Customer
@@ -432,13 +378,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     FirstName = "Customer",
                     LastName = "Two",
                     Orders = new List<Order> { order21, order22 },
-                    Addresses = new List<Address> { address21 },
-                    PhoneNumbers = new List<PhoneInformation>
-                    {
-                        new PhoneInformation { Number = "234-873-4921", PhoneType = PhoneType.Cell},
-                        new PhoneInformation { Number = "345-345-9234", PhoneType = PhoneType.Home},
-                        new PhoneInformation { Number = "923-913-1232", PhoneType = PhoneType.Work}
-                    }
+                    Addresses = new List<Address> { address21 }
                 };
 
                 var customer3 = new Customer
@@ -446,27 +386,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                     FirstName = "Customer",
                     LastName = "Three",
                     Orders = new List<Order> { order31 },
-                    Addresses = new List<Address> { address31, address32 },
-                    CreditCard = new CreditCard() { CreditCardType = CreditCardType.BuyNLarge, Number = "554355" },
-                     PhoneNumbers = new List<PhoneInformation>
-                    {
-                        new PhoneInformation { Number = "789-834-0934", PhoneType = PhoneType.Cell},
-                        new PhoneInformation { Number = "902-092-2342", PhoneType = PhoneType.Home},
-                        new PhoneInformation { Number = "234-789-2345", PhoneType = PhoneType.Work}
-
-                    }
+                    Addresses = new List<Address> { address31, address32 }
                 };
 
                 var customer4 = new Customer
                 {
                     FirstName = "Customer",
                     LastName = "Four",
-                    Addresses = new List<Address> { address41, address42, address43 },
-                    CreditCard = new CreditCard() { CreditCardType = CreditCardType.ShutupAndTakeMyMoney, Number = "99-99" },
-                    PhoneNumbers = new List<PhoneInformation>
-                    {
-                        new PhoneInformation { Number = "269-980-9238", PhoneType = PhoneType.Work}
-                    }
+                    Addresses = new List<Address> { address41, address42, address43 }
                 };
 
                 ((UDFSqlContext)context).Products.AddRange(product1, product2, product3, product4, product5);
@@ -1311,94 +1238,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         #endregion
 
         #region QueryableFunction
-
-        [ConditionalFact]
-        public virtual void QF_Owned_Many_Tracked_Select_Owned()
-        {
-            using (var context = CreateContext())
-            {
-                var query = (from c in context.Customers
-                             from pi in context.GetPhoneInformation(c.Id, "234")
-                             orderby c.Id
-                             select new
-                             {
-                                 Customer = c
-                             }).ToList();
-
-                Assert.Equal(2, query.Count);
-                Assert.Equal(2, query[0].Customer.Id);
-                Assert.Equal(3, query[1].Customer.Id);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void QF_Owned_Many_NoTracking_Select_Owned()
-        {
-            using (var context = CreateContext())
-            {
-                var query = (from c in context.Customers
-                             from pi in context.GetPhoneInformation(c.Id, "234")
-                             orderby pi.Number
-                             select pi).AsNoTracking().ToList();
-
-                Assert.Equal(2, query.Count);
-                Assert.Equal("234-789-2345", query[0].Number);
-                Assert.Equal("234-873-4921", query[1].Number);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void QF_Owned_One_NoTracking_Select_Owned()
-        {
-            using (var context = CreateContext())
-            {
-                var query = (from c in context.Customers
-                             from cc in context.GetCreditCards(c.Id)
-                             orderby cc.Number
-                             select cc).AsNoTracking().ToList();
-
-                Assert.Equal(3, query.Count);
-
-                Assert.Equal("123", query[0].Number);
-                Assert.Equal(CreditCardType.BankOfDad, query[0].CreditCardType);
-
-                Assert.Equal("554355", query[1].Number);
-                Assert.Equal(CreditCardType.BuyNLarge, query[1].CreditCardType);
-
-                Assert.Equal("99-99", query[2].Number);
-                Assert.Equal(CreditCardType.ShutupAndTakeMyMoney, query[2].CreditCardType);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void QF_Owned_One_Tracked()
-        {
-            using (var context = CreateContext())
-            {
-                var query = (from c in context.Customers
-                             from cc in context.GetCreditCards(c.Id)
-                             orderby cc.Number
-                             select new
-                             {
-                                 Customer = c,
-                                 CreditCard = cc
-                             }).ToList();
-
-                Assert.Equal(3, query.Count);
-
-                Assert.Equal(1, query[0].Customer.Id);
-                Assert.Equal("123", query[0].CreditCard.Number);
-                Assert.Equal(CreditCardType.BankOfDad, query[0].CreditCard.CreditCardType);
-
-                Assert.Equal(3, query[1].Customer.Id);
-                Assert.Equal("554355", query[1].CreditCard.Number);
-                Assert.Equal(CreditCardType.BuyNLarge, query[1].CreditCard.CreditCardType);
-
-                Assert.Equal(4, query[2].Customer.Id);
-                Assert.Equal("99-99", query[2].CreditCard.Number);
-                Assert.Equal(CreditCardType.ShutupAndTakeMyMoney, query[2].CreditCard.CreditCardType);
-            }
-        }
 
         [ConditionalFact(Skip = "Issue#15873")]
         public virtual void QF_Anonymous_Collection_No_PK_Throws()

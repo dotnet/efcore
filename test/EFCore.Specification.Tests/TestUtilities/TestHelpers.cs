@@ -23,69 +23,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public abstract class TestHelpers
     {
-        /// <summary>
-        ///     Tests that calling the 'With' method for each constructor-injected service creates a clone
-        ///     of TDependencies with only that service replaced.
-        /// </summary>
-        public void TestDependenciesClone<TDependencies>(params string[] ignoreProperties)
-        {
-            var customServices = new ServiceCollection()
-                .AddScoped<IDbContextOptions>(CreateOptions)
-                .AddScoped<ICurrentDbContext, FakeCurrentDbContext>()
-                .AddScoped<IModel, Model>();
-
-            var services1 = CreateServiceProvider(customServices).CreateScope().ServiceProvider;
-            var services2 = CreateServiceProvider(customServices).CreateScope().ServiceProvider;
-
-            var dependencies = services1.GetService<TDependencies>();
-
-            var serviceProperties = typeof(TDependencies).GetTypeInfo()
-                .DeclaredProperties
-                .Where(p => !ignoreProperties.Contains(p.Name))
-                .ToList();
-
-            var obsoleteTypes = serviceProperties
-                .Where(p => p.CustomAttributes.Any(a => a.AttributeType == typeof(ObsoleteAttribute)))
-                .Select(p => p.PropertyType)
-                .ToList();
-
-            serviceProperties = serviceProperties.Where(p => !obsoleteTypes.Contains(p.PropertyType)).ToList();
-
-            var constructor = typeof(TDependencies).GetTypeInfo().DeclaredConstructors.OrderByDescending(c => c.GetParameters().Length)
-                .First();
-            var constructorParameters = constructor.GetParameters().Where(p => !obsoleteTypes.Contains(p.ParameterType)).ToList();
-
-            foreach (var serviceType in constructorParameters.Select(p => p.ParameterType))
-            {
-                var withMethod = typeof(TDependencies).GetTypeInfo().DeclaredMethods
-                    .Single(
-                        m => m.CustomAttributes.All(a => a.AttributeType != typeof(ObsoleteAttribute))
-                            && m.Name == "With"
-                            && m.GetParameters()[0].ParameterType == serviceType);
-
-                var clone = withMethod.Invoke(dependencies, new[] { services2.GetService(serviceType) });
-
-                foreach (var property in serviceProperties)
-                {
-                    if (property.PropertyType == serviceType)
-                    {
-                        Assert.NotSame(property.GetValue(clone), property.GetValue(dependencies));
-                    }
-                    else
-                    {
-                        Assert.Equal(property.GetValue(clone), property.GetValue(dependencies));
-                    }
-                }
-            }
-        }
-
-        // ReSharper disable once ClassNeverInstantiated.Local
-        private class FakeCurrentDbContext : ICurrentDbContext
-        {
-            // ReSharper disable once UnassignedGetOnlyAutoProperty
-            public DbContext Context { get; }
-        }
-
         public DbContextOptions CreateOptions(IModel model, IServiceProvider serviceProvider = null)
         {
             var optionsBuilder = new DbContextOptionsBuilder()
@@ -135,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return optionsBuilder;
         }
 
-        protected abstract void UseProviderOptions(DbContextOptionsBuilder optionsBuilder);
+        public abstract void UseProviderOptions(DbContextOptionsBuilder optionsBuilder);
 
         public DbContext CreateContext(IServiceProvider serviceProvider, IModel model)
             => new DbContext(CreateOptions(model, serviceProvider));
@@ -202,8 +139,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public ModelBuilder CreateConventionBuilder(bool skipValidation = false)
         {
-            var conventionSet = CreateContextServices().GetRequiredService<IConventionSetBuilder>()
-                .CreateConventionSet();
+            var conventionSet = CreateConventionSetBuilder().CreateConventionSet();
 
             if (skipValidation)
             {
@@ -212,6 +148,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             return new ModelBuilder(conventionSet);
         }
+
+        public virtual IConventionSetBuilder CreateConventionSetBuilder()
+            => CreateContextServices().GetRequiredService<IConventionSetBuilder>();
 
         public ModelBuilder CreateConventionBuilder(
             DiagnosticsLogger<DbLoggerCategory.Model> modelLogger,

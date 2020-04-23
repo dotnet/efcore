@@ -96,6 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     A service for resolving a connection string from a name.
         /// </summary>
+        [EntityFrameworkInternal]
         public INamedConnectionStringResolver ConnectionStringResolver { get; }
 
         /// <summary>
@@ -155,6 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="connectionStringResolver"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
+        [EntityFrameworkInternal]
         public RelationalConnectionDependencies With([NotNull] INamedConnectionStringResolver connectionStringResolver)
             => new RelationalConnectionDependencies(
                 ContextOptions,

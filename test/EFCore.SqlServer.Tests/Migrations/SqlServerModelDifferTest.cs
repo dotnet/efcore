@@ -908,5 +908,151 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         private bool? IsMemoryOptimized(Annotatable annotatable)
             => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool?;
+
+        [ConditionalFact]
+        public void Dont_rebuild_index_with_unchanged_fillfactor_option()
+        {
+            Execute(
+                source => source
+                    .Entity(
+                        "Address",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("Zip");
+                            x.Property<string>("City");
+                            x.HasIndex("Zip")
+                                .HasFillFactor(90);
+                        }),
+                target => target
+                    .Entity(
+                        "Address",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("Zip");
+                            x.Property<string>("City");
+                            x.HasIndex("Zip")
+                                .HasFillFactor(90);
+                        }),
+                operations => Assert.Equal(0, operations.Count));
+        }
+
+        [ConditionalFact]
+        public void Rebuild_index_when_adding_fillfactor_option()
+        {
+            Execute(
+                _ => { },
+                source => source
+                    .Entity(
+                        "Address",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("Zip");
+                            x.Property<string>("City");
+                            x.Property<string>("Street");
+                            x.HasIndex("Zip");
+                        }),
+                target => target
+                    .Entity(
+                        "Address",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("Zip");
+                            x.Property<string>("City");
+                            x.Property<string>("Street");
+                            x.HasIndex("Zip")
+                                .HasFillFactor(90);
+                        }),
+                upOps =>
+                {
+                    Assert.Equal(2, upOps.Count);
+
+                    var operation1 = Assert.IsType<DropIndexOperation>(upOps[0]);
+                    Assert.Equal("Address", operation1.Table);
+                    Assert.Equal("IX_Address_Zip", operation1.Name);
+
+                    Assert.Empty(operation1.GetAnnotations());
+
+                    var operation2 = Assert.IsType<CreateIndexOperation>(upOps[1]);
+                    Assert.Equal("Address", operation1.Table);
+                    Assert.Equal("IX_Address_Zip", operation1.Name);
+
+                    var annotation = operation2.GetAnnotation(SqlServerAnnotationNames.FillFactor);
+                    Assert.NotNull(annotation);
+
+                    var annotationValue = Assert.IsType<int>(annotation.Value);
+                    Assert.Equal(90, annotationValue);
+                },
+                downOps =>
+                {
+                    Assert.Equal(2, downOps.Count);
+
+                    var operation1 = Assert.IsType<DropIndexOperation>(downOps[0]);
+                    Assert.Equal("Address", operation1.Table);
+                    Assert.Equal("IX_Address_Zip", operation1.Name);
+
+                    Assert.Empty(operation1.GetAnnotations());
+
+                    var operation2 = Assert.IsType<CreateIndexOperation>(downOps[1]);
+                    Assert.Equal("Address", operation1.Table);
+                    Assert.Equal("IX_Address_Zip", operation1.Name);
+
+                    Assert.Empty(operation2.GetAnnotations());
+                });
+        }
+
+        [ConditionalFact]
+        public void Rebuild_index_with_different_fillfactor_value()
+        {
+            Execute(
+                source => source
+                    .Entity(
+                        "Address",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("Zip");
+                            x.Property<string>("City");
+                            x.Property<string>("Street");
+                            x.HasIndex("Zip")
+                                .HasFillFactor(50);
+                        }),
+                target => target
+                    .Entity(
+                        "Address",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("Zip");
+                            x.Property<string>("City");
+                            x.Property<string>("Street");
+                            x.HasIndex("Zip")
+                                .HasFillFactor(90);
+                        }),
+                operations =>
+                {
+                    Assert.Equal(2, operations.Count);
+
+                    var operation1 = Assert.IsType<DropIndexOperation>(operations[0]);
+                    Assert.Equal("Address", operation1.Table);
+                    Assert.Equal("IX_Address_Zip", operation1.Name);
+
+                    Assert.Empty(operation1.GetAnnotations());
+
+                    var operation2 = Assert.IsType<CreateIndexOperation>(operations[1]);
+                    Assert.Equal("Address", operation1.Table);
+                    Assert.Equal("IX_Address_Zip", operation1.Name);
+
+                    var annotation = operation2.GetAnnotation(SqlServerAnnotationNames.FillFactor);
+                    Assert.NotNull(annotation); 
+
+                    var annotationValue = Assert.IsType<int>(annotation.Value); 
+                    
+                    Assert.Equal(90, annotationValue);
+                });
+        }
     }
 }

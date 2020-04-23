@@ -5,7 +5,6 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
-using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
 {
@@ -23,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
             if (property.GetJsonPropertyName() == ""
                 && type == typeof(int))
             {
-                return new TemporaryIntValueGenerator();
+                return new TemporaryNumberValueGeneratorFactory().Create(property);
             }
 
             return base.Create(property, entityType);

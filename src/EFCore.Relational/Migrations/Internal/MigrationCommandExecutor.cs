@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             if (transaction != null
                                 && command.TransactionSuppressed)
                             {
-                                transaction.Commit();
+                                await transaction.CommitAsync(cancellationToken);
                                 await transaction.DisposeAsync();
                                 transaction = null;
                             }
@@ -126,7 +126,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             await command.ExecuteNonQueryAsync(connection, cancellationToken: cancellationToken);
                         }
 
-                        transaction?.Commit();
+                        if (transaction != null)
+                        {
+                            await transaction.CommitAsync(cancellationToken);
+                        }
                     }
                     finally
                     {

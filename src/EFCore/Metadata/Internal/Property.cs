@@ -10,7 +10,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -311,6 +310,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual int? SetPrecision(int? precision, ConfigurationSource configurationSource)
+        {
+            if (precision != null && precision < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(precision));
+            }
+
+            this.SetOrRemoveAnnotation(CoreAnnotationNames.Precision, precision, configurationSource);
+
+            return precision;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual int? SetScale(int? scale, ConfigurationSource configurationSource)
+        {
+            if (scale != null && scale < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(scale));
+            }
+
+            this.SetOrRemoveAnnotation(CoreAnnotationNames.Scale, scale, configurationSource);
+
+            return scale;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual PropertySaveBehavior? SetBeforeSaveBehavior(
             PropertySaveBehavior? beforeSaveBehavior, ConfigurationSource configurationSource)
         {
@@ -364,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] Func<IProperty, IEntityType, ValueGenerator> factory,
             ConfigurationSource configurationSource)
         {
-            this.SetOrRemoveAnnotation(CoreAnnotationNames.ValueGeneratorFactory, factory, configurationSource);
+            SetAnnotation(CoreAnnotationNames.ValueGeneratorFactory, factory, configurationSource);
 
             return factory;
         }
@@ -433,25 +468,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             this.SetOrRemoveAnnotation(CoreAnnotationNames.ValueComparer, comparer, configurationSource);
-
-            return comparer;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual ValueComparer SetKeyValueComparer([CanBeNull] ValueComparer comparer, ConfigurationSource configurationSource)
-        {
-            var errorString = CheckValueComparer(comparer);
-            if (errorString != null)
-            {
-                throw new InvalidOperationException(errorString);
-            }
-
-            this.SetOrRemoveAnnotation(CoreAnnotationNames.KeyValueComparer, comparer, configurationSource);
 
             return comparer;
         }

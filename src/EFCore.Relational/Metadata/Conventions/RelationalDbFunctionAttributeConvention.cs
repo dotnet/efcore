@@ -71,9 +71,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <summary>
-        ///     Called when an <see cref="IMutableDbFunction" /> is added to the model.
+        ///     Called when an <see cref="IConventionDbFunction" /> is added to the model.
         /// </summary>
-        /// <param name="dbFunctionBuilder"> The builder for the <see cref="IMutableDbFunction" />. </param>
+        /// <param name="dbFunctionBuilder"> The builder for the <see cref="IConventionDbFunction" />. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         protected virtual void ProcessDbFunctionAdded(
             [NotNull] IConventionDbFunctionBuilder dbFunctionBuilder, [NotNull] IConventionContext context)

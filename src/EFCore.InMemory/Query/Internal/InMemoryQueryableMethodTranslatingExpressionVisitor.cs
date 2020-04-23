@@ -7,12 +7,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -21,8 +18,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMethodTranslatingExpressionVisitor
     {
-        private static readonly MethodInfo _efPropertyMethod = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(EF.Property));
-
         private readonly InMemoryExpressionTranslatingExpressionVisitor _expressionTranslator;
         private readonly WeakEntityExpandingExpressionVisitor _weakEntityExpandingExpressionVisitor;
         private readonly InMemoryProjectionBindingExpressionVisitor _projectionBindingExpressionVisitor;
@@ -30,13 +25,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         public InMemoryQueryableMethodTranslatingExpressionVisitor(
             [NotNull] QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
-            [NotNull] IModel model)
+            [NotNull] QueryCompilationContext queryCompilationContext)
             : base(dependencies, subquery: false)
         {
-            _expressionTranslator = new InMemoryExpressionTranslatingExpressionVisitor(this, model);
+            _expressionTranslator = new InMemoryExpressionTranslatingExpressionVisitor(queryCompilationContext, this);
             _weakEntityExpandingExpressionVisitor = new WeakEntityExpandingExpressionVisitor(_expressionTranslator);
             _projectionBindingExpressionVisitor = new InMemoryProjectionBindingExpressionVisitor(this, _expressionTranslator);
-            _model = model;
+            _model = queryCompilationContext.Model;
         }
 
         protected InMemoryQueryableMethodTranslatingExpressionVisitor(
@@ -403,15 +398,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             Check.NotNull(inner, nameof(inner));
             Check.NotNull(resultSelector, nameof(resultSelector));
 
-            outerKeySelector = TranslateLambdaExpression(outer, outerKeySelector);
-            innerKeySelector = TranslateLambdaExpression(inner, innerKeySelector);
+            (outerKeySelector, innerKeySelector) = ProcessJoinKeySelector(outer, inner, outerKeySelector, innerKeySelector);
+
             if (outerKeySelector == null
                 || innerKeySelector == null)
             {
                 return null;
             }
-
-            (outerKeySelector, innerKeySelector) = AlignKeySelectorTypes(outerKeySelector, innerKeySelector);
 
             var transparentIdentifierType = TransparentIdentifierFactory.Create(
                 resultSelector.Parameters[0].Type,
@@ -428,6 +421,75 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 resultSelector,
                 inner.ShaperExpression,
                 transparentIdentifierType);
+        }
+
+        private (LambdaExpression OuterKeySelector, LambdaExpression InnerKeySelector) ProcessJoinKeySelector(
+            ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector)
+        {
+            var left = RemapLambdaBody(outer, outerKeySelector);
+            var right = RemapLambdaBody(inner, innerKeySelector);
+
+            var joinCondition = TranslateExpression(Expression.Equal(left, right));
+
+            var (outerKeyBody, innerKeyBody) = DecomposeJoinCondition(joinCondition);
+
+            if (outerKeyBody == null
+                || innerKeyBody == null)
+            {
+                return (null, null);
+            }
+
+            outerKeySelector = Expression.Lambda(outerKeyBody, ((InMemoryQueryExpression)outer.QueryExpression).CurrentParameter);
+            innerKeySelector = Expression.Lambda(innerKeyBody, ((InMemoryQueryExpression)inner.QueryExpression).CurrentParameter);
+
+            return AlignKeySelectorTypes(outerKeySelector, innerKeySelector);
+        }
+
+        private static (Expression, Expression) DecomposeJoinCondition(Expression joinCondition)
+        {
+            var leftExpressions = new List<Expression>();
+            var rightExpressions = new List<Expression>();
+
+            return ProcessJoinCondition(joinCondition, leftExpressions, rightExpressions)
+                ? leftExpressions.Count == 1
+                    ? (leftExpressions[0], rightExpressions[0])
+                    : (CreateAnonymousObject(leftExpressions), CreateAnonymousObject(rightExpressions))
+                : (null, null);
+
+            // InMemory joins need to use AnonymousObject to perform correct key comparison for server side joins
+            static Expression CreateAnonymousObject(List<Expression> expressions)
+                => Expression.New(
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                    // #20565
+                    AnonymousObject.AnonymousObjectCtor,
+#pragma warning restore EF1001 // Internal EF Core API usage.
+                    Expression.NewArrayInit(
+                        typeof(object),
+                        expressions.Select(e => Expression.Convert(e, typeof(object)))));
+        }
+
+
+        private static bool ProcessJoinCondition(
+            Expression joinCondition, List<Expression> leftExpressions, List<Expression> rightExpressions)
+        {
+            if (joinCondition is BinaryExpression binaryExpression)
+            {
+                if (binaryExpression.NodeType == ExpressionType.Equal)
+                {
+                    leftExpressions.Add(binaryExpression.Left);
+                    rightExpressions.Add(binaryExpression.Right);
+
+                    return true;
+                }
+
+                if (binaryExpression.NodeType == ExpressionType.AndAlso)
+                {
+                    return ProcessJoinCondition(binaryExpression.Left, leftExpressions, rightExpressions)
+                        && ProcessJoinCondition(binaryExpression.Right, leftExpressions, rightExpressions);
+                }
+            }
+
+            return false;
         }
 
         private static (LambdaExpression OuterKeySelector, LambdaExpression InnerKeySelector)
@@ -478,15 +540,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             Check.NotNull(inner, nameof(inner));
             Check.NotNull(resultSelector, nameof(resultSelector));
 
-            outerKeySelector = TranslateLambdaExpression(outer, outerKeySelector);
-            innerKeySelector = TranslateLambdaExpression(inner, innerKeySelector);
+            (outerKeySelector, innerKeySelector) = ProcessJoinKeySelector(outer, inner, outerKeySelector, innerKeySelector);
+
             if (outerKeySelector == null
                 || innerKeySelector == null)
             {
                 return null;
             }
 
-            (outerKeySelector, innerKeySelector) = AlignKeySelectorTypes(outerKeySelector, innerKeySelector);
 
             var transparentIdentifierType = TransparentIdentifierFactory.Create(
                 resultSelector.Parameters[0].Type,
@@ -580,14 +641,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     var discriminatorProperty = entityType.GetDiscriminatorProperty();
                     var parameter = Expression.Parameter(entityType.ClrType);
 
-                    var callEFProperty = Expression.Call(
-                        _efPropertyMethod.MakeGenericMethod(
-                            discriminatorProperty.ClrType),
-                        parameter,
-                        Expression.Constant(discriminatorProperty.Name));
-
                     var equals = Expression.Equal(
-                        callEFProperty,
+                        parameter.CreateEFPropertyExpression(discriminatorProperty),
                         Expression.Constant(derivedType.GetDiscriminatorValue(), discriminatorProperty.ClrType));
 
                     foreach (var derivedDerivedType in derivedType.GetDerivedTypes())
@@ -595,7 +650,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         equals = Expression.OrElse(
                             equals,
                             Expression.Equal(
-                                callEFProperty,
+                                parameter.CreateEFPropertyExpression(discriminatorProperty),
                                 Expression.Constant(derivedDerivedType.GetDiscriminatorValue(), discriminatorProperty.ClrType)));
                     }
 
@@ -1044,12 +1099,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         .Select(p => p.ClrType)
                         .Any(t => t.IsNullableType());
 
-                    var outerKey = entityShaperExpression.CreateKeyValueReadExpression(
+                    var outerKey = entityShaperExpression.CreateKeyValuesExpression(
                         navigation.IsOnDependent
                             ? foreignKey.Properties
                             : foreignKey.PrincipalKey.Properties,
                         makeNullable);
-                    var innerKey = innerShapedQuery.ShaperExpression.CreateKeyValueReadExpression(
+                    var innerKey = innerShapedQuery.ShaperExpression.CreateKeyValuesExpression(
                         navigation.IsOnDependent
                             ? foreignKey.PrincipalKey.Properties
                             : foreignKey.Properties,
@@ -1092,12 +1147,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         .Select(p => p.ClrType)
                         .Any(t => t.IsNullableType());
 
-                    var outerKey = entityShaperExpression.CreateKeyValueReadExpression(
+                    var outerKey = entityShaperExpression.CreateKeyValuesExpression(
                         navigation.IsOnDependent
                             ? foreignKey.Properties
                             : foreignKey.PrincipalKey.Properties,
                         makeNullable);
-                    var innerKey = innerShapedQuery.ShaperExpression.CreateKeyValueReadExpression(
+                    var innerKey = innerShapedQuery.ShaperExpression.CreateKeyValuesExpression(
                         navigation.IsOnDependent
                             ? foreignKey.PrincipalKey.Properties
                             : foreignKey.Properties,

@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -162,5 +164,51 @@ namespace Microsoft.EntityFrameworkCore
                 && methodInfo.IsSpecialName
                 && model.AsModel().FindIndexerPropertyInfo(methodInfo.DeclaringType) is PropertyInfo indexerProperty
                 && (methodInfo == indexerProperty.GetMethod || methodInfo == indexerProperty.SetMethod);
+
+        /// <summary>
+        ///     <para>
+        ///         Creates a human-readable representation of the given metadata.
+        ///     </para>
+        ///     <para>
+        ///         Warning: Do not rely on the format of the returned string.
+        ///         It is designed for debugging only and may change arbitrarily between releases.
+        ///     </para>
+        /// </summary>
+        /// <param name="model"> The metadata item. </param>
+        /// <param name="options"> Options for generating the string. </param>
+        /// <param name="indent"> The number of indent spaces to use before each new line. </param>
+        /// <returns> A human-readable representation. </returns>
+        public static string ToDebugString(
+            [NotNull] this IModel model,
+            MetadataDebugStringOptions options,
+            int indent = 0)
+        {
+            var builder = new StringBuilder();
+            var indentString = new string(' ', indent);
+
+            builder.Append(indentString).Append("Model: ");
+
+            if (model.GetPropertyAccessMode() != PropertyAccessMode.PreferField)
+            {
+                builder.Append(" PropertyAccessMode.").Append(model.GetPropertyAccessMode());
+            }
+
+            if (model.GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot)
+            {
+                builder.Append(" ChangeTrackingStrategy.").Append(model.GetChangeTrackingStrategy());
+            }
+
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                builder.AppendLine().Append(entityType.ToDebugString(options, indent + 2));
+            }
+
+            if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            {
+                builder.Append(model.AnnotationsToDebugString(indent));
+            }
+
+            return builder.ToString();
+        }
     }
 }

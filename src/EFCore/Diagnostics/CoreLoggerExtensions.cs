@@ -531,7 +531,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics,left, right);
+                definition.Log(diagnostics, left, right);
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -551,6 +551,37 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var d = (EventDefinition<object, object>)definition;
             var p = (BinaryExpressionEventData)payload;
             return d.GenerateMessage(p.Left, p.Right);
+        }
+
+        public static void InvalidIncludePathError(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+            [NotNull] string navigationChain,
+            [NotNull] string navigationName)
+        {
+            var definition = CoreResources.LogInvalidIncludePath(diagnostics);
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics, navigationChain, navigationName);
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new InvalidIncludePathEventData(
+                    definition,
+                    InvalidIncludePathError,
+                    navigationChain,
+                    navigationName);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        private static string InvalidIncludePathError(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<object, object>)definition;
+            var p = (InvalidIncludePathEventData)payload;
+
+            return d.GenerateMessage(p.NavigationChain, p.NavigationName);
         }
 
         /// <summary>
@@ -1081,10 +1112,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Logs for the <see cref="CoreEventId.IncompatibleMatchingForeignKeyProperties" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="dependentToPrincipalNavigationSpecification"> The name of the navigation property or entity type on the dependent end of the relationship. </param>
+        /// <param name="principalToDependentNavigationSpecification"> The name of the navigation property or entity type on the principal end of the relationship. </param>
         /// <param name="foreignKeyProperties"> The properties that make up the foreign key. </param>
         /// <param name="principalKeyProperties"> The corresponding keys on the principal side. </param>
         public static void IncompatibleMatchingForeignKeyProperties(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            [NotNull] string dependentToPrincipalNavigationSpecification,
+            [NotNull] string principalToDependentNavigationSpecification,
             [NotNull] IReadOnlyList<IPropertyBase> foreignKeyProperties,
             [NotNull] IReadOnlyList<IPropertyBase> principalKeyProperties)
         {
@@ -1094,15 +1129,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             {
                 definition.Log(
                     diagnostics,
+                    dependentToPrincipalNavigationSpecification,
+                    principalToDependentNavigationSpecification,
                     foreignKeyProperties.Format(includeTypes: true),
                     principalKeyProperties.Format(includeTypes: true));
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                var eventData = new TwoPropertyBaseCollectionsEventData(
+                var eventData = new ForeignKeyCandidateEventData(
                     definition,
                     IncompatibleMatchingForeignKeyProperties,
+                    dependentToPrincipalNavigationSpecification,
+                    principalToDependentNavigationSpecification,
                     foreignKeyProperties,
                     principalKeyProperties);
 
@@ -1112,9 +1151,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static string IncompatibleMatchingForeignKeyProperties(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string, string>)definition;
-            var p = (TwoPropertyBaseCollectionsEventData)payload;
+            var d = (EventDefinition<string, string, string, string>)definition;
+            var p = (ForeignKeyCandidateEventData)payload;
             return d.GenerateMessage(
+                p.DependentToPrincipalNavigationSpecification,
+                p.PrincipalToDependentNavigationSpecification,
                 p.FirstPropertyCollection.Format(includeTypes: true),
                 p.SecondPropertyCollection.Format(includeTypes: true));
         }

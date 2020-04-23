@@ -172,6 +172,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 return $"{unicodePrefix}'{value}'";
             }
 
+            if (value.Length == 1)
+            {
+                return value[0] == '\n' ? "CHAR(10)" : "CHAR(13)";
+            }
+
             return ($"CONCAT({unicodePrefix}'" + value
                     .Replace("\r", $"', CHAR(13), {unicodePrefix}'")
                     .Replace("\n", $"', CHAR(10), {unicodePrefix}'") + "')")

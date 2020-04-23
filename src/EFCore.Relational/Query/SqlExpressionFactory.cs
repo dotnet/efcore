@@ -106,6 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             SqlUnaryExpression sqlUnaryExpression, RelationalTypeMapping typeMapping)
         {
             SqlExpression operand;
+            Type resultType;
             RelationalTypeMapping resultTypeMapping;
             switch (sqlUnaryExpression.OperatorType)
             {
@@ -115,18 +116,23 @@ namespace Microsoft.EntityFrameworkCore.Query
                     when sqlUnaryExpression.IsLogicalNot():
                 {
                     resultTypeMapping = _boolTypeMapping;
+                    resultType = typeof(bool);
                     operand = ApplyDefaultTypeMapping(sqlUnaryExpression.Operand);
                     break;
                 }
 
                 case ExpressionType.Convert:
                     resultTypeMapping = typeMapping;
+                    // Since we are applying convert, resultTypeMapping decides the clrType
+                    resultType = resultTypeMapping?.ClrType ?? sqlUnaryExpression.Type;
                     operand = ApplyDefaultTypeMapping(sqlUnaryExpression.Operand);
                     break;
 
                 case ExpressionType.Not:
                 case ExpressionType.Negate:
                     resultTypeMapping = typeMapping;
+                    // While Not is logical, negate is numeric hence we use clrType from TypeMapping
+                    resultType = resultTypeMapping?.ClrType ?? sqlUnaryExpression.Type;
                     operand = ApplyTypeMapping(sqlUnaryExpression.Operand, typeMapping);
                     break;
 
@@ -134,11 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     throw new InvalidOperationException(CoreStrings.UnsupportedUnary);
             }
 
-            return new SqlUnaryExpression(
-                sqlUnaryExpression.OperatorType,
-                operand,
-                sqlUnaryExpression.Type,
-                resultTypeMapping);
+            return new SqlUnaryExpression(sqlUnaryExpression.OperatorType, operand, resultType, resultTypeMapping);
         }
 
         private SqlExpression ApplyTypeMappingOnSqlBinary(
@@ -160,7 +162,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case ExpressionType.NotEqual:
                 {
                     inferredTypeMapping = ExpressionExtensions.InferTypeMapping(left, right)
-                        ?? _typeMappingSource.FindMapping(left.Type);
+                        // We avoid object here since the result does not get typeMapping from outside.
+                        ?? (left.Type != typeof(object)
+                            ? _typeMappingSource.FindMapping(left.Type)
+                            : _typeMappingSource.FindMapping(right.Type));
                     resultType = typeof(bool);
                     resultTypeMapping = _boolTypeMapping;
                     break;
@@ -184,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case ExpressionType.Or:
                 {
                     inferredTypeMapping = typeMapping ?? ExpressionExtensions.InferTypeMapping(left, right);
-                    resultType = left.Type;
+                    resultType = inferredTypeMapping?.ClrType ?? left.Type;
                     resultTypeMapping = inferredTypeMapping;
                     break;
                 }
@@ -437,7 +442,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var operandTypeMapping = operand.TypeMapping
                 ?? whenClauses.Select(wc => wc.Test.TypeMapping).FirstOrDefault(t => t != null)
-                ?? _typeMappingSource.FindMapping(operand.Type);
+                // Since we never look at type of Operand/Test after this place,
+                // we need to find actual typeMapping based on non-object type.
+                ?? new[] { operand.Type }.Concat(whenClauses.Select(wc => wc.Test.Type))
+                    .Where(t => t != typeof(object)).Select(t => _typeMappingSource.FindMapping(t)).FirstOrDefault();
 
             var resultTypeMapping = elseResult?.TypeMapping
                 ?? whenClauses.Select(wc => wc.Result.TypeMapping).FirstOrDefault(t => t != null);
@@ -762,7 +770,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             else
             {
                 var tableMappings = entityType.GetViewOrTableMappings();
-                if (tableMappings == null)
+                if (!tableMappings.Any())
                 {
                     return;
                 }

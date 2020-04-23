@@ -27,9 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionDbFunctionBuilder Builder { get; }
 
         /// <summary>
-        ///     Gets the configuration source for this <see cref="IConventionDbFunction" />.
+        ///     Gets the configuration source for this function.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IConventionDbFunction" />. </returns>
+        /// <returns> The configuration source for this function. </returns>
         ConfigurationSource GetConfigurationSource();
 
         /// <summary>

@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -37,28 +38,28 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="entry"> The <see cref="IUpdateEntry" /> that represents the entity that is being modified. </param>
         /// <param name="property"> The property that maps to the column. </param>
+        /// <param name="column"> The column to be modified. </param>
         /// <param name="generateParameterName"> A delegate for generating parameter names for the update SQL. </param>
         /// <param name="isRead"> Indicates whether or not a value must be read from the database for the column. </param>
         /// <param name="isWrite"> Indicates whether or not a value must be written to the database for the column. </param>
         /// <param name="isKey"> Indicates whether or not the column part of a primary or alternate key.</param>
         /// <param name="isCondition"> Indicates whether or not the column is used in the <c>WHERE</c> clause when updating. </param>
-        /// <param name="isConcurrencyToken"> Indicates whether or not the column is acting as an optimistic concurrency token. </param>
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
         public ColumnModification(
             [NotNull] IUpdateEntry entry,
             [NotNull] IProperty property,
+            [NotNull] IColumn column,
             [NotNull] Func<string> generateParameterName,
             bool isRead,
             bool isWrite,
             bool isKey,
             bool isCondition,
-            bool isConcurrencyToken,
             bool sensitiveLoggingEnabled)
-            : this(
-                Check.NotNull(property, nameof(property)).GetColumnName(),
+            : this(Check.NotNull(column, nameof(column)).Name,
                 originalValue: null,
                 value: null,
                 property: property,
+                null,
                 isRead: isRead,
                 isWrite: isWrite,
                 isKey: isKey,
@@ -70,9 +71,82 @@ namespace Microsoft.EntityFrameworkCore.Update
             Check.NotNull(generateParameterName, nameof(generateParameterName));
 
             Entry = entry;
-            IsConcurrencyToken = isConcurrencyToken;
             _generateParameterName = generateParameterName;
             _useParameters = true;
+        }
+
+        /// <summary>
+        ///     Creates a new <see cref="ColumnModification" /> instance.
+        /// </summary>
+        /// <param name="entry"> The <see cref="IUpdateEntry" /> that represents the entity that is being modified. </param>
+        /// <param name="property"> The property that maps to the column. </param>
+        /// <param name="generateParameterName"> A delegate for generating parameter names for the update SQL. </param>
+        /// <param name="isRead"> Indicates whether or not a value must be read from the database for the column. </param>
+        /// <param name="isWrite"> Indicates whether or not a value must be written to the database for the column. </param>
+        /// <param name="isKey"> Indicates whether or not the column part of a primary or alternate key.</param>
+        /// <param name="isCondition"> Indicates whether or not the column is used in the <c>WHERE</c> clause when updating. </param>
+        /// <param name="isConcurrencyToken"> Indicates whether or not the column is acting as an optimistic concurrency token. </param>
+        /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
+        [Obsolete("Use the constructor with column")]
+        public ColumnModification(
+            [NotNull] IUpdateEntry entry,
+            [NotNull] IProperty property,
+            [NotNull] Func<string> generateParameterName,
+            bool isRead,
+            bool isWrite,
+            bool isKey,
+            bool isCondition,
+            bool isConcurrencyToken,
+            bool sensitiveLoggingEnabled)
+            : this(entry,
+                  property,
+                  Check.NotNull(property, nameof(property)).GetTableColumnMappings().First().Column,
+                  generateParameterName,
+                  isRead: isRead,
+                  isWrite: isWrite,
+                  isKey: isKey,
+                  isCondition: isCondition,
+                  sensitiveLoggingEnabled: sensitiveLoggingEnabled)
+        {
+        }
+
+        /// <summary>
+        ///     Creates a new <see cref="ColumnModification" /> instance.
+        /// </summary>
+        /// <param name="columnName"> The name of the column. </param>
+        /// <param name="originalValue"> The original value of the property mapped to this column. </param>
+        /// <param name="value"> Gets or sets the current value of the property mapped to this column. </param>
+        /// <param name="property"> The property that maps to the column. </param>
+        /// <param name="columnType"> The database type of the column. </param>
+        /// <param name="isRead"> Indicates whether or not a value must be read from the database for the column. </param>
+        /// <param name="isWrite"> Indicates whether or not a value must be written to the database for the column. </param>
+        /// <param name="isKey"> Indicates whether or not the column part of a primary or alternate key.</param>
+        /// <param name="isCondition"> Indicates whether or not the column is used in the <c>WHERE</c> clause when updating. </param>
+        /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
+        public ColumnModification(
+            [NotNull] string columnName,
+            [CanBeNull] object originalValue,
+            [CanBeNull] object value,
+            [CanBeNull] IProperty property,
+            [CanBeNull] string columnType,
+            bool isRead,
+            bool isWrite,
+            bool isKey,
+            bool isCondition,
+            bool sensitiveLoggingEnabled)
+        {
+            Check.NotNull(columnName, nameof(columnName));
+
+            ColumnName = columnName;
+            _originalValue = originalValue;
+            _value = value;
+            Property = property;
+            ColumnType = columnType;
+            IsRead = isRead;
+            IsWrite = isWrite;
+            IsKey = isKey;
+            IsCondition = isCondition;
+            _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
         }
 
         /// <summary>
@@ -87,6 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="isKey"> Indicates whether or not the column part of a primary or alternate key.</param>
         /// <param name="isCondition"> Indicates whether or not the column is used in the <c>WHERE</c> clause when updating. </param>
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
+        [Obsolete("Use the constructor with columnType")]
         public ColumnModification(
             [NotNull] string columnName,
             [CanBeNull] object originalValue,
@@ -97,18 +172,17 @@ namespace Microsoft.EntityFrameworkCore.Update
             bool isKey,
             bool isCondition,
             bool sensitiveLoggingEnabled)
+            : this(columnName,
+                originalValue: originalValue,
+                value: value,
+                property: property,
+                columnType: null,
+                isRead: isRead,
+                isWrite: isWrite,
+                isKey: isKey,
+                isCondition: isCondition,
+                sensitiveLoggingEnabled: sensitiveLoggingEnabled)
         {
-            Check.NotNull(columnName, nameof(columnName));
-
-            ColumnName = columnName;
-            _originalValue = originalValue;
-            _value = value;
-            Property = property;
-            IsRead = isRead;
-            IsWrite = isWrite;
-            IsKey = isKey;
-            IsCondition = isCondition;
-            _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
         }
 
         /// <summary>
@@ -136,9 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         public virtual bool IsCondition { get; }
 
-        /// <summary>
-        ///     Indicates whether or not the column is acting as an optimistic concurrency token.
-        /// </summary>
+        [Obsolete]
         public virtual bool IsConcurrencyToken { get; }
 
         /// <summary>
@@ -172,6 +244,11 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     The name of the column.
         /// </summary>
         public virtual string ColumnName { get; }
+
+        /// <summary>
+        ///     The database type of the column.
+        /// </summary>
+        public virtual string ColumnType { get; }
 
         /// <summary>
         ///     The original value of the property mapped to this column.

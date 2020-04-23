@@ -31,10 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private Expression CreateQueryableFunctionQueryRootExpression(
             IDbFunction function, IReadOnlyCollection<Expression> arguments)
-        {
-            var entityType = _model.FindEntityType(function.MethodInfo.ReturnType.GetGenericArguments()[0]);
-
-            return new QueryableFunctionQueryRootExpression(entityType, function, arguments);
-        }
+            => new QueryableFunctionQueryRootExpression(function.QueryableEntityType, function, arguments);
     }
 }

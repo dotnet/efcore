@@ -446,6 +446,21 @@ WHERE [c].[ParentId] = @__p_0",
                 ignoreLineEndingDifferences: true);
         }
 
+        public override async Task Entity_equality_with_proxy_parameter(bool async)
+        {
+            await base.Entity_equality_with_proxy_parameter(async);
+
+            Assert.Equal(
+                @"@__entity_equality_called_0_Id='707' (Nullable = true)
+
+SELECT [c].[Id], [c].[ParentId]
+FROM [Child] AS [c]
+LEFT JOIN [Parent] AS [p] ON [c].[ParentId] = [p].[Id]
+WHERE [p].[Id] = @__entity_equality_called_0_Id",
+                Sql,
+                ignoreLineEndingDifferences: true);
+        }
+
         protected override void ClearLog() => Fixture.TestSqlLoggerFactory.Clear();
 
         protected override void RecordLog() => Sql = Fixture.TestSqlLoggerFactory.Sql;

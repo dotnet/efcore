@@ -333,5 +333,16 @@ namespace System
                 return ex.Types.Where(t => t != null).Select(IntrospectionExtensions.GetTypeInfo);
             }
         }
+
+        public static bool IsQueryableType(this Type type)
+        {
+            if (type.IsGenericType
+                && type.GetGenericTypeDefinition() == typeof(IQueryable<>))
+            {
+                return true;
+            }
+
+            return type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IQueryable<>));
+        }
     }
 }

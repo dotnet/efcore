@@ -262,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             where TCollection : class
             where TElement : class
         {
-            var collection = (TCollection)(ICollection<TElement>)new HashSet<TElement>(ReferenceEqualityComparer.Instance);
+            var collection = (TCollection)(ICollection<TElement>)new HashSet<TElement>(LegacyReferenceEqualityComparer.Instance);
             setterDelegate(entity, collection);
             return collection;
         }
@@ -271,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static TCollection CreateHashSet<TCollection, TElement>()
             where TCollection : class
             where TElement : class
-            => (TCollection)(ICollection<TElement>)new HashSet<TElement>(ReferenceEqualityComparer.Instance);
+            => (TCollection)(ICollection<TElement>)new HashSet<TElement>(LegacyReferenceEqualityComparer.Instance);
 
         [UsedImplicitly]
         private static TCollection CreateAndSetObservableHashSet<TEntity, TCollection, TElement>(
@@ -281,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             where TCollection : class
             where TElement : class
         {
-            var collection = (TCollection)(ICollection<TElement>)new ObservableHashSet<TElement>(ReferenceEqualityComparer.Instance);
+            var collection = (TCollection)(ICollection<TElement>)new ObservableHashSet<TElement>(LegacyReferenceEqualityComparer.Instance);
             setterDelegate(entity, collection);
             return collection;
         }
@@ -290,6 +290,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static TCollection CreateObservableHashSet<TCollection, TElement>()
             where TCollection : class
             where TElement : class
-            => (TCollection)(ICollection<TElement>)new ObservableHashSet<TElement>(ReferenceEqualityComparer.Instance);
+            => (TCollection)(ICollection<TElement>)new ObservableHashSet<TElement>(LegacyReferenceEqualityComparer.Instance);
     }
 }

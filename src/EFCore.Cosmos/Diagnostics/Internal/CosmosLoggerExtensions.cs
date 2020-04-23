@@ -36,12 +36,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
         {
             var definition = new EventDefinition<string, string, string>(
                 diagnosticsLogger.Options,
-                CoreEventId.ProviderBaseId,
+                CosmosEventId.ExecutingSqlQuery,
                 LogLevel.Debug,
-                "CoreEventId.ProviderBaseId",
+                "CosmosEventId.ExecutingSqlQuery",
                 level => LoggerMessage.Define<string, string, string>(
                     level,
-                    CoreEventId.ProviderBaseId,
+                    CosmosEventId.ExecutingSqlQuery,
                     "Executing Sql Query [Parameters=[{parameters}]]{newLine}{commandText}"));
 
             definition.Log(
@@ -49,6 +49,26 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
                 FormatParameters(cosmosSqlQuery.Parameters),
                 Environment.NewLine,
                 cosmosSqlQuery.Query);
+        }
+
+        public static void ExecutingReadItem(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnosticsLogger,
+            [NotNull] string partitionKey,
+            [NotNull] string resourceId)
+        {
+            var definition = new EventDefinition<string>(
+                diagnosticsLogger.Options,
+                CosmosEventId.ExecutingReadItem,
+                LogLevel.Debug,
+                "CosmosEventId.ExecutingReadItem",
+                level => LoggerMessage.Define<string>(
+                    level,
+                    CosmosEventId.ExecutingReadItem,
+                    "Executing Read Item [Partition Key, Resource Id=[{parameters}]]"));
+
+            definition.Log(
+                diagnosticsLogger,
+                $"{partitionKey}, {resourceId}");
         }
 
         private static string FormatParameters(IReadOnlyList<SqlParameter> parameters)

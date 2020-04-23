@@ -552,11 +552,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql),
                 stringBuilder);
 
-            GenerateFluentApiForAnnotation(
-                ref annotations,
-                RelationalAnnotationNames.ComputedColumnSql,
-                nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql),
-                stringBuilder);
+            GenerateFluentApiForComputedColumn(ref annotations, stringBuilder);
 
             GenerateFluentApiForAnnotation(
                 ref annotations,
@@ -572,9 +568,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             GenerateFluentApiForAnnotation(
                 ref annotations,
+                RelationalAnnotationNames.Collation,
+                nameof(RelationalPropertyBuilderExtensions.UseCollation),
+                stringBuilder);
+
+            GenerateFluentApiForAnnotation(
+                ref annotations,
                 CoreAnnotationNames.MaxLength,
                 nameof(PropertyBuilder.HasMaxLength),
                 stringBuilder);
+
+            GenerateFluentApiForPrecisionAndScale(ref annotations, stringBuilder);
 
             GenerateFluentApiForAnnotation(
                 ref annotations,
@@ -603,8 +607,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.AfterSaveBehavior,
                 CoreAnnotationNames.TypeMapping,
                 CoreAnnotationNames.ValueComparer,
-                CoreAnnotationNames.KeyValueComparer,
 #pragma warning disable 618
+                CoreAnnotationNames.KeyValueComparer,
                 CoreAnnotationNames.StructuralValueComparer,
 #pragma warning restore 618
                 CoreAnnotationNames.ValueConverter,
@@ -1298,6 +1302,91 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                 annotations.Remove(annotation);
             }
+        }
+
+        /// <summary>
+        ///     Generates a Fluent API call for the Precision and Scale annotations.
+        /// </summary>
+        /// <param name="annotations"> The list of annotations. </param>
+        /// <param name="stringBuilder"> The builder code is added to. </param>
+        protected virtual void GenerateFluentApiForPrecisionAndScale(
+            [NotNull] ref List<IAnnotation> annotations,
+            [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            var precisionAnnotation = annotations
+                .FirstOrDefault(a => a.Name == CoreAnnotationNames.Precision);
+            var precisionValue = precisionAnnotation?.Value;
+
+            if (precisionValue != null)
+            {
+                stringBuilder
+                    .AppendLine()
+                    .Append(".")
+                    .Append(nameof(PropertyBuilder.HasPrecision))
+                    .Append("(")
+                    .Append(Code.UnknownLiteral(precisionValue));
+
+                var scaleAnnotation = annotations
+                    .FirstOrDefault(a => a.Name == CoreAnnotationNames.Scale);
+                var scaleValue = (int?)scaleAnnotation?.Value;
+
+                if (scaleValue != null)
+                {
+                    if (scaleValue != 0)
+                    {
+                        stringBuilder
+                            .Append(", ")
+                            .Append(Code.UnknownLiteral(scaleValue));
+                    }
+
+                    annotations.Remove(scaleAnnotation);
+                }
+
+                stringBuilder.Append(")");
+
+                annotations.Remove(precisionAnnotation);
+            }
+        }
+
+        /// <summary>
+        ///     Generates a Fluent API call for the computed column annotations.
+        /// </summary>
+        /// <param name="annotations"> The list of annotations. </param>
+        /// <param name="stringBuilder"> The builder code is added to. </param>
+        protected virtual void GenerateFluentApiForComputedColumn(
+            [NotNull] ref List<IAnnotation> annotations,
+            [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            var sql = annotations
+                .FirstOrDefault(a => a.Name == RelationalAnnotationNames.ComputedColumnSql);
+
+            if (sql is null)
+            {
+                return;
+            }
+
+            stringBuilder
+                .AppendLine()
+                .Append(".")
+                .Append(nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql))
+                .Append("(")
+                .Append(Code.UnknownLiteral(sql.Value));
+
+            var isStored = annotations
+                .FirstOrDefault(a => a.Name == RelationalAnnotationNames.ComputedColumnIsStored);
+
+            if (isStored != null)
+            {
+                stringBuilder
+                    .Append(", ")
+                    .Append(Code.UnknownLiteral(isStored.Value));
+
+                annotations.Remove(isStored);
+            }
+
+            stringBuilder.Append(")");
+
+            annotations.Remove(sql);
         }
 
         /// <summary>

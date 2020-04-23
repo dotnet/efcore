@@ -381,6 +381,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <c>null</c> otherwise.
         /// </returns>
+        [Obsolete("Use HasValueComparer. Only a single value comparer is allowed for a given property.")]
         IConventionPropertyBuilder HasKeyValueComparer([CanBeNull] ValueComparer comparer, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -392,6 +393,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     <c>true</c> if the given <see cref="ValueComparer" /> can be configured for this property.
         /// </returns>
+        [Obsolete("Use CanSetValueComparer. Only a single value comparer is allowed for a given property.")]
         bool CanSetKeyValueComparer([CanBeNull] ValueComparer comparer, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -403,7 +405,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <c>null</c> otherwise.
         /// </returns>
-        [Obsolete("Use HasKeyValueComparer. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
+        [Obsolete("Use HasValueComparer. Only a single value comparer is allowed for a given property.")]
         IConventionPropertyBuilder HasStructuralValueComparer([CanBeNull] ValueComparer comparer, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -415,7 +417,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     <c>true</c> if the given <see cref="ValueComparer" /> can be configured for this property.
         /// </returns>
-        [Obsolete("Use CanSetStructuralValueComparer. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
+        [Obsolete("Use CanSetValueComparer. Only a single value comparer is allowed for a given property.")]
         bool CanSetStructuralValueComparer([CanBeNull] ValueComparer comparer, bool fromDataAnnotation = false);
     }
 }

@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -313,8 +314,8 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             batch.AddCommand(
                 new FakeModificationCommand(
-                    "T",
-                    "S",
+                    "T1",
+                    null,
                     parameterNameGenerator.GenerateNext,
                     true,
                     new List<ColumnModification>
@@ -322,14 +323,15 @@ namespace Microsoft.EntityFrameworkCore.Update
                         new ColumnModification(
                             entry,
                             property,
+                            property.GetTableColumnMappings().Single().Column,
                             parameterNameGenerator.GenerateNext,
-                            false, true, false, false, false, true)
+                            false, true, false, false, true)
                     }));
 
             batch.AddCommand(
                 new FakeModificationCommand(
-                    "T",
-                    "S",
+                    "T1",
+                    null,
                     parameterNameGenerator.GenerateNext,
                     true,
                     new List<ColumnModification>
@@ -337,8 +339,9 @@ namespace Microsoft.EntityFrameworkCore.Update
                         new ColumnModification(
                             entry,
                             property,
+                            property.GetTableColumnMappings().Single().Column,
                             parameterNameGenerator.GenerateNext,
-                            false, true, false, false, false, true)
+                            false, true, false, false, true)
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
@@ -363,8 +366,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             var parameterNameGenerator = new ParameterNameGenerator();
             batch.AddCommand(
                 new FakeModificationCommand(
-                    "T",
-                    "S",
+                    "T1",
+                    null,
                     parameterNameGenerator.GenerateNext,
                     true,
                     new List<ColumnModification>
@@ -372,8 +375,9 @@ namespace Microsoft.EntityFrameworkCore.Update
                         new ColumnModification(
                             entry,
                             property,
+                            property.GetTableColumnMappings().Single().Column,
                             parameterNameGenerator.GenerateNext,
-                            isRead: false, isWrite: true, isKey: false, isCondition: false, isConcurrencyToken: false,
+                            isRead: false, isWrite: true, isKey: false, isCondition: false,
                             sensitiveLoggingEnabled: true)
                     }));
 
@@ -397,8 +401,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             var parameterNameGenerator = new ParameterNameGenerator();
             batch.AddCommand(
                 new FakeModificationCommand(
-                    "T",
-                    "S",
+                    "T1",
+                    null,
                     parameterNameGenerator.GenerateNext,
                     true,
                     new List<ColumnModification>
@@ -406,8 +410,9 @@ namespace Microsoft.EntityFrameworkCore.Update
                         new ColumnModification(
                             entry,
                             property,
+                            property.GetTableColumnMappings().Single().Column,
                             parameterNameGenerator.GenerateNext,
-                            isRead: false, isWrite: false, isKey: false, isCondition: true, isConcurrencyToken: false,
+                            isRead: false, isWrite: false, isKey: false, isCondition: true,
                             sensitiveLoggingEnabled: true)
                     }));
 
@@ -431,8 +436,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             var parameterNameGenerator = new ParameterNameGenerator();
             batch.AddCommand(
                 new FakeModificationCommand(
-                    "T",
-                    "S",
+                    "T1",
+                    null,
                     parameterNameGenerator.GenerateNext,
                     true,
                     new List<ColumnModification>
@@ -440,8 +445,9 @@ namespace Microsoft.EntityFrameworkCore.Update
                         new ColumnModification(
                             entry,
                             property,
+                            property.GetTableColumnMappings().Single().Column,
                             parameterNameGenerator.GenerateNext,
-                            isRead: false, isWrite: true, isKey: false, isCondition: true, isConcurrencyToken: false,
+                            isRead: false, isWrite: true, isKey: false, isCondition: true,
                             sensitiveLoggingEnabled: true)
                     }));
 
@@ -467,8 +473,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             var parameterNameGenerator = new ParameterNameGenerator();
             batch.AddCommand(
                 new FakeModificationCommand(
-                    "T",
-                    "S",
+                    "T1",
+                    null,
                     parameterNameGenerator.GenerateNext,
                     true,
                     new List<ColumnModification>
@@ -476,8 +482,9 @@ namespace Microsoft.EntityFrameworkCore.Update
                         new ColumnModification(
                             entry,
                             property,
+                            property.GetTableColumnMappings().Single().Column,
                             parameterNameGenerator.GenerateNext,
-                            isRead: true, isWrite: false, isKey: false, isCondition: false, isConcurrencyToken: false,
+                            isRead: true, isWrite: false, isKey: false, isCondition: false,
                             sensitiveLoggingEnabled: true)
                     }));
 
@@ -494,31 +501,23 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         private static IModel BuildModel(bool generateKeyValues, bool computeNonKeyValue)
         {
-            IMutableModel model = new Model();
+            var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();            
+            var entityType = modelBuilder.Entity<T1>();
 
-            var entityType = model.AddEntityType(typeof(T1));
+            entityType.Property(t => t.Id).HasColumnName("Col1");
+            if (!generateKeyValues)
+            {
+                entityType.Property(t => t.Id).ValueGeneratedNever();
+            }
 
-            var key = entityType.AddProperty("Id", typeof(int));
-            key.ValueGenerated = generateKeyValues ? ValueGenerated.OnAdd : ValueGenerated.Never;
-            key.SetColumnName("Col1");
-            entityType.SetPrimaryKey(key);
+            entityType.Property(t => t.Name).HasColumnName("Col2");
+            if (computeNonKeyValue)
+            {
+                entityType.Property(t => t.Name).ValueGeneratedOnAddOrUpdate();
+            }
 
-            var nonKey = entityType.AddProperty("Name", typeof(string));
-            nonKey.SetColumnName("Col2");
-            nonKey.ValueGenerated = computeNonKeyValue ? ValueGenerated.OnAddOrUpdate : ValueGenerated.Never;
-
-            GenerateMapping(key);
-            GenerateMapping(nonKey);
-
-            return model.FinalizeModel();
+            return modelBuilder.FinalizeModel();
         }
-
-        private static void GenerateMapping(IMutableProperty property)
-            => property[CoreAnnotationNames.TypeMapping] =
-                new TestRelationalTypeMappingSource(
-                        TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
-                    .FindMapping(property);
 
         private static InternalEntityEntry CreateEntry(
             EntityState entityState,

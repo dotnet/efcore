@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Update;
 
@@ -34,25 +33,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (IsGenericComparable(modelType, nonNullableModelType))
             {
                 return (IComparer<IUpdateEntry>)Activator.CreateInstance(
-                    typeof(CurrentValueComparer<>).MakeGenericType(modelType),
+                    typeof(EntryCurrentValueComparer<>).MakeGenericType(modelType),
                     propertyBase);
             }
 
             if (typeof(IStructuralComparable).IsAssignableFrom(nonNullableModelType))
             {
-                return new StructuralCurrentValueComparer(propertyBase);
+                return new StructuralEntryCurrentValueComparer(propertyBase);
             }
 
             if (typeof(IComparable).IsAssignableFrom(nonNullableModelType))
             {
-                return new CurrentValueComparer(propertyBase);
+                return new EntryCurrentValueComparer(propertyBase);
             }
 
             if (propertyBase is IProperty property)
             {
-                var converter = property.GetValueConverter()
-                    ?? property.GetTypeMapping().Converter;
-
+                var converter = property.GetTypeMapping().Converter;
                 if (converter != null)
                 {
                     var providerType = converter.ProviderClrType;
@@ -71,12 +68,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                     if (typeof(IStructuralComparable).IsAssignableFrom(nonNullableProviderType))
                     {
-                        return new StructuralCurrentProviderValueComparer(propertyBase, converter);
+                        return new StructuralEntryCurrentProviderValueComparer(propertyBase, converter);
                     }
 
                     if (typeof(IComparable).IsAssignableFrom(nonNullableProviderType))
                     {
-                        return new CurrentProviderValueComparer(propertyBase, converter);
+                        return new EntryCurrentProviderValueComparer(propertyBase, converter);
                     }
 
                     throw new InvalidOperationException(

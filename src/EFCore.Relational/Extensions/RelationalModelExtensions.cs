@@ -3,10 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -15,10 +16,51 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Extension methods for <see cref="IModel" /> for relational database metadata.
+    ///     Relational-specific extension methods for <see cref="IModel" /> and extension methods for <see cref="IRelationalModel"/>.
     /// </summary>
     public static class RelationalModelExtensions
     {
+        /// <summary>
+        ///     <para>
+        ///         Creates a human-readable representation of the given metadata.
+        ///     </para>
+        ///     <para>
+        ///         Warning: Do not rely on the format of the returned string.
+        ///         It is designed for debugging only and may change arbitrarily between releases.
+        ///     </para>
+        /// </summary>
+        /// <param name="model"> The metadata item. </param>
+        /// <param name="options"> Options for generating the string. </param>
+        /// <param name="indent"> The number of indent spaces to use before each new line. </param>
+        /// <returns> A human-readable representation. </returns>
+        public static string ToDebugString(
+            [NotNull] this IRelationalModel model,
+            MetadataDebugStringOptions options,
+            int indent = 0)
+        {
+            var builder = new StringBuilder();
+            var indentString = new string(' ', indent);
+
+            builder.Append(indentString).Append("DatabaseModel: ");
+
+            foreach (var table in model.Tables)
+            {
+                builder.AppendLine().Append(table.ToDebugString(options, indent + 2));
+            }
+
+            foreach (var view in model.Views)
+            {
+                builder.AppendLine().Append(view.ToDebugString(options, indent + 2));
+            }
+
+            if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            {
+                builder.Append(model.AnnotationsToDebugString(indent));
+            }
+
+            return builder.ToString();
+        }
+
         /// <summary>
         ///     Returns the default schema to use for the model, or <c>null</c> if none has been set.
         /// </summary>
@@ -263,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore
             => (IConventionDbFunction)((IModel)model).FindDbFunction(method);
 
         /// <summary>
-        ///     Finds a <see cref="IDbFunction" /> that is mapped to the method represented by the given name.
+        ///     Finds an <see cref="IDbFunction" /> that is mapped to the method represented by the given name.
         /// </summary>
         /// <param name="model"> The model to find the function in. </param>
         /// <param name="name"> The model name of the function. </param>
@@ -274,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore
                 Check.NotNull(name, nameof(name)));
 
         /// <summary>
-        ///     Finds a <see cref="IMutableDbFunction" /> that is mapped to the method represented by the given name.
+        ///     Finds an <see cref="IMutableDbFunction" /> that is mapped to the method represented by the given name.
         /// </summary>
         /// <param name="model"> The model to find the function in. </param>
         /// <param name="name"> The model name of the function. </param>
@@ -283,7 +325,7 @@ namespace Microsoft.EntityFrameworkCore
             => (IMutableDbFunction)((IModel)model).FindDbFunction(name);
 
         /// <summary>
-        ///     Finds a <see cref="IConventionDbFunction" /> that is mapped to the method represented by the given name.
+        ///     Finds an <see cref="IConventionDbFunction" /> that is mapped to the method represented by the given name.
         /// </summary>
         /// <param name="model"> The model to find the function in. </param>
         /// <param name="name"> The model name of the function. </param>
@@ -292,24 +334,22 @@ namespace Microsoft.EntityFrameworkCore
             => (IConventionDbFunction)((IModel)model).FindDbFunction(name);
 
         /// <summary>
-        ///     Either returns the existing <see cref="DbFunction" /> mapped to the given method
-        ///     or creates a new function mapped to the method.
+        ///     Creates an <see cref="IMutableDbFunction" /> mapped to the given method.
         /// </summary>
         /// <param name="model"> The model to add the function to. </param>
         /// <param name="methodInfo"> The <see cref="MethodInfo" /> for the method that is mapped to the function. </param>
-        /// <returns> The <see cref="DbFunction" />. </returns>
+        /// <returns> The new <see cref="IMutableDbFunction" />. </returns>
         public static IMutableDbFunction AddDbFunction([NotNull] this IMutableModel model, [NotNull] MethodInfo methodInfo)
             => DbFunction.AddDbFunction(
                  model, Check.NotNull(methodInfo, nameof(methodInfo)), ConfigurationSource.Explicit);
 
         /// <summary>
-        ///     Either returns the existing <see cref="DbFunction" /> mapped to the given method
-        ///     or creates a new function mapped to the method.
+        ///     Creates an <see cref="IConventionDbFunction" /> mapped to the given method.
         /// </summary>
         /// <param name="model"> The model to add the function to. </param>
         /// <param name="methodInfo"> The <see cref="MethodInfo" /> for the method that is mapped to the function. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> The <see cref="DbFunction" />. </returns>
+        /// <returns> The new <see cref="IConventionDbFunction" />. </returns>
         public static IConventionDbFunction AddDbFunction(
             [NotNull] this IConventionModel model, [NotNull] MethodInfo methodInfo, bool fromDataAnnotation = false)
             => DbFunction.AddDbFunction(
@@ -317,28 +357,36 @@ namespace Microsoft.EntityFrameworkCore
                  fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
-        ///     Either returns the existing <see cref="DbFunction" /> mapped to the given method
-        ///     or creates a new function mapped to the method.
+        ///     Creates an <see cref="IMutableDbFunction" />.
         /// </summary>
         /// <param name="model"> The model to add the function to. </param>
         /// <param name="name"> The model name of the function. </param>
-        /// <returns> The <see cref="DbFunction" />. </returns>
-        public static IMutableDbFunction AddDbFunction([NotNull] this IMutableModel model, [NotNull] string name)
+        /// <param name="returnType"> The function return type. </param>
+        /// <returns> The new <see cref="IMutableDbFunction" />. </returns>
+        public static IMutableDbFunction AddDbFunction(
+            [NotNull] this IMutableModel model,
+            [NotNull] string name,
+            [NotNull] Type returnType)
             => DbFunction.AddDbFunction(
-                 model, Check.NotNull(name, nameof(name)), ConfigurationSource.Explicit);
+                 model, Check.NotNull(name, nameof(name)), returnType, ConfigurationSource.Explicit);
 
         /// <summary>
-        ///     Either returns the existing <see cref="DbFunction" /> mapped to the given method
-        ///     or creates a new function mapped to the method.
+        ///     Creates an <see cref="IConventionDbFunction" />.
         /// </summary>
         /// <param name="model"> The model to add the function to. </param>
         /// <param name="name"> The model name of the function. </param>
+        /// <param name="returnType"> The function return type. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> The <see cref="DbFunction" />. </returns>
+        /// <returns> The new <see cref="IConventionDbFunction" />. </returns>
         public static IConventionDbFunction AddDbFunction(
-            [NotNull] this IConventionModel model, [NotNull] string name, bool fromDataAnnotation = false)
+            [NotNull] this IConventionModel model,
+            [NotNull] string name,
+            [NotNull] Type returnType,
+            bool fromDataAnnotation = false)
             => DbFunction.AddDbFunction(
-                 (IMutableModel)model, Check.NotNull(name, nameof(name)),
+                 (IMutableModel)model,
+                 Check.NotNull(name, nameof(name)),
+                 returnType,
                  fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -405,5 +453,46 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to get the functions in. </param>
         public static IEnumerable<IConventionDbFunction> GetDbFunctions([NotNull] this IConventionModel model)
             => DbFunction.GetDbFunctions((Model)Check.NotNull(model, nameof(model)));
+
+        /// <summary>
+        ///     Returns the database collation.
+        /// </summary>
+        /// <param name="model"> The model to get the collation for. </param>
+        /// <returns> The collation. </returns>
+        public static string GetCollation([NotNull] this IModel model)
+            => (string)model[RelationalAnnotationNames.Collation];
+
+        /// <summary>
+        ///     Sets the database collation.
+        /// </summary>
+        /// <param name="model"> The model to set the collation for. </param>
+        /// <param name="value"> The value to set. </param>
+        public static void SetCollation([NotNull] this IMutableModel model, [CanBeNull] string value)
+            => model.SetOrRemoveAnnotation(
+                RelationalAnnotationNames.Collation,
+                Check.NullButNotEmpty(value, nameof(value)));
+
+        /// <summary>
+        ///     Sets the database collation.
+        /// </summary>
+        /// <param name="model"> The model to set the collation for. </param>
+        /// <param name="value"> The value to set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured collation. </returns>
+        public static string SetCollation([NotNull] this IConventionModel model, [CanBeNull] string value, bool fromDataAnnotation = false)
+        {
+            model.SetOrRemoveAnnotation(
+                RelationalAnnotationNames.Collation,
+                Check.NullButNotEmpty(value, nameof(value)), fromDataAnnotation);
+            return value;
+        }
+
+        /// <summary>
+        ///     Returns the configuration source for the collation.
+        /// </summary>
+        /// <param name="model"> The model to find configuration source for. </param>
+        /// <returns> The configuration source for the collation. </returns>
+        public static ConfigurationSource? GetCollationConfigurationSource([NotNull] this IConventionModel model)
+            => model.FindAnnotation(RelationalAnnotationNames.Collation)?.GetConfigurationSource();
     }
 }

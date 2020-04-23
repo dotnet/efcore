@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -138,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(c => c.Orders)
                     .SingleAsync(c => c.CustomerID == "ALFKI");
 
-            Assert.Equal(orders, customer.Orders, ReferenceEqualityComparer.Instance);
+            Assert.Equal(orders, customer.Orders, LegacyReferenceEqualityComparer.Instance);
             Assert.Equal(6, customer.Orders.Count);
             Assert.True(customer.Orders.All(o => o.Customer != null));
             Assert.Equal(6 + 1, context.ChangeTracker.Entries().Count());
@@ -161,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .AsNoTracking()
                     .SingleAsync(c => c.CustomerID == "ALFKI");
 
-            Assert.NotEqual(orders, customer.Orders, ReferenceEqualityComparer.Instance);
+            Assert.NotEqual(orders, customer.Orders, LegacyReferenceEqualityComparer.Instance);
             Assert.Equal(6, customer.Orders.Count);
             Assert.True(customer.Orders.All(o => o.Customer != null));
             Assert.Equal(6, context.ChangeTracker.Entries().Count());
@@ -734,7 +735,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(o => o.Customer)
                     .ToListAsync();
 
-            Assert.True(orders1.All(o1 => orders2.Contains(o1, ReferenceEqualityComparer.Instance)));
+            Assert.True(orders1.All(o1 => orders2.Contains(o1, LegacyReferenceEqualityComparer.Instance)));
             Assert.True(orders2.All(o => o.Customer != null));
             Assert.Equal(830 + 89, context.ChangeTracker.Entries().Count());
         }

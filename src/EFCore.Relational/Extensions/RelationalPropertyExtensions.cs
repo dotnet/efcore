@@ -10,7 +10,6 @@ using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -297,16 +296,6 @@ namespace Microsoft.EntityFrameworkCore
                 ?? Enumerable.Empty<IColumnMapping>();
 
         /// <summary>
-        ///     Returns the view or table columns to which the property is mapped.
-        /// </summary>
-        /// <param name="property"> The property. </param>
-        /// <returns> The view or table columns to which the property is mapped. </returns>
-        public static IEnumerable<IColumnMappingBase> GetViewOrTableColumnMappings([NotNull] this IProperty property) =>
-            (IEnumerable<IColumnMappingBase>)(property[RelationalAnnotationNames.ViewColumnMappings]
-                ?? property[RelationalAnnotationNames.TableColumnMappings])
-                ?? Enumerable.Empty<IColumnMappingBase>();
-
-        /// <summary>
         ///     Returns the view columns to which the property is mapped.
         /// </summary>
         /// <param name="property"> The property. </param>
@@ -314,6 +303,28 @@ namespace Microsoft.EntityFrameworkCore
         public static IEnumerable<IViewColumnMapping> GetViewColumnMappings([NotNull] this IProperty property) =>
             (IEnumerable<IViewColumnMapping>)property[RelationalAnnotationNames.ViewColumnMappings]
                 ?? Enumerable.Empty<IViewColumnMapping>();
+
+        /// <summary>
+        ///     Returns the table column corresponding to this property if it's mapped to the given table.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="tableName"> The target table name. </param>
+        /// <param name="schema"> The target table schema. </param>
+        /// <returns> The table column to which the property is mapped. </returns>
+        public static IColumn FindTableColumn([NotNull] this IProperty property, [NotNull] string tableName, [CanBeNull] string schema)
+            => property.GetTableColumnMappings().Select(m => m.Column)
+                .FirstOrDefault(c => c.Table.Name == tableName && c.Table.Schema == schema);
+
+        /// <summary>
+        ///     Returns the view column corresponding to this property if it's mapped to the given table.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="viewName"> The target table name. </param>
+        /// <param name="schema"> The target table schema. </param>
+        /// <returns> The table column to which the property is mapped. </returns>
+        public static IViewColumn FindViewColumn([NotNull] this IProperty property, [NotNull] string viewName, [CanBeNull] string schema)
+            => property.GetViewColumnMappings().Select(m => m.Column)
+                .FirstOrDefault(c => c.View.Name == viewName && c.View.Schema == schema);
 
         /// <summary>
         ///     Returns the SQL expression that is used as the default value for the column this property is mapped to.
@@ -430,6 +441,67 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The <see cref="ConfigurationSource" /> for the computed value SQL expression. </returns>
         public static ConfigurationSource? GetComputedColumnSqlConfigurationSource([NotNull] this IConventionProperty property)
             => property.FindAnnotation(RelationalAnnotationNames.ComputedColumnSql)?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Gets whether the value of the computed column this property is mapped to is stored in the database, or calculated when
+        ///     it is read.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns>
+        ///     Whether the value of the computed column this property is mapped to is stored in the database,
+        ///     or calculated when it is read.
+        /// </returns>
+        public static bool? GetComputedColumnIsStored([NotNull] this IProperty property)
+        {
+            var computedColumnIsStored = (bool?)property[RelationalAnnotationNames.ComputedColumnIsStored];
+            if (computedColumnIsStored != null)
+            {
+                return computedColumnIsStored;
+            }
+
+            var sharedTablePrincipalPrimaryKeyProperty = property.FindSharedRootPrimaryKeyProperty();
+            if (sharedTablePrincipalPrimaryKeyProperty != null)
+            {
+                return GetComputedColumnIsStored(sharedTablePrincipalPrimaryKeyProperty);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Sets whether the value of the computed column this property is mapped to is stored in the database, or calculated when
+        ///     it is read.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="value"> The value to set. </param>
+        public static void SetComputedColumnIsStored([NotNull] this IMutableProperty property, bool? value)
+            => property.SetOrRemoveAnnotation(
+                RelationalAnnotationNames.ComputedColumnIsStored,
+                value);
+
+        /// <summary>
+        ///     Sets whether the value of the computed column this property is mapped to is stored in the database, or calculated when
+        ///     it is read.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="value"> The value to set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured value. </returns>
+        public static bool? SetComputedColumnIsStored(
+            [NotNull] this IConventionProperty property, bool? value, bool fromDataAnnotation = false)
+        {
+            property.SetOrRemoveAnnotation(RelationalAnnotationNames.ComputedColumnIsStored, value, fromDataAnnotation);
+
+            return value;
+        }
+
+        /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for the computed value SQL expression.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for the computed value SQL expression. </returns>
+        public static ConfigurationSource? GetComputedColumnIsStoredConfigurationSource([NotNull] this IConventionProperty property)
+            => property.FindAnnotation(RelationalAnnotationNames.ComputedColumnIsStored)?.GetConfigurationSource();
 
         /// <summary>
         ///     Returns the object that is used as the default value for the column this property is mapped to.
@@ -834,5 +906,59 @@ namespace Microsoft.EntityFrameworkCore
         public static ConfigurationSource? GetCommentConfigurationSource([NotNull] this IConventionProperty property)
             => property.FindAnnotation(RelationalAnnotationNames.Comment)
                 ?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Returns the collation to be used for the column.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The collation for the column this property is mapped to. </returns>
+        public static string GetCollation([NotNull] this IProperty property)
+        {
+            var value = (string)property[RelationalAnnotationNames.Collation];
+            if (value != null)
+            {
+                return value;
+            }
+
+            var sharedTablePrincipalPrimaryKeyProperty = property.FindSharedRootPrimaryKeyProperty();
+            if (sharedTablePrincipalPrimaryKeyProperty != null)
+            {
+                return GetCollation(sharedTablePrincipalPrimaryKeyProperty);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Configures a collation to be used for column this property is mapped to.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="collation"> The collation for the column. </param>
+        public static void SetCollation([NotNull] this IMutableProperty property, [CanBeNull] string collation)
+            => property.SetOrRemoveAnnotation(RelationalAnnotationNames.Collation, collation);
+
+        /// <summary>
+        ///     Configures a collation to be used for the column this property is mapped to.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="collation"> The collation for the column. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured value. </returns>
+        public static string SetCollation(
+            [NotNull] this IConventionProperty property,
+            [CanBeNull] string collation,
+            bool fromDataAnnotation = false)
+        {
+            property.SetOrRemoveAnnotation(RelationalAnnotationNames.Collation, collation, fromDataAnnotation);
+            return collation;
+        }
+
+        /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for the column collation.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for the column collation. </returns>
+        public static ConfigurationSource? GetCollationConfigurationSource([NotNull] this IConventionProperty property)
+            => property.FindAnnotation(RelationalAnnotationNames.Collation)?.GetConfigurationSource();
     }
 }

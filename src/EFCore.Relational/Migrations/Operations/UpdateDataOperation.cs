@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -35,6 +36,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string[] KeyColumns { get; [param: NotNull] set; }
 
         /// <summary>
+        ///     A list of column store types for the columns that will be used to identify
+        ///     the rows that should be updated.
+        /// </summary>
+        public virtual string[] KeyColumnTypes { get; [param: NotNull] set; }
+
+        /// <summary>
         ///     The rows to be updated, represented as a list of key value arrays where each
         ///     value in the array corresponds to a column in the <see cref="KeyColumns" /> property.
         /// </summary>
@@ -46,6 +53,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string[] Columns { get; [param: NotNull] set; }
 
         /// <summary>
+        ///     A list of column store types for the columns in which data will be updated.
+        /// </summary>
+        public virtual string[] ColumnTypes { get; [param: NotNull] set; }
+
+        /// <summary>
         ///     The data to be updated, represented as a list of value arrays where each
         ///     value in the array corresponds to a column in the <see cref="Columns" /> property.
         /// </summary>
@@ -55,6 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         ///     Generates the commands that correspond to this operation.
         /// </summary>
         /// <returns> The commands that correspond to this operation. </returns>
+        [Obsolete]
         public virtual IEnumerable<ModificationCommand> GenerateModificationCommands([CanBeNull] IModel model)
         {
             Check.DebugAssert(
@@ -82,7 +95,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 {
                     keys[j] = new ColumnModification(
                         KeyColumns[j], originalValue: null, value: KeyValues[i, j], property: keyProperties?[j],
-                        isRead: false, isWrite: false, isKey: true, isCondition: true, sensitiveLoggingEnabled: true);
+                        columnType: KeyColumnTypes?[j], isRead: false, isWrite: false, isKey: true, isCondition: true,
+                        sensitiveLoggingEnabled: false);
                 }
 
                 var modifications = new ColumnModification[Columns.Length];
@@ -90,10 +104,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 {
                     modifications[j] = new ColumnModification(
                         Columns[j], originalValue: null, value: Values[i, j], property: properties?[j],
-                        isRead: false, isWrite: true, isKey: true, isCondition: false, sensitiveLoggingEnabled: true);
+                        columnType: ColumnTypes?[j], isRead: false, isWrite: true, isKey: true, isCondition: false,
+                        sensitiveLoggingEnabled: false);
                 }
 
-                yield return new ModificationCommand(Table, Schema, keys.Concat(modifications).ToArray(), sensitiveLoggingEnabled: true);
+                yield return new ModificationCommand(Table, Schema, keys.Concat(modifications).ToArray(), sensitiveLoggingEnabled: false);
             }
         }
     }

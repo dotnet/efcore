@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal
@@ -98,9 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 {
                     var xKeyProperty = xKey.Properties[i];
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
                     result = xKeyProperty.GetCurrentValueComparer().Compare(xEntry, yEntry);
-#pragma warning restore EF1001 // Internal EF Core API usage.
                     if (0 != result)
                     {
                         return result;

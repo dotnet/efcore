@@ -247,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        object IDbSetCache.GetOrAddSet(IDbSetSource source, string name, Type type)
+        object IDbSetCache.GetOrAddSet(IDbSetSource source, string entityTypeName, Type type)
         {
             CheckDisposed();
 
@@ -256,10 +256,10 @@ namespace Microsoft.EntityFrameworkCore
                 _sets = new Dictionary<(Type Type, string Name), object>();
             }
 
-            if (!_sets.TryGetValue((type, name), out var set))
+            if (!_sets.TryGetValue((type, entityTypeName), out var set))
             {
-                set = source.Create(this, name, type);
-                _sets[(type, name)] = set;
+                set = source.Create(this, entityTypeName, type);
+                _sets[(type, entityTypeName)] = set;
             }
 
             return set;

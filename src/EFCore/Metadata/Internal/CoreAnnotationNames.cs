@@ -28,6 +28,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public const string Precision = "Precision";
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public const string Scale = "Scale";
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public const string Unicode = "Unicode";
 
         /// <summary>
@@ -140,6 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [Obsolete("Use ValueComparer. Only a single value comparer is allowed for a given property.")]
         public const string KeyValueComparer = "KeyValueComparer";
 
         /// <summary>
@@ -148,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [Obsolete("Use KeyValueComparer. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
+        [Obsolete("Use ValueComparer. Only a single value comparer is allowed for a given property.")]
         public const string StructuralValueComparer = "StructuralValueComparer";
 
         /// <summary>
@@ -256,6 +273,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static readonly ISet<string> AllNames = new HashSet<string>
         {
             MaxLength,
+            Precision,
+            Scale,
             Unicode,
             ProductVersion,
             ValueGeneratorFactory,
@@ -270,8 +289,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             TypeMapping,
             ValueConverter,
             ValueComparer,
-            KeyValueComparer,
 #pragma warning disable 618
+            KeyValueComparer,
             StructuralValueComparer,
 #pragma warning restore 618
             AfterSaveBehavior,

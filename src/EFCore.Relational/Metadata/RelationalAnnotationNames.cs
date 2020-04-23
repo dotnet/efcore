@@ -42,6 +42,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string ComputedColumnSql = Prefix + "ComputedColumnSql";
 
         /// <summary>
+        ///     The name for computed column type annotations.
+        /// </summary>
+        public const string ComputedColumnIsStored = Prefix + "ComputedColumnIsStored";
+
+        /// <summary>
         ///     The name for default value annotations.
         /// </summary>
         public const string DefaultValue = Prefix + "DefaultValue";
@@ -70,6 +75,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The name for comment annotations.
         /// </summary>
         public const string Comment = Prefix + "Comment";
+
+        /// <summary>
+        ///     The name for collation annotations.
+        /// </summary>
+        public const string Collation = Prefix + "Collation";
 
         /// <summary>
         ///     The name for default schema annotations.
@@ -152,11 +162,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The name for column mappings annotations.
         /// </summary>
         public const string ViewColumnMappings = Prefix + "ViewColumnMappings";
-
-        /// <summary>
-        ///     The definition of a Queryable Function Result Type.
-        /// </summary>
-        public const string QueryableFunctionResultType = Prefix + "QueryableFunctionResultType";
 
         /// <summary>
         ///     The name for foreign key mappings annotations.

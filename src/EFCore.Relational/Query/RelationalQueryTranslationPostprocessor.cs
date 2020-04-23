@@ -39,9 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             query = new CollectionJoinApplyingExpressionVisitor().Visit(query);
             query = new TableAliasUniquifyingExpressionVisitor().Visit(query);
             query = new CaseWhenFlatteningExpressionVisitor(SqlExpressionFactory).Visit(query);
-#pragma warning disable CS0618 // Type or member is obsolete
+
+#pragma warning disable 618
             query = OptimizeSqlExpression(query);
-#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore 618
 
             return query;
         }

@@ -4,7 +4,7 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal;
 
@@ -319,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, connectionType.DisplayName());
+                definition.Log(diagnostics, connectionType.ShortDisplayName());
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -338,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
             var d = (EventDefinition<string>)definition;
             var p = (UnexpectedConnectionTypeEventData)payload;
 
-            return d.GenerateMessage(p.ConnectionType.DisplayName());
+            return d.GenerateMessage(p.ConnectionType.ShortDisplayName());
         }
     }
 }

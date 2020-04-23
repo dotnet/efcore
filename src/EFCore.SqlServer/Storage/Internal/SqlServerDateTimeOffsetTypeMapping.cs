@@ -16,7 +16,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
     /// </summary>
     public class SqlServerDateTimeOffsetTypeMapping : DateTimeOffsetTypeMapping
     {
-        private const string DateTimeOffsetFormatConst = "{0:yyyy-MM-ddTHH:mm:ss.fffffffzzz}";
+        // Note: this array will be accessed using the precision as an index
+        // so the order of the entries in this array is important
+        private readonly string[] _dateTimeOffsetFormats =
+        {
+            "'{0:yyyy-MM-ddTHH:mm:sszzz}'",
+            "'{0:yyyy-MM-ddTHH:mm:ss.fzzz}'",
+            "'{0:yyyy-MM-ddTHH:mm:ss.ffzzz}'",
+            "'{0:yyyy-MM-ddTHH:mm:ss.fffzzz}'",
+            "'{0:yyyy-MM-ddTHH:mm:ss.ffffzzz}'",
+            "'{0:yyyy-MM-ddTHH:mm:ss.fffffzzz}'",
+            "'{0:yyyy-MM-ddTHH:mm:ss.ffffffzzz}'",
+            "'{0:yyyy-MM-ddTHH:mm:ss.fffffffzzz}'"
+        };
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -56,7 +68,23 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override string SqlLiteralFormatString => "'" + DateTimeOffsetFormatConst + "'";
+        protected override string SqlLiteralFormatString
+        {
+            get
+            {
+                if (Precision.HasValue)
+                {
+                    var precision = Precision.Value;
+                    if (precision <= 7
+                        && precision >= 0)
+                    {
+                        return _dateTimeOffsetFormats[precision];
+                    }
+                }
+
+                return _dateTimeOffsetFormats[7];
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -72,6 +100,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 && Size.Value != -1)
             {
                 parameter.Size = Size.Value;
+            }
+
+            if (Precision.HasValue)
+            {
+                parameter.Precision = unchecked((byte)Precision.Value);
             }
         }
     }

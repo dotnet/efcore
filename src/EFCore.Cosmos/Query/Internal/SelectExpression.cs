@@ -7,7 +7,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -212,7 +211,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             var currentAlias = baseAlias;
             var counter = 0;
-            while (_projection.Any(pe => string.Equals(pe.Alias, currentAlias, StringComparison.OrdinalIgnoreCase)))
+            while (string.Equals("value", currentAlias, StringComparison.OrdinalIgnoreCase)
+                || _projection.Any(pe => string.Equals(pe.Alias, currentAlias, StringComparison.OrdinalIgnoreCase)))
             {
                 currentAlias = $"{baseAlias}{counter++}";
             }
@@ -253,7 +253,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         public virtual void ApplyPredicate([NotNull] SqlExpression expression)
         {
             if (expression is SqlConstantExpression sqlConstant
-                && (bool)sqlConstant.Value)
+                && sqlConstant.Value is bool boolValue
+                && boolValue)
             {
                 return;
             }

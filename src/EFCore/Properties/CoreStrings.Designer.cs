@@ -2153,7 +2153,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, clrName);
 
         /// <summary>
-        ///     The indexed property '{property}' cannot be added to type '{entityType}' because the CLR class contains a member with the same name.
+        ///     The indexer property '{property}' cannot be added to type '{entityType}' because the CLR class contains a member with the same name.
         /// </summary>
         public static string PropertyClashingNonIndexer([CanBeNull] object property, [CanBeNull] object entityType)
             => string.Format(
@@ -2535,10 +2535,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("UnsupportedBinaryOperator");
 
         /// <summary>
-        ///     EF.Property called with wrong property name.
+        ///     Translation of '{expression}' failed. Either source is not an entity type or the specified property does not exist on the entity type.
         /// </summary>
-        public static string EFPropertyCalledWithWrongPropertyName
-            => GetString("EFPropertyCalledWithWrongPropertyName");
+        public static string QueryUnableToTranslateEFProperty([CanBeNull] object expression)
+            => string.Format(
+                GetString("QueryUnableToTranslateEFProperty", nameof(expression)),
+                expression);
 
         /// <summary>
         ///     Invalid {state} encountered.
@@ -2593,6 +2595,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("QueryEntityMaterializationConditionWrongShape", nameof(entityType)),
                 entityType);
+
+        /// <summary>
+        ///     Unable to set IsUnique to '{isUnique}' on the relationship underlying the navigation property '{navigationName}' on the entity type '{entityType}' because the navigation property has the opposite multiplicity.
+        /// </summary>
+        public static string UnableToSetIsUnique([CanBeNull] object isUnique, [CanBeNull] object navigationName, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("UnableToSetIsUnique", nameof(isUnique), nameof(navigationName), nameof(entityType)),
+                isUnique, navigationName, entityType);
+
+        /// <summary>
+        ///     Unable to set up a many-to-many relationship between the entity types '{principalEntityType}' and '{declaringEntityType}' because one of the navigations was not specified. Please provide a navigation property in the HasMany() call.
+        /// </summary>
+        public static string MissingInverseManyToManyNavigation([CanBeNull] object principalEntityType, [CanBeNull] object declaringEntityType)
+            => string.Format(
+                GetString("MissingInverseManyToManyNavigation", nameof(principalEntityType), nameof(declaringEntityType)),
+                principalEntityType, declaringEntityType);
 
         private static string GetString(string name, params string[] formatterNames)
         {
@@ -3461,6 +3479,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     Invalid include path '{navigationChain}', couldn't find navigation for '{navigationName}'.
+        /// </summary>
+        public static EventDefinition<object, object> LogInvalidIncludePath([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogInvalidIncludePath;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogInvalidIncludePath,
+                    () => new EventDefinition<object, object>(
+                        logger.Options,
+                        CoreEventId.InvalidIncludePathError,
+                        LogLevel.Error,
+                        "CoreEventId.InvalidIncludePathError",
+                        level => LoggerMessage.Define<object, object>(
+                            level,
+                            CoreEventId.InvalidIncludePathError,
+                            _resourceManager.GetString("LogInvalidIncludePath"))));
+            }
+
+            return (EventDefinition<object, object>)definition;
+        }
+
+        /// <summary>
         ///     The same entity is being tracked as different weak entity types '{dependent1}' and '{dependent2}'. If a property value changes it will result in two store changes, which might not be the desired outcome.
         /// </summary>
         public static EventDefinition<string, string> LogDuplicateDependentEntityTypeInstance([NotNull] IDiagnosticsLogger logger)
@@ -3653,27 +3695,27 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The foreign key properties haven't been configured by convention because the best match {foreignKey} are incompatible with the current principal key {principalKey}. This message can be disregarded if explicit configuration has been specified.
+        ///     For the relationship between dependent '{dependentToPrincipalNavigationSpecification}' and principal '{principalToDependentNavigationSpecification}', the foreign key properties haven't been configured by convention because the best match {foreignKey} are incompatible with the current principal key {principalKey}. This message can be disregarded if explicit configuration has been specified.
         /// </summary>
-        public static EventDefinition<string, string> LogIncompatibleMatchingForeignKeyProperties([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, string, string> LogIncompatibleMatchingForeignKeyProperties([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogIncompatibleMatchingForeignKeyProperties;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
                     ref ((LoggingDefinitions)logger.Definitions).LogIncompatibleMatchingForeignKeyProperties,
-                    () => new EventDefinition<string, string>(
+                    () => new EventDefinition<string, string, string, string>(
                         logger.Options,
                         CoreEventId.IncompatibleMatchingForeignKeyProperties,
                         LogLevel.Debug,
                         "CoreEventId.IncompatibleMatchingForeignKeyProperties",
-                        level => LoggerMessage.Define<string, string>(
+                        level => LoggerMessage.Define<string, string, string, string>(
                             level,
                             CoreEventId.IncompatibleMatchingForeignKeyProperties,
                             _resourceManager.GetString("LogIncompatibleMatchingForeignKeyProperties"))));
             }
 
-            return (EventDefinition<string, string>)definition;
+            return (EventDefinition<string, string, string, string>)definition;
         }
 
         /// <summary>

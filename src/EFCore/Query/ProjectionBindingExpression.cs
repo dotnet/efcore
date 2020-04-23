@@ -73,11 +73,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             expressionPrinter.Append(nameof(ProjectionBindingExpression) + ": ");
             if (ProjectionMember != null)
             {
-                expressionPrinter.Append(ProjectionMember);
+                expressionPrinter.Append(ProjectionMember.ToString());
             }
             else if (Index != null)
             {
-                expressionPrinter.Append(Index);
+                expressionPrinter.Append(Index.ToString());
             }
             else
             {

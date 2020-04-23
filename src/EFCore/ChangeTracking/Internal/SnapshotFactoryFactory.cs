@@ -270,6 +270,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private static HashSet<object> SnapshotCollection(IEnumerable<object> collection)
             => collection == null
                 ? null
-                : new HashSet<object>(collection, ReferenceEqualityComparer.Instance);
+                : new HashSet<object>(collection, LegacyReferenceEqualityComparer.Instance);
     }
 }

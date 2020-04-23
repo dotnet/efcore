@@ -9,12 +9,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// <summary>
     ///     Provides a simple API for configuring a <see cref="IConventionSequence" />.
     /// </summary>
-    public interface IConventionSequenceBuilder
+    public interface IConventionSequenceBuilder : IConventionAnnotatableBuilder
     {
         /// <summary>
         ///     The sequence being configured.
         /// </summary>
-        IConventionSequence Metadata { get; }
+        new IConventionSequence Metadata { get; }
 
         /// <summary>
         ///     Sets the type of values returned by the sequence.

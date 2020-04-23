@@ -4668,8 +4668,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 CollectionType.SortedSet => new SortedSet<T> { dependent },
                 CollectionType.Collection => new Collection<T> { dependent },
                 CollectionType.ObservableCollection => new ObservableCollection<T> { dependent },
-                CollectionType.ObservableHashSet => new ObservableHashSet<T>(ReferenceEqualityComparer.Instance) { dependent },
-                _ => new HashSet<T>(ReferenceEqualityComparer.Instance) { dependent }
+                CollectionType.ObservableHashSet => new ObservableHashSet<T>(LegacyReferenceEqualityComparer.Instance) { dependent },
+                _ => new HashSet<T>(LegacyReferenceEqualityComparer.Instance) { dependent }
             };
 
         private void AssertFixup(DbContext context, Action asserts)

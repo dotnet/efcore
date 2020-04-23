@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
+    <TargetFrameworks>$(StandardTestTfms)</TargetFrameworks>
     <DefineConstants>$(DefineConstants);WINSQLITE3</DefineConstants>
   </PropertyGroup>
 
@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.bundle_winsqlite3" Version="$(SQLitePCLRawBundleWinsqlite3PackageVersion)" />
+    <PackageReference Include="SQLitePCLRaw.bundle_winsqlite3" Version="$(SQLitePCLRawBundleWinsqlite3Version)" />
   </ItemGroup>
 
 </Project>
