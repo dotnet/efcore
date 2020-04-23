@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                                         return false;
                                                     }
                                                     properties.Add(property);
-                                                    paramNames.Add(parameterExpr.Name);
+                                                    paramNames.Add(equalParameterExpresion.Name);
                                                     return true;
                                                 }
                                             }

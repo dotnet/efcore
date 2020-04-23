@@ -283,7 +283,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
 #pragma warning disable EF1001
                     var internalEntityEntry = new InternalEntityEntryFactory().Create(_stateManager, _entityType, entityEntry);
-#pragma warning restore EF1001
 
                     foreach (var keyProperty in _entityType.FindPrimaryKey().Properties)
                     {
