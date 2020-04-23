@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -1012,10 +1011,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 if (source.ShaperExpression is EntityShaperExpression entityShaperExpression
                     && TryGetPartitionKeyFromPredicate(predicate.Body, entityShaperExpression.EntityType,
                         out var partitionKeyProperty,
-                        out var partitionKeyValue,
-                        out var parameterName))
+                        out var expression))
                 {
-                    ((SelectExpression)source.QueryExpression).SetPartitionKeyProperty(partitionKeyProperty, partitionKeyValue, parameterName);
+                    ((SelectExpression)source.QueryExpression).SetPartitionKeyProperty(partitionKeyProperty, expression);
                 }
 
                 return source;
@@ -1027,12 +1025,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 Expression predicateExpression,
                 IEntityType entityType,
                 out IProperty partitionKeyProperty,
-                out object partitionKeyValue,
-                out string parameterName)
+                out Expression expression)
             {
                 partitionKeyProperty = default;
-                partitionKeyValue = default;
-                parameterName = default;
+                expression = default;
 
                 if (predicateExpression is BinaryExpression binaryExpression)
                 {
@@ -1041,94 +1037,71 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         case ExpressionType.AndAlso:
                             return TryGetPartitionKeyFromPredicate(binaryExpression.Left, entityType,
                                     out partitionKeyProperty,
-                                    out partitionKeyValue,
-                                    out parameterName)
+                                    out expression)
                                     || TryGetPartitionKeyFromPredicate(binaryExpression.Right, entityType,
                                         out partitionKeyProperty,
-                                        out partitionKeyValue,
-                                        out parameterName);
+                                        out expression);
 
                         case ExpressionType.Equal:
-                            if (binaryExpression.Left is MemberExpression leftBoundMemberExpression
-                                && binaryExpression.Right is ConstantExpression rightBoundConstantExpression
-                                && leftBoundMemberExpression.Member.GetSimpleMemberName() == entityType.GetPartitionKeyPropertyName())
+                            if (TryGetPropertyExpression(binaryExpression.Left, binaryExpression.Right,
+                                out var leftBoundValueProperty,
+                                out var leftBoundExpression))
                             {
-                                partitionKeyProperty = entityType.FindProperty(leftBoundMemberExpression.Member.GetSimpleMemberName());
-                                partitionKeyValue = rightBoundConstantExpression.Value;
+                                partitionKeyProperty = leftBoundValueProperty;
+                                expression = leftBoundExpression;
                                 return true;
-
-                            } else if (binaryExpression.Right is MemberExpression rightBoundMemberExpression
-                                && binaryExpression.Left is ConstantExpression leftBoundConstantExpression
-                                && rightBoundMemberExpression.Member.GetSimpleMemberName() == entityType.GetPartitionKeyPropertyName())
-                            {
-                                partitionKeyProperty = entityType.FindProperty(rightBoundMemberExpression.Member.GetSimpleMemberName());
-                                partitionKeyValue = leftBoundConstantExpression.Value;
-                                return true;
-
-                            } else
-                            {
-                                switch (binaryExpression.Left)
-                                {
-                                    case MethodCallExpression leftBoundMethodCallExpression when binaryExpression.Right is ParameterExpression rightBoundParameterExpression:
-                                    {
-                                        if (TryGetPropertyAndParamenterName(leftBoundMethodCallExpression, rightBoundParameterExpression,
-                                            out var property,
-                                            out var propertyName))
-                                        {
-                                            partitionKeyProperty = property;
-                                            parameterName = propertyName;
-                                        }
-
-                                        return true;
-                                    }
-                                    case MethodCallExpression rightBoundMethodCallExpression when binaryExpression.Right is ParameterExpression leftBoundParameterExpression:
-                                    {
-                                        if (TryGetPropertyAndParamenterName(rightBoundMethodCallExpression, leftBoundParameterExpression,
-                                            out var property,
-                                            out var propertyName))
-                                        {
-                                            partitionKeyProperty = property;
-                                            parameterName = propertyName;
-                                        }
-
-                                        return true;
-                                    }
-                                }
                             }
 
+                            if (TryGetPropertyExpression(
+                                binaryExpression.Right, binaryExpression.Left,
+                                out var rightBoundValueProperty,
+                                out var rightBoundExpression))
+                            {
+                                partitionKeyProperty = rightBoundValueProperty;
+                                expression = rightBoundExpression;
+                                return true;
+                            }
                             return false;
                             
                         default:
                             return false;
 
-                            bool TryGetPropertyAndParamenterName(MethodCallExpression boundMethodCallExpression, ParameterExpression boundParameterExpression,
+                            bool TryGetPropertyExpression(
+                                Expression leftExpression, Expression rightExpression,
                                 out IProperty property,
-                                out string parameterExpressionName)
+                                out Expression expression)
                             {
                                 property = default;
-                                parameterExpressionName = default;
+                                expression = default;
 
-                                if (boundMethodCallExpression.TryGetEFPropertyArguments(out _, out var propertyName))
+                                switch (leftExpression)
                                 {
-#pragma warning disable EF1001
-                                    property = entityType.GetProperty(propertyName);
-#pragma warning restore EF1001
-                                    parameterExpressionName = boundParameterExpression.Name;
-                                    return true;
+                                    case MemberExpression memberExpression when rightExpression is ConstantExpression constantExpression
+                                            && memberExpression.Member.GetSimpleMemberName() == entityType.GetPartitionKeyPropertyName():
 
+                                        property = entityType.FindProperty(memberExpression.Member.GetSimpleMemberName());
+                                        expression = constantExpression;
+                                        return true;
+
+                                    case MethodCallExpression methodCallExpression when rightExpression is ParameterExpression parameterExpression:
+
+                                        property = GetPropertyFromMethodCall(methodCallExpression);
+                                        expression = parameterExpression;
+                                        return true;
+
+                                    default:
+                                        return false;
                                 }
-
-                                if (boundMethodCallExpression.TryGetIndexerArguments(entityType.Model, out _, out var propertyIndexName))
-                                {
-#pragma warning disable EF1001
-                                    property = entityType.GetProperty(propertyIndexName);
-#pragma warning restore EF1001
-                                    parameterExpressionName = boundParameterExpression.Name;
-                                    return true;
-                                }
-
-                                return false;
                             }
+
+#pragma warning disable EF1001
+                            IProperty GetPropertyFromMethodCall(MethodCallExpression methodCallExpression) =>
+                                methodCallExpression.TryGetEFPropertyArguments(out _, out var parameterName)
+                                    ? entityType.FindProperty(parameterName)
+                                    : methodCallExpression.TryGetIndexerArguments(entityType.Model, out _, out var indexerName)
+                                        ? entityType.FindProperty(indexerName)
+                                        : default;
+#pragma warning restore EF1001
                     }
                 }
 

@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Newtonsoft.Json.Linq;
 
@@ -53,51 +52,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 _contextType = contextType;
                 _logger = logger;
 
-                if (TryGetPartitionKey(selectExpression, cosmosQueryContext, out var partitionKey))
-                {
-                    if (partitionKeyFromExtension != null && partitionKeyFromExtension != partitionKey)
-                    {
-                        throw new InvalidOperationException(CosmosStrings.PartitionKeyMismatch(partitionKeyFromExtension, partitionKey));
-                    }
+                var partitionKey = selectExpression.GetPartitionKey(cosmosQueryContext);
 
-                    _partitionKey = partitionKey;
-                }
-                else
+                if (partitionKey != null && partitionKeyFromExtension != null && partitionKeyFromExtension != partitionKey)
                 {
-                    _partitionKey = partitionKeyFromExtension;
-                }
-            }
-
-            private static bool TryGetPartitionKey(
-                SelectExpression selectExpression,
-                CosmosQueryContext comCosmosQueryContext,
-                out string partitionKey)
-            {
-                partitionKey = default;
-
-                if (selectExpression.PartitionKeyProperty != null && selectExpression.PartitionKeyValue != null)
-                {
-                    partitionKey = GetString(selectExpression.PartitionKeyProperty, selectExpression.PartitionKeyValue);
-                    return true;
+                    throw new InvalidOperationException(CosmosStrings.PartitionKeyMismatch(partitionKeyFromExtension, partitionKey));
                 }
 
-                if (selectExpression.PartitionKeyProperty != null && selectExpression.PartitionKeyParameterName != null
-                    && comCosmosQueryContext.ParameterValues.TryGetValue(selectExpression.PartitionKeyParameterName, out var value))
-                {
-                    partitionKey = GetString(selectExpression.PartitionKeyProperty, value);
-                    return true;
-                }
-
-                return false;
-
-                static string GetString(IProperty property, object value)
-                {
-                    var converter = property.GetTypeMapping().Converter;
-
-                    return converter is null
-                        ? (string)value
-                        : (string)converter.ConvertToProvider(value);
-                }
+                _partitionKey = partitionKey ?? partitionKeyFromExtension;
             }
             
             public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
