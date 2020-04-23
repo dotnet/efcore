@@ -277,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 _ => visitedExpression
             };
 
-            string ResolveFunctionNameFromExpressionType(ExpressionType expressionType)
+            static string ResolveFunctionNameFromExpressionType(ExpressionType expressionType)
             {
                 return expressionType switch
                 {
