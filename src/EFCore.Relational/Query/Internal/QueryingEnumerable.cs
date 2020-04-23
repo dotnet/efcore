@@ -352,8 +352,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private async Task<bool> InitializeReaderAsync(DbContext _, bool result, CancellationToken cancellationToken)
             {
-                var relationalCommand = _relationalCommandCache.GetRelationalCommand(
-                    _relationalQueryContext.ParameterValues);
+                var relationalCommand = _relationalCommandCache.GetRelationalCommand(_relationalQueryContext.ParameterValues);
 
                 _dataReader
                     = await relationalCommand.ExecuteReaderAsync(
