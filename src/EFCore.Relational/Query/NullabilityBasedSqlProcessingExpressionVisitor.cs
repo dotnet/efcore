@@ -169,6 +169,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             return caseExpression.Update(operand, whenClauses, elseResult);
         }
 
+        protected override Expression VisitCollate(CollateExpression collateExpresion)
+        {
+            Check.NotNull(collateExpresion, nameof(collateExpresion));
+
+            return collateExpresion.Update(
+                VisitInternal<SqlExpression>(collateExpresion.Operand).ResultExpression);
+        }
+
         protected override Expression VisitColumn(ColumnExpression columnExpression)
         {
             Check.NotNull(columnExpression, nameof(columnExpression));

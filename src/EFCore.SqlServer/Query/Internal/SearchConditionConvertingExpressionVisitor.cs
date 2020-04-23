@@ -102,6 +102,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             return ApplyConversion(caseExpression.Update(operand, whenClauses, elseResult), condition: false);
         }
 
+        protected override Expression VisitCollate(CollateExpression collateExpression)
+        {
+            Check.NotNull(collateExpression, nameof(collateExpression));
+
+            var parentSearchCondition = _isSearchCondition;
+            _isSearchCondition = false;
+            var operand = (SqlExpression)Visit(collateExpression.Operand);
+            _isSearchCondition = parentSearchCondition;
+
+            return ApplyConversion(collateExpression.Update(operand), condition: false);
+        }
+
         protected override Expression VisitColumn(ColumnExpression columnExpression)
         {
             Check.NotNull(columnExpression, nameof(columnExpression));
