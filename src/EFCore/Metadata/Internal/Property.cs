@@ -399,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] Func<IProperty, IEntityType, ValueGenerator> factory,
             ConfigurationSource configurationSource)
         {
-            this.SetOrRemoveAnnotation(CoreAnnotationNames.ValueGeneratorFactory, factory, configurationSource);
+            SetAnnotation(CoreAnnotationNames.ValueGeneratorFactory, factory, configurationSource);
 
             return factory;
         }

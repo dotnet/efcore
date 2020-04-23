@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -145,5 +146,63 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The <see cref="ConfigurationSource" /> for whether the index is online. </returns>
         public static ConfigurationSource? GetIsCreatedOnlineConfigurationSource([NotNull] this IConventionIndex index)
             => index.FindAnnotation(SqlServerAnnotationNames.CreatedOnline)?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Returns a value indicating whether the index uses the fill factor.
+        /// </summary>
+        /// <param name="index"> The index. </param>
+        /// <returns> <c>true</c> if the index is online. </returns>
+        public static int? GetFillFactor([NotNull] this IIndex index)
+           => (int?)index[SqlServerAnnotationNames.FillFactor];
+
+        /// <summary>
+        ///     Sets a value indicating whether the index uses the fill factor.
+        /// </summary>
+        /// <param name="index"> The index. </param>
+        /// <param name="fillFactor"> The value to set. </param>
+        public static void SetFillFactor([NotNull] this IMutableIndex index, int? fillFactor)
+        {
+            if (fillFactor != null && (fillFactor <= 0 || fillFactor > 100))
+            {
+                throw new ArgumentOutOfRangeException(nameof(fillFactor));
+            }
+
+            index.SetOrRemoveAnnotation(
+                SqlServerAnnotationNames.FillFactor,
+                fillFactor);
+        }
+
+        /// <summary>
+        ///     Defines a value indicating whether the index uses the fill factor.
+        /// </summary>
+        /// <param name="index"> The index. </param>
+        /// <param name="fillFactor"> The value to set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured value. </returns>
+        public static int? SetFillFactor(
+            [NotNull] this IConventionIndex index,
+            int? fillFactor,
+            bool fromDataAnnotation = false)
+        {
+            if (fillFactor != null && (fillFactor <= 0 || fillFactor > 100))
+            {
+                throw new ArgumentOutOfRangeException(nameof(fillFactor));
+            }
+
+            index.SetOrRemoveAnnotation(
+                SqlServerAnnotationNames.FillFactor,
+                fillFactor,
+                fromDataAnnotation);
+
+            return fillFactor;
+        }
+
+        /// <summary>
+        ///     Returns the <see cref="ConfigurationSource" /> for whether the index uses the fill factor.
+        /// </summary>
+        /// <param name="index"> The index. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for whether the index uses the fill factor. </returns>
+        public static ConfigurationSource? GetFillFactorConfigurationSource([NotNull] this IConventionIndex index)
+            => index.FindAnnotation(SqlServerAnnotationNames.FillFactor)?.GetConfigurationSource();
     }
 }

@@ -6,9 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
-
-using ReferenceEqualityComparer = Microsoft.EntityFrameworkCore.Infrastructure.ReferenceEqualityComparer;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable AccessToModifiedClosure
@@ -470,7 +469,7 @@ namespace Microsoft.EntityFrameworkCore
                     if (!useExistingParent)
                     {
                         newParent = context.CreateProxy<Optional1>(
-                            e => e.CompositeChildren = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance));
+                            e => e.CompositeChildren = new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance));
 
                         context.Set<Optional1>().Add(newParent);
                         context.SaveChanges();
@@ -614,7 +613,7 @@ namespace Microsoft.EntityFrameworkCore
                             {
                                 e.Id = 3;
                                 e.Parent = context.Set<Root>().Single(IsTheRoot);
-                                e.CompositeChildren = new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance)
+                                e.CompositeChildren = new ObservableHashSet<OptionalOverlapping2>(LegacyReferenceEqualityComparer.Instance)
                                 {
                                     context.CreateProxy<OptionalOverlapping2>(e => e.Id = 5),
                                     context.CreateProxy<OptionalOverlapping2>(e => e.Id = 6)

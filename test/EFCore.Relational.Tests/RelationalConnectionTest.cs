@@ -782,7 +782,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Commit_calls_commit_on_DbTransaction()
+        public void Commit_calls_Commit_on_DbTransaction()
         {
             using var connection = new FakeRelationalConnection(
                 CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
@@ -809,7 +809,34 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Rollback_calls_rollback_on_DbTransaction()
+        public async Task CommitAsync_calls_CommitAsync_on_DbTransaction()
+        {
+            using var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
+            Assert.Equal(0, connection.DbConnections.Count);
+
+            Assert.Null(connection.CurrentTransaction);
+
+            using (var transaction = await connection.BeginTransactionAsync())
+            {
+                Assert.Same(transaction, connection.CurrentTransaction);
+
+                Assert.Equal(1, connection.DbConnections.Count);
+                var dbConnection = connection.DbConnections[0];
+
+                Assert.Equal(1, dbConnection.DbTransactions.Count);
+                var dbTransaction = dbConnection.DbTransactions[0];
+
+                await connection.CommitTransactionAsync();
+
+                Assert.Equal(1, dbTransaction.CommitCount);
+            }
+
+            Assert.Null(connection.CurrentTransaction);
+        }
+
+        [ConditionalFact]
+        public void Rollback_calls_Rollback_on_DbTransaction()
         {
             using var connection = new FakeRelationalConnection(
                 CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
@@ -828,6 +855,33 @@ namespace Microsoft.EntityFrameworkCore
                 var dbTransaction = dbConnection.DbTransactions[0];
 
                 connection.RollbackTransaction();
+
+                Assert.Equal(1, dbTransaction.RollbackCount);
+            }
+
+            Assert.Null(connection.CurrentTransaction);
+        }
+
+        [ConditionalFact]
+        public async Task Rollback_calls_RollbackAsync_on_DbTransaction()
+        {
+            using var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
+            Assert.Equal(0, connection.DbConnections.Count);
+
+            Assert.Null(connection.CurrentTransaction);
+
+            using (var transaction = await connection.BeginTransactionAsync())
+            {
+                Assert.Same(transaction, connection.CurrentTransaction);
+
+                Assert.Equal(1, connection.DbConnections.Count);
+                var dbConnection = connection.DbConnections[0];
+
+                Assert.Equal(1, dbConnection.DbTransactions.Count);
+                var dbTransaction = dbConnection.DbTransactions[0];
+
+                await connection.RollbackTransactionAsync();
 
                 Assert.Equal(1, dbTransaction.RollbackCount);
             }

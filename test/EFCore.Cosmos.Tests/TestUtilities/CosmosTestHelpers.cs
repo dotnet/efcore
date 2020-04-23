@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
         public override IServiceCollection AddProviderServices(IServiceCollection services)
             => services.AddEntityFrameworkCosmos();
 
-        protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
+        public override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseCosmos(
                 TestEnvironment.DefaultConnection,
                 TestEnvironment.AuthToken,

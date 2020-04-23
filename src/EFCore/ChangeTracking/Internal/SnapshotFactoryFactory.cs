@@ -7,7 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
@@ -270,6 +270,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private static HashSet<object> SnapshotCollection(IEnumerable<object> collection)
             => collection == null
                 ? null
-                : new HashSet<object>(collection, ReferenceEqualityComparer.Instance);
+                : new HashSet<object>(collection, LegacyReferenceEqualityComparer.Instance);
     }
 }

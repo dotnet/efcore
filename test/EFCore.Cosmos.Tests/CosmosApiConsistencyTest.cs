@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,14 +20,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         protected override void AddServices(ServiceCollection serviceCollection)
-        {
-            serviceCollection.AddEntityFrameworkCosmos();
-        }
+            => serviceCollection.AddEntityFrameworkCosmos();
 
         protected override Assembly TargetAssembly => typeof(CosmosDatabaseWrapper).Assembly;
 
         public class CosmosApiConsistencyFixture : ApiConsistencyFixtureBase
         {
+            public override bool TryGetProviderOptionsDelegate(out Action<DbContextOptionsBuilder> configureOptions)
+            {
+                configureOptions = b => CosmosTestHelpers.Instance.UseProviderOptions(b);
+
+                return true;
+            }
+
             public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>
             {
                 typeof(CosmosModelBuilderExtensions),

@@ -13,6 +13,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
@@ -613,6 +614,7 @@ SELECT
     [c].[is_identity],
     [dc].[definition] AS [default_sql],
     [cc].[definition] AS [computed_sql],
+    [cc].[is_persisted] AS [computed_is_persisted],
     CAST([e].[value] AS nvarchar(MAX)) AS [comment],
     [c].[collation_name]
 FROM
@@ -673,6 +675,7 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                     var isIdentity = dataRecord.GetValueOrDefault<bool>("is_identity");
                     var defaultValue = dataRecord.GetValueOrDefault<string>("default_sql");
                     var computedValue = dataRecord.GetValueOrDefault<string>("computed_sql");
+                    var computedIsPersisted = dataRecord.GetValueOrDefault<bool>("computed_is_persisted");
                     var comment = dataRecord.GetValueOrDefault<string>("comment");
                     var collation = dataRecord.GetValueOrDefault<string>("collation_name");
 
@@ -687,7 +690,8 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                         nullable,
                         isIdentity,
                         defaultValue,
-                        computedValue);
+                        computedValue,
+                        computedIsPersisted);
 
                     string storeType;
                     string systemTypeName;
@@ -711,6 +715,7 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                         IsNullable = nullable,
                         DefaultValueSql = defaultValue,
                         ComputedColumnSql = computedValue,
+                        ComputedColumnIsStored = computedIsPersisted,
                         Comment = comment,
                         Collation = collation == databaseCollation ? null : collation,
                         ValueGenerated = isIdentity
@@ -843,12 +848,14 @@ SELECT
     [i].[is_unique],
     [i].[has_filter],
     [i].[filter_definition],
+    [i].[fill_factor],
     COL_NAME([ic].[object_id], [ic].[column_id]) AS [column_name]
 FROM [sys].[indexes] AS [i]
 JOIN [sys].[tables] AS [t] ON [i].[object_id] = [t].[object_id]
 JOIN [sys].[index_columns] AS [ic] ON [i].[object_id] = [ic].[object_id] AND [i].[index_id] = [ic].[index_id]
 JOIN [sys].[columns] AS [c] ON [ic].[object_id] = [c].[object_id] AND [ic].[column_id] = [c].[column_id]
-WHERE "
+WHERE [i].[is_hypothetical] = 0
+AND "
                 + tableFilter;
 
             if (SupportsTemporalTable())
@@ -866,6 +873,7 @@ AND CAST([i].[object_id] AS nvarchar(12)) + '#' + CAST([i].[index_id] AS nvarcha
 
                 commandText += @"
    AND [c].[is_hidden] = 1
+   AND [i].[is_hypothetical] = 0
 )";
             }
 
@@ -965,7 +973,8 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                                 TypeDesc: ddr.GetValueOrDefault<string>("type_desc"),
                                 IsUnique: ddr.GetValueOrDefault<bool>("is_unique"),
                                 HasFilter: ddr.GetValueOrDefault<bool>("has_filter"),
-                                FilterDefinition: ddr.GetValueOrDefault<string>("filter_definition")))
+                                FilterDefinition: ddr.GetValueOrDefault<string>("filter_definition"),
+                                FillFactor: ddr.GetValueOrDefault<byte>("fill_factor")))
                     .ToArray();
 
                 foreach (var indexGroup in indexGroups)
@@ -981,6 +990,11 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                     if (indexGroup.Key.TypeDesc == "CLUSTERED")
                     {
                         index[SqlServerAnnotationNames.Clustered] = true;
+                    }
+
+                    if (indexGroup.Key.FillFactor > 0 && indexGroup.Key.FillFactor <= 100)
+                    {
+                        index[SqlServerAnnotationNames.FillFactor] = indexGroup.Key.FillFactor;
                     }
 
                     foreach (var dataRecord in indexGroup)

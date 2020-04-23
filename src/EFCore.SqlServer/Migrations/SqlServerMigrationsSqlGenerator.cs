@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
@@ -243,6 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     DefaultValue = operation.DefaultValue,
                     DefaultValueSql = operation.DefaultValueSql,
                     ComputedColumnSql = operation.ComputedColumnSql,
+                    ComputedColumnIsStored = operation.ComputedColumnIsStored,
                     IsFixedLength = operation.IsFixedLength
                 };
                 addColumnOperation.AddAnnotations(operation.GetAnnotations());
@@ -1412,6 +1414,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(" AS ")
                 .Append(operation.ComputedColumnSql);
 
+            if (operation.ComputedColumnIsStored == true)
+            {
+                builder.Append(" PERSISTED");
+            }
+
             if (operation.Collation != null)
             {
                 builder
@@ -1552,9 +1559,29 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             base.IndexOptions(operation, model, builder);
 
+            IndexWithOptions(operation, builder);
+        }
+
+        private void IndexWithOptions(CreateIndexOperation operation, MigrationCommandListBuilder builder)
+        {
+            var options = new List<string>();
+
+            if (operation[SqlServerAnnotationNames.FillFactor] is int fillFactor)
+            {
+                options.Add("FILLFACTOR = " + fillFactor);
+            }
+
             if (operation[SqlServerAnnotationNames.CreatedOnline] is bool isOnline && isOnline)
             {
-                builder.Append(" WITH (ONLINE = ON)");
+                options.Add("ONLINE = ON");
+            }
+
+            if (options.Count > 0)
+            {
+                builder
+                    .Append(" WITH (")
+                    .Append(string.Join(", ", options))
+                    .Append(")");
             }
         }
 

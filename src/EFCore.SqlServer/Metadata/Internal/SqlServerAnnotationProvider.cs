@@ -162,6 +162,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
                     SqlServerAnnotationNames.CreatedOnline,
                     isOnline.Value);
             }
+
+            var fillFactor = modelIndex.GetFillFactor();
+            if (fillFactor.HasValue)
+            {
+                yield return new Annotation(
+                    SqlServerAnnotationNames.FillFactor,
+                    fillFactor.Value);
+            }
         }
 
         /// <summary>

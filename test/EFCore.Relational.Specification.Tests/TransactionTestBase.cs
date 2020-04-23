@@ -857,7 +857,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).First()).State = EntityState.Deleted;
                 await context.SaveChangesAsync();
-                transaction.Rollback();
+                await transaction.RollbackAsync();
 
                 AssertStoreInitialState();
             }
@@ -877,7 +877,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).First()).State = EntityState.Deleted;
                 await context.SaveChangesAsync();
-                context.Database.RollbackTransaction();
+                await context.Database.RollbackTransactionAsync();
 
                 AssertStoreInitialState();
             }

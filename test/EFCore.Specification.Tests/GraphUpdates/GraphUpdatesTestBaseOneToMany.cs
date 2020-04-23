@@ -7,9 +7,8 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
-
-using ReferenceEqualityComparer = Microsoft.EntityFrameworkCore.Infrastructure.ReferenceEqualityComparer;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable AccessToModifiedClosure
@@ -703,7 +702,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         newParent = new Optional1
                         {
-                            CompositeChildren = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance)
+                            CompositeChildren = new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance)
                         };
 
                         context.Set<Optional1>().Add(newParent);
@@ -890,7 +889,7 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             Id = 3,
                             Parent = context.Set<Root>().Single(IsTheRoot),
-                            CompositeChildren = new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance)
+                            CompositeChildren = new ObservableHashSet<OptionalOverlapping2>(LegacyReferenceEqualityComparer.Instance)
                             {
                                 new OptionalOverlapping2 { Id = 5 }, new OptionalOverlapping2 { Id = 6 }
                             }

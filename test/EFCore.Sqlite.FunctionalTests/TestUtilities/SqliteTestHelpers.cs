@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public override IServiceCollection AddProviderServices(IServiceCollection services)
             => services.AddEntityFrameworkSqlite();
 
-        protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
+        public override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlite(new SqliteConnection("Data Source=:memory:"));
 
         public override LoggingDefinitions LoggingDefinitions { get; } = new SqliteLoggingDefinitions();

@@ -245,5 +245,72 @@ namespace Microsoft.EntityFrameworkCore
 
             return indexBuilder.CanSetAnnotation(SqlServerAnnotationNames.CreatedOnline, createdOnline, fromDataAnnotation);
         }
+
+        /// <summary>
+        ///     Configures whether the index is created with fill factor option when targeting SQL Server.
+        /// </summary>
+        /// <param name="indexBuilder"> The builder for the index being configured. </param>
+        /// <param name="fillFactor"> A value indicating whether the index is created with fill factor option. </param>
+        /// <returns> A builder to further configure the index. </returns>
+        public static IndexBuilder HasFillFactor([NotNull] this IndexBuilder indexBuilder, int fillFactor)
+        {
+            Check.NotNull(indexBuilder, nameof(indexBuilder));
+
+            indexBuilder.Metadata.SetFillFactor(fillFactor);
+
+            return indexBuilder;
+        }
+
+        /// <summary>
+        ///     Configures whether the index is created with fill factor option when targeting SQL Server.
+        /// </summary>
+        /// <param name="indexBuilder"> The builder for the index being configured. </param>
+        /// <param name="fillFactor"> A value indicating whether the index is created with fill factor option. </param>
+        /// <returns> A builder to further configure the index. </returns>
+        public static IndexBuilder<TEntity> HasFillFactor<TEntity>(
+            [NotNull] this IndexBuilder<TEntity> indexBuilder, int fillFactor)
+            => (IndexBuilder<TEntity>)HasFillFactor((IndexBuilder)indexBuilder, fillFactor);
+
+        /// <summary>
+        ///     Configures whether the index is created with fill factor option when targeting SQL Server.
+        /// </summary>
+        /// <param name="indexBuilder"> The builder for the index being configured. </param>
+        /// <param name="fillFactor"> A value indicating whether the index is created with fill factor option. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        public static IConventionIndexBuilder HasFillFactor(
+            [NotNull] this IConventionIndexBuilder indexBuilder,
+            int? fillFactor,
+            bool fromDataAnnotation = false)
+        {
+            if (indexBuilder.CanSetFillFactor(fillFactor, fromDataAnnotation))
+            {
+                indexBuilder.Metadata.SetFillFactor(fillFactor, fromDataAnnotation);
+
+                return indexBuilder;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Returns a value indicating whether the index can be configured with fill factor option when targeting SQL Server.
+        /// </summary>
+        /// <param name="indexBuilder"> The builder for the index being configured. </param>
+        /// <param name="fillFactor"> A value indicating whether the index is created with fill factor option. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the index can be configured with fill factor option when targeting SQL Server. </returns>
+        public static bool CanSetFillFactor(
+            [NotNull] this IConventionIndexBuilder indexBuilder,
+            int? fillFactor,
+            bool fromDataAnnotation = false)
+        {
+            Check.NotNull(indexBuilder, nameof(indexBuilder));
+
+            return indexBuilder.CanSetAnnotation(SqlServerAnnotationNames.FillFactor, fillFactor, fromDataAnnotation);
+        }
     }
 }

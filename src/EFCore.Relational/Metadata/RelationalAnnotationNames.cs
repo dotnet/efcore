@@ -42,6 +42,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string ComputedColumnSql = Prefix + "ComputedColumnSql";
 
         /// <summary>
+        ///     The name for computed column type annotations.
+        /// </summary>
+        public const string ComputedColumnIsStored = Prefix + "ComputedColumnIsStored";
+
+        /// <summary>
         ///     The name for default value annotations.
         /// </summary>
         public const string DefaultValue = Prefix + "DefaultValue";

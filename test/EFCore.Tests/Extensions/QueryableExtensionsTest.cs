@@ -9,12 +9,10 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Xunit;
-
-using ReferenceEqualityComparer = Microsoft.EntityFrameworkCore.Infrastructure.ReferenceEqualityComparer;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable RedundantArgumentDefaultValue
@@ -303,11 +301,11 @@ namespace Microsoft.EntityFrameworkCore
             await SourceNonAsyncQueryableTest(() => Source<decimal?>().SumAsync(e => e));
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e));
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, e => e));
-            await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, ReferenceEqualityComparer.Instance));
-            await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, ReferenceEqualityComparer.Instance));
-            await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, e => e, ReferenceEqualityComparer.Instance));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, LegacyReferenceEqualityComparer.Instance));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, LegacyReferenceEqualityComparer.Instance));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, e => e, LegacyReferenceEqualityComparer.Instance));
             await SourceNonAsyncEnumerableTest<int>(
-                () => Source().ToDictionaryAsync(e => e, e => e, ReferenceEqualityComparer.Instance, new CancellationToken()));
+                () => Source().ToDictionaryAsync(e => e, e => e, LegacyReferenceEqualityComparer.Instance, new CancellationToken()));
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToListAsync());
 
             Assert.Equal(

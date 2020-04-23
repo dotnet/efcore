@@ -190,6 +190,12 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
+            public Task CommitTransactionAsync(CancellationToken cancellationToken = default)
+                => Task.CompletedTask;
+
+            public Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
+                => Task.CompletedTask;
+
             public IDbContextTransaction CurrentTransaction { get; }
 
             public Transaction EnlistedTransaction { get; }

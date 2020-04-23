@@ -4,6 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 #nullable enable
 
@@ -47,9 +48,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         public virtual string? DefaultValueSql { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     The SQL expression that computes the value of the column, or <c>null</c> if this is not a computed column.
+        ///     Whether the value of the computed column this property is mapped to is stored in the database, or calculated when
+        ///     it is read.
         /// </summary>
         public virtual string? ComputedColumnSql { get; [param: CanBeNull] set; }
+
+        /// <summary>
+        ///     Whether the value of the computed column this property is mapped to is stored in the database, or calculated when
+        ///     it is read.
+        /// </summary>
+        public virtual bool? ComputedColumnIsStored { get; set; }
 
         /// <summary>
         ///     The column comment, or <c>null</c> if none is set.

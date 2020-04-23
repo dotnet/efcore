@@ -78,6 +78,8 @@ stages:
               - script: "echo ##vso[build.addbuildtag]release-candidate"
                 condition: and(notin(variables['Build.Reason'], 'PullRequest'), eq(variables['IsFinalBuild'], 'true'))
                 displayName: 'Set CI tags'
+              - powershell: SqlLocalDB start
+                displayName: Start LocalDB
               - ${{ if ne(variables['System.TeamProject'], 'public') }}:
                 - task: PowerShell@2
                   displayName: Setup Private Feeds Credentials
