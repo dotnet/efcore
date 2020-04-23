@@ -3496,7 +3496,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                         level => LoggerMessage.Define<object, object>(
                             level,
                             CoreEventId.InvalidIncludePathError,
-                            _resourceManager.GetString("InvalidIncludePath"))));
+                            _resourceManager.GetString("LogInvalidIncludePath"))));
             }
 
             return (EventDefinition<object, object>)definition;
