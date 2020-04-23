@@ -451,6 +451,12 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
             AssertSql(" ");
         }
 
+        [ConditionalTheory(Skip = "No SelectMany, No Ability to Include navigation back to owner #17246")]
+        public override Task NoTracking_Include_with_cycles_does_not_throw_when_performing_identity_resolution(bool async)
+        {
+            return base.NoTracking_Include_with_cycles_does_not_throw_when_performing_identity_resolution(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

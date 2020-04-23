@@ -5844,7 +5844,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Null_parameter_name_works(bool isAsync)
+        public virtual async Task Null_parameter_name_works(bool async)
         {
             using var context = CreateContext();
             var customerDbSet = context.Set<Customer>().AsQueryable();
@@ -5858,7 +5858,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var query = ((IAsyncQueryProvider)customerDbSet.Provider).CreateQuery<Customer>(queryExpression);
 
-            var result = isAsync
+            var result = async
                 ? (await query.ToListAsync())
                 : query.ToList();
 
@@ -5871,6 +5871,53 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return Assert.ThrowsAsync<InvalidOperationException>(
                 async () => await AssertQuery(async, ss => ss.Set<Customer>().Include("OrderDetails")));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Perform_identity_resolution_reuses_same_instances(bool async)
+        {
+            using var context = CreateContext();
+            var orderIds = context.Customers.Where(c => c.CustomerID == "ALFKI")
+                .SelectMany(c => c.Orders).Select(o => o.OrderID).ToList();
+
+            var query = context.Orders.Where(o => orderIds.Contains(o.OrderID))
+                .Select(o => o.Customer)
+                .PerformIdentityResolution();
+
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Equal(6, result.Count);
+            var firstCustomer = result[0];
+            Assert.All(result, t => Assert.Same(firstCustomer, t));
+            Assert.Empty(context.ChangeTracker.Entries());
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Perform_identity_resolution_reuses_same_instances_across_joins(bool async)
+        {
+            using var context = CreateContext();
+
+            var query = (from c in context.Customers.Where(c => c.CustomerID.StartsWith("A"))
+                         join o in context.Orders.Where(o => o.OrderID < 10500).Include(o => o.Customer)
+                             on c.CustomerID equals o.CustomerID
+                         select new { c, o })
+                        .PerformIdentityResolution();
+
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            var arouts = result.Where(t => t.c.CustomerID == "AROUT").Select(t => t.c)
+                .Concat(result.Where(t => t.o.CustomerID == "AROUT").Select(t => t.o.Customer))
+                .ToList();
+
+            var firstArout = arouts[0];
+            Assert.All(arouts, t => Assert.Same(firstArout, t));
+            Assert.Empty(context.ChangeTracker.Entries());
         }
     }
 }

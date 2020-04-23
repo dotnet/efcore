@@ -64,7 +64,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             _entityMaterializerInjectingExpressionVisitor =
                 new EntityMaterializerInjectingExpressionVisitor(
                     dependencies.EntityMaterializerSource,
-                    queryCompilationContext.IsTracking);
+                    queryCompilationContext.IsTracking,
+                    queryCompilationContext.PerformIdentityResolution);
 
             _constantVerifyingExpressionVisitor = new ConstantVerifyingExpressionVisitor(dependencies.TypeMappingSource);
 
@@ -288,9 +289,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             private static readonly PropertyInfo _dbContextMemberInfo
                 = typeof(QueryContext).GetProperty(nameof(QueryContext.Context));
 
-            private static readonly PropertyInfo _stateManagerMemberInfo
-                = typeof(QueryContext).GetProperty(nameof(QueryContext.StateManager));
-
             private static readonly PropertyInfo _entityMemberInfo
                 = typeof(InternalEntityEntry).GetProperty(nameof(InternalEntityEntry.Entity));
 
@@ -298,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 = typeof(InternalEntityEntry).GetProperty(nameof(InternalEntityEntry.EntityType));
 
             private static readonly MethodInfo _tryGetEntryMethodInfo
-                = typeof(IStateManager).GetTypeInfo().GetDeclaredMethods(nameof(IStateManager.TryGetEntry))
+                = typeof(QueryContext).GetTypeInfo().GetDeclaredMethods(nameof(QueryContext.TryGetEntry))
                     .Single(mi => mi.GetParameters().Length == 4);
 
             private static readonly MethodInfo _startTrackingMethodInfo
@@ -306,21 +304,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                     nameof(QueryContext.StartTracking), new[] { typeof(IEntityType), typeof(object), typeof(ValueBuffer) });
 
             private readonly IEntityMaterializerSource _entityMaterializerSource;
-            private readonly bool _trackQueryResults;
+            private readonly bool _trackingQuery;
+            private readonly bool _queryStateMananger;
             private readonly ISet<IEntityType> _visitedEntityTypes = new HashSet<IEntityType>();
             private int _currentEntityIndex;
 
             public EntityMaterializerInjectingExpressionVisitor(
-                IEntityMaterializerSource entityMaterializerSource, bool trackQueryResults)
+                IEntityMaterializerSource entityMaterializerSource,
+                bool trackingQuery,
+                bool performIdentityResolution)
             {
                 _entityMaterializerSource = entityMaterializerSource;
-                _trackQueryResults = trackQueryResults;
+                _trackingQuery = trackingQuery;
+                _queryStateMananger = trackingQuery || performIdentityResolution;
             }
 
             public Expression Inject(Expression expression)
             {
                 var result = Visit(expression);
-                if (_trackQueryResults)
+                if (_trackingQuery)
                 {
                     foreach (var entityType in _visitedEntityTypes)
                     {
@@ -386,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         instanceVariable,
                         Expression.Constant(null, entityType.ClrType)));
 
-                if (_trackQueryResults
+                if (_queryStateMananger
                     && primaryKey != null)
                 {
                     var entryVariable = Expression.Variable(typeof(InternalEntityEntry), "entry" + _currentEntityIndex);
@@ -398,9 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Expression.Assign(
                             entryVariable,
                             Expression.Call(
-                                Expression.MakeMemberAccess(
-                                    QueryCompilationContext.QueryContextParameter,
-                                    _stateManagerMemberInfo),
+                                QueryCompilationContext.QueryContextParameter,
                                 _tryGetEntryMethodInfo,
                                 Expression.Constant(primaryKey),
                                 Expression.NewArrayInit(
@@ -513,7 +513,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 expressions.Add(Expression.Assign(instanceVariable, materializationExpression));
 
-                if (_trackQueryResults
+                if (_queryStateMananger
                     && entityType.FindPrimaryKey() != null)
                 {
                     foreach (var et in entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive()))
@@ -560,7 +560,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var materializer = _entityMaterializerSource
                     .CreateMaterializeExpression(concreteEntityType, "instance", materializationContextVariable);
 
-                if (_trackQueryResults
+                if (_queryStateMananger
                     && concreteEntityType.ShadowPropertyCount() > 0)
                 {
                     var valueBufferExpression = Expression.Call(

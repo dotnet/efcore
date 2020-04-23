@@ -92,6 +92,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     A value indicating whether it is tracking query.
         /// </summary>
         public virtual bool IsTracking { get; internal set; }
+
+        /// <summary>
+        ///     <para>
+        ///         A value indicating whether query should perform identity resolution for the entities returned in the results.
+        ///     </para>
+        ///     <para>
+        ///         This value is only set when <see cref="IsTracking"/> is to <see langword="false"/>.
+        ///     </para>
+        /// </summary>
+        public virtual bool PerformIdentityResolution { get; internal set; }
         /// <summary>
         ///     A value indicating whether the underlying server query needs to pre-buffer all data.
         /// </summary>

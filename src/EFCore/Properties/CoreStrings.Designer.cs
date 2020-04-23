@@ -2628,6 +2628,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("MissingInverseManyToManyNavigation", nameof(principalEntityType), nameof(declaringEntityType)),
                 principalEntityType, declaringEntityType);
 
+        /// <summary>
+        ///     InitializeStateManager method has been called multiple times on current query context. This method is intended to be called only once before query enumeration starts.
+        /// </summary>
+        public static string QueryContextAlreadyInitializedStateManager
+            => GetString("QueryContextAlreadyInitializedStateManager");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

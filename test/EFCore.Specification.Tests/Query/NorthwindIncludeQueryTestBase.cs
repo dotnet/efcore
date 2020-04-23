@@ -3736,6 +3736,55 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(2, result.Orders.First().OrderDetails.Count);
         }
 
+        [ConditionalTheory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public virtual async Task NoTracking_Include_with_cycles_throws(bool useString, bool async)
+        {
+            using var context = CreateContext();
+            var query = (from o in (useString
+                                    ? context.Orders.Include("Customer.Orders")
+                                    : context.Orders.Include(o => o.Customer.Orders))
+                         where o.OrderID < 10800
+                         select o)
+                        .AsNoTracking();
+
+            Assert.Equal(
+                CoreStrings.IncludeWithCycle("Customer", "Orders"),
+                async
+                ? (await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync())).Message
+                : Assert.Throws<InvalidOperationException>(() => query.ToList()).Message);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public virtual async Task NoTracking_Include_with_cycles_does_not_throw_when_performing_identity_resolution(bool useString, bool async)
+        {
+            using var context = CreateContext();
+            var query = (from o in (useString
+                                    ? context.Orders.Include("Customer.Orders")
+                                    : context.Orders.Include(o => o.Customer.Orders))
+                         where o.OrderID < 10800
+                         select o)
+                         .PerformIdentityResolution();
+
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Empty(context.ChangeTracker.Entries());
+            foreach (var order in result)
+            {
+                Assert.NotNull(order.Customer);
+                Assert.Same(order, order.Customer.Orders.First(o => o.OrderID == order.OrderID));
+            }
+        }
+
         private static void CheckIsLoaded(
             NorthwindContext context,
             Customer customer,

@@ -99,7 +99,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Expression.Constant(projectionColumns, typeof(IReadOnlyList<ReaderColumn>)),
                 Expression.Constant(shaperLambda.Compile()),
                 Expression.Constant(_contextType),
-                Expression.Constant(_logger));
+                Expression.Constant(_logger),
+                Expression.Constant(QueryCompilationContext.PerformIdentityResolution));
         }
     }
 }

@@ -135,6 +135,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return visitedExpression;
             }
 
+            if (genericMethodDefinition == EntityFrameworkQueryableExtensions.PerformIdentityResolutionMethodInfo)
+            {
+                var visitedExpression = Visit(methodCallExpression.Arguments[0]);
+                _queryCompilationContext.IsTracking = false;
+                _queryCompilationContext.PerformIdentityResolution = true;
+
+                return visitedExpression;
+            }
+
             if (genericMethodDefinition == EntityFrameworkQueryableExtensions.TagWithMethodInfo)
             {
                 var visitedExpression = Visit(methodCallExpression.Arguments[0]);
