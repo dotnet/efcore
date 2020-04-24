@@ -1004,9 +1004,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             Check.NotNull(predicate, nameof(predicate));
 
             if (source.ShaperExpression is EntityShaperExpression entityShaperExpression)
-                //&& TryGetPartitionKeyFromPredicate(predicate.Body, entityShaperExpression.EntityType,
-                //    out var partitionKeyProperty,
-                //    out var partitionKeyPropertyValueExpression))
             {
                 var predicateVisitor = new PredicateVisitor(entityShaperExpression.EntityType);
 
@@ -1017,6 +1014,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
                     ((SelectExpression)source.QueryExpression).SetPartitionKeyProperty(
                         predicateVisitor.PartitionKeyProperty, predicateVisitor.PartitionKeyValueExpression);
+
+                    if (modifiedPredicateBody is null)
+                    {
+                        return source;
+                    }
 
                     predicate = Expression.Lambda(modifiedPredicateBody, predicate.Parameters);
                 }
@@ -1121,7 +1123,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     return VisitBinary(binaryExpression);
                 }
 
-                return null;
+                return expression;
             }
 
             protected override Expression VisitBinary(BinaryExpression binaryExpression)
