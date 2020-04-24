@@ -70,7 +70,7 @@ OFFSET 0 LIMIT 1";
             const string readSql =
 @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (((c[""Id""] = 42) OR (c[""Name""] = ""John Snow"")) AND (c[""PartitionKey""] = ""1"")))
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""Id""] = 42) OR (c[""Name""] = ""John Snow"")))
 OFFSET 0 LIMIT 1";
 
             await PartitionKeyTestAsync(
@@ -80,7 +80,7 @@ OFFSET 0 LIMIT 1";
                 readSql,
                 ctx => ctx.Customers.WithPartitionKey("2").LastAsync(),
                 ctx => ctx.Customers
-                    .Where(b => b.Id == 42 && b.PartitionKey == 1 || b.PartitionKey == 2)
+                    .Where(b => b.Id == 42 && (b.PartitionKey == 1 || b.PartitionKey == 2))
                     .ToListAsync(),
                 2);
         }

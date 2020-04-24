@@ -425,7 +425,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
 #pragma warning disable EF1001 // Internal EF Core API usage.
                     entry.SetIsLoaded(navigation);
-#pragma warning restore EF1001
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 }
             }
 
