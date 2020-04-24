@@ -15,8 +15,24 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <summary>
+    ///     <para>
+    ///         A class to create a printable string representation of expression.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     public class ExpressionPrinter : ExpressionVisitor
     {
+        private static readonly List<string> _simpleMethods = new List<string>
+        {
+            "get_Item",
+            "TryReadValue",
+            "ReferenceEquals"
+        };
+
         private readonly IndentedStringBuilder _stringBuilder;
         private readonly Dictionary<ParameterExpression, string> _parametersInScope;
         private readonly List<ParameterExpression> _namelessParameters;
@@ -44,6 +60,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             { ExpressionType.ExclusiveOr, " ^ " }
         };
 
+        /// <summary>
+        ///     Creates a new instance of the <see cref="ExpressionPrinter" /> class.
+        /// </summary>
         public ExpressionPrinter()
         {
             _stringBuilder = new IndentedStringBuilder();
@@ -55,8 +74,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         private int? CharacterLimit { get; set; }
         private bool Verbose { get; set; }
 
-        public virtual void VisitCollection<T>(
-            [NotNull] IReadOnlyCollection<T> items,
+        /// <summary>
+        ///     Visit given readonly collection of expression for printing.
+        /// </summary>
+        /// <param name="items"> A collection of items to print. </param>
+        /// <param name="joinAction"> A join action to use when joining printout of individual item in the collection. </param>
+        public virtual void VisitCollection<T>([NotNull] IReadOnlyCollection<T> items,
             [CanBeNull] Action<ExpressionPrinter> joinAction = null)
             where T : Expression
         {
@@ -80,44 +103,77 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <summary>
+        ///     Appends a new line to current output being built.
+        /// </summary>
+        /// <returns> This printer so additional calls can be chained. </returns>
         public virtual ExpressionPrinter AppendLine()
         {
             _stringBuilder.AppendLine();
             return this;
         }
 
+        /// <summary>
+        ///     Appends the given string and a new line to current output being built.
+        /// </summary>
+        /// <param name="value"> The string to append. </param>
+        /// <returns> This printer so additional calls can be chained. </returns>
         public virtual ExpressionVisitor AppendLine([NotNull] string value)
         {
             _stringBuilder.AppendLine(value);
             return this;
         }
 
+        /// <summary>
+        ///     Appends all the lines to current output being built.
+        /// </summary>
+        /// <param name="value"> The string to append. </param>
+        /// <param name="skipFinalNewline"> If true, then a terminating new line is not added. </param>
+        /// <returns> This printer so additional calls can be chained. </returns>
         public virtual ExpressionPrinter AppendLines([NotNull] string value, bool skipFinalNewline = false)
         {
             _stringBuilder.AppendLines(value, skipFinalNewline);
             return this;
         }
 
+        /// <summary>
+        ///     Creates a scoped indenter that will increment the indent, then decrement it when disposed.
+        /// </summary>
+        /// <returns> An indenter. </returns>
         public virtual IDisposable Indent() => _stringBuilder.Indent();
 
-        public virtual ExpressionPrinter Append([NotNull] string message)
+        /// <summary>
+        ///     Appends the given string to current output being built.
+        /// </summary>
+        /// <param name="value"> The string to append. </param>
+        /// <returns> This printer so additional calls can be chained. </returns>
+        public virtual ExpressionPrinter Append([NotNull] string value)
         {
-            _stringBuilder.Append(message);
+            _stringBuilder.Append(value);
             return this;
         }
 
+        /// <summary>
+        ///     Creates a printable string representation of the given expression.
+        /// </summary>
+        /// <param name="expression"> The expression to print. </param>
+        /// <param name="characterLimit"> An optional limit to the number of characters included. Additional output will be truncated. </param>
+        /// <returns> The printable representation. </returns>
         public virtual string Print(
             [NotNull] Expression expression,
             int? characterLimit = null)
             => PrintCore(expression, characterLimit, verbose: false);
 
+        /// <summary>
+        ///     Creates a printable verbose string representation of the given expression.
+        /// </summary>
+        /// <param name="expression"> The expression to print. </param>
+        /// <returns> The printable representation. </returns>
         public virtual string PrintDebug(
-            [NotNull] Expression expression,
-            int? characterLimit = null,
-            bool verbose = true)
-            => PrintCore(expression, characterLimit, verbose);
+            [NotNull] Expression expression)
+            => PrintCore(expression, characterLimit: null, verbose: true);
 
-        protected virtual string PrintCore(
+        private string PrintCore(
             [NotNull] Expression expression,
             int? characterLimit,
             bool verbose)
@@ -147,11 +203,17 @@ namespace Microsoft.EntityFrameworkCore.Query
             return queryPlan;
         }
 
+        /// <summary>
+        ///     Returns binary operator string corresponding to given <see cref="ExpressionType"/>.
+        /// </summary>
+        /// <param name="expressionType"> The expression type to generate binary operator for. </param>
+        /// <returns> The binary operator string. </returns>
         public virtual string GenerateBinaryOperator(ExpressionType expressionType)
         {
             return _binaryOperandMap[expressionType];
         }
 
+        /// <inheritdoc />
         public override Expression Visit(Expression expression)
         {
             if (expression == null)
@@ -277,6 +339,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return expression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
@@ -308,6 +371,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return binaryExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitBlock(BlockExpression blockExpression)
         {
             Check.NotNull(blockExpression, nameof(blockExpression));
@@ -352,6 +416,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return blockExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
         {
             Check.NotNull(conditionalExpression, nameof(conditionalExpression));
@@ -369,6 +434,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return conditionalExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
             Check.NotNull(constantExpression, nameof(constantExpression));
@@ -416,6 +482,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             _stringBuilder.Append(stringValue);
         }
 
+        /// <inheritdoc />
         protected override Expression VisitGoto(GotoExpression gotoExpression)
         {
             Check.NotNull(gotoExpression, nameof(gotoExpression));
@@ -431,6 +498,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return gotoExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitLabel(LabelExpression labelExpression)
         {
             Check.NotNull(labelExpression, nameof(labelExpression));
@@ -440,6 +508,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return labelExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
         {
             Check.NotNull(lambdaExpression, nameof(lambdaExpression));
@@ -484,6 +553,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return lambdaExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
             Check.NotNull(memberExpression, nameof(memberExpression));
@@ -513,6 +583,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return memberExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
         {
             Check.NotNull(memberInitExpression, nameof(memberInitExpression));
@@ -543,13 +614,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return memberInitExpression;
         }
 
-        private static readonly List<string> _simpleMethods = new List<string>
-        {
-            "get_Item",
-            "TryReadValue",
-            "ReferenceEquals"
-        };
-
+        /// <inheritdoc />
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
@@ -681,6 +746,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <inheritdoc />
         protected override Expression VisitNew(NewExpression newExpression)
         {
             Check.NotNull(newExpression, nameof(newExpression));
@@ -735,6 +801,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return newExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
         {
             Check.NotNull(newArrayExpression, nameof(newArrayExpression));
@@ -763,6 +830,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return newArrayExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitParameter(ParameterExpression parameterExpression)
         {
             Check.NotNull(parameterExpression, nameof(parameterExpression));
@@ -824,6 +892,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return parameterExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
             Check.NotNull(unaryExpression, nameof(unaryExpression));
@@ -876,6 +945,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return unaryExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitDefault(DefaultExpression defaultExpression)
         {
             Check.NotNull(defaultExpression, nameof(defaultExpression));
@@ -885,6 +955,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return defaultExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitTry(TryExpression tryExpression)
         {
             Check.NotNull(tryExpression, nameof(tryExpression));
@@ -901,6 +972,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return tryExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitIndex(IndexExpression indexExpression)
         {
             Check.NotNull(indexExpression, nameof(indexExpression));
@@ -917,6 +989,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return indexExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
         {
             Check.NotNull(typeBinaryExpression, nameof(typeBinaryExpression));
@@ -928,6 +1001,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return typeBinaryExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitSwitch(SwitchExpression switchExpression)
         {
             _stringBuilder.Append("switch (");
@@ -970,6 +1044,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return switchExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitExtension(Expression extensionExpression)
         {
             Check.NotNull(extensionExpression, nameof(extensionExpression));
@@ -1004,7 +1079,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        protected virtual string PostProcess([NotNull] string printedExpression)
+        private string PostProcess([NotNull] string printedExpression)
         {
             var processedPrintedExpression = printedExpression
                 .Replace("Microsoft.EntityFrameworkCore.Query.", "")

@@ -28,8 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         IEntityTypeAnnotationChangedConvention,
         IEntityTypeBaseTypeChangedConvention
     {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public static readonly string IdPropertyName = "id";
         public static readonly string JObjectPropertyName = "__jObject";
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
         /// <summary>
         ///     Creates a new instance of <see cref="StoreKeyConvention" />.

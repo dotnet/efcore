@@ -12,6 +12,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
     /// </summary>
     public class ScaffoldedFile
     {
+        /// <summary>
+        ///     Creates a new instance of <see cref="ScaffoldedFile" />.
+        /// </summary>
+        /// <param name="path"> The path of the scaffolded file. </param>
+        /// <param name="code">  The scaffolded code. </param>
         public ScaffoldedFile([NotNull] string path, [NotNull] string code)
         {
             Path = path;

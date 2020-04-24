@@ -5,7 +5,9 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     public interface IConventionNavigationBuilder : IConventionAnnotatableBuilder
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     {
         /// <summary>
         ///     Gets the navigation being configured.

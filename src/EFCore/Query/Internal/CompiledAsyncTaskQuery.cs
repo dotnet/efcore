@@ -340,8 +340,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] TContext context, [CanBeNull] TParam1 param1, [CanBeNull] TParam2 param2, [CanBeNull] TParam3 param3, [CanBeNull] TParam4 param4, [CanBeNull] TParam5 param5, [CanBeNull] TParam6 param6, [CanBeNull] TParam7 param7, [CanBeNull] TParam8 param8, [CanBeNull] TParam9 param9, [CanBeNull] TParam10 param10, [CanBeNull] TParam11 param11, [CanBeNull] TParam12 param12, [CanBeNull] TParam13 param13, [CanBeNull] TParam14 param14, [CanBeNull] TParam15 param15)
             => ExecuteCore(context, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13, param14, param15);
 
+        /// <inheritdoc />
         protected override Func<QueryContext, Task<TResult>> CreateCompiledQuery(
-            IQueryCompiler queryCompiler, Expression expression)
+        IQueryCompiler queryCompiler, Expression expression)
             => queryCompiler.CreateCompiledAsyncQuery<Task<TResult>>(expression);
     }
 }

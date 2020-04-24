@@ -9,8 +9,22 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <summary>
+    ///     <para>
+    ///         An expression that represents materialization of a collection navigation in <see cref="ShapedQueryExpression.ShaperExpression"/>.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     public class MaterializeCollectionNavigationExpression : Expression, IPrintableExpression
     {
+        /// <summary>
+        ///     Creates a new instance of the <see cref="CollectionShaperExpression" /> class.
+        /// </summary>
+        /// <param name="subquery"> An expression reprensenting how to get value from query to create the collection. </param>
+        /// <param name="navigation"> A navigation associated with this collection. </param>
         public MaterializeCollectionNavigationExpression([NotNull] Expression subquery, [NotNull] INavigation navigation)
         {
             Check.NotNull(subquery, nameof(subquery));
@@ -20,12 +34,21 @@ namespace Microsoft.EntityFrameworkCore.Query
             Navigation = navigation;
         }
 
+        /// <summary>
+        ///     The expression that returns the values from query used to create the collection.
+        /// </summary>
         public virtual Expression Subquery { get; }
+        /// <summary>
+        ///     The navigation associated with this collection.
+        /// </summary>
         public virtual INavigation Navigation { get; }
 
+        /// <inheritdoc />
         public sealed override ExpressionType NodeType => ExpressionType.Extension;
+        /// <inheritdoc />
         public override Type Type => Navigation.ClrType;
 
+        /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             Check.NotNull(visitor, nameof(visitor));
@@ -33,6 +56,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Update(visitor.Visit(Subquery));
         }
 
+        /// <summary>
+        ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
+        ///     return this expression.
+        /// </summary>
+        /// <param name="subquery"> The <see cref="Subquery"/> property of the result. </param>
+        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual MaterializeCollectionNavigationExpression Update([NotNull] Expression subquery)
         {
             Check.NotNull(subquery, nameof(subquery));
@@ -42,6 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 : this;
         }
 
+        /// <inheritdoc />
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));

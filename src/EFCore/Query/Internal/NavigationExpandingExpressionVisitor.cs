@@ -16,6 +16,12 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     {
         private static readonly PropertyInfo _queryContextContextPropertyInfo
@@ -61,8 +67,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private readonly Parameters _parameters = new Parameters();
 
-        protected virtual QueryCompilationContext QueryCompilationContext => _queryCompilationContext;
-
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public NavigationExpandingExpressionVisitor(
             [NotNull] QueryTranslationPreprocessor queryTranslationPreprocessor,
             [NotNull] QueryCompilationContext queryCompilationContext,
@@ -87,6 +97,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 generateContextAccessors: true);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual Expression Expand([NotNull] Expression query)
         {
             var result = Visit(query);
@@ -120,6 +136,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return result;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitExtension(Expression extensionExpression)
         {
             Check.NotNull(extensionExpression, nameof(extensionExpression));
@@ -135,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         && queryRootExpression.GetType() == typeof(QueryRootExpression))
                     {
                         var processedDefiningQueryBody = _parameterExtractingExpressionVisitor.ExtractParameters(definingQuery.Body);
-                        processedDefiningQueryBody = _queryTranslationPreprocessor.NormalizeQueryableMethodCall(processedDefiningQueryBody);
+                        processedDefiningQueryBody = _queryTranslationPreprocessor.NormalizeQueryableMethod(processedDefiningQueryBody);
                         processedDefiningQueryBody = _nullCheckRemovingExpressionVisitor.Visit(processedDefiningQueryBody);
                         processedDefiningQueryBody =
                             new SelfReferenceEntityQueryableRewritingExpressionVisitor(this, entityType).Visit(processedDefiningQueryBody);
@@ -161,6 +183,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
             Check.NotNull(memberExpression, nameof(memberExpression));
@@ -200,6 +228,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return updatedExpression;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
@@ -535,6 +569,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return ProcessUnknownMethod(methodCallExpression);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
             var operand = Visit(unaryExpression.Operand);
@@ -1327,7 +1367,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         filterPredicate = queryFilter;
                         filterPredicate = (LambdaExpression)_parameterExtractingExpressionVisitor.ExtractParameters(filterPredicate);
-                        filterPredicate = (LambdaExpression)_queryTranslationPreprocessor.NormalizeQueryableMethodCall(filterPredicate);
+                        filterPredicate = (LambdaExpression)_queryTranslationPreprocessor.NormalizeQueryableMethod(filterPredicate);
 
                         // We need to do entity equality, but that requires a full method call on a query root to properly flow the
                         // entity information through. Construct a MethodCall wrapper for the predicate with the proper query root.
@@ -1519,7 +1559,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        protected virtual NavigationExpansionExpression CreateNavigationExpansionExpression([NotNull] Expression sourceExpression, [NotNull] IEntityType entityType)
+        private NavigationExpansionExpression CreateNavigationExpansionExpression([NotNull] Expression sourceExpression, [NotNull] IEntityType entityType)
         {
             var entityReference = new EntityReference(entityType);
             PopulateEagerLoadedNavigations(entityReference.IncludePaths);

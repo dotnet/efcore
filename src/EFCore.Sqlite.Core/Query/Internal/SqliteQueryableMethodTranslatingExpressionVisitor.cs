@@ -13,8 +13,20 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQueryableMethodTranslatingExpressionVisitor
     {
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public SqliteQueryableMethodTranslatingExpressionVisitor(
             [NotNull] QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
             [NotNull] RelationalQueryableMethodTranslatingExpressionVisitorDependencies relationalDependencies,
@@ -23,15 +35,33 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         {
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected SqliteQueryableMethodTranslatingExpressionVisitor(
             [NotNull] SqliteQueryableMethodTranslatingExpressionVisitor parentVisitor)
             : base(parentVisitor)
         {
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor()
             => new SqliteQueryableMethodTranslatingExpressionVisitor(this);
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override ShapedQueryExpression TranslateOrderBy(
             ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
         {
@@ -58,6 +88,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             return translation;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override ShapedQueryExpression TranslateThenBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
         {
             Check.NotNull(source, nameof(source));

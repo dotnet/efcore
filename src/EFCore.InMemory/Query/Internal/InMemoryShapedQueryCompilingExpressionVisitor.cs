@@ -19,6 +19,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public InMemoryShapedQueryCompilingExpressionVisitor(
             [NotNull] ShapedQueryCompilingExpressionVisitorDependencies dependencies,
             [NotNull] QueryCompilationContext queryCompilationContext)
@@ -28,6 +34,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             _logger = queryCompilationContext.Logger;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitExtension(Expression extensionExpression)
         {
             Check.NotNull(extensionExpression, nameof(extensionExpression));
@@ -48,6 +60,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return base.VisitExtension(extensionExpression);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitShapedQuery(ShapedQueryExpression shapedQueryExpression)
         {
             Check.NotNull(shapedQueryExpression, nameof(shapedQueryExpression));
@@ -64,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             shaper = new InMemoryProjectionBindingRemovingExpressionVisitor().Visit(shaper);
 
-            shaper = new CustomShaperCompilingExpressionVisitor(IsTracking).Visit(shaper);
+            shaper = new CustomShaperCompilingExpressionVisitor(QueryCompilationContext.IsTracking).Visit(shaper);
 
             var shaperLambda = (LambdaExpression)shaper;
 

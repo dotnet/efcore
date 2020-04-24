@@ -11,10 +11,24 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <summary>
+    ///     <para>
+    ///         An expression that represents a query root in query expression.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     public class QueryRootExpression : Expression, IPrintableExpression
     {
         private readonly Type _type;
 
+        /// <summary>
+        ///     Creates a new instance of the <see cref="QueryRootExpression" /> class with associated query provider.
+        /// </summary>
+        /// <param name="asyncQueryProvider"> The query provider associated with this query root. </param>
+        /// <param name="entityType"> The entity type this query root represents. </param>
         public QueryRootExpression([NotNull] IAsyncQueryProvider asyncQueryProvider, [NotNull] IEntityType entityType)
         {
             Check.NotNull(asyncQueryProvider, nameof(asyncQueryProvider));
@@ -25,6 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             _type = typeof(IQueryable<>).MakeGenericType(entityType.ClrType);
         }
 
+        /// <summary>
+        ///     Creates a new instance of the <see cref="QueryRootExpression" /> class without any query provider.
+        /// </summary>
+        /// <param name="entityType"> The entity type this query root represents. </param>
         public QueryRootExpression([NotNull] IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
@@ -34,15 +52,31 @@ namespace Microsoft.EntityFrameworkCore.Query
             _type = typeof(IQueryable<>).MakeGenericType(entityType.ClrType);
         }
 
+        /// <summary>
+        ///     The query provider associated with this query root.
+        /// </summary>
         public virtual IAsyncQueryProvider QueryProvider { get; }
+
+        /// <summary>
+        ///     The entity type reprenseted by this query root.
+        /// </summary>
         public virtual IEntityType EntityType { get; }
 
+        /// <summary>
+        ///     Detaches the associated query provider from this query root expression.
+        /// </summary>
+        /// <returns> A new query root expression without query provider. </returns>
         public virtual Expression DetachQueryProvider() => new QueryRootExpression(EntityType);
+        /// <inheritdoc />
         public override ExpressionType NodeType => ExpressionType.Extension;
+        /// <inheritdoc />
         public override Type Type => _type;
+        /// <inheritdoc />
         public override bool CanReduce => false;
+        /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
 
+        /// <inheritdoc />
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
@@ -57,12 +91,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <inheritdoc />
         public override bool Equals(object obj)
             => obj != null
                && (ReferenceEquals(this, obj)
                 || obj is QueryRootExpression queryRootExpression
                     && EntityType == queryRootExpression.EntityType);
 
+        /// <inheritdoc />
         public override int GetHashCode() => EntityType.GetHashCode();
     }
 }

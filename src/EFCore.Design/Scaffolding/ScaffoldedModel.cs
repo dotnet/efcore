@@ -13,6 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
     /// </summary>
     public class ScaffoldedModel
     {
+        /// <summary>
+        ///     Creates a new instance of <see cref="ScaffoldedModel" />.
+        /// </summary>
+        /// <param name="contextFile"> The scaffolded context file. </param>
         public ScaffoldedModel([NotNull] ScaffoldedFile contextFile)
         {
             ContextFile = contextFile;

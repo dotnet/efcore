@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     Creates a scoped indenter that will increment the index, then decrement it when disposed.
+        ///     Creates a scoped indenter that will increment the indent, then decrement it when disposed.
         /// </summary>
         /// <returns> An indenter. </returns>
         public virtual IDisposable Indent() => new Indenter(this);

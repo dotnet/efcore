@@ -67,7 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                     selectExpression.ApplyProjection();
 
-                    shaperBody = new CosmosProjectionBindingRemovingExpressionVisitor(selectExpression, jObjectParameter, IsTracking)
+                    shaperBody = new CosmosProjectionBindingRemovingExpressionVisitor(
+                        selectExpression, jObjectParameter, QueryCompilationContext.IsTracking)
                         .Visit(shaperBody);
 
                     var shaperLambda = Expression.Lambda(
@@ -90,8 +91,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                 case ReadItemExpression readItemExpression:
 
-                    shaperBody =
-                        new CosmosProjectionBindingRemovingReadItemExpressionVisitor(readItemExpression, jObjectParameter, IsTracking)
+                    shaperBody = new CosmosProjectionBindingRemovingReadItemExpressionVisitor(
+                            readItemExpression, jObjectParameter, QueryCompilationContext.IsTracking)
                         .Visit(shaperBody);
 
                     var shaperReadItemLambda = Expression.Lambda(
@@ -108,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         Expression.Constant(shaperReadItemLambda.Compile()),
                         Expression.Constant(_contextType),
                         Expression.Constant(_logger));
-                    
+
                 default:
                     throw new NotImplementedException();
             }
