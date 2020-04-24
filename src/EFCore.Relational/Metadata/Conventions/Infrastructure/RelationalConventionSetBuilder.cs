@@ -92,6 +92,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             var dbFunctionAttributeConvention = new RelationalDbFunctionAttributeConvention(Dependencies, RelationalDependencies);
             conventionSet.ModelInitializedConventions.Add(dbFunctionAttributeConvention);
 
+            // Use TypeMappingConvention to add the relational store type mapping
+            // to the generated concurrency token property
+            ConventionSet.AddBefore(
+                conventionSet.ModelFinalizingConventions,
+                new AddConcurrencyTokenPropertiesConvention(Dependencies, RelationalDependencies),
+                typeof(TypeMappingConvention));
             // ModelCleanupConvention would remove the entity types added by QueryableDbFunctionConvention #15898
             ConventionSet.AddAfter(
                 conventionSet.ModelFinalizingConventions,
