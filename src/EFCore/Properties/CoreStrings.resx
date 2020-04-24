@@ -141,6 +141,14 @@
   <data name="LiteralGenerationNotSupported" xml:space="preserve">
     <value>The type mapping for '{type}' has not implemented code literal generation.</value>
   </data>
+  <data name="InvalidPropertiesExpression" xml:space="preserve">
+    <value>The properties expression '{expression}' is not valid. The expression should represent a simple property access: 't =&gt; t.MyProperty'. When specifying multiple properties use an anonymous type: 't =&gt; new {{ t.MyProperty1, t.MyProperty2 }}'.</value>
+    <comment>Obsolete</comment>
+  </data>
+  <data name="InvalidPropertyExpression" xml:space="preserve">
+    <value>The expression '{expression}' is not a valid property expression. The expression should represent a simple property access: 't =&gt; t.MyProperty'.</value>
+    <comment>Obsolete</comment>
+  </data>
   <data name="InvalidMembersExpression" xml:space="preserve">
     <value>The expression '{expression}' is not a valid members access expression. The expression should represent a simple property or field access: 't =&gt; t.MyProperty'. When specifying multiple properties or fields use an anonymous type: 't =&gt; new {{ t.MyProperty, t.MyField }}'.</value>
   </data>
