@@ -13,10 +13,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Assembly)]
     public class CosmosDbConfiguredConditionAttribute : Attribute, ITestCondition
     {
-        private static bool? _connectionAvailable;
-
         public string SkipReason
+#if NETCOREAPP3_1
+            => "Cosmos tests don't run on .NET Core 3.1";
+#else
             => "Unable to connect to Cosmos DB. Please install/start the emulator service or configure a valid endpoint.";
+#endif
+
+#if NETCOREAPP3_1
+        public ValueTask<bool> IsMetAsync()
+        {
+            return new ValueTask<bool>(false);
+        }
+#else
+        private static bool? _connectionAvailable;
 
         public async ValueTask<bool> IsMetAsync()
         {
@@ -27,6 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
 
             return _connectionAvailable.Value;
         }
+#endif
 
         private static async Task<bool> TryConnectAsync()
         {
