@@ -140,8 +140,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetPartitionKeyProperty([CanBeNull]IProperty partitionKeyProperty, [CanBeNull]Expression expression)
+        public virtual void SetPartitionKeyProperty([NotNull]IProperty partitionKeyProperty, [NotNull]Expression expression)
         {
+
+
             _partitionKeyProperty = partitionKeyProperty;
             _paritionKeyValueExpression = expression;
         }
@@ -152,13 +154,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string GetPartitionKey([NotNull]CosmosQueryContext cosmosQueryContext)
+        public virtual string GetPartitionKey([NotNull]IReadOnlyDictionary<string, object> parameterValues)
         {
             return _partitionKeyProperty != null && _paritionKeyValueExpression is ConstantExpression constantExpression
                 ? GetString(_partitionKeyProperty, constantExpression.Value)
                 : _partitionKeyProperty != null
                     && _paritionKeyValueExpression is ParameterExpression parameterExpression
-                    && cosmosQueryContext.ParameterValues.TryGetValue(parameterExpression.Name, out var value)
+                    && parameterValues.TryGetValue(parameterExpression.Name, out var value)
                         ? GetString(_partitionKeyProperty, value)
                         : null;
 

@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 _contextType = contextType;
                 _logger = logger;
 
-                var partitionKey = selectExpression.GetPartitionKey(cosmosQueryContext);
+                var partitionKey = selectExpression.GetPartitionKey(cosmosQueryContext.ParameterValues);
 
                 if (partitionKey != null && partitionKeyFromExtension != null && partitionKeyFromExtension != partitionKey)
                 {
