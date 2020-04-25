@@ -663,12 +663,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 Assert.Equal(42, customerFromStore.Id);
                 Assert.Equal("Theon", customerFromStore.Name);
                 Assert.Equal(pk1, customerFromStore.PartitionKey);
-                AssertSql(context, @"@__p_0='1'
-@__p_1='42'
+                AssertSql(context, @"@__p_1='42'
 
 SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""PartitionKey""] = @__p_0) AND (c[""Id""] = @__p_1)))
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""Id""] = @__p_1))
 OFFSET 0 LIMIT 1");
 
                 customerFromStore.Name = "Theon Greyjoy";
