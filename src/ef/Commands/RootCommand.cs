@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             base.Configure(command);
         }
 
-        protected override int Execute()
+        protected override int Execute(string[] args)
         {
             Reporter.WriteInformation(
                 string.Join(
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                     Reporter.Colorize(@"        |___||_|       /   \\\/\\", s => s.Insert(33, Reset).Insert(23, Bold + Gray).Insert(8, Dark + Magenta)),
                     string.Empty));
 
-            return base.Execute();
+            return base.Execute(args);
         }
 
         private static string GetVersion()

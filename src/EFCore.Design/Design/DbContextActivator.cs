@@ -22,11 +22,13 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="contextType"> The <see cref="DbContext" /> type to instantiate. </param>
         /// <param name="startupAssembly"> The application's startup assembly. </param>
         /// <param name="reportHandler"> The design-time report handler. </param>
+        /// <param name="arguments"> Arguments passed to the application. </param>
         /// <returns> The newly created object. </returns>
         public static DbContext CreateInstance(
             [NotNull] Type contextType,
             [CanBeNull] Assembly startupAssembly = null,
-            [CanBeNull] IOperationReportHandler reportHandler = null)
+            [CanBeNull] IOperationReportHandler reportHandler = null,
+            [CanBeNull] string[] arguments = null)
         {
             Check.NotNull(contextType, nameof(contextType));
 
@@ -34,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                     new OperationReporter(reportHandler),
                     contextType.Assembly,
                     startupAssembly ?? contextType.Assembly,
-                    args: Array.Empty<string>()) // TODO: Issue #8332
+                    args: arguments ?? Array.Empty<string>())
                 .CreateContext(contextType.FullName);
         }
     }

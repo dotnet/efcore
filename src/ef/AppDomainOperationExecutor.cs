@@ -24,8 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
             string projectDir,
             string dataDirectory,
             string rootNamespace,
-            string language)
-            : base(assembly, startupAssembly, projectDir, rootNamespace, language)
+            string language,
+            string[] remainingArguments)
+            : base(assembly, startupAssembly, projectDir, rootNamespace, language, remainingArguments)
         {
             var info = new AppDomainSetup { ApplicationBase = AppBasePath };
 
@@ -66,7 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
                         { "projectDir", ProjectDirectory },
                         { "rootNamespace", RootNamespace },
                         { "language", Language },
-                        { "toolsVersion", ProductInfo.GetVersion() }
+                        { "toolsVersion", ProductInfo.GetVersion() },
+                        { "remainingArguments", RemainingArguments }
                     }
                 },
                 null,

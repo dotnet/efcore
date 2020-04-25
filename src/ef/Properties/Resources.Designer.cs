@@ -514,6 +514,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         public static string MigrationsNamespaceDescription
             => GetString("MigrationsNamespaceDescription");
 
+        /// <summary>
+        ///     Remaining arguments: '{remainingArguments}'.
+        /// </summary>
+        public static string RemainingArguments([CanBeNull] object remainingArguments)
+            => string.Format(
+                GetString("RemainingArguments", nameof(remainingArguments)),
+                remainingArguments);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

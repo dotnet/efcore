@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -21,13 +22,15 @@ namespace Microsoft.EntityFrameworkCore.Tools
         protected string ProjectDirectory { get; }
         protected string RootNamespace { get; }
         protected string Language { get; }
+        protected string[] RemainingArguments { get; }
 
         protected OperationExecutorBase(
             string assembly,
             string startupAssembly,
             string projectDir,
             string rootNamespace,
-            string language)
+            string language,
+            string[] remainingArguments)
         {
             AssemblyFileName = Path.GetFileNameWithoutExtension(assembly);
             StartupAssemblyFileName = startupAssembly == null
@@ -40,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             RootNamespace = rootNamespace ?? AssemblyFileName;
             ProjectDirectory = projectDir ?? Directory.GetCurrentDirectory();
             Language = language;
+            RemainingArguments = remainingArguments ?? Array.Empty<string>();
 
             Reporter.WriteVerbose(Resources.UsingAssembly(AssemblyFileName));
             Reporter.WriteVerbose(Resources.UsingStartupAssembly(StartupAssemblyFileName));
@@ -47,6 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             Reporter.WriteVerbose(Resources.UsingWorkingDirectory(Directory.GetCurrentDirectory()));
             Reporter.WriteVerbose(Resources.UsingRootNamespace(RootNamespace));
             Reporter.WriteVerbose(Resources.UsingProjectDir(ProjectDirectory));
+            Reporter.WriteVerbose(Resources.RemainingArguments(string.Join(",", RemainingArguments)));
         }
 
         public virtual void Dispose()
@@ -85,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         public IDictionary AddMigration(string name, string outputDir, string contextType, string @namespace)
             => InvokeOperation<IDictionary>(
                 "AddMigration",
-                new Dictionary<string, string>
+                new Dictionary<string, object>
                 {
                     ["name"] = name,
                     ["outputDir"] = outputDir,
@@ -116,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         public void UpdateDatabase(string migration, string connectionString, string contextType)
             => InvokeOperation(
                 "UpdateDatabase",
-                new Dictionary<string, string>
+                new Dictionary<string, object>
                 {
                     ["targetMigration"] = migration,
                     ["connectionString"] = connectionString,

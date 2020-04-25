@@ -342,4 +342,7 @@
   <data name="MigrationsNamespaceDescription" xml:space="preserve">
     <value>Specify to override the namespace for the migration.</value>
   </data>
+  <data name="RemainingArguments" xml:space="preserve">
+    <value>Remaining arguments: '{remainingArguments}'.</value>
+  </data>
 </root>

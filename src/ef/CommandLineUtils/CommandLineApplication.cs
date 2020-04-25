@@ -27,14 +27,14 @@ namespace Microsoft.DotNet.Cli.CommandLine
         // remaining arguments, including the first unexpected argument, will be stored in RemainingArguments property.
         private readonly bool _throwOnUnexpectedArg;
 
-        public CommandLineApplication(bool throwOnUnexpectedArg = true)
+        public CommandLineApplication(bool throwOnUnexpectedArg = false)
         {
             _throwOnUnexpectedArg = throwOnUnexpectedArg;
             Options = new List<CommandOption>();
             Arguments = new List<CommandArgument>();
             Commands = new List<CommandLineApplication>();
             RemainingArguments = new List<string>();
-            Invoke = () => 0;
+            Invoke = (args) => 0;
         }
 
         public CommandLineApplication Parent { get; set; }
@@ -48,7 +48,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public List<CommandArgument> Arguments { get; }
         public List<string> RemainingArguments { get; }
         public bool IsShowingInformation { get; protected set; } // Is showing help or version?
-        public Func<int> Invoke { get; set; }
+        public Func<string[],  int> Invoke { get; set; }
         public Func<string> LongVersionGetter { get; set; }
         public Func<string> ShortVersionGetter { get; set; }
         public List<CommandLineApplication> Commands { get; }
@@ -62,7 +62,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public CommandLineApplication Command(
             string name, Action<CommandLineApplication> configuration,
-            bool throwOnUnexpectedArg = true)
+            bool throwOnUnexpectedArg = false)
         {
             var command = new CommandLineApplication(throwOnUnexpectedArg) { Name = name, Parent = this };
             Commands.Add(command);
@@ -98,9 +98,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return argument;
         }
 
-        public void OnExecute(Func<int> invoke) => Invoke = invoke;
+        public void OnExecute(Func<string[], int> invoke) => Invoke = invoke;
 
-        public void OnExecute(Func<Task<int>> invoke) => Invoke = () => invoke().Result;
+        public void OnExecute(Func<string[], Task<int>> invoke) => Invoke = (args) => invoke(args).Result;
 
         public int Execute(params string[] args)
         {
@@ -158,7 +158,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 }
             }
 
-            return command.Invoke();
+            return command.Invoke(command.RemainingArguments.ToArray());
         }
 
         private ParseOptionResult ParseOption(
