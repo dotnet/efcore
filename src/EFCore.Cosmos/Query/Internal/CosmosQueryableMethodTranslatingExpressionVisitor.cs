@@ -1086,20 +1086,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 paritionKeyPropertyValueExpression = null;
 
                 if (TryGetPropertyAndValueExpression(leftBinaryExpression, rightBinaryExpression, entityType,
-                    out var leftConstantProperty,
-                    out var leftConstantExpression))
+                    out var leftSidedProperty,
+                    out var leftSidedExpression))
                 {
-                    partitionKeyProperty = leftConstantProperty;
-                    paritionKeyPropertyValueExpression = leftConstantExpression;
+                    partitionKeyProperty = leftSidedProperty;
+                    paritionKeyPropertyValueExpression = leftSidedExpression;
                     return true;
                 }
 
-                if (TryGetPropertyAndValueExpression(rightBinaryExpression, leftConstantExpression, entityType,
-                    out var rightConstantProperty,
-                    out var rightConstantExpression))
+                if (TryGetPropertyAndValueExpression(rightBinaryExpression, leftSidedExpression, entityType,
+                    out var rightSidedProperty,
+                    out var rightSidedExpression))
                 {
-                    partitionKeyProperty = rightConstantProperty;
-                    paritionKeyPropertyValueExpression = rightConstantExpression;
+                    partitionKeyProperty = rightSidedProperty;
+                    paritionKeyPropertyValueExpression = rightSidedExpression;
                     return true;
                 }
 
