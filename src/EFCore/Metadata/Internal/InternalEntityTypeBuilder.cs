@@ -173,8 +173,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalKeyBuilder HasKey([NotNull] IReadOnlyList<MemberInfo> clrProperties, ConfigurationSource configurationSource)
-            => HasKeyInternal(GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
+        public virtual InternalKeyBuilder HasKey([NotNull] IReadOnlyList<MemberInfo> clrMembers, ConfigurationSource configurationSource)
+            => HasKeyInternal(GetOrCreateProperties(clrMembers, configurationSource), configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2475,12 +2475,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalForeignKeyBuilder HasRelationship(
             [NotNull] EntityType targetEntityType,
-            [CanBeNull] MemberInfo navigationProperty,
+            [CanBeNull] MemberInfo navigationMember,
             ConfigurationSource configurationSource,
             bool? targetIsPrincipal = null)
             => HasRelationship(
                 Check.NotNull(targetEntityType, nameof(targetEntityType)),
-                MemberIdentity.Create(navigationProperty),
+                MemberIdentity.Create(navigationMember),
                 null,
                 targetIsPrincipal,
                 configurationSource);
@@ -2888,10 +2888,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalForeignKeyBuilder HasOwnership(
             [NotNull] Type targetEntityType,
-            [NotNull] MemberInfo navigationProperty,
+            [NotNull] MemberInfo navigationMember,
             ConfigurationSource configurationSource)
             => HasOwnership(
-                new TypeIdentity(targetEntityType, Metadata.Model), MemberIdentity.Create(navigationProperty),
+                new TypeIdentity(targetEntityType, Metadata.Model), MemberIdentity.Create(navigationMember),
                 inverse: null, configurationSource);
 
         /// <summary>
@@ -2919,13 +2919,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalForeignKeyBuilder HasOwnership(
             [NotNull] Type targetEntityType,
-            [NotNull] MemberInfo navigationProperty,
-            [CanBeNull] MemberInfo inverseProperty,
+            [NotNull] MemberInfo navigationMember,
+            [CanBeNull] MemberInfo inverseMember,
             ConfigurationSource configurationSource)
             => HasOwnership(
                 new TypeIdentity(targetEntityType, Metadata.Model),
-                MemberIdentity.Create(navigationProperty),
-                MemberIdentity.Create(inverseProperty),
+                MemberIdentity.Create(navigationMember),
+                MemberIdentity.Create(inverseMember),
                 configurationSource);
 
         private InternalForeignKeyBuilder HasOwnership(

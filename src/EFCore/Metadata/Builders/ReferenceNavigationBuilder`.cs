@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return new ReferenceCollectionBuilder<TRelatedEntity, TEntity>(
                 RelatedEntityType,
                 DeclaringEntityType,
-                WithManyBuilder(navigationExpression?.GetPropertyAccess()).Metadata);
+                WithManyBuilder(navigationExpression?.GetMemberAccess()).Metadata);
         }
 
         /// <summary>
@@ -153,6 +153,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
                 DeclaringEntityType,
                 RelatedEntityType,
-                WithOneBuilder(navigationExpression?.GetPropertyAccess()).Metadata);
+                WithOneBuilder(navigationExpression?.GetMemberAccess()).Metadata);
     }
 }

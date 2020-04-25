@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
     /// <typeparam name="TColumns"> Type of a typically anonymous type for building columns. </typeparam>
     public class CreateTableBuilder<TColumns> : OperationBuilder<CreateTableOperation>
     {
-        private readonly IReadOnlyDictionary<PropertyInfo, AddColumnOperation> _columnMap;
+        private readonly IReadOnlyDictionary<MemberInfo, AddColumnOperation> _columnMap;
 
         /// <summary>
         ///     Constructs a new builder for the given <see cref="CreateTableOperation" /> and
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <param name="columnMap"> The map of CLR properties to <see cref="AddColumnOperation" />s. </param>
         public CreateTableBuilder(
             [NotNull] CreateTableOperation operation,
-            [NotNull] IReadOnlyDictionary<PropertyInfo, AddColumnOperation> columnMap)
+            [NotNull] IReadOnlyDictionary<MemberInfo, AddColumnOperation> columnMap)
             : base(operation)
         {
             Check.NotNull(columnMap, nameof(columnMap));
@@ -191,6 +191,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
             => (CreateTableBuilder<TColumns>)base.Annotation(name, value);
 
         private string[] Map(LambdaExpression columns)
-            => columns.GetPropertyAccessList().Select(c => _columnMap[c].Name).ToArray();
+            => columns.GetMemberAccessList().Select(c => _columnMap[c].Name).ToArray();
     }
 }

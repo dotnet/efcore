@@ -60,6 +60,69 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            public virtual void Finds_existing_navigations_and_uses_associated_FK_with_fields()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<ManyToManyPrincipalWithField>(e =>
+                {
+                    e.Property(p => p.Id);
+                    e.Property(p => p.Name);
+                    e.HasKey(p => p.Id);
+                });
+                modelBuilder.Entity<DependentWithField>(e =>
+                {
+                    e.Property(d => d.DependentWithFieldId);
+                    e.Property(d => d.AnotherOneToManyPrincipalId);
+                    e.Ignore(d => d.OneToManyPrincipal);
+                    e.Ignore(d => d.OneToOnePrincipal);
+                    e.HasKey(d => d.DependentWithFieldId);
+                });
+
+                modelBuilder.Entity<ManyToManyPrincipalWithField>()
+                    .HasMany(p => p.Dependents)
+                    .WithMany(d => d.ManyToManyPrincipals)
+                    .UsingEntity<ManyToManyJoinWithFields>(
+                        jwf => jwf.HasOne<DependentWithField>(j => j.DependentWithField)
+                            .WithMany(),
+                        jwf => jwf.HasOne<ManyToManyPrincipalWithField>(j => j.ManyToManyPrincipalWithField)
+                            .WithMany())
+                    .HasKey(j => new { j.DependentWithFieldId, j.ManyToManyPrincipalWithFieldId });
+
+                var principalEntityType = model.FindEntityType(typeof(ManyToManyPrincipalWithField));
+                var dependentEntityType = model.FindEntityType(typeof(DependentWithField));
+                var joinEntityType = model.FindEntityType(typeof(ManyToManyJoinWithFields));
+
+                var principalToJoinNav = principalEntityType.GetSkipNavigations().Single();
+                var dependentToJoinNav = dependentEntityType.GetSkipNavigations().Single();
+
+                var principalToDependentFk = principalToJoinNav.ForeignKey;
+                var dependentToPrincipalFk = dependentToJoinNav.ForeignKey;
+
+                Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
+                Assert.Same(principalToDependentFk, joinEntityType.GetForeignKeys().Last());
+                Assert.Same(dependentToPrincipalFk, joinEntityType.GetForeignKeys().First());
+
+                modelBuilder.Entity<ManyToManyPrincipalWithField>()
+                    .HasMany(p => p.Dependents)
+                    .WithMany(d => d.ManyToManyPrincipals)
+                    .UsingEntity<ManyToManyJoinWithFields>(
+                        jwf => jwf.HasOne<DependentWithField>(j => j.DependentWithField)
+                            .WithMany(),
+                        jwf => jwf.HasOne<ManyToManyPrincipalWithField>(j => j.ManyToManyPrincipalWithField)
+                            .WithMany());
+
+                modelBuilder.FinalizeModel();
+
+                Assert.Same(principalToJoinNav, principalEntityType.GetSkipNavigations().Single());
+                Assert.Same(dependentToJoinNav, dependentEntityType.GetSkipNavigations().Single());
+                Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
+                Assert.Same(principalToDependentFk, joinEntityType.GetForeignKeys().Last());
+                Assert.Same(dependentToPrincipalFk, joinEntityType.GetForeignKeys().First());
+            }
+
+            [ConditionalFact]
             public virtual void Configures_association_type()
             {
                 var modelBuilder = CreateModelBuilder();

@@ -867,7 +867,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         && (overrideSameSource || configurationSource != Metadata.GetPrincipalToDependentConfigurationSource()));
 
         private static bool IsCompatible(
-            [NotNull] MemberInfo navigationProperty,
+            [NotNull] MemberInfo navigationMember,
             bool pointsToPrincipal,
             [NotNull] Type dependentType,
             [NotNull] Type principalType,
@@ -878,13 +878,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (!pointsToPrincipal)
             {
                 var canBeUnique = Navigation.IsCompatible(
-                    navigationProperty,
+                    navigationMember,
                     principalType,
                     dependentType,
                     shouldBeCollection: false,
                     shouldThrow: false);
                 var canBeNonUnique = Navigation.IsCompatible(
-                    navigationProperty,
+                    navigationMember,
                     principalType,
                     dependentType,
                     shouldBeCollection: true,
@@ -899,7 +899,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     if (shouldThrow)
                     {
                         Navigation.IsCompatible(
-                            navigationProperty,
+                            navigationMember,
                             principalType,
                             dependentType,
                             shouldBeCollection: null,
@@ -910,7 +910,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
             else if (!Navigation.IsCompatible(
-                navigationProperty,
+                navigationMember,
                 dependentType,
                 principalType,
                 shouldBeCollection: false,
@@ -2061,10 +2061,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalForeignKeyBuilder HasPrincipalKey(
-            [NotNull] IReadOnlyList<MemberInfo> properties,
+            [NotNull] IReadOnlyList<MemberInfo> members,
             ConfigurationSource configurationSource)
             => HasPrincipalKey(
-                Metadata.PrincipalEntityType.Builder.GetOrCreateProperties(properties, configurationSource),
+                Metadata.PrincipalEntityType.Builder.GetOrCreateProperties(members, configurationSource),
                 configurationSource);
 
         /// <summary>
