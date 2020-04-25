@@ -1085,7 +1085,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 partitionKeyProperty = null;
                 paritionKeyPropertyValueExpression = null;
 
-                if (TryGetPartitionKeyValueConstantExpression(leftBinaryExpression, rightBinaryExpression, entityType,
+                if (TryGetPropertyAndValueExpression(leftBinaryExpression, rightBinaryExpression, entityType,
                     out var leftConstantProperty,
                     out var leftConstantExpression))
                 {
@@ -1094,7 +1094,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     return true;
                 }
 
-                if (TryGetPartitionKeyValueConstantExpression(rightBinaryExpression, leftConstantExpression, entityType,
+                if (TryGetPropertyAndValueExpression(rightBinaryExpression, leftConstantExpression, entityType,
                     out var rightConstantProperty,
                     out var rightConstantExpression))
                 {
@@ -1103,36 +1103,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     return true;
                 }
 
-                if (TryGetPartitionKeyValueParameterExpression(leftConstantExpression, rightBinaryExpression, entityType,
-                    out var leftParameterProperty,
-                    out var leftParamenterValueExpression))
-                {
-                    partitionKeyProperty = leftParameterProperty;
-                    paritionKeyPropertyValueExpression = leftParamenterValueExpression;
-                    return true;
-                }
-
-                if (TryGetPartitionKeyValueParameterExpression(rightBinaryExpression, leftConstantExpression, entityType,
-                    out var rightParameterProperty,
-                    out var rightParamenterValueExpression))
-                {
-                    partitionKeyProperty = rightParameterProperty;
-                    paritionKeyPropertyValueExpression = rightParamenterValueExpression;
-                    return true;
-                }
-
                 return false;
             }
 
-            static bool TryGetPartitionKeyValueConstantExpression(Expression leftExpression, Expression rightExpression, IEntityType entityType,
+            static bool TryGetPropertyAndValueExpression(Expression leftExpression, Expression rightExpression, IEntityType entityType,
                 out IProperty property,
-                out Expression constantExpression)
+                out Expression expression)
             {
                 property = null;
-                constantExpression = null;
+                expression = null;
 
                 if (leftExpression is MemberExpression memberExpression
-                    && rightExpression is ConstantExpression rightConstantExpression
+                    && rightExpression is ConstantExpression constantExpression
                     && memberExpression.Member.GetSimpleMemberName() == entityType.GetPartitionKeyPropertyName())
                 {
                     property = entityType.FindProperty(memberExpression.Member.GetSimpleMemberName());
@@ -1142,19 +1124,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         return false;
                     }
 
-                    constantExpression = rightConstantExpression;
+                    expression = constantExpression;
                     return true;
                 }
-
-                return false;
-            }
-
-            static bool TryGetPartitionKeyValueParameterExpression(Expression leftExpression, Expression rightExpression, IEntityType entityType,
-                out IProperty property,
-                out Expression parameterValueExpression)
-            {
-                property = null;
-                parameterValueExpression = null;
 
                 if (leftExpression is MethodCallExpression methodCallExpression
                     && rightExpression is ParameterExpression parameterExpression)
@@ -1166,7 +1138,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         return false;
                     }
 
-                    parameterValueExpression = parameterExpression;
+                    expression = parameterExpression;
                     return true;
                 }
 

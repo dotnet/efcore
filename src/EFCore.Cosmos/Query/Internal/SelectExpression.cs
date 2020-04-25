@@ -142,8 +142,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public virtual void SetPartitionKeyProperty([NotNull]IProperty partitionKeyProperty, [NotNull]Expression expression)
         {
-
-
             _partitionKeyProperty = partitionKeyProperty;
             _paritionKeyValueExpression = expression;
         }
