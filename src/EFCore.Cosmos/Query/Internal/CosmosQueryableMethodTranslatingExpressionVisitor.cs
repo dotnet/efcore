@@ -1041,7 +1041,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         switch (binaryExpression.NodeType)
                         {
                             case ExpressionType.AndAlso when leftBinaryExpression.NodeType == ExpressionType.Equal
-                                && TryGetPartitionKeyPropertyAndValuExpression(
+                                && TryGetPartitionKeyPropertyAndValueExpression(
                                     leftBinaryExpression.Left, leftBinaryExpression.Right, entityType,
                                     out var leftProperty,
                                     out var leftValueExpression):
@@ -1049,14 +1049,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                 return (rightBinaryExpression, leftProperty, leftValueExpression);
 
                             case ExpressionType.AndAlso when rightBinaryExpression.NodeType == ExpressionType.Equal
-                                && TryGetPartitionKeyPropertyAndValuExpression(
+                                && TryGetPartitionKeyPropertyAndValueExpression(
                                     rightBinaryExpression.Left, rightBinaryExpression.Right, entityType,
                                     out var rightProperty,
                                     out var rightValueExpression):
 
                                 return (leftBinaryExpression, rightProperty, rightValueExpression);
 
-                            case ExpressionType.Equal when TryGetPartitionKeyPropertyAndValuExpression(
+                            case ExpressionType.Equal when TryGetPartitionKeyPropertyAndValueExpression(
                                 binaryExpression.Left, binaryExpression.Right, entityType,
                                 out var property,
                                 out var valueExpression):
