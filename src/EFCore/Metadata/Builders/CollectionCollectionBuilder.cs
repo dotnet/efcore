@@ -34,11 +34,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] IMutableSkipNavigation leftNavigation,
             [NotNull] IMutableSkipNavigation rightNavigation)
         {
-            Check.NotNull(leftEntityType, nameof(leftEntityType));
-            Check.NotNull(rightEntityType, nameof(rightEntityType));
-            Check.NotNull(leftNavigation, nameof(leftNavigation));
-            Check.NotNull(rightNavigation, nameof(rightNavigation));
-
             Check.DebugAssert(((IConventionEntityType)leftEntityType).Builder != null, "Builder is null");
             Check.DebugAssert(((IConventionEntityType)rightEntityType).Builder != null, "Builder is null");
             Check.DebugAssert(((IConventionSkipNavigation)leftNavigation).Builder != null, "Builder is null");
@@ -51,13 +46,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     One of the entity types involved in the relationship.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected virtual IMutableEntityType LeftEntityType { get; }
 
         /// <summary>
-        ///     One of the entity types involved in the relationship.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected virtual IMutableEntityType RightEntityType { get; }
 
         /// <summary>

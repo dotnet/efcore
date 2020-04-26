@@ -35,10 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] IMutableForeignKey foreignKey)
             : this(((ForeignKey)foreignKey).Builder, null)
         {
-            Check.NotNull(declaringEntityType, nameof(declaringEntityType));
-            Check.NotNull(relatedEntityType, nameof(relatedEntityType));
-            Check.NotNull(foreignKey, nameof(foreignKey));
-
             DeclaringEntityType = declaringEntityType;
             RelatedEntityType = relatedEntityType;
         }

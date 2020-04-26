@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var entityType = entityReference.EntityType;
                     if (convertedType != null)
                     {
-                        entityType = entityType.GetTypesInHierarchy()
+                        entityType = entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
                             .FirstOrDefault(et => et.ClrType == convertedType);
                         if (entityType == null)
                         {
@@ -350,7 +350,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var entityType = entityReference.EntityType;
                     if (convertedType != null)
                     {
-                        entityType = entityType.GetTypesInHierarchy()
+                        entityType = entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
                             .FirstOrDefault(et => et.ClrType == convertedType);
                         if (entityType == null)
                         {
@@ -802,7 +802,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             var entityType = entityReference.EntityType;
                             if (convertedType != null)
                             {
-                                entityType = entityType.GetTypesInHierarchy()
+                                entityType = entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
                                     .FirstOrDefault(et => et.ClrType == convertedType);
                                 if (entityType == null)
                                 {

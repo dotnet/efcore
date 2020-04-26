@@ -465,15 +465,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private static (MemberInfo, IConventionEntityType)? FindAmbiguousInverse(
             MemberInfo navigation,
             IConventionEntityType entityType,
-            List<(MemberInfo, IConventionEntityType)> referencingNavigationsWithAttribute)
+            List<(MemberInfo Inverse, IConventionEntityType TargetEntityType)> referencingNavigationsWithAttribute)
         {
             List<(MemberInfo, IConventionEntityType)> tuplesToRemove = null;
             (MemberInfo, IConventionEntityType)? ambiguousTuple = null;
             foreach (var referencingTuple in referencingNavigationsWithAttribute)
             {
-                var inverseTargetEntityType = FindActualEntityType(referencingTuple.Item2);
+                var inverseTargetEntityType = FindActualEntityType(referencingTuple.TargetEntityType);
                 if ((inverseTargetEntityType?.Builder.IsIgnored(
-                        referencingTuple.Item1.GetSimpleMemberName(), fromDataAnnotation: true)
+                        referencingTuple.Inverse.GetSimpleMemberName(), fromDataAnnotation: true)
                     != false))
                 {
                     if (tuplesToRemove == null)
@@ -485,8 +485,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     continue;
                 }
 
-                if (!referencingTuple.Item1.IsSameAs(navigation)
-                    || !entityType.IsSameHierarchy(inverseTargetEntityType))
+                if (!referencingTuple.Inverse.IsSameAs(navigation)
+                    || (!entityType.IsAssignableFrom(inverseTargetEntityType)
+                        && !inverseTargetEntityType.IsAssignableFrom(entityType)))
                 {
                     ambiguousTuple = referencingTuple;
                     break;

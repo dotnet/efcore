@@ -20,8 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// </summary>
     public class KeyBuilder : IInfrastructure<IConventionKeyBuilder>
     {
-        private readonly InternalKeyBuilder _builder;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -33,13 +31,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             Check.NotNull(key, nameof(key));
 
-            _builder = ((Key)key).Builder;
+            Builder = ((Key)key).Builder;
         }
 
         /// <summary>
         ///     The internal builder being used to configure the key.
         /// </summary>
-        IConventionKeyBuilder IInfrastructure<IConventionKeyBuilder>.Instance => _builder;
+        IConventionKeyBuilder IInfrastructure<IConventionKeyBuilder>.Instance => Builder;
+
+        private InternalKeyBuilder Builder { get; }
 
         /// <summary>
         ///     The key being configured.
@@ -63,8 +63,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             return this;
         }
-
-        private InternalKeyBuilder Builder => (InternalKeyBuilder)this.GetInfrastructure();
 
         #region Hidden System.Object members
 

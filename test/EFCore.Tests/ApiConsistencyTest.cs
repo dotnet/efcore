@@ -27,7 +27,6 @@ namespace Microsoft.EntityFrameworkCore
         protected override void AddServices(ServiceCollection serviceCollection)
             => new EntityFrameworkServicesBuilder(serviceCollection).TryAddCoreServices();
 
-
         public class ApiConsistencyFixture : ApiConsistencyFixtureBase
         {
             protected override void Initialize()
@@ -112,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new HashSet<MethodInfo>
             {
-                typeof(IConventionPropertyBase).GetMethod(nameof(IConventionPropertyBase.SetField)),
+                typeof(IConventionPropertyBase).GetMethod(nameof(IConventionPropertyBase.SetField), new []{ typeof(string), typeof(bool) }),
                 typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.FindAnnotation)),
                 typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.GetAnnotations)),
                 typeof(IMutableAnnotatable).GetMethod("set_Item"),

@@ -89,15 +89,6 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-
-        /// <summary>
-        ///     Returns all types in hierarchy of the given <see cref="IConventionEntityType" />.
-        /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <returns> All types in the hierarchy. </returns>
-        public static IEnumerable<IConventionEntityType> GetTypesInHierarchy([NotNull] this IConventionEntityType entityType)
-            => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive()).Cast<IConventionEntityType>();
-
         /// <summary>
         ///     <para>
         ///         Gets all keys declared on the given <see cref="IEntityType" />.

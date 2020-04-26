@@ -443,46 +443,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void IsIntraHierarchical_returns_true_for_self_ref_foreign_keys()
-        {
-            var fk = CreateSelfRefFK();
-
-            Assert.True(fk.IsIntraHierarchical());
-        }
-
-        [ConditionalFact]
-        public void IsIntraHierarchical_returns_true_for_non_pk_self_ref_foreign_keys()
-        {
-            var fk = CreateSelfRefFK(useAltKey: true);
-
-            Assert.True(fk.IsIntraHierarchical());
-        }
-
-        [ConditionalFact]
-        public void IsIntraHierarchical_returns_true_for_same_hierarchy_foreign_keys()
-        {
-            var fk = CreateOneToManySameHierarchyFK();
-
-            Assert.True(fk.IsIntraHierarchical());
-        }
-
-        [ConditionalFact]
-        public void IsIntraHierarchical_returns_false_for_same_base_foreign_keys()
-        {
-            var fk = CreateOneToManySameBaseFK();
-
-            Assert.False(fk.IsIntraHierarchical());
-        }
-
-        [ConditionalFact]
-        public void IsIntraHierarchical_returns_false_for_non_hierarchical_foreign_keys()
-        {
-            var fk = CreateOneToManyFK();
-
-            Assert.False(fk.IsIntraHierarchical());
-        }
-
-        [ConditionalFact]
         public void IsSelfPrimaryKeyReferencing_returns_true_for_self_ref_foreign_keys()
         {
             var fk = CreateSelfRefFK();

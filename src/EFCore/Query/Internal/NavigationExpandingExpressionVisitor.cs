@@ -657,7 +657,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var result = Expression.Call(genericMethod.MakeGenericMethod(castType), queryable);
 
             if (newStructure is EntityReference entityReference
-                && entityReference.EntityType.GetTypesInHierarchy()
+                && entityReference.EntityType.GetAllBaseTypes().Concat(entityReference.EntityType.GetDerivedTypesInclusive())
                     .FirstOrDefault(et => et.ClrType == castType) is IEntityType castEntityType)
             {
                 var newEntityReference = new EntityReference(castEntityType);
@@ -1685,7 +1685,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var entityType = innerIncludeTreeNode.EntityType;
                     if (convertedType != null)
                     {
-                        entityType = entityType.GetTypesInHierarchy().FirstOrDefault(et => et.ClrType == convertedType);
+                        entityType = entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
+                            .FirstOrDefault(et => et.ClrType == convertedType);
                         if (entityType == null)
                         {
                             throw new InvalidOperationException(CoreStrings.InvalidTypeConversationWithInclude);

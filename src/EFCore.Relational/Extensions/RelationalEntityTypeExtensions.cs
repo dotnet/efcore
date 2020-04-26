@@ -199,16 +199,6 @@ namespace Microsoft.EntityFrameworkCore
                 ?? Enumerable.Empty<ITableMapping>();
 
         /// <summary>
-        ///     Returns the views to which the entity type is mapped or the tables of it's not mapped to any views.
-        /// </summary>
-        /// <param name="entityType"> The entity type to get the table name for. </param>
-        /// <returns> The views or tables to which the entity type is mapped. </returns>
-        public static IEnumerable<ITableMappingBase> GetViewOrTableMappings([NotNull] this IEntityType entityType) =>
-            (IEnumerable<ITableMappingBase>)(entityType[RelationalAnnotationNames.ViewMappings]
-                ?? entityType[RelationalAnnotationNames.TableMappings])
-                ?? Enumerable.Empty<ITableMappingBase>();
-
-        /// <summary>
         ///     Returns the views to which the entity type is mapped.
         /// </summary>
         /// <param name="entityType"> The entity type to get the table name for. </param>

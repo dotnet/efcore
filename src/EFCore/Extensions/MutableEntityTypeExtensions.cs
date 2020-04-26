@@ -66,14 +66,6 @@ namespace Microsoft.EntityFrameworkCore
             => ((EntityType)entityType).GetDirectlyDerivedTypes();
 
         /// <summary>
-        ///     Returns all types in hierarchy of the given <see cref="IMutableEntityType" />.
-        /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <returns> All types in the hierarchy. </returns>
-        public static IEnumerable<IMutableEntityType> GetTypesInHierarchy([NotNull] this IMutableEntityType entityType)
-            => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive()).Cast<IMutableEntityType>();
-
-        /// <summary>
         ///     <para>
         ///         Gets all keys declared on the given <see cref="IEntityType" />.
         ///     </para>

@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -1304,7 +1305,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 IEntityType entityType, TableExpression table, bool nullable)
             {
                 var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
-                foreach (var property in entityType.GetTypesInHierarchy().SelectMany(EntityTypeExtensions.GetDeclaredProperties))
+                foreach (var property in entityType
+                    .GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive()).SelectMany(EntityTypeExtensions.GetDeclaredProperties))
                 {
                     propertyExpressions[property] = new ColumnExpression(property, table, nullable || !property.IsPrimaryKey());
                 }

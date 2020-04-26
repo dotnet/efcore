@@ -42,6 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         IConventionPropertyBuilder IInfrastructure<IConventionPropertyBuilder>.Instance => Builder;
 
+        private InternalPropertyBuilder Builder { get; }
+
         /// <summary>
         ///     The property being configured.
         /// </summary>
@@ -400,8 +402,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             return this;
         }
-
-        private InternalPropertyBuilder Builder { get; }
 
         #region Hidden System.Object members
 

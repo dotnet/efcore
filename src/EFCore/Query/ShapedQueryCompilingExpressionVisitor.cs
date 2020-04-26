@@ -516,7 +516,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (_trackQueryResults
                     && entityType.FindPrimaryKey() != null)
                 {
-                    foreach (var et in entityType.GetTypesInHierarchy())
+                    foreach (var et in entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive()))
                     {
                         _visitedEntityTypes.Add(et);
                     }

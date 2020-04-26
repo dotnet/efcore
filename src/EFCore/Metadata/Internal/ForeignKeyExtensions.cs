@@ -98,7 +98,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         foreignKey.PrincipalEntityType.DisplayName()));
             }
 
-            return foreignKey.IsIntraHierarchical()
+            return foreignKey.DeclaringEntityType.IsAssignableFrom(foreignKey.PrincipalEntityType)
+                || foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType)
                 ? foreignKey.GetNavigations()
                 : foreignKey.FindNavigations(foreignKey.DeclaringEntityType.IsAssignableFrom(entityType));
         }
@@ -144,7 +145,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         foreignKey.PrincipalEntityType.DisplayName()));
             }
 
-            return foreignKey.IsIntraHierarchical()
+            return foreignKey.DeclaringEntityType.IsAssignableFrom(foreignKey.PrincipalEntityType)
+                || foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType)
                 ? foreignKey.GetNavigations()
                 : foreignKey.FindNavigations(foreignKey.PrincipalEntityType.IsAssignableFrom(entityType));
         }
@@ -187,7 +189,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         foreignKey.PrincipalEntityType.DisplayName()));
             }
 
-            if (foreignKey.IsIntraHierarchical())
+            if (foreignKey.DeclaringEntityType.IsAssignableFrom(foreignKey.PrincipalEntityType)
+                || foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType))
             {
                 throw new InvalidOperationException(
                     CoreStrings.IntraHierarchicalAmbiguousTargetEntityType(
@@ -220,7 +223,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         foreignKey.PrincipalEntityType.DisplayName()));
             }
 
-            if (foreignKey.IsIntraHierarchical())
+            if (foreignKey.DeclaringEntityType.IsAssignableFrom(foreignKey.PrincipalEntityType)
+                || foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType))
             {
                 throw new InvalidOperationException(
                     CoreStrings.IntraHierarchicalAmbiguousTargetEntityType(
