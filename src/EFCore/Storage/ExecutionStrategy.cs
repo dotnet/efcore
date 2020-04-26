@@ -166,7 +166,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             while (true)
             {
-                TimeSpan? delay;
                 try
                 {
                     Suspended = true;
@@ -194,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                     ExceptionsEncountered.Add(ex);
 
-                    delay = GetNextDelay(ex);
+                    var delay = GetNextDelay(ex);
                     if (delay == null)
                     {
                         throw new RetryLimitExceededException(CoreStrings.RetryLimitExceeded(MaxRetryCount, GetType().Name), ex);
@@ -203,10 +202,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     Dependencies.Logger.ExecutionStrategyRetrying(ExceptionsEncountered, delay.Value, async: true);
 
                     OnRetry();
-                }
 
-                using var waitEvent = new ManualResetEventSlim(false);
-                waitEvent.WaitHandle.WaitOne(delay.Value);
+                    using var waitEvent = new ManualResetEventSlim(false);
+                    waitEvent.WaitHandle.WaitOne(delay.Value);
+                }
             }
         }
 
@@ -259,7 +258,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                TimeSpan? delay;
                 try
                 {
                     Suspended = true;
@@ -287,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                     ExceptionsEncountered.Add(ex);
 
-                    delay = GetNextDelay(ex);
+                    var delay = GetNextDelay(ex);
                     if (delay == null)
                     {
                         throw new RetryLimitExceededException(CoreStrings.RetryLimitExceeded(MaxRetryCount, GetType().Name), ex);
@@ -296,9 +294,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     Dependencies.Logger.ExecutionStrategyRetrying(ExceptionsEncountered, delay.Value, async: true);
 
                     OnRetry();
-                }
 
-                await Task.Delay(delay.Value, cancellationToken);
+                    await Task.Delay(delay.Value, cancellationToken);
+                }
             }
         }
 
