@@ -1078,7 +1078,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 return (expression, null, null);
             }
 
-            static bool TryGetPartitionKeyPropertyAndValuExpression(Expression leftBinaryExpression, Expression rightBinaryExpression, IEntityType entityType,
+            static bool TryGetPartitionKeyPropertyAndValueExpression(Expression leftBinaryExpression, Expression rightBinaryExpression, IEntityType entityType,
                 out IProperty partitionKeyProperty,
                 out Expression paritionKeyPropertyValueExpression)
             {
