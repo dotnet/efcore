@@ -962,82 +962,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
-        public virtual void Missing_concurrency_token_property_is_created_on_the_base_type()
-        {
-            var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Person>().ToTable(nameof(Animal))
-                .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
-            modelBuilder.Entity<Animal>().HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
-            modelBuilder.Entity<Cat>()
-                .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
-
-            var model = modelBuilder.Model;
-            Validate(model);
-
-            var animal = model.FindEntityType(typeof(Animal));
-            var concurrencyProperty = animal.FindProperty("_concurrency_Version");
-            Assert.True(concurrencyProperty.IsConcurrencyToken);
-            Assert.True(concurrencyProperty.IsShadowProperty());
-            Assert.Equal("Version", concurrencyProperty.GetColumnName());
-            Assert.Equal(ValueGenerated.OnAddOrUpdate, concurrencyProperty.ValueGenerated);
-        }
-
-        [ConditionalFact]
-        public virtual void Missing_concurrency_token_properties_are_created_on_the_base_most_types()
-        {
-            var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Person>().ToTable(nameof(Animal)).Property<byte[]>("Version")
-                .HasColumnName("Version").ValueGeneratedOnUpdate().IsConcurrencyToken(true);
-            modelBuilder.Entity<Animal>().HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
-            modelBuilder.Entity<Animal>().HasOne(a => a.Dwelling).WithOne().HasForeignKey<AnimalHouse>(p => p.Id);
-            modelBuilder.Entity<Cat>();
-            modelBuilder.Entity<AnimalHouse>().ToTable(nameof(Animal));
-            modelBuilder.Entity<TheMovie>();
-
-            var model = modelBuilder.Model;
-            Validate(model);
-
-            var animal = model.FindEntityType(typeof(Animal));
-            var concurrencyProperty = animal.FindProperty("_concurrency_Version");
-            Assert.True(concurrencyProperty.IsConcurrencyToken);
-            Assert.True(concurrencyProperty.IsShadowProperty());
-            Assert.Equal("Version", concurrencyProperty.GetColumnName());
-            Assert.Equal(ValueGenerated.OnUpdate, concurrencyProperty.ValueGenerated);
-
-            var cat = model.FindEntityType(typeof(Cat));
-            Assert.DoesNotContain(cat.GetDeclaredProperties(), p => p.Name == "_concurrency_Version");
-
-            var animalHouse = model.FindEntityType(typeof(AnimalHouse));
-            concurrencyProperty = animalHouse.FindProperty("_concurrency_Version");
-            Assert.True(concurrencyProperty.IsConcurrencyToken);
-            Assert.True(concurrencyProperty.IsShadowProperty());
-            Assert.Equal("Version", concurrencyProperty.GetColumnName());
-            Assert.Equal(ValueGenerated.OnUpdate, concurrencyProperty.ValueGenerated);
-
-            var theMovie = model.FindEntityType(typeof(TheMovie));
-            Assert.DoesNotContain(theMovie.GetDeclaredProperties(), p => p.Name == "_concurrency_Version");
-        }
-
-        [ConditionalFact]
-        public virtual void Missing_concurrency_token_property_is_created_on_the_sharing_type()
-        {
-            var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Person>().ToTable(nameof(Animal));
-            modelBuilder.Entity<Animal>().HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
-            modelBuilder.Entity<Animal>().Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
-
-            var model = modelBuilder.Model;
-            Validate(model);
-
-            var personEntityType = model.FindEntityType(typeof(Person));
-            var concurrencyProperty = personEntityType.FindProperty("_concurrency_Version");
-            Assert.True(concurrencyProperty.IsConcurrencyToken);
-            Assert.True(concurrencyProperty.IsShadowProperty());
-            Assert.Equal("Version", concurrencyProperty.GetColumnName());
-            Assert.Equal(ValueGenerated.OnAddOrUpdate, concurrencyProperty.ValueGenerated);
-        }
-
-        [ConditionalFact]
         public virtual void Passes_for_correctly_mapped_concurrency_tokens_with_table_sharing()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -1164,7 +1088,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public string Name { get; set; }
 
             public Person FavoritePerson { get; set; }
-            public AnimalHouse Dwelling { get; set; }
         }
 
         protected class Cat : Animal
@@ -1185,16 +1108,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public int Type { get; set; }
 
             public int Identity { get; set; }
-        }
-
-        protected class AnimalHouse
-        {
-            public int Id { get; set; }
-        }
-
-        protected class TheMovie : AnimalHouse
-        {
-            public bool CanHaveAnother { get; set; }
         }
 
         protected class Person

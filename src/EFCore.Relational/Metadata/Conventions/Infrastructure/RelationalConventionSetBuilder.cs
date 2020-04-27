@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             // to the generated concurrency token property
             ConventionSet.AddBefore(
                 conventionSet.ModelFinalizingConventions,
-                new AddConcurrencyTokenPropertiesConvention(Dependencies, RelationalDependencies),
+                new TableSharingConcurrencyTokenConvention(Dependencies, RelationalDependencies),
                 typeof(TypeMappingConvention));
             // ModelCleanupConvention would remove the entity types added by QueryableDbFunctionConvention #15898
             ConventionSet.AddAfter(
