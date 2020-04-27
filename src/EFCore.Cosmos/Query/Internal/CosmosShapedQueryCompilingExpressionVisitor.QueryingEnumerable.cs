@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
@@ -50,9 +51,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 _shaper = shaper;
                 _contextType = contextType;
                 _logger = logger;
-                _partitionKey = partitionKeyFromExtension;
-            }
 
+                var partitionKey = selectExpression.GetPartitionKey(cosmosQueryContext.ParameterValues);
+
+                if (partitionKey != null && partitionKeyFromExtension != null && partitionKeyFromExtension != partitionKey)
+                {
+                    throw new InvalidOperationException(CosmosStrings.PartitionKeyMismatch(partitionKeyFromExtension, partitionKey));
+                }
+
+                _partitionKey = partitionKey ?? partitionKeyFromExtension;
+            }
+            
             public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
                 => new AsyncEnumerator(this, cancellationToken);
 

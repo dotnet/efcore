@@ -5,12 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -135,19 +135,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             bool ProcessJoinCondition(
                                 Expression joinCondition, ICollection<IProperty> properties, ICollection<string> paramNames)
                             {
-                                if (joinCondition is BinaryExpression binaryExpression)
+                                if (joinCondition is BinaryExpression joinBinaryExpression)
                                 {
-                                    switch (binaryExpression.NodeType)
+                                    switch (joinBinaryExpression.NodeType)
                                     {
                                         case ExpressionType.AndAlso:
-                                            return ProcessJoinCondition(binaryExpression.Left, properties, paramNames)
-                                                && ProcessJoinCondition(binaryExpression.Right, properties, paramNames);
+                                            return ProcessJoinCondition(joinBinaryExpression.Left, properties, paramNames)
+                                                && ProcessJoinCondition(joinBinaryExpression.Right, properties, paramNames);
 
                                         case ExpressionType.Equal:
-                                            if (binaryExpression.Left is MethodCallExpression methodCallExpr
-                                                && binaryExpression.Right is ParameterExpression parameterExpr)
+                                            if (joinBinaryExpression.Left is MethodCallExpression equalMethodCallExpression
+                                                && joinBinaryExpression.Right is ParameterExpression equalParameterExpresion)
                                             {
-                                                if (methodCallExpr.TryGetEFPropertyArguments(out _, out var propertyName))
+                                                if (equalMethodCallExpression.TryGetEFPropertyArguments(out _, out var propertyName))
                                                 {
                                                     var property = entityType.FindProperty(propertyName);
                                                     if (property == null)
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                                         return false;
                                                     }
                                                     properties.Add(property);
-                                                    paramNames.Add(parameterExpr.Name);
+                                                    paramNames.Add(equalParameterExpresion.Name);
                                                     return true;
                                                 }
                                             }
@@ -1003,6 +1003,23 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             Check.NotNull(source, nameof(source));
             Check.NotNull(predicate, nameof(predicate));
 
+            if (source.ShaperExpression is EntityShaperExpression entityShaperExpression)
+            {
+                var (predicateExpression, partitionKeyProperty, partitionKeyValueExpression) = ExtractPartitionKey(predicate.Body, entityShaperExpression.EntityType);
+
+                if (partitionKeyProperty != null && partitionKeyValueExpression != null)
+                {
+                    ((SelectExpression)source.QueryExpression).SetPartitionKeyProperty(partitionKeyProperty, partitionKeyValueExpression);
+
+                    if (predicateExpression is null)
+                    {
+                        return source;
+                    }
+
+                    predicate = Expression.Lambda(predicateExpression, predicate.Parameters);
+                }
+            }
+            
             var translation = TranslateLambdaExpression(source, predicate);
             if (translation != null)
             {
@@ -1012,6 +1029,128 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             }
 
             return null;
+
+            static (Expression predicateExpression, IProperty partitionKeyProperty, Expression partitionKeyValueExpression)
+                ExtractPartitionKey(Expression expression, IEntityType entityType)
+            {
+                if (expression is BinaryExpression binaryExpression)
+                {
+                    if (binaryExpression.Left is BinaryExpression leftBinaryExpression
+                        && binaryExpression.Right is BinaryExpression rightBinaryExpression)
+                    {
+                        switch (binaryExpression.NodeType)
+                        {
+                            case ExpressionType.AndAlso when leftBinaryExpression.NodeType == ExpressionType.Equal
+                                && TryGetPartitionKeyPropertyAndValueExpression(
+                                    leftBinaryExpression.Left, leftBinaryExpression.Right, entityType,
+                                    out var leftProperty,
+                                    out var leftValueExpression):
+
+                                return (rightBinaryExpression, leftProperty, leftValueExpression);
+
+                            case ExpressionType.AndAlso when rightBinaryExpression.NodeType == ExpressionType.Equal
+                                && TryGetPartitionKeyPropertyAndValueExpression(
+                                    rightBinaryExpression.Left, rightBinaryExpression.Right, entityType,
+                                    out var rightProperty,
+                                    out var rightValueExpression):
+
+                                return (leftBinaryExpression, rightProperty, rightValueExpression);
+
+                            case ExpressionType.Equal when TryGetPartitionKeyPropertyAndValueExpression(
+                                binaryExpression.Left, binaryExpression.Right, entityType,
+                                out var property,
+                                out var valueExpression):
+
+                                return (null, property, valueExpression);
+                        }
+
+                        var left = ExtractPartitionKey(leftBinaryExpression, entityType);
+                        var right = ExtractPartitionKey(rightBinaryExpression, entityType);
+
+                        return (
+                            Expression.MakeBinary(binaryExpression.NodeType, left.predicateExpression, right.predicateExpression),
+                            left.partitionKeyProperty ?? right.partitionKeyProperty,
+                            left.partitionKeyValueExpression ?? right.partitionKeyValueExpression);
+                    }
+                    return (binaryExpression, null, null);
+                }
+
+                return (expression, null, null);
+            }
+
+            static bool TryGetPartitionKeyPropertyAndValueExpression(Expression leftBinaryExpression, Expression rightBinaryExpression, IEntityType entityType,
+                out IProperty partitionKeyProperty,
+                out Expression paritionKeyPropertyValueExpression)
+            {
+                partitionKeyProperty = null;
+                paritionKeyPropertyValueExpression = null;
+
+                if (TryGetPropertyAndValueExpression(leftBinaryExpression, rightBinaryExpression, entityType,
+                    out var leftSidedProperty,
+                    out var leftSidedExpression))
+                {
+                    partitionKeyProperty = leftSidedProperty;
+                    paritionKeyPropertyValueExpression = leftSidedExpression;
+                    return true;
+                }
+
+                if (TryGetPropertyAndValueExpression(rightBinaryExpression, leftSidedExpression, entityType,
+                    out var rightSidedProperty,
+                    out var rightSidedExpression))
+                {
+                    partitionKeyProperty = rightSidedProperty;
+                    paritionKeyPropertyValueExpression = rightSidedExpression;
+                    return true;
+                }
+
+                return false;
+            }
+
+            static bool TryGetPropertyAndValueExpression(Expression leftExpression, Expression rightExpression, IEntityType entityType,
+                out IProperty property,
+                out Expression expression)
+            {
+                property = null;
+                expression = null;
+
+                if (leftExpression is MemberExpression memberExpression
+                    && rightExpression is ConstantExpression constantExpression
+                    && memberExpression.Member.GetSimpleMemberName() == entityType.GetPartitionKeyPropertyName())
+                {
+                    property = entityType.FindProperty(memberExpression.Member.GetSimpleMemberName());
+
+                    if (property is null)
+                    {
+                        return false;
+                    }
+
+                    expression = constantExpression;
+                    return true;
+                }
+
+                if (leftExpression is MethodCallExpression methodCallExpression
+                    && rightExpression is ParameterExpression parameterExpression)
+                {
+                    property = GetPropertyFromMethodCall(methodCallExpression, entityType);
+
+                    if (property is null)
+                    {
+                        return false;
+                    }
+
+                    expression = parameterExpression;
+                    return true;
+                }
+
+                return false;
+            }
+
+            static IProperty GetPropertyFromMethodCall(MethodCallExpression methodCallExpression, IEntityType entityType) =>
+                methodCallExpression.TryGetEFPropertyArguments(out _, out var parameterName)
+                    ? entityType.FindProperty(parameterName)
+                    : methodCallExpression.TryGetIndexerArguments(entityType.Model, out _, out var indexerName)
+                        ? entityType.FindProperty(indexerName)
+                        : default;
         }
 
         private SqlExpression TranslateExpression(Expression expression)
