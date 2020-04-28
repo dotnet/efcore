@@ -184,7 +184,7 @@ namespace <#= model.Namespace.EndsWith(".Internal") ? model.Namespace : (model.N
                     {
 #>
         [Obsolete]
-<#  
+<#
                     }
 #>
         public static EventDefinition<#= genericTypes #> <#= resource.Name #>([NotNull] IDiagnosticsLogger logger)
@@ -226,7 +226,7 @@ namespace <#= model.Namespace.EndsWith(".Internal") ? model.Namespace : (model.N
         {
             result.AccessModifier = (string)Session["AccessModifier"];
         };
-        
+
         if (Session.ContainsKey("LoggingDefinitionsClass"))
         {
             result.LoggingDefinitionsClass = (string)Session["LoggingDefinitionsClass"];
@@ -266,7 +266,7 @@ namespace <#= model.Namespace.EndsWith(".Internal") ? model.Namespace : (model.N
         result.Class = Path.GetFileNameWithoutExtension(resourceFile);
 
         result.DiagnosticsClass = result.Class.Replace("Strings", "Resources");
-        
+
         result.ResourceName = resourceNamespace + "." + result.Class;
 
         using (var reader = new ResXResourceReader(resourceFile))

@@ -33,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             private readonly Type _contextType;
             private readonly string _partitionKey;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+            private readonly bool _performIdentityResolution;
 
             public QueryingEnumerable(
                 CosmosQueryContext cosmosQueryContext,
@@ -42,7 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 Func<CosmosQueryContext, JObject, T> shaper,
                 Type contextType,
                 string partitionKeyFromExtension,
-                IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+                IDiagnosticsLogger<DbLoggerCategory.Query> logger,
+                bool performIdentityResolution)
             {
                 _cosmosQueryContext = cosmosQueryContext;
                 _sqlExpressionFactory = sqlExpressionFactory;
@@ -51,9 +53,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 _shaper = shaper;
                 _contextType = contextType;
                 _logger = logger;
+                _performIdentityResolution = performIdentityResolution;
 
                 var partitionKey = selectExpression.GetPartitionKey(cosmosQueryContext.ParameterValues);
-
                 if (partitionKey != null && partitionKeyFromExtension != null && partitionKeyFromExtension != partitionKey)
                 {
                     throw new InvalidOperationException(CosmosStrings.PartitionKeyMismatch(partitionKeyFromExtension, partitionKey));
@@ -61,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                 _partitionKey = partitionKey ?? partitionKeyFromExtension;
             }
-            
+
             public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
                 => new AsyncEnumerator(this, cancellationToken);
 
@@ -107,6 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 private readonly Type _contextType;
                 private readonly string _partitionKey;
                 private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+                private readonly bool _performIdentityResolution;
 
                 private IEnumerator<JObject> _enumerator;
 
@@ -119,6 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     _contextType = queryingEnumerable._contextType;
                     _partitionKey = queryingEnumerable._partitionKey;
                     _logger = queryingEnumerable._logger;
+                    _performIdentityResolution = queryingEnumerable._performIdentityResolution;
                 }
 
                 public T Current { get; private set; }
@@ -141,6 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                         _partitionKey,
                                         sqlQuery)
                                     .GetEnumerator();
+                                _cosmosQueryContext.InitializeStateManager(_performIdentityResolution);
                             }
 
                             var hasNext = _enumerator.MoveNext();
@@ -179,6 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 private readonly Type _contextType;
                 private readonly string _partitionKey;
                 private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+                private readonly bool _performIdentityResolution;
                 private readonly CancellationToken _cancellationToken;
 
                 private IAsyncEnumerator<JObject> _enumerator;
@@ -192,6 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     _contextType = queryingEnumerable._contextType;
                     _partitionKey = queryingEnumerable._partitionKey;
                     _logger = queryingEnumerable._logger;
+                    _performIdentityResolution = queryingEnumerable._performIdentityResolution;
                     _cancellationToken = cancellationToken;
                 }
 
@@ -213,6 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                         _partitionKey,
                                         sqlQuery)
                                     .GetAsyncEnumerator(_cancellationToken);
+                                _cosmosQueryContext.InitializeStateManager(_performIdentityResolution);
                             }
 
                             var hasNext = await _enumerator.MoveNextAsync();

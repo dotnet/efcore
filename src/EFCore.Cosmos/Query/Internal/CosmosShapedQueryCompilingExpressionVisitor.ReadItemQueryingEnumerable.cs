@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Query;
@@ -34,19 +35,22 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             private readonly Func<CosmosQueryContext, JObject, T> _shaper;
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+            private readonly bool _performIdentityResolution;
 
             public ReadItemQueryingEnumerable(
                 CosmosQueryContext cosmosQueryContext,
                 ReadItemExpression readItemExpression,
                 Func<CosmosQueryContext, JObject, T> shaper,
                 Type contextType,
-                IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+                IDiagnosticsLogger<DbLoggerCategory.Query> logger,
+                bool performIdentityResolution)
             {
                 _cosmosQueryContext = cosmosQueryContext;
                 _readItemExpression = readItemExpression;
                 _shaper = shaper;
                 _contextType = contextType;
                 _logger = logger;
+                _performIdentityResolution = performIdentityResolution;
             }
 
             public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
@@ -68,6 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 private readonly Func<CosmosQueryContext, JObject, T> _shaper;
                 private readonly Type _contextType;
                 private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+                private readonly bool _performIdentityResolution;
                 private readonly CancellationToken _cancellationToken;
 
                 private JObject _item;
@@ -80,6 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     _shaper = readItemEnumerable._shaper;
                     _contextType = readItemEnumerable._contextType;
                     _logger = readItemEnumerable._logger;
+                    _performIdentityResolution = readItemEnumerable._performIdentityResolution;
                     _cancellationToken = cancellationToken;
                 }
 
@@ -182,6 +188,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
                     var hasNext = !(_item is null);
 
+                    _cosmosQueryContext.InitializeStateManager(_performIdentityResolution);
+
                     Current
                         = hasNext
                             ? _shaper(_cosmosQueryContext, _item)
@@ -246,10 +254,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
                     var entityEntry = Activator.CreateInstance(_readItemExpression.EntityType.ClrType);
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF1001
                     var internalEntityEntry = new InternalEntityEntryFactory().Create(
-                        _cosmosQueryContext.StateManager, _readItemExpression.EntityType, entityEntry);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+                        _cosmosQueryContext.Context.GetDependencies().StateManager, _readItemExpression.EntityType, entityEntry);
+#pragma warning restore EF1001
 
                     foreach (var keyProperty in _readItemExpression.EntityType.FindPrimaryKey().Properties)
                     {

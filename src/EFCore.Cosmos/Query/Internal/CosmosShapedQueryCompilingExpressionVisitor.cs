@@ -87,7 +87,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         Expression.Constant(shaperLambda.Compile()),
                         Expression.Constant(_contextType),
                         Expression.Constant(_partitionKeyFromExtension, typeof(string)),
-                        Expression.Constant(_logger));
+                        Expression.Constant(_logger),
+                        Expression.Constant(QueryCompilationContext.PerformIdentityResolution));
 
                 case ReadItemExpression readItemExpression:
 
@@ -108,7 +109,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         Expression.Constant(readItemExpression),
                         Expression.Constant(shaperReadItemLambda.Compile()),
                         Expression.Constant(_contextType),
-                        Expression.Constant(_logger));
+                        Expression.Constant(_logger),
+                        Expression.Constant(QueryCompilationContext.PerformIdentityResolution));
 
                 default:
                     throw new NotImplementedException();

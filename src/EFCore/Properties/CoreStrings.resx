@@ -1387,4 +1387,7 @@
   <data name="MissingInverseManyToManyNavigation" xml:space="preserve">
     <value>Unable to set up a many-to-many relationship between the entity types '{principalEntityType}' and '{declaringEntityType}' because one of the navigations was not specified. Please provide a navigation property in the HasMany() call.</value>
   </data>
+  <data name="QueryContextAlreadyInitializedStateManager" xml:space="preserve">
+    <value>InitializeStateManager method has been called multiple times on current query context. This method is intended to be called only once before query enumeration starts.</value>
+  </data>
 </root>
