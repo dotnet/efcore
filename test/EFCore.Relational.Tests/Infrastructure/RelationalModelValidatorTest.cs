@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -962,9 +963,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
-        public virtual void Detects_missing_concurrency_token_on_the_base_type()
+        public virtual void Detects_missing_concurrency_token_on_the_base_type_without_convention()
         {
-            var modelBuilder = CreateConventionalModelBuilder();
+            var modelBuilder = CreateModelBuilderWithoutConvention();
             modelBuilder.Entity<Person>().ToTable(nameof(Animal))
                 .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
             modelBuilder.Entity<Animal>().HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
@@ -977,9 +978,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
-        public virtual void Detects_missing_concurrency_token_on_the_sharing_type()
+        public virtual void Detects_missing_concurrency_token_on_the_sharing_type_without_convention()
         {
-            var modelBuilder = CreateConventionalModelBuilder();
+            var modelBuilder = CreateModelBuilderWithoutConvention();
             modelBuilder.Entity<Person>().ToTable(nameof(Animal));
             modelBuilder.Entity<Animal>().HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
             modelBuilder.Entity<Animal>().Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
@@ -987,6 +988,30 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(
                 RelationalStrings.MissingConcurrencyColumn(nameof(Person), "Version", nameof(Animal)),
                 modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Passes_with_missing_concurrency_token_property_on_the_base_type()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Person>().ToTable(nameof(Animal))
+                .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+            modelBuilder.Entity<Animal>().HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
+            modelBuilder.Entity<Cat>()
+                .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+
+            Validate(modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Passes_with_missing_concurrency_token_property_on_the_sharing_type()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Person>().ToTable(nameof(Animal));
+            modelBuilder.Entity<Animal>().HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
+            modelBuilder.Entity<Animal>().Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+
+            Validate(modelBuilder.Model);
         }
 
         [ConditionalFact]
@@ -1169,6 +1194,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 : base(convertToProviderExpression, convertFromProviderExpression)
             {
             }
+        }
+
+        protected virtual ModelBuilder CreateModelBuilderWithoutConvention(bool sensitiveDataLoggingEnabled = false)
+        {
+            var conventionSet = TestHelpers.CreateConventionalConventionSet(
+                CreateModelLogger(sensitiveDataLoggingEnabled), CreateValidationLogger(sensitiveDataLoggingEnabled));
+
+            ConventionSet.Remove(
+                conventionSet.ModelFinalizingConventions,
+                typeof(TableSharingConcurrencyTokenConvention));
+
+            return new ModelBuilder(conventionSet);
         }
 
         protected override TestHelpers TestHelpers => RelationalTestHelpers.Instance;
