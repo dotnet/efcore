@@ -75,10 +75,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                             fromSqlQueryRootExpression.Sql,
                             fromSqlQueryRootExpression.Argument));
 
-                case QueryableFunctionQueryRootExpression queryableFunctionQueryRootExpression:
-                    var function = queryableFunctionQueryRootExpression.Function;
+                case TableValuedFunctionQueryRootExpression tableValuedFunctionQueryRootExpression:
+                    var function = tableValuedFunctionQueryRootExpression.Function;
                     var arguments = new List<SqlExpression>();
-                    foreach (var arg in queryableFunctionQueryRootExpression.Arguments)
+                    foreach (var arg in tableValuedFunctionQueryRootExpression.Arguments)
                     {
                         var sqlArgument = _sqlTranslator.Translate(arg);
                         if (sqlArgument == null)
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             var methodCall = Expression.Call(
                                 Expression.Constant(null, function.MethodInfo.DeclaringType),
                                 function.MethodInfo,
-                                queryableFunctionQueryRootExpression.Arguments);
+                                tableValuedFunctionQueryRootExpression.Arguments);
 
                             throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCall.Print()));
                         }
@@ -94,12 +94,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         arguments.Add(sqlArgument);
                     }
 
-                    // TODO: Allow translation to construct the table
-                    var entityType = queryableFunctionQueryRootExpression.EntityType;
+                    var entityType = tableValuedFunctionQueryRootExpression.EntityType;
                     var alias = (entityType.GetViewOrTableMappings().SingleOrDefault()?.Table.Name
                         ?? entityType.ShortName()).Substring(0, 1).ToLower();
 
-                    var translation = new QueryableFunctionExpression(function.Schema, function.Name, arguments, alias);
+                    var translation = new TableValuedFunctionExpression(function.Schema, function.Name, arguments, alias);
                     var queryExpression = _sqlExpressionFactory.Select(entityType, translation);
 
                     return CreateShapedQueryExpression(entityType, queryExpression);

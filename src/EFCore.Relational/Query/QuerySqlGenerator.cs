@@ -270,29 +270,29 @@ namespace Microsoft.EntityFrameworkCore.Query
             return sqlFunctionExpression;
         }
 
-        protected override Expression VisitQueryableFunction(QueryableFunctionExpression queryableFunctionExpression)
+        protected override Expression VisitTableValuedFunction(TableValuedFunctionExpression tableValuedFunctionExpression)
         {
-            Check.NotNull(queryableFunctionExpression, nameof(queryableFunctionExpression));
+            Check.NotNull(tableValuedFunctionExpression, nameof(tableValuedFunctionExpression));
 
-            if (!string.IsNullOrEmpty(queryableFunctionExpression.Schema))
+            if (!string.IsNullOrEmpty(tableValuedFunctionExpression.Schema))
             {
                 _relationalCommandBuilder
-                    .Append(_sqlGenerationHelper.DelimitIdentifier(queryableFunctionExpression.Schema))
+                    .Append(_sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.Schema))
                     .Append(".");
             }
 
             _relationalCommandBuilder
-                .Append(_sqlGenerationHelper.DelimitIdentifier(queryableFunctionExpression.Name))
+                .Append(_sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.Name))
                 .Append("(");
 
-            GenerateList(queryableFunctionExpression.Arguments, e => Visit(e));
+            GenerateList(tableValuedFunctionExpression.Arguments, e => Visit(e));
 
             _relationalCommandBuilder
                 .Append(")")
                 .Append(AliasSeparator)
-                .Append(_sqlGenerationHelper.DelimitIdentifier(queryableFunctionExpression.Alias));
+                .Append(_sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.Alias));
 
-            return queryableFunctionExpression;
+            return tableValuedFunctionExpression;
         }
 
         protected override Expression VisitColumn(ColumnExpression columnExpression)

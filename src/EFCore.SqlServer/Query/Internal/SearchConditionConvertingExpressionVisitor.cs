@@ -449,12 +449,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override Expression VisitQueryableFunction(QueryableFunctionExpression queryableFunctionExpression)
+        protected override Expression VisitTableValuedFunction(TableValuedFunctionExpression tableValuedFunctionExpression)
         {
-            Check.NotNull(queryableFunctionExpression, nameof(queryableFunctionExpression));
+            Check.NotNull(tableValuedFunctionExpression, nameof(tableValuedFunctionExpression));
 
             // TODO: See issue#20180
-            return queryableFunctionExpression;
+            return tableValuedFunctionExpression;
         }
 
         /// <summary>

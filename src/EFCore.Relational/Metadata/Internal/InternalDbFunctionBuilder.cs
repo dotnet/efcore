@@ -169,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         public virtual bool CanSetTranslation(
             [CanBeNull] Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation, ConfigurationSource configurationSource)
-            => (!Metadata.IsQueryable || configurationSource == ConfigurationSource.Explicit)
+            => ((Metadata.IsScalar && !Metadata.IsAggregate) || configurationSource == ConfigurationSource.Explicit)
                 && (configurationSource.Overrides(Metadata.GetTranslationConfigurationSource())
                     || Metadata.Translation == translation);
 

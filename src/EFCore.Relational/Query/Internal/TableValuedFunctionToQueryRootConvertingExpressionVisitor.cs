@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
-    public class QueryableFunctionToQueryRootConvertingExpressionVisitor : ExpressionVisitor
+    public class TableValuedFunctionToQueryRootConvertingExpressionVisitor : ExpressionVisitor
     {
         private readonly IModel _model;
 
-        public QueryableFunctionToQueryRootConvertingExpressionVisitor([NotNull] IModel model)
+        public TableValuedFunctionToQueryRootConvertingExpressionVisitor([NotNull] IModel model)
         {
             Check.NotNull(model, nameof(model));
 
@@ -24,13 +24,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             var function = _model.FindDbFunction(methodCallExpression.Method);
 
-            return function?.IsQueryable == true
-                ? CreateQueryableFunctionQueryRootExpression(function, methodCallExpression.Arguments)
+            return function?.IsScalar == false
+                ? CreateTableValuedFunctionQueryRootExpression(function, methodCallExpression.Arguments)
                 : base.VisitMethodCall(methodCallExpression);
         }
 
-        private Expression CreateQueryableFunctionQueryRootExpression(
+        private Expression CreateTableValuedFunctionQueryRootExpression(
             IDbFunction function, IReadOnlyCollection<Expression> arguments)
-            => new QueryableFunctionQueryRootExpression(function.QueryableEntityType, function, arguments);
+            => new TableValuedFunctionQueryRootExpression(function.ReturnEntityType, function, arguments);
     }
 }

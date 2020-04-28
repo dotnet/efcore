@@ -518,8 +518,8 @@
   <data name="DatabaseModelMissing" xml:space="preserve">
     <value>The database model hasn't been initialized. The model needs to be finalized before the database model can be accessed.</value>
   </data>
-  <data name="DbFunctionQueryableCustomTranslation" xml:space="preserve">
-    <value>Cannot set custom translation on the DbFunction '{function}' since it returns IQueryable type.</value>
+  <data name="DbFunctionTableValuedCustomTranslation" xml:space="preserve">
+    <value>Cannot set custom translation on the DbFunction '{function}' since it is a table valued function.</value>
   </data>
   <data name="DbFunctionInvalidIQueryableReturnType" xml:space="preserve">
     <value>The DbFunction '{function}' has an invalid return type '{type}'. Only functions that return IQueryable of entity type are supported.</value>
@@ -580,5 +580,8 @@
   </data>
   <data name="UnsupportedDataOperationStoreType" xml:space="preserve">
     <value>The store type '{type}' used for the column '{column}' in a migration data operation is not supported by the current provider.</value>
+  </data>
+  <data name="DbFunctionAggregateCustomTranslation" xml:space="preserve">
+    <value>Cannot set custom translation on the DbFunction '{function}' since it is an aggregate function.</value>
   </data>
 </root>

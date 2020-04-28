@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 var methodInfo = dbFunction.MethodInfo;
 
                 if (dbFunction.TypeMapping == null
-                    && dbFunction.QueryableEntityType == null)
+                    && dbFunction.ReturnEntityType == null)
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.DbFunctionInvalidReturnType(

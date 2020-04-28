@@ -13,9 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     /// <summary>
     ///     Represents a SQL Table Valued Fuction in the sql generation tree.
     /// </summary>
-    public class QueryableFunctionExpression : TableExpressionBase
+    public class TableValuedFunctionExpression : TableExpressionBase
     {
-        public QueryableFunctionExpression(
+        public TableValuedFunctionExpression(
             [CanBeNull] string schema, [NotNull] string name, [NotNull] IReadOnlyList<SqlExpression> arguments, [NotNull] string alias)
             : base(alias)
         {
@@ -45,16 +45,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             return changed
-                ? new QueryableFunctionExpression(Schema, Name, arguments, Alias)
+                ? new TableValuedFunctionExpression(Schema, Name, arguments, Alias)
                 : this;
         }
 
-        public virtual QueryableFunctionExpression Update([NotNull] IReadOnlyList<SqlExpression> arguments)
+        public virtual TableValuedFunctionExpression Update([NotNull] IReadOnlyList<SqlExpression> arguments)
         {
             Check.NotNull(arguments, nameof(arguments));
 
             return !arguments.SequenceEqual(Arguments)
-                ? new QueryableFunctionExpression(Schema, Name, arguments, Alias)
+                ? new TableValuedFunctionExpression(Schema, Name, arguments, Alias)
                 : this;
         }
 
@@ -75,10 +75,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public override bool Equals(object obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
-                    || obj is QueryableFunctionExpression queryableExpression
+                    || obj is TableValuedFunctionExpression queryableExpression
                     && Equals(queryableExpression));
 
-        private bool Equals(QueryableFunctionExpression queryableExpression)
+        private bool Equals(TableValuedFunctionExpression queryableExpression)
             => base.Equals(queryableExpression)
                 && string.Equals(Name, queryableExpression.Name)
                 && string.Equals(Schema, queryableExpression.Schema)
