@@ -33,14 +33,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && arguments.Count == 1)
             {
                 left = instance;
-                right = RemoveObjectConvert(arguments[0]);
+                right = arguments[0];
             }
             else if (instance == null
                 && method.Name == nameof(object.Equals)
                 && arguments.Count == 2)
             {
-                left = RemoveObjectConvert(arguments[0]);
-                right = RemoveObjectConvert(arguments[1]);
+                left = arguments[0];
+                right = arguments[1];
             }
 
             if (left != null
@@ -55,18 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             return null;
-        }
-
-        private SqlExpression RemoveObjectConvert(SqlExpression expression)
-        {
-            if (expression is SqlUnaryExpression sqlUnaryExpression
-                && sqlUnaryExpression.OperatorType == ExpressionType.Convert
-                && sqlUnaryExpression.Type == typeof(object))
-            {
-                return sqlUnaryExpression.Operand;
-            }
-
-            return expression;
         }
     }
 }
