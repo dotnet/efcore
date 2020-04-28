@@ -7469,6 +7469,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(g => g.Rank & MilitaryRank.Private));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Enum_array_contains(bool async)
+        {
+            var types = new[] { (AmmunitionType?)null, AmmunitionType.Cartridge };
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Weapon>()
+                    .Where(w => w.SynergyWith != null && types.Contains(w.SynergyWith.AmmunitionType)));
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
