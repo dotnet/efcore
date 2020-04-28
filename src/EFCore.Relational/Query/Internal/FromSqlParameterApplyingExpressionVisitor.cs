@@ -12,31 +12,53 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public class FromSqlParameterApplyingExpressionVisitor : ExpressionVisitor
     {
         private readonly IDictionary<FromSqlExpression, Expression> _visitedFromSqlExpressions
             = new Dictionary<FromSqlExpression, Expression>(LegacyReferenceEqualityComparer.Instance);
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
+        private readonly IRelationalTypeMappingSource _typeMappingSource;
         private readonly ParameterNameGenerator _parameterNameGenerator;
         private readonly IReadOnlyDictionary<string, object> _parametersValues;
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public FromSqlParameterApplyingExpressionVisitor(
             [NotNull] ISqlExpressionFactory sqlExpressionFactory,
+            [NotNull] IRelationalTypeMappingSource typeMappingSource,
             [NotNull] ParameterNameGenerator parameterNameGenerator,
             [NotNull] IReadOnlyDictionary<string, object> parametersValues)
         {
             Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
+            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(parameterNameGenerator, nameof(parameterNameGenerator));
             Check.NotNull(parametersValues, nameof(parametersValues));
 
             _sqlExpressionFactory = sqlExpressionFactory;
+            _typeMappingSource = typeMappingSource;
             _parameterNameGenerator = parameterNameGenerator;
             _parametersValues = parametersValues;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override Expression Visit(Expression expression)
         {
             if (expression is FromSqlExpression fromSql)
@@ -72,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         new TypeMappedRelationalParameter(
                                             parameterName,
                                             parameterName,
-                                            _sqlExpressionFactory.GetTypeMappingForValue(parameterValues[i]),
+                                            _typeMappingSource.GetMappingForValue(parameterValues[i]),
                                             parameterValues[i]?.GetType().IsNullableType()));
                                 }
                             }
@@ -105,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 else
                                 {
                                     constantValues[i] = _sqlExpressionFactory.Constant(
-                                        value, _sqlExpressionFactory.GetTypeMappingForValue(value));
+                                        value, _typeMappingSource.GetMappingForValue(value));
                                 }
                             }
 

@@ -7,6 +7,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
@@ -33,6 +34,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             };
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
+        private readonly IRelationalTypeMappingSource _typeMappingSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -40,9 +42,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlServerDateTimeMemberTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
+        public SqlServerDateTimeMemberTranslator(
+            [NotNull] ISqlExpressionFactory sqlExpressionFactory, [NotNull] IRelationalTypeMappingSource typeMappingSource)
         {
+            Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
+            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
+
             _sqlExpressionFactory = sqlExpressionFactory;
+            _typeMappingSource = typeMappingSource;
         }
 
         /// <summary>
@@ -84,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                             returnType,
                             declaringType == typeof(DateTime)
                                 ? instance.TypeMapping
-                                : _sqlExpressionFactory.FindMapping(typeof(DateTime)));
+                                : _typeMappingSource.FindMapping(typeof(DateTime)));
 
                     case nameof(DateTime.TimeOfDay):
                         return _sqlExpressionFactory.Convert(instance, returnType);

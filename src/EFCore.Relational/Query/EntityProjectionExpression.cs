@@ -42,6 +42,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             _propertyExpressionsCache = propertyExpressions;
         }
 
+        public virtual IEntityType EntityType { get; }
+        public sealed override ExpressionType NodeType => ExpressionType.Extension;
+        public override Type Type => EntityType.ClrType;
+
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             Check.NotNull(visitor, nameof(visitor));
@@ -108,10 +112,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return new EntityProjectionExpression(derivedType, propertyExpressionCache);
         }
-
-        public virtual IEntityType EntityType { get; }
-        public sealed override ExpressionType NodeType => ExpressionType.Extension;
-        public override Type Type => EntityType.ClrType;
 
         public virtual ColumnExpression BindProperty([NotNull] IProperty property)
         {

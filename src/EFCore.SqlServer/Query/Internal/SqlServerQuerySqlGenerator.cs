@@ -93,14 +93,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             if (!sqlFunctionExpression.IsBuiltIn
                 && string.IsNullOrEmpty(sqlFunctionExpression.Schema))
             {
-                sqlFunctionExpression = SqlFunctionExpression.Create(
-                    schema: "dbo",
-                    sqlFunctionExpression.Name,
-                    sqlFunctionExpression.Arguments,
-                    sqlFunctionExpression.IsNullable,
-                    sqlFunctionExpression.ArgumentsPropagateNullability,
-                    sqlFunctionExpression.Type,
-                    sqlFunctionExpression.TypeMapping);
+                sqlFunctionExpression = sqlFunctionExpression.IsNiladic
+                    ? new SqlFunctionExpression(
+                        schema: "dbo",
+                        sqlFunctionExpression.Name,
+                        sqlFunctionExpression.IsNullable,
+                        sqlFunctionExpression.Type,
+                        sqlFunctionExpression.TypeMapping)
+                    : new SqlFunctionExpression(
+                        schema: "dbo",
+                        sqlFunctionExpression.Name,
+                        sqlFunctionExpression.Arguments,
+                        sqlFunctionExpression.IsNullable,
+                        sqlFunctionExpression.ArgumentsPropagateNullability,
+                        sqlFunctionExpression.Type,
+                        sqlFunctionExpression.TypeMapping);
             }
 
             return base.VisitSqlFunction(sqlFunctionExpression);

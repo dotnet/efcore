@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -55,12 +56,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         [EntityFrameworkInternal]
         public RelationalParameterBasedQueryTranslationPostprocessorDependencies(
             [NotNull] ISqlExpressionFactory sqlExpressionFactory,
+            [NotNull] IRelationalTypeMappingSource typeMappingSource,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory)
         {
             Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
+            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
 
             SqlExpressionFactory = sqlExpressionFactory;
+            TypeMappingSource = typeMappingSource;
             ParameterNameGeneratorFactory = parameterNameGeneratorFactory;
         }
 
@@ -68,6 +72,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Sql expression factory.
         /// </summary>
         public ISqlExpressionFactory SqlExpressionFactory { get; }
+
+        /// <summary>
+        ///     Relational type mapping souce.
+        /// </summary>
+        public IRelationalTypeMappingSource TypeMappingSource { get; }
 
         /// <summary>
         ///     Parameter name generator factory.
@@ -80,7 +89,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="sqlExpressionFactory"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalParameterBasedQueryTranslationPostprocessorDependencies With([NotNull] ISqlExpressionFactory sqlExpressionFactory)
-            => new RelationalParameterBasedQueryTranslationPostprocessorDependencies(sqlExpressionFactory, ParameterNameGeneratorFactory);
+            => new RelationalParameterBasedQueryTranslationPostprocessorDependencies(sqlExpressionFactory, TypeMappingSource, ParameterNameGeneratorFactory);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalParameterBasedQueryTranslationPostprocessorDependencies With([NotNull] IRelationalTypeMappingSource typeMappingSource)
+            => new RelationalParameterBasedQueryTranslationPostprocessorDependencies(SqlExpressionFactory, typeMappingSource, ParameterNameGeneratorFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -88,6 +105,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="parameterNameGeneratorFactory"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalParameterBasedQueryTranslationPostprocessorDependencies With([NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory)
-            => new RelationalParameterBasedQueryTranslationPostprocessorDependencies(SqlExpressionFactory, parameterNameGeneratorFactory);
+            => new RelationalParameterBasedQueryTranslationPostprocessorDependencies(SqlExpressionFactory, TypeMappingSource, parameterNameGeneratorFactory);
     }
 }
