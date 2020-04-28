@@ -105,10 +105,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                             ((InternalEntityTypeBuilder)entityType.Builder).CreateUniqueProperty(
                                 ConcurrencyPropertyPrefix + exampleProperty.Name,
                                 exampleProperty.ClrType,
-                                !exampleProperty.IsNullable);
-                        concurrencyShadowPropertyBuilder.SetColumnName(concurrencyColumnName);
-                        _ = concurrencyShadowPropertyBuilder.SetIsConcurrencyToken(true, ConfigurationSource.Convention);
-                        _ = concurrencyShadowPropertyBuilder.SetValueGenerated(exampleProperty.ValueGenerated, ConfigurationSource.Convention);
+                                !exampleProperty.IsNullable).Builder;
+                        concurrencyShadowPropertyBuilder
+                            .HasColumnName(concurrencyColumnName)
+                            ?.IsConcurrencyToken(true)
+                            ?.ValueGenerated(exampleProperty.ValueGenerated);
 #pragma warning restore EF1001 // Internal EF Core API usage.
                     }
                 }
@@ -116,11 +117,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private void GetMappings(IConventionModel model,
-            out Dictionary<Tuple<string, string>, IList<IConventionEntityType>> tableToEntityTypes,
-            out Dictionary<Tuple<string, string>, Dictionary<string, IList<IConventionProperty>>> concurrencyColumnsToProperties)
+            out Dictionary<(string Table, string Schema), IList<IConventionEntityType>> tableToEntityTypes,
+            out Dictionary<(string Table, string Schema), Dictionary<string, IList<IConventionProperty>>> concurrencyColumnsToProperties)
         {
-            tableToEntityTypes = new Dictionary<Tuple<string, string>, IList<IConventionEntityType>>();
-            concurrencyColumnsToProperties = new Dictionary<Tuple<string, string>, Dictionary<string, IList<IConventionProperty>>>();
+            tableToEntityTypes = new Dictionary<(string Table, string Schema), IList<IConventionEntityType>>();
+            concurrencyColumnsToProperties = new Dictionary<(string Table, string Schema), Dictionary<string, IList<IConventionProperty>>>();
             foreach (var entityType in model.GetEntityTypes())
             {
                 var tableName = entityType.GetTableName();
@@ -129,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     continue; // unmapped entityType
                 }
 
-                var table = Tuple.Create(tableName, entityType.GetSchema());
+                var table = (tableName, entityType.GetSchema());
 
                 if (!tableToEntityTypes.TryGetValue(table, out var mappedTypes))
                 {
@@ -170,7 +171,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             ref Dictionary<IConventionEntityType, T> entityTypeDictionary)
         {
             var toRemove = new HashSet<KeyValuePair<IConventionEntityType, T>>();
-            var entityTypesWithDerivedTypes = entityTypeDictionary.Where(e => e.Key.GetDirectlyDerivedTypes().Any());
+            var entityTypesWithDerivedTypes =
+                entityTypeDictionary.Where(e => e.Key.GetDirectlyDerivedTypes().Any()).ToList();
             foreach (var entityType in entityTypeDictionary.Where(e => e.Key.BaseType != null))
             {
                 foreach (var otherEntityType in entityTypesWithDerivedTypes)
