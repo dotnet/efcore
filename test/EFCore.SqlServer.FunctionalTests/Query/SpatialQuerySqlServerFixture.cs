@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.HasDbFunction(
                 typeof(GeoExtensions).GetMethod(nameof(GeoExtensions.Distance)),
                 b => b.HasTranslation(
-                    e => SqlFunctionExpression.Create(
+                    e => new SqlFunctionExpression(
                         instance: e.First(),
                         "STDistance",
                         arguments: e.Skip(1),

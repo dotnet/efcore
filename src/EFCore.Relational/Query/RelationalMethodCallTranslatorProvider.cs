@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     new EqualsTranslator(sqlExpressionFactory),
                     new StringMethodTranslator(sqlExpressionFactory),
-                    new CollateTranslator(sqlExpressionFactory),
+                    new CollateTranslator(),
                     new ContainsTranslator(sqlExpressionFactory),
                     new LikeTranslator(sqlExpressionFactory),
                     new EnumHasFlagTranslator(sqlExpressionFactory),

@@ -8,9 +8,10 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
-    public class ProjectionExpression : Expression, IPrintableExpression
+    // Class is sealed because there are no public/protected constructors. Can be unsealed if this is changed.
+    public sealed class ProjectionExpression : Expression, IPrintableExpression
     {
-        public ProjectionExpression([NotNull] SqlExpression expression, [NotNull] string alias)
+        internal ProjectionExpression([NotNull] SqlExpression expression, [NotNull] string alias)
         {
             Check.NotNull(expression, nameof(expression));
             Check.NotNull(alias, nameof(alias));
@@ -19,8 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Alias = alias;
         }
 
-        public virtual string Alias { get; }
-        public virtual SqlExpression Expression { get; }
+        public string Alias { get; }
+        public SqlExpression Expression { get; }
 
         public override Type Type => Expression.Type;
         public sealed override ExpressionType NodeType => ExpressionType.Extension;
@@ -32,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             return Update((SqlExpression)visitor.Visit(Expression));
         }
 
-        public virtual ProjectionExpression Update([NotNull] SqlExpression expression)
+        public ProjectionExpression Update([NotNull] SqlExpression expression)
         {
             Check.NotNull(expression, nameof(expression));
 
@@ -41,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 : this;
         }
 
-        public virtual void Print(ExpressionPrinter expressionPrinter)
+        public void Print(ExpressionPrinter expressionPrinter)
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 

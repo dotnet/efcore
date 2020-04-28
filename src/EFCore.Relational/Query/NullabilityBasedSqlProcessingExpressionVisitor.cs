@@ -15,6 +15,8 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+    // Whole API surface is going to change. See issue#20204
     public class NullabilityBasedSqlProcessingExpressionVisitor : SqlExpressionVisitor
     {
         protected virtual bool UseRelationalNulls { get; }
@@ -1633,4 +1635,5 @@ namespace Microsoft.EntityFrameworkCore.Query
                     SqlExpressionFactory.Equal(left, right),
                     leftIsNull));
     }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
@@ -13,219 +14,101 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     public class SqlFunctionExpression : SqlExpression
     {
-        public static SqlFunctionExpression CreateNiladic(
-            [NotNull] string name,
-            [NotNull] Type type,
-            [CanBeNull] RelationalTypeMapping typeMapping)
-            => CreateNiladic(name, nullable: true, type, typeMapping);
-
-        public static SqlFunctionExpression CreateNiladic(
-            [NotNull] string schema,
-            [NotNull] string name,
-            [NotNull] Type type,
-            [CanBeNull] RelationalTypeMapping typeMapping)
-            => CreateNiladic(schema, name, nullable: true, type, typeMapping);
-
-        [Obsolete("Use constructor that explicitly specifies value for 'instancePropagatesNullability' argument.")]
-        public static SqlFunctionExpression CreateNiladic(
-            [NotNull] SqlExpression instance,
-            [NotNull] string name,
-            [NotNull] Type type,
-            [CanBeNull] RelationalTypeMapping typeMapping)
-            => CreateNiladic(instance, name, nullable: true, instancePropagatesNullability: false, type, typeMapping);
-
-        [Obsolete("Use constructor that explicitly specifies value for 'instancePropagatesNullability' and 'argumentsPropagateNullability' arguments.")]
-        public static SqlFunctionExpression Create(
-            [NotNull] SqlExpression instance,
-            [NotNull] string name,
-            [NotNull] IEnumerable<SqlExpression> arguments,
-            [NotNull] Type type,
-            [CanBeNull] RelationalTypeMapping typeMapping)
-            => Create(
-                instance,
-                name,
-                arguments,
-                nullable: true,
-                instancePropagatesNullability: false,
-                argumentsPropagateNullability: arguments.Select(a => false),
-                type,
-                typeMapping);
-
-        [Obsolete("Use constructor that explicitly specifies value for 'argumentsPropagateNullability' argument.")]
-        public static SqlFunctionExpression Create(
-            [NotNull] string name,
-            [NotNull] IEnumerable<SqlExpression> arguments,
-            [NotNull] Type type,
-            [CanBeNull] RelationalTypeMapping typeMapping)
-            => Create(name, arguments, nullable: true, argumentsPropagateNullability: arguments.Select(a => false), type, typeMapping);
-
-        [Obsolete("Use constructor that explicitly specifies value for 'argumentsPropagateNullability' argument.")]
-        public static SqlFunctionExpression Create(
-            [CanBeNull] string schema,
-            [NotNull] string name,
-            [NotNull] IEnumerable<SqlExpression> arguments,
-            [NotNull] Type type,
-            [CanBeNull] RelationalTypeMapping typeMapping)
-            => Create(schema, name, arguments, nullable: true, argumentsPropagateNullability: arguments.Select(a => false), type, typeMapping);
-
-        public static SqlFunctionExpression CreateNiladic(
-            [NotNull] string name,
+        public SqlFunctionExpression(
+            [NotNull] string functionName,
             bool nullable,
             [NotNull] Type type,
             [CanBeNull] RelationalTypeMapping typeMapping)
+            : this(instance: null, schema: null, functionName, nullable, instancePropagatesNullability: null, builtIn: true, type, typeMapping)
         {
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(type, nameof(type));
-
-            return new SqlFunctionExpression(
-                instance: null,
-                schema: null,
-                name,
-                niladic: true,
-                arguments: null,
-                nullable,
-                instancePropagatesNullability: null,
-                argumentsPropagateNullability: null,
-                builtIn: true,
-                type,
-                typeMapping);
-        }
-
-        public static SqlFunctionExpression CreateNiladic(
-            [NotNull] string schema,
-            [NotNull] string name,
-            bool nullable,
-            [NotNull] Type type,
-            [CanBeNull] RelationalTypeMapping typeMapping)
-        {
-            Check.NotEmpty(name, nameof(name));
-            Check.NotEmpty(schema, nameof(schema));
-            Check.NotNull(type, nameof(type));
-
-            return new SqlFunctionExpression(
-                instance: null,
-                schema,
-                name,
-                niladic: true,
-                arguments: null,
-                nullable,
-                instancePropagatesNullability: null,
-                argumentsPropagateNullability: null,
-                builtIn: true,
-                type,
-                typeMapping);
-        }
-
-        public static SqlFunctionExpression CreateNiladic(
-            [NotNull] SqlExpression instance,
-            [NotNull] string name,
-            bool nullable,
-            bool instancePropagatesNullability,
-            [NotNull] Type type,
-            [CanBeNull] RelationalTypeMapping typeMapping)
-        {
-            Check.NotNull(instance, nameof(instance));
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(type, nameof(type));
-
-            return new SqlFunctionExpression(
-                instance,
-                schema: null,
-                name,
-                niladic: true,
-                arguments: null,
-                nullable,
-                instancePropagatesNullability,
-                argumentsPropagateNullability: null,
-                builtIn: true,
-                type,
-                typeMapping);
-        }
-
-        public static SqlFunctionExpression Create(
-            [NotNull] SqlExpression instance,
-            [NotNull] string name,
-            [NotNull] IEnumerable<SqlExpression> arguments,
-            bool nullable,
-            bool instancePropagatesNullability,
-            [NotNull] IEnumerable<bool> argumentsPropagateNullability,
-            [NotNull] Type type,
-            [CanBeNull] RelationalTypeMapping typeMapping)
-        {
-            Check.NotNull(instance, nameof(instance));
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(arguments, nameof(arguments));
-            Check.NotNull(argumentsPropagateNullability, nameof(argumentsPropagateNullability));
-            Check.NotNull(type, nameof(type));
-
-            return new SqlFunctionExpression(
-                instance,
-                schema: null,
-                name,
-                niladic: false,
-                arguments,
-                nullable,
-                instancePropagatesNullability,
-                argumentsPropagateNullability,
-                builtIn: true,
-                type,
-                typeMapping);
-        }
-
-        public static SqlFunctionExpression Create(
-            [NotNull] string name,
-            [NotNull] IEnumerable<SqlExpression> arguments,
-            bool nullable,
-            [NotNull] IEnumerable<bool> argumentsPropagateNullability,
-            [NotNull] Type type,
-            [CanBeNull] RelationalTypeMapping typeMapping)
-        {
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(arguments, nameof(arguments));
-            Check.NotNull(type, nameof(type));
-
-            return new SqlFunctionExpression(
-                instance: null,
-                schema: null,
-                name,
-                niladic: false,
-                arguments,
-                nullable,
-                instancePropagatesNullability: null,
-                argumentsPropagateNullability,
-                builtIn: true,
-                type,
-                typeMapping);
-        }
-
-        public static SqlFunctionExpression Create(
-            [CanBeNull] string schema,
-            [NotNull] string name,
-            [NotNull] IEnumerable<SqlExpression> arguments,
-            bool nullable,
-            [NotNull] IEnumerable<bool> argumentsPropagateNullability,
-            [NotNull] Type type,
-            [CanBeNull] RelationalTypeMapping typeMapping)
-        {
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(arguments, nameof(arguments));
-            Check.NotNull(type, nameof(type));
-
-            return new SqlFunctionExpression(
-                instance: null,
-                schema,
-                name,
-                niladic: false,
-                arguments,
-                nullable,
-                instancePropagatesNullability: null,
-                argumentsPropagateNullability,
-                builtIn: false,
-                type,
-                typeMapping);
         }
 
         public SqlFunctionExpression(
+            [NotNull] string schema,
+            [NotNull] string functionName,
+            bool nullable,
+            [NotNull] Type type,
+            [CanBeNull] RelationalTypeMapping typeMapping)
+            : this(instance: null, Check.NotEmpty(schema, nameof(schema)), functionName, nullable, instancePropagatesNullability: null, builtIn: false, type, typeMapping)
+        {
+        }
+
+        public SqlFunctionExpression(
+            [NotNull] SqlExpression instance,
+            [NotNull] string functionName,
+            bool nullable,
+            bool instancePropagatesNullability,
+            [NotNull] Type type,
+            [CanBeNull] RelationalTypeMapping typeMapping)
+            : this(Check.NotNull(instance, nameof(instance)), schema: null, functionName, nullable, instancePropagatesNullability, builtIn: true, type, typeMapping)
+        {
+        }
+
+        private SqlFunctionExpression(
+            [CanBeNull] SqlExpression instance,
+            [CanBeNull] string schema,
+            [NotNull] string name,
+            bool nullable,
+            bool? instancePropagatesNullability,
+            bool builtIn,
+            [NotNull] Type type,
+            [CanBeNull] RelationalTypeMapping typeMapping)
+            : this(instance, schema, name, niladic: true, arguments: null, nullable, instancePropagatesNullability, argumentsPropagateNullability: null, builtIn, type, typeMapping)
+        {
+        }
+
+        public SqlFunctionExpression(
+            [NotNull] string functionName,
+            [NotNull] IEnumerable<SqlExpression> arguments,
+            bool nullable,
+            [NotNull] IEnumerable<bool> argumentsPropagateNullability,
+            [NotNull] Type type,
+            [CanBeNull] RelationalTypeMapping typeMapping)
+            : this(instance: null, schema: null, functionName, arguments, nullable, instancePropagatesNullability: null, argumentsPropagateNullability,  builtIn: true, type, typeMapping)
+        {
+        }
+
+        public SqlFunctionExpression(
+            [CanBeNull] string schema,
+            [NotNull] string functionName,
+            [NotNull] IEnumerable<SqlExpression> arguments,
+            bool nullable,
+            [NotNull] IEnumerable<bool> argumentsPropagateNullability,
+            [NotNull] Type type,
+            [CanBeNull] RelationalTypeMapping typeMapping)
+            : this(instance: null, Check.NullButNotEmpty(schema, nameof(schema)), functionName, arguments, nullable, instancePropagatesNullability: null, argumentsPropagateNullability, builtIn: false, type, typeMapping)
+        {
+        }
+
+        public SqlFunctionExpression(
+            [NotNull] SqlExpression instance,
+            [NotNull] string functionName,
+            [NotNull] IEnumerable<SqlExpression> arguments,
+            bool nullable,
+            bool instancePropagatesNullability,
+            [NotNull] IEnumerable<bool> argumentsPropagateNullability,
+            [NotNull] Type type,
+            [CanBeNull] RelationalTypeMapping typeMapping)
+            : this(Check.NotNull(instance, nameof(instance)), schema: null, functionName, arguments, nullable, instancePropagatesNullability, argumentsPropagateNullability, builtIn: true, type, typeMapping)
+        {
+        }
+
+        private SqlFunctionExpression(
+            [CanBeNull] SqlExpression instance,
+            [CanBeNull] string schema,
+            [NotNull] string name,
+            [NotNull] IEnumerable<SqlExpression> arguments,
+            bool nullable,
+            bool? instancePropagatesNullability,
+            [NotNull] IEnumerable<bool> argumentsPropagateNullability,
+            bool builtIn,
+            [NotNull] Type type,
+            [CanBeNull] RelationalTypeMapping typeMapping)
+            : this(instance, schema, name, niladic: false, Check.NotNull(arguments, nameof(arguments)), nullable, instancePropagatesNullability, Check.NotNull(argumentsPropagateNullability, nameof(argumentsPropagateNullability)) , builtIn, type, typeMapping)
+        {
+        }
+
+        private SqlFunctionExpression(
             [CanBeNull] SqlExpression instance,
             [CanBeNull] string schema,
             [NotNull] string name,
@@ -247,10 +130,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Schema = schema;
             IsNiladic = niladic;
             IsBuiltIn = builtIn;
-            Arguments = (arguments ?? Array.Empty<SqlExpression>()).ToList();
+            Arguments = arguments?.ToList();
             IsNullable = nullable;
             InstancePropagatesNullability = instancePropagatesNullability;
-            ArgumentsPropagateNullability = (argumentsPropagateNullability ?? Array.Empty<bool>()).ToList();
+            ArgumentsPropagateNullability = argumentsPropagateNullability?.ToList();
         }
 
         public virtual string Name { get; }
@@ -273,11 +156,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             var changed = false;
             var instance = (SqlExpression)visitor.Visit(Instance);
             changed |= instance != Instance;
-            var arguments = new SqlExpression[Arguments.Count];
-            for (var i = 0; i < arguments.Length; i++)
+
+            SqlExpression[] arguments = default;
+            if (!IsNiladic)
             {
-                arguments[i] = (SqlExpression)visitor.Visit(Arguments[i]);
-                changed |= arguments[i] != Arguments[i];
+                arguments = new SqlExpression[Arguments.Count];
+                for (var i = 0; i < arguments.Length; i++)
+                {
+                    arguments[i] = (SqlExpression)visitor.Visit(Arguments[i]);
+                    changed |= arguments[i] != Arguments[i];
+                }
             }
 
             return changed
@@ -312,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public virtual SqlFunctionExpression Update([CanBeNull] SqlExpression instance, [CanBeNull] IReadOnlyList<SqlExpression> arguments)
         {
-            return instance != Instance || !arguments.SequenceEqual(Arguments)
+            return instance != Instance || !arguments?.SequenceEqual(Arguments) == true
                 ? new SqlFunctionExpression(
                     instance,
                     Schema,
@@ -384,5 +272,241 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             return hash.ToHashCode();
         }
+
+        #region ObsoleteMethods
+
+        [Obsolete("Use new SqlFunctionExpression(...) with appropriate arguments.")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static SqlFunctionExpression CreateNiladic(
+           [NotNull] string name,
+           [NotNull] Type type,
+           [CanBeNull] RelationalTypeMapping typeMapping)
+           => CreateNiladic(name, nullable: true, type, typeMapping);
+
+        [Obsolete("Use new SqlFunctionExpression(...) with appropriate arguments.")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static SqlFunctionExpression CreateNiladic(
+            [NotNull] string schema,
+            [NotNull] string name,
+            [NotNull] Type type,
+            [CanBeNull] RelationalTypeMapping typeMapping)
+            => CreateNiladic(schema, name, nullable: true, type, typeMapping);
+
+        [Obsolete("Use new SqlFunctionExpression(...) with appropriate arguments.")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static SqlFunctionExpression CreateNiladic(
+            [NotNull] SqlExpression instance,
+            [NotNull] string name,
+            [NotNull] Type type,
+            [CanBeNull] RelationalTypeMapping typeMapping)
+            => CreateNiladic(instance, name, nullable: true, instancePropagatesNullability: false, type, typeMapping);
+
+        [Obsolete("Use new SqlFunctionExpression(...) with appropriate arguments.")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static SqlFunctionExpression Create(
+            [NotNull] SqlExpression instance,
+            [NotNull] string name,
+            [NotNull] IEnumerable<SqlExpression> arguments,
+            [NotNull] Type type,
+            [CanBeNull] RelationalTypeMapping typeMapping)
+            => Create(
+                instance,
+                name,
+                arguments,
+                nullable: true,
+                instancePropagatesNullability: false,
+                argumentsPropagateNullability: arguments.Select(a => false),
+                type,
+                typeMapping);
+
+        [Obsolete("Use new SqlFunctionExpression(...) with appropriate arguments.")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static SqlFunctionExpression Create(
+            [NotNull] string name,
+            [NotNull] IEnumerable<SqlExpression> arguments,
+            [NotNull] Type type,
+            [CanBeNull] RelationalTypeMapping typeMapping)
+            => Create(name, arguments, nullable: true, argumentsPropagateNullability: arguments.Select(a => false), type, typeMapping);
+
+        [Obsolete("Use new SqlFunctionExpression(...) with appropriate arguments.")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static SqlFunctionExpression Create(
+            [CanBeNull] string schema,
+            [NotNull] string name,
+            [NotNull] IEnumerable<SqlExpression> arguments,
+            [NotNull] Type type,
+            [CanBeNull] RelationalTypeMapping typeMapping)
+            => Create(schema, name, arguments, nullable: true, argumentsPropagateNullability: arguments.Select(a => false), type, typeMapping);
+
+        [Obsolete("Use new SqlFunctionExpression(...) with appropriate arguments.")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static SqlFunctionExpression CreateNiladic(
+            [NotNull] string name,
+            bool nullable,
+            [NotNull] Type type,
+            [CanBeNull] RelationalTypeMapping typeMapping)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(type, nameof(type));
+
+            return new SqlFunctionExpression(
+                instance: null,
+                schema: null,
+                name,
+                niladic: true,
+                arguments: null,
+                nullable,
+                instancePropagatesNullability: null,
+                argumentsPropagateNullability: null,
+                builtIn: true,
+                type,
+                typeMapping);
+        }
+
+        [Obsolete("Use new SqlFunctionExpression(...) with appropriate arguments.")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static SqlFunctionExpression CreateNiladic(
+            [NotNull] string schema,
+            [NotNull] string name,
+            bool nullable,
+            [NotNull] Type type,
+            [CanBeNull] RelationalTypeMapping typeMapping)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotEmpty(schema, nameof(schema));
+            Check.NotNull(type, nameof(type));
+
+            return new SqlFunctionExpression(
+                instance: null,
+                schema,
+                name,
+                niladic: true,
+                arguments: null,
+                nullable,
+                instancePropagatesNullability: null,
+                argumentsPropagateNullability: null,
+                builtIn: true,
+                type,
+                typeMapping);
+        }
+
+        [Obsolete("Use new SqlFunctionExpression(...) with appropriate arguments.")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static SqlFunctionExpression CreateNiladic(
+            [NotNull] SqlExpression instance,
+            [NotNull] string name,
+            bool nullable,
+            bool instancePropagatesNullability,
+            [NotNull] Type type,
+            [CanBeNull] RelationalTypeMapping typeMapping)
+        {
+            Check.NotNull(instance, nameof(instance));
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(type, nameof(type));
+
+            return new SqlFunctionExpression(
+                instance,
+                schema: null,
+                name,
+                niladic: true,
+                arguments: null,
+                nullable,
+                instancePropagatesNullability,
+                argumentsPropagateNullability: null,
+                builtIn: true,
+                type,
+                typeMapping);
+        }
+
+        [Obsolete("Use new SqlFunctionExpression(...) with appropriate arguments.")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static SqlFunctionExpression Create(
+            [NotNull] SqlExpression instance,
+            [NotNull] string name,
+            [NotNull] IEnumerable<SqlExpression> arguments,
+            bool nullable,
+            bool instancePropagatesNullability,
+            [NotNull] IEnumerable<bool> argumentsPropagateNullability,
+            [NotNull] Type type,
+            [CanBeNull] RelationalTypeMapping typeMapping)
+        {
+            Check.NotNull(instance, nameof(instance));
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(arguments, nameof(arguments));
+            Check.NotNull(argumentsPropagateNullability, nameof(argumentsPropagateNullability));
+            Check.NotNull(type, nameof(type));
+
+            return new SqlFunctionExpression(
+                instance,
+                schema: null,
+                name,
+                niladic: false,
+                arguments,
+                nullable,
+                instancePropagatesNullability,
+                argumentsPropagateNullability,
+                builtIn: true,
+                type,
+                typeMapping);
+        }
+
+        [Obsolete("Use new SqlFunctionExpression(...) with appropriate arguments.")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static SqlFunctionExpression Create(
+            [NotNull] string name,
+            [NotNull] IEnumerable<SqlExpression> arguments,
+            bool nullable,
+            [NotNull] IEnumerable<bool> argumentsPropagateNullability,
+            [NotNull] Type type,
+            [CanBeNull] RelationalTypeMapping typeMapping)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(arguments, nameof(arguments));
+            Check.NotNull(type, nameof(type));
+
+            return new SqlFunctionExpression(
+                instance: null,
+                schema: null,
+                name,
+                niladic: false,
+                arguments,
+                nullable,
+                instancePropagatesNullability: null,
+                argumentsPropagateNullability,
+                builtIn: true,
+                type,
+                typeMapping);
+        }
+
+        [Obsolete("Use new SqlFunctionExpression(...) with appropriate arguments.")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static SqlFunctionExpression Create(
+            [CanBeNull] string schema,
+            [NotNull] string name,
+            [NotNull] IEnumerable<SqlExpression> arguments,
+            bool nullable,
+            [NotNull] IEnumerable<bool> argumentsPropagateNullability,
+            [NotNull] Type type,
+            [CanBeNull] RelationalTypeMapping typeMapping)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(arguments, nameof(arguments));
+            Check.NotNull(type, nameof(type));
+
+            return new SqlFunctionExpression(
+                instance: null,
+                schema,
+                name,
+                niladic: false,
+                arguments,
+                nullable,
+                instancePropagatesNullability: null,
+                argumentsPropagateNullability,
+                builtIn: false,
+                type,
+                typeMapping);
+        }
+
+        #endregion
     }
 }

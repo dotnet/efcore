@@ -16,28 +16,22 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public CaseExpression(
             [NotNull] SqlExpression operand,
-            [NotNull] IReadOnlyList<CaseWhenClause> whenClauses)
-            : this(operand, whenClauses, null)
+            [NotNull] IReadOnlyList<CaseWhenClause> whenClauses,
+            [CanBeNull] SqlExpression elseResult = null)
+            : base(Check.NotEmpty(whenClauses, nameof(whenClauses))[0].Result.Type, whenClauses[0].Result.TypeMapping)
         {
             Check.NotNull(operand, nameof(operand));
-        }
-
-        public CaseExpression(
-            [NotNull] IReadOnlyList<CaseWhenClause> whenClauses,
-            [CanBeNull] SqlExpression elseResult)
-            : this(null, whenClauses, elseResult)
-        {
-        }
-
-        public CaseExpression(
-            [CanBeNull] SqlExpression operand,
-            [NotNull] IReadOnlyList<CaseWhenClause> whenClauses,
-            [CanBeNull] SqlExpression elseResult)
-            : base(whenClauses[0].Result.Type, whenClauses[0].Result.TypeMapping)
-        {
-            Check.NotNull(whenClauses, nameof(whenClauses));
 
             Operand = operand;
+            _whenClauses.AddRange(whenClauses);
+            ElseResult = elseResult;
+        }
+
+        public CaseExpression(
+            [NotNull] IReadOnlyList<CaseWhenClause> whenClauses,
+            [CanBeNull] SqlExpression elseResult = null)
+            : base(Check.NotEmpty(whenClauses, nameof(whenClauses))[0].Result.Type, whenClauses[0].Result.TypeMapping)
+        {
             _whenClauses.AddRange(whenClauses);
             ElseResult = elseResult;
         }
@@ -80,10 +74,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public virtual CaseExpression Update(
             [CanBeNull] SqlExpression operand,
-            [CanBeNull] IReadOnlyList<CaseWhenClause> whenClauses,
+            [NotNull] IReadOnlyList<CaseWhenClause> whenClauses,
             [CanBeNull] SqlExpression elseResult)
             => operand != Operand || !whenClauses.SequenceEqual(WhenClauses) || elseResult != ElseResult
-                ? new CaseExpression(operand, whenClauses, elseResult)
+                ? (Operand == null
+                    ? new CaseExpression(whenClauses, elseResult)
+                    : new CaseExpression(operand, whenClauses, elseResult))
                 : this;
 
         public override void Print(ExpressionPrinter expressionPrinter)

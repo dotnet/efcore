@@ -4,16 +4,13 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     public class CollateExpression : SqlExpression
     {
-        public CollateExpression(
-            [NotNull] SqlExpression operand,
-            [NotNull] string collation)
+        public CollateExpression([NotNull] SqlExpression operand, [NotNull] string collation)
             : base(operand.Type, operand.TypeMapping)
         {
             Check.NotNull(operand, nameof(operand));

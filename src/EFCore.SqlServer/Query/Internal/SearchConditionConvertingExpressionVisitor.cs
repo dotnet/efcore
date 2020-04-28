@@ -428,10 +428,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             var parentSearchCondition = _isSearchCondition;
             _isSearchCondition = false;
             var instance = (SqlExpression)Visit(sqlFunctionExpression.Instance);
-            var arguments = new SqlExpression[sqlFunctionExpression.Arguments.Count];
-            for (var i = 0; i < arguments.Length; i++)
+            SqlExpression[] arguments = default;
+            if (!sqlFunctionExpression.IsNiladic)
             {
-                arguments[i] = (SqlExpression)Visit(sqlFunctionExpression.Arguments[i]);
+                arguments = new SqlExpression[sqlFunctionExpression.Arguments.Count];
+                for (var i = 0; i < arguments.Length; i++)
+                {
+                    arguments[i] = (SqlExpression)Visit(sqlFunctionExpression.Arguments[i]);
+                }
             }
 
             _isSearchCondition = parentSearchCondition;

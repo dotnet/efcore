@@ -24,10 +24,12 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public interface ISqlExpressionFactory
     {
+        [Obsolete("Use IRelationalTypeMappingSource directly.")]
+        RelationalTypeMapping GetTypeMappingForValue([CanBeNull] object value);
+        [Obsolete("Use IRelationalTypeMappingSource directly.")]
+        RelationalTypeMapping FindMapping([NotNull] Type type);
         SqlExpression ApplyTypeMapping([CanBeNull] SqlExpression sqlExpression, [CanBeNull] RelationalTypeMapping typeMapping);
         SqlExpression ApplyDefaultTypeMapping([CanBeNull] SqlExpression sqlExpression);
-        RelationalTypeMapping GetTypeMappingForValue([CanBeNull] object value);
-        RelationalTypeMapping FindMapping([NotNull] Type type);
 
         SqlUnaryExpression MakeUnary(
             ExpressionType operatorType,
@@ -43,9 +45,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         // Comparison
         SqlBinaryExpression Equal([NotNull] SqlExpression left, [NotNull] SqlExpression right);
+
         SqlBinaryExpression NotEqual([NotNull] SqlExpression left, [NotNull] SqlExpression right);
+
         SqlBinaryExpression GreaterThan([NotNull] SqlExpression left, [NotNull] SqlExpression right);
+
         SqlBinaryExpression GreaterThanOrEqual([NotNull] SqlExpression left, [NotNull] SqlExpression right);
+
         SqlBinaryExpression LessThan([NotNull] SqlExpression left, [NotNull] SqlExpression right);
 
         SqlBinaryExpression LessThanOrEqual([NotNull] SqlExpression left, [NotNull] SqlExpression right);
@@ -109,28 +115,30 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] Type returnType,
             [CanBeNull] RelationalTypeMapping typeMapping = null);
 
-        [Obsolete("Use overload that explicitly specifies value for 'argumentsPropagateNullability' argument.")]
+        [Obsolete("Use overload that explicitly specifies value for 'instancePropagatesNullability' and 'argumentsPropagateNullability' arguments.")]
         SqlFunctionExpression Function(
-            [CanBeNull] SqlExpression instance,
+            [NotNull] SqlExpression instance,
             [NotNull] string name,
             [NotNull] IEnumerable<SqlExpression> arguments,
             [NotNull] Type returnType,
             [CanBeNull] RelationalTypeMapping typeMapping = null);
 
+        [Obsolete("Use overload that explicitly specifies value for 'nullable' argument.")]
         SqlFunctionExpression Function(
             [NotNull] string name,
             [NotNull] Type returnType,
             [CanBeNull] RelationalTypeMapping typeMapping = null);
 
+        [Obsolete("Use overload that explicitly specifies value for 'nullable' argument.")]
         SqlFunctionExpression Function(
             [NotNull] string schema,
             [NotNull] string name,
             [NotNull] Type returnType,
             [CanBeNull] RelationalTypeMapping typeMapping = null);
 
-        [Obsolete("Use overload that explicitly specifies value for 'argumentsPropagateNullability' argument.")]
+        [Obsolete("Use overload that explicitly specifies value for 'instancePropagatesNullability' argument.")]
         SqlFunctionExpression Function(
-            [CanBeNull] SqlExpression instance,
+            [NotNull] SqlExpression instance,
             [NotNull] string name,
             [NotNull] Type returnType,
             [CanBeNull] RelationalTypeMapping typeMapping = null);
@@ -144,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [CanBeNull] RelationalTypeMapping typeMapping = null);
 
         SqlFunctionExpression Function(
-            [CanBeNull] string schema,
+            [NotNull] string schema,
             [NotNull] string name,
             [NotNull] IEnumerable<SqlExpression> arguments,
             bool nullable,
@@ -153,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [CanBeNull] RelationalTypeMapping typeMapping = null);
 
         SqlFunctionExpression Function(
-            [CanBeNull] SqlExpression instance,
+            [NotNull] SqlExpression instance,
             [NotNull] string name,
             [NotNull] IEnumerable<SqlExpression> arguments,
             bool nullable,
@@ -176,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [CanBeNull] RelationalTypeMapping typeMapping = null);
 
         SqlFunctionExpression Function(
-            [CanBeNull] SqlExpression instance,
+            [NotNull] SqlExpression instance,
             [NotNull] string name,
             bool nullable,
             bool instancePropagatesNullability,
