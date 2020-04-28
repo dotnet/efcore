@@ -301,20 +301,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType1, property1, entityType2, property2, columnName, table, value1, value2);
 
         /// <summary>
-        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different collations ('{collation1}' and '{collation2}').
-        /// </summary>
-        public static string DuplicateColumnNameCollationMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table, [CanBeNull] object collation1, [CanBeNull] object collation2)
-            => string.Format(
-                GetString("DuplicateColumnNameCollationMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table), nameof(collation1), nameof(collation2)),
-                entityType1, property1, entityType2, property2, columnName, table, collation1, collation2);
-
-        /// <summary>
         ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different comments ('{comment1}' and '{comment2}').
         /// </summary>
         public static string DuplicateColumnNameCommentMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table, [CanBeNull] object comment1, [CanBeNull] object comment2)
             => string.Format(
                 GetString("DuplicateColumnNameCommentMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table), nameof(comment1), nameof(comment2)),
                 entityType1, property1, entityType2, property2, columnName, table, comment1, comment2);
+
+        /// <summary>
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different collations ('{collation1}' and '{collation2}').
+        /// </summary>
+        public static string DuplicateColumnNameCollationMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table, [CanBeNull] object collation1, [CanBeNull] object collation2)
+            => string.Format(
+                GetString("DuplicateColumnNameCollationMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table), nameof(collation1), nameof(collation2)),
+                entityType1, property1, entityType2, property2, columnName, table, collation1, collation2);
 
         /// <summary>
         ///     {conflictingConfiguration} cannot be set for '{property}' at the same time as {existingConfiguration}. Remove one of these values.
@@ -633,11 +633,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("DatabaseModelMissing");
 
         /// <summary>
-        ///     Cannot set custom translation on the DbFunction '{function}' since it returns IQueryable type.
+        ///     Cannot set custom translation on the DbFunction '{function}' since it is a table valued function.
         /// </summary>
-        public static string DbFunctionQueryableCustomTranslation([CanBeNull] object function)
+        public static string DbFunctionTableValuedCustomTranslation([CanBeNull] object function)
             => string.Format(
-                GetString("DbFunctionQueryableCustomTranslation", nameof(function)),
+                GetString("DbFunctionTableValuedCustomTranslation", nameof(function)),
                 function);
 
         /// <summary>
@@ -799,6 +799,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("UnsupportedDataOperationStoreType", nameof(type), nameof(column)),
                 type, column);
+
+        /// <summary>
+        ///     Cannot set custom translation on the DbFunction '{function}' since it is an aggregate function.
+        /// </summary>
+        public static string DbFunctionAggregateCustomTranslation([CanBeNull] object function)
+            => string.Format(
+                GetString("DbFunctionAggregateCustomTranslation", nameof(function)),
+                function);
 
         private static string GetString(string name, params string[] formatterNames)
         {

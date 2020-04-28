@@ -12,10 +12,10 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
-    public class QueryableFunctionQueryRootExpression : QueryRootExpression
+    public class TableValuedFunctionQueryRootExpression : QueryRootExpression
     {
         //Since this is always generated while compiling there is no query provider associated
-        public QueryableFunctionQueryRootExpression(
+        public TableValuedFunctionQueryRootExpression(
             [NotNull] IEntityType entityType, [NotNull] IDbFunction function, [NotNull] IReadOnlyCollection<Expression> arguments)
             : base(entityType)
         {
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             return changed
-                ? new QueryableFunctionQueryRootExpression(EntityType, Function, arguments)
+                ? new TableValuedFunctionQueryRootExpression(EntityType, Function, arguments)
                 : this;
         }
 
@@ -56,10 +56,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public override bool Equals(object obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
-                    || obj is QueryableFunctionQueryRootExpression queryRootExpression
+                    || obj is TableValuedFunctionQueryRootExpression queryRootExpression
                     && Equals(queryRootExpression));
 
-        private bool Equals(QueryableFunctionQueryRootExpression queryRootExpression)
+        private bool Equals(TableValuedFunctionQueryRootExpression queryRootExpression)
             => base.Equals(queryRootExpression)
                 && Equals(Function, queryRootExpression.Function)
                 && Arguments.SequenceEqual(queryRootExpression.Arguments, ExpressionEqualityComparer.Instance);

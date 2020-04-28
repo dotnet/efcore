@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override Expression NormalizeQueryableMethod(Expression expression)
         {
             expression = base.NormalizeQueryableMethod(expression);
-            expression = new QueryableFunctionToQueryRootConvertingExpressionVisitor(QueryCompilationContext.Model).Visit(expression);
+            expression = new TableValuedFunctionToQueryRootConvertingExpressionVisitor(QueryCompilationContext.Model).Visit(expression);
 
             return expression;
         }

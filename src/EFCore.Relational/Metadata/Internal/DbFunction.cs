@@ -98,11 +98,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         name, returnType.ShortDisplayName()));
             }
 
-            if (returnType.IsGenericType
-                && returnType.GetGenericTypeDefinition() == typeof(IQueryable<>))
-            {
-                IsQueryable = true;
-            }
+            IsScalar = !returnType.IsGenericType
+                || returnType.GetGenericTypeDefinition() != typeof(IQueryable<>);
+            IsAggregate = false;
 
             ModelName = name;
             ReturnType = returnType;
@@ -257,19 +255,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Type ReturnType { get; }
 
         /// <inheritdoc />
-        public virtual bool IsQueryable { get; }
+        public virtual bool IsScalar { get; }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        IEntityType QueryableEntityType
+        /// <inheritdoc />
+        public virtual bool IsAggregate { get; }
+
+        private IEntityType ReturnEntityType
         {
             get
             {
-                if (!IsQueryable)
+                if (IsScalar)
                 {
                     return null;
                 }
@@ -475,9 +470,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource configurationSource)
         {
             if (translation != null
-                && IsQueryable)
+                && !IsScalar)
             {
-                throw new InvalidOperationException(RelationalStrings.DbFunctionQueryableCustomTranslation(MethodInfo.DisplayName()));
+                throw new InvalidOperationException(RelationalStrings.DbFunctionTableValuedCustomTranslation(MethodInfo.DisplayName()));
+            }
+
+            if (translation != null
+                && IsAggregate)
+            {
+                throw new InvalidOperationException(RelationalStrings.DbFunctionAggregateCustomTranslation(MethodInfo.DisplayName()));
             }
 
             _translation = translation;
@@ -527,7 +528,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <inheritdoc />
-        IEntityType IDbFunction.QueryableEntityType => QueryableEntityType;
+        IEntityType IDbFunction.ReturnEntityType => ReturnEntityType;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -41,19 +41,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         MethodInfo MethodInfo { get; }
 
         /// <summary>
-        ///     Gets the value indicating whether this method returns IQueryable
+        ///     Gets the value indicating whether this function returns scalar value.
         /// </summary>
-        bool IsQueryable { get; }
+        bool IsScalar { get; }
 
         /// <summary>
-        ///     Gets the entity type returned by this queryable function
+        ///     Gets the value indicating whether this function is an aggregate function.
         /// </summary>
-        IEntityType QueryableEntityType => IsQueryable
-            ? Model.FindEntityType(ReturnType.GetGenericArguments()[0])
-            : null;
+        bool IsAggregate { get; }
 
         /// <summary>
-        ///     Gets the configured store type string
+        ///     Gets the <see cref="IEntityType"/> returned by this table valued function.
+        /// </summary>
+        IEntityType ReturnEntityType => IsScalar
+            ? null
+            : Model.FindEntityType(ReturnType.GetGenericArguments()[0]);
+
+        /// <summary>
+        ///     Gets the configured store type string.
         /// </summary>
         string StoreType { get; }
 
@@ -63,12 +68,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         Type ReturnType { get; }
 
         /// <summary>
-        ///     Gets the type mapping for the function's return type
+        ///     Gets the type mapping for the function's return type.
         /// </summary>
         RelationalTypeMapping TypeMapping { get; }
 
         /// <summary>
-        ///     Gets the parameters for this function
+        ///     Gets the parameters for this function.
         /// </summary>
         IReadOnlyList<IDbFunctionParameter> Parameters { get; }
 

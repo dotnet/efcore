@@ -634,8 +634,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             function = model.FindDbFunction(function.ModelName);
             var entityType = model.FindEntityType(typeof(Foo));
 
-            Assert.True(function.IsQueryable);
-            Assert.Same(entityType, function.QueryableEntityType);
+            Assert.False(function.IsScalar);
+            Assert.False(function.IsAggregate);
+            Assert.Same(entityType, function.ReturnEntityType);
         }
 
         [ConditionalFact]
@@ -751,22 +752,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasTranslation(args => new SqlFragmentExpression("Empty"), fromDataAnnotation: true);
             Assert.Null(dbFunctionBuilder.Metadata.Translation);
 
-            Assert.Equal(RelationalStrings.DbFunctionQueryableCustomTranslation(methodInfo.DisplayName()),
+            Assert.Equal(RelationalStrings.DbFunctionTableValuedCustomTranslation(methodInfo.DisplayName()),
                 Assert.Throws<InvalidOperationException>(
                     () => dbFunctionBuilder.HasTranslation(args => new SqlFragmentExpression("Empty"))).Message);
 
             var dbFunction = dbFunctionBuilder.Metadata;
 
-            Assert.Equal(RelationalStrings.DbFunctionQueryableCustomTranslation(methodInfo.DisplayName()),
+            Assert.Equal(RelationalStrings.DbFunctionTableValuedCustomTranslation(methodInfo.DisplayName()),
                 Assert.Throws<InvalidOperationException>(
                     () => ((IConventionDbFunction)dbFunction).SetTranslation(args => new SqlFragmentExpression("Empty"))).Message);
 
-            Assert.Equal(RelationalStrings.DbFunctionQueryableCustomTranslation(methodInfo.DisplayName()),
+            Assert.Equal(RelationalStrings.DbFunctionTableValuedCustomTranslation(methodInfo.DisplayName()),
                 Assert.Throws<InvalidOperationException>(
                     () => ((IConventionDbFunction)dbFunction)
                         .SetTranslation(args => new SqlFragmentExpression("Empty"), fromDataAnnotation: true)).Message);
 
-            Assert.Equal(RelationalStrings.DbFunctionQueryableCustomTranslation(methodInfo.DisplayName()),
+            Assert.Equal(RelationalStrings.DbFunctionTableValuedCustomTranslation(methodInfo.DisplayName()),
                 Assert.Throws<InvalidOperationException>(
                     () => dbFunction.Translation = args => new SqlFragmentExpression("Empty")).Message);
         }
