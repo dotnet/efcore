@@ -68,7 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             string? contextNamespace,
             string modelNamespace,
             bool useDataAnnotations,
-            bool suppressConnectionStringWarning)
+            bool suppressConnectionStringWarning,
+            bool suppressOnConfiguring)
         {
             Check.NotNull(model, nameof(model));
 
@@ -97,7 +98,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     contextName,
                     connectionString,
                     useDataAnnotations,
-                    suppressConnectionStringWarning);
+                    suppressConnectionStringWarning,
+                    suppressOnConfiguring);
             }
 
             _sb.AppendLine("}");
@@ -116,7 +118,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             [NotNull] string contextName,
             [NotNull] string connectionString,
             bool useDataAnnotations,
-            bool suppressConnectionStringWarning)
+            bool suppressConnectionStringWarning,
+            bool suppressOnConfiguring)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(contextName, nameof(contextName));
@@ -130,7 +133,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 GenerateConstructors(contextName);
                 GenerateDbSets(model);
                 GenerateEntityTypeErrors(model);
-                GenerateOnConfiguring(connectionString, suppressConnectionStringWarning);
+                if (!suppressOnConfiguring)
+                {
+                    GenerateOnConfiguring(connectionString, suppressConnectionStringWarning);
+                }
                 GenerateOnModelCreating(model, useDataAnnotations);
             }
 

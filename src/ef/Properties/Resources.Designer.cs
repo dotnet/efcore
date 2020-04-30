@@ -522,6 +522,18 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 GetString("RemainingArguments", nameof(remainingArguments)),
                 remainingArguments);
 
+        /// <summary>
+        ///     Suppress generation of the DbContext.OnConfiguring() method.
+        /// </summary>
+        public static string SuppressOnConfiguringDescription
+            => GetString("SuppressOnConfiguringDescription");
+
+        /// <summary>
+        ///     The DbContext.OnConfiguring() method will be generated. Potentially this contains sensitive information such as your connection string. You can suppress generation of this method using the --no-on-configuring option. See also http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+        /// </summary>
+        public static string OnConfiguringWarning
+            => GetString("OnConfiguringWarning");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

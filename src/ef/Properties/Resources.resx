@@ -345,4 +345,10 @@
   <data name="RemainingArguments" xml:space="preserve">
     <value>Remaining arguments: '{remainingArguments}'.</value>
   </data>
+  <data name="SuppressOnConfiguringDescription" xml:space="preserve">
+    <value>Suppress generation of the DbContext.OnConfiguring() method.</value>
+  </data>
+  <data name="OnConfiguringWarning" xml:space="preserve">
+    <value>The DbContext.OnConfiguring() method will be generated. Potentially this contains sensitive information such as your connection string. You can suppress generation of this method using the --no-on-configuring option. See also http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.</value>
+  </data>
 </root>

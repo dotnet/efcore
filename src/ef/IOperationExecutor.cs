@@ -29,7 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
             bool overwriteFiles,
             bool useDatabaseNames,
             string entityNamespace,
-            string dbContextNamespace);
+            string dbContextNamespace,
+            bool suppressOnConfiguring);
 
         string ScriptMigration(string fromMigration, string toMigration, bool idempotent, string contextType);
 

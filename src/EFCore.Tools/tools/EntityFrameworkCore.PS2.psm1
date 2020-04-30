@@ -175,6 +175,9 @@ function Remove-Migration(
 .PARAMETER Force
     Overwrite existing files.
 
+.PARAMETER SuppressOnConfiguring
+    Suppress generation of the DbContext.OnConfiguring() method.
+
 .PARAMETER Project
     The project to use.
 
@@ -201,6 +204,7 @@ function Scaffold-DbContext(
     [switch] $DataAnnotations,
     [switch] $UseDatabaseNames,
     [switch] $Force,
+    [switch] $SuppressOnConfiguring,
     $Project,
     $StartupProject,
     $Namespace,

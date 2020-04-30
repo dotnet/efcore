@@ -23,6 +23,11 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             {
                 throw new CommandException(Resources.MissingArgument(_provider.Name));
             }
+
+            if (!_suppressOnConfiguring.HasValue())
+            {
+                Reporter.WriteWarning(Resources.OnConfiguringWarning);
+            }
         }
 
         protected override int Execute(string[] args)
@@ -39,7 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 _force.HasValue(),
                 _useDatabaseNames.HasValue(),
                 _namespace.Value(),
-                _contextNamespace.Value());
+                _contextNamespace.Value(),
+                _suppressOnConfiguring.HasValue());
             if (_json.HasValue())
             {
                 ReportJsonResults(result);

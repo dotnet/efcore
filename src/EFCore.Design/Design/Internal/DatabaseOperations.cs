@@ -76,7 +76,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             [CanBeNull] string contextNamespace,
             bool useDataAnnotations,
             bool overwriteFiles,
-            bool useDatabaseNames)
+            bool useDatabaseNames,
+            bool suppressOnConfiguring)
         {
             Check.NotEmpty(provider, nameof(provider));
             Check.NotEmpty(connectionString, nameof(connectionString));
@@ -113,7 +114,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     ContextNamespace = finalContextNamespace,
                     Language = _language,
                     ContextDir = MakeDirRelative(outputDir, outputContextDir),
-                    ContextName = dbContextClassName
+                    ContextName = dbContextClassName,
+                    SuppressOnConfiguring = suppressOnConfiguring
                 });
 
             return scaffolder.Save(
