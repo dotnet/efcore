@@ -343,7 +343,7 @@ Change your target project to the migrations project by using the Package Manage
     <value>Using design-time services from assembly '{referencedAssembly}'.</value>
   </data>
   <data name="VersionMismatch" xml:space="preserve">
-    <value>The EF Core tools version '{toolsVersion}' is older than that of the runtime '{runtimeVersion}'. Update the tools for the latest features and bug fixes.</value>
+    <value>The EF Core tools version '{toolsVersion}' is older than that of the runtime '{runtimeVersion}'. Update the tools for the latest features and bug fixes. Use 'dotnet tool update --global dotnet-ef' to update to the latest version.</value>
   </data>
   <data name="FindingHostingServices" xml:space="preserve">
     <value>Finding Microsoft.Extensions.Hosting service provider...</value>
