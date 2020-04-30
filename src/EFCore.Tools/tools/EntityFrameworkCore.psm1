@@ -76,7 +76,11 @@ function Add-Migration
     }
 
     $params += GetParams $Context
-    $params += $RemainingArguments
+
+    if ($RemainingArguments -ne $null)
+    {
+        $params += $RemainingArguments
+    }
 
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
     $result = (EF $dteProject $dteStartupProject $params) -join "`n" | ConvertFrom-Json
@@ -143,7 +147,11 @@ function Drop-Database
     {
         $params = 'database', 'drop', '--force'
         $params += GetParams $Context
-        $params += $RemainingArguments
+
+       if ($RemainingArguments -ne $null)
+       {
+           $params += $RemainingArguments
+       }
 
         EF $dteProject $dteStartupProject $params -skipBuild
     }
@@ -208,7 +216,12 @@ function Get-DbContext
     {
        $params = 'dbcontext', 'info', '--json'
        $params += GetParams $Context
-       $params += $RemainingArguments
+
+       if ($RemainingArguments -ne $null)
+       {
+           $params += $RemainingArguments
+       }
+
        # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
        return (EF $dteProject $dteStartupProject $params) -join "`n" | ConvertFrom-Json
     }
@@ -278,7 +291,11 @@ function Remove-Migration
     }
 
     $params += GetParams $Context
-    $params += $RemainingArguments
+
+    if ($RemainingArguments -ne $null)
+    {
+        $params += $RemainingArguments
+    }
 
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
     $result = (EF $dteProject $dteStartupProject $params) -join "`n" | ConvertFrom-Json
@@ -431,7 +448,10 @@ function Scaffold-DbContext
         $params += '--force'
     }
 
-    $params += $RemainingArguments
+    if ($RemainingArguments -ne $null)
+    {
+        $params += $RemainingArguments
+    }
 
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
     $result = (EF $dteProject $dteStartupProject $params) -join "`n" | ConvertFrom-Json
@@ -511,7 +531,12 @@ function Script-DbContext
     $params = 'dbcontext', 'script', '--output', $Output
 
     $params += GetParams $Context
-    $params += $RemainingArguments
+
+    if ($RemainingArguments -ne $null)
+    {
+        $params += $RemainingArguments
+    }
+
 
     EF $dteProject $dteStartupProject $params
 
@@ -621,7 +646,12 @@ function Script-Migration
     }
 
     $params += GetParams $Context
-    $params += $RemainingArguments
+
+    if ($RemainingArguments -ne $null)
+    {
+        $params += $RemainingArguments
+    }
+
 
     EF $dteProject $dteStartupProject $params
 
@@ -700,7 +730,12 @@ function Update-Database
     }
 
     $params += GetParams $Context
-    $params += $RemainingArguments
+
+    if ($RemainingArguments -ne $null)
+    {
+        $params += $RemainingArguments
+    }
+
 
     EF $dteProject $dteStartupProject $params
 }
