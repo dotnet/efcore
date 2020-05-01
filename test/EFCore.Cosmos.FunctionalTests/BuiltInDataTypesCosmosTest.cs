@@ -95,12 +95,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             base.Can_read_back_bool_mapped_as_int_through_navigation();
         }
 
-        [ConditionalFact(Skip = "Issue #20543")]
         public override void Object_to_string_conversion()
         {
             base.Object_to_string_conversion();
 
-            AssertSql(@" ");
+            AssertSql(
+                @"SELECT c[""TestSignedByte""], c[""TestByte""], c[""TestInt16""], c[""TestUnsignedInt16""], c[""TestInt32""], c[""TestUnsignedInt32""], c[""TestInt64""], c[""TestUnsignedInt64""], c[""TestSingle""], c[""TestDouble""], c[""TestDecimal""], c[""TestCharacter""], c[""TestDateTime""], c[""TestDateTimeOffset""], c[""TestTimeSpan""]
+FROM root c
+WHERE ((c[""Discriminator""] = ""BuiltInDataTypes"") AND (c[""Id""] = 13))");
         }
 
         private void AssertSql(params string[] expected)
