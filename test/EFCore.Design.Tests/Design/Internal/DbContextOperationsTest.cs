@@ -25,6 +25,20 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         [ConditionalFact]
+        public void Can_pass_null_args()
+        {
+            // Even though newer versions of the tools will pass an empty array
+            // older versions of the tools can pass null args.
+            var assembly = MockAssembly.Create(typeof(BaseContext), typeof(DerivedContext), typeof(HierarchyContextFactory));
+            _ = new TestDbContextOperations(
+                new TestOperationReporter(),
+                assembly,
+                assembly,
+                args: null,
+                new TestAppServiceProviderFactory(assembly));
+        }
+
+        [ConditionalFact]
         public void CreateContext_uses_exact_factory_method()
         {
             var assembly = MockAssembly.Create(typeof(BaseContext), typeof(DerivedContext), typeof(HierarchyContextFactory));
