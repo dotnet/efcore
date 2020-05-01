@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     var alias = (entityType.GetViewOrTableMappings().SingleOrDefault()?.Table.Name
                         ?? entityType.ShortName()).Substring(0, 1).ToLower();
 
-                    var translation = new TableValuedFunctionExpression(function.Schema, function.Name, arguments, alias);
+                    var translation = new TableValuedFunctionExpression(alias, function.Schema, function.Name, arguments);
                     var queryExpression = _sqlExpressionFactory.Select(entityType, translation);
 
                     return CreateShapedQueryExpression(entityType, queryExpression);

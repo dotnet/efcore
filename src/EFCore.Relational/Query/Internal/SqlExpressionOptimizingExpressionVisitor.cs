@@ -121,9 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         newHaving,
                         newSelectExpression.Orderings.ToList(),
                         newSelectExpression.Limit,
-                        newSelectExpression.Offset,
-                        newSelectExpression.IsDistinct,
-                        newSelectExpression.Alias)
+                        newSelectExpression.Offset)
                     : newSelectExpression;
             }
 

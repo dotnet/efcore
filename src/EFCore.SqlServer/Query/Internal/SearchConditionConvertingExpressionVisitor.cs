@@ -289,8 +289,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             return changed
                 ? selectExpression.Update(
-                    projections, tables, predicate, groupBy, havingExpression, orderings, limit, offset, selectExpression.IsDistinct,
-                    selectExpression.Alias)
+                    projections, tables, predicate, groupBy, havingExpression, orderings, limit, offset)
                 : selectExpression;
         }
 

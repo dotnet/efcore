@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         An enum that represents the cardinality of query result.
     ///     </para>
     ///     <para>
-    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         This enum is typically used by database providers (and other extensions). It is generally
     ///         not used in application code.
     ///     </para>
     /// </summary>
