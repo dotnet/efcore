@@ -12,8 +12,20 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public class TableValuedFunctionQueryRootExpression : QueryRootExpression
     {
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         //Since this is always generated while compiling there is no query provider associated
         public TableValuedFunctionQueryRootExpression(
             [NotNull] IEntityType entityType, [NotNull] IDbFunction function, [NotNull] IReadOnlyCollection<Expression> arguments)
@@ -26,9 +38,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Arguments = arguments;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual IDbFunction Function { get; }
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual IReadOnlyCollection<Expression> Arguments { get; }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             var arguments = new List<Expression>();
@@ -45,6 +75,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 : this;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override void Print(ExpressionPrinter expressionPrinter)
         {
             expressionPrinter.Append(Function.MethodInfo.DisplayName());
@@ -53,6 +89,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             expressionPrinter.Append(")");
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override bool Equals(object obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
@@ -64,6 +106,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && Equals(Function, queryRootExpression.Function)
                 && Arguments.SequenceEqual(queryRootExpression.Arguments, ExpressionEqualityComparer.Instance);
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override int GetHashCode()
         {
             var hashCode = new HashCode();
