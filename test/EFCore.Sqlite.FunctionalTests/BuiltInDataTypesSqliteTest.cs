@@ -1501,10 +1501,6 @@ namespace Microsoft.EntityFrameworkCore
             base.Object_to_string_conversion();
 
             AssertSql(
-                @"SELECT ""b"".""Id"", ""b"".""Enum16"", ""b"".""Enum32"", ""b"".""Enum64"", ""b"".""Enum8"", ""b"".""EnumS8"", ""b"".""EnumU16"", ""b"".""EnumU32"", ""b"".""EnumU64"", ""b"".""PartitionId"", ""b"".""TestBoolean"", ""b"".""TestByte"", ""b"".""TestCharacter"", ""b"".""TestDateTime"", ""b"".""TestDateTimeOffset"", ""b"".""TestDecimal"", ""b"".""TestDouble"", ""b"".""TestInt16"", ""b"".""TestInt32"", ""b"".""TestInt64"", ""b"".""TestSignedByte"", ""b"".""TestSingle"", ""b"".""TestTimeSpan"", ""b"".""TestUnsignedInt16"", ""b"".""TestUnsignedInt32"", ""b"".""TestUnsignedInt64""
-FROM ""BuiltInDataTypes"" AS ""b""
-WHERE ""b"".""Id"" = 13",
-                //
                 @"SELECT ""b"".""TestSignedByte"", ""b"".""TestByte"", ""b"".""TestInt16"", ""b"".""TestUnsignedInt16"", ""b"".""TestInt32"", ""b"".""TestUnsignedInt32"", ""b"".""TestInt64"", ""b"".""TestUnsignedInt64"", ""b"".""TestSingle"", ""b"".""TestDouble"", ""b"".""TestDecimal"", ""b"".""TestCharacter"", ""b"".""TestDateTime"", ""b"".""TestDateTimeOffset"", ""b"".""TestTimeSpan""
 FROM ""BuiltInDataTypes"" AS ""b""
 WHERE ""b"".""Id"" = 13");

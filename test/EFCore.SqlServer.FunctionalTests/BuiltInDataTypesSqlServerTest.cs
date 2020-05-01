@@ -2920,10 +2920,6 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             base.Object_to_string_conversion();
 
             AssertSql(
-                @"SELECT [b].[Id], [b].[Enum16], [b].[Enum32], [b].[Enum64], [b].[Enum8], [b].[EnumS8], [b].[EnumU16], [b].[EnumU32], [b].[EnumU64], [b].[PartitionId], [b].[TestBoolean], [b].[TestByte], [b].[TestCharacter], [b].[TestDateTime], [b].[TestDateTimeOffset], [b].[TestDecimal], [b].[TestDouble], [b].[TestInt16], [b].[TestInt32], [b].[TestInt64], [b].[TestSignedByte], [b].[TestSingle], [b].[TestTimeSpan], [b].[TestUnsignedInt16], [b].[TestUnsignedInt32], [b].[TestUnsignedInt64]
-FROM [BuiltInDataTypes] AS [b]
-WHERE [b].[Id] = 13",
-                //
                 @"SELECT CONVERT(VARCHAR(4), [b].[TestSignedByte]) AS [Sbyte], CONVERT(VARCHAR(3), [b].[TestByte]) AS [Byte], CONVERT(VARCHAR(6), [b].[TestInt16]) AS [Short], CONVERT(VARCHAR(5), [b].[TestUnsignedInt16]) AS [Ushort], CONVERT(VARCHAR(11), [b].[TestInt32]) AS [Int], CONVERT(VARCHAR(10), [b].[TestUnsignedInt32]) AS [Uint], CONVERT(VARCHAR(20), [b].[TestInt64]) AS [Long], CONVERT(VARCHAR(20), [b].[TestUnsignedInt64]) AS [Ulong], CONVERT(VARCHAR(100), [b].[TestSingle]) AS [Float], CONVERT(VARCHAR(100), [b].[TestDouble]) AS [Double], CONVERT(VARCHAR(100), [b].[TestDecimal]) AS [Decimal], CONVERT(VARCHAR(1), [b].[TestCharacter]) AS [Char], CONVERT(VARCHAR(100), [b].[TestDateTime]) AS [DateTime], CONVERT(VARCHAR(100), [b].[TestDateTimeOffset]) AS [DateTimeOffset], CONVERT(VARCHAR(100), [b].[TestTimeSpan]) AS [TimeSpan]
 FROM [BuiltInDataTypes] AS [b]
 WHERE [b].[Id] = 13");
