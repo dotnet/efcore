@@ -8,9 +8,19 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
+    /// <summary>
+    ///     <para>
+    ///         An expression that represents a subquery table source with user-provided custom SQL.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    // Class is sealed because there are no public/protected constructors. Can be unsealed if this is changed.
     public sealed class FromSqlExpression : TableExpressionBase
     {
-        public FromSqlExpression([NotNull] string sql, [NotNull] Expression arguments, [NotNull] string alias)
+        internal FromSqlExpression([NotNull] string sql, [NotNull] Expression arguments, [NotNull] string alias)
             : base(alias)
         {
             Check.NotEmpty(sql, nameof(sql));
@@ -20,8 +30,21 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Arguments = arguments;
         }
 
+        /// <summary>
+        ///     The user-provided custom SQL for the table source.
+        /// </summary>
         public string Sql { get; }
+        /// <summary>
+        ///     The user-provided parameters passed to the custom SQL.
+        /// </summary>
         public Expression Arguments { get; }
+
+        /// <summary>
+        ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
+        ///     return this expression.
+        /// </summary>
+        /// <param name="arguments"> The <see cref="Arguments"/> property of the result. </param>
+        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public FromSqlExpression Update([NotNull] Expression arguments)
         {
             Check.NotNull(arguments, nameof(arguments));
@@ -31,6 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 : this;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             Check.NotNull(visitor, nameof(visitor));
@@ -38,6 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             return this;
         }
 
+        /// <inheritdoc />
         public override void Print(ExpressionPrinter expressionPrinter)
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
@@ -45,6 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             expressionPrinter.Append(Sql);
         }
 
+        /// <inheritdoc />
         public override bool Equals(object obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
@@ -55,6 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             => base.Equals(fromSqlExpression)
                 && string.Equals(Sql, fromSqlExpression.Sql);
 
+        /// <inheritdoc />
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Sql);
     }
 }

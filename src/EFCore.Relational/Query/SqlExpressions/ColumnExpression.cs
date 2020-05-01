@@ -10,6 +10,15 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
+    /// <summary>
+    ///     <para>
+    ///         An expression that represents a column in a SQL tree.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     [DebuggerDisplay("{DebuggerDisplay(),nq}")]
     // Class is sealed because there are no public/protected constructors. Can be unsealed if this is changed.
     public sealed class ColumnExpression : SqlExpression
@@ -49,10 +58,20 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             IsNullable = nullable;
         }
 
+        /// <summary>
+        ///     The name of the column.
+        /// </summary>
         public string Name { get; }
+        /// <summary>
+        ///     The table from which column is being referenced.
+        /// </summary>
         public TableExpressionBase Table { get; }
+        /// <summary>
+        ///     The bool value indicating if this column can have null values.
+        /// </summary>
         public bool IsNullable { get; }
 
+        /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             Check.NotNull(visitor, nameof(visitor));
@@ -60,9 +79,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             return this;
         }
 
+        /// <summary>
+        ///     Makes this column nullable.
+        /// </summary>
+        /// <returns> A new expression which has <see cref="IsNullable"/> property set to true. </returns>
         public ColumnExpression MakeNullable()
             => new ColumnExpression(Name, Table, Type.MakeNullable(), TypeMapping, true);
 
+        /// <inheritdoc />
         public override void Print(ExpressionPrinter expressionPrinter)
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
@@ -71,6 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             expressionPrinter.Append(Name);
         }
 
+        /// <inheritdoc />
         public override bool Equals(object obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
@@ -83,6 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 && Table.Equals(columnExpression.Table)
                 && IsNullable == columnExpression.IsNullable;
 
+        /// <inheritdoc />
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Name, Table, IsNullable);
 
         private string DebuggerDisplay() => $"{Table.Alias}.{Name}";

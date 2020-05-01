@@ -8,8 +8,22 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
+    /// <summary>
+    ///     <para>
+    ///         An expression that represents a COLLATE in a SQL tree.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     public class CollateExpression : SqlExpression
     {
+        /// <summary>
+        ///     Creates a new instance of the <see cref="CollateExpression" /> class.
+        /// </summary>
+        /// <param name="operand"> An expression on which collation is applied. </param>
+        /// <param name="collation"> A collation value to use. </param>
         public CollateExpression([NotNull] SqlExpression operand, [NotNull] string collation)
             : base(operand.Type, operand.TypeMapping)
         {
@@ -20,9 +34,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Collation = collation;
         }
 
+        /// <summary>
+        ///     The expression on which collation is applied.
+        /// </summary>
         public virtual SqlExpression Operand { get; }
+        /// <summary>
+        ///     The collation value to use.
+        /// </summary>
         public virtual string Collation { get; }
 
+        /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             Check.NotNull(visitor, nameof(visitor));
@@ -30,6 +51,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             return Update((SqlExpression)visitor.Visit(Operand));
         }
 
+        /// <summary>
+        ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
+        ///     return this expression.
+        /// </summary>
+        /// <param name="operand"> The <see cref="Operand"/> property of the result. </param>
+        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual CollateExpression Update([NotNull] SqlExpression operand)
         {
             Check.NotNull(operand, nameof(operand));
@@ -39,6 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 : this;
         }
 
+        /// <inheritdoc />
         public override void Print(ExpressionPrinter expressionPrinter)
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
@@ -49,6 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 .Append(Collation);
         }
 
+        /// <inheritdoc />
         public override bool Equals(object obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
@@ -60,6 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 && Operand.Equals(collateExpression.Operand)
                 && Collation.Equals(collateExpression.Collation, StringComparison.Ordinal);
 
+        /// <inheritdoc />
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Operand, Collation);
     }
 }

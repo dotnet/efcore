@@ -8,8 +8,24 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
+    /// <summary>
+    ///     <para>
+    ///         An expression that represents an EXCEPT operation in a SQL tree.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     public class ExceptExpression : SetOperationBase
     {
+        /// <summary>
+        ///     Creates a new instance of the <see cref="ExceptExpression" /> class.
+        /// </summary>
+        /// <param name="alias"> A string alias for the table source. </param>
+        /// <param name="source1"> A table source which is first source in the set operation. </param>
+        /// <param name="source2"> A table source which is second source in the set operation. </param>
+        /// <param name="distinct"> A bool value indicating whether result will remove duplicate rows. </param>
         public ExceptExpression(
             [NotNull] string alias,
             [NotNull] SelectExpression source1,
@@ -19,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
         }
 
+        /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             Check.NotNull(visitor, nameof(visitor));
@@ -29,6 +46,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             return Update(source1, source2);
         }
 
+        /// <summary>
+        ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
+        ///     return this expression.
+        /// </summary>
+        /// <param name="source1"> The <see cref="P:Source1"/> property of the result. </param>
+        /// <param name="source2"> The <see cref="P:Source2"/> property of the result. </param>
+        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual ExceptExpression Update([NotNull] SelectExpression source1, [NotNull] SelectExpression source2)
         {
             Check.NotNull(source1, nameof(source1));
@@ -39,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 : this;
         }
 
+        /// <inheritdoc />
         public override void Print(ExpressionPrinter expressionPrinter)
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
@@ -61,6 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 .AppendLine($") AS {Alias}");
         }
 
+        /// <inheritdoc />
         public override bool Equals(object obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
@@ -70,6 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private bool Equals(ExceptExpression exceptExpression)
             => base.Equals(exceptExpression);
 
+        /// <inheritdoc />
         public override int GetHashCode()
             => HashCode.Combine(base.GetHashCode(), GetType());
     }

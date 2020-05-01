@@ -126,10 +126,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             if (string.IsNullOrEmpty(tableValuedFunctionExpression.Schema))
             {
                 tableValuedFunctionExpression = new TableValuedFunctionExpression(
+                    tableValuedFunctionExpression.Alias,
                     schema: "dbo",
                     tableValuedFunctionExpression.Name,
-                    tableValuedFunctionExpression.Arguments,
-                    tableValuedFunctionExpression.Alias);
+                    tableValuedFunctionExpression.Arguments);
             }
 
             return base.VisitTableValuedFunction(tableValuedFunctionExpression);

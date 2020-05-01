@@ -11,6 +11,15 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
+    /// <summary>
+    ///     <para>
+    ///         An expression that represents an unary operation in a SQL tree.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     public class SqlUnaryExpression : SqlExpression
     {
         private static readonly ISet<ExpressionType> _allowedOperators = new HashSet<ExpressionType>
@@ -27,6 +36,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 ? operatorType
                 : throw new InvalidOperationException(CoreStrings.UnsupportedUnary);
 
+        /// <summary>
+        ///     Creates a new instance of the <see cref="SqlUnaryExpression" /> class.
+        /// </summary>
+        /// <param name="operatorType"> The operator to apply. </param>
+        /// <param name="operand"> An expression on which operator is applied. </param>
+        /// <param name="type"> The <see cref="Type"/> of the expression. </param>
+        /// <param name="typeMapping"> The <see cref="RelationalTypeMapping"/> associated with the expression. </param>
         public SqlUnaryExpression(
             ExpressionType operatorType,
             [NotNull] SqlExpression operand,
@@ -41,9 +57,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Operand = operand;
         }
 
+        /// <summary>
+        ///     The operator of this SQL unary operation.
+        /// </summary>
         public virtual ExpressionType OperatorType { get; }
+        /// <summary>
+        ///     The operand of this SQL unary operation.
+        /// </summary>
         public virtual SqlExpression Operand { get; }
 
+        /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             Check.NotNull(visitor, nameof(visitor));
@@ -51,6 +74,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             return Update((SqlExpression)visitor.Visit(Operand));
         }
 
+        /// <summary>
+        ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
+        ///     return this expression.
+        /// </summary>
+        /// <param name="operand"> The <see cref="Operand"/> property of the result. </param>
+        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual SqlUnaryExpression Update([NotNull] SqlExpression operand)
         {
             Check.NotNull(operand, nameof(operand));
@@ -60,6 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 : this;
         }
 
+        /// <inheritdoc />
         public override void Print(ExpressionPrinter expressionPrinter)
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
@@ -82,6 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
         }
 
+        /// <inheritdoc />
         public override bool Equals(object obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
@@ -93,6 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 && OperatorType == sqlUnaryExpression.OperatorType
                 && Operand.Equals(sqlUnaryExpression.Operand);
 
+        /// <inheritdoc />
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), OperatorType, Operand);
     }
 }

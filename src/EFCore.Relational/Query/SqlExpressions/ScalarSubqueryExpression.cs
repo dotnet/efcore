@@ -10,8 +10,21 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
+    /// <summary>
+    ///     <para>
+    ///         An expression that represents projecting a scalar SQL value from a subquery.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     public class ScalarSubqueryExpression : SqlExpression
     {
+        /// <summary>
+        ///     Creates a new instance of the <see cref="ScalarSubqueryExpression" /> class.
+        /// </summary>
+        /// <param name="subquery"> A subquery projecting single row with a single scalar projection. </param>
         public ScalarSubqueryExpression([NotNull] SelectExpression subquery)
             : base(Verify(subquery).Projection[0].Type, subquery.Projection[0].Expression.TypeMapping)
         {
@@ -30,8 +43,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             return selectExpression;
         }
 
+        /// <summary>
+        ///     The subquery projecting single row with single scalar projection.
+        /// </summary>
         public virtual SelectExpression Subquery { get; }
 
+        /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             Check.NotNull(visitor, nameof(visitor));
@@ -39,6 +56,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             return Update((SelectExpression)visitor.Visit(Subquery));
         }
 
+        /// <summary>
+        ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
+        ///     return this expression.
+        /// </summary>
+        /// <param name="subquery"> The <see cref="Subquery"/> property of the result. </param>
+        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual ScalarSubqueryExpression Update([NotNull] SelectExpression subquery)
         {
             Check.NotNull(subquery, nameof(subquery));
@@ -48,6 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 : this;
         }
 
+        /// <inheritdoc />
         public override void Print(ExpressionPrinter expressionPrinter)
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
@@ -61,6 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             expressionPrinter.Append(")");
         }
 
+        /// <inheritdoc />
         public override bool Equals(object obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
@@ -71,6 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             => base.Equals(scalarSubqueryExpression)
                 && Subquery.Equals(scalarSubqueryExpression.Subquery);
 
+        /// <inheritdoc />
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Subquery);
     }
 }

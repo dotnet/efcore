@@ -567,8 +567,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return changed
                 ? selectExpression.Update(
-                    projections, tables, predicate, groupBy, having, orderings, limit, offset, selectExpression.IsDistinct,
-                    selectExpression.Alias)
+                    projections, tables, predicate, groupBy, having, orderings, limit, offset)
                 : selectExpression;
         }
 
