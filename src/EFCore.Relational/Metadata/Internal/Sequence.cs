@@ -144,6 +144,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public static Sequence WithNewName([NotNull] Sequence sequence, [NotNull] string name)
+        {
+            Check.NotNull(sequence, nameof(sequence));
+            Check.NotEmpty(name, nameof(name));
+
+            var newSequence = new Sequence(name, sequence.Schema, sequence._model, sequence._configurationSource);
+
+            newSequence._startValue = sequence.StartValue;
+            newSequence._incrementBy = sequence.IncrementBy;
+            newSequence._minValue = sequence.MinValue;
+            newSequence._maxValue = sequence.MaxValue;
+            newSequence._clrType = sequence.ClrType;
+            newSequence._isCyclic = sequence.IsCyclic;
+            newSequence._startValueConfigurationSource = sequence._startValueConfigurationSource;
+            newSequence._incrementByConfigurationSource = sequence._incrementByConfigurationSource;
+            newSequence._minValueConfigurationSource = sequence._minValueConfigurationSource;
+            newSequence._maxValueConfigurationSource = sequence._maxValueConfigurationSource;
+            newSequence._clrTypeConfigurationSource = sequence._clrTypeConfigurationSource;
+            newSequence._isCyclicConfigurationSource = sequence._isCyclicConfigurationSource;
+
+            return newSequence;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public static IEnumerable<Sequence> GetSequences([NotNull] IModel model)
             => ((SortedDictionary<(string, string), Sequence>)model[RelationalAnnotationNames.Sequences])
                 ?.Values ?? Enumerable.Empty<Sequence>();
