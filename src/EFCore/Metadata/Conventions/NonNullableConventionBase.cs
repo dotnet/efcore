@@ -96,6 +96,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var type = memberInfo.DeclaringType;
             if (type != null)
             {
+                // We currently don't look at context information on generic types, #20718
+                if (type.IsGenericType)
+                {
+                    return false;
+                }
+
                 if (state.TypeCache.TryGetValue(type, out var cachedTypeNonNullable))
                 {
                     return cachedTypeNonNullable;
