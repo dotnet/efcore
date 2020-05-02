@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
 {
-    public class RawSqlQuerySqlServerTests : RawSqlQueryTests
+    public class RawSqlQuery : RawSqlQueryBase
     {
         protected override string StoredProcedureCreationScript
             => @"CREATE PROCEDURE dbo.SearchProducts

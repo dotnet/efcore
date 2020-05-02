@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
 {
-    public class RawSqlQuerySqliteTests : RawSqlQueryTests
+    public class RawSqlQuery : RawSqlQueryBase
     {
         protected override string StoredProcedureCreationScript
             => @"";

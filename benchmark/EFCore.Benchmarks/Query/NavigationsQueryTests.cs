@@ -10,8 +10,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
 {
-    [DisplayName(nameof(NavigationsQueryTests))]
-    public abstract class NavigationsQueryTests
+    public abstract class NavigationsQueryBase
     {
         private AdventureWorksContextBase _context;
         private IQueryable<Store> _query;

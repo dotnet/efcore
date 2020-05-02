@@ -9,8 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Initialization
 {
-    [DisplayName("InitializationTests")]
-    public abstract class InitializationTests
+    public abstract class InitializationBase
     {
         protected abstract AdventureWorksContextBase CreateContext();
         protected abstract ConventionSet CreateConventionSet();

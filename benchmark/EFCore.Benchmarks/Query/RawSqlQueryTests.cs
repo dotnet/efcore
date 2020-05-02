@@ -13,8 +13,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
 {
-    [DisplayName(nameof(RawSqlQueryTests))]
-    public abstract class RawSqlQueryTests
+    public abstract class RawSqlQueryBase
     {
         private OrdersContextBase _context;
 

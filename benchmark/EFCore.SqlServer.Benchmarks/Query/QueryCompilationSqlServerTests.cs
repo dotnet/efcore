@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
 {
-    public class QueryCompilationSqlServerTests : QueryCompilationTests
+    public class QueryCompilation : QueryCompilationBase
     {
         public override IServiceCollection AddProviderServices(IServiceCollection services)
         {

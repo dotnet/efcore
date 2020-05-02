@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
 {
-    public class NavigationsQuerySqlServerTests : NavigationsQueryTests
+    public class NavigationsQuery : NavigationsQueryBase
     {
         protected override AdventureWorksContextBase CreateContext()
         {

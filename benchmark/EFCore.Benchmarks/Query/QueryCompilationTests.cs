@@ -16,8 +16,7 @@ using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
 {
-    [DisplayName(nameof(QueryCompilationTests))]
-    public abstract class QueryCompilationTests
+    public abstract class QueryCompilationBase
     {
         public const int OperationsPerInvoke = 10;
 

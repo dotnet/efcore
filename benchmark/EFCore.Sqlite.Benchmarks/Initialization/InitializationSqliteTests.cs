@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Initialization
 {
-    public class InitializationSqliteTests : InitializationTests
+    public class Initialization : InitializationBase
     {
         protected override AdventureWorksContextBase CreateContext()=> AdventureWorksSqliteFixture.CreateContext();
         protected override ConventionSet CreateConventionSet() => SqliteConventionSetBuilder.Build();

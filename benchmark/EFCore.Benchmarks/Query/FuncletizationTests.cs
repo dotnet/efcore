@@ -11,8 +11,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
 {
-    [DisplayName(nameof(FuncletizationTests))]
-    public abstract class FuncletizationTests
+    public abstract class FuncletizationBase
     {
         private OrdersContextBase _context;
 

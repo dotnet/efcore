@@ -12,8 +12,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
 {
-    [DisplayName(nameof(SimpleQueryTests))]
-    public abstract class SimpleQueryTests
+    public abstract class SimpleQueryBase
     {
         private OrdersContextBase _context;
 

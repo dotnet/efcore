@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
 {
-    public class SimpleQuerySqliteTests : SimpleQueryTests
+    public class SimpleQuery : SimpleQueryBase
     {
         protected override OrdersFixtureBase CreateFixture()
         {

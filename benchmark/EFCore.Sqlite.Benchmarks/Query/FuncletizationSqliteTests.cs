@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
 {
-    public class FuncletizationSqliteTests : FuncletizationTests
+    public class Funcletization : FuncletizationBase
     {
         protected override OrdersFixtureBase CreateFixture()
         {
