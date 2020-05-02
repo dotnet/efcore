@@ -25,7 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static string DisplayName([NotNull] this DatabaseColumn column)
-            => column.Table.DisplayName() + "." + column.Name;
+        {
+            var tablePrefix = column.Table?.DisplayName();
+            return (!string.IsNullOrEmpty(tablePrefix) ? tablePrefix + "." : "") + column.Name;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -35,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
         /// </summary>
         public static bool IsKeyOrIndex([NotNull] this DatabaseColumn column)
         {
-            var table = column.Table;
+            var table = column.Table!;
 
             if (table.PrimaryKey?.Columns.Contains(column) == true)
             {

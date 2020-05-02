@@ -429,8 +429,10 @@ WHERE "
 
                 _logger.SequenceFound(DisplayName(schema, name), storeType, isCyclic, incrementBy, startValue, minValue, maxValue);
 
-                var sequence = new DatabaseSequence(databaseModel, name)
+                var sequence = new DatabaseSequence
                 {
+                    Database = databaseModel,
+                    Name = name,
                     Schema = schema,
                     StoreType = storeType,
                     IsCyclic = isCyclic,
@@ -561,8 +563,8 @@ WHERE "
                     _logger.TableFound(DisplayName(schema, name));
 
                     var table = type == "table"
-                        ? new DatabaseTable(databaseModel, name)
-                        : new DatabaseView(databaseModel, name);
+                        ? new DatabaseTable { Database = databaseModel, Name = name }
+                        : new DatabaseView { Database = databaseModel, Name = name };
 
                     table.Schema = schema;
                     table.Comment = comment;
@@ -710,8 +712,11 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
 
                     defaultValue = FilterClrDefaults(systemTypeName, nullable, defaultValue);
 
-                    var column = new DatabaseColumn(table, columnName, storeType)
+                    var column = new DatabaseColumn
                     {
+                        Table = table,
+                        Name = columnName,
+                        StoreType = storeType,
                         IsNullable = nullable,
                         DefaultValueSql = defaultValue,
                         ComputedColumnSql = computedValue,
@@ -909,7 +914,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
 
                     _logger.PrimaryKeyFound(primaryKeyGroup.Key.Name, DisplayName(tableSchema, tableName));
 
-                    var primaryKey = new DatabasePrimaryKey(table, primaryKeyGroup.Key.Name);
+                    var primaryKey = new DatabasePrimaryKey { Table = table, Name = primaryKeyGroup.Key.Name };
 
                     if (primaryKeyGroup.Key.TypeDesc == "NONCLUSTERED")
                     {
@@ -921,7 +926,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                         var columnName = dataRecord.GetValueOrDefault<string>("column_name");
                         var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
                             ?? table.Columns.FirstOrDefault(
-                                c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                                c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                         Check.DebugAssert(column != null, "column is null.");
 
                         primaryKey.Columns.Add(column);
@@ -942,7 +947,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                 {
                     _logger.UniqueConstraintFound(uniqueConstraintGroup.Key.Name, DisplayName(tableSchema, tableName));
 
-                    var uniqueConstraint = new DatabaseUniqueConstraint(table, uniqueConstraintGroup.Key.Name);
+                    var uniqueConstraint = new DatabaseUniqueConstraint { Table = table, Name = uniqueConstraintGroup.Key.Name };
 
                     if (uniqueConstraintGroup.Key.TypeDesc == "CLUSTERED")
                     {
@@ -954,7 +959,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                         var columnName = dataRecord.GetValueOrDefault<string>("column_name");
                         var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
                             ?? table.Columns.FirstOrDefault(
-                                c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                                c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                         Check.DebugAssert(column != null, "column is null.");
 
                         uniqueConstraint.Columns.Add(column);
@@ -981,8 +986,10 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                 {
                     _logger.IndexFound(indexGroup.Key.Name, DisplayName(tableSchema, tableName), indexGroup.Key.IsUnique);
 
-                    var index = new DatabaseIndex(table, indexGroup.Key.Name)
+                    var index = new DatabaseIndex
                     {
+                        Table = table,
+                        Name = indexGroup.Key.Name,
                         IsUnique = indexGroup.Key.IsUnique,
                         Filter = indexGroup.Key.HasFilter ? indexGroup.Key.FilterDefinition : null
                     };
@@ -1002,7 +1009,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                         var columnName = dataRecord.GetValueOrDefault<string>("column_name");
                         var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
                             ?? table.Columns.FirstOrDefault(
-                                c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                                c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                         Check.DebugAssert(column != null, "column is null.");
 
                         index.Columns.Add(column);
@@ -1063,7 +1070,7 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
 
                     _logger.ForeignKeyFound(
                         fkName,
-                        DisplayName(table.Schema, table.Name),
+                        DisplayName(table.Schema, table.Name!),
                         DisplayName(principalTableSchema, principalTableName),
                         onDeleteAction);
 
@@ -1072,20 +1079,23 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
                                 && t.Name == principalTableName)
                         ?? tables.FirstOrDefault(
                             t => t.Schema?.Equals(principalTableSchema, StringComparison.OrdinalIgnoreCase) == true
-                                && t.Name.Equals(principalTableName, StringComparison.OrdinalIgnoreCase));
+                                && t.Name!.Equals(principalTableName, StringComparison.OrdinalIgnoreCase));
 
                     if (principalTable == null)
                     {
                         _logger.ForeignKeyReferencesMissingPrincipalTableWarning(
                             fkName,
-                            DisplayName(table.Schema, table.Name),
+                            DisplayName(table.Schema, table.Name!),
                             DisplayName(principalTableSchema, principalTableName));
 
                         continue;
                     }
 
-                    var foreignKey = new DatabaseForeignKey(table, fkName, principalTable)
+                    var foreignKey = new DatabaseForeignKey
                     {
+                        Table = table,
+                        Name = fkName,
+                        PrincipalTable = principalTable,
                         OnDelete = ConvertToReferentialAction(onDeleteAction)
                     };
 
@@ -1096,19 +1106,19 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
                         var columnName = dataRecord.GetValueOrDefault<string>("column_name");
                         var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
                             ?? table.Columns.FirstOrDefault(
-                                c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                                c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                         Check.DebugAssert(column != null, "column is null.");
 
                         var principalColumnName = dataRecord.GetValueOrDefault<string>("referenced_column_name");
                         var principalColumn = foreignKey.PrincipalTable.Columns.FirstOrDefault(c => c.Name == principalColumnName)
                             ?? foreignKey.PrincipalTable.Columns.FirstOrDefault(
-                                c => c.Name.Equals(principalColumnName, StringComparison.OrdinalIgnoreCase));
+                                c => c.Name!.Equals(principalColumnName, StringComparison.OrdinalIgnoreCase));
                         if (principalColumn == null)
                         {
                             invalid = true;
                             _logger.ForeignKeyPrincipalColumnMissingWarning(
                                 fkName,
-                                DisplayName(table.Schema, table.Name),
+                                DisplayName(table.Schema, table.Name!),
                                 principalColumnName,
                                 DisplayName(principalTableSchema, principalTableName));
                             break;
@@ -1124,7 +1134,7 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
                         {
                             _logger.ReflexiveConstraintIgnored(
                                 foreignKey.Name,
-                                DisplayName(table.Schema, table.Name));
+                                DisplayName(table.Schema, table.Name!));
                         }
                         else
                         {

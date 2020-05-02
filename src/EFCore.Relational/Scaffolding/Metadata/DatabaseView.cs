@@ -12,14 +12,5 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
     /// </summary>
     public class DatabaseView : DatabaseTable
     {
-        /// <summary>
-        ///     Creates a new instance of the <see cref="DatabaseView" /> class.
-        /// </summary>
-        /// <param name="database"> The database containing this view. </param>
-        /// <param name="name"> The name of the view. </param>
-        public DatabaseView([NotNull] DatabaseModel database, [NotNull] string name)
-            : base(database, name)
-        {
-        }
     }
 }

@@ -1,10 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 #nullable enable
 
@@ -16,27 +16,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
     public class DatabaseColumn : Annotatable
     {
         /// <summary>
-        ///     Creates a new instance of the <see cref="DatabaseColumn" /> class.
-        /// </summary>
-        /// <param name="table"> The table containing this column. </param>
-        /// <param name="name"> The name of the column. </param>
-        /// <param name="storeType"> The store type of the column. </param>
-        public DatabaseColumn([NotNull] DatabaseTable table, [NotNull] string name, [NotNull] string storeType)
-        {
-            Table = table;
-            Name = name;
-            StoreType = storeType;
-        }
-
-        /// <summary>
         ///     The table that contains this column.
         /// </summary>
-        public virtual DatabaseTable Table { get; [param: NotNull] set; }
+        public virtual DatabaseTable? Table { get; [param: NotNull] set; }
 
         /// <summary>
         ///     The column name.
         /// </summary>
-        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string? Name { get; [param: NotNull] set; }
 
         /// <summary>
         ///     Indicates whether or not this column can contain <c>NULL</c> values.
@@ -46,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         /// <summary>
         ///     The database/store type of the column.
         /// </summary>
-        public virtual string StoreType { get; [param: NotNull] set; }
+        public virtual string? StoreType { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The default constraint for the column, or <c>null</c> if none.
@@ -82,6 +69,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         public virtual ValueGenerated? ValueGenerated { get; set; }
 
         /// <inheritdoc />
-        public override string ToString() => Name;
+        public override string ToString() => Name ?? "<UNKNOWN>";
     }
 }
