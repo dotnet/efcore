@@ -32,6 +32,7 @@
     <BenchmarkDotNetVersion>0.12.0</BenchmarkDotNetVersion>
     <MicrosoftDataSqlClientVersion>2.0.0-preview3.20122.2</MicrosoftDataSqlClientVersion>
     <MicrosoftCSharpVersion>4.7.0</MicrosoftCSharpVersion>
+    <NewtonsoftJsonVersion>12.0.3</NewtonsoftJsonVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/extensions">
     <MicrosoftExtensionsCachingMemoryVersion>5.0.0-preview.3.20215.2</MicrosoftExtensionsCachingMemoryVersion>
