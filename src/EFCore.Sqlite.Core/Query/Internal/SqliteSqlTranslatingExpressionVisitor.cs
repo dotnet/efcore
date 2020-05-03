@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 var operandType = GetProviderType(sqlUnary.Operand);
                 if (operandType == typeof(decimal))
                 {
-                    return SqlExpressionFactory.Function(
+                    return Dependencies.SqlExpressionFactory.Function(
                         name: "ef_negate",
                         new[] { sqlUnary.Operand },
                         nullable: true,
@@ -345,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
             Expression DecimalArithmeticExpressionFactoryMethod(string name, SqlExpression left, SqlExpression right)
             {
-                return SqlExpressionFactory.Function(
+                return Dependencies.SqlExpressionFactory.Function(
                     name,
                     new[] { left, right },
                     nullable: true,
@@ -355,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
             Expression DecimalSubtractExpressionFactoryMethod(SqlExpression left, SqlExpression right)
             {
-                var subtrahend = SqlExpressionFactory.Function(
+                var subtrahend = Dependencies.SqlExpressionFactory.Function(
                     "ef_negate",
                     new[] { right },
                     nullable: true,
