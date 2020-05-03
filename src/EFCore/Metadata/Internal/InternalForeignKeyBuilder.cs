@@ -671,7 +671,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (navigationToDependent == null
                         && navigationToPrincipalName == Metadata.PrincipalToDependent?.Name
-                        && Metadata.IsIntraHierarchical())
+                        && (Metadata.DeclaringEntityType.IsAssignableFrom(Metadata.PrincipalEntityType)
+                            || Metadata.PrincipalEntityType.IsAssignableFrom(Metadata.DeclaringEntityType)))
                     {
                         if (!configurationSource.Value.Overrides(Metadata.GetPrincipalToDependentConfigurationSource()))
                         {
@@ -700,7 +701,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (navigationToPrincipal == null
                         && navigationToDependentName == Metadata.DependentToPrincipal?.Name
-                        && Metadata.IsIntraHierarchical())
+                        && (Metadata.DeclaringEntityType.IsAssignableFrom(Metadata.PrincipalEntityType)
+                            || Metadata.PrincipalEntityType.IsAssignableFrom(Metadata.DeclaringEntityType)))
                     {
                         if (!configurationSource.Value.Overrides(Metadata.GetDependentToPrincipalConfigurationSource()))
                         {
@@ -867,7 +869,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         && (overrideSameSource || configurationSource != Metadata.GetPrincipalToDependentConfigurationSource()));
 
         private static bool IsCompatible(
-            [NotNull] MemberInfo navigationProperty,
+            [NotNull] MemberInfo navigationMember,
             bool pointsToPrincipal,
             [NotNull] Type dependentType,
             [NotNull] Type principalType,
@@ -878,13 +880,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (!pointsToPrincipal)
             {
                 var canBeUnique = Navigation.IsCompatible(
-                    navigationProperty,
+                    navigationMember,
                     principalType,
                     dependentType,
                     shouldBeCollection: false,
                     shouldThrow: false);
                 var canBeNonUnique = Navigation.IsCompatible(
-                    navigationProperty,
+                    navigationMember,
                     principalType,
                     dependentType,
                     shouldBeCollection: true,
@@ -899,7 +901,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     if (shouldThrow)
                     {
                         Navigation.IsCompatible(
-                            navigationProperty,
+                            navigationMember,
                             principalType,
                             dependentType,
                             shouldBeCollection: null,
@@ -910,7 +912,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
             else if (!Navigation.IsCompatible(
-                navigationProperty,
+                navigationMember,
                 dependentType,
                 principalType,
                 shouldBeCollection: false,
@@ -2061,10 +2063,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalForeignKeyBuilder HasPrincipalKey(
-            [NotNull] IReadOnlyList<MemberInfo> properties,
+            [NotNull] IReadOnlyList<MemberInfo> members,
             ConfigurationSource configurationSource)
             => HasPrincipalKey(
-                Metadata.PrincipalEntityType.Builder.GetOrCreateProperties(properties, configurationSource),
+                Metadata.PrincipalEntityType.Builder.GetOrCreateProperties(members, configurationSource),
                 configurationSource);
 
         /// <summary>
@@ -3068,7 +3070,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (navigationToPrincipalName != null)
                 {
                     if ((navigationToPrincipalName == matchingRelationship.Metadata.DependentToPrincipal?.Name)
-                        && dependentEntityType.IsSameHierarchy(matchingRelationship.Metadata.DeclaringEntityType))
+                        && (dependentEntityType.IsAssignableFrom(matchingRelationship.Metadata.DeclaringEntityType)
+                            || matchingRelationship.Metadata.DeclaringEntityType.IsAssignableFrom(dependentEntityType)))
                     {
                         if (matchingRelationship.CanRemoveNavigation(
                             pointsToPrincipal: true, configurationSource, overrideSameSource: false))
@@ -3099,7 +3102,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         }
                     }
                     else if ((navigationToPrincipalName == matchingRelationship.Metadata.PrincipalToDependent?.Name)
-                        && dependentEntityType.IsSameHierarchy(matchingRelationship.Metadata.PrincipalEntityType))
+                        && (dependentEntityType.IsAssignableFrom(matchingRelationship.Metadata.PrincipalEntityType)
+                            || matchingRelationship.Metadata.PrincipalEntityType.IsAssignableFrom(dependentEntityType)))
                     {
                         if (matchingRelationship.CanRemoveNavigation(
                             pointsToPrincipal: false, configurationSource, overrideSameSource: false))
@@ -3134,7 +3138,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (navigationToDependentName != null)
                 {
                     if ((navigationToDependentName == matchingRelationship.Metadata.PrincipalToDependent?.Name)
-                        && principalEntityType.IsSameHierarchy(matchingRelationship.Metadata.PrincipalEntityType))
+                        && (principalEntityType.IsAssignableFrom(matchingRelationship.Metadata.PrincipalEntityType)
+                            || matchingRelationship.Metadata.PrincipalEntityType.IsAssignableFrom(principalEntityType)))
                     {
                         if (matchingRelationship.CanRemoveNavigation(
                             pointsToPrincipal: false, configurationSource, overrideSameSource: false))
@@ -3165,7 +3170,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         }
                     }
                     else if ((navigationToDependentName == matchingRelationship.Metadata.DependentToPrincipal?.Name)
-                        && principalEntityType.IsSameHierarchy(matchingRelationship.Metadata.DeclaringEntityType))
+                        && (principalEntityType.IsAssignableFrom(matchingRelationship.Metadata.DeclaringEntityType)
+                            || matchingRelationship.Metadata.DeclaringEntityType.IsAssignableFrom(principalEntityType)))
                     {
                         if (matchingRelationship.CanRemoveNavigation(
                             pointsToPrincipal: true, configurationSource, overrideSameSource: false))
@@ -3435,7 +3441,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 var matchingForeignKey = matchingRelationship.Metadata;
                 var sameHierarchyInvertedNavigations =
-                    principalEntityType.IsSameHierarchy(dependentEntityType)
+                    (principalEntityType.IsAssignableFrom(dependentEntityType)
+                        || dependentEntityType.IsAssignableFrom(principalEntityType))
                     && (navigationToPrincipal == null
                         || navigationToPrincipal.Value.Name == matchingForeignKey.PrincipalToDependent?.Name)
                     && (navigationToDependent == null
@@ -3733,7 +3740,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             shouldBeUnique = null;
 
             var sameHierarchyInvertedNavigations =
-                principalEntityType.IsSameHierarchy(dependentEntityType)
+                (principalEntityType.IsAssignableFrom(dependentEntityType)
+                    || dependentEntityType.IsAssignableFrom(principalEntityType))
                 && (((navigationToPrincipal != null)
                         && (navigationToPrincipal.Value.Name == Metadata.PrincipalToDependent?.Name))
                     || ((navigationToDependent != null)
@@ -3826,12 +3834,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             shouldResetDependentProperties = false;
             shouldBeUnique = null;
 
-            if (!Metadata.DeclaringEntityType.IsSameHierarchy(dependentEntityType))
+            if (!Metadata.DeclaringEntityType.IsAssignableFrom(dependentEntityType)
+                && !dependentEntityType.IsAssignableFrom(Metadata.DeclaringEntityType))
             {
                 return false;
             }
 
-            if (!Metadata.PrincipalEntityType.IsSameHierarchy(principalEntityType))
+            if (!Metadata.PrincipalEntityType.IsAssignableFrom(principalEntityType)
+                && !principalEntityType.IsAssignableFrom(Metadata.PrincipalEntityType))
             {
                 return false;
             }

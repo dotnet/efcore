@@ -221,24 +221,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .HasTranslation(args => new SqlFragmentExpression("'Two'"));
                 var isDateMethodInfo = typeof(UDFSqlContext).GetMethod(nameof(IsDateStatic));
                 modelBuilder.HasDbFunction(isDateMethodInfo)
-                    .HasTranslation(args => SqlFunctionExpression.Create(
-                        "IsDate",
-                        args,
-                        nullable: true,
-                        argumentsPropagateNullability: args.Select(a => true).ToList(),
-                        isDateMethodInfo.ReturnType,
-                        null));
+                    .HasTranslation(args => new SqlFunctionExpression(
+                        "IsDate", args, nullable: true, argumentsPropagateNullability: args.Select(a => true).ToList(), isDateMethodInfo.ReturnType, null));
 
                 var methodInfo = typeof(UDFSqlContext).GetMethod(nameof(MyCustomLengthStatic));
 
                 modelBuilder.HasDbFunction(methodInfo)
-                    .HasTranslation(args => SqlFunctionExpression.Create(
-                        "len",
-                        args,
-                        nullable: true,
-                        argumentsPropagateNullability: args.Select(a => true).ToList(),
-                        methodInfo.ReturnType,
-                        null));
+                    .HasTranslation(args => new SqlFunctionExpression(
+                        "len", args, nullable: true, argumentsPropagateNullability: args.Select(a => true).ToList(), methodInfo.ReturnType, null));
 
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(AddValues), new[] { typeof(int), typeof(int) }));
 
@@ -255,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .HasName("GetReportingPeriodStartDate");
                 var isDateMethodInfo2 = typeof(UDFSqlContext).GetMethod(nameof(IsDateInstance));
                 modelBuilder.HasDbFunction(isDateMethodInfo2)
-                    .HasTranslation(args => SqlFunctionExpression.Create(
+                    .HasTranslation(args => new SqlFunctionExpression(
                         "IsDate",
                         args,
                         nullable: true,
@@ -268,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var methodInfo2 = typeof(UDFSqlContext).GetMethod(nameof(MyCustomLengthInstance));
 
                 modelBuilder.HasDbFunction(methodInfo2)
-                    .HasTranslation(args => SqlFunctionExpression.Create(
+                    .HasTranslation(args => new SqlFunctionExpression(
                         "len",
                         args,
                         nullable: true,
@@ -308,7 +298,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var order11 = new Order
                 {
-                    Name = "Order11", OrderDate = new DateTime(2000, 1, 20),
+                    Name = "Order11",
+                    OrderDate = new DateTime(2000, 1, 20),
                     Items = new List<LineItem>
                     {
                         new LineItem { Quantity = 5, Product = product1},
@@ -316,7 +307,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 };
 
-                var order12 = new Order { Name = "Order12", OrderDate = new DateTime(2000, 2, 21),
+                var order12 = new Order
+                {
+                    Name = "Order12",
+                    OrderDate = new DateTime(2000, 2, 21),
                     Items = new List<LineItem>
                     {
                         new LineItem { Quantity = 1, Product = product1},
@@ -325,14 +319,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 };
 
-                var order13 = new Order { Name = "Order13", OrderDate = new DateTime(2001, 3, 20),
+                var order13 = new Order
+                {
+                    Name = "Order13",
+                    OrderDate = new DateTime(2001, 3, 20),
                     Items = new List<LineItem>
                     {
                         new LineItem { Quantity = 50, Product = product4},
                     }
                 };
 
-                var order21 = new Order { Name = "Order21", OrderDate = new DateTime(2000, 4, 21),
+                var order21 = new Order
+                {
+                    Name = "Order21",
+                    OrderDate = new DateTime(2000, 4, 21),
                     Items = new List<LineItem>
                     {
                         new LineItem { Quantity = 1, Product = product1},
@@ -341,7 +341,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 };
 
-                var order22 = new Order { Name = "Order22", OrderDate = new DateTime(2000, 5, 20),
+                var order22 = new Order
+                {
+                    Name = "Order22",
+                    OrderDate = new DateTime(2000, 5, 20),
                     Items = new List<LineItem>
                     {
                         new LineItem { Quantity = 34, Product = product3},
@@ -349,7 +352,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 };
 
-                var order31 = new Order { Name = "Order31", OrderDate = new DateTime(2001, 6, 21),
+                var order31 = new Order
+                {
+                    Name = "Order31",
+                    OrderDate = new DateTime(2001, 6, 21),
                     Items = new List<LineItem>
                     {
                         new LineItem { Quantity = 5, Product = product5}
@@ -441,7 +447,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                        where c.Id == 1
                        select new
                        {
-                           c.FirstName, OrderCount = UDFSqlContext.CustomerOrderCountStatic(UDFSqlContext.AddFiveStatic(c.Id - 5))
+                           c.FirstName,
+                           OrderCount = UDFSqlContext.CustomerOrderCountStatic(UDFSqlContext.AddFiveStatic(c.Id - 5))
                        }).Single());
         }
 
@@ -1383,12 +1390,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var cust = (from c in context.Customers
-                               where c.Id == 1
-                               select new
-                               {
-                                   c.Id,
-                                   Orders = context.GetOrdersWithMultipleProducts(context.AddValues(c.Id, 1)).ToList()
-                               }).ToList();
+                            where c.Id == 1
+                            select new
+                            {
+                                c.Id,
+                                Orders = context.GetOrdersWithMultipleProducts(context.AddValues(c.Id, 1)).ToList()
+                            }).ToList();
 
                 Assert.Single(cust);
 
@@ -1430,11 +1437,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var results = (from o in context.Orders
-                                join osub in (from c in context.Customers
-                                            from a in context.GetOrdersWithMultipleProducts(c.Id)
-                                            select a.OrderId
-                                    ) on o.Id equals osub
-                                select new { o.CustomerId, o.OrderDate }).ToList();
+                               join osub in (from c in context.Customers
+                                             from a in context.GetOrdersWithMultipleProducts(c.Id)
+                                             select a.OrderId
+                                   ) on o.Id equals osub
+                               select new { o.CustomerId, o.OrderDate }).ToList();
 
                 Assert.Equal(4, results.Count);
 
@@ -1557,7 +1564,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-               var cust = (from c in context.Customers
+                var cust = (from c in context.Customers
                             orderby c.Id
                             select new
                             {
@@ -1916,11 +1923,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-    #endregion
+        #endregion
 
-    private void AssertTranslationFailed(Action testCode)
-        => Assert.Contains(
-            CoreStrings.TranslationFailed("").Substring(21),
-            Assert.Throws<InvalidOperationException>(testCode).Message);
+        private void AssertTranslationFailed(Action testCode)
+            => Assert.Contains(
+                CoreStrings.TranslationFailed("").Substring(21),
+                Assert.Throws<InvalidOperationException>(testCode).Message);
     }
 }

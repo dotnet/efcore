@@ -18,6 +18,11 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public interface IQueryableMethodTranslatingExpressionVisitorFactory
     {
+        /// <summary>
+        ///     Creates a new <see cref="QueryableMethodTranslatingExpressionVisitor"/> for given <see cref="QueryCompilationContext"/>.
+        /// </summary>
+        /// <param name="queryCompilationContext"> The query compilation context to use. </param>
+        /// <returns> The created visitor. </returns>
         QueryableMethodTranslatingExpressionVisitor Create([NotNull] QueryCompilationContext queryCompilationContext);
     }
 }

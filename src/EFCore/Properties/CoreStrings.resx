@@ -143,9 +143,17 @@
   </data>
   <data name="InvalidPropertiesExpression" xml:space="preserve">
     <value>The properties expression '{expression}' is not valid. The expression should represent a simple property access: 't =&gt; t.MyProperty'. When specifying multiple properties use an anonymous type: 't =&gt; new {{ t.MyProperty1, t.MyProperty2 }}'.</value>
+    <comment>Obsolete</comment>
   </data>
   <data name="InvalidPropertyExpression" xml:space="preserve">
     <value>The expression '{expression}' is not a valid property expression. The expression should represent a simple property access: 't =&gt; t.MyProperty'.</value>
+    <comment>Obsolete</comment>
+  </data>
+  <data name="InvalidMembersExpression" xml:space="preserve">
+    <value>The expression '{expression}' is not a valid members access expression. The expression should represent a simple property or field access: 't =&gt; t.MyProperty'. When specifying multiple properties or fields use an anonymous type: 't =&gt; new {{ t.MyProperty, t.MyField }}'.</value>
+  </data>
+  <data name="InvalidMemberExpression" xml:space="preserve">
+    <value>The expression '{expression}' is not a valid member access expression. The expression should represent a simple property or field access: 't =&gt; t.MyProperty'.</value>
   </data>
   <data name="IdentityConflict" xml:space="preserve">
     <value>The instance of entity type '{entityType}' cannot be tracked because another instance with the same key value for {keyProperties} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.</value>
@@ -904,7 +912,7 @@
   </data>
   <data name="LogInvalidIncludePath" xml:space="preserve">
     <value>Invalid include path '{navigationChain}', couldn't find navigation for '{navigationName}'.</value>
-    <comment>Error CoreEventId.InvalidIncludePathError object object</comment>    
+    <comment>Error CoreEventId.InvalidIncludePathError object object</comment>
   </data>
   <data name="LogDuplicateDependentEntityTypeInstance" xml:space="preserve">
     <value>The same entity is being tracked as different weak entity types '{dependent1}' and '{dependent2}'. If a property value changes it will result in two store changes, which might not be the desired outcome.</value>
@@ -1378,5 +1386,8 @@
   </data>
   <data name="MissingInverseManyToManyNavigation" xml:space="preserve">
     <value>Unable to set up a many-to-many relationship between the entity types '{principalEntityType}' and '{declaringEntityType}' because one of the navigations was not specified. Please provide a navigation property in the HasMany() call.</value>
+  </data>
+  <data name="QueryContextAlreadyInitializedStateManager" xml:space="preserve">
+    <value>InitializeStateManager method has been called multiple times on current query context. This method is intended to be called only once before query enumeration starts.</value>
   </data>
 </root>

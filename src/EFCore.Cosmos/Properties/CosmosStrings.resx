@@ -177,4 +177,7 @@
   <data name="ResourceIdMissing" xml:space="preserve">
     <value>A ReadItem query was detected, but the id value is missing and cannot be generated.</value>
   </data>
+  <data name="PartitionKeyMismatch" xml:space="preserve">
+    <value>Partition key specified in the WithPartitionKey call '{paritionKey1}' and the partition key specified in the Where predicate '{paritionKey2}' must be identical. Remove one of them .</value>
+  </data>
 </root>

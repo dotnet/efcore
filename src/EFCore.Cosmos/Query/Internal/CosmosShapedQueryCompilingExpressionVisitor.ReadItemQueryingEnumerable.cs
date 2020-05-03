@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Query;
@@ -34,23 +35,26 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             private readonly Func<CosmosQueryContext, JObject, T> _shaper;
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
-            
+            private readonly bool _performIdentityResolution;
+
             public ReadItemQueryingEnumerable(
                 CosmosQueryContext cosmosQueryContext,
                 ReadItemExpression readItemExpression,
                 Func<CosmosQueryContext, JObject, T> shaper,
                 Type contextType,
-                IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+                IDiagnosticsLogger<DbLoggerCategory.Query> logger,
+                bool performIdentityResolution)
             {
                 _cosmosQueryContext = cosmosQueryContext;
                 _readItemExpression = readItemExpression;
                 _shaper = shaper;
                 _contextType = contextType;
                 _logger = logger;
+                _performIdentityResolution = performIdentityResolution;
             }
 
             public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
-                => new AsyncEnumerator(this, cancellationToken);
+                => new Enumerator(this, cancellationToken);
 
             public IEnumerator<T> GetEnumerator() => new Enumerator(this);
 
@@ -61,22 +65,39 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 throw new NotImplementedException("Cosmos: ToQueryString for ReadItemQueryingEnumerable #20653");
             }
 
-            private sealed class Enumerator : ReadItemBase, IEnumerator<T>
+            private sealed class Enumerator : IEnumerator<T>, IAsyncEnumerator<T>
             {
+                private readonly CosmosQueryContext _cosmosQueryContext;
+                private readonly ReadItemExpression _readItemExpression;
+                private readonly Func<CosmosQueryContext, JObject, T> _shaper;
+                private readonly Type _contextType;
+                private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+                private readonly bool _performIdentityResolution;
+                private readonly CancellationToken _cancellationToken;
+
                 private JObject _item;
                 private bool _hasExecuted;
 
-                public Enumerator(ReadItemQueryingEnumerable<T> readItemEnumerable) : base(readItemEnumerable)
+                public Enumerator(ReadItemQueryingEnumerable<T> readItemEnumerable, CancellationToken cancellationToken = default)
                 {
+                    _cosmosQueryContext = readItemEnumerable._cosmosQueryContext;
+                    _readItemExpression = readItemEnumerable._readItemExpression;
+                    _shaper = readItemEnumerable._shaper;
+                    _contextType = readItemEnumerable._contextType;
+                    _logger = readItemEnumerable._logger;
+                    _performIdentityResolution = readItemEnumerable._performIdentityResolution;
+                    _cancellationToken = cancellationToken;
                 }
 
                 object IEnumerator.Current => Current;
+
+                public T Current { get; private set; }
 
                 public bool MoveNext()
                 {
                     try
                     {
-                        using (CosmosQueryContext.ConcurrencyDetector.EnterCriticalSection())
+                        using (_cosmosQueryContext.ConcurrencyDetector.EnterCriticalSection())
                         {
                             if (!_hasExecuted)
                             {
@@ -84,35 +105,65 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                 {
                                     throw new InvalidOperationException(CosmosStrings.ResourceIdMissing);
                                 }
-                                
+
                                 if (!TryGetPartitionId(out var partitionKey))
                                 {
                                     throw new InvalidOperationException(CosmosStrings.ParitionKeyMissing);
                                 }
 
-                                _item = CosmosClient.ExecuteReadItem(
-                                    ContainerId,
+                                _item = _cosmosQueryContext.CosmosClient.ExecuteReadItem(
+                                    _readItemExpression.Container,
                                     partitionKey,
                                     resourceId);
 
-                                var hasNext = !(_item is null);
-
-                                Current
-                                    = hasNext
-                                        ? Shaper(CosmosQueryContext, _item)
-                                        : default;
-
-                                _hasExecuted = true;
-
-                                return hasNext;
+                                return ShapeResult();
                             }
-                            
+
                             return false;
                         }
                     }
                     catch (Exception exception)
                     {
-                        Logger.QueryIterationFailed(ContextType, exception);
+                        _logger.QueryIterationFailed(_contextType, exception);
+
+                        throw;
+                    }
+                }
+
+                public async ValueTask<bool> MoveNextAsync()
+                {
+                    try
+                    {
+                        using (_cosmosQueryContext.ConcurrencyDetector.EnterCriticalSection())
+                        {
+                            if (!_hasExecuted)
+                            {
+
+                                if (!TryGetResourceId(out var resourceId))
+                                {
+                                    throw new InvalidOperationException(CosmosStrings.ResourceIdMissing);
+                                }
+
+                                if (!TryGetPartitionId(out var partitionKey))
+                                {
+                                    throw new InvalidOperationException(CosmosStrings.ParitionKeyMissing);
+                                }
+
+                                _item = await _cosmosQueryContext.CosmosClient.ExecuteReadItemAsync(
+                                    _readItemExpression.Container,
+                                    partitionKey,
+                                    resourceId,
+                                    _cancellationToken);
+
+                                return ShapeResult();
+                            }
+
+                            return false;
+                        }
+                    }
+                    catch (Exception exception)
+                    {
+                        _logger.QueryIterationFailed(_contextType, exception);
 
                         throw;
                     }
@@ -124,120 +175,42 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     _hasExecuted = false;
                 }
 
-                public void Reset() => throw new NotImplementedException();
-            }
-
-            private sealed class AsyncEnumerator : ReadItemBase, IAsyncEnumerator<T>
-            {
-                private JObject _item;
-                private readonly CancellationToken _cancellationToken;
-                private bool _hasExecuted;
-                
-                public AsyncEnumerator(
-                    ReadItemQueryingEnumerable<T> readItemEnumerable,
-                    CancellationToken cancellationToken) : base(readItemEnumerable)
-                {
-                    _cancellationToken = cancellationToken;
-                }
-
-                public async ValueTask<bool> MoveNextAsync()
-                {
-                    try
-                    {
-                        using (CosmosQueryContext.ConcurrencyDetector.EnterCriticalSection())
-                        {
-                            if (!_hasExecuted)
-                            {
-
-                                if (!TryGetResourceId(out var resourceId))
-                                {
-                                    throw new InvalidOperationException(CosmosStrings.ResourceIdMissing);
-                                }
-
-                                if (!TryGetPartitionId(out var partitionKey))
-                                {
-                                    throw new InvalidOperationException(CosmosStrings.ParitionKeyMissing);
-                                }
-
-                                _item = await CosmosClient.ExecuteReadItemAsync(
-                                    ContainerId,
-                                    partitionKey,
-                                    resourceId,
-                                    _cancellationToken);
-
-                                var hasNext = !(_item is null);
-
-                                Current
-                                    = hasNext
-                                        ? Shaper(CosmosQueryContext, _item)
-                                        : default;
-
-                                _hasExecuted = true;
-
-                                return hasNext;
-                            }
-
-                            return false;
-                        }
-                    }
-                    catch (Exception exception)
-                    {
-                        Logger.QueryIterationFailed(ContextType, exception);
-
-                        throw;
-                    }
-                }
-
                 public ValueTask DisposeAsync()
                 {
-                    _item = null;
-                    _hasExecuted = false;
+                    Dispose();
+
                     return default;
                 }
-            }
 
-            private abstract class ReadItemBase
-            {
-                private readonly IStateManager _stateManager;
-                private readonly ReadItemExpression _readItemExpression;
-                private readonly IEntityType _entityType;
+                public void Reset() => throw new NotImplementedException();
 
-                protected readonly CosmosQueryContext CosmosQueryContext;
-                protected readonly CosmosClientWrapper CosmosClient;
-                protected readonly string ContainerId;
-                protected readonly Func<CosmosQueryContext, JObject, T> Shaper;
-                protected readonly Type ContextType;
-                protected readonly IDiagnosticsLogger<DbLoggerCategory.Query> Logger;
-
-                public T Current { get; protected set; }
-
-                protected ReadItemBase(
-                    ReadItemQueryingEnumerable<T> readItemEnumerable)
+                private bool ShapeResult()
                 {
-#pragma warning disable EF1001
-                    _stateManager = readItemEnumerable._cosmosQueryContext.StateManager;
-#pragma warning restore EF1001
-                    CosmosQueryContext = readItemEnumerable._cosmosQueryContext;
-                    _readItemExpression = readItemEnumerable._readItemExpression;
-                    _entityType = readItemEnumerable._readItemExpression.EntityType;
-                    CosmosClient = readItemEnumerable._cosmosQueryContext.CosmosClient;
-                    ContainerId = _readItemExpression.Container;
-                    Shaper = readItemEnumerable._shaper;
-                    ContextType = readItemEnumerable._contextType;
-                    Logger = readItemEnumerable._logger;
+                    var hasNext = !(_item is null);
+
+                    _cosmosQueryContext.InitializeStateManager(_performIdentityResolution);
+
+                    Current
+                        = hasNext
+                            ? _shaper(_cosmosQueryContext, _item)
+                            : default;
+
+                    _hasExecuted = true;
+
+                    return hasNext;
                 }
 
-                protected bool TryGetPartitionId(out string partitionKey)
+                private bool TryGetPartitionId(out string partitionKey)
                 {
                     partitionKey = null;
 
-                    var partitionKeyPropertyName = _entityType.GetPartitionKeyPropertyName();
+                    var partitionKeyPropertyName = _readItemExpression.EntityType.GetPartitionKeyPropertyName();
                     if (partitionKeyPropertyName == null)
                     {
                         return true;
                     }
 
-                    var partitionKeyProperty = _entityType.FindProperty(partitionKeyPropertyName);
+                    var partitionKeyProperty = _readItemExpression.EntityType.FindProperty(partitionKeyPropertyName);
 
                     if (TryGetParameterValue(partitionKeyProperty, out var value))
                     {
@@ -249,9 +222,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     return false;
                 }
 
-                protected bool TryGetResourceId(out string resourceId)
+                private bool TryGetResourceId(out string resourceId)
                 {
-                    var idProperty = _entityType.GetProperties()
+                    var idProperty = _readItemExpression.EntityType.GetProperties()
                         .FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyName);
 
                     if (TryGetParameterValue(idProperty, out var value))
@@ -279,14 +252,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                 private bool TryGenerateIdFromKeys(IProperty idProperty, out object value)
                 {
-                    var entityEntry = Activator.CreateInstance(_entityType.ClrType);
+                    var entityEntry = Activator.CreateInstance(_readItemExpression.EntityType.ClrType);
 
 #pragma warning disable EF1001
-                    var internalEntityEntry = new InternalEntityEntryFactory().Create(_stateManager, _entityType, entityEntry);
+                    var internalEntityEntry = new InternalEntityEntryFactory().Create(
+                        _cosmosQueryContext.Context.GetDependencies().StateManager, _readItemExpression.EntityType, entityEntry);
+#pragma warning restore EF1001
 
-                    foreach (var keyProperty in _entityType.FindPrimaryKey().Properties)
+                    foreach (var keyProperty in _readItemExpression.EntityType.FindPrimaryKey().Properties)
                     {
-                        var property = _entityType.FindProperty(keyProperty.Name);
+                        var property = _readItemExpression.EntityType.FindProperty(keyProperty.Name);
 
                         if (TryGetParameterValue(property, out var parameterValue))
                         {
@@ -294,12 +269,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         }
                     }
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
                     internalEntityEntry.SetEntityState(EntityState.Added);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
                     value = internalEntityEntry[idProperty];
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
                     internalEntityEntry.SetEntityState(EntityState.Detached);
-#pragma warning restore EF1001
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
                     return value != null;
                 }
@@ -308,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
                     value = null;
                     return _readItemExpression.PropertyParameters.TryGetValue(property, out var parameterName)
-                        && CosmosQueryContext.ParameterValues.TryGetValue(parameterName, out value);
+                        && _cosmosQueryContext.ParameterValues.TryGetValue(parameterName, out value);
                 }
 
                 private static string GetString(IProperty property, object value)

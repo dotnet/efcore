@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private readonly object _nameOrMember;
 
         [DebuggerStepThrough]
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public MemberIdentity([NotNull] string name)
             : this((object)name)
         {
@@ -57,5 +58,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         private string DebuggerDisplay()
             => Name ?? "NONE";
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     }
 }

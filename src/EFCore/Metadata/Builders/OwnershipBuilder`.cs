@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] Expression<Func<TDependentEntity, object>> foreignKeyExpression)
         {
             Builder = Builder.HasForeignKey(
-                Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetPropertyAccessList(),
+                Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetMemberAccessList(),
                 (EntityType)DependentEntityType,
                 ConfigurationSource.Explicit);
             return new OwnershipBuilder<TEntity, TDependentEntity>(
@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] Expression<Func<TEntity, object>> keyExpression)
         {
             Builder = Builder.HasPrincipalKey(
-                Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(),
+                Check.NotNull(keyExpression, nameof(keyExpression)).GetMemberAccessList(),
                 ConfigurationSource.Explicit);
             return new OwnershipBuilder<TEntity, TDependentEntity>(
                 Builder,

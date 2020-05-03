@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -292,6 +293,23 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                                     .ComposeWith(
                                         NumberToBytesConverter<long>.DefaultInfo.Create()),
                                 NumberToBytesConverter<long>.DefaultInfo.MappingHints));
+                }
+            }
+            else if (modelClrType == typeof(IPAddress))
+            {
+                if (providerClrType == null
+                    || providerClrType == typeof(string))
+                {
+                    yield return _converters.GetOrAdd(
+                        (modelClrType, typeof(string)),
+                        k => IPAddressToStringConverter.DefaultInfo);
+                }
+
+                if (providerClrType == typeof(byte[]))
+                {
+                    yield return _converters.GetOrAdd(
+                        (modelClrType, typeof(byte[])),
+                        k => IPAddressToBytesConverter.DefaultInfo);
                 }
             }
             else if (_numerics.Contains(modelClrType)

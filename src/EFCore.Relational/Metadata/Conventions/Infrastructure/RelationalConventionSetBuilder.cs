@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGenerationConvention);
 
             conventionSet.PropertyFieldChangedConventions.Add(relationalColumnAttributeConvention);
-            conventionSet.PropertyFieldChangedConventions.Add(relationalCommentAttributeConvention);            
+            conventionSet.PropertyFieldChangedConventions.Add(relationalCommentAttributeConvention);
 
             var storeGenerationConvention = new StoreGenerationConvention(Dependencies, RelationalDependencies);
             conventionSet.PropertyAnnotationChangedConventions.Add(storeGenerationConvention);
@@ -92,10 +92,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             var dbFunctionAttributeConvention = new RelationalDbFunctionAttributeConvention(Dependencies, RelationalDependencies);
             conventionSet.ModelInitializedConventions.Add(dbFunctionAttributeConvention);
 
-            // ModelCleanupConvention would remove the entity types added by QueryableDbFunctionConvention #15898
+            // Use TypeMappingConvention to add the relational store type mapping
+            // to the generated concurrency token property
+            ConventionSet.AddBefore(
+                conventionSet.ModelFinalizingConventions,
+                new TableSharingConcurrencyTokenConvention(Dependencies, RelationalDependencies),
+                typeof(TypeMappingConvention));
+            // ModelCleanupConvention would remove the entity types added by TableValuedDbFunctionConvention #15898
             ConventionSet.AddAfter(
                 conventionSet.ModelFinalizingConventions,
-                new QueryableDbFunctionConvention(Dependencies, RelationalDependencies),
+                new TableValuedDbFunctionConvention(Dependencies, RelationalDependencies),
                 typeof(ModelCleanupConvention));
             conventionSet.ModelFinalizingConventions.Add(dbFunctionAttributeConvention);
             conventionSet.ModelFinalizingConventions.Add(tableNameFromDbSetConvention);

@@ -49,41 +49,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public Task Database_concurrency_token_value_is_discarded_for_non_conflicting_entities()
-        {
-            byte[] firstVersion = null;
-            byte[] secondVersion = null;
-            return ConcurrencyTestAsync(
-                c => c.Drivers.Single(d => d.CarNumber == 2).Podiums = StorePodiums,
-                c =>
-                {
-                    var driver = c.Drivers.Single(d => d.CarNumber == 1);
-                    driver.Podiums = ClientPodiums;
-                    firstVersion = c.Entry(driver).Property<byte[]>("Version").CurrentValue;
-
-                    var secondDriver = c.Drivers.Single(d => d.CarNumber == 2);
-                    secondDriver.Podiums = ClientPodiums;
-                    secondVersion = c.Entry(secondDriver).Property<byte[]>("Version").CurrentValue;
-                },
-                (c, ex) =>
-                {
-                    Assert.IsType<DbUpdateConcurrencyException>(ex);
-
-                    var firstDriverEntry = c.Entry(c.Drivers.Local.Single(d => d.CarNumber == 1));
-                    Assert.Equal(firstVersion, firstDriverEntry.Property<byte[]>("Version").CurrentValue);
-                    var databaseValues = firstDriverEntry.GetDatabaseValues();
-                    Assert.NotEqual(firstVersion, databaseValues["Version"]);
-                    firstDriverEntry.OriginalValues.SetValues(databaseValues);
-
-                    var secondDriverEntry = ex.Entries.Single();
-                    Assert.Equal(secondVersion, secondDriverEntry.Property("Version").CurrentValue);
-                    secondDriverEntry.OriginalValues.SetValues(secondDriverEntry.GetDatabaseValues());
-                    ResolveConcurrencyTokens(secondDriverEntry);
-                },
-                c => Assert.Equal(ClientPodiums, c.Drivers.Single(d => d.CarNumber == 2).Podiums));
-        }
-
-        [ConditionalFact]
         public async Task Database_concurrency_token_value_is_updated_for_all_sharing_entities()
         {
             using var c = CreateF1Context();

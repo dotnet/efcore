@@ -101,6 +101,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 expression);
 
         /// <summary>
+        ///     The expression '{expression}' is not a valid members access expression. The expression should represent a simple property or field access: 't =&gt; t.MyProperty'. When specifying multiple properties or fields use an anonymous type: 't =&gt; new {{ t.MyProperty, t.MyField }}'.
+        /// </summary>
+        public static string InvalidMembersExpression([CanBeNull] object expression)
+            => string.Format(
+                GetString("InvalidMembersExpression", nameof(expression)),
+                expression);
+
+        /// <summary>
+        ///     The expression '{expression}' is not a valid member access expression. The expression should represent a simple property or field access: 't =&gt; t.MyProperty'.
+        /// </summary>
+        public static string InvalidMemberExpression([CanBeNull] object expression)
+            => string.Format(
+                GetString("InvalidMemberExpression", nameof(expression)),
+                expression);
+
+        /// <summary>
         ///     The instance of entity type '{entityType}' cannot be tracked because another instance with the same key value for {keyProperties} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
         /// </summary>
         public static string IdentityConflict([CanBeNull] object entityType, [CanBeNull] object keyProperties)
@@ -2611,6 +2627,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("MissingInverseManyToManyNavigation", nameof(principalEntityType), nameof(declaringEntityType)),
                 principalEntityType, declaringEntityType);
+
+        /// <summary>
+        ///     InitializeStateManager method has been called multiple times on current query context. This method is intended to be called only once before query enumeration starts.
+        /// </summary>
+        public static string QueryContextAlreadyInitializedStateManager
+            => GetString("QueryContextAlreadyInitializedStateManager");
 
         private static string GetString(string name, params string[] formatterNames)
         {

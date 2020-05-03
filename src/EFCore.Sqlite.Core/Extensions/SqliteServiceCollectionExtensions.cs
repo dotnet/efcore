@@ -60,6 +60,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IModelValidator, SqliteModelValidator>()
                 .TryAdd<IProviderConventionSetBuilder, SqliteConventionSetBuilder>()
                 .TryAdd<IUpdateSqlGenerator, SqliteUpdateSqlGenerator>()
+                .TryAdd<IRelationalTransactionFactory, SqliteTransactionFactory>()
                 .TryAdd<IModificationCommandBatchFactory, SqliteModificationCommandBatchFactory>()
                 .TryAdd<IRelationalConnection>(p => p.GetService<ISqliteRelationalConnection>())
                 .TryAdd<IMigrationsSqlGenerator, SqliteMigrationsSqlGenerator>()

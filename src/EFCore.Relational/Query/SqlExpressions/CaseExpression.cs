@@ -10,42 +10,66 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
+    /// <summary>
+    ///     <para>
+    ///         An expression that represents a CASE statement in a SQL tree.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     public class CaseExpression : SqlExpression
     {
         private readonly List<CaseWhenClause> _whenClauses = new List<CaseWhenClause>();
 
+        /// <summary>
+        ///     Creates a new instance of the <see cref="CaseExpression" /> class.
+        /// </summary>
+        /// <param name="operand"> An expression to compare with <see cref="CaseWhenClause.Test"/> in <see cref="WhenClauses"/>. </param>
+        /// <param name="whenClauses"> A list of <see cref="CaseWhenClause"/> to compare and get result from. </param>
+        /// <param name="elseResult"> A value to return if no <see cref="WhenClauses"/> matches, if any. </param>
         public CaseExpression(
             [NotNull] SqlExpression operand,
-            [NotNull] IReadOnlyList<CaseWhenClause> whenClauses)
-            : this(operand, whenClauses, null)
+            [NotNull] IReadOnlyList<CaseWhenClause> whenClauses,
+            [CanBeNull] SqlExpression elseResult = null)
+            : base(Check.NotEmpty(whenClauses, nameof(whenClauses))[0].Result.Type, whenClauses[0].Result.TypeMapping)
         {
             Check.NotNull(operand, nameof(operand));
-        }
-
-        public CaseExpression(
-            [NotNull] IReadOnlyList<CaseWhenClause> whenClauses,
-            [CanBeNull] SqlExpression elseResult)
-            : this(null, whenClauses, elseResult)
-        {
-        }
-
-        public CaseExpression(
-            [CanBeNull] SqlExpression operand,
-            [NotNull] IReadOnlyList<CaseWhenClause> whenClauses,
-            [CanBeNull] SqlExpression elseResult)
-            : base(whenClauses[0].Result.Type, whenClauses[0].Result.TypeMapping)
-        {
-            Check.NotNull(whenClauses, nameof(whenClauses));
 
             Operand = operand;
             _whenClauses.AddRange(whenClauses);
             ElseResult = elseResult;
         }
 
+        /// <summary>
+        ///     Creates a new instance of the <see cref="CaseExpression" /> class.
+        /// </summary>
+        /// <param name="whenClauses"> A list of <see cref="CaseWhenClause"/> to evaluate condition and get result from. </param>
+        /// <param name="elseResult"> A value to return if no <see cref="WhenClauses"/> matches, if any. </param>
+        public CaseExpression(
+            [NotNull] IReadOnlyList<CaseWhenClause> whenClauses,
+            [CanBeNull] SqlExpression elseResult = null)
+            : base(Check.NotEmpty(whenClauses, nameof(whenClauses))[0].Result.Type, whenClauses[0].Result.TypeMapping)
+        {
+            _whenClauses.AddRange(whenClauses);
+            ElseResult = elseResult;
+        }
+
+        /// <summary>
+        ///     The value to compare in <see cref="WhenClauses"/>.
+        /// </summary>
         public virtual SqlExpression Operand { get; }
+        /// <summary>
+        ///     The list of <see cref="CaseWhenClause"/> to match <see cref="Operand"/> or evaluate condition to get result.
+        /// </summary>
         public virtual IReadOnlyList<CaseWhenClause> WhenClauses => _whenClauses;
+        /// <summary>
+        ///     The value to return if none of the <see cref="WhenClauses"/> matches.
+        /// </summary>
         public virtual SqlExpression ElseResult { get; }
 
+        /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             Check.NotNull(visitor, nameof(visitor));
@@ -78,14 +102,25 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 : this;
         }
 
+        /// <summary>
+        ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
+        ///     return this expression.
+        /// </summary>
+        /// <param name="operand"> The <see cref="Operand"/> property of the result. </param>
+        /// <param name="whenClauses"> The <see cref="WhenClauses"/> property of the result. </param>
+        /// <param name="elseResult"> The <see cref="ElseResult"/> property of the result. </param>
+        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual CaseExpression Update(
             [CanBeNull] SqlExpression operand,
-            [CanBeNull] IReadOnlyList<CaseWhenClause> whenClauses,
+            [NotNull] IReadOnlyList<CaseWhenClause> whenClauses,
             [CanBeNull] SqlExpression elseResult)
             => operand != Operand || !whenClauses.SequenceEqual(WhenClauses) || elseResult != ElseResult
-                ? new CaseExpression(operand, whenClauses, elseResult)
+                ? (Operand == null
+                    ? new CaseExpression(whenClauses, elseResult)
+                    : new CaseExpression(operand, whenClauses, elseResult))
                 : this;
 
+        /// <inheritdoc />
         public override void Print(ExpressionPrinter expressionPrinter)
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
@@ -117,6 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             expressionPrinter.AppendLine().Append("END");
         }
 
+        /// <inheritdoc />
         public override bool Equals(object obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
@@ -129,6 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 && WhenClauses.SequenceEqual(caseExpression.WhenClauses)
                 && (ElseResult == null ? caseExpression.ElseResult == null : ElseResult.Equals(caseExpression.ElseResult));
 
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             var hash = new HashCode();

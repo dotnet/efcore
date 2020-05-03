@@ -9,9 +9,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
     // ReSharper disable once ArrangeTypeModifiers
     internal partial class DbContextInfoCommand
     {
-        protected override int Execute()
+        protected override int Execute(string[] args)
         {
-            var result = CreateExecutor().GetContextInfo(Context.Value());
+            var result = CreateExecutor(args).GetContextInfo(Context.Value());
 
             if (_json.HasValue())
             {
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 ReportResult(result);
             }
 
-            return base.Execute();
+            return base.Execute(args);
         }
 
         private static void ReportJsonResult(IDictionary result)

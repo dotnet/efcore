@@ -41,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             foreach (var dbFunction in modelBuilder.Metadata.GetDbFunctions())
             {
+                // TODO: This check needs to be updated to skip over enumerable parameter of aggregate.
                 foreach (var parameter in dbFunction.Parameters)
                 {
                     parameter.Builder.HasTypeMapping(!string.IsNullOrEmpty(parameter.StoreType)
@@ -48,14 +49,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         : _relationalTypeMappingSource.FindMapping(parameter.ClrType));
                 }
 
-                if (dbFunction.IsQueryable)
+                if (dbFunction.IsScalar)
                 {
-                    continue;
+                    dbFunction.Builder.HasTypeMapping(!string.IsNullOrEmpty(dbFunction.StoreType)
+                        ? _relationalTypeMappingSource.FindMapping(dbFunction.StoreType)
+                        : _relationalTypeMappingSource.FindMapping(dbFunction.ReturnType));
                 }
-
-                dbFunction.Builder.HasTypeMapping(!string.IsNullOrEmpty(dbFunction.StoreType)
-                    ? _relationalTypeMappingSource.FindMapping(dbFunction.StoreType)
-                    : _relationalTypeMappingSource.FindMapping(dbFunction.ReturnType));
             }
         }
     }

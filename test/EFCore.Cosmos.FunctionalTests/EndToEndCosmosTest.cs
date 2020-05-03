@@ -392,161 +392,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         [ConditionalFact]
-        public async Task Can_add_update_delete_end_to_end_with_partition_key()
-        {
-            var options = Fixture.CreateOptions();
-
-            var customer = new Customer
-            {
-                Id = 42,
-                Name = "Theon",
-                PartitionKey = 1
-            };
-
-            using (var context = new PartitionKeyContext(options))
-            {
-                await context.Database.EnsureCreatedAsync();
-
-                context.Add(customer);
-                context.Add(
-                    new Customer
-                    {
-                        Id = 42,
-                        Name = "Theon Twin",
-                        PartitionKey = 2
-                    });
-
-                await context.SaveChangesAsync();
-            }
-
-            using (var context = new PartitionKeyContext(options))
-            {
-                var customerFromStore = await context.Set<Customer>().OrderBy(c => c.PartitionKey).FirstAsync();
-
-                Assert.Equal(42, customerFromStore.Id);
-                Assert.Equal("Theon", customerFromStore.Name);
-                Assert.Equal(1, customerFromStore.PartitionKey);
-
-                customerFromStore.Name = "Theon Greyjoy";
-
-                await context.SaveChangesAsync();
-            }
-
-            using (var context = new PartitionKeyContext(options))
-            {
-                var customerFromStore = await context.Set<Customer>().OrderBy(c => c.PartitionKey).FirstAsync();
-                customerFromStore.PartitionKey = 2;
-
-                Assert.Equal(
-                    CoreStrings.KeyReadOnly(nameof(Customer.PartitionKey), nameof(Customer)),
-                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-            }
-
-            using (var context = new PartitionKeyContext(options))
-            {
-                var customerFromStore = await context.Set<Customer>().OrderBy(c => c.PartitionKey).FirstAsync();
-
-                Assert.Equal(42, customerFromStore.Id);
-                Assert.Equal("Theon Greyjoy", customerFromStore.Name);
-                Assert.Equal(1, customerFromStore.PartitionKey);
-
-                context.Remove(customerFromStore);
-
-                context.Remove(await context.Set<Customer>().OrderBy(c => c.PartitionKey).LastAsync());
-
-                await context.SaveChangesAsync();
-            }
-
-            using (var context = new PartitionKeyContext(options))
-            {
-                Assert.Empty(await context.Set<Customer>().ToListAsync());
-            }
-        }
-
-        [ConditionalFact]
-        public async Task Can_add_update_delete_end_to_end_with_withpartitionkey_extension()
-        {
-            var options = Fixture.CreateOptions();
-            const int pk1 = 1;
-            const int pk2 = 2;
-
-            var customer = new Customer
-            {
-                Id = 42,
-                Name = "Theon",
-                PartitionKey = pk1
-            };
-
-            using (var context = new PartitionKeyContext(options))
-            {
-                await context.Database.EnsureCreatedAsync();
-
-                context.Add(customer);
-                context.Add(
-                    new Customer
-                    {
-                        Id = 42,
-                        Name = "Theon Twin",
-                        PartitionKey = pk2
-                    });
-
-                await context.SaveChangesAsync();
-            }
-
-            using (var context = new PartitionKeyContext(options))
-            {
-                var customerFromStore = await context.Set<Customer>()
-                    .WithPartitionKey(partitionKey: pk1.ToString())
-                    .FirstAsync();
-
-                Assert.Equal(42, customerFromStore.Id);
-                Assert.Equal("Theon", customerFromStore.Name);
-                Assert.Equal(pk1, customerFromStore.PartitionKey);
-
-                customerFromStore.Name = "Theon Greyjoy";
-
-                await context.SaveChangesAsync();
-            }
-
-            using (var context = new PartitionKeyContext(options))
-            {
-                var customerFromStore = await context.Set<Customer>().WithPartitionKey(partitionKey:pk1.ToString()).FirstAsync();
-
-                customerFromStore.PartitionKey = pk2;
-
-                Assert.Equal(
-                    CoreStrings.KeyReadOnly(nameof(Customer.PartitionKey), nameof(Customer)),
-                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-            }
-
-            using (var context = new PartitionKeyContext(options))
-            {
-                var customerFromStore = await context.Set<Customer>()
-                    .WithPartitionKey(partitionKey: pk1.ToString())
-                    .FirstAsync();
-
-                Assert.Equal(42, customerFromStore.Id);
-                Assert.Equal("Theon Greyjoy", customerFromStore.Name);
-                Assert.Equal(pk1, customerFromStore.PartitionKey);
-
-                context.Remove(customerFromStore);
-
-                context.Remove(await context.Set<Customer>()
-                    .WithPartitionKey(pk2.ToString())
-                    .LastAsync());
-
-                await context.SaveChangesAsync();
-            }
-
-            using (var context = new PartitionKeyContext(options))
-            {
-                Assert.Empty(await context.Set<Customer>()
-                    .WithPartitionKey(partitionKey: pk2.ToString())
-                    .ToListAsync());
-            }
-        }
-
-        [ConditionalFact]
         public async Task Can_read_with_find_with_resource_id_async()
         {
             var options = Fixture.CreateOptions();
@@ -818,12 +663,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 Assert.Equal(42, customerFromStore.Id);
                 Assert.Equal("Theon", customerFromStore.Name);
                 Assert.Equal(pk1, customerFromStore.PartitionKey);
-                AssertSql(context, @"@__p_0='1'
-@__p_1='42'
+                AssertSql(context, @"@__p_1='42'
 
 SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""PartitionKey""] = @__p_0) AND (c[""Id""] = @__p_1)))
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""Id""] = @__p_1))
 OFFSET 0 LIMIT 1");
 
                 customerFromStore.Name = "Theon Greyjoy";

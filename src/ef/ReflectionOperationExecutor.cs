@@ -25,8 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
             string projectDir,
             string dataDirectory,
             string rootNamespace,
-            string language)
-            : base(assembly, startupAssembly, projectDir, rootNamespace, language)
+            string language,
+            string[] remainingArguments)
+            : base(assembly, startupAssembly, projectDir, rootNamespace, language, remainingArguments)
         {
             if (dataDirectory != null)
             {
@@ -49,14 +50,15 @@ namespace Microsoft.EntityFrameworkCore.Tools
             _executor = Activator.CreateInstance(
                 _commandsAssembly.GetType(ExecutorTypeName, throwOnError: true, ignoreCase: false),
                 reportHandler,
-                new Dictionary<string, string>
+                new Dictionary<string, object>
                 {
                     { "targetName", AssemblyFileName },
                     { "startupTargetName", StartupAssemblyFileName },
                     { "projectDir", ProjectDirectory },
                     { "rootNamespace", RootNamespace },
                     { "language", Language },
-                    { "toolsVersion", ProductInfo.GetVersion() }
+                    { "toolsVersion", ProductInfo.GetVersion() },
+                    { "remainingArguments", RemainingArguments }
                 });
 
             _resultHandlerType = _commandsAssembly.GetType(ResultHandlerTypeName, throwOnError: true, ignoreCase: false);

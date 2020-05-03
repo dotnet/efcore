@@ -13,6 +13,9 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 // ReSharper disable LoopCanBeConvertedToQuery
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <summary>
+    ///     A comparer which implements <see cref="IEqualityComparer{T}"/> for <see cref="Expression"/>.
+    /// </summary>
     public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression>
     {
         /// <summary>

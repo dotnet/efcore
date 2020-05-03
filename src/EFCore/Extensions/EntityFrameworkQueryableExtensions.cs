@@ -2530,6 +2530,44 @@ namespace Microsoft.EntityFrameworkCore
                 ? source.AsTracking()
                 : source.AsNoTracking();
 
+        internal static readonly MethodInfo PerformIdentityResolutionMethodInfo
+            = typeof(EntityFrameworkQueryableExtensions)
+                .GetTypeInfo().GetDeclaredMethod(nameof(PerformIdentityResolution));
+
+        /// <summary>
+        ///     <para>
+        ///         Returns a new query where the change tracker will not track any of the entities that are return
+        ///         but query will perform identity resolution in results.
+        ///         If the entity instances are modified, this will not be detected by the change tracker and
+        ///         <see cref="DbContext.SaveChanges()" /> will not persist those changes to the database.
+        ///     </para>
+        ///     <para>
+        ///         Perfoming identity resolution in no tracking query can be useful if creating several instances of same object is
+        ///         expensive than re-using same object. It should be kept in mind that in order to perform identity resolution,
+        ///         all previously created objects will be kept in memory which can lead to high memory usage.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
+        /// <param name="source"> The source query. </param>
+        /// <returns>
+        ///     A new query where the result set will not be tracked by the context.
+        /// </returns>
+        public static IQueryable<TEntity> PerformIdentityResolution<TEntity>(
+            [NotNull] this IQueryable<TEntity> source)
+            where TEntity : class
+        {
+            Check.NotNull(source, nameof(source));
+
+            return
+                source.Provider is EntityQueryProvider
+                    ? source.Provider.CreateQuery<TEntity>(
+                        Expression.Call(
+                            instance: null,
+                            method: PerformIdentityResolutionMethodInfo.MakeGenericMethod(typeof(TEntity)),
+                            arguments: source.Expression))
+                    : source;
+        }
+
         #endregion
 
         #region Tagging

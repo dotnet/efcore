@@ -39,9 +39,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [CanBeNull] string navigationName,
             [NotNull] IMutableForeignKey foreignKey)
         {
-            Check.NotNull(relatedEntityType, nameof(relatedEntityType));
-            Check.NotNull(foreignKey, nameof(foreignKey));
-
             DeclaringEntityType = declaringEntityType;
             RelatedEntityType = relatedEntityType;
             ReferenceName = navigationName;
@@ -61,9 +58,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [CanBeNull] MemberInfo navigationMemberInfo,
             [NotNull] IMutableForeignKey foreignKey)
         {
-            Check.NotNull(relatedEntityType, nameof(relatedEntityType));
-            Check.NotNull(foreignKey, nameof(foreignKey));
-
             DeclaringEntityType = declaringEntityType;
             RelatedEntityType = relatedEntityType;
             ReferenceMember = navigationMemberInfo;

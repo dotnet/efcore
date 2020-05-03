@@ -687,6 +687,20 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public IList<Friendship> Friendships { get; set; }
         }
 
+        public class EntityWithFields
+        {
+            public long Id;
+            public int CompanyId;
+            public int TenantId;
+            public KeylessEntityWithFields KeylessEntity;
+        }
+
+        public class KeylessEntityWithFields
+        {
+            public string FirstName;
+            public string LastName;
+        }
+
         protected class QueryResult
         {
             public int ValueFk { get; set; }
@@ -937,6 +951,89 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         public class Ownee3
         {
             public string Name { get; private set; }
+        }
+
+        public class OneToManyPrincipalWithField
+        {
+            public int Id;
+            public Guid AlternateKey;
+            public string Name;
+
+            public IEnumerable<DependentWithField> Dependents;
+        }
+
+        public class OneToOnePrincipalWithField
+        {
+            public int Id;
+            public string Name;
+
+            public DependentWithField Dependent;
+        }
+
+        public class ManyToManyPrincipalWithField
+        {
+            public int Id;
+            public string Name;
+
+            public List<DependentWithField> Dependents;
+        }
+
+        protected class ManyToManyJoinWithFields
+        {
+            public int ManyToManyPrincipalWithFieldId;
+            public int DependentWithFieldId;
+
+            public ManyToManyPrincipalWithField ManyToManyPrincipalWithField { get; set; }
+            public DependentWithField DependentWithField { get; set; }
+        }
+
+        public class DependentWithField
+        {
+            public int DependentWithFieldId;
+
+            public int? OneToManyPrincipalId;
+            public Guid AnotherOneToManyPrincipalId;
+            public OneToManyPrincipalWithField OneToManyPrincipal { get; set; }
+            public int OneToOnePrincipalId;
+            public OneToOnePrincipalWithField OneToOnePrincipal { get; set; }
+            public List<ManyToManyPrincipalWithField> ManyToManyPrincipals { get; set; }
+        }
+
+        public class OneToManyOwnerWithField
+        {
+            public int Id;
+            public Guid AlternateKey;
+            public string Description;
+
+            public List<OneToManyOwnedWithField> OwnedDependents { get; set; }
+        }
+
+        public class OneToManyOwnedWithField
+        {
+            public string FirstName;
+            public string LastName;
+
+            public int OneToManyOwnerId;
+            public OneToManyOwnerWithField OneToManyOwner { get; set; }
+        }
+
+        public class OneToOneOwnerWithField
+        {
+            public int Id;
+            public Guid AlternateKey;
+            public string Description;
+
+            public OneToOneOwnedWithField OwnedDependent { get; set; }
+        }
+
+        public class OneToOneOwnedWithField
+        {
+            public string FirstName;
+            public string LastName;
+
+            public int OneToOneOwnerId;
+            public OneToOneOwnerWithField OneToOneOwner { get; set; }
+
         }
     }
 }

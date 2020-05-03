@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -28,6 +29,20 @@ namespace Microsoft.EntityFrameworkCore
             => new EntityFrameworkRelationalServicesBuilder(serviceCollection).TryAddCoreServices();
 
         protected override Assembly TargetAssembly => typeof(RelationalDatabase).Assembly;
+
+        [ConditionalFact]
+        public void Readonly_relational_metadata_methods_have_expected_name()
+        {
+            var errors =
+                Fixture.RelationalMetadataMethods
+                .SelectMany(m => m.Select(ValidateMethodName))
+                .Where(e => e != null)
+                .ToList();
+
+            Assert.False(
+                errors.Count > 0,
+                "\r\n-- Errors: --\r\n" + string.Join(Environment.NewLine, errors));
+        }
 
         public class RelationalApiConsistencyFixture : ApiConsistencyFixtureBase
         {
@@ -45,6 +60,26 @@ namespace Microsoft.EntityFrameworkCore
                     { typeof(ISequence), (typeof(IMutableSequence), typeof(IConventionSequence), typeof(IConventionSequenceBuilder)) },
                     { typeof(ICheckConstraint), (typeof(IMutableCheckConstraint), typeof(IConventionCheckConstraint), null) }
                 };
+
+            public virtual HashSet<Type> RelationalMetadataTypes { get; } = new HashSet<Type>
+            {
+                typeof(IRelationalModel),
+                typeof(ITableBase),
+                typeof(ITable),
+                typeof(IView),
+                typeof(ITableMappingBase),
+                typeof(ITableMapping),
+                typeof(IViewMapping),
+                typeof(IColumnBase),
+                typeof(IColumn),
+                typeof(IViewColumn),
+                typeof(IColumnMappingBase),
+                typeof(IColumnMapping),
+                typeof(IViewColumnMapping),
+                typeof(ITableIndex),
+                typeof(IForeignKeyConstraint),
+                typeof(IUniqueConstraint)
+            };
 
             public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>()
             {
@@ -87,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new HashSet<MethodInfo>
             {
-                typeof(IDbFunction).GetMethod("get_QueryableEntityType")
+                typeof(IDbFunction).GetMethod("get_ReturnEntityType")
             };
 
             public override HashSet<MethodInfo> AsyncMethodExceptions { get; } = new HashSet<MethodInfo>
@@ -103,12 +138,21 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(RelationalLoggerExtensions).GetMethod(nameof(RelationalLoggerExtensions.ConnectionClosedAsync))
             };
 
+            public List<IReadOnlyList<MethodInfo>> RelationalMetadataMethods { get; } = new List<IReadOnlyList<MethodInfo>>();
+
             protected override void Initialize()
             {
                 AddInstanceMethods(_metadataTypes);
                 foreach (var typeTuple in _metadataTypes)
                 {
                     MetadataTypes.Add(typeTuple.Key, typeTuple.Value);
+                }
+
+                foreach (var metadataType in RelationalMetadataTypes)
+                {
+                    var readOnlyMethods = metadataType.GetMethods(PublicInstance)
+                        .Where(m => !IsObsolete(m)).ToArray();
+                    RelationalMetadataMethods.Add(readOnlyMethods);
                 }
 
                 base.Initialize();

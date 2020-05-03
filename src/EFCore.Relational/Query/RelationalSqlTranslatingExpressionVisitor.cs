@@ -446,7 +446,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && methodCallExpression.Arguments.Count == 1)
             {
                 var left = Visit(methodCallExpression.Object);
-                var right = Visit(methodCallExpression.Arguments[0]);
+                var right = Visit(RemoveObjectConvert(methodCallExpression.Arguments[0]));
 
                 if (TryRewriteEntityEquality(ExpressionType.Equal,
                         left ?? methodCallExpression.Object,
@@ -471,8 +471,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && methodCallExpression.Object == null
                 && methodCallExpression.Arguments.Count == 2)
             {
-                var left = Visit(methodCallExpression.Arguments[0]);
-                var right = Visit(methodCallExpression.Arguments[1]);
+                var left = Visit(RemoveObjectConvert(methodCallExpression.Arguments[0]));
+                var right = Visit(RemoveObjectConvert(methodCallExpression.Arguments[1]));
 
                 if (TryRewriteEntityEquality(ExpressionType.Equal,
                     left ?? methodCallExpression.Arguments[0],
@@ -556,6 +556,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             return Dependencies.MethodCallTranslatorProvider.Translate(_model, sqlObject, methodCallExpression.Method, arguments);
+
+            static Expression RemoveObjectConvert(Expression expression)
+                => expression is UnaryExpression unaryExpression
+                    && (unaryExpression.NodeType == ExpressionType.Convert || unaryExpression.NodeType == ExpressionType.ConvertChecked)
+                    && unaryExpression.Type == typeof(object)
+                    ? unaryExpression.Operand
+                    : expression;
         }
 
         protected override Expression VisitNew(NewExpression newExpression)
@@ -646,7 +653,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     // Introduce explicit cast only if the target type is mapped else we need to client eval
                     if (unaryExpression.Type == typeof(object)
-                        || _sqlExpressionFactory.FindMapping(unaryExpression.Type) != null)
+                        || Dependencies.TypeMappingSource.FindMapping(unaryExpression.Type) != null)
                     {
                         sqlOperand = _sqlExpressionFactory.ApplyDefaultTypeMapping(sqlOperand);
 

@@ -14,7 +14,7 @@ using Xunit.Abstractions;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindDbFunctionsQuerySqlServerTest : NorthwindDbFunctionsQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    public class NorthwindDbFunctionsQuerySqlServerTest : RelationalNorthwindDbFunctionsQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         public NorthwindDbFunctionsQuerySqlServerTest(
             NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
@@ -53,6 +53,29 @@ WHERE [c].[ContactName] LIKE [c].[ContactName]");
 FROM [Customers] AS [c]
 WHERE [c].[ContactName] LIKE N'!%' ESCAPE N'!'");
         }
+
+        public override async Task Collate_case_insensitive(bool async)
+        {
+            await base.Collate_case_insensitive(async);
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Customers] AS [c]
+WHERE [c].[ContactName] COLLATE Latin1_General_CI_AI = N'maria anders'");
+        }
+
+        public override async Task Collate_case_sensitive(bool async)
+        {
+            await base.Collate_case_sensitive(async);
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Customers] AS [c]
+WHERE [c].[ContactName] COLLATE Latin1_General_CS_AS = N'maria anders'");
+        }
+
+        protected override string CaseInsensitiveCollation => "Latin1_General_CI_AI";
+        protected override string CaseSensitiveCollation => "Latin1_General_CS_AS";
 
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]

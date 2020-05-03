@@ -8,7 +8,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
     ///     <para>
-    ///         A factory for <see cref="RelationalQueryContext" /> instances.
+    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///         any release. You should only use it directly in your code with extreme caution and knowing that
+    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
@@ -23,10 +26,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly RelationalQueryContextDependencies _relationalDependencies;
 
         /// <summary>
-        ///     Creates a new <see cref="RelationalQueryContextFactory" /> instance using the given dependencies.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        /// <param name="dependencies"> The dependencies to use. </param>
-        /// <param name="relationalDependencies"> Relational-specific dependencies. </param>
         public RelationalQueryContextFactory(
             [NotNull] QueryContextDependencies dependencies,
             [NotNull] RelationalQueryContextDependencies relationalDependencies)
@@ -36,11 +40,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     Creates a new <see cref="RelationalQueryContext" />.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        /// <returns>
-        ///     A QueryContext.
-        /// </returns>
         public virtual QueryContext Create()
             => new RelationalQueryContext(_dependencies, _relationalDependencies);
     }

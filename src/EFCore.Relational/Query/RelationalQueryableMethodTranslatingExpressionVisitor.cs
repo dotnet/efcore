@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -30,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
             [NotNull] RelationalQueryableMethodTranslatingExpressionVisitorDependencies relationalDependencies,
             [NotNull] QueryCompilationContext queryCompilationContext)
-            : base(dependencies, subquery: false)
+            : base(dependencies, queryCompilationContext, subquery: false)
         {
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
@@ -51,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected RelationalQueryableMethodTranslatingExpressionVisitor(
             [NotNull] RelationalQueryableMethodTranslatingExpressionVisitor parentVisitor)
-            : base(parentVisitor.Dependencies, subquery: true)
+            : base(parentVisitor.Dependencies, parentVisitor.QueryCompilationContext, subquery: true)
         {
             RelationalDependencies = parentVisitor.RelationalDependencies;
             _queryCompilationContext = parentVisitor._queryCompilationContext;
@@ -74,10 +75,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                             fromSqlQueryRootExpression.Sql,
                             fromSqlQueryRootExpression.Argument));
 
-                case QueryableFunctionQueryRootExpression queryableFunctionQueryRootExpression:
-                    var function = queryableFunctionQueryRootExpression.Function;
+                case TableValuedFunctionQueryRootExpression tableValuedFunctionQueryRootExpression:
+                    var function = tableValuedFunctionQueryRootExpression.Function;
                     var arguments = new List<SqlExpression>();
-                    foreach (var arg in queryableFunctionQueryRootExpression.Arguments)
+                    foreach (var arg in tableValuedFunctionQueryRootExpression.Arguments)
                     {
                         var sqlArgument = _sqlTranslator.Translate(arg);
                         if (sqlArgument == null)
@@ -85,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             var methodCall = Expression.Call(
                                 Expression.Constant(null, function.MethodInfo.DeclaringType),
                                 function.MethodInfo,
-                                queryableFunctionQueryRootExpression.Arguments);
+                                tableValuedFunctionQueryRootExpression.Arguments);
 
                             throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCall.Print()));
                         }
@@ -93,12 +94,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         arguments.Add(sqlArgument);
                     }
 
-                    // TODO: Allow translation to construct the table
-                    var entityType = queryableFunctionQueryRootExpression.EntityType;
+                    var entityType = tableValuedFunctionQueryRootExpression.EntityType;
                     var alias = (entityType.GetViewOrTableMappings().SingleOrDefault()?.Table.Name
                         ?? entityType.ShortName()).Substring(0, 1).ToLower();
 
-                    var translation = new QueryableFunctionExpression(function.Schema, function.Name, arguments, alias);
+                    var translation = new TableValuedFunctionExpression(alias, function.Schema, function.Name, arguments);
                     var queryExpression = _sqlExpressionFactory.Select(entityType, translation);
 
                     return CreateShapedQueryExpression(entityType, queryExpression);
@@ -1304,7 +1304,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 IEntityType entityType, TableExpression table, bool nullable)
             {
                 var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
-                foreach (var property in entityType.GetTypesInHierarchy().SelectMany(EntityTypeExtensions.GetDeclaredProperties))
+                foreach (var property in entityType
+                    .GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive()).SelectMany(EntityTypeExtensions.GetDeclaredProperties))
                 {
                     propertyExpressions[property] = new ColumnExpression(property, table, nullable || !property.IsPrimaryKey());
                 }

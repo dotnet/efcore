@@ -29,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> _shaper;
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+        private readonly bool _performIdentityResolution;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -43,7 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] IReadOnlyList<ReaderColumn> readerColumns,
             [NotNull] Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> shaper,
             [NotNull] Type contextType,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger,
+            bool performIdentityResolution)
         {
             _relationalQueryContext = relationalQueryContext;
             _relationalCommandCache = relationalCommandCache;
@@ -52,6 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _shaper = shaper;
             _contextType = contextType;
             _logger = logger;
+            _performIdentityResolution = performIdentityResolution;
         }
 
         /// <summary>
@@ -148,6 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> _shaper;
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+            private readonly bool _performIdentityResolution;
 
             private RelationalDataReader _dataReader;
             private int[] _indexMap;
@@ -163,6 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _shaper = queryingEnumerable._shaper;
                 _contextType = queryingEnumerable._contextType;
                 _logger = queryingEnumerable._logger;
+                _performIdentityResolution = queryingEnumerable._performIdentityResolution;
             }
 
             public T Current { get; private set; }
@@ -246,6 +251,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 _resultCoordinator = new ResultCoordinator();
 
+                _relationalQueryContext.InitializeStateManager(_performIdentityResolution);
+
                 return result;
             }
 
@@ -267,6 +274,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> _shaper;
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+            private readonly bool _performIdentityResolution;
             private readonly CancellationToken _cancellationToken;
 
             private RelationalDataReader _dataReader;
@@ -285,6 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _shaper = queryingEnumerable._shaper;
                 _contextType = queryingEnumerable._contextType;
                 _logger = queryingEnumerable._logger;
+                _performIdentityResolution = queryingEnumerable._performIdentityResolution;
                 _cancellationToken = cancellationToken;
             }
 
@@ -352,8 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private async Task<bool> InitializeReaderAsync(DbContext _, bool result, CancellationToken cancellationToken)
             {
-                var relationalCommand = _relationalCommandCache.GetRelationalCommand(
-                    _relationalQueryContext.ParameterValues);
+                var relationalCommand = _relationalCommandCache.GetRelationalCommand(_relationalQueryContext.ParameterValues);
 
                 _dataReader
                     = await relationalCommand.ExecuteReaderAsync(
@@ -368,6 +376,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _indexMap = BuildIndexMap(_columnNames, _dataReader.DbDataReader);
 
                 _resultCoordinator = new ResultCoordinator();
+
+                _relationalQueryContext.InitializeStateManager(_performIdentityResolution);
 
                 return result;
             }

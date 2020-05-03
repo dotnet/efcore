@@ -2016,6 +2016,8 @@ namespace Microsoft.EntityFrameworkCore
                 })
                 .First();
 
+            Fixture.ListLoggerFactory.Clear();
+
             var query = context.Set<BuiltInDataTypes>()
                 .Where(e => e.Id == 13)
                 .Select(b => new

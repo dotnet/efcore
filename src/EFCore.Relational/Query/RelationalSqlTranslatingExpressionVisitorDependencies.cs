@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -54,22 +55,30 @@ namespace Microsoft.EntityFrameworkCore.Query
         [EntityFrameworkInternal]
         public RelationalSqlTranslatingExpressionVisitorDependencies(
             [NotNull] ISqlExpressionFactory sqlExpressionFactory,
+            [NotNull] IRelationalTypeMappingSource typeMappingSource,
             [NotNull] IMemberTranslatorProvider memberTranslatorProvider,
             [NotNull] IMethodCallTranslatorProvider methodCallTranslatorProvider)
         {
             Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
+            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(memberTranslatorProvider, nameof(memberTranslatorProvider));
             Check.NotNull(methodCallTranslatorProvider, nameof(methodCallTranslatorProvider));
 
             SqlExpressionFactory = sqlExpressionFactory;
+            TypeMappingSource = typeMappingSource;
             MemberTranslatorProvider = memberTranslatorProvider;
             MethodCallTranslatorProvider = methodCallTranslatorProvider;
         }
 
         /// <summary>
-        ///     The expression factory..
+        ///     The expression factory.
         /// </summary>
         public ISqlExpressionFactory SqlExpressionFactory { get; }
+
+        /// <summary>
+        ///     The relational type mapping souce.
+        /// </summary>
+        public IRelationalTypeMappingSource TypeMappingSource { get; }
 
         /// <summary>
         ///     The member translation provider.
@@ -88,7 +97,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalSqlTranslatingExpressionVisitorDependencies With([NotNull] ISqlExpressionFactory sqlExpressionFactory)
             => new RelationalSqlTranslatingExpressionVisitorDependencies(
-                sqlExpressionFactory, MemberTranslatorProvider, MethodCallTranslatorProvider);
+                sqlExpressionFactory, TypeMappingSource, MemberTranslatorProvider, MethodCallTranslatorProvider);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalSqlTranslatingExpressionVisitorDependencies With([NotNull] IRelationalTypeMappingSource typeMappingSource)
+            => new RelationalSqlTranslatingExpressionVisitorDependencies(
+                SqlExpressionFactory, typeMappingSource, MemberTranslatorProvider, MethodCallTranslatorProvider);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -97,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalSqlTranslatingExpressionVisitorDependencies With([NotNull] IMemberTranslatorProvider memberTranslatorProvider)
             => new RelationalSqlTranslatingExpressionVisitorDependencies(
-                SqlExpressionFactory, memberTranslatorProvider, MethodCallTranslatorProvider);
+                SqlExpressionFactory, TypeMappingSource, memberTranslatorProvider, MethodCallTranslatorProvider);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -107,6 +125,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public RelationalSqlTranslatingExpressionVisitorDependencies With(
             [NotNull] IMethodCallTranslatorProvider methodCallTranslatorProvider)
             => new RelationalSqlTranslatingExpressionVisitorDependencies(
-                SqlExpressionFactory, MemberTranslatorProvider, methodCallTranslatorProvider);
+                SqlExpressionFactory, TypeMappingSource, MemberTranslatorProvider, methodCallTranslatorProvider);
     }
 }

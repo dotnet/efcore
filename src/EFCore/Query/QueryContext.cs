@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -9,6 +10,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -20,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class QueryContext : IParameterValues
     {
         private readonly IDictionary<string, object> _parameterValues = new Dictionary<string, object>();
+        private IStateManager _stateManager;
 
         /// <summary>
         ///     <para>
@@ -50,16 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual QueryContextDependencies Dependencies { get; }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [EntityFrameworkInternal]
-        public virtual IStateManager StateManager
-            => Dependencies.StateManager;
-
-        /// <summary>
         ///     Sets the navigation as loaded.
         /// </summary>
         /// <param name="entity"> The entity instance. </param>
@@ -69,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(entity, nameof(entity));
             Check.NotNull(navigation, nameof(navigation));
 
-            Dependencies.StateManager.TryGetEntry(entity).SetIsLoaded(navigation);
+            _stateManager.TryGetEntry(entity).SetIsLoaded(navigation);
         }
 
         /// <summary>
@@ -144,6 +137,36 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
+        ///     Initializes the <see cref="IStateManager"/> to be used with this QueryContext.
+        /// </summary>
+        /// <param name="standAlone"> Whether a stand-alone <see cref="IStateManager"/> should be created to perform identity resolution. </param>
+        public virtual void InitializeStateManager(bool standAlone = false)
+        {
+            if (_stateManager != null)
+            {
+                throw new InvalidOperationException(CoreStrings.QueryContextAlreadyInitializedStateManager);
+            }
+
+            _stateManager = standAlone
+                ? new StateManager(Dependencies.StateManager.Dependencies)
+                : Dependencies.StateManager;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public virtual InternalEntityEntry TryGetEntry(
+            [NotNull] IKey key,
+            [NotNull] object[] keyValues,
+            bool throwOnNullKey,
+            out bool hasNullKey)
+            => _stateManager.TryGetEntry(key, keyValues, throwOnNullKey, out hasNullKey);
+
+        /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
@@ -154,6 +177,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] IEntityType entityType,
             [NotNull] object entity,
             ValueBuffer valueBuffer)
-            => StateManager.StartTrackingFromQuery(entityType, entity, valueBuffer);
+            => _stateManager.StartTrackingFromQuery(entityType, entity, valueBuffer);
     }
 }

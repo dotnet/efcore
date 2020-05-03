@@ -155,15 +155,18 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public ModelBuilder CreateConventionBuilder(
             DiagnosticsLogger<DbLoggerCategory.Model> modelLogger,
             DiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
+                => new ModelBuilder(CreateConventionalConventionSet(modelLogger, validationLogger));
+
+        public ConventionSet CreateConventionalConventionSet(
+            DiagnosticsLogger<DbLoggerCategory.Model> modelLogger,
+            DiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
         {
             var contextServices = CreateContextServices(
                 new ServiceCollection()
                     .AddScoped<IDiagnosticsLogger<DbLoggerCategory.Model>>(_ => modelLogger)
                     .AddScoped<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>(_ => validationLogger));
 
-            var conventionSet = contextServices.GetRequiredService<IConventionSetBuilder>().CreateConventionSet();
-
-            return new ModelBuilder(conventionSet);
+            return contextServices.GetRequiredService<IConventionSetBuilder>().CreateConventionSet();
         }
 
         public virtual LoggingDefinitions LoggingDefinitions { get; } = new TestLoggingDefinitions();

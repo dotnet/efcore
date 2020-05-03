@@ -4,7 +4,6 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -16,21 +15,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] QueryTranslationPostprocessorDependencies dependencies,
             [NotNull] RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
             [NotNull] QueryCompilationContext queryCompilationContext)
-            : base(dependencies)
+            : base(dependencies, queryCompilationContext)
         {
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
             RelationalDependencies = relationalDependencies;
-            UseRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
-            SqlExpressionFactory = relationalDependencies.SqlExpressionFactory;
         }
 
         protected virtual RelationalQueryTranslationPostprocessorDependencies RelationalDependencies { get; }
-
-        protected virtual ISqlExpressionFactory SqlExpressionFactory { get; }
-
-        protected virtual bool UseRelationalNulls { get; }
 
         public override Expression Process(Expression query)
         {
@@ -38,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             query = new SelectExpressionProjectionApplyingExpressionVisitor().Visit(query);
             query = new CollectionJoinApplyingExpressionVisitor().Visit(query);
             query = new TableAliasUniquifyingExpressionVisitor().Visit(query);
-            query = new CaseWhenFlatteningExpressionVisitor(SqlExpressionFactory).Visit(query);
+            query = new CaseWhenFlatteningExpressionVisitor(RelationalDependencies.SqlExpressionFactory).Visit(query);
 
 #pragma warning disable 618
             query = OptimizeSqlExpression(query);

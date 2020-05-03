@@ -8,8 +8,21 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
+    /// <summary>
+    ///     <para>
+    ///         An expression that represents a table source in a SQL tree.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     public abstract class TableExpressionBase : Expression, IPrintableExpression
     {
+        /// <summary>
+        ///     Creates a new instance of the <see cref="TableExpressionBase" /> class.
+        /// </summary>
+        /// <param name="alias"> A string alias for the table source. </param>
         protected TableExpressionBase([CanBeNull] string alias)
         {
             Check.NullButNotEmpty(alias, nameof(alias));
@@ -17,8 +30,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Alias = alias;
         }
 
+        /// <summary>
+        ///     The alias assigned to this table source.
+        /// </summary>
         public virtual string Alias { get; internal set; }
 
+        /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             Check.NotNull(visitor, nameof(visitor));
@@ -26,10 +43,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             return this;
         }
 
+        /// <inheritdoc />
         public override Type Type => typeof(object);
+        /// <inheritdoc />
         public sealed override ExpressionType NodeType => ExpressionType.Extension;
+        /// <inheritdoc />
         public abstract void Print(ExpressionPrinter expressionPrinter);
 
+        /// <inheritdoc />
         public override bool Equals(object obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
@@ -39,6 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private bool Equals(TableExpressionBase tableExpressionBase)
             => string.Equals(Alias, tableExpressionBase.Alias);
 
+        /// <inheritdoc />
         public override int GetHashCode() => HashCode.Combine(Alias);
     }
 }

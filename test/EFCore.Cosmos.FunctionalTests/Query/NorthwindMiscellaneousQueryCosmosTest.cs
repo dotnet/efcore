@@ -4113,6 +4113,18 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"") OR (c[""CustomerID""] = null)))");
         }
 
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Perform_identity_resolution_reuses_same_instances(bool async)
+        {
+            return base.Perform_identity_resolution_reuses_same_instances(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Perform_identity_resolution_reuses_same_instances_across_joins(bool async)
+        {
+            return base.Perform_identity_resolution_reuses_same_instances_across_joins(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

@@ -20,6 +20,23 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <summary>
+    ///     <para>
+    ///         A class that compiles the shaper expression for given shaped query expression.
+    ///     </para>
+    ///     <para>
+    ///         Materializer is a code which creates entity instance from the given property values.
+    ///         It takes into account constructor bindings, fields, property access mode configured in the model when creating the instance.
+    ///     </para>
+    ///     <para>
+    ///         Shaper is a code which generate result for the query from given scalar values based on the structure of projection.
+    ///         A shaper can contain zero or more materializers inside it.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
     {
         private static readonly PropertyInfo _cancellationTokenMemberInfo
@@ -29,6 +46,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly EntityMaterializerInjectingExpressionVisitor _entityMaterializerInjectingExpressionVisitor;
         private readonly ConstantVerifyingExpressionVisitor _constantVerifyingExpressionVisitor;
 
+        /// <summary>
+        ///     Creates a new instance of the <see cref="ShapedQueryCompilingExpressionVisitor" /> class.
+        /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
+        /// <param name="queryCompilationContext"> The query compilation context object to use. </param>
         protected ShapedQueryCompilingExpressionVisitor(
             [NotNull] ShapedQueryCompilingExpressionVisitorDependencies dependencies,
             [NotNull] QueryCompilationContext queryCompilationContext)
@@ -37,17 +59,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
             Dependencies = dependencies;
-            IsTracking = queryCompilationContext.IsTracking;
+            QueryCompilationContext = queryCompilationContext;
 
             _entityMaterializerInjectingExpressionVisitor =
                 new EntityMaterializerInjectingExpressionVisitor(
                     dependencies.EntityMaterializerSource,
-                    queryCompilationContext.IsTracking);
+                    queryCompilationContext.IsTracking,
+                    queryCompilationContext.PerformIdentityResolution);
 
             _constantVerifyingExpressionVisitor = new ConstantVerifyingExpressionVisitor(dependencies.TypeMappingSource);
-
-            IsBuffering = queryCompilationContext.IsBuffering;
-            IsAsync = queryCompilationContext.IsAsync;
 
             if (queryCompilationContext.IsAsync)
             {
@@ -57,14 +77,17 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <summary>
+        ///     Parameter object containing service dependencies.
+        /// </summary>
         protected virtual ShapedQueryCompilingExpressionVisitorDependencies Dependencies { get; }
 
-        protected virtual bool IsTracking { get; }
+        /// <summary>
+        ///     The query compilation context object for current compilation.
+        /// </summary>
+        protected virtual QueryCompilationContext QueryCompilationContext { get; }
 
-        public virtual bool IsBuffering { get; internal set; }
-
-        protected virtual bool IsAsync { get; }
-
+        /// <inheritdoc />
         protected override Expression VisitExtension(Expression extensionExpression)
         {
             Check.NotNull(extensionExpression, nameof(extensionExpression));
@@ -78,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         return serverEnumerable;
 
                     case ResultCardinality.Single:
-                        return IsAsync
+                        return QueryCompilationContext.IsAsync
                             ? Expression.Call(
                                 _singleAsyncMethodInfo.MakeGenericMethod(serverEnumerable.Type.TryGetSequenceType()),
                                 serverEnumerable,
@@ -88,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 serverEnumerable);
 
                     case ResultCardinality.SingleOrDefault:
-                        return IsAsync
+                        return QueryCompilationContext.IsAsync
                             ? Expression.Call(
                                 _singleOrDefaultAsyncMethodInfo.MakeGenericMethod(serverEnumerable.Type.TryGetSequenceType()),
                                 serverEnumerable,
@@ -153,8 +176,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             return result;
         }
 
+
+        /// <summary>
+        ///     Visits given shaped query expression to create an expression of enumerable.
+        /// </summary>
+        /// <param name="shapedQueryExpression"> The shaped query expression to compile. </param>
+        /// <returns> An expression of enumerable. </returns>
         protected abstract Expression VisitShapedQuery([NotNull] ShapedQueryExpression shapedQueryExpression);
 
+        /// <summary>
+        ///     Inject entity materializers in given shaper expression. <see cref="EntityShaperExpression"/> is replaced with materializer
+        ///     expression for given entity.
+        /// </summary>
+        /// <param name="expression"> The expression to inject entity materializers. </param>
+        /// <returns> A expression with entity materializers injected. </returns>
         protected virtual Expression InjectEntityMaterializers([NotNull] Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -254,9 +289,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             private static readonly PropertyInfo _dbContextMemberInfo
                 = typeof(QueryContext).GetProperty(nameof(QueryContext.Context));
 
-            private static readonly PropertyInfo _stateManagerMemberInfo
-                = typeof(QueryContext).GetProperty(nameof(QueryContext.StateManager));
-
             private static readonly PropertyInfo _entityMemberInfo
                 = typeof(InternalEntityEntry).GetProperty(nameof(InternalEntityEntry.Entity));
 
@@ -264,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 = typeof(InternalEntityEntry).GetProperty(nameof(InternalEntityEntry.EntityType));
 
             private static readonly MethodInfo _tryGetEntryMethodInfo
-                = typeof(IStateManager).GetTypeInfo().GetDeclaredMethods(nameof(IStateManager.TryGetEntry))
+                = typeof(QueryContext).GetTypeInfo().GetDeclaredMethods(nameof(QueryContext.TryGetEntry))
                     .Single(mi => mi.GetParameters().Length == 4);
 
             private static readonly MethodInfo _startTrackingMethodInfo
@@ -272,21 +304,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                     nameof(QueryContext.StartTracking), new[] { typeof(IEntityType), typeof(object), typeof(ValueBuffer) });
 
             private readonly IEntityMaterializerSource _entityMaterializerSource;
-            private readonly bool _trackQueryResults;
+            private readonly bool _trackingQuery;
+            private readonly bool _queryStateMananger;
             private readonly ISet<IEntityType> _visitedEntityTypes = new HashSet<IEntityType>();
             private int _currentEntityIndex;
 
             public EntityMaterializerInjectingExpressionVisitor(
-                IEntityMaterializerSource entityMaterializerSource, bool trackQueryResults)
+                IEntityMaterializerSource entityMaterializerSource,
+                bool trackingQuery,
+                bool performIdentityResolution)
             {
                 _entityMaterializerSource = entityMaterializerSource;
-                _trackQueryResults = trackQueryResults;
+                _trackingQuery = trackingQuery;
+                _queryStateMananger = trackingQuery || performIdentityResolution;
             }
 
             public Expression Inject(Expression expression)
             {
                 var result = Visit(expression);
-                if (_trackQueryResults)
+                if (_trackingQuery)
                 {
                     foreach (var entityType in _visitedEntityTypes)
                     {
@@ -352,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         instanceVariable,
                         Expression.Constant(null, entityType.ClrType)));
 
-                if (_trackQueryResults
+                if (_queryStateMananger
                     && primaryKey != null)
                 {
                     var entryVariable = Expression.Variable(typeof(InternalEntityEntry), "entry" + _currentEntityIndex);
@@ -364,9 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Expression.Assign(
                             entryVariable,
                             Expression.Call(
-                                Expression.MakeMemberAccess(
-                                    QueryCompilationContext.QueryContextParameter,
-                                    _stateManagerMemberInfo),
+                                QueryCompilationContext.QueryContextParameter,
                                 _tryGetEntryMethodInfo,
                                 Expression.Constant(primaryKey),
                                 Expression.NewArrayInit(
@@ -479,10 +513,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 expressions.Add(Expression.Assign(instanceVariable, materializationExpression));
 
-                if (_trackQueryResults
+                if (_queryStateMananger
                     && entityType.FindPrimaryKey() != null)
                 {
-                    foreach (var et in entityType.GetTypesInHierarchy())
+                    foreach (var et in entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive()))
                     {
                         _visitedEntityTypes.Add(et);
                     }
@@ -526,7 +560,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var materializer = _entityMaterializerSource
                     .CreateMaterializeExpression(concreteEntityType, "instance", materializationContextVariable);
 
-                if (_trackQueryResults
+                if (_queryStateMananger
                     && concreteEntityType.ShadowPropertyCount() > 0)
                 {
                     var valueBufferExpression = Expression.Call(

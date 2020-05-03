@@ -15,6 +15,15 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <summary>
+    ///     <para>
+    ///         An expression that represents creation of an entity instance in <see cref="ShapedQueryExpression.ShaperExpression"/>.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     public class EntityShaperExpression : Expression, IPrintableExpression
     {
         private static readonly MethodInfo _createUnableToDiscriminateException
@@ -25,6 +34,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         private static Exception CreateUnableToDiscriminateException(IEntityType entityType, object discriminator)
             => new InvalidOperationException(CoreStrings.UnableToDiscriminate(entityType.DisplayName(), discriminator?.ToString()));
 
+        /// <summary>
+        ///     Creates a new instance of the <see cref="EntityShaperExpression" /> class.
+        /// </summary>
+        /// <param name="entityType"> The entity type to shape. </param>
+        /// <param name="valueBufferExpression"> An expression of ValueBuffer to get values for properties of the entity. </param>
+        /// <param name="nullable"> A bool value indicating whether this entity instance can be null. </param>
         public EntityShaperExpression(
             [NotNull] IEntityType entityType,
             [NotNull] Expression valueBufferExpression,
@@ -33,6 +48,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
+        /// <summary>
+        ///     Creates a new instance of the <see cref="EntityShaperExpression" /> class.
+        /// </summary>
+        /// <param name="entityType"> The entity type to shape. </param>
+        /// <param name="valueBufferExpression"> An expression of ValueBuffer to get values for properties of the entity. </param>
+        /// <param name="nullable"> Whether this entity instance can be null. </param>
+        /// <param name="materializationCondition"> An expression of <see cref="Func{ValueBuffer, IEntityType}"/> to determine which entity type to materialize. </param>
         protected EntityShaperExpression(
             [NotNull] IEntityType entityType,
             [NotNull] Expression valueBufferExpression,
@@ -59,6 +81,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             MaterializationCondition = materializationCondition;
         }
 
+        /// <summary>
+        ///     Creates an expression of <see cref="Func{ValueBuffer, IEntityType}"/> to determine which entity type to materialize.
+        /// </summary>
+        /// <param name="entityType"> The entity type to create materialization condition for. </param>
+        /// <param name="nullable"> Whether this entity instance can be null. </param>
+        /// <returns> An expression of <see cref="Func{ValueBuffer, IEntityType}"/> representing materilization condition for the entity type. </returns>
         protected virtual LambdaExpression GenerateMaterializationCondition([NotNull] IEntityType entityType, bool nullable)
         {
             Check.NotNull(entityType, nameof(EntityType));
@@ -114,11 +142,24 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Lambda(body, valueBufferParameter);
         }
 
+        /// <summary>
+        ///     The entity type being shaped.
+        /// </summary>
         public virtual IEntityType EntityType { get; }
+        /// <summary>
+        ///     The expression representing a <see cref="ValueBuffer" /> to get values from that are used to create the entity instance.
+        /// </summary>
         public virtual Expression ValueBufferExpression { get; }
+        /// <summary>
+        ///     A value indicating whether this entity instance can be null.
+        /// </summary>
         public virtual bool IsNullable { get; }
+        /// <summary>
+        ///     The materilization condition to use for shaping this entity.
+        /// </summary>
         public virtual LambdaExpression MaterializationCondition { get; }
 
+        /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             Check.NotNull(visitor, nameof(visitor));
@@ -128,6 +169,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Update(valueBufferExpression);
         }
 
+        /// <summary>
+        ///     Changes the entity type being shaped by this entity shaper.
+        /// </summary>
+        /// <param name="entityType"> The new entity type to use. </param>
+        /// <returns> This expression if entity type not changed, or an expression with updated entity type. </returns>
         public virtual EntityShaperExpression WithEntityType([NotNull] IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
@@ -137,12 +183,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                 : this;
         }
 
+        /// <summary>
+        ///     Marks this shaper as nullable, indicating that it can shape null entity instances.
+        /// </summary>
+        /// <returns> This expression if nullability not changed, or an expression with updated nullability. </returns>
         public virtual EntityShaperExpression MarkAsNullable()
             => !IsNullable
                 // Marking nullable requires recomputation of materialization condition
                 ? new EntityShaperExpression(EntityType, ValueBufferExpression, true)
                 : this;
 
+        /// <summary>
+        ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
+        ///     return this expression.
+        /// </summary>
+        /// <param name="valueBufferExpression"> The <see cref="ValueBufferExpression"/> property of the result. </param>
+        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual EntityShaperExpression Update([NotNull] Expression valueBufferExpression)
         {
             Check.NotNull(valueBufferExpression, nameof(valueBufferExpression));
@@ -152,10 +208,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 : this;
         }
 
+        /// <inheritdoc />
         public override Type Type => EntityType.ClrType;
 
+        /// <inheritdoc />
         public sealed override ExpressionType NodeType => ExpressionType.Extension;
 
+        /// <inheritdoc />
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));

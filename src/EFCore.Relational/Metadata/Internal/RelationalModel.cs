@@ -480,7 +480,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (foreignKey.IsUnique
                         && foreignKey.PrincipalKey.IsPrimaryKey()
-                        && !foreignKey.IsIntraHierarchical()
+                        && !foreignKey.DeclaringEntityType.IsAssignableFrom(foreignKey.PrincipalEntityType)
+                        && !foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType)
                         && ((ITableBase)table).EntityTypeMappings.Any(m => m.EntityType == foreignKey.PrincipalEntityType))
                     {
                         if (internalForeignKeys == null)
@@ -518,7 +519,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 if (internalForeignKeys == null
-                    && ((ITableBase)table).EntityTypeMappings.Any(m => !m.EntityType.IsSameHierarchy(entityType)))
+                    && ((ITableBase)table).EntityTypeMappings.Any(m => !m.EntityType.IsAssignableFrom(entityType)
+                        && !entityType.IsAssignableFrom(m.EntityType)))
                 {
                     table.IsSplit = true;
                 }

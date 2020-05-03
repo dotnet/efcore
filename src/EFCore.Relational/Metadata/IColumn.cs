@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Returns the object that is used as the default value for this column.
         /// </summary>
-        public virtual object GetDefaultValue
+        public virtual object DefaultValue
         {
             get
             {

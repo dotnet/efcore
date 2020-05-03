@@ -9,13 +9,31 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     {
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public SqlServerQuerySqlGenerator([NotNull] QuerySqlGeneratorDependencies dependencies)
             : base(dependencies)
         {
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override void GenerateTop(SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
@@ -31,6 +49,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             }
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override void GenerateLimitOffset(SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
@@ -56,6 +80,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             }
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
             Check.NotNull(sqlFunctionExpression, nameof(sqlFunctionExpression));
@@ -63,33 +93,46 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             if (!sqlFunctionExpression.IsBuiltIn
                 && string.IsNullOrEmpty(sqlFunctionExpression.Schema))
             {
-                sqlFunctionExpression = SqlFunctionExpression.Create(
-                    schema: "dbo",
-                    sqlFunctionExpression.Name,
-                    sqlFunctionExpression.Arguments,
-                    sqlFunctionExpression.IsNullable,
-                    sqlFunctionExpression.ArgumentsPropagateNullability,
-                    sqlFunctionExpression.Type,
-                    sqlFunctionExpression.TypeMapping);
+                sqlFunctionExpression = sqlFunctionExpression.IsNiladic
+                    ? new SqlFunctionExpression(
+                        schema: "dbo",
+                        sqlFunctionExpression.Name,
+                        sqlFunctionExpression.IsNullable,
+                        sqlFunctionExpression.Type,
+                        sqlFunctionExpression.TypeMapping)
+                    : new SqlFunctionExpression(
+                        schema: "dbo",
+                        sqlFunctionExpression.Name,
+                        sqlFunctionExpression.Arguments,
+                        sqlFunctionExpression.IsNullable,
+                        sqlFunctionExpression.ArgumentsPropagateNullability,
+                        sqlFunctionExpression.Type,
+                        sqlFunctionExpression.TypeMapping);
             }
 
             return base.VisitSqlFunction(sqlFunctionExpression);
         }
 
-        protected override Expression VisitQueryableFunction(QueryableFunctionExpression queryableFunctionExpression)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override Expression VisitTableValuedFunction(TableValuedFunctionExpression tableValuedFunctionExpression)
         {
-            Check.NotNull(queryableFunctionExpression, nameof(queryableFunctionExpression));
+            Check.NotNull(tableValuedFunctionExpression, nameof(tableValuedFunctionExpression));
 
-            if (string.IsNullOrEmpty(queryableFunctionExpression.Schema))
+            if (string.IsNullOrEmpty(tableValuedFunctionExpression.Schema))
             {
-                queryableFunctionExpression = new QueryableFunctionExpression(
+                tableValuedFunctionExpression = new TableValuedFunctionExpression(
+                    tableValuedFunctionExpression.Alias,
                     schema: "dbo",
-                    queryableFunctionExpression.Name,
-                    queryableFunctionExpression.Arguments,
-                    queryableFunctionExpression.Alias);
+                    tableValuedFunctionExpression.Name,
+                    tableValuedFunctionExpression.Arguments);
             }
 
-            return base.VisitQueryableFunction(queryableFunctionExpression);
+            return base.VisitTableValuedFunction(tableValuedFunctionExpression);
         }
     }
 }

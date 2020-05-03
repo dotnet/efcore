@@ -15,6 +15,8 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+    // Whole API surface is going to change. See issue#20204
     public class NullabilityBasedSqlProcessingExpressionVisitor : SqlExpressionVisitor
     {
         protected virtual bool UseRelationalNulls { get; }
@@ -167,6 +169,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             return caseExpression.Update(operand, whenClauses, elseResult);
+        }
+
+        protected override Expression VisitCollate(CollateExpression collateExpresion)
+        {
+            Check.NotNull(collateExpresion, nameof(collateExpresion));
+
+            return collateExpresion.Update(
+                VisitInternal<SqlExpression>(collateExpresion.Operand).ResultExpression);
         }
 
         protected override Expression VisitColumn(ColumnExpression columnExpression)
@@ -446,12 +456,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 VisitInternal<SqlExpression>(projectionExpression.Expression).ResultExpression);
         }
 
-        protected override Expression VisitQueryableFunction(QueryableFunctionExpression queryableFunctionExpression)
+        protected override Expression VisitTableValuedFunction(TableValuedFunctionExpression tableValuedFunctionExpression)
         {
-            Check.NotNull(queryableFunctionExpression, nameof(queryableFunctionExpression));
+            Check.NotNull(tableValuedFunctionExpression, nameof(tableValuedFunctionExpression));
 
             // See issue#20180
-            return queryableFunctionExpression;
+            return tableValuedFunctionExpression;
         }
 
         protected override Expression VisitRowNumber(RowNumberExpression rowNumberExpression)
@@ -557,8 +567,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return changed
                 ? selectExpression.Update(
-                    projections, tables, predicate, groupBy, having, orderings, limit, offset, selectExpression.IsDistinct,
-                    selectExpression.Alias)
+                    projections, tables, predicate, groupBy, having, orderings, limit, offset)
                 : selectExpression;
         }
 
@@ -1625,4 +1634,5 @@ namespace Microsoft.EntityFrameworkCore.Query
                     SqlExpressionFactory.Equal(left, right),
                     leftIsNull));
     }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

@@ -69,10 +69,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     dataReaderParameter,
                     isNonComposedFromSql ? indexMapParameter : null,
                     _detailedErrorsEnabled,
-                    IsBuffering)
+                    QueryCompilationContext.IsBuffering)
                 .Visit(shaper, out var projectionColumns);
 
-            shaper = new CustomShaperCompilingExpressionVisitor(dataReaderParameter, resultCoordinatorParameter, IsTracking)
+            shaper = new CustomShaperCompilingExpressionVisitor(dataReaderParameter, resultCoordinatorParameter, QueryCompilationContext.IsTracking)
                 .Visit(shaper);
 
             IReadOnlyList<string> columnNames = null;
@@ -99,7 +99,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Expression.Constant(projectionColumns, typeof(IReadOnlyList<ReaderColumn>)),
                 Expression.Constant(shaperLambda.Compile()),
                 Expression.Constant(_contextType),
-                Expression.Constant(_logger));
+                Expression.Constant(_logger),
+                Expression.Constant(QueryCompilationContext.PerformIdentityResolution));
         }
     }
 }

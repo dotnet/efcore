@@ -208,11 +208,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             => TryConfigurePrimaryKey(propertyBuilder.Metadata.DeclaringEntityType.Builder);
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after a key is removed.
         /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <param name="key"> The removed key. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessKeyRemoved(
             IConventionEntityTypeBuilder entityTypeBuilder, IConventionKey key, IConventionContext<IConventionKey> context)
         {

@@ -125,11 +125,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Removes any annotation with the given name.
         /// </summary>
+        /// <param name="name"> The name of the annotation to remove. </param>
+        /// <param name="configurationSource"> The configuration source of the annotation to be set. </param>
+        /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual AnnotatableBuilder<TMetadata, TModelBuilder> RemoveAnnotation([NotNull] string name, ConfigurationSource configurationSource)
         {
             if (!CanRemoveAnnotation(name, configurationSource))

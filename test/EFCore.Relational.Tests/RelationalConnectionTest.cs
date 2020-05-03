@@ -623,8 +623,10 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(0, dbConnection.DisposeCount);
         }
 
-        [ConditionalFact]
-        public void Connection_is_opened_and_closed_by_using_transaction()
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Connection_is_opened_and_closed_by_using_transaction(bool async)
         {
             using var connection = new FakeRelationalConnection(
                 CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
@@ -632,7 +634,9 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Null(connection.CurrentTransaction);
 
-            var transaction = connection.BeginTransaction();
+            var transaction = async
+                ? await connection.BeginTransactionAsync()
+                : connection.BeginTransaction();
 
             Assert.Same(transaction, connection.CurrentTransaction);
 
@@ -654,8 +658,10 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(1, dbConnection.CloseCount);
         }
 
-        [ConditionalFact]
-        public async Task Connection_is_opened_and_closed_by_using_transaction_async()
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Transaction_can_begin_with_isolation_level(bool async)
         {
             using var connection = new FakeRelationalConnection(
                 CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
@@ -663,63 +669,11 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Null(connection.CurrentTransaction);
 
-            var transaction = await connection.BeginTransactionAsync();
+            var transaction = async
+                ? await connection.BeginTransactionAsync(IsolationLevel.Chaos)
+                : connection.BeginTransaction(IsolationLevel.Chaos);
 
-            Assert.Same(transaction, connection.CurrentTransaction);
-
-            Assert.Equal(1, connection.DbConnections.Count);
-            var dbConnection = connection.DbConnections[0];
-
-            Assert.Equal(1, dbConnection.DbTransactions.Count);
-            var dbTransaction = dbConnection.DbTransactions[0];
-
-            Assert.Equal(1, dbConnection.OpenCount);
-            Assert.Equal(0, dbConnection.CloseCount);
-            Assert.Equal(IsolationLevel.Unspecified, dbTransaction.IsolationLevel);
-
-            transaction.Dispose();
-
-            Assert.Null(connection.CurrentTransaction);
-
-            Assert.Equal(1, dbConnection.OpenCount);
-            Assert.Equal(1, dbConnection.CloseCount);
-        }
-
-        [ConditionalFact]
-        public void Transaction_can_begin_with_isolation_level()
-        {
-            using var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
-            Assert.Equal(0, connection.DbConnections.Count);
-
-            Assert.Null(connection.CurrentTransaction);
-
-            using (var transaction = connection.BeginTransaction(IsolationLevel.Chaos))
-            {
-                Assert.Same(transaction, connection.CurrentTransaction);
-
-                Assert.Equal(1, connection.DbConnections.Count);
-                var dbConnection = connection.DbConnections[0];
-
-                Assert.Equal(1, dbConnection.DbTransactions.Count);
-                var dbTransaction = dbConnection.DbTransactions[0];
-
-                Assert.Equal(IsolationLevel.Chaos, dbTransaction.IsolationLevel);
-            }
-
-            Assert.Null(connection.CurrentTransaction);
-        }
-
-        [ConditionalFact]
-        public async Task Transaction_can_begin_with_isolation_level_async()
-        {
-            using var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
-            Assert.Equal(0, connection.DbConnections.Count);
-
-            Assert.Null(connection.CurrentTransaction);
-
-            using (var transaction = await connection.BeginTransactionAsync(IsolationLevel.Chaos))
+            using (transaction)
             {
                 Assert.Same(transaction, connection.CurrentTransaction);
 
@@ -781,8 +735,10 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(connection.CurrentTransaction);
         }
 
-        [ConditionalFact]
-        public void Commit_calls_Commit_on_DbTransaction()
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Commit_calls_Commit_on_DbTransaction(bool async)
         {
             using var connection = new FakeRelationalConnection(
                 CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
@@ -800,7 +756,14 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(1, dbConnection.DbTransactions.Count);
                 var dbTransaction = dbConnection.DbTransactions[0];
 
-                connection.CommitTransaction();
+                if (async)
+                {
+                    await connection.CommitTransactionAsync();
+                }
+                else
+                {
+                    connection.CommitTransaction();
+                }
 
                 Assert.Equal(1, dbTransaction.CommitCount);
             }
@@ -808,35 +771,10 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(connection.CurrentTransaction);
         }
 
-        [ConditionalFact]
-        public async Task CommitAsync_calls_CommitAsync_on_DbTransaction()
-        {
-            using var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
-            Assert.Equal(0, connection.DbConnections.Count);
-
-            Assert.Null(connection.CurrentTransaction);
-
-            using (var transaction = await connection.BeginTransactionAsync())
-            {
-                Assert.Same(transaction, connection.CurrentTransaction);
-
-                Assert.Equal(1, connection.DbConnections.Count);
-                var dbConnection = connection.DbConnections[0];
-
-                Assert.Equal(1, dbConnection.DbTransactions.Count);
-                var dbTransaction = dbConnection.DbTransactions[0];
-
-                await connection.CommitTransactionAsync();
-
-                Assert.Equal(1, dbTransaction.CommitCount);
-            }
-
-            Assert.Null(connection.CurrentTransaction);
-        }
-
-        [ConditionalFact]
-        public void Rollback_calls_Rollback_on_DbTransaction()
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Rollback_calls_Rollback_on_DbTransaction(bool async)
         {
             using var connection = new FakeRelationalConnection(
                 CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
@@ -854,34 +792,14 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(1, dbConnection.DbTransactions.Count);
                 var dbTransaction = dbConnection.DbTransactions[0];
 
-                connection.RollbackTransaction();
-
-                Assert.Equal(1, dbTransaction.RollbackCount);
-            }
-
-            Assert.Null(connection.CurrentTransaction);
-        }
-
-        [ConditionalFact]
-        public async Task Rollback_calls_RollbackAsync_on_DbTransaction()
-        {
-            using var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
-            Assert.Equal(0, connection.DbConnections.Count);
-
-            Assert.Null(connection.CurrentTransaction);
-
-            using (var transaction = await connection.BeginTransactionAsync())
-            {
-                Assert.Same(transaction, connection.CurrentTransaction);
-
-                Assert.Equal(1, connection.DbConnections.Count);
-                var dbConnection = connection.DbConnections[0];
-
-                Assert.Equal(1, dbConnection.DbTransactions.Count);
-                var dbTransaction = dbConnection.DbTransactions[0];
-
-                await connection.RollbackTransactionAsync();
+                if (async)
+                {
+                    await connection.RollbackTransactionAsync();
+                }
+                else
+                {
+                    connection.RollbackTransaction();
+                }
 
                 Assert.Equal(1, dbTransaction.RollbackCount);
             }

@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
                 DeclaringEntityType,
                 RelatedEntityType,
-                WithOneBuilder(navigationExpression?.GetPropertyAccess()).Metadata);
+                WithOneBuilder(navigationExpression?.GetMemberAccess()).Metadata);
 
         /// <summary>
         ///     Configures this as a many-to-many relationship.
@@ -129,8 +129,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return new CollectionCollectionBuilder<TRelatedEntity, TEntity>(
                            RelatedEntityType,
                            DeclaringEntityType,
-                           WithLeftManyNavigation(navigationExpression.GetPropertyAccess()),
-                           WithRightManyNavigation(navigationExpression.GetPropertyAccess(), leftName));
+                           WithLeftManyNavigation(navigationExpression.GetMemberAccess()),
+                           WithRightManyNavigation(navigationExpression.GetMemberAccess(), leftName));
         }
     }
 }

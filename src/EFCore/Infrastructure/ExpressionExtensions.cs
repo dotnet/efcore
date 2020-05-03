@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a printable string representation of the given expression.
         /// </summary>
         /// <param name="expression"> The expression. </param>
-        /// <param name="characterLimit"> An optional limit to the number of characters included. </param>
+        /// <param name="characterLimit"> An optional limit to the number of characters included. Additional output will be truncated. </param>
         /// <returns> The printable representation. </returns>
         public static string Print([NotNull] this Expression expression, int? characterLimit = null)
             => new ExpressionPrinter().Print(Check.NotNull(expression, nameof(expression)), characterLimit);
@@ -149,28 +149,46 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="propertyAccessExpression"> The expression. </param>
         /// <returns> The <see cref="PropertyInfo" />. </returns>
         public static PropertyInfo GetPropertyAccess([NotNull] this LambdaExpression propertyAccessExpression)
+            => GetInternalMemberAccess<PropertyInfo>(propertyAccessExpression);
+
+        /// <summary>
+        ///     <para>
+        ///         Gets the <see cref="MemberInfo" /> represented by a simple member-access expression.
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used to parse member access lambdas from fluent APIs.
+        ///     </para>
+        /// </summary>
+        /// <param name="memberAccessExpression"> The expression. </param>
+        /// <returns> The <see cref="MemberInfo" />. </returns>
+        public static MemberInfo GetMemberAccess([NotNull] this LambdaExpression memberAccessExpression)
+            => GetInternalMemberAccess<MemberInfo>(memberAccessExpression);
+
+        private static TMemberInfo GetInternalMemberAccess<TMemberInfo>([NotNull] this LambdaExpression memberAccessExpression)
+            where TMemberInfo : MemberInfo
         {
             Check.DebugAssert(
-                propertyAccessExpression.Parameters.Count == 1,
-                $"Parameters.Count is {propertyAccessExpression.Parameters.Count}");
+                memberAccessExpression.Parameters.Count == 1,
+                $"Parameters.Count is {memberAccessExpression.Parameters.Count}");
 
-            var parameterExpression = propertyAccessExpression.Parameters.Single();
-            var propertyInfo = parameterExpression.MatchSimplePropertyAccess(propertyAccessExpression.Body);
+            var parameterExpression = memberAccessExpression.Parameters[0];
+            var memberInfo = parameterExpression.MatchSimpleMemberAccess<TMemberInfo>(memberAccessExpression.Body);
 
-            if (propertyInfo == null)
+            if (memberInfo == null)
             {
                 throw new ArgumentException(
-                    CoreStrings.InvalidPropertyExpression(propertyAccessExpression),
-                    nameof(propertyAccessExpression));
+                    CoreStrings.InvalidMemberExpression(memberAccessExpression),
+                    nameof(memberAccessExpression));
             }
 
-            var declaringType = propertyInfo.DeclaringType;
+            var declaringType = memberInfo.DeclaringType;
             var parameterType = parameterExpression.Type;
 
             if (declaringType != null
                 && declaringType != parameterType
                 && declaringType.IsInterface
-                && declaringType.IsAssignableFrom(parameterType))
+                && declaringType.IsAssignableFrom(parameterType)
+                && memberInfo is PropertyInfo propertyInfo)
             {
                 var propertyGetter = propertyInfo.GetMethod;
                 var interfaceMapping = parameterType.GetTypeInfo().GetRuntimeInterfaceMap(declaringType);
@@ -180,12 +198,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     if (targetMethod.Equals(runtimeProperty.GetMethod))
                     {
-                        return runtimeProperty;
+                        return runtimeProperty as TMemberInfo;
                     }
                 }
             }
 
-            return propertyInfo;
+            return memberInfo;
         }
 
         /// <summary>
@@ -195,8 +213,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         ///     <para>
         ///         Only simple expressions are supported, such as those used to reference a property.
-        ///         This type is typically used by database providers (and other extensions). It is generally
-        ///         not used in application code.
         ///     </para>
         ///     <para>
         ///         This method is typically used by database providers (and other extensions). It is generally
@@ -212,21 +228,53 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             if (propertyAccessExpression.Parameters.Count != 1)
             {
                 throw new ArgumentException(
-                    CoreStrings.InvalidPropertiesExpression(propertyAccessExpression),
+                    CoreStrings.InvalidMembersExpression(propertyAccessExpression),
                     nameof(propertyAccessExpression));
             }
 
-            var propertyPaths
-                = propertyAccessExpression.MatchPropertyAccessList((p, e) => e.MatchSimplePropertyAccess(p));
+            var propertyPaths = propertyAccessExpression
+                .MatchMemberAccessList((p, e) => e.MatchSimpleMemberAccess<PropertyInfo>(p));
 
             if (propertyPaths == null)
             {
                 throw new ArgumentException(
-                    CoreStrings.InvalidPropertiesExpression(propertyAccessExpression),
+                    CoreStrings.InvalidMembersExpression(propertyAccessExpression),
                     nameof(propertyAccessExpression));
             }
 
             return propertyPaths;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Returns a list of <see cref="MemberInfo" /> extracted from the given simple
+        ///         <see cref="LambdaExpression" />.
+        ///     </para>
+        ///     <para>
+        ///         Only simple expressions are supported, such as those used to reference a member.
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="memberAccessExpression"> The expression. </param>
+        /// <returns> The list of referenced members. </returns>
+        public static IReadOnlyList<MemberInfo> GetMemberAccessList([NotNull] this LambdaExpression memberAccessExpression)
+        {
+            Check.NotNull(memberAccessExpression, nameof(memberAccessExpression));
+
+            var memberPaths = memberAccessExpression
+                .MatchMemberAccessList((p, e) => e.MatchSimpleMemberAccess<MemberInfo>(p));
+
+            if (memberPaths == null)
+            {
+                throw new ArgumentException(
+                    CoreStrings.InvalidMembersExpression(memberAccessExpression),
+                    nameof(memberAccessExpression));
+            }
+
+            return memberPaths;
         }
 
         /// <summary>

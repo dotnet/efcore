@@ -373,15 +373,25 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(4, result.Count);
             Assert.Empty(context.ChangeTracker.Entries());
 
-            if (async)
-            {
-                await Assert.ThrowsAsync<InvalidOperationException>(() => asTrackingQuery.ToListAsync());
-            }
-            else
-            {
-                Assert.Throws<InvalidOperationException>(() => asTrackingQuery.ToList());
-            }
+            var message = async
+                ? (await Assert.ThrowsAsync<InvalidOperationException>(() => asTrackingQuery.ToListAsync())).Message
+                : Assert.Throws<InvalidOperationException>(() => asTrackingQuery.ToList()).Message;
+            Assert.Empty(context.ChangeTracker.Entries());
+            Assert.Equal(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner, message);
+        }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Owned_entity_without_owner_does_not_throw_for_identity_resolution(bool async)
+        {
+            using var context = CreateContext();
+            var query = context.Set<OwnedPerson>().Select(e => e.PersonAddress).PerformIdentityResolution();
+
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Equal(4, result.Count);
             Assert.Empty(context.ChangeTracker.Entries());
         }
 
@@ -740,6 +750,39 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => ss.Set<OwnedPerson>().Where(ow => ow.Orders.Where(o => ((DateTime)o["OrderDate"]).Year == 2018).Count() == 1)
                     .Select(c => (string)c["Name"]));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task NoTracking_Include_with_cycles_throws(bool async)
+        {
+            using var context = CreateContext();
+            var query = context.Set<OwnedPerson>().SelectMany(op => op.Orders).Include(o => o.Client).AsNoTracking();
+
+            Assert.Equal(
+                CoreStrings.IncludeWithCycle("Client", "Orders"),
+                async
+                ? (await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync())).Message
+                : Assert.Throws<InvalidOperationException>(() => query.ToList()).Message);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task NoTracking_Include_with_cycles_does_not_throw_when_performing_identity_resolution(bool async)
+        {
+            using var context = CreateContext();
+            var query = context.Set<OwnedPerson>().SelectMany(op => op.Orders).Include(o => o.Client).PerformIdentityResolution();
+
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Empty(context.ChangeTracker.Entries());
+            foreach (var order in result)
+            {
+                Assert.NotNull(order.Client);
+                Assert.Same(order, order.Client.Orders.First(o => o.Id == order.Id));
+            }
         }
 
         protected virtual DbContext CreateContext() => Fixture.CreateContext();

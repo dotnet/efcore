@@ -23,10 +23,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected virtual RelationalQueryTranslationPreprocessorDependencies RelationalDependencies { get; }
 
-        public override Expression NormalizeQueryableMethodCall(Expression expression)
+        public override Expression NormalizeQueryableMethod(Expression expression)
         {
-            expression = base.NormalizeQueryableMethodCall(expression);
-            expression = new QueryableFunctionToQueryRootConvertingExpressionVisitor(QueryCompilationContext.Model).Visit(expression);
+            expression = base.NormalizeQueryableMethod(expression);
+            expression = new TableValuedFunctionToQueryRootConvertingExpressionVisitor(QueryCompilationContext.Model).Visit(expression);
 
             return expression;
         }

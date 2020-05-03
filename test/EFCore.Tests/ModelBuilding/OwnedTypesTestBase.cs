@@ -71,6 +71,101 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            public virtual void Can_configure_one_to_one_owned_type_with_fields()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Owned<OneToOneOwnedWithField>();
+                modelBuilder.Entity<OneToOneOwnerWithField>(e =>
+                {
+                    e.Property(p => p.Id);
+                    e.Property(p => p.AlternateKey);
+                    e.Property(p => p.Description);
+                    e.HasKey(p => p.Id);
+                });
+
+                modelBuilder.Entity<OneToOneOwnerWithField>()
+                    .OwnsOne(
+                        owner => owner.OwnedDependent,
+                        db =>
+                        {
+                            db.WithOwner(d => d.OneToOneOwner);
+                            db.Property(d => d.OneToOneOwnerId);
+                            db.HasIndex(d => d.OneToOneOwnerId);
+                            db.Navigation(owned => owned.OneToOneOwner);
+                        });
+
+                modelBuilder.Entity<OneToOneOwnerWithField>()
+                    .Navigation(owner => owner.OwnedDependent);
+
+                var model = modelBuilder.FinalizeModel();
+
+                var owner = model.FindEntityType(typeof(OneToOneOwnerWithField));
+                Assert.Equal(typeof(OneToOneOwnerWithField).FullName, owner.Name);
+                var ownership = owner.FindNavigation(nameof(OneToOneOwnerWithField.OwnedDependent)).ForeignKey;
+                Assert.True(ownership.IsOwnership);
+                Assert.Equal(nameof(OneToOneOwnerWithField.OwnedDependent), ownership.PrincipalToDependent.Name);
+                Assert.Equal(nameof(OneToOneOwnedWithField.OneToOneOwner), ownership.DependentToPrincipal.Name);
+                Assert.Equal(nameof(OneToOneOwnedWithField.OneToOneOwnerId), ownership.Properties.Single().Name);
+                Assert.Equal(nameof(OneToOneOwnerWithField.Id), ownership.PrincipalKey.Properties.Single().Name);
+                var owned = ownership.DeclaringEntityType;
+                Assert.Single(owned.GetForeignKeys());
+                Assert.Equal(nameof(OneToOneOwnedWithField.OneToOneOwnerId), owned.GetIndexes().Single().Properties.Single().Name);
+                Assert.Equal(
+                    new[] { nameof(OneToOneOwnedWithField.OneToOneOwnerId) }, owned.GetProperties().Select(p => p.Name));
+                Assert.NotNull(model.FindEntityType(typeof(OneToOneOwnedWithField)));
+                Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(OneToOneOwnedWithField)));
+            }
+
+            [ConditionalFact]
+            public virtual void Can_configure_one_to_many_owned_type_with_fields()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Owned<OneToManyOwnedWithField>();
+                modelBuilder.Entity<OneToManyOwnerWithField>(e =>
+                {
+                    e.Property(p => p.Id);
+                    e.Property(p => p.AlternateKey);
+                    e.Property(p => p.Description);
+                    e.HasKey(p => p.Id);
+                });
+
+                modelBuilder.Entity<OneToManyOwnerWithField>()
+                    .OwnsMany(
+                        owner => owner.OwnedDependents,
+                        db =>
+                        {
+                            db.WithOwner(d => d.OneToManyOwner);
+                            db.Property(d => d.OneToManyOwnerId);
+                            db.HasIndex(d => d.OneToManyOwnerId);
+                            db.Navigation(owned => owned.OneToManyOwner);
+                        });
+
+                modelBuilder.Entity<OneToManyOwnerWithField>()
+                    .Navigation(owner => owner.OwnedDependents);
+
+                var model = modelBuilder.FinalizeModel();
+
+                var owner = model.FindEntityType(typeof(OneToManyOwnerWithField));
+                Assert.Equal(typeof(OneToManyOwnerWithField).FullName, owner.Name);
+                var ownership = owner.FindNavigation(nameof(OneToManyOwnerWithField.OwnedDependents)).ForeignKey;
+                Assert.True(ownership.IsOwnership);
+                Assert.Equal(nameof(OneToManyOwnerWithField.OwnedDependents), ownership.PrincipalToDependent.Name);
+                Assert.Equal(nameof(OneToManyOwnedWithField.OneToManyOwner), ownership.DependentToPrincipal.Name);
+                Assert.Equal(nameof(OneToManyOwnedWithField.OneToManyOwnerId), ownership.Properties.Single().Name);
+                Assert.Equal(nameof(OneToManyOwnerWithField.Id), ownership.PrincipalKey.Properties.Single().Name);
+                var owned = ownership.DeclaringEntityType;
+                Assert.Single(owned.GetForeignKeys());
+                Assert.Equal(nameof(OneToManyOwnedWithField.OneToManyOwnerId), owned.GetIndexes().Single().Properties.Single().Name);
+                Assert.Equal(
+                    new[] { nameof(OneToManyOwnedWithField.OneToManyOwnerId), nameof(OneToManyOwnerWithField.Id) },
+                    owned.GetProperties().Select(p => p.Name));
+                Assert.NotNull(model.FindEntityType(typeof(OneToManyOwnedWithField)));
+                Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(OneToManyOwnedWithField)));
+            }
+
+            [ConditionalFact]
             public virtual void Can_configure_owned_type_inverse()
             {
                 var modelBuilder = CreateModelBuilder();

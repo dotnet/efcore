@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -41,6 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var fromSqlParameterOptimized = new FromSqlParameterApplyingExpressionVisitor(
                 Dependencies.SqlExpressionFactory,
+                Dependencies.TypeMappingSource,
                 Dependencies.ParameterNameGeneratorFactory.Create(),
                 parametersValues).Visit(sqlExpressionOptimized);
 

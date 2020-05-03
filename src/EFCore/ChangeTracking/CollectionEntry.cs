@@ -163,6 +163,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected virtual InternalEntityEntry GetInternalTargetEntry([NotNull] object entity)
             => CurrentValue == null
                 || !((Navigation)Metadata).CollectionAccessor.Contains(InternalEntry.Entity, entity)

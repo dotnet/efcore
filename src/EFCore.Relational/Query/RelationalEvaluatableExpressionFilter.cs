@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 // Never evaluate DbFunction
                 // If it is inside lambda then we will have whole method call
-                // If it is outside of lambda then it will be evaluated for queryable function already.
+                // If it is outside of lambda then it will be evaluated for table valued function already.
                 return false;
             }
 

@@ -14,14 +14,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     A convention that configures the entity type to which a queryable function is mapped.
     /// </summary>
-    public class QueryableDbFunctionConvention : IModelFinalizingConvention
+    public class TableValuedDbFunctionConvention : IModelFinalizingConvention
     {
         /// <summary>
-        ///     Creates a new instance of <see cref="RelationalDbFunctionAttributeConvention" />.
+        ///     Creates a new instance of <see cref="TableValuedDbFunctionConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
-        public QueryableDbFunctionConvention(
+        public TableValuedDbFunctionConvention(
             [NotNull] ProviderConventionSetBuilderDependencies dependencies,
             [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
         {
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             [NotNull] IConventionDbFunctionBuilder dbFunctionBuilder, [NotNull] IConventionContext context)
         {
             var function = dbFunctionBuilder.Metadata;
-            if (!function.IsQueryable)
+            if (function.IsScalar)
             {
                 return;
             }

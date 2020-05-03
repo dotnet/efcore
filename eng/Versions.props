@@ -12,8 +12,6 @@
     <DotNetFinalVersionKind Condition="'$(StabilizePackageVersion)' == 'true'">release</DotNetFinalVersionKind>
   </PropertyGroup>
   <PropertyGroup Label="Arcade settings">
-    <!-- Opt-in to using the ref assembly version bundled with Arcade. -->
-    <UsingToolNetFrameworkReferenceAssemblies>True</UsingToolNetFrameworkReferenceAssemblies>
     <UsingToolXliff>False</UsingToolXliff>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from nuget.org">
@@ -36,19 +34,19 @@
     <MicrosoftCSharpVersion>4.7.0</MicrosoftCSharpVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/extensions">
-    <MicrosoftExtensionsCachingMemoryVersion>5.0.0-preview.2.20160.3</MicrosoftExtensionsCachingMemoryVersion>
-    <MicrosoftExtensionsConfigurationVersion>5.0.0-preview.2.20160.3</MicrosoftExtensionsConfigurationVersion>
-    <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>5.0.0-preview.2.20160.3</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
-    <MicrosoftExtensionsConfigurationJsonVersion>5.0.0-preview.2.20160.3</MicrosoftExtensionsConfigurationJsonVersion>
-    <MicrosoftExtensionsDependencyInjectionVersion>5.0.0-preview.2.20160.3</MicrosoftExtensionsDependencyInjectionVersion>
-    <MicrosoftExtensionsHostFactoryResolverSourcesVersion>5.0.0-preview.2.20160.3</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
-    <MicrosoftExtensionsLoggingVersion>5.0.0-preview.2.20160.3</MicrosoftExtensionsLoggingVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>5.0.0-preview.3.20215.2</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsConfigurationVersion>5.0.0-preview.3.20215.2</MicrosoftExtensionsConfigurationVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>5.0.0-preview.3.20215.2</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
+    <MicrosoftExtensionsConfigurationJsonVersion>5.0.0-preview.3.20215.2</MicrosoftExtensionsConfigurationJsonVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>5.0.0-preview.3.20215.2</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftExtensionsHostFactoryResolverSourcesVersion>5.0.0-preview.3.20215.2</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
+    <MicrosoftExtensionsLoggingVersion>5.0.0-preview.3.20215.2</MicrosoftExtensionsLoggingVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/runtime">
-    <SystemCollectionsImmutableVersion>5.0.0-preview.2.20160.6</SystemCollectionsImmutableVersion>
-    <SystemComponentModelAnnotationsVersion>5.0.0-preview.2.20160.6</SystemComponentModelAnnotationsVersion>
-    <SystemDiagnosticsDiagnosticSourceVersion>5.0.0-preview.2.20160.6</SystemDiagnosticsDiagnosticSourceVersion>
-    <MicrosoftDotNetPlatformAbstractionsVersion>5.0.0-preview.2.20160.6</MicrosoftDotNetPlatformAbstractionsVersion>
-    <MicrosoftExtensionsDependencyModelVersion>5.0.0-preview.2-runtime.20160.6</MicrosoftExtensionsDependencyModelVersion>
+    <SystemCollectionsImmutableVersion>5.0.0-preview.3.20214.6</SystemCollectionsImmutableVersion>
+    <SystemComponentModelAnnotationsVersion>5.0.0-preview.3.20214.6</SystemComponentModelAnnotationsVersion>
+    <SystemDiagnosticsDiagnosticSourceVersion>5.0.0-preview.3.20214.6</SystemDiagnosticsDiagnosticSourceVersion>
+    <MicrosoftDotNetPlatformAbstractionsVersion>5.0.0-preview.3.20214.6</MicrosoftDotNetPlatformAbstractionsVersion>
+    <MicrosoftExtensionsDependencyModelVersion>5.0.0-preview.3-runtime.20214.6</MicrosoftExtensionsDependencyModelVersion>
   </PropertyGroup>
 </Project>

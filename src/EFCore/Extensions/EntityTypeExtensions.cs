@@ -24,6 +24,11 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     public static class EntityTypeExtensions
     {
+        /// <summary>
+        ///     Returns all the derived types of the given <see cref="IEntityType" />, including the type itself, which are not <c>abstract</c>.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Non-abstract, derived types. </returns>
         public static IEnumerable<IEntityType> GetConcreteDerivedTypesInclusive([NotNull] this IEntityType entityType)
             => entityType.GetDerivedTypesInclusive().Where(et => !et.IsAbstract());
 
@@ -193,27 +198,6 @@ namespace Microsoft.EntityFrameworkCore
                 entityType = entityType.BaseType;
             }
         }
-
-        /// <summary>
-        ///     Determines if an entity type is in same hierarchy as the given entity type.
-        /// </summary>
-        /// <param name="firstEntityType"> An entity type for hierachy. </param>
-        /// <param name="secondEntityType"> The entity type to check if it is in same hierarchy from <paramref name="firstEntityType" />. </param>
-        /// <returns>
-        ///     <c>true</c> if <paramref name="secondEntityType" /> is in same hierarchy as <paramref name="firstEntityType" />,
-        ///     otherwise <c>false</c>.
-        /// </returns>
-        public static bool IsSameHierarchy([NotNull] this IEntityType firstEntityType, [NotNull] IEntityType secondEntityType)
-            => firstEntityType.IsAssignableFrom(secondEntityType)
-                || secondEntityType.IsAssignableFrom(firstEntityType);
-
-        /// <summary>
-        ///     Returns all types in hierarchy of the given <see cref="IEntityType" />.
-        /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <returns> All types in the hierarchy. </returns>
-        public static IEnumerable<IEntityType> GetTypesInHierarchy([NotNull] this IEntityType entityType)
-            => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive());
 
         /// <summary>
         ///     <para>

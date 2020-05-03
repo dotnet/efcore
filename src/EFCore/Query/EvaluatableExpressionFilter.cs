@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public class EvaluatableExpressionFilter : EvaluatableExpressionFilterBase
+    public class EvaluatableExpressionFilter : IEvaluatableExpressionFilter
     {
         // This methods are non-deterministic and result varies based on time of running the query.
         // Hence we don't evaluate them. See issue#2069
@@ -65,9 +65,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="dependencies"> The dependencies to use. </param>
         public EvaluatableExpressionFilter(
             [NotNull] EvaluatableExpressionFilterDependencies dependencies)
-            : base(dependencies)
         {
+            Check.NotNull(dependencies, nameof(dependencies));
+
+            Dependencies = dependencies;
         }
+
+        /// <summary>
+        ///     Parameter object containing service dependencies.
+        /// </summary>
+        protected  virtual EvaluatableExpressionFilterDependencies Dependencies { get; }
 
         /// <summary>
         ///     Checks whether the given expression can be evaluated.
@@ -75,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="expression"> The expression. </param>
         /// <param name="model"> The model. </param>
         /// <returns> True if the expression can be evaluated; false otherwise. </returns>
-        public override bool IsEvaluatableExpression(Expression expression, IModel model)
+        public virtual bool IsEvaluatableExpression(Expression expression, IModel model)
         {
             Check.NotNull(expression, nameof(expression));
             Check.NotNull(model, nameof(model));
@@ -109,7 +116,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                     break;
             }
 
-            return base.IsEvaluatableExpression(expression, model);
+            foreach (var plugin in Dependencies.Plugins)
+            {
+                if (!plugin.IsEvaluatableExpression(expression))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

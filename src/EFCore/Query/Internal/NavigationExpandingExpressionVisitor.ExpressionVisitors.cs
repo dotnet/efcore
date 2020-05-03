@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var entityType = entityReference.EntityType;
                     if (convertedType != null)
                     {
-                        entityType = entityType.GetTypesInHierarchy()
+                        entityType = entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
                             .FirstOrDefault(et => et.ClrType == convertedType);
                         if (entityType == null)
                         {
@@ -297,14 +297,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         private sealed class IncludeExpandingExpressionVisitor : ExpandingExpressionVisitor
         {
-            private readonly bool _isTracking;
+            private readonly bool _allowCycles;
 
             public IncludeExpandingExpressionVisitor(
                 NavigationExpandingExpressionVisitor navigationExpandingExpressionVisitor,
                 NavigationExpansionExpression source)
                 : base(navigationExpandingExpressionVisitor, source)
             {
-                _isTracking = navigationExpandingExpressionVisitor._queryCompilationContext.IsTracking;
+                _allowCycles = navigationExpandingExpressionVisitor._queryCompilationContext.IsTracking
+                    || navigationExpandingExpressionVisitor._queryCompilationContext.PerformIdentityResolution;
             }
 
             protected override Expression VisitExtension(Expression extensionExpression)
@@ -350,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var entityType = entityReference.EntityType;
                     if (convertedType != null)
                     {
-                        entityType = entityType.GetTypesInHierarchy()
+                        entityType = entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
                             .FirstOrDefault(et => et.ClrType == convertedType);
                         if (entityType == null)
                         {
@@ -459,7 +460,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private Expression ExpandInclude(Expression root, EntityReference entityReference)
             {
-                if (!_isTracking)
+                if (!_allowCycles)
                 {
                     VerifyNoCycles(entityReference.IncludePaths);
                 }
@@ -802,7 +803,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             var entityType = entityReference.EntityType;
                             if (convertedType != null)
                             {
-                                entityType = entityType.GetTypesInHierarchy()
+                                entityType = entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
                                     .FirstOrDefault(et => et.ClrType == convertedType);
                                 if (entityType == null)
                                 {

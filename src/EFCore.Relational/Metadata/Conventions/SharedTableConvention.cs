@@ -167,7 +167,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 var usePrefix = property.DeclaringEntityType != otherProperty.DeclaringEntityType
                     || property.IsPrimaryKey()
                     || otherProperty.IsPrimaryKey();
-                if (!property.IsPrimaryKey())
+                if (!property.IsPrimaryKey()
+                    && !property.IsConcurrencyToken)
                 {
                     var newColumnName = TryUniquify(property, columnName, properties, usePrefix, maxLength);
                     if (newColumnName != null)
@@ -177,7 +178,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     }
                 }
 
-                if (!otherProperty.IsPrimaryKey())
+                if (!otherProperty.IsPrimaryKey()
+                    && !otherProperty.IsConcurrencyToken)
                 {
                     var newColumnName = TryUniquify(otherProperty, columnName, properties, usePrefix, maxLength);
                     if (newColumnName != null)
