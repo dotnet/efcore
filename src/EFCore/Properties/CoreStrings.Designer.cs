@@ -87,6 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The properties expression '{expression}' is not valid. The expression should represent a simple property access: 't =&gt; t.MyProperty'. When specifying multiple properties use an anonymous type: 't =&gt; new {{ t.MyProperty1, t.MyProperty2 }}'.
         /// </summary>
+        [Obsolete]
         public static string InvalidPropertiesExpression([CanBeNull] object expression)
             => string.Format(
                 GetString("InvalidPropertiesExpression", nameof(expression)),
@@ -95,6 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The expression '{expression}' is not a valid property expression. The expression should represent a simple property access: 't =&gt; t.MyProperty'.
         /// </summary>
+        [Obsolete]
         public static string InvalidPropertyExpression([CanBeNull] object expression)
             => string.Format(
                 GetString("InvalidPropertyExpression", nameof(expression)),
