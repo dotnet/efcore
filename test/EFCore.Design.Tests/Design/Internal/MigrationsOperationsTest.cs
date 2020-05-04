@@ -27,15 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
         private class TestContext : DbContext
         {
-            public TestContext()
-            {
-                throw new Exception("This isn't the constructor you're looking for.");
-            }
-
-            public TestContext(DbContextOptions<TestContext> options)
-                : base(options)
-            {
-            }
         }
     }
 }

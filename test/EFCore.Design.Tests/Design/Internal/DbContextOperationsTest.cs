@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             // Even though newer versions of the tools will pass an empty array
             // older versions of the tools can pass null args.
-            var assembly = MockAssembly.Create(typeof(BaseContext), typeof(DerivedContext), typeof(HierarchyContextFactory));
+            var assembly = MockAssembly.Create(typeof(TestContext));
             _ = new TestDbContextOperations(
                 new TestOperationReporter(),
                 assembly,
