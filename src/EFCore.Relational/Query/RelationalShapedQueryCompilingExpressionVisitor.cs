@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <inheritdoc />
     public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQueryCompilingExpressionVisitor
     {
         private readonly Type _contextType;
@@ -24,6 +25,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly bool _detailedErrorsEnabled;
         private readonly bool _useRelationalNulls;
 
+        /// <summary>
+        ///     Creates a new instance of the <see cref="ShapedQueryCompilingExpressionVisitor" /> class.
+        /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
+        /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this class. </param>
+        /// <param name="queryCompilationContext"> The query compilation context object to use. </param>
         public RelationalShapedQueryCompilingExpressionVisitor(
             [NotNull] ShapedQueryCompilingExpressionVisitorDependencies dependencies,
             [NotNull] RelationalShapedQueryCompilingExpressionVisitorDependencies relationalDependencies,
@@ -41,8 +48,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             _useRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
         }
 
+        /// <summary>
+        ///     Parameter object containing relational service dependencies.
+        /// </summary>
         protected virtual RelationalShapedQueryCompilingExpressionVisitorDependencies RelationalDependencies { get; }
 
+        /// <inheritdoc />
         protected override Expression VisitShapedQuery(ShapedQueryExpression shapedQueryExpression)
         {
             Check.NotNull(shapedQueryExpression, nameof(shapedQueryExpression));

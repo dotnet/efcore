@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
+    /// <inheritdoc />
     public class RelationalQueryFilterDefiningQueryRewritingConvention : QueryFilterDefiningQueryRewritingConvention
     {
         /// <summary>
@@ -26,13 +27,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             DbSetAccessRewriter = new RelationalDbSetAccessRewritingExpressionVisitor(Dependencies.ContextType);
         }
 
+        /// <inheritdoc />
         protected class RelationalDbSetAccessRewritingExpressionVisitor : DbSetAccessRewritingExpressionVisitor
         {
+            /// <summary>
+            ///     Creates a new instance of <see cref="RelationalDbSetAccessRewritingExpressionVisitor" />.
+            /// </summary>
+            /// <param name="contextType"> The clr type of derived DbContext. </param>
             public RelationalDbSetAccessRewritingExpressionVisitor(Type contextType)
                 : base(contextType)
             {
             }
 
+            /// <inheritdoc />
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
                 Check.NotNull(methodCallExpression, nameof(methodCallExpression));

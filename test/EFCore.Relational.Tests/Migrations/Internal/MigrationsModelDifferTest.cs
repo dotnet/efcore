@@ -8574,7 +8574,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             => throw new NotImplementedException();
 
         [ConditionalFact]
-        public void Model_differ_does_not_detect_queryable_function_result_type()
+        public void Model_differ_does_not_detect_table_valued_function_result_type()
         {
             Execute(
                 _ => { },

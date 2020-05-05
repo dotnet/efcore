@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                 AppendString(builder, discriminator);
                 builder.Append("-");
             }
-            
+
             var partitionKey = entityType.GetPartitionKeyPropertyName() ?? CosmosClientWrapper.DefaultPartitionKey;
             foreach (var property in pk.Properties.Where(p => p.Name != StoreKeyConvention.IdPropertyName))
             {
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                 {
                     value = converter.ConvertToProvider(value);
                 }
-                
+
                 if (value is int x)
                 {
                     // We don't allow the Id to be zero for our custom generator.

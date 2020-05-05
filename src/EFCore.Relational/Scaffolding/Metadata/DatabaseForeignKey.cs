@@ -15,6 +15,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
     /// </summary>
     public class DatabaseForeignKey : Annotatable
     {
+        /// <summary>
+        ///     Creates a new instance of the <see cref="DatabaseForeignKey" /> class.
+        /// </summary>
+        /// <param name="table"> The table containing this foreign key constraint. </param>
+        /// <param name="name"> The name of the foreign key constraint. </param>
+        /// <param name="principalTable"> The table to which the columns are constrained. </param>
         public DatabaseForeignKey(
             [NotNull] DatabaseTable table,
             [CanBeNull] string? name,
@@ -59,6 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         /// </summary>
         public virtual ReferentialAction? OnDelete { get; set; }
 
+        /// <inheritdoc />
         public override string ToString() => Name ?? "<UNKNOWN>";
     }
 }

@@ -14,6 +14,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
     /// </summary>
     public class DatabasePrimaryKey : Annotatable
     {
+        /// <summary>
+        ///     Creates a new instance of the <see cref="DatabasePrimaryKey" /> class.
+        /// </summary>
+        /// <param name="table"> The table on which this primary key is defined. </param>
+        /// <param name="name"> The name of the primary key. </param>
         public DatabasePrimaryKey([NotNull] DatabaseTable table, [CanBeNull] string? name)
         {
             Table = table;
@@ -36,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         /// </summary>
         public virtual IList<DatabaseColumn> Columns { get; }
 
+        /// <inheritdoc />
         public override string ToString() => Name ?? "<UNKNOWN>";
     }
 }

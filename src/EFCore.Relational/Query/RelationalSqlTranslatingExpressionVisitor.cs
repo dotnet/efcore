@@ -17,6 +17,15 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <summary>
+    ///     <para>
+    ///         A class that translates expressions to corresponding SQL representation.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     {
         private const string RuntimeParameterPrefix = QueryCompilationContext.QueryParameterPrefix + "entity_equality_";
@@ -32,6 +41,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly QueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
         private readonly SqlTypeMappingVerifyingExpressionVisitor _sqlTypeMappingVerifyingExpressionVisitor;
 
+        /// <summary>
+        ///     Creates a new instance of the <see cref="RelationalSqlTranslatingExpressionVisitor" /> class.
+        /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
+        /// <param name="queryCompilationContext"> The query compilation context object to use. </param>
+        /// <param name="queryableMethodTranslatingExpressionVisitor"> A parent queryable method translating expression visitor to translate subquery. </param>
         public RelationalSqlTranslatingExpressionVisitor(
             [NotNull] RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
             [NotNull] QueryCompilationContext queryCompilationContext,
@@ -49,8 +64,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             _sqlTypeMappingVerifyingExpressionVisitor = new SqlTypeMappingVerifyingExpressionVisitor();
         }
 
+        /// <summary>
+        ///     Parameter object containing service dependencies.
+        /// </summary>
         protected virtual RelationalSqlTranslatingExpressionVisitorDependencies Dependencies { get; }
 
+        /// <summary>
+        ///     Translates an expression to an equivalent SQL representation.
+        /// </summary>
+        /// <param name="expression"> An expression to translate. </param>
+        /// <returns> A SQL translation of the given expression. </returns>
         public virtual SqlExpression Translate([NotNull] Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -82,6 +105,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return null;
         }
 
+        /// <summary>
+        ///     Translates Average over an expression to an equivalent SQL representation.
+        /// </summary>
+        /// <param name="expression"> An expression to translate Average over. </param>
+        /// <returns> A SQL translation of Average over the given expression. </returns>
         public virtual SqlExpression TranslateAverage([NotNull] Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -123,6 +151,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     sqlExpression.TypeMapping);
         }
 
+        /// <summary>
+        ///     Translates Count over an expression to an equivalent SQL representation.
+        /// </summary>
+        /// <param name="expression"> An expression to translate Count over. </param>
+        /// <returns> A SQL translation of Count over the given expression. </returns>
         public virtual SqlExpression TranslateCount([CanBeNull] Expression expression = null)
         {
             if (expression != null)
@@ -140,6 +173,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     typeof(int)));
         }
 
+        /// <summary>
+        ///     Translates LongCount over an expression to an equivalent SQL representation.
+        /// </summary>
+        /// <param name="expression"> An expression to translate LongCount over. </param>
+        /// <returns> A SQL translation of LongCount over the given expression. </returns>
         public virtual SqlExpression TranslateLongCount([CanBeNull] Expression expression = null)
         {
             if (expression != null)
@@ -157,6 +195,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     typeof(long)));
         }
 
+        /// <summary>
+        ///     Translates Max over an expression to an equivalent SQL representation.
+        /// </summary>
+        /// <param name="expression"> An expression to translate Max over. </param>
+        /// <returns> A SQL translation of Max over the given expression. </returns>
         public virtual SqlExpression TranslateMax([NotNull] Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -177,6 +220,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 : null;
         }
 
+        /// <summary>
+        ///     Translates Min over an expression to an equivalent SQL representation.
+        /// </summary>
+        /// <param name="expression"> An expression to translate Min over. </param>
+        /// <returns> A SQL translation of Min over the given expression. </returns>
         public virtual SqlExpression TranslateMin([NotNull] Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -197,6 +245,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 : null;
         }
 
+        /// <summary>
+        ///     Translates Sum over an expression to an equivalent SQL representation.
+        /// </summary>
+        /// <param name="expression"> An expression to translate Sum over. </param>
+        /// <returns> A SQL translation of Sum over the given expression. </returns>
         public virtual SqlExpression TranslateSum([NotNull] Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -232,6 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     sqlExpression.TypeMapping);
         }
 
+        /// <inheritdoc />
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
@@ -277,6 +331,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         null);
         }
 
+        /// <inheritdoc />
         protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
         {
             Check.NotNull(conditionalExpression, nameof(conditionalExpression));
@@ -292,9 +347,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 : _sqlExpressionFactory.Case(new[] { new CaseWhenClause(sqlTest, sqlIfTrue) }, sqlIfFalse);
         }
 
+        /// <inheritdoc />
         protected override Expression VisitConstant(ConstantExpression constantExpression)
             => new SqlConstantExpression(Check.NotNull(constantExpression, nameof(constantExpression)), null);
 
+        /// <inheritdoc />
         protected override Expression VisitExtension(Expression extensionExpression)
         {
             Check.NotNull(extensionExpression, nameof(extensionExpression));
@@ -320,10 +377,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <inheritdoc />
         protected override Expression VisitInvocation(InvocationExpression invocationExpression) => null;
+        /// <inheritdoc />
         protected override Expression VisitLambda<T>(Expression<T> lambdaExpression) => null;
+        /// <inheritdoc />
         protected override Expression VisitListInit(ListInitExpression listInitExpression) => null;
 
+        /// <inheritdoc />
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
             Check.NotNull(memberExpression, nameof(memberExpression));
@@ -336,9 +397,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     : Dependencies.MemberTranslatorProvider.Translate(sqlInnerExpression, memberExpression.Member, memberExpression.Type));
         }
 
+        /// <inheritdoc />
         protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
             => GetConstantOrNull(Check.NotNull(memberInitExpression, nameof(memberInitExpression)));
 
+        /// <inheritdoc />
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
@@ -565,16 +628,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                     : expression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitNew(NewExpression newExpression)
             => GetConstantOrNull(Check.NotNull(newExpression, nameof(newExpression)));
 
+        /// <inheritdoc />
         protected override Expression VisitNewArray(NewArrayExpression newArrayExpression) => null;
 
+        /// <inheritdoc />
         protected override Expression VisitParameter(ParameterExpression parameterExpression)
             => parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true
                 ? new SqlParameterExpression(Check.NotNull(parameterExpression, nameof(parameterExpression)), null)
                 : null;
 
+        /// <inheritdoc />
         protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
         {
             Check.NotNull(typeBinaryExpression, nameof(typeBinaryExpression));
@@ -612,6 +679,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return null;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
             Check.NotNull(unaryExpression, nameof(unaryExpression));

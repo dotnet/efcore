@@ -9,7 +9,13 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
-    ///     The principal data structure used by a compiled relational query during execution.
+    ///     <para>
+    ///         The principal data structure used by a compiled relational query during execution.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
     /// </summary>
     public class RelationalQueryContext : QueryContext
     {
@@ -22,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///         not used in application code.
         ///     </para>
         /// </summary>
-        /// <param name="dependencies"> The dependencies to use. </param>
-        /// <param name="relationalDependencies"> The relational-specific dependencies to use. </param>
+        /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
+        /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this class. </param>
         public RelationalQueryContext(
             [NotNull] QueryContextDependencies dependencies,
             [NotNull] RelationalQueryContextDependencies relationalDependencies)
@@ -35,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Relational-specific dependencies.
+        ///     Parameter object containing relational service dependencies.
         /// </summary>
         protected virtual RelationalQueryContextDependencies RelationalDependencies { get; }
 

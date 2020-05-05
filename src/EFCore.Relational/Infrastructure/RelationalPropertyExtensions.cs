@@ -8,6 +8,9 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
+    /// <summary>
+    ///     Relational extension methods for <see cref="IProperty" />.
+    /// </summary>
     public static class RelationalPropertyExtensions
     {
         /// <summary>

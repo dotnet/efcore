@@ -13,6 +13,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
     /// </summary>
     public class DatabaseSequence : Annotatable
     {
+        /// <summary>
+        ///     Creates a new instance of the <see cref="DatabaseSequence" /> class.
+        /// </summary>
+        /// <param name="database"> The database containing this sequence. </param>
+        /// <param name="name"> The name of the sequence. </param>
         public DatabaseSequence([NotNull] DatabaseModel database, [NotNull] string name)
         {
             Database = database;
@@ -64,6 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         /// </summary>
         public virtual bool? IsCyclic { get; set; }
 
+        /// <inheritdoc />
         public override string ToString() => Schema == null ? Name : $"{Schema}.{Name}";
     }
 }
