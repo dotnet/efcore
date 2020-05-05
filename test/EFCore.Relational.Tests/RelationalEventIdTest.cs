@@ -172,8 +172,14 @@ namespace Microsoft.EntityFrameworkCore
 
             public IDbContextTransaction UseTransaction(DbTransaction transaction) => throw new NotImplementedException();
 
+            public IDbContextTransaction UseTransaction(DbTransaction transaction, Guid transactionId) =>
+                throw new NotImplementedException();
+
             public Task<IDbContextTransaction> UseTransactionAsync(
                 DbTransaction transaction, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+
+            public Task<IDbContextTransaction> UseTransactionAsync(
+                DbTransaction transaction, Guid transactionId, CancellationToken cancellationToken = default) => throw new NotImplementedException();
 
             public ValueTask DisposeAsync() => throw new NotImplementedException();
         }
