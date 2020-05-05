@@ -385,13 +385,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Specifies an existing <see cref="DbTransaction" /> to be used for database operations.
         /// </summary>
         /// <param name="transaction"> The transaction to be used. </param>
+        /// <returns> An instance of <see cref="IDbTransaction" /> that wraps the provided transaction. </returns>
         public virtual IDbContextTransaction UseTransaction(DbTransaction transaction)
+            => UseTransaction(transaction, Guid.NewGuid());
+
+        /// <summary>
+        ///     Specifies an existing <see cref="DbTransaction" /> to be used for database operations.
+        /// </summary>
+        /// <param name="transaction"> The transaction to be used. </param>
+        /// <param name="transactionId"> The unique identifier for the transaction. </param>
+        /// <returns> An instance of <see cref="IDbTransaction" /> that wraps the provided transaction. </returns>
+        public virtual IDbContextTransaction UseTransaction(DbTransaction transaction, Guid transactionId)
         {
             if (ShouldUseTransaction(transaction))
             {
                 Open();
-
-                var transactionId = Guid.NewGuid();
 
                 transaction = Dependencies.TransactionLogger.TransactionUsed(
                     this,
@@ -412,15 +420,26 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="transaction"> The transaction to be used. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> An instance of <see cref="IDbTransaction" /> that wraps the provided transaction. </returns>
+        public virtual Task<IDbContextTransaction> UseTransactionAsync(
+            DbTransaction transaction,
+            CancellationToken cancellationToken = default)
+            => UseTransactionAsync(transaction, Guid.NewGuid(), cancellationToken);
+
+        /// <summary>
+        ///     Specifies an existing <see cref="DbTransaction" /> to be used for database operations.
+        /// </summary>
+        /// <param name="transaction"> The transaction to be used. </param>
+        /// <param name="transactionId"> The unique identifier for the transaction. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <returns> An instance of <see cref="IDbTransaction" /> that wraps the provided transaction. </returns>
         public virtual async Task<IDbContextTransaction> UseTransactionAsync(
             DbTransaction transaction,
+            Guid transactionId,
             CancellationToken cancellationToken = default)
         {
             if (ShouldUseTransaction(transaction))
             {
                 await OpenAsync(cancellationToken);
-
-                var transactionId = Guid.NewGuid();
 
                 transaction = await Dependencies.TransactionLogger.TransactionUsedAsync(
                     this,
