@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 // ReSharper disable AccessToModifiedClosure
 // ReSharper disable InconsistentNaming
@@ -212,17 +213,17 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    "Unsupported Binary operator type specified.",
+                    CoreStrings.TranslationFailed("DbSet<Customer>()    .Where(c => c.CustomerID == __args[0])"),
                     Assert.Throws<InvalidOperationException>(
-                        () => query(context, new[] { "ALFKI" }).First().CustomerID).Message);
+                        () => query(context, new[] { "ALFKI" }).First().CustomerID).Message.Replace("\r", "").Replace("\n", ""));
             }
 
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    "Unsupported Binary operator type specified.",
+                    CoreStrings.TranslationFailed("DbSet<Customer>()    .Where(c => c.CustomerID == __args[0])"),
                     Assert.Throws<InvalidOperationException>(
-                        () => query(context, new[] { "ANATR" }).First().CustomerID).Message);
+                        () => query(context, new[] { "ANATR" }).First().CustomerID).Message.Replace("\r", "").Replace("\n", ""));
             }
         }
 
@@ -476,17 +477,17 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    "Unsupported Binary operator type specified.",
+                    CoreStrings.TranslationFailed("DbSet<Customer>()    .Where(c => c.CustomerID == __args[0])"),
                     (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => query(context, new[] { "ALFKI" }).ToListAsync())).Message);
+                        () => query(context, new[] { "ALFKI" }).ToListAsync())).Message.Replace("\r", "").Replace("\n",""));
             }
 
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    "Unsupported Binary operator type specified.",
+                    CoreStrings.TranslationFailed("DbSet<Customer>()    .Where(c => c.CustomerID == __args[0])"),
                     (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => query(context, new[] { "ANATR" }).ToListAsync())).Message);
+                        () => query(context, new[] { "ANATR" }).ToListAsync())).Message.Replace("\r", "").Replace("\n", ""));
             }
         }
 
@@ -639,6 +640,19 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(14, await asyncSingleResultQuery(context, "ALFKI", "ANATR", "ANTON", "AROUT", "BERGS", "BLAUS", "BLONP", "BOLID", "BONAP", "BSBEV", "CACTU", "CENTC", "CHOPS", "CONSH", "RANDM"));
 
             Assert.Equal(14, await asyncSingleResultQueryWithCancellationToken(context, "ALFKI", "ANATR", "ANTON", "AROUT", "BERGS", "BLAUS", "BLONP", "BOLID", "BONAP", "BSBEV", "CACTU", "CENTC", "CHOPS", "CONSH", default));
+        }
+
+        [ConditionalFact]
+        public virtual void MakeBinary_does_not_throw_for_unsupported_operator()
+        {
+            var query = EF.CompileQuery((NorthwindContext context, object[] parameters)
+                => context.Customers.Where(c => c.CustomerID == (string)parameters[0]));
+
+            using var context = CreateContext();
+
+            var result = query(context, new[] { "ALFKI" }).ToList();
+
+            Assert.Single(result);
         }
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();

@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 15);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory (Skip = "Issue#19247")]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Projection_when_arithmetic_mixed_subqueries(bool async)
         {
