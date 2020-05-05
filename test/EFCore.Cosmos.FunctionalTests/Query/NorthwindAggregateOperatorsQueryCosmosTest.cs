@@ -1372,12 +1372,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND c[""CustomerID""] IN (""ALFKI""
             return base.Contains_over_entityType_with_null_should_rewrite_to_false(async);
         }
 
-        public override async Task String_FirstOrDefault_in_projection_does_client_eval(bool async)
+        public override async Task String_FirstOrDefault_in_projection_does_not_do_client_eval(bool async)
         {
-            await base.String_FirstOrDefault_in_projection_does_client_eval(async);
+            await base.String_FirstOrDefault_in_projection_does_not_do_client_eval(async);
 
             AssertSql(
-                @"SELECT c[""CustomerID""]
+                @"SELECT LEFT(c[""CustomerID""], 1) AS c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }

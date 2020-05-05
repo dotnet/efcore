@@ -442,6 +442,16 @@ WHERE (CASE
 END <> [f].[NullableBool]) OR [f].[NullableBool] IS NULL");
         }
 
+        public override async Task String_FirstOrDefault_and_LastOrDefault(bool async)
+        {
+            await base.String_FirstOrDefault_and_LastOrDefault(async);
+
+            AssertSql(
+                @"SELECT SUBSTRING([f].[FirstName], 1, 1) AS [first], SUBSTRING([f].[FirstName], LEN([f].[FirstName]), 1) AS [last]
+FROM [FunkyCustomers] AS [f]
+ORDER BY [f].[Id]");
+        }
+
         protected override void ClearLog()
             => Fixture.TestSqlLoggerFactory.Clear();
 

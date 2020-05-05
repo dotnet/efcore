@@ -68,6 +68,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         private static readonly MethodInfo _endsWithMethodInfo
             = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) });
 
+        private static readonly MethodInfo _firstOrDefaultMethodInfoWithoutArgs
+             = typeof(Enumerable).GetRuntimeMethods().Single(
+                 m => m.Name == nameof(Enumerable.FirstOrDefault)
+                 && m.GetParameters().Length == 1).MakeGenericMethod(new[] { typeof(char) });
+
+        private static readonly MethodInfo _lastOrDefaultMethodInfoWithoutArgs
+             = typeof(Enumerable).GetRuntimeMethods().Single(
+                m => m.Name == nameof(Enumerable.LastOrDefault)
+                && m.GetParameters().Length == 1).MakeGenericMethod(new[] { typeof(char) });
+
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         private const char LikeEscapeChar = '\\';
@@ -109,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         "CHARINDEX",
                         new[] { argument, _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping) },
                         nullable: true,
-                        argumentsPropagateNullability: new [] { true, true },
+                        argumentsPropagateNullability: new[] { true, true },
                         typeof(long));
 
                     charIndexExpression = _sqlExpressionFactory.Convert(charIndexExpression, typeof(int));
@@ -273,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
                 if (pattern is SqlConstantExpression constantPattern)
                 {
-                     // Intentionally string.Empty since we don't want to match nulls here.
+                    // Intentionally string.Empty since we don't want to match nulls here.
 #pragma warning disable CA1820 // Test for empty strings using string length
                     if ((string)constantPattern.Value == string.Empty)
 #pragma warning restore CA1820 // Test for empty strings using string length
@@ -303,6 +313,36 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                             argumentsPropagateNullability: new[] { true, true },
                             typeof(int)),
                         _sqlExpressionFactory.Constant(0)));
+            }
+
+            if (_firstOrDefaultMethodInfoWithoutArgs.Equals(method))
+            {
+                var argument = arguments[0];
+                return _sqlExpressionFactory.Function(
+                    "SUBSTRING",
+                    new[] { argument, _sqlExpressionFactory.Constant(1), _sqlExpressionFactory.Constant(1) },
+                    nullable: true,
+                    argumentsPropagateNullability: new[] { true, true, true },
+                    method.ReturnType);
+            }
+
+
+            if (_lastOrDefaultMethodInfoWithoutArgs.Equals(method))
+            {
+                var argument = arguments[0];
+                return _sqlExpressionFactory.Function(
+                    "SUBSTRING",
+                    new[] { argument,
+                          _sqlExpressionFactory.Function(
+                                "LEN",
+                                new[] { argument },
+                                nullable: true,
+                                argumentsPropagateNullability: new[] { true },
+                                typeof(int)),
+                        _sqlExpressionFactory.Constant(1) },
+                    nullable: true,
+                    argumentsPropagateNullability: new[] { true, true, true },
+                    method.ReturnType);
             }
 
             if (_startsWithMethodInfo.Equals(method))

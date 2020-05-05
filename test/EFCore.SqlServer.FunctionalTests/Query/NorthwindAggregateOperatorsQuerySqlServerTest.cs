@@ -1279,12 +1279,12 @@ WHERE ([o].[ProductID] = 42) AND EXISTS (
     WHERE ([o0].[OrderID] > 42) AND (([o0].[OrderID] = [o].[OrderID]) AND ([o0].[ProductID] = [o].[ProductID])))");
         }
 
-        public override async Task String_FirstOrDefault_in_projection_does_client_eval(bool async)
+        public override async Task String_FirstOrDefault_in_projection_does_not_do_client_eval(bool async)
         {
-            await base.String_FirstOrDefault_in_projection_does_client_eval(async);
+            await base.String_FirstOrDefault_in_projection_does_not_do_client_eval(async);
 
             AssertSql(
-                @"SELECT [c].[CustomerID]
+                @"SELECT SUBSTRING([c].[CustomerID], 1, 1)
 FROM [Customers] AS [c]");
         }
 

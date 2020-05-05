@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -25,6 +26,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
         private static readonly MethodInfo _endsWithMethodInfo
             = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) });
+
+        private static readonly MethodInfo _firstOrDefaultMethodInfoWithoutArgs
+           = typeof(Enumerable).GetRuntimeMethods().Single(
+               m => m.Name == nameof(Enumerable.FirstOrDefault)
+               && m.GetParameters().Length == 1).MakeGenericMethod(new[] { typeof(char) });
+
+        private static readonly MethodInfo _lastOrDefaultMethodInfoWithoutArgs
+             = typeof(Enumerable).GetRuntimeMethods().Single(
+                m => m.Name == nameof(Enumerable.LastOrDefault)
+                && m.GetParameters().Length == 1).MakeGenericMethod(new[] { typeof(char) });
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -53,6 +64,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             if (_containsMethodInfo.Equals(method))
             {
                 return TranslateSystemFunction("CONTAINS", instance, arguments[0], typeof(bool));
+            }
+
+            if (_firstOrDefaultMethodInfoWithoutArgs.Equals(method))
+            {
+                return TranslateSystemFunction("LEFT", arguments[0], _sqlExpressionFactory.Constant(1), typeof(char));
+            }
+
+
+            if (_lastOrDefaultMethodInfoWithoutArgs.Equals(method))
+            {
+                return TranslateSystemFunction("RIGHT", arguments[0], _sqlExpressionFactory.Constant(1), typeof(char));
             }
 
             if (_startsWithMethodInfo.Equals(method))

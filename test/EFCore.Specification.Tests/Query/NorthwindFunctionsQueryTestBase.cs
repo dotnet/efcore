@@ -149,6 +149,26 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_FirstOrDefault_MethodCall(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.FirstOrDefault() == 'A'),
+                entryCount: 10);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_LastOrDefault_MethodCall(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.LastOrDefault() == 's'),
+                entryCount: 9);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task String_Contains_MethodCall(bool async)
         {
             return AssertQuery(
