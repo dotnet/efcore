@@ -3554,6 +3554,23 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_collection_with_multiple_orderbys_complex_repeated_checked(bool async)
+        {
+            checked
+            {
+                return AssertIncludeQuery(
+                    async,
+                    ss => ss.Set<Level2>()
+                        .Include(l2 => l2.OneToMany_Optional2)
+                        .OrderBy(l2 => -l2.Level1_Required_Id)
+                        .ThenBy(l2 => -l2.Level1_Required_Id).ThenBy(l2 => l2.Name),
+                    new List<IExpectedInclude> { new ExpectedInclude<Level2>(e => e.OneToMany_Optional2, "OneToMany_Optional2") },
+                    assertOrder: true);
+            }
+        }
+
         [ConditionalFact]
         public virtual void Entries_for_detached_entities_are_removed()
         {
@@ -4911,7 +4928,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => from l1 in ss.Set<Level1>() 
+                ss => from l1 in ss.Set<Level1>()
                       join l2 in ss.Set<Level2>() on l1.Id equals l2.Level1_Required_Id
                       join l3 in ss.Set<Level3>() on l2.Id equals l3.Level2_Required_Id
                       join l4 in ss.Set<Level4>() on l3.Id equals l4.Level3_Required_Id

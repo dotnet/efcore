@@ -705,6 +705,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return _sqlExpressionFactory.Not(sqlOperand);
 
                 case ExpressionType.Negate:
+                case ExpressionType.NegateChecked:
                     return _sqlExpressionFactory.Negate(sqlOperand);
 
                 case ExpressionType.Convert:

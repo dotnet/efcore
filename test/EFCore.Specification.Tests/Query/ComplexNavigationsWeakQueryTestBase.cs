@@ -122,6 +122,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory(Skip = "Issue#16752")]
+        public override Task Include_collection_with_multiple_orderbys_complex_repeated_checked(bool async)
+        {
+            return base.Include_collection_with_multiple_orderbys_complex_repeated_checked(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue#16752")]
         public override Task Include_collection_with_multiple_orderbys_member(bool async)
         {
             return base.Include_collection_with_multiple_orderbys_member(async);
