@@ -210,11 +210,14 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         public virtual bool IsCondition { get; }
 
+        /// <summary>
+        ///     Indicates whether or not the column is concurrency token.
+        /// </summary>
         [Obsolete]
         public virtual bool IsConcurrencyToken { get; }
 
         /// <summary>
-        ///     Indicates whether or not the column part of a primary or alternate key.
+        ///     Indicates whether or not the column is part of a primary or alternate key.
         /// </summary>
         public virtual bool IsKey { get; }
 

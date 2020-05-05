@@ -15,6 +15,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
     /// </summary>
     public class DatabaseColumn : Annotatable
     {
+        /// <summary>
+        ///     Creates a new instance of the <see cref="DatabaseColumn" /> class.
+        /// </summary>
+        /// <param name="table"> The table containing this column. </param>
+        /// <param name="name"> The name of the column. </param>
+        /// <param name="storeType"> The store type of the column. </param>
         public DatabaseColumn([NotNull] DatabaseTable table, [NotNull] string name, [NotNull] string storeType)
         {
             Table = table;
@@ -75,6 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         /// </summary>
         public virtual ValueGenerated? ValueGenerated { get; set; }
 
+        /// <inheritdoc />
         public override string ToString() => Name;
     }
 }

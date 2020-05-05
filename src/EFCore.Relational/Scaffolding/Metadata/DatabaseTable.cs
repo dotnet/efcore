@@ -14,6 +14,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
     /// </summary>
     public class DatabaseTable : Annotatable
     {
+        /// <summary>
+        ///     Creates a new instance of the <see cref="DatabaseTable" /> class.
+        /// </summary>
+        /// <param name="database"> The database containing this table. </param>
+        /// <param name="name"> The name of the table. </param>
         public DatabaseTable([NotNull] DatabaseModel database, [NotNull] string name)
         {
             Database = database;
@@ -69,6 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         /// </summary>
         public virtual IList<DatabaseForeignKey> ForeignKeys { get; }
 
+        /// <inheritdoc />
         public override string ToString() => Schema == null ? Name : $"{Schema}.{Name}";
     }
 }

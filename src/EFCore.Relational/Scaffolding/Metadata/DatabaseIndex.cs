@@ -14,6 +14,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
     /// </summary>
     public class DatabaseIndex : Annotatable
     {
+        /// <summary>
+        ///     Creates a new instance of the <see cref="DatabaseIndex" /> class.
+        /// </summary>
+        /// <param name="table"> The table containing this index. </param>
+        /// <param name="name"> The name of the index. </param>
         public DatabaseIndex([NotNull] DatabaseTable table, [CanBeNull] string? name)
         {
             Table = table;
@@ -46,6 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         /// </summary>
         public virtual string? Filter { get; [param: CanBeNull] set; }
 
+        /// <inheritdoc />
         public override string ToString() => Name ?? "<UNKNOWN>";
     }
 }

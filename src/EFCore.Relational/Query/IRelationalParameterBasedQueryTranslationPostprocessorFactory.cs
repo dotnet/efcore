@@ -17,6 +17,11 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public interface IRelationalParameterBasedQueryTranslationPostprocessorFactory
     {
+        /// <summary>
+        ///     Creates a new <see cref="RelationalParameterBasedQueryTranslationPostprocessor"/>.
+        /// </summary>
+        /// <param name="useRelationalNulls"> A bool value indicating if relational nulls should be used. </param>
+        /// <returns> A relational parameter based query translation postprocessor. </returns>
         RelationalParameterBasedQueryTranslationPostprocessor Create(bool useRelationalNulls);
     }
 }

@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private readonly object _nameOrMember;
 
         [DebuggerStepThrough]
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member See issue#20837
         public MemberIdentity([NotNull] string name)
             : this((object)name)
         {

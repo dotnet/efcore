@@ -383,14 +383,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The option set from the
         ///     <see
-        ///         cref="Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions.AddDbContextPool{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)" />
+        ///         cref="EntityFrameworkServiceCollectionExtensions.AddDbContextPool{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)" />
         ///     method.
         /// </summary>
         public virtual int? MaxPoolSize => _maxPoolSize;
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+        /// <summary>
+        ///     The options set from the <see cref="DbContextOptionsBuilder.AddInterceptors(IEnumerable{IInterceptor})" /> method.
+        /// </summary>
         public virtual IEnumerable<IInterceptor> Interceptors => _interceptors;
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
         /// <summary>
         ///     Adds the services required to make the selected options work. This is used when there

@@ -13,13 +13,13 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
-    public class QueryableDbFunctionConventionTest
+    public class TableValuedDbFunctionConventionTest
     {
         [ConditionalFact]
         public void Configures_return_entity_as_not_mapped_keyless()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.HasDbFunction(typeof(QueryableDbFunctionConventionTest).GetMethod(
+            modelBuilder.HasDbFunction(typeof(TableValuedDbFunctionConventionTest).GetMethod(
                         nameof(GetKeylessEntities),
                         BindingFlags.NonPublic | BindingFlags.Static));
 
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<TestEntity>().ToTable("TestTable").HasKey(e => e.Name);
-            modelBuilder.HasDbFunction(typeof(QueryableDbFunctionConventionTest).GetMethod(
+            modelBuilder.HasDbFunction(typeof(TableValuedDbFunctionConventionTest).GetMethod(
                         nameof(GetEntities),
                         BindingFlags.NonPublic | BindingFlags.Static));
 
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Owned<KeylessEntity>();
-            modelBuilder.HasDbFunction(typeof(QueryableDbFunctionConventionTest).GetMethod(
+            modelBuilder.HasDbFunction(typeof(TableValuedDbFunctionConventionTest).GetMethod(
                         nameof(GetKeylessEntities),
                         BindingFlags.NonPublic | BindingFlags.Static));
 
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<TestEntity>().OwnsOne(e => e.KeylessEntity);
-            modelBuilder.HasDbFunction(typeof(QueryableDbFunctionConventionTest).GetMethod(
+            modelBuilder.HasDbFunction(typeof(TableValuedDbFunctionConventionTest).GetMethod(
                         nameof(GetKeylessEntities),
                         BindingFlags.NonPublic | BindingFlags.Static));
 
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void Throws_when_adding_a_function_returning_a_scalar()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.HasDbFunction(typeof(QueryableDbFunctionConventionTest).GetMethod(
+            modelBuilder.HasDbFunction(typeof(TableValuedDbFunctionConventionTest).GetMethod(
                         nameof(GetScalars),
                         BindingFlags.NonPublic | BindingFlags.Static));
 

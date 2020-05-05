@@ -5,6 +5,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -28,10 +29,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         IEntityTypeAnnotationChangedConvention,
         IEntityTypeBaseTypeChangedConvention
     {
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
         public static readonly string IdPropertyName = "id";
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
         public static readonly string JObjectPropertyName = "__jObject";
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
         /// <summary>
         ///     Creates a new instance of <see cref="StoreKeyConvention" />.

@@ -20,6 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// </summary>
     public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
     {
+        private const string ConcurrencyPropertyPrefix = "_TableSharingConcurrencyTokenConvention_";
+
         /// <summary>
         ///     Creates a new instance of <see cref="TableSharingConcurrencyTokenConvention" />.
         /// </summary>
@@ -36,8 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Parameter object containing service dependencies.
         /// </summary>
         protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
-
-        public static readonly string ConcurrencyPropertyPrefix = "_TableSharingConcurrencyTokenConvention_";
 
         /// <inheritdoc />
         public virtual void ProcessModelFinalizing(

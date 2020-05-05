@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="SqlConstantExpression" /> class.
         /// </summary>
-        /// <param name="constantExpression"> A <see cref="ConstantExpression"/> </param>
+        /// <param name="constantExpression"> A <see cref="ConstantExpression"/>. </param>
         /// <param name="typeMapping"> The <see cref="RelationalTypeMapping"/> associated with the expression. </param>
         public SqlConstantExpression([NotNull] ConstantExpression constantExpression, [CanBeNull] RelationalTypeMapping typeMapping)
             : base(Check.NotNull(constantExpression, nameof(constantExpression)).Type, typeMapping)

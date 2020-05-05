@@ -22,6 +22,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly ConcurrentDictionary<Type, ConstructorInfo> _constructors
             = new ConcurrentDictionary<Type, ConstructorInfo>();
 
+        /// <summary>
+        ///     Creates a new instance of the <see cref="ReaderColumn" /> class.
+        /// </summary>
+        /// <param name="type"> The CLR type of the column. </param>
+        /// <param name="nullable"> A value indicating if the column is nullable. </param>
+        /// <param name="name"> The name of the column. </param>
         protected ReaderColumn([NotNull] Type type, bool nullable, [CanBeNull] string name)
         {
             Type = type;
@@ -29,8 +35,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Name = name;
         }
 
+        /// <summary>
+        ///     The CLR type of the column.
+        /// </summary>
         public virtual Type Type { get; }
+        /// <summary>
+        ///     A value indicating if the column is nullable.
+        /// </summary>
         public virtual bool IsNullable { get; }
+        /// <summary>
+        ///     The name of the column.
+        /// </summary>
         public virtual string Name { get; }
 
         /// <summary>
