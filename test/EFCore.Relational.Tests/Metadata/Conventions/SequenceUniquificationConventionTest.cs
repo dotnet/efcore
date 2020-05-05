@@ -19,11 +19,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var modelBuilder = GetModelBuilder();
             modelBuilder.GetInfrastructure().HasMaxIdentifierLength(10);
             modelBuilder.HasSequence("UniquifyMe", (string)null);
-            modelBuilder.HasSequence("UniquifyMeToo", (string)null);
-            modelBuilder.HasSequence("UniquifyMeAsWell", (string)null);
+            modelBuilder.HasSequence("UniquifyM!Too", (string)null);
+            modelBuilder.HasSequence("UniquifyM~", (string)null);
             modelBuilder.HasSequence("UniquifyMe", "TestSchema");
-            modelBuilder.HasSequence("UniquifyMeToo", "TestSchema");
-            modelBuilder.HasSequence("UniquifyMeAsWell", "TestSchema");
+            modelBuilder.HasSequence("UniquifyM!Too", "TestSchema");
+            modelBuilder.HasSequence("UniquifyM~", "TestSchema");
 
             var model = modelBuilder.Model;
             model.FinalizeModel();

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -43,71 +44,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             if (modelSequences != null)
             {
-                var schemaToSequenceNameToSequences = new Dictionary<string, Dictionary<string, Sequence>>();
-                var nullSchemaSequenceNameToSequences = new Dictionary<string, Sequence>();
-                foreach (var sequenceTupleToSequence in modelSequences)
-                {
-                    var schemaName = sequenceTupleToSequence.Key.Schema;
-                    if (schemaName == null)
-                    {
-                        nullSchemaSequenceNameToSequences.Add(
-                            sequenceTupleToSequence.Key.Name, sequenceTupleToSequence.Value);
-                    }
-                    else
-                    {
-                        if (!schemaToSequenceNameToSequences.TryGetValue(schemaName, out var sequenceNameToSequences))
-                        {
-                            sequenceNameToSequences = new Dictionary<string, Sequence>();
-                            schemaToSequenceNameToSequences[schemaName] = sequenceNameToSequences;
-                        }
-
-                        sequenceNameToSequences.Add(sequenceTupleToSequence.Key.Name, sequenceTupleToSequence.Value);
-                    }
-                }
-
                 var maxLength = model.GetMaxIdentifierLength();
-                UniquifySequenceNamesInSchema(
-                    null, nullSchemaSequenceNameToSequences, maxLength, ref modelSequences);
-                foreach (var schemaToSequenceNameToSequence in schemaToSequenceNameToSequences)
+                foreach (var sequence in modelSequences.ToList())
                 {
-                    UniquifySequenceNamesInSchema(schemaToSequenceNameToSequence.Key,
-                        schemaToSequenceNameToSequence.Value, maxLength, ref modelSequences);
+                    var originalSequenceName = sequence.Key.Name;
+                    if (originalSequenceName.Length > maxLength)
+                    {
+                        var schemaName = sequence.Key.Schema;
+                        var modelSequencesExceptSelf = modelSequences
+                            .Where(kvp => kvp.Key != (originalSequenceName, schemaName))
+                            .ToDictionary(k => k.Key, k => k.Value);
+                        var newSequenceName = Uniquifier.Uniquify(
+                            originalSequenceName, modelSequencesExceptSelf,
+                            sequenceName => (sequenceName, schemaName), maxLength);
+
+                        modelSequences.Remove((originalSequenceName, schemaName));
+                        modelSequences.Add((newSequenceName, schemaName),
+                            Sequence.WithNewName(sequence.Value, newSequenceName));
+                    }
                 }
-            }
-        }
-
-        private static void UniquifySequenceNamesInSchema(
-            string schemaName, Dictionary<string, Sequence> sequenceNameToSequences, int maxLength,
-            ref SortedDictionary<(string Name, string Schema), Sequence> modelSequences)
-        {
-            var sequenceNamesInSchema = new Dictionary<string, int>();
-            var sequencesToRemove = new List<(string Name, string Schema)>();
-            var sequencesToAdd = new Dictionary<(string Name, string Schema), Sequence>();
-            foreach (var sequenceNameToSequence in sequenceNameToSequences)
-            {
-                var originalSequenceName = sequenceNameToSequence.Key;
-                var newSequenceName =
-                    Uniquifier.Uniquify(originalSequenceName, sequenceNamesInSchema, maxLength);
-                sequenceNamesInSchema.Add(newSequenceName, 0);
-                if (!string.Equals(newSequenceName, originalSequenceName, StringComparison.Ordinal))
-                {
-                    // do not just remove the old and immediately add the new sequence
-                    // here in case the new name clashes with a different old, but
-                    // not yet removed sequence
-                    sequencesToRemove.Add((originalSequenceName, schemaName));
-                    sequencesToAdd.Add((newSequenceName, schemaName),
-                        Sequence.WithNewName(sequenceNameToSequence.Value, newSequenceName));
-                }
-            }
-
-            foreach (var sequenceToRemove in sequencesToRemove)
-            {
-                modelSequences.Remove(sequenceToRemove);
-            }
-
-            foreach (var sequenceToAdd in sequencesToAdd)
-            {
-                modelSequences.Add(sequenceToAdd.Key, sequenceToAdd.Value);
             }
         }
     }
