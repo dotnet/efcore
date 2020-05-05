@@ -152,22 +152,17 @@ namespace Microsoft.EntityFrameworkCore.Query
             // - if there is no Else block, return null
             if (whenClauses.Count == 0)
             {
-                return elseResult == null
-                    ? SqlExpressionFactory.Constant(null, caseExpression.TypeMapping)
-                    : elseResult;
+                return elseResult ?? SqlExpressionFactory.Constant(null, caseExpression.TypeMapping);
             }
 
             // if there is only one When clause and it's test evaluates to 'true' AND there is no else block, simply return the result
-            if (elseResult == null
+            return elseResult == null
                 && whenClauses.Count == 1
                 && whenClauses[0].Test is SqlConstantExpression singleTestConstant
                 && singleTestConstant.Value is bool boolConstant
-                && boolConstant)
-            {
-                return whenClauses[0].Result;
-            }
-
-            return caseExpression.Update(operand, whenClauses, elseResult);
+                && boolConstant
+                ? whenClauses[0].Result
+                : caseExpression.Update(operand, whenClauses, elseResult);
         }
 
         protected override Expression VisitCollate(CollateExpression collateExpresion)
@@ -805,14 +800,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return sqlBinaryExpression.Update(left, right);
 
-            bool? IsTrueOrFalse(SqlExpression sqlExpression)
+            static bool? IsTrueOrFalse(SqlExpression sqlExpression)
             {
-                if (sqlExpression is SqlConstantExpression sqlConstantExpression && sqlConstantExpression.Value is bool boolConstant)
-                {
-                    return boolConstant;
-                }
-
-                return null;
+                return sqlExpression is SqlConstantExpression sqlConstantExpression && sqlConstantExpression.Value is bool boolConstant
+                    ? boolConstant
+                    : (bool?)null;
             }
         }
 
@@ -941,10 +933,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private SqlExpression SimplifyLogicalSqlBinaryExpression(SqlBinaryExpression sqlBinaryExpression)
         {
-            var leftUnary = sqlBinaryExpression.Left as SqlUnaryExpression;
-            var rightUnary = sqlBinaryExpression.Right as SqlUnaryExpression;
-            if (leftUnary != null
-                && rightUnary != null
+            if (sqlBinaryExpression.Left is SqlUnaryExpression leftUnary
+                && sqlBinaryExpression.Right is SqlUnaryExpression rightUnary
                 && (leftUnary.OperatorType == ExpressionType.Equal || leftUnary.OperatorType == ExpressionType.NotEqual)
                 && (rightUnary.OperatorType == ExpressionType.Equal || rightUnary.OperatorType == ExpressionType.NotEqual)
                 && leftUnary.Operand.Equals(rightUnary.Operand))

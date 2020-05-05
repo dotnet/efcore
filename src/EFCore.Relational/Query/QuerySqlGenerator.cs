@@ -449,7 +449,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _relationalCommandBuilder.Append(")");
             }
 
-            _relationalCommandBuilder.Append(GenerateOperator(sqlBinaryExpression));
+            _relationalCommandBuilder.Append(GetOperator(sqlBinaryExpression));
 
             requiresBrackets = RequiresBrackets(sqlBinaryExpression.Right);
 
@@ -730,7 +730,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="binaryExpression"> A SQL binary operation. </param>
         /// <returns> A string representation of the binary operator. </returns>
+        [Obsolete("Use GetOperator instead.")]
         protected virtual string GenerateOperator([NotNull] SqlBinaryExpression binaryExpression)
+        {
+            Check.NotNull(binaryExpression, nameof(binaryExpression));
+
+            return _operatorMap[binaryExpression.OperatorType];
+        }
+
+        /// <summary>
+        ///     Gets a SQL operator for a SQL binary operation.
+        /// </summary>
+        /// <param name="binaryExpression"> A SQL binary operation. </param>
+        /// <returns> A string representation of the binary operator. </returns>
+        protected virtual string GetOperator([NotNull] SqlBinaryExpression binaryExpression)
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 

@@ -37,26 +37,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <inheritdoc />
         public virtual SqlExpression ApplyDefaultTypeMapping(SqlExpression sqlExpression)
         {
-            if (sqlExpression == null
-                || sqlExpression.TypeMapping != null)
-            {
-                return sqlExpression;
-            }
-
-            if (sqlExpression is SqlUnaryExpression sqlUnaryExpression
-                && sqlUnaryExpression.OperatorType == ExpressionType.Convert
-                && sqlUnaryExpression.Type == typeof(object))
-            {
-                return sqlUnaryExpression.Operand;
-            }
-
-            return ApplyTypeMapping(sqlExpression, _typeMappingSource.FindMapping(sqlExpression.Type));
+            return sqlExpression == null
+                || sqlExpression.TypeMapping != null
+                ? sqlExpression
+                : sqlExpression is SqlUnaryExpression sqlUnaryExpression
+                    && sqlUnaryExpression.OperatorType == ExpressionType.Convert
+                    && sqlUnaryExpression.Type == typeof(object)
+                    ? sqlUnaryExpression.Operand
+                    : ApplyTypeMapping(sqlExpression, _typeMappingSource.FindMapping(sqlExpression.Type));
         }
 
         /// <inheritdoc />
         public virtual SqlExpression ApplyTypeMapping(SqlExpression sqlExpression, RelationalTypeMapping typeMapping)
         {
+#pragma warning disable IDE0046 // Convert to conditional expression
             if (sqlExpression == null
+#pragma warning restore IDE0046 // Convert to conditional expression
                 || sqlExpression.TypeMapping != null)
             {
                 return sqlExpression;
@@ -404,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 typeMappedArguments,
                 nullable: true,
                 // COALESCE is handled separately since it's only nullable if *both* arguments are null
-                argumentsPropagateNullability: new[] { false, false},
+                argumentsPropagateNullability: new[] { false, false },
                 resultType,
                 inferredTypeMapping);
         }
@@ -762,14 +758,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
+        [Obsolete("Use overload which takes TableExpressionBase by passing FromSqlExpression directly.")]
         public virtual SelectExpression Select(IEntityType entityType, string sql, Expression sqlArguments)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(sql, nameof(sql));
 
-            var tableExpression = new FromSqlExpression(sql, sqlArguments,
-                (entityType.GetViewOrTableMappings().SingleOrDefault()?.Table.Name
-                ?? entityType.ShortName()).Substring(0, 1).ToLower());
+            var tableExpression = new FromSqlExpression(
+                (entityType.GetViewOrTableMappings().SingleOrDefault()?.Table.Name ?? entityType.ShortName()).Substring(0, 1).ToLower(),
+                sql, sqlArguments);
             var selectExpression = new SelectExpression(entityType, tableExpression);
             AddConditions(selectExpression, entityType);
 

@@ -19,9 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    /// <summary>
-    ///     Represents a SQL Table Valued Fuction in the sql generation tree.
-    /// </summary>
     public class TableValuedFunctionExpression : TableExpressionBase
     {
         /// <summary>
