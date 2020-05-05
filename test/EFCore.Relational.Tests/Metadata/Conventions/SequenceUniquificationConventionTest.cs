@@ -14,15 +14,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     public class SequenceUniquificationConventionTest
     {
         [ConditionalFact]
-        public virtual void Sequence_names_are_uniquified_and_truncated()
+        public virtual void Sequence_names_are_truncated_and_uniquified()
         {
             var modelBuilder = GetModelBuilder();
             modelBuilder.GetInfrastructure().HasMaxIdentifierLength(10);
-            modelBuilder.HasSequence("UniquifyMe", (string)null);
+            modelBuilder.HasSequence("UniquifyMeToo", (string)null);
+            modelBuilder.HasSequence("UniquifyMeToo", "TestSchema");
             modelBuilder.HasSequence("UniquifyM!Too", (string)null);
-            modelBuilder.HasSequence("UniquifyM~", (string)null);
-            modelBuilder.HasSequence("UniquifyMe", "TestSchema");
             modelBuilder.HasSequence("UniquifyM!Too", "TestSchema");
+            // the below ensure we deal with clashes with existing
+            // sequence names that look like candidate uniquified names
+            modelBuilder.HasSequence("UniquifyM~", (string)null);
             modelBuilder.HasSequence("UniquifyM~", "TestSchema");
 
             var model = modelBuilder.Model;
@@ -41,22 +43,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 },
                 s2 =>
                 {
-                    Assert.Equal("UniquifyM~", s2.Name);
+                    Assert.Equal("Uniquify~2", s2.Name);
                     Assert.Null(s2.Schema);
                 },
                 s3 =>
                 {
-                    Assert.Equal("UniquifyM~", s3.Name);
+                    Assert.Equal("Uniquify~2", s3.Name);
                     Assert.Equal("TestSchema", s3.Schema);
                 },
                 s4 =>
                 {
-                    Assert.Equal("UniquifyMe", s4.Name);
+                    Assert.Equal("UniquifyM~", s4.Name);
                     Assert.Null(s4.Schema);
                 },
                 s5 =>
                 {
-                    Assert.Equal("UniquifyMe", s5.Name);
+                    Assert.Equal("UniquifyM~", s5.Name);
                     Assert.Equal("TestSchema", s5.Schema);
                 });
         }

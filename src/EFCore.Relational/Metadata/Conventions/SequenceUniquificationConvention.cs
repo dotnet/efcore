@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -45,23 +44,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             if (modelSequences != null)
             {
                 var maxLength = model.GetMaxIdentifierLength();
-                foreach (var sequence in modelSequences.ToList())
-                {
-                    var originalSequenceName = sequence.Key.Name;
-                    if (originalSequenceName.Length > maxLength)
-                    {
-                        var schemaName = sequence.Key.Schema;
-                        var modelSequencesExceptSelf = modelSequences
-                            .Where(kvp => kvp.Key != (originalSequenceName, schemaName))
-                            .ToDictionary(k => k.Key, k => k.Value);
-                        var newSequenceName = Uniquifier.Uniquify(
-                            originalSequenceName, modelSequencesExceptSelf,
-                            sequenceName => (sequenceName, schemaName), maxLength);
+                var toReplace = modelSequences
+                    .Where(s => s.Key.Name.Length > maxLength).ToList();
 
-                        modelSequences.Remove((originalSequenceName, schemaName));
-                        modelSequences.Add((newSequenceName, schemaName),
-                            Sequence.WithNewName(sequence.Value, newSequenceName));
-                    }
+                foreach (var sequence in toReplace)
+                {
+                    var schemaName = sequence.Key.Schema;
+                    var newSequenceName = Uniquifier.Uniquify(
+                        sequence.Key.Name, modelSequences,
+                        sequenceName => (sequenceName, schemaName), maxLength);
+                    Sequence.UpdateSequence((IMutableModel)model, sequence.Value, newSequenceName);
                 }
             }
         }
