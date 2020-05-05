@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
                 entityType, keyValue, conflictingValues, databaseValues);
 
         /// <summary>
-        ///      Invalid {state} encountered.
+        ///     Invalid {state} encountered.
         /// </summary>
         public static string InvalidStateEncountered([CanBeNull] object state)
             => string.Format(
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
                 state);
 
         /// <summary>
-        ///      Cannot apply DefaultIfEmpty after a client-evaluated projection.
+        ///     Cannot apply DefaultIfEmpty after a client-evaluated projection.
         /// </summary>
         public static string DefaultIfEmptyAppliedAfterProjection
             => GetString("DefaultIfEmptyAppliedAfterProjection");
