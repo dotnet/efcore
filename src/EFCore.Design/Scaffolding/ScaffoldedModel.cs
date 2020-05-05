@@ -14,19 +14,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
     public class ScaffoldedModel
     {
         /// <summary>
-        ///     Creates a new instance of <see cref="ScaffoldedModel" />.
-        /// </summary>
-        /// <param name="contextFile"> The scaffolded context file. </param>
-        public ScaffoldedModel([NotNull] ScaffoldedFile contextFile)
-        {
-            ContextFile = contextFile;
-        }
-
-        /// <summary>
         ///     Gets or sets the generated file containing the <see cref="DbContext" />.
         /// </summary>
         /// <value> The generated file containing the <see cref="DbContext" />. </value>
-        public virtual ScaffoldedFile ContextFile { get; [param: NotNull] set; }
+        public virtual ScaffoldedFile? ContextFile { get; [param: NotNull] set; }
 
         /// <summary>
         ///     Gets any additional generated files for the model.

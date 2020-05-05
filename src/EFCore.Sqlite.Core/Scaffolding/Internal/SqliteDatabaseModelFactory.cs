@@ -174,8 +174,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 
                     var type = reader.GetString(1);
                     var table = type == "table"
-                        ? new DatabaseTable(databaseModel, name)
-                        : new DatabaseView(databaseModel, name);
+                        ? new DatabaseTable { Database = databaseModel, Name = name }
+                        : new DatabaseView { Database = databaseModel, Name = name };
 
                     GetColumns(connection, table);
                     GetPrimaryKey(connection, table);
@@ -252,8 +252,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                     SqliteException.ThrowExceptionForRC(rc, db);
                 }
 
-                table.Columns.Add(new DatabaseColumn(table, columnName, dataType)
+                table.Columns.Add(new DatabaseColumn
                 {
+                    Table = table,
+                    Name = columnName,
+                    StoreType = dataType,
                     IsNullable = !notNull,
                     DefaultValueSql = defaultValue,
                     ValueGenerated = autoIncrement != 0
@@ -305,11 +308,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                 return;
             }
 
-            var primaryKey = new DatabasePrimaryKey(
-                table,
-                name.StartsWith("sqlite_", StringComparison.Ordinal)
-                    ? string.Empty
-                    : name);
+            var primaryKey = new DatabasePrimaryKey
+            {
+                Table = table,
+                Name = name.StartsWith("sqlite_", StringComparison.Ordinal) ? string.Empty : name
+            };
 
             _logger.PrimaryKeyFound(name, table.Name);
 
@@ -327,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             {
                 var columnName = reader.GetString(0);
                 var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                    ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                    ?? table.Columns.FirstOrDefault(c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                 Check.DebugAssert(column != null, "column is null.");
 
                 primaryKey.Columns.Add(column);
@@ -360,12 +363,17 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 
             var columnName = reader.GetString(0);
             var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                ?? table.Columns.FirstOrDefault(c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
             Check.DebugAssert(column != null, "column is null.");
 
             Check.DebugAssert(!reader.Read(), "Unexpected composite primary key.");
 
-            table.PrimaryKey = new DatabasePrimaryKey(table, string.Empty) { Columns = { column } };
+            table.PrimaryKey = new DatabasePrimaryKey
+            {
+                Table = table,
+                Name = string.Empty,
+                Columns = { column }
+            };
         }
 
         private void GetUniqueConstraints(DbConnection connection, DatabaseTable table)
@@ -387,11 +395,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             while (reader1.Read())
             {
                 var constraintName = reader1.GetString(0);
-                var uniqueConstraint = new DatabaseUniqueConstraint(
-                    table,
-                    constraintName.StartsWith("sqlite_", StringComparison.Ordinal)
-                        ? string.Empty
-                        : constraintName);
+                var uniqueConstraint = new DatabaseUniqueConstraint
+                {
+                    Table = table,
+                    Name = constraintName.StartsWith("sqlite_", StringComparison.Ordinal) ? string.Empty : constraintName
+                };
 
                 _logger.UniqueConstraintFound(constraintName, table.Name);
 
@@ -414,7 +422,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                         var columnName = reader2.GetString(0);
                         var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
                             ?? table.Columns.FirstOrDefault(
-                                c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                                c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                         Check.DebugAssert(column != null, "column is null.");
 
                         uniqueConstraint.Columns.Add(column);
@@ -443,7 +451,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             using var reader1 = command1.ExecuteReader();
             while (reader1.Read())
             {
-                var index = new DatabaseIndex(table, reader1.GetString(0)) { IsUnique = reader1.GetBoolean(1) };
+                var index = new DatabaseIndex
+                {
+                    Table = table,
+                    Name = reader1.GetString(0),
+                    IsUnique = reader1.GetBoolean(1)
+                };
 
                 _logger.IndexFound(index.Name, table.Name, index.IsUnique);
 
@@ -465,7 +478,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                     {
                         var name = reader2.GetString(0);
                         var column = table.Columns.FirstOrDefault(c => c.Name == name)
-                            ?? table.Columns.FirstOrDefault(c => c.Name.Equals(name, StringComparison.Ordinal));
+                            ?? table.Columns.FirstOrDefault(c => c.Name!.Equals(name, StringComparison.Ordinal));
                         Check.DebugAssert(column != null, "column is null.");
 
                         index.Columns.Add(column);
@@ -498,9 +511,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                 var onDelete = reader1.GetString(2);
                 var principalTable = tables.FirstOrDefault(t => t.Name == principalTableName)
                     ?? tables.FirstOrDefault(
-                        t => t.Name.Equals(principalTableName, StringComparison.OrdinalIgnoreCase));
-                var foreignKey = new DatabaseForeignKey(table, string.Empty, principalTable)
+                        t => t.Name!.Equals(principalTableName, StringComparison.OrdinalIgnoreCase));
+                var foreignKey = new DatabaseForeignKey
                 {
+                    Table = table,
+                    Name = string.Empty,
+                    PrincipalTable = principalTable,
                     OnDelete = ConvertToReferentialAction(onDelete)
                 };
 
@@ -539,7 +555,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                         var columnName = reader2.GetString(1);
                         var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
                             ?? table.Columns.FirstOrDefault(
-                                c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                                c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                         Check.DebugAssert(column != null, "column is null.");
 
                         var principalColumnName = reader2.IsDBNull(2) ? null : reader2.GetString(2);
@@ -549,7 +565,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                             principalColumn =
                                 foreignKey.PrincipalTable.Columns.FirstOrDefault(c => c.Name == principalColumnName)
                                 ?? foreignKey.PrincipalTable.Columns.FirstOrDefault(
-                                    c => c.Name.Equals(principalColumnName, StringComparison.OrdinalIgnoreCase));
+                                    c => c.Name!.Equals(principalColumnName, StringComparison.OrdinalIgnoreCase));
                         }
                         else if (principalTable.PrimaryKey != null)
                         {

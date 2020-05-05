@@ -14,25 +14,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
     public class DatabaseSequence : Annotatable
     {
         /// <summary>
-        ///     Creates a new instance of the <see cref="DatabaseSequence" /> class.
-        /// </summary>
-        /// <param name="database"> The database containing this sequence. </param>
-        /// <param name="name"> The name of the sequence. </param>
-        public DatabaseSequence([NotNull] DatabaseModel database, [NotNull] string name)
-        {
-            Database = database;
-            Name = name;
-        }
-
-        /// <summary>
         ///     The database that contains the sequence.
         /// </summary>
-        public virtual DatabaseModel Database { get; [param: NotNull] set; }
+        public virtual DatabaseModel? Database { get; [param: NotNull] set; }
 
         /// <summary>
         ///     The sequence name.
         /// </summary>
-        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string? Name { get; [param: NotNull] set; }
 
         /// <summary>
         ///     The schema that contains the sequence, or <c>null</c> to use the default schema.
@@ -70,6 +59,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         public virtual bool? IsCyclic { get; set; }
 
         /// <inheritdoc />
-        public override string ToString() => Schema == null ? Name : $"{Schema}.{Name}";
+        public override string ToString()
+        {
+            var name = Name ?? "<UNKNOWN>";
+            return Schema == null ? name : $"{Schema}.{name}";
+        }
     }
 }

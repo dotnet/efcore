@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -16,43 +17,25 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
     public class DatabaseForeignKey : Annotatable
     {
         /// <summary>
-        ///     Creates a new instance of the <see cref="DatabaseForeignKey" /> class.
-        /// </summary>
-        /// <param name="table"> The table containing this foreign key constraint. </param>
-        /// <param name="name"> The name of the foreign key constraint. </param>
-        /// <param name="principalTable"> The table to which the columns are constrained. </param>
-        public DatabaseForeignKey(
-            [NotNull] DatabaseTable table,
-            [CanBeNull] string? name,
-            [NotNull] DatabaseTable principalTable)
-        {
-            Table = table;
-            Name = name;
-            PrincipalTable = principalTable;
-            Columns = new List<DatabaseColumn>();
-            PrincipalColumns = new List<DatabaseColumn>();
-        }
-
-        /// <summary>
         ///     The table that contains the foreign key constraint.
         /// </summary>
-        public virtual DatabaseTable Table { get; [param: NotNull] set; }
+        public virtual DatabaseTable? Table { get; [param: NotNull] set; }
 
         /// <summary>
         ///     The table to which the columns are constrained.
         /// </summary>
-        public virtual DatabaseTable PrincipalTable { get; [param: NotNull] set; }
+        public virtual DatabaseTable? PrincipalTable { get; [param: NotNull] set; }
 
         /// <summary>
         ///     The ordered list of columns that are constrained.
         /// </summary>
-        public virtual IList<DatabaseColumn> Columns { get; }
+        public virtual IList<DatabaseColumn> Columns { get; } = new List<DatabaseColumn>();
 
         /// <summary>
         ///     The ordered list of columns in the <see cref="PrincipalTable" /> to which the <see cref="Columns" />
         ///     of the foreign key are constrained.
         /// </summary>
-        public virtual IList<DatabaseColumn> PrincipalColumns { get; }
+        public virtual IList<DatabaseColumn> PrincipalColumns { get; } = new List<DatabaseColumn>();
 
         /// <summary>
         ///     The foreign key constraint name.
