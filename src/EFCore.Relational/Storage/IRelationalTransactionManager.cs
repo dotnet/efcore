@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="transaction"> The transaction to be used. </param>
         /// <param name="transactionId"> The unique identifier for the transaction. </param>
         /// <returns> An instance of <see cref="IDbTransaction" /> that wraps the provided transaction. </returns>
-        IDbContextTransaction UseTransaction(DbTransaction transaction, Guid transactionId);
+        IDbContextTransaction UseTransaction([CanBeNull] DbTransaction transaction, Guid transactionId);
 
         /// <summary>
         ///     Specifies an existing <see cref="DbTransaction" /> to be used for database operations.
