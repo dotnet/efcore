@@ -62,12 +62,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(assembly, nameof(assembly));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
-            Check.NotNull(args, nameof(args));
+            // Note: cannot assert that args is not null - as old versions of
+            // tools can still pass null.
 
             _reporter = reporter;
             _assembly = assembly;
             _startupAssembly = startupAssembly;
-            _args = args;
+            _args = args ?? Array.Empty<string>();
             _appServicesFactory = appServicesFactory;
         }
 
