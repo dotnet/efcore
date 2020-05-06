@@ -485,6 +485,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     return _sqlExpressionFactory.Not(sqlOperand);
 
                 case ExpressionType.Negate:
+                case ExpressionType.NegateChecked:
                     return _sqlExpressionFactory.Negate(sqlOperand);
 
                 case ExpressionType.Convert:
