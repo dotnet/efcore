@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class ViewMapping : Annotatable, IViewMapping
+    public class ViewMapping : TableMappingBase, IViewMapping
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -26,17 +26,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] IEntityType entityType,
             [NotNull] View view,
             bool includesDerivedTypes)
+            : base(entityType, view, includesDerivedTypes)
         {
-            EntityType = entityType;
-            View = view;
-            IncludesDerivedTypes = includesDerivedTypes;
         }
 
         /// <inheritdoc/>
-        public virtual IEntityType EntityType { get; }
-
-        /// <inheritdoc/>
-        public virtual IView View { get; }
+        public virtual IView View => (IView)base.Table;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -48,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             = new SortedSet<IViewColumnMapping>(ColumnMappingBaseComparer.Instance);
 
         /// <inheritdoc/>
-        public virtual bool IncludesDerivedTypes { get; }
+        protected override IEnumerable<IColumnMappingBase> ProtectedColumnMappings => ColumnMappings;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -57,13 +52,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
-
-        /// <inheritdoc/>
-        ITableBase ITableMappingBase.Table
-        {
-            [DebuggerStepThrough]
-            get => View;
-        }
 
         /// <inheritdoc/>
         IEnumerable<IViewColumnMapping> IViewMapping.ColumnMappings

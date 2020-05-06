@@ -71,6 +71,34 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Configures the column that the property maps to in a particular table when targeting a relational database.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="name"> The name of the column. </param>
+        /// <param name="tableName"> The table name. </param>
+        /// <param name="schema"> The table schema. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <see langword="null" /> otherwise.
+        /// </returns>
+        public static IConventionPropertyBuilder HasColumnName(
+            [NotNull] this IConventionPropertyBuilder propertyBuilder,
+            [CanBeNull] string name,
+            [NotNull] string tableName,
+            [CanBeNull] string schema,
+            bool fromDataAnnotation = false)
+        {
+            if (!propertyBuilder.CanSetColumnName(name, tableName, schema, fromDataAnnotation))
+            {
+                return null;
+            }
+
+            propertyBuilder.Metadata.SetColumnName(name, tableName, schema, fromDataAnnotation);
+            return propertyBuilder;
+        }
+
+        /// <summary>
         ///     Returns a value indicating whether the given column can be set for the property.
         /// </summary>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
@@ -82,6 +110,29 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string name,
             bool fromDataAnnotation = false)
             => propertyBuilder.CanSetAnnotation(RelationalAnnotationNames.ColumnName, name, fromDataAnnotation);
+
+        /// <summary>
+        ///     Returns a value indicating whether the given column for a particular table can be set for the property.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="name"> The name of the column. </param>
+        /// <param name="tableName"> The table name. </param>
+        /// <param name="schema"> The table schema. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if the property can be mapped to the given column. </returns>
+        public static bool CanSetColumnName(
+            [NotNull] this IConventionPropertyBuilder propertyBuilder,
+            [CanBeNull] string name,
+            [NotNull] string tableName,
+            [CanBeNull] string schema,
+            bool fromDataAnnotation = false)
+        {
+            var overrides = RelationalPropertyOverrides.Find(propertyBuilder.Metadata, tableName, schema);
+            return overrides == null
+                || (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
+                    .Overrides(overrides.GetColumnNameConfigurationSource())
+                               || overrides.ColumnName == name;
+        }
 
         /// <summary>
         ///     Configures the column that the property maps to in a view in a relational database.
@@ -138,6 +189,34 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Configures the column that the property maps to in a particular view in a relational database.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="name"> The name of the column. </param>
+        /// <param name="viewName"> The view name. </param>
+        /// <param name="schema"> The view schema. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <see langword="null" /> otherwise.
+        /// </returns>
+        public static IConventionPropertyBuilder HasViewColumnName(
+            [NotNull] this IConventionPropertyBuilder propertyBuilder,
+            [CanBeNull] string name,
+            [NotNull] string viewName,
+            [CanBeNull] string schema,
+            bool fromDataAnnotation = false)
+        {
+            if (!propertyBuilder.CanSetViewColumnName(name, viewName, schema, fromDataAnnotation))
+            {
+                return null;
+            }
+
+            propertyBuilder.Metadata.SetViewColumnName(name, viewName, schema, fromDataAnnotation);
+            return propertyBuilder;
+        }
+
+        /// <summary>
         ///     Returns a value indicating whether the given view column can be set for the property.
         /// </summary>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
@@ -149,6 +228,29 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string name,
             bool fromDataAnnotation = false)
             => propertyBuilder.CanSetAnnotation(RelationalAnnotationNames.ViewColumnName, name, fromDataAnnotation);
+
+        /// <summary>
+        ///     Returns a value indicating whether the given column in a particular view can be set for the property.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="name"> The name of the column. </param>
+        /// <param name="viewName"> The view name. </param>
+        /// <param name="schema"> The view schema. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if the property can be mapped to the given column. </returns>
+        public static bool CanSetViewColumnName(
+            [NotNull] this IConventionPropertyBuilder propertyBuilder,
+            [CanBeNull] string name,
+            [NotNull] string viewName,
+            [CanBeNull] string schema,
+            bool fromDataAnnotation = false)
+        {
+            var overrides = RelationalPropertyOverrides.Find(propertyBuilder.Metadata, viewName, schema);
+            return overrides == null
+                || (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
+                    .Overrides(overrides.GetViewColumnNameConfigurationSource())
+                               || overrides.ViewColumnName == name;
+        }
 
         /// <summary>
         ///     Configures the data type of the column that the property maps to when targeting a relational database.

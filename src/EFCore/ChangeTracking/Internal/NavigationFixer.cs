@@ -309,8 +309,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void KeyPropertyChanged(
             InternalEntityEntry entry,
             IProperty property,
-            IReadOnlyList<IKey> containingPrincipalKeys,
-            IReadOnlyList<IForeignKey> containingForeignKeys,
+            IEnumerable<IKey> containingPrincipalKeys,
+            IEnumerable<IForeignKey> containingForeignKeys,
             object oldValue,
             object newValue)
         {

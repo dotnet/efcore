@@ -23,10 +23,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool AreCompatible([NotNull] this IIndex index, [NotNull] IIndex duplicateIndex, bool shouldThrow)
+        public static bool AreCompatible(
+            [NotNull] this IIndex index,
+            [NotNull] IIndex duplicateIndex,
+            [NotNull] string tableName,
+            [CanBeNull] string schema,
+            bool shouldThrow)
         {
-            if (!index.Properties.Select(p => p.GetColumnName())
-                .SequenceEqual(duplicateIndex.Properties.Select(p => p.GetColumnName())))
+            if (!index.Properties.Select(p => p.GetColumnName(tableName, schema))
+                .SequenceEqual(duplicateIndex.Properties.Select(p => p.GetColumnName(tableName, schema))))
             {
                 if (shouldThrow)
                 {
@@ -37,9 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             duplicateIndex.Properties.Format(),
                             duplicateIndex.DeclaringEntityType.DisplayName(),
                             index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                            index.GetName(),
-                            index.Properties.FormatColumns(),
-                            duplicateIndex.Properties.FormatColumns()));
+                            index.GetName(tableName, schema),
+                            index.Properties.FormatColumns(tableName, schema),
+                            duplicateIndex.Properties.FormatColumns(tableName, schema)));
                 }
 
                 return false;
@@ -56,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             duplicateIndex.Properties.Format(),
                             duplicateIndex.DeclaringEntityType.DisplayName(),
                             index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                            index.GetName()));
+                            index.GetName(tableName, schema)));
                 }
 
                 return false;

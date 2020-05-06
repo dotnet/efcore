@@ -11,10 +11,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     public static class ValueComparerExtensions
     {
         /// <summary>
-        ///     Returns true if the given <see cref="ValueComparer" /> is a default EF Core implementation.
+        ///     Returns <see langword="true"/> if the given <see cref="ValueComparer" /> is a default EF Core implementation.
         /// </summary>
         /// <param name="valueComparer"> The value comparer. </param>
-        /// <returns> True if the value comparer is the default; false otherwise. </returns>
+        /// <returns> <see langword="true"/> if the value comparer is the default; <see langword="false"/> otherwise. </returns>
         public static bool IsDefault([NotNull] this ValueComparer valueComparer)
             => valueComparer.GetType().IsGenericType
                 && valueComparer.GetType().GetGenericTypeDefinition() == typeof(ValueComparer.DefaultValueComparer<>);

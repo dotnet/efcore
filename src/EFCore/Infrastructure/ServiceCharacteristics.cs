@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new <see cref="ServiceCharacteristics" /> struct.
         /// </summary>
         /// <param name="lifetime"> The service lifetime. </param>
-        /// <param name="multipleRegistrations"> True if multiple registrations of the service is allowed; false otherwise. </param>
+        /// <param name="multipleRegistrations"> <see langword="true"/> if multiple registrations of the service is allowed; <see langword="false"/> otherwise. </param>
         public ServiceCharacteristics(ServiceLifetime lifetime, bool multipleRegistrations = false)
         {
             Lifetime = lifetime;
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public ServiceLifetime Lifetime { get; }
 
         /// <summary>
-        ///     True if multiple registrations of the service is allowed; false otherwise.
+        ///     <see langword="true"/> if multiple registrations of the service is allowed; <see langword="false"/> otherwise.
         /// </summary>
         public bool MultipleRegistrations { get; }
     }

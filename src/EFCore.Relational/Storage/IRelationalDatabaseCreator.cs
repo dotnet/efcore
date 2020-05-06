@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     contains the schema for the current model.
         /// </summary>
         /// <returns>
-        ///     True if the database exists; otherwise false.
+        ///     <see langword="true"/> if the database exists; otherwise <see langword="false"/>. 
         /// </returns>
         bool Exists();
 
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains
-        ///     true if the database exists; otherwise false.
+        ///     <see langword="true"/> if the database exists; otherwise <see langword="false"/>. 
         /// </returns>
         Task<bool> ExistsAsync(CancellationToken cancellationToken = default);
 

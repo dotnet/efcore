@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to get primary key for. </param>
         /// <returns>
-        ///     The primary that use this property, or null if it is not part of the primary key.
+        ///     The primary that use this property, or <see langword="null"/> if it is not part of the primary key.
         /// </returns>
         public static IConventionKey FindContainingPrimaryKey([NotNull] this IConventionProperty property)
             => (IConventionKey)((IProperty)property).FindContainingPrimaryKey();

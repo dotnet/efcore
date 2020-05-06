@@ -22,6 +22,30 @@ namespace Microsoft.EntityFrameworkCore
             => (int?)property[SqliteAnnotationNames.Srid];
 
         /// <summary>
+        ///     Returns the SRID to use when creating a column for this property.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="tableName"> The table name. </param>
+        /// <param name="schema"> The schema. </param>
+        /// <returns> The SRID to use when creating a column for this property. </returns>
+        public static int? GetSrid(
+            [NotNull] this IProperty property,
+            [NotNull] string tableName,
+            [CanBeNull] string schema)
+        {
+            var annotation = property.FindAnnotation(SqliteAnnotationNames.Srid);
+            if (annotation != null)
+            {
+                return (int?)annotation.Value;
+            }
+
+            var sharedTableRootProperty = property.FindSharedTableRootProperty(tableName, schema);
+            return sharedTableRootProperty != null
+                ? sharedTableRootProperty.GetSrid(tableName, schema)
+                : null;
+        }
+
+        /// <summary>
         ///     Sets the SRID to use when creating a column for this property.
         /// </summary>
         /// <param name="property"> The property. </param>
@@ -53,6 +77,27 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The dimension to use when creating a column for this property. </returns>
         public static string GetGeometricDimension([NotNull] this IProperty property)
             => (string)property[SqliteAnnotationNames.Dimension];
+
+        /// <summary>
+        ///     Returns the dimension to use when creating a column for this property.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="tableName"> The table name. </param>
+        /// <param name="schema"> The schema. </param>
+        /// <returns> The dimension to use when creating a column for this property. </returns>
+        public static string GetGeometricDimension([NotNull] this IProperty property, [NotNull] string tableName, [CanBeNull] string schema)
+        {
+            var annotation = property.FindAnnotation(SqliteAnnotationNames.Dimension);
+            if (annotation != null)
+            {
+                return (string)annotation.Value;
+            }
+
+            var sharedTableRootProperty = property.FindSharedTableRootProperty(tableName, schema);
+            return sharedTableRootProperty != null
+                ? sharedTableRootProperty.GetGeometricDimension(tableName, schema)
+                : null;
+        }
 
         /// <summary>
         ///     Sets the dimension to use when creating a column for this property.

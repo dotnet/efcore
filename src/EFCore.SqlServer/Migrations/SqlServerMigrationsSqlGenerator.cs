@@ -1893,7 +1893,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Migrations.
         /// </summary>
         /// <param name="model"> The target model. </param>
-        /// <returns> True if a filter should be generated. </returns>
+        /// <returns> <see langword="true"/> if a filter should be generated. </returns>
         protected virtual bool UseLegacyIndexFilters([CanBeNull] IModel model)
             => !TryGetVersion(model, out var version) || VersionComparer.Compare(version, "2.0.0") < 0;
 

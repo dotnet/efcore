@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         are applied.
         ///     </para>
         /// </summary>
-        /// <returns> True if the database is created, false if it already existed. </returns>
+        /// <returns> <see langword="true"/> if the database is created, false if it already existed. </returns>
         public virtual bool EnsureCreated() => Dependencies.DatabaseCreator.EnsureCreated();
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
-        ///     A task that represents the asynchronous save operation. The task result contains true if the database is created,
+        ///     A task that represents the asynchronous save operation. The task result contains <see langword="true"/> if the database is created,
         ///     false if it already existed.
         /// </returns>
         public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         the model for this context.
         ///     </para>
         /// </summary>
-        /// <returns> True if the database is deleted, false if it did not exist. </returns>
+        /// <returns> <see langword="true"/> if the database is deleted, false if it did not exist. </returns>
         public virtual bool EnsureDeleted() => Dependencies.DatabaseCreator.EnsureDeleted();
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
-        ///     A task that represents the asynchronous save operation. The task result contains true if the database is deleted,
+        ///     A task that represents the asynchronous save operation. The task result contains <see langword="true"/> if the database is deleted,
         ///     false if it did not exist.
         /// </returns>
         public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default)
@@ -374,7 +374,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
+        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => base.Equals(obj);
 

@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 
         /// <summary>
         ///     The logical sql expression used in a CHECK constraint and returns TRUE or FALSE.
-        ///     Sql used with CHECK constraints cannot reference another table
+        ///     SQL used with CHECK constraints cannot reference another table
         ///     but can reference other columns in the same table for the same row.
         ///     The expression cannot reference an alias data type.
         /// </summary>

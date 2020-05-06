@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Opens the connection to the database.
         /// </summary>
         /// <param name="errorsExpected"> Indicate if the connection errors are expected and should be logged as debug message. </param>
-        /// <returns> True if the underlying connection was actually opened; false otherwise. </returns>
+        /// <returns> <see langword="true"/> if the underlying connection was actually opened; <see langword="false"/> otherwise. </returns>
         bool Open(bool errorsExpected = false);
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
         /// </param>
         /// <returns>
-        ///     A task that represents the asynchronous operation, with a value of true if the connection
+        ///     A task that represents the asynchronous operation, with a value of <see langword="true"/> if the connection
         ///     was actually opened.
         /// </returns>
         Task<bool> OpenAsync(CancellationToken cancellationToken, bool errorsExpected = false);
@@ -91,14 +91,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Closes the connection to the database.
         /// </summary>
-        /// <returns> True if the underlying connection was actually closed; false otherwise. </returns>
+        /// <returns> <see langword="true"/> if the underlying connection was actually closed; <see langword="false"/> otherwise. </returns>
         bool Close();
 
         /// <summary>
         ///     Closes the connection to the database.
         /// </summary>
         /// <returns>
-        ///     A task that represents the asynchronous operation, with a value of true if the connection
+        ///     A task that represents the asynchronous operation, with a value of <see langword="true"/> if the connection
         ///     was actually closed.
         /// </returns>
         Task<bool> CloseAsync();

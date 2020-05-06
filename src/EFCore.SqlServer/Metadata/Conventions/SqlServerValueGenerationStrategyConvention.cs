@@ -50,8 +50,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 foreach (var property in entityType.GetDeclaredProperties())
                 {
+                    var strategy = SqlServerValueGenerationStrategy.None;
                     // Needed for the annotation to show up in the model snapshot
-                    var strategy = property.GetValueGenerationStrategy();
+                    var table = entityType.GetTableName();
+                    if (table != null)
+                    {
+                        strategy = property.GetValueGenerationStrategy(table, entityType.GetSchema());
+                    }
+                    else
+                    {
+                        var view = entityType.GetViewName();
+                        if (view != null)
+                        {
+                            strategy = property.GetValueGenerationStrategy(view, entityType.GetViewSchema());
+                        }
+                    }
+
                     if (strategy != SqlServerValueGenerationStrategy.None)
                     {
                         property.Builder.HasValueGenerationStrategy(strategy);

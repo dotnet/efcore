@@ -158,10 +158,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var clrType = type.Type
                 ?? Metadata.FindClrType(type.Name);
 
-            var weakEntityType = clrType == null
+            var entityTypeWithDefiningNavigation = clrType == null
                 ? Metadata.FindEntityType(type.Name, definingNavigationName, definingEntityType)
                 : Metadata.FindEntityType(clrType, definingNavigationName, definingEntityType);
-            if (weakEntityType == null)
+            if (entityTypeWithDefiningNavigation == null)
             {
                 var entityType = clrType == null
                     ? Metadata.FindEntityType(type.Name)
@@ -186,27 +186,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     Metadata.RemoveIgnored(type.Name);
 
-                    weakEntityType = Metadata.AddEntityType(type.Name, definingNavigationName, definingEntityType, configurationSource);
+                    entityTypeWithDefiningNavigation = Metadata.AddEntityType(
+                        type.Name, definingNavigationName, definingEntityType, configurationSource);
                 }
                 else
                 {
                     Metadata.RemoveIgnored(type.Name);
 
-                    weakEntityType = Metadata.AddEntityType(clrType, definingNavigationName, definingEntityType, configurationSource);
+                    entityTypeWithDefiningNavigation = Metadata.AddEntityType(
+                        clrType, definingNavigationName, definingEntityType, configurationSource);
                 }
 
                 if (batch != null)
                 {
-                    entityTypeSnapshot.Attach(weakEntityType.Builder);
+                    entityTypeSnapshot.Attach(entityTypeWithDefiningNavigation.Builder);
                     batch.Dispose();
                 }
             }
             else
             {
-                weakEntityType.UpdateConfigurationSource(configurationSource);
+                entityTypeWithDefiningNavigation.UpdateConfigurationSource(configurationSource);
             }
 
-            return weakEntityType?.Builder;
+            return entityTypeWithDefiningNavigation?.Builder;
         }
 
         /// <summary>

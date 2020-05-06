@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -48,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Returns a flag indicating if the property as capable of storing only fixed-length data, such as strings.
         /// </summary>
-        bool? IsFixedLength => PropertyMappings.First().Property.IsFixedLength();
+        bool? IsFixedLength => PropertyMappings.First().Property.IsFixedLength(Table.Name, Table.Schema);
 
         /// <summary>
         ///     Indicates whether or not this column acts as an automatic concurrency token by generating a different value
@@ -65,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             get
             {
                 var property = PropertyMappings.First().Property;
-                var value = property.GetDefaultValue();
+                var value = property.GetDefaultValue(Table.Name, Table.Schema);
                 var converter = property.GetValueConverter() ?? PropertyMappings.First().TypeMapping?.Converter;
 
                 return converter != null
@@ -77,27 +76,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Returns the SQL expression that is used as the default value for this column.
         /// </summary>
-        public virtual string DefaultValueSql => PropertyMappings.First().Property.GetDefaultValueSql();
+        public virtual string DefaultValueSql => PropertyMappings.First().Property.GetDefaultValueSql(Table.Name, Table.Schema);
 
         /// <summary>
         ///     Returns the SQL expression that is used as the computed value for this column.
         /// </summary>
-        public virtual string ComputedColumnSql => PropertyMappings.First().Property.GetComputedColumnSql();
+        public virtual string ComputedColumnSql => PropertyMappings.First().Property.GetComputedColumnSql(Table.Name, Table.Schema);
 
         /// <summary>
         ///     Returns whether the value of the computed column this property is mapped to is stored in the database, or calculated when
         ///     it is read.
         /// </summary>
-        public virtual bool? ComputedColumnIsStored => PropertyMappings.First().Property.GetComputedColumnIsStored();
+        public virtual bool? ComputedColumnIsStored => PropertyMappings.First().Property.GetComputedColumnIsStored(Table.Name, Table.Schema);
 
         /// <summary>
         ///     Comment for this column
         /// </summary>
-        public virtual string Comment => PropertyMappings.First().Property.GetComment();
+        public virtual string Comment => PropertyMappings.First().Property.GetComment(Table.Name, Table.Schema);
 
         /// <summary>
         ///     Collation for this column
         /// </summary>
-        public virtual string Collation => PropertyMappings.First().Property.GetCollation();
+        public virtual string Collation => PropertyMappings.First().Property.GetCollation(Table.Name, Table.Schema);
     }
 }

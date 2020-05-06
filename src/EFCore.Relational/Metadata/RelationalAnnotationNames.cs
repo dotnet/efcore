@@ -154,12 +154,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string TableColumnMappings = Prefix + "TableColumnMappings";
 
         /// <summary>
-        ///     The name for table mappings annotations.
+        ///     The name for view mappings annotations.
         /// </summary>
         public const string ViewMappings = Prefix + "ViewMappings";
 
         /// <summary>
-        ///     The name for column mappings annotations.
+        ///     The name for view column mappings annotations.
         /// </summary>
         public const string ViewColumnMappings = Prefix + "ViewColumnMappings";
 
@@ -177,5 +177,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The name for unique constraint mappings annotations.
         /// </summary>
         public const string UniqueConstraintMappings = Prefix + "UniqueConstraintMappings";
+
+        /// <summary>
+        ///     The name for the annotation that contains table-specific facet overrides.
+        /// </summary>
+        public const string RelationalOverrides = Prefix + "RelationalOverrides";
     }
 }

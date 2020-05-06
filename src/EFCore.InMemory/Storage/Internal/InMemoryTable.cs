@@ -52,8 +52,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 
             foreach (var property in entityType.GetProperties())
             {
-                var converter = property.FindTypeMapping()?.Converter
-                    ?? property.GetValueConverter();
+                var converter = property.GetValueConverter()
+                    ?? property.FindTypeMapping()?.Converter;
 
                 if (converter != null)
                 {
@@ -322,8 +322,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         {
             var value = SnapshotValue(comparer, entry.GetCurrentValue(property));
 
-            var converter = property.FindTypeMapping()?.Converter
-                ?? property.GetValueConverter();
+            var converter = property.GetValueConverter()
+                ?? property.FindTypeMapping()?.Converter;
 
             if (converter != null)
             {

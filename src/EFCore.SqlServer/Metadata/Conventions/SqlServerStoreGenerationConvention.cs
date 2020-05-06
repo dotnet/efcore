@@ -97,33 +97,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <inheritdoc/>
-        protected override void Validate(IConventionProperty property)
+        protected override void Validate(IConventionProperty property, string tableName, string schema)
         {
-            if (property.GetValueGenerationStrategyConfigurationSource() != null
-                && property.GetValueGenerationStrategy() != SqlServerValueGenerationStrategy.None)
+            if (property.GetValueGenerationStrategyConfigurationSource() != null)
             {
-                var generationStrategy = property.GetValueGenerationStrategy();
+                var generationStrategy = property.GetValueGenerationStrategy(tableName, schema);
+                if (generationStrategy == SqlServerValueGenerationStrategy.None)
+                {
+                    base.Validate(property, tableName, schema);
+                    return;
+                }
 
-                if (property.GetDefaultValue() != null)
+                if (property.GetDefaultValue(tableName, schema) != null)
                 {
                     Dependencies.ValidationLogger.ConflictingValueGenerationStrategiesWarning(
                         generationStrategy, "DefaultValue", property);
                 }
 
-                if (property.GetDefaultValueSql() != null)
+                if (property.GetDefaultValueSql(tableName, schema) != null)
                 {
                     Dependencies.ValidationLogger.ConflictingValueGenerationStrategiesWarning(
                         generationStrategy, "DefaultValueSql", property);
                 }
 
-                if (property.GetComputedColumnSql() != null)
+                if (property.GetComputedColumnSql(tableName, schema) != null)
                 {
                     Dependencies.ValidationLogger.ConflictingValueGenerationStrategiesWarning(
                         generationStrategy, "ComputedColumnSql", property);
                 }
             }
 
-            base.Validate(property);
+            base.Validate(property, tableName, schema);
         }
     }
 }

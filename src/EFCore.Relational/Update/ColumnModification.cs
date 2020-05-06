@@ -316,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             Entry.BuildCurrentValuesString(Entry.EntityType.FindPrimaryKey().Properties),
                             Entry.BuildCurrentValuesString(new[] { Property }),
                             modification.Entry.BuildCurrentValuesString(new[] { modification.Property }),
-                            new[] { Property }.FormatColumns()));
+                            "{'" + ColumnName + "'}"));
                 }
 
                 throw new InvalidOperationException(
@@ -325,7 +325,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         modification.Entry.EntityType.DisplayName(),
                         new[] { Property }.Format(),
                         new[] { modification.Property }.Format(),
-                        new[] { Property }.FormatColumns()));
+                        "{'" + ColumnName + "'}"));
             }
 
             if (UseOriginalValueParameter
@@ -340,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             Entry.BuildCurrentValuesString(Entry.EntityType.FindPrimaryKey().Properties),
                             Entry.BuildOriginalValuesString(new[] { Property }),
                             modification.Entry.BuildOriginalValuesString(new[] { modification.Property }),
-                            new[] { Property }.FormatColumns()));
+                            "{'" + ColumnName + "'}"));
                 }
 
                 throw new InvalidOperationException(
@@ -349,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         modification.Entry.EntityType.DisplayName(),
                         new[] { Property }.Format(),
                         new[] { modification.Property }.Format(),
-                        new[] { Property }.FormatColumns()));
+                        "{'" + ColumnName + "'}"));
             }
 
             _sharedColumnModifications.Add(modification);

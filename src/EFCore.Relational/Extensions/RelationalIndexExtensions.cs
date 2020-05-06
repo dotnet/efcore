@@ -7,6 +7,7 @@ using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -22,9 +23,23 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> The name for this index. </returns>
-        public static string GetName([NotNull] this IIndex index) =>
-            (string)index[RelationalAnnotationNames.Name]
+        public static string GetName([NotNull] this IIndex index)
+            => (string)index[RelationalAnnotationNames.Name]
             ?? index.GetDefaultName();
+
+        /// <summary>
+        ///     Returns the name for this index.
+        /// </summary>
+        /// <param name="index"> The index. </param>
+        /// <param name="tableName"> The table name. </param>
+        /// <param name="schema"> The schema. </param>
+        /// <returns> The name for this index. </returns>
+        public static string GetName(
+            [NotNull] this IIndex index,
+            [NotNull] string tableName,
+            [CanBeNull] string schema)
+            => (string)index[RelationalAnnotationNames.Name]
+            ?? index.GetDefaultName(tableName, schema);
 
         /// <summary>
         ///     Returns the default name that would be used for this index.
@@ -33,11 +48,59 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The default name that would be used for this index. </returns>
         public static string GetDefaultName([NotNull] this IIndex index)
         {
+            var tableName = index.DeclaringEntityType.GetTableName();
+            var schema = index.DeclaringEntityType.GetSchema();
             var baseName = new StringBuilder()
                 .Append("IX_")
-                .Append(index.DeclaringEntityType.GetTableName())
+                .Append(tableName)
                 .Append("_")
-                .AppendJoin(index.Properties.Select(p => p.GetColumnName()), "_")
+                .AppendJoin(index.Properties.Select(p => p.GetColumnName(tableName, schema)), "_")
+                .ToString();
+
+            return Uniquifier.Truncate(baseName, index.DeclaringEntityType.Model.GetMaxIdentifierLength());
+        }
+
+        /// <summary>
+        ///     Returns the default name that would be used for this index.
+        /// </summary>
+        /// <param name="index"> The index. </param>
+        /// <param name="tableName"> The table name. </param>
+        /// <param name="schema"> The schema. </param>
+        /// <returns> The default name that would be used for this index. </returns>
+        public static string GetDefaultName(
+            [NotNull] this IIndex index,
+            [NotNull] string tableName,
+            [CanBeNull] string schema)
+        {
+            var propertyNames = index.Properties.Select(p => p.GetColumnName(tableName, schema)).ToList();
+            var rootIndex = index;
+
+            // Limit traversal to avoid getting stuck in a cycle (validation will throw for these later)
+            // Using a hashset is detrimental to the perf when there are no cycles
+            for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
+            {
+                var linkedIndex = rootIndex.DeclaringEntityType
+                    .FindTableRowInternalForeignKeys(tableName, schema)
+                    .SelectMany(fk => fk.PrincipalEntityType.GetIndexes())
+                    .FirstOrDefault(i => i.Properties.Select(p => p.GetColumnName(tableName, schema)).SequenceEqual(propertyNames));
+                if (linkedIndex == null)
+                {
+                    break;
+                }
+
+                rootIndex = linkedIndex;
+            }
+
+            if (rootIndex != index)
+            {
+                return rootIndex.GetName(tableName, schema);
+            }
+
+            var baseName = new StringBuilder()
+                .Append("IX_")
+                .Append(tableName)
+                .Append("_")
+                .AppendJoin(propertyNames, "_")
                 .ToString();
 
             return Uniquifier.Truncate(baseName, index.DeclaringEntityType.Model.GetMaxIdentifierLength());
@@ -84,7 +147,29 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <returns> The index filter expression. </returns>
         public static string GetFilter([NotNull] this IIndex index)
-            => (string)index[RelationalAnnotationNames.Filter];
+        {
+            var annotation = index.FindAnnotation(RelationalAnnotationNames.Filter);
+            return annotation != null ? (string)annotation.Value : null;
+        }
+
+        /// <summary>
+        ///     Returns the index filter expression.
+        /// </summary>
+        /// <param name="index"> The index. </param>
+        /// <param name="tableName"> The table name. </param>
+        /// <param name="schema"> The schema. </param>
+        /// <returns> The index filter expression. </returns>
+        public static string GetFilter([NotNull] this IIndex index, [NotNull] string tableName, [CanBeNull] string schema)
+        {
+            var annotation = index.FindAnnotation(RelationalAnnotationNames.Filter);
+            if (annotation != null)
+            {
+                return (string)annotation.Value;
+            }
+
+            var sharedTableRootIndex = index.FindSharedTableRootIndex(tableName, schema);
+            return sharedTableRootIndex?.GetFilter(tableName, schema);
+        }
 
         /// <summary>
         ///     Sets the index filter expression.
@@ -129,5 +214,86 @@ namespace Microsoft.EntityFrameworkCore
         public static IEnumerable<ITableIndex> GetMappedTableIndexes([NotNull] this IIndex index) =>
             (IEnumerable<ITableIndex>)index[RelationalAnnotationNames.TableIndexMappings]
                 ?? Enumerable.Empty<ITableIndex>();
+
+        /// <summary>
+        ///     <para>
+        ///         Finds the first <see cref="IIndex" /> that is mapped to the same index in a shared table.
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="index"> The index. </param>
+        /// <param name="tableName"> The table name. </param>
+        /// <param name="schema"> The schema. </param>
+        /// <returns> The index found, or <see langword="null" /> if none was found.</returns>
+        public static IIndex FindSharedTableRootIndex(
+            [NotNull] this IIndex index,
+            [NotNull] string tableName,
+            [CanBeNull] string schema)
+        {
+            Check.NotNull(index, nameof(index));
+            Check.NotNull(tableName, nameof(tableName));
+
+            var indexName = index.GetName(tableName, schema);
+            var rootIndex = index;
+
+            // Limit traversal to avoid getting stuck in a cycle (validation will throw for these later)
+            // Using a hashset is detrimental to the perf when there are no cycles
+            for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
+            {
+                var linkedIndex = rootIndex.DeclaringEntityType
+                    .FindTableRowInternalForeignKeys(tableName, schema)
+                    .SelectMany(fk => fk.PrincipalEntityType.GetIndexes())
+                    .FirstOrDefault(i => i.GetName(tableName, schema) == indexName);
+                if (linkedIndex == null)
+                {
+                    break;
+                }
+
+                rootIndex = linkedIndex;
+            }
+
+            return rootIndex == index ? null : rootIndex;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Finds the first <see cref="IMutableIndex" /> that is mapped to the same index in a shared table.
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="index"> The index. </param>
+        /// <param name="tableName"> The table name. </param>
+        /// <param name="schema"> The schema. </param>
+        /// <returns> The index found, or <see langword="null" /> if none was found.</returns>
+        public static IMutableIndex FindSharedTableRootIndex(
+            [NotNull] this IMutableIndex index,
+            [NotNull] string tableName,
+            [CanBeNull] string schema)
+            => (IMutableIndex)((IIndex)index).FindSharedTableRootIndex(tableName, schema);
+
+        /// <summary>
+        ///     <para>
+        ///         Finds the first <see cref="IConventionIndex" /> that is mapped to the same index in a shared table.
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="index"> The index. </param>
+        /// <param name="tableName"> The table name. </param>
+        /// <param name="schema"> The schema. </param>
+        /// <returns> The index found, or <see langword="null" /> if none was found.</returns>
+        public static IConventionIndex FindSharedTableRootIndex(
+            [NotNull] this IConventionIndex index,
+            [NotNull] string tableName,
+            [CanBeNull] string schema)
+            => (IConventionIndex)((IIndex)index).FindSharedTableRootIndex(tableName, schema);
     }
 }

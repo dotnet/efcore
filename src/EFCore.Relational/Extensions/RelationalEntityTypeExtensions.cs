@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -25,29 +26,30 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The name of the table to which the entity type is mapped. </returns>
         public static string GetTableName([NotNull] this IEntityType entityType)
         {
-            if (entityType.BaseType != null)
-            {
-                return entityType.GetRootType().GetTableName();
-            }
-
             var nameAnnotation = entityType.FindAnnotation(RelationalAnnotationNames.TableName);
             if (nameAnnotation != null)
             {
                 return (string)nameAnnotation.Value;
             }
 
-            return ((entityType as IConventionEntityType)?.GetViewNameConfigurationSource() == null
+            if (entityType.BaseType != null)
+            {
+                return entityType.GetRootType().GetTableName();
+            }
+
+            return (entityType as IConventionEntityType)?.GetViewNameConfigurationSource() == null
                 && ((entityType as IConventionEntityType)?.GetDefiningQueryConfigurationSource() == null)
                 ? GetDefaultTableName(entityType)
-                : null);
+                : null;
         }
 
         /// <summary>
         ///     Returns the default table name that would be used for this entity type.
         /// </summary>
         /// <param name="entityType"> The entity type to get the table name for. </param>
+        /// <param name="truncate"> A value indicating whether the name should be truncated to the max identifier length. </param>
         /// <returns> The default name of the table to which the entity type would be mapped. </returns>
-        public static string GetDefaultTableName([NotNull] this IEntityType entityType)
+        public static string GetDefaultTableName([NotNull] this IEntityType entityType, bool truncate = true)
         {
             var ownership = entityType.FindOwnership();
             if (ownership != null
@@ -65,7 +67,9 @@ namespace Microsoft.EntityFrameworkCore
                     : $"{entityType.DefiningNavigationName}_{name}";
             }
 
-            return Uniquifier.Truncate(name, entityType.Model.GetMaxIdentifierLength());
+            return truncate
+                ? Uniquifier.Truncate(name, entityType.Model.GetMaxIdentifierLength())
+                : name;
         }
 
         /// <summary>
@@ -110,15 +114,23 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to get the schema for. </param>
         /// <returns> The database schema that contains the mapped table. </returns>
-        public static string GetSchema([NotNull] this IEntityType entityType) =>
-            entityType.BaseType != null
+        public static string GetSchema([NotNull] this IEntityType entityType)
+        {
+            var schemaAnnotation = entityType.FindAnnotation(RelationalAnnotationNames.Schema);
+            if (schemaAnnotation != null)
+            {
+                return (string)schemaAnnotation.Value ?? GetDefaultSchema(entityType);
+            }
+
+            return entityType.BaseType != null
                 ? entityType.GetRootType().GetSchema()
-                : (string)entityType[RelationalAnnotationNames.Schema] ?? GetDefaultSchema(entityType);
+                : GetDefaultSchema(entityType);
+        }
 
         /// <summary>
         ///     Returns the default database schema that would be used for this entity type.
         /// </summary>
-        /// <param name="entityType"> The entity type to get the table schema for. </param>
+        /// <param name="entityType"> The entity type to get the schema for. </param>
         /// <returns> The default database schema to which the entity type would be mapped. </returns>
         public static string GetDefaultSchema([NotNull] this IEntityType entityType)
         {
@@ -140,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to set the schema for. </param>
         /// <param name="value"> The value to set. </param>
         public static void SetSchema([NotNull] this IMutableEntityType entityType, [CanBeNull] string value)
-            => entityType.SetOrRemoveAnnotation(
+            => entityType.SetAnnotation(
                 RelationalAnnotationNames.Schema,
                 Check.NullButNotEmpty(value, nameof(value)));
 
@@ -154,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore
         public static string SetSchema(
             [NotNull] this IConventionEntityType entityType, [CanBeNull] string value, bool fromDataAnnotation = false)
         {
-            entityType.SetOrRemoveAnnotation(
+            entityType.SetAnnotation(
                 RelationalAnnotationNames.Schema,
                 Check.NullButNotEmpty(value, nameof(value)),
                 fromDataAnnotation);
@@ -190,13 +202,31 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Returns the name of the view to which the entity type is mapped prepended by the schema
+        ///     or <see langword="null" /> if not mapped to a view.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the table name for. </param>
+        /// <returns> The name of the table to which the entity type is mapped prepended by the schema. </returns>
+        public static string GetSchemaQualifiedViewName([NotNull] this IEntityType entityType)
+        {
+            var viewName = entityType.GetViewName();
+            if (viewName == null)
+            {
+                return null;
+            }
+
+            var schema = entityType.GetViewSchema();
+            return (string.IsNullOrEmpty(schema) ? "" : schema + ".") + viewName;
+        }
+
+        /// <summary>
         ///     Returns the tables to which the entity type is mapped.
         /// </summary>
         /// <param name="entityType"> The entity type to get the table name for. </param>
         /// <returns> The tables to which the entity type is mapped. </returns>
         public static IEnumerable<ITableMapping> GetTableMappings([NotNull] this IEntityType entityType) =>
             (IEnumerable<ITableMapping>)entityType[RelationalAnnotationNames.TableMappings]
-                ?? Enumerable.Empty<ITableMapping>();
+                ?? Array.Empty<ITableMapping>();
 
         /// <summary>
         ///     Returns the views to which the entity type is mapped.
@@ -205,20 +235,30 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The views to which the entity type is mapped. </returns>
         public static IEnumerable<IViewMapping> GetViewMappings([NotNull] this IEntityType entityType) =>
             (IEnumerable<IViewMapping>)entityType[RelationalAnnotationNames.ViewMappings]
-                ?? Enumerable.Empty<IViewMapping>();
+                ?? Array.Empty<IViewMapping>();
 
         /// <summary>
         ///     Returns the name of the view to which the entity type is mapped or <see langword="null" /> if not mapped to a view.
         /// </summary>
         /// <param name="entityType"> The entity type to get the view name for. </param>
         /// <returns> The name of the view to which the entity type is mapped. </returns>
-        public static string GetViewName([NotNull] this IEntityType entityType) =>
-            entityType.BaseType != null
-                ? entityType.GetRootType().GetViewName()
-                : (string)entityType[RelationalAnnotationNames.ViewName]
-                    ?? (((entityType as IConventionEntityType)?.GetDefiningQueryConfigurationSource() == null)
-                        ? GetDefaultViewName(entityType)
-                        : null);
+        public static string GetViewName([NotNull] this IEntityType entityType)
+        {
+            var nameAnnotation = (string)entityType[RelationalAnnotationNames.ViewName];
+            if (nameAnnotation != null)
+            {
+                return nameAnnotation;
+            }
+
+            if (entityType.BaseType != null)
+            {
+                return entityType.GetRootType().GetViewName();
+            }
+
+            return (entityType as IConventionEntityType)?.GetDefiningQueryConfigurationSource() == null
+                ? GetDefaultViewName(entityType)
+                : null;
+        }
 
         /// <summary>
         ///     Returns the default view name that would be used for this entity type.
@@ -269,17 +309,25 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The <see cref="ConfigurationSource" /> for the view name. </returns>
         public static ConfigurationSource? GetViewNameConfigurationSource([NotNull] this IConventionEntityType entityType)
             => entityType.FindAnnotation(RelationalAnnotationNames.ViewName)
-                ?.GetConfigurationSource();
+            ?.GetConfigurationSource();
 
         /// <summary>
         ///     Returns the database schema that contains the mapped view.
         /// </summary>
         /// <param name="entityType"> The entity type to get the view schema for. </param>
         /// <returns> The database schema that contains the mapped view. </returns>
-        public static string GetViewSchema([NotNull] this IEntityType entityType) =>
-            entityType.BaseType != null
+        public static string GetViewSchema([NotNull] this IEntityType entityType)
+        {
+            var schemaAnnotation = entityType.FindAnnotation(RelationalAnnotationNames.ViewSchema);
+            if (schemaAnnotation != null)
+            {
+                return (string)schemaAnnotation.Value ?? GetDefaultViewSchema(entityType);
+            }
+
+            return entityType.BaseType != null
                 ? entityType.GetRootType().GetViewSchema()
-                : (string)entityType[RelationalAnnotationNames.ViewSchema] ?? GetDefaultViewSchema(entityType);
+                : GetDefaultViewSchema(entityType);
+        }
 
         /// <summary>
         ///     Returns the default database schema that would be used for this entity view.
@@ -304,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to set the view schema for. </param>
         /// <param name="value"> The value to set. </param>
         public static void SetViewSchema([NotNull] this IMutableEntityType entityType, [CanBeNull] string value)
-            => entityType.SetOrRemoveAnnotation(
+            => entityType.SetAnnotation(
                 RelationalAnnotationNames.ViewSchema,
                 Check.NullButNotEmpty(value, nameof(value)));
 
@@ -318,7 +366,7 @@ namespace Microsoft.EntityFrameworkCore
         public static string SetViewSchema(
             [NotNull] this IConventionEntityType entityType, [CanBeNull] string value, bool fromDataAnnotation = false)
         {
-            entityType.SetOrRemoveAnnotation(
+            entityType.SetAnnotation(
                 RelationalAnnotationNames.ViewSchema,
                 Check.NullButNotEmpty(value, nameof(value)),
                 fromDataAnnotation);
@@ -502,6 +550,48 @@ namespace Microsoft.EntityFrameworkCore
         public static ConfigurationSource? GetCommentConfigurationSource([NotNull] this IConventionEntityType entityType)
             => entityType.FindAnnotation(RelationalAnnotationNames.Comment)
                 ?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Gets the foreign keys for the given entity type that point to other entity types sharing the same table.
+        /// </summary>
+        public static IEnumerable<IForeignKey> FindTableRowInternalForeignKeys(
+            [NotNull] this IEntityType entityType, [NotNull] string name, [CanBeNull] string schema)
+            => entityType.FindRowInternalForeignKeys(name, schema, StoreObjectType.Table);
+
+        /// <summary>
+        ///     Gets the foreign keys for the given entity type that point to other entity types sharing the same table.
+        /// </summary>
+        public static IEnumerable<IMutableForeignKey> FindTableRowInternalForeignKeys(
+            [NotNull] this IMutableEntityType entityType, [NotNull] string name, [CanBeNull] string schema)
+            => entityType.FindRowInternalForeignKeys(name, schema, StoreObjectType.Table).Cast<IMutableForeignKey>();
+
+        /// <summary>
+        ///     Gets the foreign keys for the given entity type that point to other entity types sharing the same table.
+        /// </summary>
+        public static IEnumerable<IConventionForeignKey> FindTableRowInternalForeignKeys(
+            [NotNull] this IConventionEntityType entityType, [NotNull] string name, [CanBeNull] string schema)
+            => entityType.FindRowInternalForeignKeys(name, schema, StoreObjectType.Table).Cast<IConventionForeignKey>();
+
+        /// <summary>
+        ///     Gets the foreign keys for the given entity type that point to other entity types sharing the same view.
+        /// </summary>
+        public static IEnumerable<IForeignKey> FindViewRowInternalForeignKeys(
+            [NotNull] this IEntityType entityType, [NotNull] string name, [CanBeNull] string schema)
+            => entityType.FindRowInternalForeignKeys(name, schema, StoreObjectType.View);
+
+        /// <summary>
+        ///     Gets the foreign keys for the given entity type that point to other entity types sharing the same view.
+        /// </summary>
+        public static IEnumerable<IMutableForeignKey> FindViewRowInternalForeignKeys(
+            [NotNull] this IMutableEntityType entityType, [NotNull] string name, [CanBeNull] string schema)
+            => entityType.FindRowInternalForeignKeys(name, schema, StoreObjectType.View).Cast<IMutableForeignKey>();
+
+        /// <summary>
+        ///     Gets the foreign keys for the given entity type that point to other entity types sharing the same view.
+        /// </summary>
+        public static IEnumerable<IConventionForeignKey> FindViewRowInternalForeignKeys(
+            [NotNull] this IConventionEntityType entityType, [NotNull] string name, [CanBeNull] string schema)
+            => entityType.FindRowInternalForeignKeys(name, schema, StoreObjectType.View).Cast<IConventionForeignKey>();
 
         /// <summary>
         ///     Gets a value indicating whether the entity type is ignored by Migrations.

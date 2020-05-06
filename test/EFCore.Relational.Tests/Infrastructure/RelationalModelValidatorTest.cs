@@ -267,6 +267,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Passes_on_not_configured_shared_columns_with_shared_table()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
+            modelBuilder.Entity<A>().Property(a => a.P0).HasColumnName(nameof(A.P0));
+            modelBuilder.Entity<A>().ToTable("Table");
+            modelBuilder.Entity<B>().Property(b => b.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt");
+            modelBuilder.Entity<B>().ToTable("Table");
+
+            Validate(modelBuilder.Model);
+        }
+
+        [ConditionalFact]
         public virtual void Detects_incompatible_shared_columns_with_shared_table()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -274,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
             modelBuilder.Entity<A>().Property(a => a.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt");
             modelBuilder.Entity<A>().ToTable("Table");
-            modelBuilder.Entity<B>().Property(b => b.P0).HasColumnName(nameof(A.P0));
+            modelBuilder.Entity<B>().Property(b => b.P0).HasColumnName(nameof(A.P0)).HasColumnType("default_int_mapping");
             modelBuilder.Entity<B>().ToTable("Table");
 
             VerifyError(
@@ -528,7 +542,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     eb.Property(c => c.Breed).HasMaxLength(25);
                     eb.Property(c => c.Breed).HasColumnName("BreedName");
                     eb.Property(c => c.Breed).HasDefaultValue("None");
-                    eb.Property<string>("Selected").HasDefaultValue("false").HasConversion<bool>();
+                    eb.Property<string>("Selected").IsRequired().HasDefaultValue("false").HasConversion<bool>();
                 });
 
             Validate(modelBuilder.Model);
@@ -718,7 +732,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var index1 = fk1.DeclaringEntityType.GetDeclaredIndexes().Single();
             var index2 = fk2.DeclaringEntityType.GetDeclaredIndexes().Single();
             Assert.NotSame(index1, index2);
-            Assert.NotEqual(index1.GetName(), index2.GetName());
+            Assert.Equal(index1.GetName(), index2.GetName());
         }
 
         [ConditionalFact]
@@ -739,7 +753,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var index1 = fk1.DeclaringEntityType.GetDeclaredIndexes().Single();
             var index2 = fk2.DeclaringEntityType.GetDeclaredIndexes().Single();
             Assert.NotSame(index1, index2);
-            Assert.NotEqual(index1.GetName(), index2.GetName());
+            Assert.Equal(index1.GetName(), index2.GetName());
         }
 
         [ConditionalFact]
@@ -965,7 +979,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [ConditionalFact]
         public virtual void Detects_missing_concurrency_token_on_the_base_type_without_convention()
         {
-            var modelBuilder = CreateModelBuilderWithoutConvention();
+            var modelBuilder = CreateModelBuilderWithoutConvention<TableSharingConcurrencyTokenConvention>();
             modelBuilder.Entity<Person>().ToTable(nameof(Animal))
                 .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
             modelBuilder.Entity<Animal>().HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
@@ -980,7 +994,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [ConditionalFact]
         public virtual void Detects_missing_concurrency_token_on_the_sharing_type_without_convention()
         {
-            var modelBuilder = CreateModelBuilderWithoutConvention();
+            var modelBuilder = CreateModelBuilderWithoutConvention<TableSharingConcurrencyTokenConvention>();
             modelBuilder.Entity<Person>().ToTable(nameof(Animal));
             modelBuilder.Entity<Animal>().HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
             modelBuilder.Entity<Animal>().Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
@@ -1015,15 +1029,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
-        public virtual void Passes_for_correctly_mapped_concurrency_tokens_with_table_sharing()
+        public virtual void Passes_for_explicitly_mapped_concurrency_tokens_with_table_sharing()
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Person>().ToTable(nameof(Animal))
-                .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+                .Property<byte[]>("Version").IsRowVersion();
             modelBuilder.Entity<Animal>()
                 .HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
             modelBuilder.Entity<Animal>()
-                .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+                .Property<byte[]>("Version").IsRowVersion();
             modelBuilder.Entity<Cat>();
             modelBuilder.Entity<Dog>();
 
@@ -1031,13 +1045,26 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
-        public virtual void Passes_for_correctly_mapped_concurrency_tokens_with_owned()
+        public virtual void Passes_for_missing_concurrency_token_on_owner()
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().OwnsOne(
                 a => a.FavoritePerson,
                 pb => pb.Property<byte[]>("Version").IsRowVersion().HasColumnName("Version"));
+            modelBuilder.Entity<Dog>();
+
+            Validate(modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Passes_for_explicitly_mapped_concurrency_tokens_with_owned()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>().Property<byte[]>("Version").IsRowVersion();
+            modelBuilder.Entity<Cat>().OwnsOne(
+                a => a.FavoritePerson,
+                pb => pb.Property<byte[]>("Version").IsRowVersion());
             modelBuilder.Entity<Dog>();
 
             Validate(modelBuilder.Model);
@@ -1056,7 +1083,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
-        public virtual void Does_not_detect_missing_discriminator_value_for_abstract_class()
+        public virtual void Passes_for_missing_discriminator_value_for_abstract_class()
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Abstract>();
@@ -1070,14 +1097,116 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
-        public virtual void Detects_ToTable_on_derived_entity_types()
+        public virtual void Passes_for_TPT()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Animal>().ToTable("Animal");
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>().ToTable("Cat").ToView("Cat");
+
+            Validate(modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_unconfigured_entity_type_in_TPT()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().ToTable("Cat");
+            modelBuilder.Entity<Dog>();
 
             VerifyError(
-                RelationalStrings.DerivedTypeTable(nameof(Cat), nameof(Animal)),
+                RelationalStrings.NonTPHTableClash(nameof(Dog), nameof(Animal), nameof(Animal)),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_clashing_entity_types_in_view_TPT()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>().ToTable("Cat").ToView("Cat");
+            modelBuilder.Entity<Dog>().ToTable("Dog").ToView("Cat");
+
+            VerifyError(
+                RelationalStrings.NonTPHViewClash(nameof(Dog), nameof(Cat), "Cat"),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_table_and_view_TPT_mismatch()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>().ToTable("Animal").ToView("Animal");
+            modelBuilder.Entity<Cat>().ToTable("Animal").ToView("Cat");
+
+            VerifyError(
+                RelationalStrings.NonTPHTableClash(nameof(Cat), nameof(Animal), "Animal"),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_TPT_with_discriminator()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>().HasDiscriminator<int>("Discriminator");
+            modelBuilder.Entity<Cat>().ToTable("Cat");
+
+            VerifyError(RelationalStrings.TPHTableMismatch(nameof(Cat), nameof(Cat), nameof(Animal), nameof(Animal)),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_view_TPT_with_discriminator()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>().ToView("Animal").HasDiscriminator<int>("Discriminator");
+            modelBuilder.Entity<Cat>().ToView("Cat");
+
+            VerifyError(RelationalStrings.TPHViewMismatch(nameof(Cat), nameof(Cat), nameof(Animal), nameof(Animal)),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Passes_for_valid_table_overrides()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            var property = modelBuilder.Entity<Animal>().Property(a => a.Name).GetInfrastructure();
+            modelBuilder.Entity<Dog>().ToTable("Dog");
+            property.HasColumnName("DogName", "Dog", null);
+
+            Validate(modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_invalid_table_overrides()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            var property = modelBuilder.Entity<Animal>().Property(a => a.Name).GetInfrastructure();
+            property.HasColumnName("DogName", "Dog", null);
+
+            VerifyError(RelationalStrings.TableOverrideMismatch("Animal.Name", "Dog"),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Passes_for_valid_view_overrides()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            var property = modelBuilder.Entity<Animal>().ToView("Animal").Property(a => a.Name).GetInfrastructure();
+            modelBuilder.Entity<Dog>().ToView("Dog");
+            property.HasViewColumnName("DogName", "Dog", null);
+
+            Validate(modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_invalid_view_overrides()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            var property = modelBuilder.Entity<Animal>().Property(a => a.Name).GetInfrastructure();
+            property.HasViewColumnName("DogName", "Dog", null);
+
+            VerifyError(RelationalStrings.TableOverrideMismatch("Animal.Name", "Dog"),
                 modelBuilder.Model);
         }
 
@@ -1196,14 +1325,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
         }
 
-        protected virtual ModelBuilder CreateModelBuilderWithoutConvention(bool sensitiveDataLoggingEnabled = false)
+        protected virtual ModelBuilder CreateModelBuilderWithoutConvention<T>(
+            bool sensitiveDataLoggingEnabled = false)
         {
             var conventionSet = TestHelpers.CreateConventionalConventionSet(
                 CreateModelLogger(sensitiveDataLoggingEnabled), CreateValidationLogger(sensitiveDataLoggingEnabled));
 
             ConventionSet.Remove(
                 conventionSet.ModelFinalizingConventions,
-                typeof(TableSharingConcurrencyTokenConvention));
+                typeof(T));
 
             return new ModelBuilder(conventionSet);
         }

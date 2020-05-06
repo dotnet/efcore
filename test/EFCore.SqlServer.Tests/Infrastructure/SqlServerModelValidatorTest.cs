@@ -280,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     "{'" + nameof(Dog.Name) + "'}", nameof(Dog),
                     "{'" + nameof(Cat.Name) + "'}", nameof(Cat),
                     nameof(Animal), "IX_Animal_Name",
-                    "{'Identity'}", "{}"),
+                    "{'Dog_Identity'}", "{}"),
                 modelBuilder.Model);
         }
 

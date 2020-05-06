@@ -195,10 +195,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         ///     <para>
         ///         Note that this method calls <see cref="DetectChanges" /> unless
-        ///         <see cref="AutoDetectChangesEnabled" /> has been set to false.
+        ///         <see cref="AutoDetectChangesEnabled" /> has been set to <see langword="false"/>. 
         ///     </para>
         /// </summary>
-        /// <returns> True if there are changes to save, otherwise false. </returns>
+        /// <returns> <see langword="true"/> if there are changes to save, otherwise <see langword="false"/>. </returns>
         public virtual bool HasChanges()
         {
             TryDetectChanges();
@@ -423,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
+        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => base.Equals(obj);
 

@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         The property can only be accessed if <see cref="HasResult" /> is true. The concept here
         ///         is the same as <see cref="Nullable{T}.Value" /> and <see cref="Nullable{T}.HasValue" />
         ///     </para>
-        ///     <exception cref="InvalidOperationException"> when <see cref="Result" /> is false. </exception>
+        ///     <exception cref="InvalidOperationException"> when <see cref="Result" /> is <see langword="false"/>.</exception>
         /// </summary>
         public TResult Result
         {

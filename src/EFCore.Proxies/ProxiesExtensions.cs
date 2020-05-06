@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The options builder, as passed to <see cref="DbContext.OnConfiguring" />
         ///     or exposed AddDbContext.
         /// </param>
-        /// <param name="useChangeTrackingProxies"> <see langword="true" /> to use change tracking proxies; false to prevent their use. </param>
+        /// <param name="useChangeTrackingProxies"> <see langword="true" /> to use change tracking proxies; <see langword="false"/> to prevent their use. </param>
         /// <param name="checkEquality"> <see langword="true" /> if proxy change detection should check if the incoming value is equal to the current value before notifying. Defaults to <see langword="true" />. </param>
         /// <returns> The same builder to allow method calls to be chained. </returns>
         public static DbContextOptionsBuilder UseChangeTrackingProxies(
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The options builder, as passed to <see cref="DbContext.OnConfiguring" />
         ///     or exposed AddDbContext.
         /// </param>
-        /// <param name="useChangeTrackingProxies"> <see langword="true" /> to use change tracking proxies; false to prevent their use. </param>
+        /// <param name="useChangeTrackingProxies"> <see langword="true" /> to use change tracking proxies; <see langword="false"/> to prevent their use. </param>
         /// <param name="checkEquality"> <see langword="true" /> if proxy change detection should check if the incoming value is equal to the current value before notifying. Defaults to <see langword="true" />. </param>
         /// <returns> The same builder to allow method calls to be chained. </returns>
         public static DbContextOptionsBuilder<TContext> UseChangeTrackingProxies<TContext>(
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The options builder, as passed to <see cref="DbContext.OnConfiguring" />
         ///     or exposed AddDbContext.
         /// </param>
-        /// <param name="useLazyLoadingProxies"> <see langword="true" /> to use lazy-loading proxies; false to prevent their use. </param>
+        /// <param name="useLazyLoadingProxies"> <see langword="true" /> to use lazy-loading proxies; <see langword="false"/> to prevent their use. </param>
         /// <returns> The same builder to allow method calls to be chained. </returns>
         public static DbContextOptionsBuilder UseLazyLoadingProxies(
             [NotNull] this DbContextOptionsBuilder optionsBuilder,
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The options builder, as passed to <see cref="DbContext.OnConfiguring" />
         ///     or exposed AddDbContext.
         /// </param>
-        /// <param name="useLazyLoadingProxies"> <see langword="true" /> to use lazy-loading proxies; false to prevent their use. </param>
+        /// <param name="useLazyLoadingProxies"> <see langword="true" /> to use lazy-loading proxies; <see langword="false"/> to prevent their use. </param>
         /// <returns> The same builder to allow method calls to be chained. </returns>
         public static DbContextOptionsBuilder<TContext> UseLazyLoadingProxies<TContext>(
             [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,

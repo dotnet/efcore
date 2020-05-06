@@ -618,8 +618,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         private ValueConverter FindValueConverter(IProperty property)
-            => (property.FindTypeMapping()
-                ?? Dependencies.RelationalTypeMappingSource.FindMapping(property))?.Converter;
+            => property.GetValueConverter()
+                ?? (property.FindTypeMapping()
+                    ?? Dependencies.RelationalTypeMappingSource.FindMapping(property))?.Converter;
 
         /// <summary>
         ///     Generates code for <see cref="IKey" /> objects.
@@ -880,7 +881,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 if (discriminatorValueAnnotation?.Value != null)
                 {
                     var value = discriminatorValueAnnotation.Value;
-                    var discriminatorProperty = entityType.GetRootType().GetDiscriminatorProperty();
+                    var discriminatorProperty = entityType.GetDiscriminatorProperty();
                     if (discriminatorProperty != null)
                     {
                         var valueConverter = FindValueConverter(discriminatorProperty);

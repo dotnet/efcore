@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="matchExpression">The string that is to be matched.</param>
         /// <param name="pattern">The pattern which may involve wildcards %,_,[,],^.</param>
-        /// <returns>true if there is a match.</returns>
+        /// <returns><see langword="true"/> if there is a match.</returns>
         public static bool Like(
             [CanBeNull] this DbFunctions _,
             [CanBeNull] string matchExpression,
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The escape character (as a single character string) to use in front of %,_,[,],^
         ///     if they are not used as wildcards.
         /// </param>
-        /// <returns>true if there is a match.</returns>
+        /// <returns><see langword="true"/> if there is a match.</returns>
         public static bool Like(
             [CanBeNull] this DbFunctions _,
             [CanBeNull] string matchExpression,

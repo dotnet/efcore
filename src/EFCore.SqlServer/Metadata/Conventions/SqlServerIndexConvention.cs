@@ -174,9 +174,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private string CreateIndexFilter(IIndex index)
         {
+            var table = index.DeclaringEntityType.GetTableName();
+            if (table == null)
+            {
+                return null;
+            }
+            var schema = index.DeclaringEntityType.GetSchema();
+
             var nullableColumns = index.Properties
-                .Where(property => property.IsColumnNullable())
-                .Select(property => property.GetColumnName())
+                .Where(property => property.IsColumnNullable(table, schema))
+                .Select(property => property.GetColumnName(table, schema))
                 .ToList();
 
             var builder = new StringBuilder();

@@ -29,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NullButNotEmpty(name, nameof(name));
 
             entityTypeBuilder.Metadata.SetTableName(name);
+            entityTypeBuilder.Metadata.SetSchema(null);
             entityTypeBuilder.Metadata.RemoveAnnotation(RelationalAnnotationNames.ViewDefinitionSql);
 
             return entityTypeBuilder;
@@ -278,6 +279,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NullButNotEmpty(name, nameof(name));
 
             entityTypeBuilder.Metadata.SetViewName(name);
+            entityTypeBuilder.Metadata.SetViewSchema(null);
             entityTypeBuilder.Metadata.SetAnnotation(RelationalAnnotationNames.ViewDefinitionSql, null);
 
             return entityTypeBuilder;

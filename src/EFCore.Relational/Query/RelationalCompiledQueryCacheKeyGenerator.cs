@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             /// </summary>
             /// <param name="compiledQueryCacheKey"> The non-relational cache key. </param>
             /// <param name="useRelationalNulls"> True to use relational null logic. </param>
-            /// <param name="shouldBuffer"> True if the query should be buffered. </param>
+            /// <param name="shouldBuffer"> <see langword="true"/> if the query should be buffered. </param>
             public RelationalCompiledQueryCacheKey(
                 CompiledQueryCacheKey compiledQueryCacheKey, bool useRelationalNulls, bool shouldBuffer)
             {
@@ -106,7 +106,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             ///     The object to compare this key to.
             /// </param>
             /// <returns>
-            ///     True if the object is a <see cref="RelationalCompiledQueryCacheKey" /> and is for the same query, otherwise false.
+            ///     <see langword="true"/> if the object is a <see cref="RelationalCompiledQueryCacheKey" /> and is for the same query,
+            ///     otherwise <see langword="false"/>.
             /// </returns>
             public override bool Equals(object obj)
                 => !(obj is null)

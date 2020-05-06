@@ -22,28 +22,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool AreCompatibleForSqlServer([NotNull] this IIndex index, [NotNull] IIndex duplicateIndex, bool shouldThrow)
+        public static bool AreCompatibleForSqlServer(
+            [NotNull] this IIndex index,
+            [NotNull] IIndex duplicateIndex,
+            [NotNull] string tableName,
+            [CanBeNull] string schema,
+            bool shouldThrow)
         {
-            if (index.GetIncludeProperties() != duplicateIndex.GetIncludeProperties()
-                && (index.GetIncludeProperties() == null
-                    || duplicateIndex.GetIncludeProperties() == null
-                    || !index.GetIncludeProperties().SequenceEqual(duplicateIndex.GetIncludeProperties())))
+            if (index.GetIncludeProperties() != duplicateIndex.GetIncludeProperties())
             {
-                if (shouldThrow)
-                {
-                    throw new InvalidOperationException(
-                        SqlServerStrings.DuplicateIndexIncludedMismatch(
-                            index.Properties.Format(),
-                            index.DeclaringEntityType.DisplayName(),
-                            duplicateIndex.Properties.Format(),
-                            duplicateIndex.DeclaringEntityType.DisplayName(),
-                            index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                            index.GetName(),
-                            FormatInclude(index),
-                            FormatInclude(duplicateIndex)));
-                }
+                if (index.GetIncludeProperties() == null
+                    || duplicateIndex.GetIncludeProperties() == null
+                    || !index.GetIncludeProperties().Select(
+                        p => index.DeclaringEntityType.FindProperty(p).GetColumnName(tableName, schema)).SequenceEqual(
+                        duplicateIndex.GetIncludeProperties().Select(
+                            p => duplicateIndex.DeclaringEntityType.FindProperty(p).GetColumnName(tableName, schema)))) {
+                    if (shouldThrow)
+                    {
+                        throw new InvalidOperationException(
+                            SqlServerStrings.DuplicateIndexIncludedMismatch(
+                                index.Properties.Format(),
+                                index.DeclaringEntityType.DisplayName(),
+                                duplicateIndex.Properties.Format(),
+                                duplicateIndex.DeclaringEntityType.DisplayName(),
+                                index.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                                index.GetName(tableName, schema),
+                                FormatInclude(index, tableName, schema),
+                                FormatInclude(duplicateIndex, tableName, schema)));
+                    }
 
-                return false;
+                    return false;
+                }
             }
 
             if (index.IsCreatedOnline() != duplicateIndex.IsCreatedOnline())
@@ -57,13 +66,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             duplicateIndex.Properties.Format(),
                             duplicateIndex.DeclaringEntityType.DisplayName(),
                             index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                            index.GetName()));
+                            index.GetName(tableName, schema)));
                 }
 
                 return false;
             }
 
-            if (index.IsClustered() != duplicateIndex.IsClustered())
+            if (index.IsClustered(tableName, schema) != duplicateIndex.IsClustered(tableName, schema))
             {
                 if (shouldThrow)
                 {
@@ -74,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             duplicateIndex.Properties.Format(),
                             duplicateIndex.DeclaringEntityType.DisplayName(),
                             index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                            index.GetName()));
+                            index.GetName(tableName, schema)));
                 }
 
                 return false;
@@ -91,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             duplicateIndex.Properties.Format(),
                             duplicateIndex.DeclaringEntityType.DisplayName(),
                             index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                            index.GetName()));
+                            index.GetName(tableName, schema)));
                 }
 
                 return false;
@@ -100,9 +109,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return true;
         }
 
-        private static string FormatInclude(IIndex index)
+        private static string FormatInclude(IIndex index, string tableName, string schema)
             => index.GetIncludeProperties() == null
                 ? "{}"
-                : "{'" + string.Join("', '", index.GetIncludeProperties()) + "'}";
+                : "{'"
+                    + string.Join("', '",
+                        index.GetIncludeProperties().Select(p => index.DeclaringEntityType.FindProperty(p)?.GetColumnName(tableName, schema)))
+                    + "'}";
     }
 }

@@ -3,10 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -90,6 +92,11 @@ namespace Microsoft.EntityFrameworkCore.Update
         public virtual string Schema { get; }
 
         /// <summary>
+        ///     The command that needs to be executed before this one.
+        /// </summary>
+        public virtual ModificationCommand Predecessor { get; [param: CanBeNull] set; }
+
+        /// <summary>
         ///     The <see cref="IUpdateEntry" />s that represent the entities that are mapped to the row
         ///     to update.
         /// </summary>
@@ -121,6 +128,22 @@ namespace Microsoft.EntityFrameworkCore.Update
         public virtual IReadOnlyList<ColumnModification> ColumnModifications
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _columnModifications, this, command => command.GenerateColumnModifications());
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [Conditional("DEBUG")]
+        [EntityFrameworkInternal]
+        public virtual void AssertColumnsNotInitialized()
+        {
+            if (_columnModifications != null)
+            {
+                throw new Exception($"_columnModifications have been initialized prematurely");
+            }
+        }
 
         /// <summary>
         ///     Indicates whether or not the database will return values for some mapped properties
@@ -364,6 +387,19 @@ namespace Microsoft.EntityFrameworkCore.Update
             {
                 modification.Value = valueBuffer[index++];
             }
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            var result = $"{EntityState}: {TableName}";
+            if (_columnModifications == null)
+            {
+                return result;
+            }
+
+            result += "(" + string.Join(", ", _columnModifications.Where(m => m.IsKey).Select(m => m.OriginalValue.ToString())) + ")";
+            return result;
         }
 
         private sealed class ColumnValuePropagator

@@ -844,7 +844,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     { typeof(Element), e => ((Element)e)?.Id },
                     { typeof(Throned), e => ((Throned)e)?.Property }
                 }.ToDictionary(e => e.Key, e => (object)e.Value);
-                ;
 
                 var entityAsserters = new Dictionary<Type, Action<object, object>>
                 {

@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets a value indicating whether this database provider has been selected for a given context.
         /// </summary>
         /// <param name="options"> The options for the context. </param>
-        /// <returns> True if the database provider has been selected, otherwise false. </returns>
+        /// <returns> <see langword="true"/> if the database provider has been selected, otherwise <see langword="false"/>. </returns>
         public virtual bool IsConfigured(IDbContextOptions options)
             => Check.NotNull(options, nameof(options)).Extensions.OfType<TOptionsExtension>().Any();
     }

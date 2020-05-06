@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="item">The element to locate in the hash set.</param>
         /// <returns>
-        ///     True if the hash set contains the specified element; otherwise, false.
+        ///     <see langword="true"/> if the hash set contains the specified element; otherwise, <see langword="false"/>. 
         /// </returns>
         public virtual bool Contains(T item) => _set.Contains(item);
 
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="item"> The element to remove. </param>
         /// <returns>
-        ///     True if the element is successfully found and removed; otherwise, false.
+        ///     <see langword="true"/> if the element is successfully found and removed; otherwise, <see langword="false"/>. 
         /// </returns>
         public virtual bool Remove(T item)
         {
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="item"> The element to add to the set. </param>
         /// <returns>
-        ///     true if the element is added to the hash set; false if the element is already present.
+        ///     <see langword="true"/> if the element is added to the hash set; <see langword="false"/> if the element is already present.
         /// </returns>
         public virtual bool Add(T item)
         {
@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="other"> The collection to compare to the current hash set. </param>
         /// <returns>
-        ///     True if the hash set is a subset of other; otherwise, false.
+        ///     <see langword="true"/> if the hash set is a subset of other; otherwise, <see langword="false"/>. 
         /// </returns>
         public virtual bool IsSubsetOf(IEnumerable<T> other) => _set.IsSubsetOf(other);
 
@@ -327,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="other"> The collection to compare to the current hash set. </param>
         /// <returns>
-        ///     True if the hash set is a proper subset of other; otherwise, false.
+        ///     <see langword="true"/> if the hash set is a proper subset of other; otherwise, <see langword="false"/>. 
         /// </returns>
         public virtual bool IsProperSubsetOf(IEnumerable<T> other) => _set.IsProperSubsetOf(other);
 
@@ -336,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="other"> The collection to compare to the current hash set. </param>
         /// <returns>
-        ///     True if the hash set is a superset of other; otherwise, false.
+        ///     <see langword="true"/> if the hash set is a superset of other; otherwise, <see langword="false"/>. 
         /// </returns>
         public virtual bool IsSupersetOf(IEnumerable<T> other) => _set.IsSupersetOf(other);
 
@@ -345,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="other"> The collection to compare to the current hash set. </param>
         /// <returns>
-        ///     True if the hash set is a proper superset of other; otherwise, false.
+        ///     <see langword="true"/> if the hash set is a proper superset of other; otherwise, <see langword="false"/>. 
         /// </returns>
         public virtual bool IsProperSupersetOf(IEnumerable<T> other) => _set.IsProperSupersetOf(other);
 
@@ -354,7 +354,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="other"> The collection to compare to the current hash set. </param>
         /// <returns>
-        ///     True if the hash set and other share at least one common element; otherwise, false.
+        ///     <see langword="true"/> if the hash set and other share at least one common element; otherwise, <see langword="false"/>. 
         /// </returns>
         public virtual bool Overlaps(IEnumerable<T> other) => _set.Overlaps(other);
 
@@ -363,7 +363,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="other"> The collection to compare to the current hash set. </param>
         /// <returns>
-        ///     True if the hash set is equal to other; otherwise, false.
+        ///     <see langword="true"/> if the hash set is equal to other; otherwise, <see langword="false"/>. 
         /// </returns>
         public virtual bool SetEquals(IEnumerable<T> other) => _set.SetEquals(other);
 

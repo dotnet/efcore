@@ -27,6 +27,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IEnumerable<IColumnMappingBase> ColumnMappings { get; }
 
         /// <summary>
+        ///     Gets the value indicating whether this is the mapping for the principal entity type
+        ///     if the table is shared or the root entity type when using TPH.
+        /// </summary>
+        bool IsMainEntityTypeMapping { get; }
+
+        /// <summary>
+        ///     Gets the value indicating whether this is the mapping for the table
+        ///     that should be used first when the entity type is split.
+        /// </summary>
+        bool IsMainTableMapping { get; }
+
+        /// <summary>
         ///     Gets the value indicating whether the inherited properties use the same mapping.
         /// </summary>
         bool IncludesDerivedTypes { get; }

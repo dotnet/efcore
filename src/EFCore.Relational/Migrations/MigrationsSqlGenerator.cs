@@ -1886,7 +1886,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     the legacy behavior of setting the new name and schema to null when unchanged.
         /// </summary>
         /// <param name="model"> The target model. </param>
-        /// <returns> True if the legacy behavior is used. </returns>
+        /// <returns> <see langword="true"/> if the legacy behavior is used. </returns>
         protected virtual bool HasLegacyRenameOperations([CanBeNull] IModel model)
             => !TryGetVersion(model, out var version) || VersionComparer.Compare(version, "2.1.0") < 0;
 
@@ -1896,7 +1896,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="model"> The target model. </param>
         /// <param name="version"> The version. </param>
-        /// <returns> True if the version could be retrieved. </returns>
+        /// <returns> <see langword="true"/> if the version could be retrieved. </returns>
         protected virtual bool TryGetVersion([CanBeNull] IModel model, out string version)
         {
             if (!(model?.GetProductVersion() is string versionString))

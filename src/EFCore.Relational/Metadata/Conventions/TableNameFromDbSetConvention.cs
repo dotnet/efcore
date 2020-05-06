@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             if (oldBaseType == null
                 && newBaseType != null)
             {
-                entityTypeBuilder.ToTable(null);
+                entityTypeBuilder.HasNoAnnotation(RelationalAnnotationNames.TableName);
             }
             else if (oldBaseType != null
                 && newBaseType == null
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     && _sets.ContainsKey(entityType.ClrType))
                 {
                     // Undo the convention change if the entity type is mapped to a view
-                    entityType.Builder.ToTable(null);
+                    entityType.Builder.HasNoAnnotation(RelationalAnnotationNames.TableName);
                 }
             }
         }

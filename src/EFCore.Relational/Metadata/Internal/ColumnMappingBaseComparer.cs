@@ -34,7 +34,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public int Compare(IColumnMappingBase x, IColumnMappingBase y)
         {
-            var result = StringComparer.Ordinal.Compare(x.Property.IsColumnNullable(), y.Property.IsColumnNullable());
+            var result = x.Column.IsNullable == y.Column.IsNullable
+                ? 0
+                : x.Column.IsNullable ? 1 : -1;
             if (result != 0)
             {
                 return result;
@@ -52,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return result;
             }
 
-            result = EntityTypeFullNameComparer.Instance.Compare(x.Property.DeclaringEntityType, y.Property.DeclaringEntityType);
+            result = EntityTypeFullNameComparer.Instance.Compare(x.TableMapping.EntityType, y.TableMapping.EntityType);
             if (result != 0)
             {
                 return result;

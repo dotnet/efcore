@@ -666,11 +666,14 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Returns true if the database provider currently in use is a relational database.
+        ///         Returns <see langword="true"/> if the database provider currently in use is a relational database.
         ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The facade from <see cref="DbContext.Database" />. </param>
-        /// <returns> True if a relational database provider is being used; false otherwise. </returns>
+        /// <returns>
+        ///     <see langword="true"/> if a relational database provider is being used;
+        ///    <see langword="false"/> otherwise.
+        /// </returns>
         public static bool IsRelational([NotNull] this DatabaseFacade databaseFacade)
             => ((IDatabaseFacadeDependenciesAccessor)Check.NotNull(databaseFacade, nameof(databaseFacade))).Dependencies is IRelationalDatabaseFacadeDependencies;
 

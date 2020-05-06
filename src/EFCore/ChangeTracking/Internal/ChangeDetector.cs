@@ -258,9 +258,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 if (!(comparer?.Equals(currentValue, snapshotValue)
                     ?? StructuralComparisons.StructuralEqualityComparer.Equals(currentValue, snapshotValue)))
                 {
-                    var keys = property.GetContainingKeys().ToList();
+                    var keys = property.GetContainingKeys();
                     var foreignKeys = property.GetContainingForeignKeys()
-                        .Where(fk => fk.DeclaringEntityType.IsAssignableFrom(entry.EntityType)).ToList();
+                        .Where(fk => fk.DeclaringEntityType.IsAssignableFrom(entry.EntityType));
 
                     if (_loggingOptions.IsSensitiveDataLoggingEnabled)
                     {

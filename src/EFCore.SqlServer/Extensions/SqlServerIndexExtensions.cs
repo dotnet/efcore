@@ -24,6 +24,36 @@ namespace Microsoft.EntityFrameworkCore
             => (bool?)index[SqlServerAnnotationNames.Clustered];
 
         /// <summary>
+        ///     Returns a value indicating whether the index is clustered.
+        /// </summary>
+        /// <param name="index"> The index. </param>
+        /// <param name="tableName"> The table name. </param>
+        /// <param name="schema"> The schema. </param>
+        /// <returns> <see langword="true" /> if the index is clustered. </returns>
+        public static bool? IsClustered(
+            [NotNull] this IIndex index,
+            [NotNull] string tableName,
+            [CanBeNull] string schema)
+        {
+            var annotation = index.FindAnnotation(SqlServerAnnotationNames.Clustered);
+            if (annotation != null)
+            {
+                return (bool?)annotation.Value;
+            }
+
+            return GetDefaultIsClustered(index, tableName, schema);
+        }
+
+        private static bool? GetDefaultIsClustered(
+            [NotNull] IIndex index,
+            [NotNull] string tableName,
+            [CanBeNull] string schema)
+        {
+            var sharedTableRootIndex = index.FindSharedTableRootIndex(tableName, schema);
+            return sharedTableRootIndex?.IsClustered(tableName, schema);
+        }
+
+        /// <summary>
         ///     Sets a value indicating whether the index is clustered.
         /// </summary>
         /// <param name="value"> The value to set. </param>

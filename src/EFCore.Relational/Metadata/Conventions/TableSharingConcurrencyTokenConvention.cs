@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -81,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                         foundMappedProperty = foundMappedProperty
                             || entityType.GetAllBaseTypes().SelectMany(t => t.GetDeclaredProperties())
-                                .Any(p => p.GetColumnName() == concurrencyColumnName);
+                                .Any(p => p.GetColumnName(table.Table, table.Schema) == concurrencyColumnName);
 
                         if (!foundMappedProperty)
                         {
@@ -130,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     continue; // unmapped entityType
                 }
 
-                var table = (tableName, entityType.GetSchema());
+                var table = (Name: tableName, Schema: entityType.GetSchema());
 
                 if (!tableToEntityTypes.TryGetValue(table, out var mappedTypes))
                 {
@@ -151,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                             concurrencyColumnsToProperties[table] = columnToProperties;
                         }
 
-                        var columnName = property.GetColumnName();
+                        var columnName = property.GetColumnName(tableName, table.Schema);
                         if (!columnToProperties.TryGetValue(columnName, out var properties))
                         {
                             properties = new List<IConventionProperty>();

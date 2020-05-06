@@ -5,7 +5,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -74,40 +73,48 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             if (name == RelationalAnnotationNames.TableName)
             {
+                var schema = entityTypeBuilder.Metadata.GetSchema();
                 ProcessTableChanged(
                     entityTypeBuilder,
                     (string)oldAnnotation?.Value ?? entityTypeBuilder.Metadata.GetDefaultTableName(),
-                    entityTypeBuilder.Metadata.GetSchema());
+                    schema,
+                    entityTypeBuilder.Metadata.GetTableName(),
+                    schema);
             }
             else if (name == RelationalAnnotationNames.Schema)
             {
+                var tableName = entityTypeBuilder.Metadata.GetTableName();
                 ProcessTableChanged(
                     entityTypeBuilder,
-                    entityTypeBuilder.Metadata.GetTableName(),
-                    (string)oldAnnotation?.Value ?? entityTypeBuilder.Metadata.GetDefaultSchema());
+                    tableName,
+                    (string)oldAnnotation?.Value ?? entityTypeBuilder.Metadata.GetDefaultSchema(),
+                    tableName,
+                    entityTypeBuilder.Metadata.GetSchema());
             }
         }
 
-        private void ProcessTableChanged(IConventionEntityTypeBuilder entityTypeBuilder, string oldTable, string oldSchema)
+        private void ProcessTableChanged(IConventionEntityTypeBuilder entityTypeBuilder,
+            string oldTable, string oldSchema,
+            string newTable, string newSchema)
         {
-            var pk = entityTypeBuilder.Metadata.FindPrimaryKey();
-            if (pk == null)
+            var primaryKey = entityTypeBuilder.Metadata.FindPrimaryKey();
+            if (primaryKey == null)
             {
                 return;
             }
 
-            var oldLink = pk.Properties.First().FindSharedObjectLink(oldTable, oldSchema);
-            var newLink = pk.Properties.First().FindSharedObjectLink();
+            var oldLink = entityTypeBuilder.Metadata.FindTableRowInternalForeignKeys(oldTable, oldSchema);
+            var newLink = entityTypeBuilder.Metadata.FindTableRowInternalForeignKeys(newTable, newSchema);
 
-            if (oldLink == null
-                && newLink == null)
+            if (!oldLink.Any()
+                && !newLink.Any())
             {
                 return;
             }
 
-            foreach (var property in pk.Properties)
+            foreach (var property in primaryKey.Properties)
             {
-                property.Builder.ValueGenerated(GetValueGenerated(property));
+                property.Builder.ValueGenerated(GetValueGenerated(property, newTable, newSchema));
             }
         }
 
@@ -117,26 +124,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="property"> The property. </param>
         /// <returns> The store value generation strategy to set for the given property. </returns>
         protected override ValueGenerated? GetValueGenerated(IConventionProperty property)
-            => GetValueGenerated(property);
+        {
+            var tableName = property.DeclaringEntityType.GetTableName();
+            if (tableName == null)
+            {
+                return null;
+            }
+
+            return GetValueGenerated(property, tableName, property.DeclaringEntityType.GetSchema());
+        }
 
         /// <summary>
         ///     Returns the store value generation strategy to set for the given property.
         /// </summary>
         /// <param name="property"> The property. </param>
+        /// <param name="tableName"> The table name. </param>
+        /// <param name="schema"> The schema. </param>
         /// <returns> The new store value generation strategy to set for the given property. </returns>
-        public static new ValueGenerated? GetValueGenerated([NotNull] IProperty property)
+        public static ValueGenerated? GetValueGenerated(
+            [NotNull] IProperty property, [NotNull] string tableName, [CanBeNull] string schema)
         {
-            var valueGenerated = ValueGenerationConvention.GetValueGenerated(property);
-            if (valueGenerated != null)
-            {
-                return valueGenerated;
-            }
-
-            return property.GetComputedColumnSql() != null
-                ? ValueGenerated.OnAddOrUpdate
-                : property.GetDefaultValue() != null || property.GetDefaultValueSql() != null
-                    ? ValueGenerated.OnAdd
-                    : (ValueGenerated?)null;
+            var valueGenerated = GetValueGenerated(property);
+            return valueGenerated ?? (property.GetComputedColumnSql(tableName, schema) != null
+                    ? ValueGenerated.OnAddOrUpdate
+                    : property.GetDefaultValue(tableName, schema) != null || property.GetDefaultValueSql(tableName, schema) != null
+                        ? ValueGenerated.OnAdd
+                        : (ValueGenerated?)null);
         }
     }
 }
