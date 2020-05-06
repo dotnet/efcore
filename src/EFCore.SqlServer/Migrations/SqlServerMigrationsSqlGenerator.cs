@@ -911,7 +911,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 builder
                     .AppendLine("BEGIN")
                     .AppendLine("DECLARE @db_name NVARCHAR(MAX) = DB_NAME();")
-                    .AppendLine("EXEC(N'ALTER DATABASE ' + @db_name + ' MODIFY ( ")
+                    .AppendLine("EXEC(N'ALTER DATABASE [' + @db_name + '] MODIFY ( ")
                     .Append(editionOptions.Replace("'", "''"))
                     .AppendLine(" );');")
                     .AppendLine("END")
