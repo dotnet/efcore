@@ -15,7 +15,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
-    public class SqlServerMigrationSqlGeneratorTest : MigrationSqlGeneratorTestBase
+    public class SqlServerMigrationsSqlGeneratorTest : MigrationsSqlGeneratorTestBase
     {
         [ConditionalFact]
         public virtual void AddColumnOperation_identity_legacy()
@@ -928,7 +928,7 @@ SELECT @@ROWCOUNT;
             AssertSql(expectedSql);
         }
 
-        public SqlServerMigrationSqlGeneratorTest()
+        public SqlServerMigrationsSqlGeneratorTest()
             : base(SqlServerTestHelpers.Instance,
                   new ServiceCollection().AddEntityFrameworkSqlServerNetTopologySuite(),
                   SqlServerTestHelpers.Instance.AddProviderOptions(
