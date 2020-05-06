@@ -12,7 +12,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
-    public class SqliteMigrationSqlGeneratorTest : MigrationSqlGeneratorTestBase
+    public class SqliteMigrationsSqlGeneratorTest : MigrationsSqlGeneratorTestBase
     {
         [ConditionalFact]
         public virtual void It_lifts_foreign_key_additions()
@@ -631,7 +631,7 @@ SELECT changes();
 ");
         }
 
-        public SqliteMigrationSqlGeneratorTest()
+        public SqliteMigrationsSqlGeneratorTest()
             : base(SqliteTestHelpers.Instance,
                   new ServiceCollection().AddEntityFrameworkSqliteNetTopologySuite(),
                   SqliteTestHelpers.Instance.AddProviderOptions(

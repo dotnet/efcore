@@ -18,7 +18,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
-    public abstract class MigrationSqlGeneratorTestBase
+    public abstract class MigrationsSqlGeneratorTestBase
     {
         protected static string EOL => Environment.NewLine;
 
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public void All_tests_must_be_overriden()
         {
             var baseTests = GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public)
-                .Where(method => method.IsVirtual && !method.IsFinal && method.DeclaringType == typeof(MigrationSqlGeneratorTestBase))
+                .Where(method => method.IsVirtual && !method.IsFinal && method.DeclaringType == typeof(MigrationsSqlGeneratorTestBase))
                 .ToList();
 
             Assert.True(baseTests.Count == 0, $"{GetType().ShortDisplayName()} should override the following methods to assert the generated SQL:" + EOL
@@ -718,7 +718,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected DbContextOptions ContextOptions { get; }
         protected IServiceCollection CustomServices { get; }
 
-        protected MigrationSqlGeneratorTestBase(
+        protected MigrationsSqlGeneratorTestBase(
             TestHelpers testHelpers, IServiceCollection customServices = null, DbContextOptions options = null)
         {
             TestHelpers = testHelpers;
