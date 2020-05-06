@@ -197,7 +197,7 @@
     <comment>Debug RelationalEventId.TransactionCommitting</comment>
   </data>
   <data name="LogCommittedTransaction" xml:space="preserve">
-    <value>Committing transaction.</value>
+    <value>Committed transaction.</value>
     <comment>Debug RelationalEventId.TransactionCommitted</comment>
   </data>
   <data name="LogRollingBackTransaction" xml:space="preserve">

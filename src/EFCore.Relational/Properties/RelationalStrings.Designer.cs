@@ -1075,7 +1075,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Committing transaction.
+        ///     Committed transaction.
         /// </summary>
         public static EventDefinition LogCommittedTransaction([NotNull] IDiagnosticsLogger logger)
         {
