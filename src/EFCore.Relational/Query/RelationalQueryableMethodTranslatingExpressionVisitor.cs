@@ -87,8 +87,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         fromSqlQueryRootExpression.EntityType,
                         _sqlExpressionFactory.Select(
                             fromSqlQueryRootExpression.EntityType,
-                            fromSqlQueryRootExpression.Sql,
-                            fromSqlQueryRootExpression.Argument));
+                            new FromSqlExpression(
+                                (fromSqlQueryRootExpression.EntityType.GetViewOrTableMappings().SingleOrDefault()?.Table.Name
+                                ?? fromSqlQueryRootExpression.EntityType.ShortName()).Substring(0, 1).ToLower(),
+                                fromSqlQueryRootExpression.Sql,
+                                fromSqlQueryRootExpression.Argument)));
 
                 case TableValuedFunctionQueryRootExpression tableValuedFunctionQueryRootExpression:
                     var function = tableValuedFunctionQueryRootExpression.Function;
