@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     var newSequenceName = Uniquifier.Uniquify(
                         sequence.Key.Name, modelSequences,
                         sequenceName => (sequenceName, schemaName), maxLength);
-                    Sequence.UpdateSequence((IMutableModel)model, sequence.Value, newSequenceName);
+                    Sequence.SetName((IMutableModel)model, sequence.Value, newSequenceName);
                 }
             }
         }
