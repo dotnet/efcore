@@ -224,9 +224,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual SqlBinaryExpression MakeBinary(
             ExpressionType operatorType, SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping)
         {
-            Check.NotNull(operatorType, nameof(operatorType));
             Check.NotNull(left, nameof(left));
             Check.NotNull(right, nameof(right));
+
+            if (!SqlBinaryExpression.IsValidOperator(operatorType))
+            {
+                return null;
+            }
 
             var returnType = left.Type;
             switch (operatorType)
@@ -416,6 +420,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(operatorType, nameof(operand));
             Check.NotNull(operand, nameof(operand));
             Check.NotNull(type, nameof(type));
+
+            if (!SqlUnaryExpression.IsValidOperator(operatorType))
+            {
+                return null;
+            }
 
             return (SqlUnaryExpression)ApplyTypeMapping(new SqlUnaryExpression(operatorType, operand, type, null), typeMapping);
         }

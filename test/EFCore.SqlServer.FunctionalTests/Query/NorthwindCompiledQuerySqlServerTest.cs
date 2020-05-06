@@ -1,8 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -320,6 +323,14 @@ WHERE (((((((((((((([c].[CustomerID] = @__s1) OR ([c].[CustomerID] = @__s2)) OR 
 SELECT COUNT(*)
 FROM [Customers] AS [c]
 WHERE ((((((((((((([c].[CustomerID] = @__s1) OR ([c].[CustomerID] = @__s2)) OR ([c].[CustomerID] = @__s3)) OR ([c].[CustomerID] = @__s4)) OR ([c].[CustomerID] = @__s5)) OR ([c].[CustomerID] = @__s6)) OR ([c].[CustomerID] = @__s7)) OR ([c].[CustomerID] = @__s8)) OR ([c].[CustomerID] = @__s9)) OR ([c].[CustomerID] = @__s10)) OR ([c].[CustomerID] = @__s11)) OR ([c].[CustomerID] = @__s12)) OR ([c].[CustomerID] = @__s13)) OR ([c].[CustomerID] = @__s14)");
+        }
+
+        public override void MakeBinary_does_not_throw_for_unsupported_operator()
+        {
+            Assert.Equal(
+                CoreStrings.TranslationFailed("DbSet<Customer>()    .Where(c => c.CustomerID == (string)(__parameters[0]))"),
+                Assert.Throws<InvalidOperationException>(
+                    () => base.MakeBinary_does_not_throw_for_unsupported_operator()).Message.Replace("\r", "").Replace("\n", ""));
         }
 
         private void AssertSql(params string[] expected)

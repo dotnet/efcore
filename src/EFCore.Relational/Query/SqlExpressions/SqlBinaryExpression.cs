@@ -46,10 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             //ExpressionType.LeftShift,
         };
 
-        private static ExpressionType VerifyOperator(ExpressionType operatorType)
-            => _allowedOperators.Contains(operatorType)
-                ? operatorType
-                : throw new InvalidOperationException(CoreStrings.UnsupportedBinaryOperator);
+        internal static bool IsValidOperator(ExpressionType operatorType)
+            => _allowedOperators.Contains(operatorType);
 
         /// <summary>
         ///     Creates a new instance of the <see cref="SqlBinaryExpression" /> class.
@@ -70,8 +68,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Check.NotNull(left, nameof(left));
             Check.NotNull(right, nameof(right));
 
-            OperatorType = VerifyOperator(operatorType);
+            if (!IsValidOperator(operatorType))
+            {
+                throw new InvalidOperationException(CoreStrings.UnsupportedBinaryOperator);
+            }
 
+            OperatorType = operatorType;
             Left = left;
             Right = right;
         }
