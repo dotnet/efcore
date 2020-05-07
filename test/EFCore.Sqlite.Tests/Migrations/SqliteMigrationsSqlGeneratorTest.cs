@@ -179,23 +179,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 ");
         }
 
-        [ConditionalFact]
-        public void AddColumnOperation_with_computed_column_SQL()
-        {
-            var ex = Assert.Throws<NotSupportedException>(
-                () => Generate(
-                    new AddColumnOperation
-                    {
-                        Table = "People",
-                        Name = "Birthday",
-                        ClrType = typeof(DateTime),
-                        ColumnType = "TEXT",
-                        IsNullable = true,
-                        ComputedColumnSql = "CURRENT_TIMESTAMP"
-                    }));
-            Assert.Equal(SqliteStrings.ComputedColumnsNotSupported, ex.Message);
-        }
-
         public override void AddColumnOperation_with_unicode_no_model()
         {
             base.AddColumnOperation_with_unicode_no_model();

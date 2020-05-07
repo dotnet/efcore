@@ -606,7 +606,26 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             ColumnOperation operation,
             IModel model,
             MigrationCommandListBuilder builder)
-            => throw new NotSupportedException(SqliteStrings.ComputedColumnsNotSupported);
+        {
+            builder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(name));
+
+            builder
+                .Append(" AS (")
+                .Append(operation.ComputedColumnSql)
+                .Append(")");
+
+            if (operation.ComputedColumnIsStored == true)
+            {
+                builder.Append(" STORED");
+            }
+
+            if (operation.Collation != null)
+            {
+                builder
+                    .Append(" COLLATE ")
+                    .Append(operation.Collation);
+            }
+        }
 
         #endregion
 
