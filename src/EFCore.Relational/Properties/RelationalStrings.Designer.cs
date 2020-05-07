@@ -557,12 +557,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("ClientGroupByNotSupported");
 
         /// <summary>
-        ///     Unexpected join predicate shape: {predicate}.
+        ///     Unknown expression '{expression}' of type - '{expressionType}' encountered in '{visitor}'.
         /// </summary>
-        public static string UnexpectedJoinPredicateShape([CanBeNull] object predicate)
+        public static string UnknownExpressionType([CanBeNull] object expression, [CanBeNull] object expressionType, [CanBeNull] object visitor)
             => string.Format(
-                GetString("UnexpectedJoinPredicateShape", nameof(predicate)),
-                predicate);
+                GetString("UnknownExpressionType", nameof(expression), nameof(expressionType), nameof(visitor)),
+                expression, expressionType, visitor);
 
         /// <summary>
         ///     The subquery '{subquery}' references type '{type}' for which no type mapping could be found.

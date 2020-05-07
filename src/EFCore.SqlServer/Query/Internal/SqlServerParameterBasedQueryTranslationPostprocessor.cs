@@ -36,19 +36,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override (SelectExpression, bool) Optimize(
+        public override SelectExpression Optimize(
             SelectExpression selectExpression,
-            IReadOnlyDictionary<string, object> parametersValues)
+            IReadOnlyDictionary<string, object> parametersValues,
+            out bool canCache)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
             Check.NotNull(parametersValues, nameof(parametersValues));
 
-            var (optimizedSelectExpression, canCache) = base.Optimize(selectExpression, parametersValues);
+            var optimizedSelectExpression = base.Optimize(selectExpression, parametersValues, out canCache);
 
             var searchConditionOptimized = (SelectExpression)new SearchConditionConvertingExpressionVisitor(
                 Dependencies.SqlExpressionFactory).Visit(optimizedSelectExpression);
 
-            return (searchConditionOptimized, canCache);
+            return searchConditionOptimized;
         }
     }
 }

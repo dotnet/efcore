@@ -50,34 +50,33 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="selectExpression"> A select expression to optimize. </param>
         /// <param name="parametersValues"> A dictionary of parameter values to use. </param>
-        /// <returns> A tuple of optimized select expression and a bool value if it can be cached. </returns>
-        public virtual (SelectExpression, bool) Optimize(
+        /// <param name="canCache"> A bool value indicating if the select expression can be cached. </param>
+        /// <returns> An optimized select expression. </returns>
+        public virtual SelectExpression Optimize(
             [NotNull] SelectExpression selectExpression,
-            [NotNull] IReadOnlyDictionary<string, object> parametersValues)
+            [NotNull] IReadOnlyDictionary<string, object> parametersValues,
+            out bool canCache)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
             Check.NotNull(parametersValues, nameof(parametersValues));
 
-            var canCache = true;
-            var (sqlExpressionOptimized, optimizerCanCache) = new NullabilityBasedSqlProcessingExpressionVisitor(
+            selectExpression = new SqlNullabilityProcessor(
                 Dependencies.SqlExpressionFactory,
                 parametersValues,
-                UseRelationalNulls).Process(selectExpression);
-
-            canCache &= optimizerCanCache;
+                UseRelationalNulls).Process(selectExpression, out canCache);
 
             var fromSqlParameterOptimized = new FromSqlParameterApplyingExpressionVisitor(
                 Dependencies.SqlExpressionFactory,
                 Dependencies.TypeMappingSource,
                 Dependencies.ParameterNameGeneratorFactory.Create(),
-                parametersValues).Visit(sqlExpressionOptimized);
+                parametersValues).Visit(selectExpression);
 
-            if (!ReferenceEquals(sqlExpressionOptimized, fromSqlParameterOptimized))
+            if (!ReferenceEquals(selectExpression, fromSqlParameterOptimized))
             {
                 canCache = false;
             }
 
-            return ((SelectExpression)fromSqlParameterOptimized, canCache);
+            return (SelectExpression)fromSqlParameterOptimized;
         }
     }
 }

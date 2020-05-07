@@ -67,8 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 try
                 {
-                    var (selectExpression, canCache) =
-                        _relationalParameterBasedQueryTranslationPostprocessor.Optimize(_selectExpression, parameters);
+                    var selectExpression = _relationalParameterBasedQueryTranslationPostprocessor.Optimize(
+                        _selectExpression, parameters, out var canCache);
                     relationalCommand = _querySqlGeneratorFactory.Create().GetCommand(selectExpression);
 
                     if (canCache)

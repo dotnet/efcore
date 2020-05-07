@@ -3,7 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Query
 {
     public class AsyncFromSqlQuerySqlServerTest : AsyncFromSqlQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
