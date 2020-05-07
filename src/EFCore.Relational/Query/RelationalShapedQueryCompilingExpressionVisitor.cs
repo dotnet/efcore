@@ -94,9 +94,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var relationalCommandCache = new RelationalCommandCache(
                 Dependencies.MemoryCache,
-                RelationalDependencies.SqlExpressionFactory,
                 RelationalDependencies.QuerySqlGeneratorFactory,
-                RelationalDependencies.RelationalParameterBasedQueryTranslationPostprocessorFactory,
+                RelationalDependencies.RelationalParameterBasedSqlProcessorFactory,
                 _useRelationalNulls,
                 selectExpression);
 
