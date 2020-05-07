@@ -12,8 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders
         public string Name { get; set; }
         public string Description { get; set; }
         public string SKU { get; set; }
-        public decimal Retail { get; set; }
-        public decimal CurrentPrice { get; set; }
+        public double Retail { get; set; }
+        public double CurrentPrice { get; set; }
         public int TargetStockLevel { get; set; }
         public int ActualStockLevel { get; set; }
         public int? ReorderStockLevel { get; set; }
