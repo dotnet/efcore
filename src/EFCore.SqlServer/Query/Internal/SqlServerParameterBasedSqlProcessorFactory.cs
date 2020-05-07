@@ -12,9 +12,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class SqlServerParameterBasedQueryTranslationPostprocessorFactory : IRelationalParameterBasedQueryTranslationPostprocessorFactory
+    public class SqlServerParameterBasedSqlProcessorFactory : IRelationalParameterBasedSqlProcessorFactory
     {
-        private readonly RelationalParameterBasedQueryTranslationPostprocessorDependencies _dependencies;
+        private readonly RelationalParameterBasedSqlProcessorDependencies _dependencies;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlServerParameterBasedQueryTranslationPostprocessorFactory(
-            [NotNull] RelationalParameterBasedQueryTranslationPostprocessorDependencies dependencies)
+        public SqlServerParameterBasedSqlProcessorFactory(
+            [NotNull] RelationalParameterBasedSqlProcessorDependencies dependencies)
         {
             _dependencies = dependencies;
         }
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual RelationalParameterBasedQueryTranslationPostprocessor Create(bool useRelationalNulls)
-            => new SqlServerParameterBasedQueryTranslationPostprocessor(_dependencies, useRelationalNulls);
+        public virtual RelationalParameterBasedSqlProcessor Create(bool useRelationalNulls)
+            => new SqlServerParameterBasedSqlProcessor(_dependencies, useRelationalNulls);
     }
 }

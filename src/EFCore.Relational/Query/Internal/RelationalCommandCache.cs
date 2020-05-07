@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly IMemoryCache _memoryCache;
         private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
         private readonly SelectExpression _selectExpression;
-        private readonly RelationalParameterBasedQueryTranslationPostprocessor _relationalParameterBasedQueryTranslationPostprocessor;
+        private readonly RelationalParameterBasedSqlProcessor _relationalParameterBasedSqlProcessor;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -35,16 +35,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public RelationalCommandCache(
             [NotNull] IMemoryCache memoryCache,
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
             [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory,
-            [NotNull] IRelationalParameterBasedQueryTranslationPostprocessorFactory relationalParameterBasedQueryTranslationPostprocessorFactory,
+            [NotNull] IRelationalParameterBasedSqlProcessorFactory relationalParameterBasedSqlProcessorFactory,
             bool useRelationalNulls,
             [NotNull] SelectExpression selectExpression)
         {
             _memoryCache = memoryCache;
             _querySqlGeneratorFactory = querySqlGeneratorFactory;
             _selectExpression = selectExpression;
-            _relationalParameterBasedQueryTranslationPostprocessor = relationalParameterBasedQueryTranslationPostprocessorFactory.Create(useRelationalNulls);
+            _relationalParameterBasedSqlProcessor = relationalParameterBasedSqlProcessorFactory.Create(useRelationalNulls);
         }
 
         /// <summary>
@@ -67,8 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 try
                 {
-                    var selectExpression = _relationalParameterBasedQueryTranslationPostprocessor.Optimize(
-                        _selectExpression, parameters, out var canCache);
+                    var selectExpression = _relationalParameterBasedSqlProcessor.Optimize(_selectExpression, parameters, out var canCache);
                     relationalCommand = _querySqlGeneratorFactory.Create().GetCommand(selectExpression);
 
                     if (canCache)
