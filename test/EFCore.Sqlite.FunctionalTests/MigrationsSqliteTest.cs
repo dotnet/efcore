@@ -387,6 +387,10 @@ CREATE INDEX ""foo"" ON ""People"" (""FirstName"");");
             => AssertNotSupportedAsync(
                 base.Add_check_constraint_with_name, SqliteStrings.InvalidMigrationOperation("CreateCheckConstraintOperation"));
 
+        public override Task Alter_check_constraint()
+            => AssertNotSupportedAsync(
+                base.Alter_check_constraint, SqliteStrings.InvalidMigrationOperation("DropCheckConstraintOperation"));
+
         public override Task Drop_check_constraint()
             => AssertNotSupportedAsync(base.Drop_check_constraint, SqliteStrings.InvalidMigrationOperation("DropCheckConstraintOperation"));
 
