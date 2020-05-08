@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     <para>
         ///         Explicitly specifies a collation to be used in a LINQ query. Can be used to generate fragments such as
-        ///         <code>WHERE customer.name COLLATE 'de_DE' = 'John Doe'</code>.
+        ///         <c>WHERE customer.name COLLATE 'de_DE' = 'John Doe'</c>.
         ///     </para>
         ///     <para>
         ///         The available collations and their names vary across databases, consult your database's documentation for more
