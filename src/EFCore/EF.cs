@@ -27,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <example>
         ///     The following code performs a filter using the a LastUpdated shadow state property.
         ///     <code>
-        ///         var blogs = context.Blogs
-        ///             .Where(b =&gt; EF.Property&lt;DateTime&gt;(b, "LastUpdated") > DateTime.Now.AddDays(-5))
+        /// var blogs = context.Blogs
+        ///     .Where(b =&gt; EF.Property&lt;DateTime&gt;(b, "LastUpdated") > DateTime.Now.AddDays(-5));
         ///     </code>
         /// </example>
         /// <typeparam name="TProperty"> The type of the property being referenced. </typeparam>

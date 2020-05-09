@@ -368,10 +368,10 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <example>
         ///     <code>
-        ///         optionsBuilder.ConfigureWarnings(warnings =>
-        ///             warnings.Default(WarningBehavior.Ignore)
-        ///                     .Log(CoreEventId.IncludeIgnoredWarning, CoreEventId.ModelValidationWarning)
-        ///                     .Throw(RelationalEventId.BoolWithDefaultWarning))
+        /// optionsBuilder.ConfigureWarnings(warnings =>
+        ///     warnings.Default(WarningBehavior.Ignore)
+        ///         .Log(CoreEventId.IncludeIgnoredWarning, CoreEventId.ModelValidationWarning)
+        ///         .Throw(RelationalEventId.BoolWithDefaultWarning));
         ///     </code>
         /// </example>
         /// <param name="warningsConfigurationBuilderAction">

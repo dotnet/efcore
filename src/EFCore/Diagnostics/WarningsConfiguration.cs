@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     Gets the <see cref="WarningBehavior" /> set for the given event ID, or <code>null</code>
+        ///     Gets the <see cref="WarningBehavior" /> set for the given event ID, or <see langword="null" />
         ///     if no explicit behavior has been set.
         /// </summary>
         public virtual WarningBehavior? GetBehavior(EventId eventId)

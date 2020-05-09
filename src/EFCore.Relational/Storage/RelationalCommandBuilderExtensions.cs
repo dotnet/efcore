@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="commandBuilder"> The command builder. </param>
         /// <param name="value"> The object to be written. </param>
-        /// <param name="skipFinalNewline"> If <code>true</code>, then the final newline character is skipped. </param>
+        /// <param name="skipFinalNewline"> If <see langword="true" />, then the final newline character is skipped. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static IRelationalCommandBuilder AppendLines(
             [NotNull] this IRelationalCommandBuilder commandBuilder,

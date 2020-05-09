@@ -524,7 +524,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         <paramref name="source"/> contains no elements.
-        ///     </para>     
+        ///     </para>
         /// </exception>
         public static Task<TSource> LastAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -2386,36 +2386,30 @@ namespace Microsoft.EntityFrameworkCore
         /// <example>
         ///     <para>
         ///         The following query shows including a single level of related entities.
-        ///         <code>
-        ///             context.Blogs.Include(blog => blog.Posts);
-        ///         </code>
+        ///         <code>context.Blogs.Include(blog => blog.Posts)</code>
         ///     </para>
         ///     <para>
         ///         The following query shows including two levels of entities on the same branch.
         ///         <code>
-        ///             context.Blogs
-        ///                 .Include(blog => blog.Posts).ThenInclude(post => post.Tags);
+        /// context.Blogs
+        ///    .Include(blog => blog.Posts).ThenInclude(post => post.Tags)
         ///         </code>
         ///     </para>
         ///     <para>
         ///         The following query shows including multiple levels and branches of related data.
         ///         <code>
-        ///             context.Blogs
-        ///                 .Include(blog => blog.Posts).ThenInclude(post => post.Tags).ThenInclude(tag => tag.TagInfo)
-        ///                 .Include(blog => blog.Contributors);
+        /// context.Blogs
+        ///    .Include(blog => blog.Posts).ThenInclude(post => post.Tags).ThenInclude(tag => tag.TagInfo)
+        ///    .Include(blog => blog.Contributors)
         ///         </code>
         ///     </para>
         ///     <para>
         ///         The following query shows including a single level of related entities on a derived type using casting.
-        ///         <code>
-        ///             context.Blogs.Include(blog => ((SpecialBlog)blog).SpecialPosts);
-        ///         </code>
+        ///         <code>context.Blogs.Include(blog => ((SpecialBlog)blog).SpecialPosts)</code>
         ///     </para>
         ///     <para>
         ///         The following query shows including a single level of related entities on a derived type using 'as' operator.
-        ///         <code>
-        ///             context.Blogs.Include(blog => (blog as SpecialBlog).SpecialPosts);
-        ///         </code>
+        ///         <code>context.Blogs.Include(blog => (blog as SpecialBlog).SpecialPosts)</code>
         ///     </para>
         /// </example>
         /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
@@ -2428,7 +2422,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     A new query with the related data included.
         /// </returns>
         /// <exception cref="System.ArgumentNullException">
-        ///     <paramref name="source"/> or <paramref name="navigationPropertyPath"/> is <c>null</c>.
+        ///     <paramref name="source"/> or <paramref name="navigationPropertyPath"/> is <see langword="null" />.
         /// </exception>
         public static IIncludableQueryable<TEntity, TProperty> Include<TEntity, TProperty>(
             [NotNull] this IQueryable<TEntity> source,
@@ -2476,39 +2470,31 @@ namespace Microsoft.EntityFrameworkCore
         /// <example>
         ///     <para>
         ///         The following query shows including a single level of related entities.
-        ///         <code>
-        ///             context.Blogs.Include(blog => blog.Posts);
-        ///         </code>
+        ///         <code>context.Blogs.Include(blog => blog.Posts)</code>
         ///     </para>
         ///     <para>
         ///         The following query shows including two levels of entities on the same branch.
         ///         <code>
-        ///             context.Blogs
-        ///                 .Include(blog => blog.Posts).ThenInclude(post => post.Tags);
+        /// context.Blogs
+        ///    .Include(blog => blog.Posts).ThenInclude(post => post.Tags)
         ///         </code>
         ///     </para>
         ///     <para>
         ///         The following query shows including multiple levels and branches of related data.
         ///         <code>
-        ///             context.Blogs
-        ///                 .Include(blog => blog.Posts).ThenInclude(post => post.Tags).ThenInclude(tag => tag.TagInfo)
-        ///                 .Include(blog => blog.Contributors);
+        /// context.Blogs
+        ///    .Include(blog => blog.Posts).ThenInclude(post => post.Tags).ThenInclude(tag => tag.TagInfo)
+        ///    .Include(blog => blog.Contributors)
         ///         </code>
         ///     </para>
         ///     <para>
         ///         The following query shows including two levels of entities on the same branch, second one being on derived type using casting.
-        ///         <code>
-        ///             context.Blogs
-        ///                 .Include(blog => blog.Posts).ThenInclude(post => ((SpecialPost)post).SpecialTags);
-        ///         </code>
+        ///         <code>context.Blogs.Include(blog => blog.Posts).ThenInclude(post => ((SpecialPost)post).SpecialTags)</code>
         ///     </para>
         ///     <para>
         ///         The following query shows including two levels of entities on the same branch, second one being on derived type using 'as'
         ///         operator.
-        ///         <code>
-        ///             context.Blogs
-        ///                 .Include(blog => blog.Posts).ThenInclude(post => (post as SpecialPost).SpecialTags);
-        ///         </code>
+        ///         <code>context.Blogs.Include(blog => blog.Posts).ThenInclude(post => (post as SpecialPost).SpecialTags)</code>
         ///     </para>
         /// </example>
         /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
@@ -2541,39 +2527,28 @@ namespace Microsoft.EntityFrameworkCore
         /// <example>
         ///     <para>
         ///         The following query shows including a single level of related entities.
-        ///         <code>
-        ///             context.Blogs.Include(blog => blog.Posts);
-        ///         </code>
+        ///         <code>context.Blogs.Include(blog => blog.Posts)</code>
         ///     </para>
         ///     <para>
         ///         The following query shows including two levels of entities on the same branch.
-        ///         <code>
-        ///             context.Blogs
-        ///                 .Include(blog => blog.Posts).ThenInclude(post => post.Tags);
-        ///         </code>
+        ///         <code>context.Blogs.Include(blog => blog.Posts).ThenInclude(post => post.Tags)</code>
         ///     </para>
         ///     <para>
         ///         The following query shows including multiple levels and branches of related data.
         ///         <code>
-        ///             context.Blogs
-        ///                 .Include(blog => blog.Posts).ThenInclude(post => post.Tags).ThenInclude(tag => tag.TagInfo)
-        ///                 .Include(blog => blog.Contributors);
+        /// context.Blogs
+        ///    .Include(blog => blog.Posts).ThenInclude(post => post.Tags).ThenInclude(tag => tag.TagInfo)
+        ///    .Include(blog => blog.Contributors)
         ///         </code>
         ///     </para>
         ///     <para>
         ///         The following query shows including two levels of entities on the same branch, second one being on derived type.
-        ///         <code>
-        ///             context.Blogs
-        ///                 .Include(blog => blog.Posts).ThenInclude(post => ((SpecialPost)post).SpecialTags);
-        ///         </code>
+        ///         <code>context.Blogs.Include(blog => blog.Posts).ThenInclude(post => ((SpecialPost)post).SpecialTags)</code>
         ///     </para>
         ///     <para>
         ///         The following query shows including two levels of entities on the same branch, second one being on derived type using alternative
         ///         method.
-        ///         <code>
-        ///             context.Blogs
-        ///                 .Include(blog => blog.Posts).ThenInclude(post => (post as SpecialPost).SpecialTags);
-        ///         </code>
+        ///         <code>context.Blogs.Include(blog => blog.Posts).ThenInclude(post => (post as SpecialPost).SpecialTags)</code>
         ///     </para>
         /// </example>
         /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
@@ -2636,22 +2611,18 @@ namespace Microsoft.EntityFrameworkCore
         /// <example>
         ///     <para>
         ///         The following query shows including a single level of related entities.
-        ///         <code>
-        ///             context.Blogs.Include("Posts");
-        ///         </code>
+        ///         <code>context.Blogs.Include("Posts")</code>
         ///     </para>
         ///     <para>
         ///         The following query shows including two levels of entities on the same branch.
-        ///         <code>
-        ///             context.Blogs.Include("Posts.Tags");
-        ///         </code>
+        ///         <code>context.Blogs.Include("Posts.Tags")</code>
         ///     </para>
         ///     <para>
         ///         The following query shows including multiple levels and branches of related data.
         ///         <code>
-        ///             context.Blogs
-        ///                 .Include("Posts.Tags.TagInfo')
-        ///                 .Include("Contributors");
+        /// context.Blogs
+        ///    .Include("Posts.Tags.TagInfo')
+        ///    .Include("Contributors")
         ///         </code>
         ///     </para>
         /// </example>
